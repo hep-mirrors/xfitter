@@ -64,6 +64,9 @@ For support information, please visit https://wiki-zeuthen.desy.de/xFitter/xFitt
 
       ewparam.txt    --  controls electroweak parameters.
 
+      parameters.yaml -- new unified parameter file, to control parameters transfered to the
+                         reaction interfaces. 
+
 
   b) Inclusion of data files
 -------------------------------
@@ -72,11 +75,16 @@ For support information, please visit https://wiki-zeuthen.desy.de/xFitter/xFitt
     files are included:
 
 &InFiles
-    NInputFiles = 4
-    InputFileNames(1) = 'datafiles/H1ZEUS_NC_e-p_HERA1.0.dat'
-    InputFileNames(2) = 'datafiles/H1ZEUS_NC_e+p_HERA1.0.dat'
-    InputFileNames(3) = 'datafiles/H1ZEUS_CC_e-p_HERA1.0.dat'
-    InputFileNames(4) = 'datafiles/H1ZEUS_CC_e+p_HERA1.0.dat'
+    NInputFiles = 7
+
+    InputFileNames(1) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
+    InputFileNames(2) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
+    InputFileNames(3) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
+    InputFileNames(4) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
+    InputFileNames(5) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
+    InputFileNames(6) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat'
+    InputFileNames(7) = 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat'
+
 &End
 
     To include more files:
@@ -85,12 +93,15 @@ For support information, please visit https://wiki-zeuthen.desy.de/xFitter/xFitt
 
 another option would be:
 
-    NInputFiles = 4
+    NInputFiles = 7
     InputFileNames =
- 'datafiles/hera/H1ZEUS_NC_e-p_HERA1.0.corr.dat'
- 'datafiles/hera/H1ZEUS_NC_e+p_HERA1.0.corr.dat'
- 'datafiles/hera/H1ZEUS_CC_e-p_HERA1.0.corr.dat'
- 'datafiles/hera/H1ZEUS_CC_e+p_HERA1.0.corr.dat'
+ 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat'
+ 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat'
+ 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat'
+ 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat'
+ 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat'
+ 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat'
+ 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat'
 
 -> then the order does matter of the files listed.
 
@@ -132,10 +143,10 @@ another option would be:
    of a 2-dimensional table. Each line of the data table corresponds to a
    data point, the meaning of the columns is specified in the file header.
 
-   For example, a header for HERA-I combined H1-ZEUS data for e+p neutral 
+   For example, a header for HERA combined H1-ZEUS data for e+p neutral 
    current scattering cross section is given in the file
 
-       datafiles/H1ZEUS_NC_e-p_HERA1.0.dat
+       datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat
 
    The format of the file follows standard "namelist" conventions. Comments 
    start with exclamation mark.  Pre-defined variables are:
@@ -216,7 +227,7 @@ another option would be:
                       uncertainty must have unique name. To specify correlation across
                       data files, same name must be used for different files.  
                        
-      SystScales  --- (array of float)
+      SystScales  --- (array of float, optional)
                       For special studies, systematic uncertainties can be scaled
                       The numbering of uncertainties starts from the first column
                       with the ColumnType 'Error'. For example, setting 
@@ -406,7 +417,8 @@ set title
 new  13p HERAPDF
 parameters
    1    'Ag'                       0.0000      0.
-   2    'Bg'                      -0.226958    1.126400e-03
+   2    'Bg'                     -0.061953    0.027133
+
 .....
 
 -  The first 3 lines set title and announces MINUIT the list of parameters	
@@ -421,7 +433,6 @@ parameters
 61-70 D     parameters
 71-80 Sea   parameters
 81-90 Delta parameters
-91-100 other parameters: alphas (95), fs=Dbar/str (96), fc=Ubar/ch (97)
 
 
 - second column represents just user defined names 
@@ -438,7 +449,7 @@ Only parameters that have the step size non-zero are let to vary in the fit (fre
 Another way to fix the parameters is simply by typing at the end of the 
 list of parameters (make sure there is one line free between):
 
-FIX 96 --> this one fixes parameter 96
+FIX 10 --> this one fixes parameter 10
 
 Commands taken by minuit:
 call fcn 3  ->  fit is not performed, only 1 iteration, useful for testing
@@ -532,14 +543,14 @@ genetic
 
   The quality of the fit can be judged based on total chi2 per degrees of freedom.
   It is printed for each iteration as 
-                      Iteration   Chi2   NDF       Chi2/NDF
-   xfitter f,ndf,f/ndf      3      588.64 579        1.02
-together with PDFs:
-uv:    3.7171    0.6656    4.6522    0.0000    9.6938    0.0000    0.0000    0.0000    0.0000    0.0000
-dv:    2.1893    0.6656    4.2914    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
-Ub:    0.1122   -0.1651    2.5820    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
-Db:    0.1626   -0.1651    2.4048    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
-GL:    6.7729    0.2138    9.0138    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+
+                         1     1363.45  1131        1.21
+  ===========  Calls to fcn= IfcnCount            2
+uv:    5.5480    0.8105    4.8235    0.0000    9.9214    0.0000    0.0000    0.0000    0.0000    0.0000
+dv:    6.2834    1.0300    4.8463    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+Ub:    0.1613   -0.1273    7.0597    1.5481    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+Db:    0.2688   -0.1273    9.5862    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+GL:    2.2719   -0.0620    5.5624    0.0000    0.0000    0.0000    0.1661   -0.3831   25.0000    0.0000
 ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
 
   The resulting chi2 is reported for each data set and for correlated 
@@ -576,7 +587,7 @@ ST:    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0
   Finally, the xFitter package provides PDFs in LHAPDF format (version 5 and 6). 
   To obtain the LHAPDF5.X grid file, run tools/tolhapdf.cmd script. The script 
   produces PDFs.LHgrid file which can be read by lhapdf version lhapdf-5.8.6.tar.gz
-  or later. The LHAPDF6.X version grids are produced atomatically in hf_pdf directory
+  or later. The LHAPDF6.X version grids are produced atomatically in xfitter_pdf directory
 
 
 

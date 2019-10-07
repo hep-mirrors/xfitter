@@ -2004,11 +2004,15 @@ c---------------------------------
 
       XMUF = sqrt(XLAM**2*exp(S0*exp(S)))
 
+
       xmuf2=xmuf*xmuf
 cv      CALL GetAllPDFs(prefix1,iset,x,xmuf,upv,dnv,usea,dsea,str,sbar,
 cv     &     chm,cbar,bot,bbar,glu,phot)
 cv
-        CALL HF_GET_PDFS(x,xmuf2,PDFSF)
+
+!!        CALL HF_GET_PDFS(x,xmuf2,PDFSF)
+      call rt_get_pdfs(x, xmuf, PDFSF)   !! use pointer-function instead
+
 cv          call FPDFXQ(iPDFSET,x,q2, PDFSF, inull) 
           glu=pdfSF(0)
           upv=pdfSF(2)-pdfSF(-2)
@@ -2064,7 +2068,9 @@ C--   G.W. 15/06/2007 Use new routine from PEGASUS.
 cv      ALPHA = ALPHAS(sqrt(QS))
 c---------------------------------
 cv  connect to QCDNUM alphas
-      alpha = hf_get_alphas(qs) 
+
+!!      alpha = hf_get_alphas(qs) 
+      alpha = rt_get_alphaS(sqrt(qs)) !! use interface instead
 
       RETURN
       END

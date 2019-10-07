@@ -48,7 +48,7 @@ extern void info_save(const Info *info, FILE *output);
 extern Info *info_dup(const Info *info);
 extern int info_cmp(Info *info1, Info *info2);
 
-extern Info_Node *info_node_where(Info *info, char *key);
+extern Info_Node *info_node_where(const Info *info, char *key);
 extern int info_node_update_str(Info_Node *node, const char *new_value);
 extern Info_Node *info_node_dup(Info_Node *node);
 extern int info_node_cmp(Info_Node *node1, Info_Node *node2);

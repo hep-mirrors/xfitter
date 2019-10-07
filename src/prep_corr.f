@@ -12,8 +12,9 @@
 
 
       integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax,NCorrMax
+      integer NCorrMaxBins
 
-      parameter (NIdMax = 5)
+      parameter (NIdMax = 6)
       character *80 Name1
       character *80 Name2
       character *80 MatrixType
@@ -32,7 +33,9 @@ C     Temporary buffer to read the data (allows for comments starting with *)
 
 c     matrix buffer
       parameter (NCorrMax = 100*100)
-      double precision matrixbuffer(NCorrMax,NCorrMax)
+      parameter (NCorrMaxBins = 300)
+      !double precision matrixbuffer(NCorrMax,NCorrMax)
+      double precision matrixbuffer(NCorrMaxBins,NCorrMaxBins)
       double precision CovRescale(NCorrMax)
       logical MatrixFormatIsTable
 
@@ -193,10 +196,10 @@ c     Check the number of bin ids does not exceed maximum allowed
          endif
 
 c     Check the number of correlation entries does not exceed maximum allowed
-         if(NCorr.gt.NCorrMax) then
-            Call HF_ERRLOG(13012501,
-     $           'S: NCorrMax parameter in prep_corr.f too small')
-         endif
+!         if(NCorr.gt.NCorrMax) then
+!            Call HF_ERRLOG(13012501,
+!     $           'S: NCorrMax parameter in prep_corr.f too small')
+!         endif
 
 c     Check that the corresponding datasets exist 
          if((idataset1.lt.1).or.(idataset2.lt.1)) then
@@ -378,7 +381,7 @@ c     Check that bin_i and bin_j are identified
                      cycle
                   else 
                      Call HF_ERRLOG(10040005,
-     $ 'W: Unable to find a identify points for correlation entry')
+     $ 'W: Unable to find a identify points for correlation entry'//ndataTmp)
                      cycle
                   endif
                endif

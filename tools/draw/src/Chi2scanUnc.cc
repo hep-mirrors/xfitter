@@ -25,7 +25,7 @@ bool Chi2scanUnc()
 {
   vector <TCanvas*> cnvs;
 
-  //This is a list of all chi2 scan, but the code currently work assuming there is only one parameter in the list of directories
+  //This is a list of all chi2 scanned parameters, but the code currently work assuming there is only one parameter in the list of directories
   vector <string> list = chi2scanlist();
   if (list.size() == 0)
     return true;
@@ -139,6 +139,7 @@ bool Chi2scanUnc()
 
   fprintf(ftab,"  $%s$ ", chi2scanmap[*(opts.labels.begin())].label.c_str());
   for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
+    //fprintf(ftab," &  %s ", Round(chi2scanmap[*itl].min, min(chi2scanmap[*itl].deltap,chi2scanmap[*itl].deltam)/10.)[0].c_str());
     fprintf(ftab," &  %s ", Round(chi2scanmap[*itl].min, min(chi2scanmap[*itl].deltap,chi2scanmap[*itl].deltam))[0].c_str());
   fprintf(ftab,"\\\\ \n");
   fprintf(ftab,"      \\midrule\n");
@@ -154,9 +155,11 @@ bool Chi2scanUnc()
 	  if (unc_p[l][u] != 0 && unc_m[l][u] != 0)
 	    {
 	      if (unc_p[l][u] == unc_m[l][u]) //symmetric case
-		fprintf(ftab,"& $\\pm %s$", Round(unc_p[l][u], unc_p[l][nunc-1])[0].c_str());
+		fprintf(ftab,"& $\\pm %s$", Round(unc_p[l][u], unc_p[l][nunc-1]/10.)[0].c_str());
 	      else //asymmetric case
 		fprintf(ftab,"& $+%s %s$", 
+			//Round(unc_p[l][u], unc_p[l][nunc-1]/10.)[0].c_str(), 
+			//Round(unc_m[l][u], unc_m[l][nunc-1]/10.)[0].c_str());
 			Round(unc_p[l][u], unc_p[l][nunc-1])[0].c_str(), 
 			Round(unc_m[l][u], unc_m[l][nunc-1])[0].c_str());
 	    }

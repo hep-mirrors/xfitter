@@ -212,10 +212,10 @@ private:
     if(qs.find(QUOT) == string::npos) return !compare(start, qs.size(), qs);
     string S = substr(start);
     if(S.size() < qs.size()) return false;
-    char *qp;
-    const char *sp = S.c_str();
+    //    char *qp;
+    //     const char *sp = S.c_str();
     string Q(qs);
-    int i,j;
+    size_t i,j;
     for(i=j=0; i < qs.size(); i++, j++) if(qs[i] != QUOT && qs[i] != S[i]) return false;
     return true;
   }
@@ -247,7 +247,7 @@ public:
     // cout << "Match: " << Ms << endl;
     StringList Ls = Ms.Split(string(1,STAR));
     size_type cp=0;
-    int cStar=0;
+    size_t cStar=0;
     int st, maxstart;
     for(cStar=0; cStar < Ls.size(); cStar++) {
       maxstart = size() -cp - Ls[cStar].size();

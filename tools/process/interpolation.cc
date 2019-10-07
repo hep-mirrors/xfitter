@@ -65,4 +65,8 @@ void interpolation(double x, double Q, char* pdfset_path,int n_flavours, int* pd
   cerr<< "S: the grid combination is not applicable to LHAPDFv < 6.x" << endl;
   exit(1);
  }
+double alphas_ipol(double q, char* pdfset_path, int pdf_number){
+  cerr<< "S: the alphaS interpolation is not applicable to LHAPDFv < 6.x" << endl;
+  exit(1);
+ }
 #endif

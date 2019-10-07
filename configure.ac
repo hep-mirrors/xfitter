@@ -1,20 +1,38 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([XFitter],[1.2.0],[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
+
+AC_INIT([XFitter],
+m4_esyscmd(git describe --always 2>&1 | awk '/Not a git/  {print "2.0.0\033@<:@1;32m FrozenFrog\033@<:@0m"}; !/Not a git/ {print $0}'  | tr -d '\n'),
+[xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
-	
+
 #Suppress verbose output when compiling (use make V=99 for verbose output)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-AM_INIT_AUTOMAKE
+#Make sure long file names are saved by make dist:
+AM_INIT_AUTOMAKE([1.9 tar-ustar])
 AC_PREFIX_DEFAULT(${PWD})
 
 # Checks for programs.
-AC_PROG_FC([gfortran])
-AC_PROG_F77([gfortran])
+
+# Try to respect users' Fortran compiler variables
+if test "x$FC" == "x"; then
+  if test "x$F77" == "x"; then
+    FC="$GFORTRAN"
+  else
+    FC="$F77"
+  fi
+fi
+
+# Reset F77:
+F77=$FC
+
+AC_PROG_FC
+AC_PROG_F77
 
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+
 
 AM_PROG_CC_C_O
 # Fortran configures
@@ -39,27 +57,65 @@ m4_include([m4/ax_openmp.m4])
 # A lot of code written with 132 char. strings.
 #
 if test "uname -m" = "64"; then
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
-   FFLAGS="$FFLAGS -ffixed-line-length-132 -cpp  -fPIC -mcmodel=medium"
+   FCFLAGS="$FCFLAGS  -cpp  -fPIC -mcmodel=medium"
+   FFLAGS="$FFLAGS    -cpp  -fPIC -mcmodel=medium"
 else
    echo "Disabling mcmodel=medium option"
-   FCFLAGS="$FCFLAGS -ffixed-line-length-132  -fPIC -cpp"
-   FFLAGS="$FFLAGS -ffixed-line-length-132  -fPIC -cpp"
+   FCFLAGS="$FCFLAGS   -fPIC -cpp"
+   FFLAGS="$FFLAGS     -fPIC -cpp"
 fi    
+
+
+# fortran detection:
+testtest=`echo $FC  | awk '/ifort/ {print "yes"}'`
+
+if test "$testtest" = "yes"; then
+# ifortran:
+  AC_MSG_WARN([Intel compiler detected, setting options])
+  FCFLAGS="$FCFLAGS -132 -Difort=1"
+  FFLAGS="$FFLAGS -132 -Difort=1"
+  NOAUTOFCFLAG="-noauto"
+else
+# gfortran most likely:
+  AC_MSG_NOTICE([gfortran compiler options])
+  FCFLAGS="$FCFLAGS  -ffixed-line-length-132 -Difort=0"
+  FFLAGS="$FFLAGS  -ffixed-line-length-132 -Difort=0"
+  NOAUTOFCFLAG="-fno-automatic"
+fi
+
+AC_SUBST(NOAUTOFCFLAG)
 
 CFLAGS="$CFLAGS -fPIC"
 CPPFLAGS="$CPPFLAGS -fPIC"
+CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++"
 
 # check for lapack and blas
+AC_MSG_CHECKING([for blas])
 AX_BLAS
 if test "$ax_blas_ok" = "no"; then
-   AC_MSG_ERROR([Cannot find BLAS libraries])
+   AC_MSG_ERROR([Cannot find BLAS libraries. Consider using tools/install-lapack to install.])
 fi
 
+AC_MSG_CHECKING([for lapack])
 AX_LAPACK
 if test "$ax_lapack_ok" = "no"; then
-   AC_MSG_ERROR([Cannot find LAPACK libraries])
+   AC_MSG_ERROR([Cannot find LAPACK libraries. Consider using tools/install-lapack to install.])
 fi
+
+
+AC_MSG_CHECKING([for yaml-cpp])
+AC_LANG_PUSH(C++)
+AC_LINK_IFELSE(
+ [AC_LANG_PROGRAM([#include <yaml-cpp/yaml.h>],[YAML::Node node;])],
+ [AC_MSG_RESULT([yes])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[true])],
+ [AC_MSG_RESULT([no])]
+ [AM_CONDITIONAL([HAVE_YAMLPP],[false])]
+ [AC_MSG_ERROR([yaml-cpp is not installed. Install manually, or use tools/install-yaml helper script.])]
+ )
+AC_LANG_POP(C++)
+
+
 
 AC_ARG_ENABLE([process],
                  [AS_HELP_STRING([--enable-process],[enable xfitter-process tool])])
@@ -76,7 +132,7 @@ AS_IF([test "$enable_process" = "yes"], [
                                 [AM_CONDITIONAL([HAVE_YAML],[true])],
                                 [AC_MSG_RESULT([no])]
                                 [AM_CONDITIONAL([HAVE_YAML],[false])]
-                                [AC_MSG_WARN([libyaml is not installed, xfitter-process tool is not available.])]
+                                [AC_MSG_WARN([libyaml is not installed, xfitter-process tool is not available. Consider installing using tools/install-yaml helper script.])]
                                 )
                 LIBS=$SAVED_LIBS
         AC_LANG_POP(C)],
@@ -119,7 +175,7 @@ fi
 
 
 # Checks for sources.
-AC_CONFIG_SRCDIR([src/main.f])
+AC_CONFIG_SRCDIR([xfitter/cmain.cxx])
 
 ## Checks for libraries.
 #AC_MSG_CHECKING([for CERN libraries])
@@ -155,9 +211,11 @@ if test x$qcdnum_config == x; then
 else 
   QCDNUMVERS=`qcdnum-config --version`
   QCDNUMLIBS=`qcdnum-config --ldflags`
+  QCDNUM_CPPFLAGS=`qcdnum-config --cppflags`
   AC_MSG_RESULT([Using $qcdnum_config version $QCDNUMVERS])
   AC_SUBST(QCDNUMLIBS)
-  AX_COMPARE_VERSION([17-01-11],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-11 or later needed).])],[])
+  AC_SUBST(QCDNUM_CPPFLAGS)
+  AX_COMPARE_VERSION([17-01-14],[gt],[$QCDNUMVERS],[AC_MSG_ERROR([QCDNUM version outdated (17-01-14 or later needed).])],[])
 fi
 
 # check for lhapdf installation
@@ -206,6 +264,45 @@ if test $enable_apfel; then
   fi
 fi
 AM_CONDITIONAL(ENABLE_APFEL, [test $enable_apfel])
+
+# check for apfelxx installation
+AC_ARG_ENABLE([apfelxx],
+  [AC_HELP_STRING(--enable-apfelxx, [use apfelxx (default=no)])])
+if test $enable_apfelxx; then
+  AC_MSG_CHECKING([for apfelxx installation])
+  apfelxx_config=`which apfelxx-config`
+  if test x$apfelxx_config == x; then
+    AC_MSG_ERROR([Unable to find apfelxx-config.])
+  else
+    APFELXXVERS=`apfelxx-config --version`
+    APFELXX_CPPFLAGS=`apfelxx-config --cppflags`
+    APFELXX_LDFLAGS=`apfelxx-config --ldflags`
+    AC_MSG_RESULT([Using $apfelxx_config version $APFELXXVERS])
+    AC_SUBST(APFELXX_CPPFLAGS)
+    AC_SUBST(APFELXX_LDFLAGS)
+    AC_DEFINE([APFELXX_ENABLED],[1],[Define if APFEL++ is enabled])
+    AX_COMPARE_VERSION([4.0.0],[gt],[$APFELXXVERS],[AC_MSG_ERROR([APFEL++ version outdated (4.0.0 or later needed).])],[])
+  fi
+fi
+AM_CONDITIONAL(ENABLE_APFELXX, [test $enable_apfelxx])
+
+# basic check for CERES installation
+AC_ARG_ENABLE([ceres],
+  [AC_HELP_STRING(--enable-ceres, [use ceres (default=no)])])
+if test $enable_ceres; then
+  AC_MSG_CHECKING([for ceres installation])
+  ceresDir=`ls  $CERES_DIR`
+  if test x$ceresDir == x; then
+    AC_MSG_ERROR([Unable to find CERES_DIR])
+  else
+    CERES_CPPFLAGS="-I${CERES_DIR}/include/  -I/usr/include/eigen3"
+    CERES_LDFLAGS="-L${CERES_DIR}/lib  -lceres -lglog -lgflags -lpthread -lspqr -lcholmod -lccolamd -lcamd -lcolamd -lamd -llapack -lblas -lsuitesparseconfig -lrt -lcxsparse -lrt -lcxsparse -lgomp"
+    AC_SUBST(CERES_CPPFLAGS)
+    AC_SUBST(CERES_LDFLAGS)
+    AC_DEFINE([CERES_ENABLED],[1],[Define if APFEL++ is enabled])    
+  fi
+fi
+AM_CONDITIONAL(ENABLE_CERES, [test $enable_ceres])
 
 # check for mela installation
 AC_ARG_ENABLE([mela],
@@ -418,6 +515,17 @@ if test x$enable_hathor == xyes; then
     AC_MSG_ERROR([HATHOR_ROOT environment variable is not set!.])
   else 
     AC_MSG_RESULT([Using $HATHOR_ROOT])
+    AC_CHECK_FILE([$HATHOR_ROOT/libHathor.a],,[AC_MSG_ERROR([HATHOR_ROOT must contain libHathor.a])])
+    # check which hathor libraries are available:
+    # (1) Hathor-1.5 contains one library libHathor.a,
+    # (2) Hathor-2.0 contains two libraries libHathor.a and libff.a, both have to be used
+    HATHOR_LIBS="$HATHOR_ROOT/libHathor.a"
+    AC_CHECK_FILE([$HATHOR_ROOT/libff.a],HATHOR_LIBS+=" $HATHOR_ROOT/libff.a",)
+    echo "Found Hathor libraries $HATHOR_LIBS"
+    AC_SUBST(HATHOR_LIBS)
+  fi
+  if test ! $enable_lhapdf; then
+    AC_MSG_ERROR([Hathor-2.0 requires LHAPDF: please configure with --enable-lhapdf])
   fi
 fi
 AM_CONDITIONAL(ENABLE_HATHOR, [test x$enable_hathor == xyes])
@@ -434,28 +542,28 @@ AM_CONDITIONAL(ENABLE_HVQMNR, [test x$enable_hvqmnr == xyes])
 AC_ARG_ENABLE([root],[AS_HELP_STRING([--enable-root],[use ROOT libraries])]): ${enable_root=yes}
 
 AS_IF([test "$enable_root" = "yes"], [
-	    AC_MSG_CHECKING([for ROOT installation])
-	    root_config=`which root-config`
-	    if test x$root_config == x; then
-	      AC_MSG_ERROR([Unable to find root-config, install ROOT or configure with --disable-root])
-	    else 
-	      AC_MSG_RESULT([Using $root_config])
-	      root_ok=1
-	      ROOT_CFLAGS=`root-config --cflags`
-	      ROOT_LDFLAGS=`root-config --ldflags`
-	      ROOT_LIBS=`root-config --libs`
-	      AC_SUBST(ROOT_CFLAGS)
-	      AC_SUBST(ROOT_LDFLAGS)
-	      AC_SUBST(ROOT_LIBS)
-	      AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
-	    fi
-	  ],
-	  [
-	    AC_MSG_WARN([ROOT libraries are disabled, xfitter-draw not available])
-	    if test x$enable_applgrid == xyes; then
-	       AC_MSG_ERROR([Root is required for APPLGRID])
-	    fi
-	    ])
+            AC_MSG_CHECKING([for ROOT installation])
+            root_config=`which root-config`
+            if test x$root_config == x; then
+              AC_MSG_ERROR([Unable to find root-config, install ROOT or configure with --disable-root])
+            else
+              AC_MSG_RESULT([Using $root_config])
+              root_ok=1
+              ROOT_CFLAGS=`root-config --cflags`
+              ROOT_LDFLAGS=`root-config --ldflags`
+              ROOT_LIBS=`root-config --libs`
+              AC_SUBST(ROOT_CFLAGS)
+              AC_SUBST(ROOT_LDFLAGS)
+              AC_SUBST(ROOT_LIBS)
+              AC_DEFINE([ROOT_ENABLED],[1],[Define if ROOT is enabled])
+            fi
+          ],
+          [
+            AC_MSG_WARN([ROOT libraries are disabled, xfitter-draw not available])
+            if test x$enable_applgrid == xyes; then
+               AC_MSG_ERROR([Root is required for APPLGRID])
+            fi
+            ])
 AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
 
@@ -482,37 +590,6 @@ AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 #fi
 #AM_CONDITIONAL([HAVE_ROOT],test $root_ok)
 
-
-# UPDFs
-
-AC_ARG_ENABLE([updf],
-  [AC_HELP_STRING(--enable-updf, [use uPDF evolution (default=no)])])
-AM_CONDITIONAL(ENABLE_UPDF, [test x$enable_updf == xyes])
-
-if test x$enable_updf == xyes; then
-
-   AC_MSG_CHECKING([for CASCADE libraries])
-   if test "x$CASCADE_ROOT" = "x"; then
-      AC_MSG_ERROR([CASCADE enviroment not set ! CASCADE_ROOT/lib must point to libbases.als.  Check Cascade/README for more details.])
-   else
-      AC_SUBST([CASCADE_SOURCE], ["$CASCADE_ROOT"])
-      AC_SUBST([CASCADELIBS], ["-L$CASCADE_ROOT/lib -lbases"])
-      AC_MSG_RESULT([Using -L$CASCADE_ROOT/lib  -lbases])
-   fi
-
-   AC_MSG_CHECKING([for PYTHIA libraries])
-   if test "x$PYTHIA_ROOT" = "x"; then
-      AC_MSG_ERROR([PYTHIA enviroment not set ! PYTHIA_ROOT/lib must point to ....])
-   else
-      AC_SUBST([PYTHIA_SOURCE], ["$PYTHIA_ROOT"])
-      AC_SUBST([PYTHIALIBS], ["-L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o "])
-      AC_MSG_RESULT([Using -L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o ])
-   fi
-      AC_SUBST([CASCADE_SOURCE], ["$CASCADE_ROOT"])
-      AC_SUBST([CASCADELIBS], ["-L$CASCADE_ROOT/lib -lbases"])
-      AC_SUBST([PYTHIA_SOURCE], ["$PYTHIA_ROOT"])
-      AC_SUBST([PYTHIALIBS], ["-L$PYTHIA_ROOT/lib -lpythia6 -lpythia6_dummy $PYTHIA_ROOT/lib/pydata.o "])
-fi
 
 #AC_F77_LIBRARY_LDFLAGS
 
@@ -548,34 +625,22 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN([$PACKAGE_NAME],[doxygen.cfg])
 
 # Output
-AC_CONFIG_FILES([include/Makefile 
+AC_CONFIG_FILES([include/Makefile
                  src/Makefile
+                 xfitter/Makefile
                  common/Makefile
                  common/linalg/Makefile
                  common/num_utils/Makefile
-                 interfaces/src/Makefile
-                 interfaces/include/Makefile
-                 FastNLO/src/Makefile
-                 FastNLO/include/Makefile
-                 FastNLO/include/fastnlotk/Makefile
                  minuit/src/Makefile
                  EW/src/Makefile
-                 RT/src/Makefile
                  DiffDIS/src/Makefile
                  DiffDIS/include/Makefile
-                 DIPOLE/src/Makefile
-                 DY/src/Makefile
-                 DY/include/Makefile
-                 Hathor/src/Makefile
-                 HVQMNR/src/Makefile
-                 ACOT/src/Makefile
-                 SACOT/src/Makefile 
                  ABM/src/Makefile
-		 FONLL/src/Makefile
-                 Cascade/src/Makefile
+                 RT/src/Makefile
                  genetic/mixmax_r004/Makefile
                  genetic/src/Makefile
                  QEDevol/src/Makefile
+                 QEDevol/include/Makefile
                  pdf2yaml/Makefile
                  cute/src/Makefile
                  cute/include/Makefile
@@ -587,9 +652,59 @@ AC_CONFIG_FILES([include/Makefile
                  tools/draw/src/Makefile
                  tools/draw/include/Makefile
                  tools/MakeLHAPDF/Makefile
-                 input_steering/Makefile
-		 xfitter-config
+                 tools/Makefile
+                 datafiles/Makefile
+                 datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/Makefile
+                 doc/logo/Makefile
+                 python/Makefile
+                 xfitter-config
+                 evolutions/BaseEvolution/src/Makefile
+                 evolutions/APFEL/src/Makefile
+                 evolutions/FlipUD/src/Makefile
+                 evolutions/FlipCharge/src/Makefile
+                 evolutions/APFELxx/src/Makefile
+                 evolutions/LHAPDF/src/Makefile
+                 evolutions/QCDNUM/src/Makefile
+                 minimizers/BaseMinimizer/src/Makefile
+                 minimizers/CERESMinimizer/src/Makefile
+                 minimizers/MINUITMinimizer/src/Makefile
+                 pdfparams/NegativeGluonPdfParam/src/Makefile
+                 pdfparams/BasePdfParam/src/Makefile
+                 pdfparams/Factor/src/Makefile
+                 pdfparams/Expression/src/Makefile
+                 pdfparams/HERAPDF_PdfParam/src/Makefile
+                 pdfparams/PolySqrtPdfParam/src/Makefile
+                 pdfparams/ABMPgluonPdfParam/src/Makefile
+                 pdfparams/ABMPseaPdfParam/src/Makefile
+                 pdfparams/ABMPvalencePdfParam/src/Makefile
+                 pdfdecompositions/LHAPDFDecomposition/src/Makefile
+                 pdfdecompositions/UvDvUbarDbarS/src/Makefile
+                 pdfdecompositions/SU3_PionPdfDecomposition/src/Makefile
+                 pdfdecompositions/BasePdfDecomposition/src/Makefile
+                 pdfdecompositions/UvDvUbarDbarSSbarPdfDecomposition/src/Makefile
+                 reactions/AFB/src/Makefile
+                 reactions/APPLgrid/src/Makefile
+                 reactions/BaseDISCC/src/Makefile
+                 reactions/BaseDISNC/src/Makefile
+                 reactions/BaseHVQMNR/src/Makefile
+                 reactions/cbdiff/src/Makefile
+                 reactions/fastNLO/src/Makefile
+                 reactions/FFABM_DISCC/src/Makefile
+                 reactions/FFABM_DISNC/src/Makefile
+                 reactions/FONLL_DISCC/src/Makefile
+                 reactions/FONLL_DISNC/src/Makefile
+                 reactions/Fractal_DISNC/src/Makefile
+                 reactions/HathorSingleTop/src/Makefile
+                 reactions/Hathor/src/Makefile
+                 reactions/HVQMNR_LHCb_7TeV_beauty/src/Makefile
+                 reactions/HVQMNR_LHCb_7TeV_charm/src/Makefile
+                 reactions/KFactor/src/Makefile
+                 reactions/KMatrix/src/Makefile
+                 reactions/RT_DISNC/src/Makefile
                  Makefile])
+#
+#                 reactions/KRunning/src/Makefile
+
 
 if test x$enable_doc = xyes; then
 AC_CONFIG_FILES([doc/tex/manual/Makefile

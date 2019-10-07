@@ -10,7 +10,7 @@
       dimension SYSTEM(NSYSMAX) 
       double precision BETA(NSYSMAX,NTOT)  !> Influence of systematic errors on measurements
       double precision ALPHA(NTOT)         !> Total uncorrelated errors
-      double precision ALPHA_MOD(NTOT)         !> Total uncorrelated errors modified
+      double precision ALPHA_MOD(NTOT)         !> Total uncorrelated errors modified !deprecated, to be removed
       double precision sysa(nsysMAX,nsysMAX) !> Correlation matrix of systematics
 
       double precision omega(NSYSMAX,NTOT)  !> Quadratic term for influence of syst. errors on measurements.
@@ -67,7 +67,9 @@ C !> Special flag to force recalculations
 
 C !> Covariance matrix -> nuisance
       logical LConvertCovToNui
-      common/CCovNui/LConvertCovToNui
+      logical do_reduce
+      logical useBlas
+      common/CCovNui/LConvertCovToNui, do_reduce, useBlas
 
 C Keep track of data and theory systematics:
       integer iDataSyst, iTheorySyst

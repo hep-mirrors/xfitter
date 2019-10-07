@@ -54,7 +54,7 @@ c \alpha_s in the 3-flavour scheme
           else
 ! NNLO matching with on-shell mass at scale mu = M_h
 ! see e.g. hep-ph/0004189 eq.(25)
-            alpss=alpss*(1.d0-(alpss/pi)**2*(7.d0/72.d0))
+            alpss=alpss*(1.d0-(alpss/pi)**2*(7.d0/24.d0))
           end if
         end if
       else
@@ -66,7 +66,7 @@ c \alpha_s in the 3-flavour scheme
 ! \alpha_s(q2) is obtained from the numerical solution of the RG equation 
 ! taknig \alpha_s(q2s) as input
       nfeff=3
-      q2rep=q2
+      q2rep=q2 
 c  initial approximation for the solution 
       tt(1)=0.1d0
       CALL DSNLEQ(1,tt,res,alphastol,alphastol,200,0,INFO,alphastt,WW)
@@ -103,7 +103,7 @@ c   \alpha_s in the 4-flavour scheme
           else
 ! NNLO matching with on-shell mass at scale mu = M_h
 ! see e.g. hep-ph/0004189 eq.(25)
-            alpss=alpss*(1.d0-(alpss/pi)**2*(7.d0/72.d0))
+            alpss=alpss*(1.d0-(alpss/pi)**2*(7.d0/24.d0))
           end if
         end if
       else
@@ -119,7 +119,7 @@ c   \alpha_s in the 4-flavour scheme
           else
 ! NNLO matching with on-shell mass at scale mu = M_h
 ! see e.g. hep-ph/0004189 eq.(25)
-            alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/72.d0))
+            alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/24.d0))
           end if
         end if
       end if
@@ -168,7 +168,7 @@ c   \alpha_s in the 5-flavour scheme
           else
 ! NNLO matching with on-shell mass at scale mu = M_h
 ! see e.g. hep-ph/0004189 eq.(25)
-            alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/72.d0))
+            alpss=alpss*(1.d0+(alpss/pi)**2*(7.d0/24.d0))
           end if
         end if
       end if
@@ -185,7 +185,7 @@ c  initial approximation for the solution
 
       RETURN
       END
-C--------------
+C--------------x(
       real*8 FUNCTION alphast(XX)
 
 c  solution of the renormgroup differential equation for \alpha_s

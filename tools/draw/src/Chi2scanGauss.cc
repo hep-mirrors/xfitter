@@ -75,8 +75,11 @@ vector<TCanvas*> Chi2scanGauss()
 		//		chi2scanmap[*itl].chi2min = mean(chi2scanmap[*itl].chi2min4_mc);
 	      }
 
-	      xmin = (chi2scanmap[*itl].chi2.begin())->first;
-	      xmax = (chi2scanmap[*itl].chi2.end()--)->first;
+	      
+	      map <double, double>::iterator cf = chi2scanmap[*itl].chi2.begin();
+	      map <double, double>::iterator cl = chi2scanmap[*itl].chi2.end(); cl--;
+	      xmin = cf->first;
+	      xmax = cl->first;
 	      TH1D * hg = new TH1D(((string) "gauss_" + cnvname + (*itl)).c_str(), "", 3*sqrt(chi2scanmap[*itl].min2_mc.size()), xmin, xmax);
 	      //loop on mc replicas
 	      for (int i = 0; i < chi2scanmap[*itl].min2_mc.size(); i++)

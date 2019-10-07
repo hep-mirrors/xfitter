@@ -6,6 +6,7 @@
 * Mathlib gen
 *
 * Adopted from CERNLIB by V. Kolesnikov and A. Sapronov (14.07.2014)
+* Fixed on 24 Feb 2017 by SG.
 *
       SUBROUTINE DCHPWS(N,C,A)
 
@@ -13,7 +14,7 @@
       CHARACTER*80 ERRTXT
       PARAMETER (NAMECP = 'DCHPWS', NAMEPC = 'DPWCHS')
 
-      DIMENSION C(0:*),A(0:*),QU(0:101),QV(0:101)
+      Double precision C(0:*),A(0:*),QU(0:101),QV(0:101)  ! Double precision (!)
 
       PARAMETER (R1 = 1, HF = R1/2)
 

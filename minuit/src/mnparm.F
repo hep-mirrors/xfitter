@@ -137,7 +137,7 @@ C                                    calculate step sizes GSTEP, DIRIN
       NFCNFR = NFCN
       CSTATU= 'NEW VALUES'
       NU = MAX(NU,K)
-      CPNAM(K) = CNAMK
+      CPNAM(K) = CNAMJ
       U(K) = UK
       ALIM(K) = A
       BLIM(K) = B

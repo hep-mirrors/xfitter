@@ -64,17 +64,25 @@ C      print *,'ERROR: Could not find index for information ',cname
       implicit none
 #include "extrapars.inc"
       character*(*) CName
-      integer i
+      integer i,n
 C--------------------------------------------------
+
+      GetParameterIndex = 0
+      n = 0
+      ! loop over all params, to make sure only one is present:
       do i=1,nExtraParam
          if (ExtraParamNames(i).eq.cName) then
-            GetParameterIndex = i
-            Return
+            GetParameterIndex = i  ! return the last
+            n = n + 1
          endif
       enddo
-
-C Not found
-      GetParameterIndex = 0
+      if (n .gt.1) then
+         call hf_errlog(18031500+i,
+     $        'W: '//achar(27)//'[31m'//
+     $        'Several parameters with the name '//Cname
+     $        //' found. Check your ExtraMinimisationParameters'
+     $        //' and parameters.yaml files'//achar(27)//'[34m')
+      endif
 C--------------------------------------------------
       end
 
@@ -166,7 +174,7 @@ C Namelist variables:
       double precision CutValueMin(NRulesMax)   !> Min. value of the cut
       double precision CutValueMax(NRulesMax)   !> Max. value of the cut
       integer NDatasetMax
-      parameter (NDatasetMax = 10)
+      parameter (NDatasetMax = 100)
       integer NDataset(NRulesMax)               !> actual number of provided dataset indices
       save NDataset                             
       integer Dataset(NDatasetMax,NRulesMax)    !> dataset indices
@@ -224,7 +232,7 @@ C Count number of dataset indices
 
 C-- Run over all rules, check for appropriate process/variable
       do j=1,NRules
-         if (reaction .eq. processname(j)) then
+         if (reaction.eq.processname(j).or.processname(j).eq.'DUMMY') then
             if (Variable(j).eq.'Whad2') then
                FailSelectionCuts = FailDISSelection(nbin,bins,
      $              BinNames,CutValueMin(j))

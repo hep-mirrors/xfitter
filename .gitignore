@@ -8,7 +8,7 @@
 Makefile.in
 Makefile
 bin/
-src/xfitter
+xfitter/xfitter
 tools/MakeLHAPDF/tolhapdf
 tools/draw/src/xfitter-draw
 tools/process/xfitter-process
@@ -33,6 +33,8 @@ libtool
 ltmain.sh
 unpolarised.wgt
 zmstf.wgt
+SACOT/src/mdispac.mod
+doc/html/
 
 # vim swap file
 *.swp

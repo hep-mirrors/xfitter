@@ -184,3 +184,11 @@ c----------------------------------------------------------
       double precision Q,HeavyQuarkMass
       call print_apfel_error_message
       end
+
+      subroutine SetSmallxResummation
+      call print_apfel_error_message
+      end
+
+      subroutine SetQLimits
+      call print_apfel_error_message
+      end

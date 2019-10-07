@@ -130,6 +130,10 @@ C Get omega (quadratic term coefficient):
      $     StatNew,StatConstNew,UncorPoissonNew) ! covariance to nuicance parameters, if needed.
 
 
+      call reduce_nui(UncorNew,UncorConstNew
+     $     ,UncorPoissonNew) ! We can also reduce number of nuisance parameters 
+
+
       if (LDebug) then
 C
 C Dump beta matrix
@@ -216,12 +220,12 @@ C------------------------------------------------------------------------
 #include "systematics.inc"
 #include "theorexpr.inc"
 #include "scales.inc"
+#include "for_debug.inc"
 
       character *(*) CFile
 C Namelist  variables:    
-      integer ndataMax,ninfomax,nsystMax,ncolumnMax
+      integer ndataMax,nsystMax,ncolumnMax
       parameter (ndataMax=ntot)
-      parameter (ninfoMax=100)
       parameter (nsystMax=nsysmax)
 
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
@@ -229,13 +233,12 @@ C Namelist  variables:
       character *80 Name
       integer  NData
       integer  NUncert
-      integer  NInfo
       integer  NBinDimension
 
       
       character *80 BinName(NBinDimensionMax)
-      double precision datainfo(ninfoMax)
-      character *80 CInfo(ninfoMax)
+c      double precision datainfo(ninfoMax)
+c      character *80 CInfo(ninfoMax)
       character *80 Reaction
 
       double precision buffer(ncolumnMax)
@@ -257,13 +260,14 @@ C Reference table
       integer IndexDataset
       double precision SystScales(nsystMax)
 C Extra info about k-factors, applegrid file(s):
-      character*1000 TheoryInfoFile(2)
+      character*1000 TheoryInfoFile(NKFactMax) !Is this used anymore?  --Ivan
       character*80  TheoryType(2)
       character*80 KFactorNames(NKFactMax)
       integer      NKFactor
 C Infomation for open more than 1 applgrid
 C     character*80 applgridNames(NapplgridMax)
       integer      NTheoryFiles
+      logical ForceAdditive ! force all errors to be treated as additive
 C Namelist definition:
       namelist/Data/Name,NData
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
@@ -271,7 +275,7 @@ C Namelist definition:
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
      $     ,TermName,TermType,TermInfo, TermSource,TheorExpr
      $     ,ColumnName, ColumnType, NColumn
-     $     ,NTheoryFiles 
+     $     ,NTheoryFiles, ForceAdditive 
 
       namelist/PlotDesc/PlotN, PlotDefColumn, PlotDefValue, 
      $     PlotVarColumn, PlotOptions
@@ -331,7 +335,7 @@ C Variables for plotting
       character *256 PlotOptions(ncolumnMax)
       integer PlotDefColIdx, PreviousPlots
       double precision tempD
-
+      
 C Functions
       logical FailSelectionCuts
       integer GetBinIndex
@@ -377,7 +381,7 @@ c      double precision PlotDefValue(ncolumnMax)
       PlotDefTitle(1)='undefined'
       PlotVarColumn='undefined'
 
-
+      ForceAdditive = .false.
 
 C Reset scales to 1.0
       do i=1,nsysmax
@@ -388,8 +392,9 @@ C Reset scales to 1.0
 
       open(51,file=CFile,status='old',err=99)
 
-      print *,'Reading data file ...'
-      print *,CFile
+cc      if(DEBUG)then
+        print *,'Reading data file',trim(CFile)
+cc      endif
       read(51,NML=Data,err=98)
       PlotN = -1
       read(51,NML=PlotDesc,end=96,err=97)
@@ -401,6 +406,7 @@ C Reset scales to 1.0
          read(51,NML=Data,err=98)
       endif   
 
+      
 C
 C Check dimensions
 C
@@ -410,6 +416,7 @@ C
      $        ,ncolumnmax
          call HF_stop
       endif
+
 C
 C Store 
 C
@@ -485,6 +492,9 @@ C Extra info:
          DATASETInfo(i,NDATASETS) =      DataInfo(i)
       enddo
 
+      dsname = name
+      ds_index = IndexDataset 
+
 C Prepare systematics:
       do i=1,NUncert
 C--- Statistical: special case
@@ -531,8 +541,29 @@ C Count theory expression terms
         CTmp = TermSource(i)
         TermSource(i) = trim(CTmp)
       enddo
-
  88   continue 
+
+      if (Reaction .eq. ' '
+     $     .or.TermType(1).eq.'reaction'
+     $     .or.TermSource(1).ne.' ') then
+         if (TheoryType(1) .eq. ' ') then
+            TheoryType(1) = 'expression'
+         endif
+      endif
+
+      if ( TheoryType(1) .eq. 'expression') then
+         do i =1, NTerms
+            if (TermType(i) .eq. ' ') then
+               TermType(i) = 'reaction'
+            endif
+         enddo
+      endif
+
+      if (TheoryType(1).ne. 'expression') then
+         call hf_errlog(18030710+NDATASETS,
+     $        'W: Using obsolete theory calculation for data file '
+     $        //trim(CFile) )
+      endif
 
 C Theory file if present:
       DATASETTheoryType(NDATASETS) = ' '
@@ -780,11 +811,13 @@ C Apply cuts:
          if (FailSelectionCuts(Reaction,NBinDimension,allbins(1,j),BinName,IndexDataset)) then
 	   ! set excluding flag for those bins that were cut
            binFlags(j) = 0
-           if((Reaction.eq.'FastNLO jets').or.
-     $       (Reaction.eq.'FastNLO ep jets').or.
-     $       (Reaction.eq.'FastNLO ep jets normalised')) then
-              call fastnlopointskip(NDataSets, j, NData);
-           endif
+! Since xFitter 2.1 "Reaction" field in dataset is no longer used to select
+! reaction, we have a system with terms and reaction modules now
+!           if((Reaction.eq.'FastNLO jets').or.
+!     $       (Reaction.eq.'FastNLO ep jets').or.
+!     $       (Reaction.eq.'FastNLO ep jets normalised')) then
+!              call fastnlopointskip(NDataSets, j, NData);
+!           endif
            goto 1717
          endif
 
@@ -883,7 +916,8 @@ C XXXXXXXXXXXXXXXXXXXXXXXXX
          Call SetUncorErrors(npoints, StatError,
      $        StatErrorConst,UncorError,UncorConstError)
 
-
+         LForceAdditiveData(npoints) = ForceAdditive
+         
          !  Check total error
          if (TotalErrorRead.ne.0) then
             if ( abs(TotalError -TotalErrorRead)/TotalErrorRead.gt.0.01) then
@@ -971,7 +1005,6 @@ C  Store:
                   BetaAsym(CompressIdx(i),2,npoints) = syst(i)
      $                 *SysScaleFactor(CompressIdx(i))                
                endif
-
 C  Symmetrise:
                if (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
@@ -979,10 +1012,23 @@ C  Symmetrise:
                   BETA(CompressIdx(i),npoints) = 
      $                 0.5*( BetaAsym(CompressIdx(i),1,npoints)-
      $                        BetaAsym(CompressIdx(i),2,npoints))
-
+                  
                   LAsymSyst(CompressIdx(i)) = .true.
                endif
 
+C     Correct total error
+               if (NAsymPlus(CompressIdx(i)).eq.1
+     $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
+                  E_TOT(npoints)  = sqrt(E_TOT(npoints)**2
+     $                 -(BetaAsym(CompressIdx(i),1,npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2
+     $                 -(BetaAsym(CompressIdx(i),2,npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2
+     $                 +(BETA(CompressIdx(i),npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2)
+               endif
+
+               
                if ( (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1)
      $              .or. 
@@ -1057,15 +1103,15 @@ C Store k-factors:
 C Set data binning information in theory evaluations
 c but firest check that there are two columns per each bin dimension
       if ( DATASETTheoryType(NDATASETS).eq.'expression' ) then
-        if ( mod(NBinDimension,2) .ne. 0 ) then
-          print *, 'Problem reading data from ', CFile
-          print *, 'There must be two bin columns per each bin dimension'
-          print *, 'for applgrid based fits.'
-          call hf_stop
-        endif
+c        if ( mod(NBinDimension,2) .ne. 0 ) then
+c          print *, 'Problem reading data from ', CFile
+c          print *, 'There must be two bin columns per each bin dimension'
+c          print *, 'for applgrid based fits.'
+C          call hf_stop
+c        endif
       
         call set_theor_bins(NDATASETS, NBinDimension, nDSbins, 
-     &    binFlags, allbins )
+     &    binFlags, allbins, binname )
 
         idxUnit = GetInfoIndex(NDATASETS,'theoryunit')
         if (idxUnit.gt.0) then
@@ -1083,15 +1129,14 @@ c but firest check that there are two columns per each bin dimension
          close (53)
       endif
 
-
-      print '(''Read'',i8,'' data points for '',A80)',NData,Name
-      print '(''Printing first'',i5,'' data points'')',min(Ndata,5)
-      print '(20A14)',(BinName(i),i=1,NBinDimension),' sigma'
-    
-      do j=1,min(NData,5)
-         print '(20E14.4)',(Allbins(i,j),i=1,NBinDimension),XSections(j)
-    
-      enddo
+c      if(DEBUG)then
+        print '(''Read'',i8,'' data points for '',A80)',NData,Name
+        print '(''Printing first'',i5,'' data points'')',min(Ndata,3)
+        print '(20A14)',(BinName(i),i=1,NBinDimension),' sigma'
+        do j=1,min(NData,3)
+           print '(20E14.4)',(Allbins(i,j),i=1,NBinDimension),XSections(j)
+        enddo
+c      endif
       return
 
  97   continue
@@ -1592,22 +1637,6 @@ c         do j=1,NUncert
                   if (j.gt.0) then
                   idx = DATASETIDX(idxdataset,i)
                   
-                  if (NAsymPlus(j).eq.1
-     +                 .and. NAsymMinus(j).eq.1 ) then !Asymmetric errors (flip up and down errors because assigned to theory)
-                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) +
-     +                    MAX(MAX(BetaAsym(j,1,idx), 
-     +                    BetaAsym(j,2,idx)),
-     +                    0d0) ** 2
-                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) +
-     +                    MAX(MAX(-BetaAsym(j,1,idx), 
-     +                    -BetaAsym(j,2,idx)),
-     +                    0d0) ** 2
-                  else          !Symmetric errors
-                     THEO_ERR2_UP(idx) = THEO_ERR2_UP(idx) 
-     +                    + Beta(j, idx) ** 2
-                     THEO_ERR2_DOWN(idx) = THEO_ERR2_DOWN(idx) 
-     +                    + Beta(j, idx) ** 2
-                  endif
                endif
             enddo
          endif
@@ -1615,9 +1644,9 @@ c         do j=1,NUncert
 
       do i=1,Npoints
          idx = DATASETIDX(idxdataset,i)
-         THEO_TOT_UP(idx) = SQRT(THEO_ERR2_UP(idx))*theo_fix(idx)
+         THEO_TOT_UP(idx) = 0.0 !SQRT(THEO_ERR2_UP(idx))*theo_fix(idx)
      +        /100d0
-         THEO_TOT_DOWN(idx) = SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
+         THEO_TOT_DOWN(idx) = 0.0 ! SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
      +        /100d0
       enddo
 

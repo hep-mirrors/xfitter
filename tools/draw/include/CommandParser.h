@@ -25,7 +25,7 @@ class CommandParser
   CommandParser(int argc, char **argv);
 
   //pdf options
-  bool dobands, filledbands, asym, logx;
+  bool dobands, filledbands, transparentbands, asym, logx;
   float rmin, rmax;
   double xmin, xmax;
   bool abserror, relerror;
@@ -33,6 +33,7 @@ class CommandParser
   bool cl68, cl90, median;
   int plotsperpage;
   bool scale68;
+  string q2label;
 
   //data pulls options
   bool therr, points;
@@ -40,6 +41,7 @@ class CommandParser
   bool twopanels,threepanels;
   bool multitheory;
   bool nothshifts;
+  bool nouncorrerr;
   bool onlytheory;
   bool threlerr;
   bool ratiototheory;
@@ -47,7 +49,7 @@ class CommandParser
   bool noupband;
   int errbandcol;
   int rootfont;
-  
+  string smooththeoryratios;
   //shifts options
   int spp, shgth;
   bool adjshift;
@@ -68,10 +70,14 @@ class CommandParser
   map <string, int> styles;
   map <string, int> lstyles;
   map <string, int> markers;
-  int col[6];
-  int styl[6];
-  int lstyl[6];
-  int mark[6];
+  //int col[6];
+  //int styl[6];
+  //int lstyl[6];
+  //int mark[6];
+  int col[12];
+  int styl[12];
+  int lstyl[12];
+  int mark[12];
   float lwidth;
   float resolution, pagewidth;
   bool nodata;
@@ -85,7 +91,7 @@ class CommandParser
   bool profile, reweight, BAYweight, GKweight;
   bool bw;
   bool looseRepSelection;
-    
+
 private:
   vector <string> allargs;
   void help(void)
@@ -142,7 +148,7 @@ private:
     cout << "\t \t Number of rows and columns of PDF and data plots per page, default value is 2" << endl;
     cout << "\t --loose-mc-replica-selection" <<endl;
     cout << "\t \t Do not check for fit convergence for MC replica " <<endl;
-    
+
 
     cout << "options for pdf plots:" << endl;
     cout << "\t --no-pdfs" << endl;
@@ -151,19 +157,29 @@ private:
     cout << "\t \t Draw PDF uncertainty bands" << endl;
     cout << "\t --profile" << endl;
     cout << "\t \t Draw Profiled PDF (only for Hessian sets)" << endl;
-    cout << "\t \t To set this option only for one directory, use the syntax profiled:directory[:label]" << endl;
+    cout << "\t \t To set this option only for one directory, use the syntax profile:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw profile:output:\"profiled\" output:\"not-profiled\"" << endl;
     cout << "\t --reweight(-BAY/-GK)" << endl;
     cout << "\t \t Draw Reweighted PDF (only for MC replica sets)" << endl;
     cout << "\t \t To set this option only for one directory, use the syntax reweight-BAY:directory[:label]" << endl;
     cout << "\t \t To use the Giele-Keller weights instead of Bayesian weights, use the syntax reweight-GK:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw reweight-BAY:output:\"reweighted\" output:\"not-reweighted\"" << endl;
+
     cout << "\t options for rotation:" << endl;
     cout << "\t \t Draw Rotated PDF (only for Hessian sets)" << endl;
     cout << "\t \t To set this option, use the syntax rotate:<n>:directory[:label]" << endl;
     cout << "\t Example: xfitter-draw rotate:5:output:\"rotated-5\" output:\"not-rotated\"" << endl;
+
+    cout << "\t options for individual eigen sets:" << endl;
+    cout << "\t \t Draw individual eigen (or MC replica) set from a complete run" << endl;
+    cout << "\t \t To set this option, use the syntax set:<n>:directory[:label]" << endl;
+    cout << "\t Example: xfitter-draw --bands set:5:output:\"set 5\" output:\"Total Band\"" << endl;
+
+
     cout << "\t --filledbands" << endl;
     cout << "\t \t Filled uncertainty bands, usefull for sensitivity studies" << endl;
+    cout << "\t --transparentbands" << endl;
+    cout << "\t \t Transparent uncertainty bands" << endl;
     cout << "\t --ratiorange min:max" << endl;
     cout << "\t \t Specify y axis range in PDF ratio plots" << endl;
     cout << "\t --xrange min:max" << endl;
@@ -178,6 +194,8 @@ private:
     cout << "\t \t Plot relative pdf uncertainties centered around 1 in PDF ratio plots" << endl;
     cout << "\t --q2all" << endl;
     cout << "\t \t Plot PDF at all stored values of Q2. By default PDF are plotted only at the starting scale Q0" << endl;
+    cout << "\t --q2label <string>" << endl;
+    cout << "\t \t Change scale \"Q^2\" in PDF plots to the specified label" << endl;
     cout << "options for data plots:" << endl;
     cout << "\t --no-data" << endl;
     cout << "\t \t Data plots are not produced" << endl;
@@ -187,6 +205,8 @@ private:
     cout << "\t \t Do not plot theory uncertainties in the upper panel" << endl;
     cout << "\t --nothshifts" << endl;
     cout << "\t \t Do not plot theory+shifts lines" << endl;
+    cout << "\t --nouncorrerr" << endl;
+    cout << "\t \t Do not plot uncorrelated error bars" << endl;
     cout << "\t --points" << endl;
     cout << "\t \t Plot theory as displaced marker points (with vertical error bars) instead of continous lines (with dashed error area)" << endl;
     cout << "\t --theory <label>" << endl;
@@ -203,6 +223,8 @@ private:
     cout << "\t \t Do not plot data, use theory as reference for ratio plots, and plot relative theory uncertainties" << endl;
     cout << "\t --diff" << endl;
     cout << "\t \t Plot difference of theory-data instead of ratio theory/data" << endl;
+    cout << "\t --smooththeoryratios" << endl;
+    cout << "\t \t Smooth ratios of theory predictions: provide ROOT TF1 function to fit, e.g. 'pol1' or 'pol2', or 'smooth' to use TH1::Smooth()" << endl;
     cout << "\t --greenband" << endl;
     cout << "\t \t The total experimental uncertainty is shown with a green band" << endl;
     cout << "\t --blueband" << endl;
@@ -257,14 +279,14 @@ private:
     cout << "\t    PlotDefColumn = 'y2' ! Variable used to divide the data in SubPlots" << endl;
     cout << "\t    PlotDefValue = 0., 5.! Ranges of PlotDefColumn used to divide the data in SubPlots" << endl;
     cout << "\t    PlotVarColumn = 'x'! Variable providing bin center information (use only if bin edges are missing)" << endl;
-    cout << "\t    PlotOptions(1)  = 'Experiment:ATLAS@Title: pp #rightarrow Z@XTitle: y_{Z} @YTitle: d#sigma/dy_{Z} [pb]  @ExtraLabel:#int L = 100 fb^{-1}@Xmin:0.0@Xmax:2.5@Xlog@Ylog@YminR:0.91@YmaxR:1.09'" 
+    cout << "\t    PlotOptions(1)  = 'Experiment:ATLAS@Title: pp #rightarrow Z@XTitle: y_{Z} @YTitle: d#sigma/dy_{Z} [pb]  @ExtraLabel:#int L = 100 fb^{-1}@Xmin:0.0@Xmax:2.5@Xlog@Ylog@YminR:0.91@YmaxR:1.09'"
 	 << endl;
     cout << "\t &End" << endl;
     cout << endl;
     cout << "Option for 3-band PDF uncertainty bands (HERAPDF style) in PDF plots." << endl;
     cout << "\t --bands 3bands:<dir-full-uncert>" << endl;
     cout << "\t \t draw PDFs with three uncertainty bands: experimental (red), model (yellow) parametrisation (green)." << endl;
-    cout << "\t The model uncertainty originates from variation of model parameters (e.g. masses of heavy quarks, Q^2 cuts on data, etc.),"  << endl; 
+    cout << "\t The model uncertainty originates from variation of model parameters (e.g. masses of heavy quarks, Q^2 cuts on data, etc.),"  << endl;
     cout << "\t parametrisation - from variations of the parameters in the fit and variation of the starting scale Q_0^2."<< endl;
     cout << " \t Directory <dir-full-uncert> should have fit results for experimental, model and parametrisation variations. " << endl;
     cout << " \t The file names for experimental variations should follow convention as follows: " << endl;
@@ -274,10 +296,10 @@ private:
     cout << " \t where s01m stands for experimental error (s), number of fitted parameters (01 to N) and minus (m) or plus (p) variation; " << endl;
     cout << " \t the last number stands for the index of the Q^2 value at which PDFs are drawn (defined in Q2VAL in steering.txt). " << endl;
     cout << " \t Similarly, m11m stands for model uncertainty and the number should start from N+1 (here assuming that N=10 for exp errors)." << endl;
-    cout << " \t Finally, p14m stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
+    cout << " \t Finally, p14s stands for parametrisation uncertainty and the number should start from N+K+1 (here assuming that K=3 for model errors)." << endl;
     cout << " \t NOTE: if command '--bands <dir-full-uncert>' is used, the total uncertainty in red is drawn." << endl;
     cout << endl;
-  };  
+  };
 };
 
 extern CommandParser opts;

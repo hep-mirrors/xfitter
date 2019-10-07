@@ -14,10 +14,53 @@ xFitter
 By S. Alekhin at al., DESY Report 14-188, 7 Nov 2014, Published in EPJC (2015), 75: 304,
 e-Print: arXiv:1410.4412 [hep-ex]
 
-2) xfitter.org
+Also add a reference to the xFitter web portal:  xfitter.org
 
-HERA data and HERAPDFs
+==================================
+ Citations depending on the usage
+==================================
+
+QCDNUM  ( main evolution code, almost always needs to be cited, unless very specific study, e.g. using OPENQCDRAD or PDFSTYLE='LHAPDFNATIVE' or RunningMode ='PDF Rotate' )
+---------
+"Fast QCD Evolution and Convolution", M. Botje,
+NIKHEF-10-002, May 2010. 74pp. 
+Published in Comput.Phys.Commun.182:490-532,2011. 
+e-Print: arXiv:1005.1481 [hep-ph]
+
+
+LHAPDF6 ( RunningMode = 'LHAPDF Analysis', PDFStyle = 'LHAPDF', and similar )
+-----------
+'LHAPDF6: parton density access in the LHC precision era'
+A. Buckley et. al,
+Published in Eur.Phys.J. C75 (2015) 3, 132, http://arxiv.org/abs/1412.7420
+
+APFEL  ( x-space evolution code + structure functions, --enable-apfel, TheoryType = 'DGLAP_APFEL' )
+----------
+"APFEL: A PDF Evolution Library with QED corrections"
+V. Bertone, S. Carrazza and J. Rojo,
+Published in Comput. Phys. Commun.  185 (2014) 1647,
+e-Print: arXiv:1310.1394 [hep-ph].
+
+When using APFEL with NLO QED corrections (TheoryType = 'DGLAP_APFEL_QED') , please cite:
+"The photon PDF from high-mass Drell Yan data at the LHC"
+xFitter Developers' Team (F. Giuli et al.),
+e-Print: arXiv:1701.08553
+
+MELA ( N-space evolution code + structure functions, --enable-mela )
 -------
+"Reference results for time-like evolution up to O(alpha_s^3)"
+V. Bertone, S. Carrazza and E. R. Nocera,
+e-Print: arXiv:1501.00494 [hep-ph].
+
+MINUIT  ( minimisation code, TheoryType = 'Fit' )
+-------
+F. James, M. Roos (CERN). Jul 1975. 38 pp. 
+Published in Comput.Phys.Commun. 10 (1975) 343-367 
+CERN-DD-75-20 
+DOI: 10.1016/0010-4655(75)90039-9
+
+HERA data and HERAPDFs ( PDFSTYLE = 'HERAPDF' )
+------------------
 "Combination of measurements of inclusive deep inelastic e±p scattering cross sections and QCD analysis of HERA data."
 By H1 and ZEUS Collaborations (H. Abramowicz et al.). DESY-15-039, Jun 19, 2015. 160 pp. 
 Published in EPJC (2015) 75: 12.
@@ -25,47 +68,14 @@ e-Print: arXiv:1506.06042 [hep-ex]
 
 "Combined Measurement and QCD Analysis of the Inclusive e+- p Scattering Cross Sections at HERA."
 By H1 and ZEUS Collaborations (F.D. Aaron et al.). DESY-09-158, Oct 2009. 61pp. 
-Published in JHEP 1001:109,2010. 
 e-Print: arXiv:0911.0884 [hep-ex]
 
 "Inclusive Deep Inelastic Scattering at High Q2 with Longitudinally Polarised Lepton Beams at HERA"
 By H1 Collaboration (F.D. Aaron et al.) DESY-12-107
-Published in JHEP 09 (2012) 061
 e-Print: arXiv:1206.7007 [hep-ex] 
 
-QCDNUM  ( evolution code )
--------
-"Fast QCD Evolution and Convolution", M. Botje,
-NIKHEF-10-002, May 2010. 74pp. 
-Published in Comput.Phys.Commun.182:490-532,2011. 
-e-Print: arXiv:1005.1481 [hep-ph]
 
-APFEL  ( x-space evolution code + structure functions )
--------
-"APFEL: A PDF Evolution Library with QED corrections"
-V. Bertone, S. Carrazza and J. Rojo,
-Published in Comput. Phys. Commun.  185 (2014) 1647,
-e-Print: arXiv:1310.1394 [hep-ph].
-
-MELA ( N-space evolution code + structure functions )
--------
-"Reference results for time-like evolution up to O(alpha_s^3)"
-V. Bertone, S. Carrazza and E. R. Nocera,
-Published in JHEP 1503 (2015) 046,
-e-Print: arXiv:1501.00494 [hep-ph].
-
-MINUIT  ( minimisation code )
--------
-F. James, M. Roos (CERN). Jul 1975. 38 pp. 
-Published in Comput.Phys.Commun. 10 (1975) 343-367 
-CERN-DD-75-20 
-DOI: 10.1016/0010-4655(75)90039-9
-
-==================================
- Citations depending on the usage
-==================================
-
-1) RT- variable flavour number scheme (for HF_SCHEME =  'RT' or 'RT FAST')
+RT- variable flavour number scheme (for HF_SCHEME =  'RT' or 'RT FAST')
 ---------------------------------------------------------------------------------
 "An Ordered analysis of heavy flavor production in deep inelastic scattering"
 R.S. Thorne, R.G. Roberts. RAL-TR-97-049, Sep 1997. 48pp. 
@@ -85,7 +95,7 @@ R.S. Thorne.  Jan 2012.  14pp.
 Published in Phys.Rev. D86 (2012) 074017
 e-Print: arXiv:1201.6180 [hep-ph]
 
-11) ACOT-variable flavour number scheme ( for HF_SCHEME = 'ACOT Full' or 'ACOT Chi')  
+ ACOT-variable flavour number scheme ( for HF_SCHEME = 'ACOT Full' or 'ACOT Chi')  
 ------------------------------------------------------------------------------------
 
 "Leptoproduction of Heavy Quarks II -- A Unified QCD Formulation of 
@@ -96,12 +106,12 @@ DOI:    10.1103/PhysRevD.50.3102
 Cite as:        arXiv:hep-ph/9312319v2
 
 
-111) ABM-fixed flavour number scheme ( for HF_SCHEME = 'ABM') from 
+ ABM-fixed flavour number scheme ( for HF_SCHEME = 'ABM') from 
 ---------------------------------------------------------------------------
 	
      http://www-zeuthen.desy.de/~alekhin/OPENQCDRAD/ 
 
-1111) FONLL general-mass variable-flavor-number scheme: (for HF_SCHEME = 'FONLL-A', 'FONLL-B', 'FONLL-C') from APFEL
+ FONLL general-mass variable-flavor-number scheme: (for HF_SCHEME = 'FONLL-A', 'FONLL-B', 'FONLL-C') from APFEL
 --------------------------------------------------------------------------------------------------------------------
 
 "APFEL: A PDF Evolution Library with QED corrections"
@@ -114,7 +124,7 @@ S. Forte, E. Laenen, P. Nason and J. Rojo,
 Published in Nucl. Phys. B 834 (2010) 116,
 e-Print: arXiv:1001.2312 [hep-ph].
 
-2) Chi2 definitions 
+  Chi2 definitions 
 -----------------------------------------
 'H12000':
  CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
@@ -152,11 +162,10 @@ Add two references above (for 'H12000'), in addition:
 
 "Inclusive Deep Inelastic Scattering at High Q2 with Longitudinally Polarised Lepton Beams at HERA"
 By H1 Collaboration (F.D. Aaron et al.)	DESY-12-107
-Published in JHEP 09 (2012) 061
 e-Print: arXiv:1206.7007 [hep-ex]
 
 
-3) PDFStyle  (PDFStyle = 'XXXX')
+ PDFStyle  (PDFStyle = 'XXXX')
 ----------------------------------
 'CHEB':
 "Parton Distribution Uncertainties using Smoothness Prior"
@@ -164,27 +173,13 @@ Alexander Glazov, Sven Moch, Voica Radescu. DESY-10-164, Sep 2010. 8pp.
 Published in Phys.Lett.B695:238-241,2011. 
 e-Print: arXiv:1009.6170 [hep-ph]
 
-'10p H12000':
-"Measurement and QCD analysis of neutral and charged current cross-sections at HERA"
-By H1 Collaboration (C. Adloff et al.). DESY-03-038, Apr 2003. 54pp. 
-Published in Eur.Phys.J.C30:1-32,2003. 
-e-Print: hep-ex/0304003
-
-'10p HERAPDF', '13p HERAPDF':
-In addition to the main references, add:
-
-"An NLO QCD analysis of inclusive cross-section and jet-production data from the zeus experiment"
-By ZEUS Collaboration (S. Chekanov et al.). DESY-05-050, Mar 2005. 37pp. 
-Published in Eur.Phys.J.C42:1-16,2005. 
-e-Print: hep-ph/0503274
-
 'BiLog':
 In addition to the main references, add:
 "A Bi-Log-Normal PDF Parameterisation"
 A. Schoening, Internal Note
 
 
-4) PDF Uncertainties ( Bands = True )
+ PDF Uncertainties ( Bands = True )
 -------------------------------------------------------------
 "Multivariate fitting and the error matrix in global analysis of data"
 J. Pumplin, D.R. Stump, W.K. Tung. MSU-HEP-07100, CERN-TH-2000-249, Aug 2000. 14pp. 
@@ -194,10 +189,9 @@ e-Print: hep-ph/0008191
 "New generation of parton distributions with uncertainties from global QCD analysis"
 J. Pumplin, D.R. Stump, J. Huston, H.L. Lai, Pavel M. Nadolsky, W.K. Tung, MSU-HEP-011101, 
 Jan 2002. 44pp. 
-Published in JHEP 0207:012,2002. 
 e-Print: hep-ph/0201195
 
-5) APPLGRID (if APPLGRID tables or reading interface are used)
+ APPLGRID (if APPLGRID tables or reading interface are used, --enable-applgrid)
 --------------------------------------------------------------
 "A posteriori inclusion of parton density functions in NLO QCD final-state calculations at hadron colliders: The APPLGRID Project"
 Tancredi Carli, Dan Clements, Amanda Cooper-Sarkar, Claire Gwenlan, Gavin P. Salam, 
@@ -205,7 +199,7 @@ Frank Siegert, Pavel Starovoitov,  Mark Sutton. 2010. 33pp.
 Published in Eur.Phys.J.C66:503-524,2010. 
 e-Print: arXiv:0911.2985 [hep-ph]
 
-6) FastNLO (if FastNLO tables or reader are used)
+ FastNLO (if FastNLO tables or reader are used)
 ---------------------------------------------
 "FastNLO: Fast pQCD calculations for PDF fits"
 T. Kluge, K. Rabbertz, M. Wobisch. DESY-06-186, FERMILAB-CONF-06-352-E, Sep 2006. 8pp. 
@@ -220,12 +214,17 @@ DESY 11-150, FERMILAB-PUB-11-418-PPD, Sep 2011. arXiv:1109.1310v1 [hep-ph]
 D. Britzger, K. Rabbertz, F. Stober, M. Wobisch, "New features in version 2 of the fastNLO project",
 in the proceedings of the XX International Workshop on Deep Inelastic Scattering (DIS12), 26-30th March 2012 hep-ph/1208.3641.
 
+ APFELgrid (if APFELgrid tables are used  --enable-apfelgrid)
+"APFELgrid: a high performance tool for parton density determinations"
+V. Bertone, S. Carrazza and N. P. Hartland,
+Published in Comput. Phys. Commun. 212 (2017) 205.
+e-Print: arXiv:1605.02070 
 
-7) HATHOR (if used)
+ HATHOR (if used --enable-hathor)
 ---------------------------------------------
 from http://www-zeuthen.desy.de/~moch/hathor/
 
-8) NNPDFreweighting (if used) 
+ PDF Reweighting (if used) 
 ---------------------------------------------
 Description of NNPDF method to create NNPDF PDF sets:	
 
@@ -249,11 +248,21 @@ e-Print: arXiv:1108.1758 [hep-ph]
 Description of reweighting approach for Hessian PDF error sets:
 "Study of Monte Carlo approach to experimental uncertainty propagation with MSTW 2008 PDFs"
 G. Watt, R.S. Thorne
-Published in JHEP 1208 (2012) 052
 e-Print: arXiv:1205.4024 [hep-ph]
 
 
-9) kt-factorisation
+  PDF profiling  ( if used, xfitter-process profile,  xfitter-draw profile: )
+---------------------------------------------
+"PDF reweighting in the Hessian matrix approach"
+H. Paukkunen and P. Zurita, PDF reweighting in the Hessian matrix approach,
+JHEP 12 (2014) 100, arXiv:1402.6623 [hep-ph].
+
+"QCD analysis of W- and Z-boson production at Tevatron"
+XFitter developers, S. Camarda et al., QCD analysis of W- and Z-boson production at Tevatron,
+Eur. Phys. J. C 75 (2015) 458, arXiv:1503.05221 [hep-ph].
+
+
+ kt-factorisation
 ---------------------------------------------
 
 Determination of transverse momentum dependent gluon density from HERA structure function measurements. 
@@ -269,14 +278,14 @@ DOI: 10.1140/epjc/s2004-01780-x
 e-Print: hep-ph/0312333 [hep-ph] PDF
 
 
-10) DiffTop (if used)
+ DiffTop (if used)
 ---------------------------------------------
 -"Top-quark pair production at hadron colliders: differential cross section and phenomenological applications with DiffTop"
 M. Guzzi, K. Lipka, S-O. Moch
 e-Print: arXiv:1406.0386 [hep-ph]
 
 
-11) MNR code (if used)
+ MNR code (if used)
 ---------------------------------------------
 M. Mangano, P. Nason and G. Ridolfi
 Published in Nucl. Phys. B 373 (1992) 295

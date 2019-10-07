@@ -1,0 +1,10 @@
+After minimisation   21739.84   124   175.321
+
+  Partial chi2s 
+Dataset    1   9518.46    62  DY AFB                                          
+Dataset    2  12221.38    62  DY AFB                                          
+
+ Correlated Chi2    0.0000000000000000     
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

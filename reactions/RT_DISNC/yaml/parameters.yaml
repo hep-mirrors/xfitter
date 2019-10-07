@@ -1,0 +1,7 @@
+#RT_DISNC:               # Reaction-specific settings
+  varin0 : 0.0
+  varin1 : 1.0
+  varin2 : -0.666666666667
+  varin3 : 1.0        # recommended RT OPT settings
+
+#  varin : [0.0, 0.0, 0.0, 0.0]                        # old "RT" mode
