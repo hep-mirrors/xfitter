@@ -8,4 +8,4 @@ C
       integer          DataSetIOrder(nset)      !> Can change calculation order. 1-LO, 2-NLO, 3-NNLO.
 
       common/CScales/DataSetMuR,DataSetMuF,DataSetMuRes,
-     $ DataSetMuC3,DataSetIOrder
+     $ DataSetIOrder
