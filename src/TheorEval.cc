@@ -432,12 +432,6 @@ void TheorEval::Evaluate(valarray<double> &vte )
   // get values from grids
   this->updateReactionValues();
 
-  //CUTE
-  this->getCuteValues();
-
-  //DYTURBO
-  this->getDyturboValues();
-
   // calculate expression result
   stack<valarray<double> > stk;
   vector<tToken>::iterator it = _exprRPN.begin();
