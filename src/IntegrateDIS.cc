@@ -34,7 +34,7 @@ int IntegrateDIS::init(const double s,
     if(i > 0
       && q2min == (*q2minp)[i - 1]
       && q2max == (*q2maxp)[i - 1]
-      //&& ymin == (*yminp)[i - 1]
+      && (!yminp || ymin == (*yminp)[i - 1])
       && ymax == (*ymaxp)[i - 1]
       //Check that xmin and xmax are the same as in previous bin
       //But only if xmin and xmax columns exist
