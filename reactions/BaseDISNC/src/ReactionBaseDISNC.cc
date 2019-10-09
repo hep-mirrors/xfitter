@@ -54,7 +54,6 @@ extern "C" ReactionBaseDISNC *create()
 // Initialize at the start of the computation
 void ReactionBaseDISNC::atStart()
 {
-  _convfac = *XFITTER_PARS::getParamD("convFac");
 }
 
 // Main function to compute results at an iteration
@@ -111,6 +110,7 @@ void ReactionBaseDISNC::atIteration()
   // Make sure to call the parent class initialization:
   super::atIteration();
 
+  _convfac = *XFITTER_PARS::getParamD("convFac");
   _alphaem = *XFITTER_PARS::getParamD("alphaem");
   _Mz = *XFITTER_PARS::getParamD("Mz");
   _Mw = *XFITTER_PARS::getParamD("Mw");
@@ -244,7 +244,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   auto *xminp = td->getBinColumnOrNull("xmin");
   auto *xmaxp = td->getBinColumnOrNull("xmax");
 
-  if (q2minp && q2maxp && yminp && ymaxp)
+  if (q2minp && q2maxp)
   {
     // integrated cross section
     if (s < 0)
