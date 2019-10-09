@@ -345,7 +345,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       string oldOutputDir=outputDir+"_OLD";
       if(fileExists(oldOutputDir)){
         hf_errlog(1303201701, "W: Removing old results directory "+oldOutputDir);
-        system(("rm -rf "+oldOutputDir).c_str());
+        int ret = system(("rm -rf "+oldOutputDir).c_str());
       }
       hf_errlog(1303201702, "W: Backing up previous results to "+oldOutputDir);
       rename(outputDir.c_str(), oldOutputDir.c_str());
