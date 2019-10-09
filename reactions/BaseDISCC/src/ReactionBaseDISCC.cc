@@ -312,7 +312,7 @@ const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const stri
   //unsigned termID = td->id;
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
 
-  if (rd->_isReduced)
+  if (!rd->_integrated)
     return td->getBinColumnOrNull(binName);
   else
   {
