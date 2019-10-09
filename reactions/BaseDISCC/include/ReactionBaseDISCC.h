@@ -1,6 +1,6 @@
 #pragma once
 #include "ReactionTheory.h"
-#include <IntegrateDIS.h>
+#include "IntegrateDIS.h"
 
 /**
   @class' ReactionBaseDISCC
