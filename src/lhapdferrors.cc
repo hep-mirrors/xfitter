@@ -146,7 +146,7 @@ void get_lhapdferrors_()
   cout << "Chi2 test on central prediction:" << endl;
 
   LHAPDF::initPDFSet(lhapdfset.c_str());
-  Dyturbo::pdfname = lhapdfset;
+  //Dyturbo::pdfname = lhapdfset;
 
   int central_pdfmember;
   if (pdfprofile)
