@@ -22,11 +22,13 @@ lhapdf6_output.cc\
 dis_sigma_ht.f\
 fortran_io.f lhapdferrors.cc\
 chi2scan.cc\
-alphasscan.cc\
 ReactionTheory.cc\
 TermData.cc\
 QCDNUM_Manager.cc\
 IntegrateDIS.cc
+
+#alphasscan.cc
+
 # optional sources
 # these should be moved to indiviual shared libraries in the future
 ##APFEL and MELA commented out because they need to be updated for the new evolutions interface
@@ -65,9 +67,9 @@ LDADD = libxfitter.a
 # libraries to be linked to the main target
 LDADD += $(QCDNUMLIBS) $(LAPACK_LIBS) $(BLAS_LIBS)
 
-if ENABLE_DYTURBO
-  AM_CPPFLAGS = -I$(srcdir)/../dyturbo $(DYTURBO_CPPFLAGS)
-endif
+#if ENABLE_DYTURBO
+#  AM_CPPFLAGS = -I$(srcdir)/../dyturbo $(DYTURBO_CPPFLAGS)
+#endif
 
 if ENABLE_LHAPDF
   LDADD+=$(LHAPDF_LDFLAGS)
@@ -107,9 +109,9 @@ APPLGRID_1 = $(subst -m64,,$(APPLGRID_LDFLAGS))
 APPLGRID_2 = $(subst -pthread,,$(APPLGRID_1))
 APPLGRID_3 = $(subst -rdynamic,,$(APPLGRID_2))
 
-if ENABLE_DYTURBO
-  LDADD += ../dyturbo/libDyturboInterface.la $(DYTURBO_LDFLAGS) $(CUBA_LDFLAGS) $(CHAPLIN_LDFLAGS) #-L../pdf2yaml/ -lpdf2yaml -lyaml
-endif
+#if ENABLE_DYTURBO
+#  LDADD += $(DYTURBO_LDFLAGS) $(CUBA_LDFLAGS) #-L../pdf2yaml/ -lpdf2yaml -lyaml
+#endif
 
 #if ENABLE_MELA
 #  LDADD+=$(MELA_LDFLAGS)
