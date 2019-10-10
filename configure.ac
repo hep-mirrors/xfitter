@@ -409,6 +409,11 @@ else
 
     cd Cuba-${version}
     sed -i "s/MINSLICE 10/MINSLICE 1/" src/common/Parallel.c
+
+    export FCFLAGS="$FCFLAGS  -fPIC"
+    export CFLAGS="$CFLAGS  -fPIC"
+    export FFLAGS="$FFLAGS    -fPIC"
+    export CXXFLAGS="$CXXFLAGS -fPIC"
     ./configure
     make
     cd ../
@@ -604,6 +609,7 @@ AC_CONFIG_FILES([include/Makefile
                  doc/logo/Makefile
                  python/Makefile
                  xfitter-config
+		 reactions/DYTurbo/src/Makefile
                  evolutions/BaseEvolution/src/Makefile
                  evolutions/APFEL/src/Makefile
                  evolutions/FlipUD/src/Makefile
