@@ -185,8 +185,8 @@ c     common/CPdfStyle/PDFType
       logical Scale68                 !> Scale LHAPDF uncertainties from 90cl to 68cl
       integer nremovepriors           !> remove prior of last <n> PDF nuisance parameters
       common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,
-     $	 LHAPDFErrors,Scale68,nremovepriors,lhapdfprofile,
-     $   lhascaleprofile,scalefactor
+     $	 LHAPDFErrors,Scale68,nremovepriors,lhapdfprofile,lhascaleprofile,
+     $   scalefactor
 
       character*256 OutDirName   !> outout dir name
       character*256 LHAPDF6OutDir
