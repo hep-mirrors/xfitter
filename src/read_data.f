@@ -396,6 +396,7 @@ cc      if(DEBUG)then
         print *,'Reading data file',trim(CFile)
 cc      endif
       read(51,NML=Data,err=98)
+
       PlotN = -1
       read(51,NML=PlotDesc,end=96,err=97)
  96   continue
@@ -670,46 +671,6 @@ c            call HF_stop
       write (Msg,'(''I: Emulate dynamic scale dataset: '',A20,'' '')')
      $        Name
            call HF_errlog(14042001,trim(Msg))
-        endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'ylow')
-        ylow = -5d0
-        if ( idxReaction .ne. 0 ) then
-           ylow = DATASETInfo(idxReaction, NDATASETS)
-
-      write (Msg,'(''I: Set ylow for theory calculation: '',A20,'' '')')
-     $        Name
-           call HF_errlog(14042701,trim(Msg))
-        endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'yhigh')
-        yhigh = 5d0
-        if ( idxReaction .ne. 0 ) then
-           yhigh = DATASETInfo(idxReaction, NDATASETS)
-
-      write (Msg,'(''I: Set yhigh for theory calculation: '',A20,'' '')')
-     $        Name
-           call HF_errlog(14042701,trim(Msg))
-        endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'mlow')
-        mlow = 0d0
-        if ( idxReaction .ne. 0 ) then
-           mlow = DATASETInfo(idxReaction, NDATASETS)
-
-      write (Msg,'(''I: Set mlow for theory calculation: '',A20,'' '')')
-     $        Name
-           call HF_errlog(14042701,trim(Msg))
-        endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'mhigh')
-        mhigh = 13000d0
-        if ( idxReaction .ne. 0 ) then
-           mhigh = DATASETInfo(idxReaction, NDATASETS)
-
-      write (Msg,'(''I: Set mhigh for theory calculation: '',A20,'' '')')
-     $        Name
-           call HF_errlog(14042701,trim(Msg))
         endif
 
         idxReaction = GetInfoIndex(NDATASETS,'MurDef')
