@@ -1,7 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 dist_noinst_HEADERS = offset.h
 # Explicit depence for all files:
-
 *.o: ../include/*.inc
 
 # the main shared library
@@ -55,8 +54,7 @@ libxfmain_la_CXXFLAGS=\
   -I$(top_srcdir)/FastNLO/include\
   -I$(top_srcdir)/common\
   -I$(top_srcdir)/common/linalg\
-  -I$(top_srcdir)/tools/draw/include\
-  -I$(top_srcdir)/dyturbo
+  -I$(top_srcdir)/tools/draw/include
 libxfmain_la_CFLAGS=
 libxfmain_la_CPPFLAGS=$(QCDNUM_CPPFLAGS) -I$(top_srcdir)/include -DPREFIX="\"$(prefix)\""
 libxfmain_la_FFLAGS=$(DEFS) -cpp -I$(top_srcdir)/include  $(NOAUTOFCFLAG) -I$(top_srcdir)/minuit/src
