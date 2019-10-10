@@ -3,8 +3,6 @@ C> Common block for theory expression
       parameter (NTermsMax = 128)
 
       double precision dynscale
-      double precision ylow,yhigh
-      double precision mlow,mhigh
       integer NTerms
       character*32 TermName(NTermsMax)
       character*80 TermType(NTermsMax)
