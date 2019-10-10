@@ -69,10 +69,6 @@ const size_t TERMSOURCE_LEN=256;
 const size_t THEOREXPR_LEN =10000;
 extern struct thexpr_cb {
   double dynscale;
-  double ylow;
-  double yhigh;
-  double mlow;
-  double mhigh;
   int nterms;
   char termname  [NTERMMAX][TERMNAME_LEN];
   char termtype  [NTERMMAX][TERMTYPE_LEN];
@@ -81,7 +77,6 @@ extern struct thexpr_cb {
   char theorexpr[THEOREXPR_LEN];
   int ppbar_collisions;
   int normalised;
-  int bindensity;
   int murdef;
   int mufdef;
   int ninfo;  // dataset info as well
