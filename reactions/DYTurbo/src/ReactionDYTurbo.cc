@@ -19,7 +19,10 @@ extern "C" ReactionDYTurbo* create() {
 // Initialize at the start of the computation
 void ReactionDYTurbo::atStart()
 {
+  //Init constants
   DYTurbo::init_const();
+
+  //Attach PDFs and alphas
   opts.externalpdf = true;
   pdf::xfxq = pdf_xfxq_wrapper_;
   pdf::alphas = alphas_wrapper_;
@@ -28,6 +31,7 @@ void ReactionDYTurbo::atStart()
 // Main function to compute results at an iteration
 void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err)
 {
+  //Update pointers to PDFs
   td->actualizeWrappers();
   
   //read settings from input file
@@ -44,16 +48,15 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //Init physics parameters
   DYTurbo::init_params();
 
+  //Compute predictions
   vector <double> vals;
   vector <double> errs;
-  //cout << "Calling DYTurbo::compute, vals size is " << vals.size() << endl;
-  
   DYTurbo::compute(vals, errs);
 
   //  for (uint i = 0; i < vals.size(); i++)
   //     cout << i << "  " << vals.size() << "  " << vals[i] << "  " << errs[i] << endl;
 
-  //check bins size
+  //TODO: check bins size
   
   //insert values into output array
   copy_n(vals.begin(), val.size(), &val[0]);
