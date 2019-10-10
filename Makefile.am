@@ -74,7 +74,6 @@ DIST_SUBDIRS = $(SUBDIRS)  datafiles QEDevol/include \
 if ENABLE_LHAPDF
   SUBDIRS+= evolutions/LHAPDF/src\
             pdfdecompositions/LHAPDFDecomposition/src
-
 endif
 
 if BUILD_DOCS
