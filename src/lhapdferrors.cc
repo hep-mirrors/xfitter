@@ -444,7 +444,6 @@ void get_lhapdferrors_()
       map <int, double> murmap;
       map <int, double> mufmap;
       map <int, double> muresmap;
-      map <int, double> muC3map;
 
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
         {
