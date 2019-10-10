@@ -11,7 +11,7 @@ using namespace std;
 
 extern"C" {
   void chi2_scan_();
-  void alphas_scan_();
+  //  void alphas_scan_();
 
   void mc_method_();
 
@@ -43,11 +43,11 @@ extern"C" {
   double appl_fnalphas_(const double& Q);
 
   //QCDnum initialisation
-  void qcdnum_ini_();
+  //void qcdnum_ini_();
 
   //Cute interface functions
-  double flav_number_(const double& q);
-  double flav_threshold_(const int& fl);
+  //double flav_number_(const double& q);
+  //double flav_threshold_(const int& fl);
 
   //Covariance matrix to nuisance parameter conversion
   void getnuisancefromcovar_(const int& NDimCovar, const int& NDimSyst, const int& NCovar,
