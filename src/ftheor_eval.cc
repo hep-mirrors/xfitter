@@ -90,7 +90,6 @@ extern struct ord_scales {
    double datasetmur[NSET_C];
    double datasetmuf[NSET_C];
    double datasetmures[NSET_C];
-   double datasetmuc3[NSET_C];
    int datasetiorder[NSET_C];
 } cscales_;
 
