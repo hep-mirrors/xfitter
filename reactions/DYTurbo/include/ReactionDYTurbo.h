@@ -19,15 +19,11 @@ class ReactionDYTurbo : public ReactionTheory
 public:
   ReactionDYTurbo(){};
 
-//    ~ReactionDYTurbo(){};
-//    ~ReactionDYTurbo(const ReactionDYTurbo &){};
-//    ReactionDYTurbo & operator =(const ReactionDYTurbo &r){return *(new ReactionDYTurbo(r));};
-
 public:
   virtual string getReactionName() const { return  "DYTurbo" ;};
   virtual void atStart();
-  virtual void initTerm(TermData* td)override final;
-  virtual void freeTerm(TermData* td)override final;
+  //  virtual void initTerm(TermData* td)override final;
+  //  virtual void freeTerm(TermData* td)override final;
   virtual void compute(TermData*,valarray<double>&,map<string,valarray<double> >&)override final;
 protected:
   virtual int parseOptions(){ return 0;};

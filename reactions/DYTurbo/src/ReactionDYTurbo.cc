@@ -61,11 +61,3 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //insert values into output array
   copy_n(vals.begin(), val.size(), &val[0]);
 }
-
-void ReactionDYTurbo::initTerm(TermData* td)
-{
-}
-
-void ReactionDYTurbo::freeTerm(TermData* td)
-{
-}
