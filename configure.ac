@@ -597,7 +597,6 @@ AC_CONFIG_FILES([include/Makefile
                  QEDevol/src/Makefile
                  QEDevol/include/Makefile
                  pdf2yaml/Makefile
-                 dyturbo/Makefile
                  tools/process/Makefile
                  tools/draw/Makefile
                  tools/draw/src/Makefile
