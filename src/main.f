@@ -99,10 +99,10 @@ C chi2scan is broken since 2.2.0
          goto 36
       endif
 
-      if (ASSCAN) then  ! alphas scan
-         call alphas_scan
-         goto 36
-      endif
+c      if (ASSCAN) then  ! alphas scan
+c         call alphas_scan
+c         goto 36
+c      endif
       
 *     ------------------------------------------------
 *     Do the fit
