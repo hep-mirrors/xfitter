@@ -39,3 +39,4 @@ ABMPgluon libABMPgluonPdfParam_xfitter.so
 KRunning libkrunning_xfitter.so
 cbdiff libcbdiff_xfitter.so
 HathorSingleTop libhathorsingletop_xfitter.so
+DYTurbo libdyturbo_xfitter.so
