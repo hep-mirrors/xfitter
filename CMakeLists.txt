@@ -31,8 +31,7 @@ find_package(APPLgrid)
 find_package(APFEL)
 find_package(APFELxx)
 find_package(Ceres)
-find_package(ROOT)
-include(importROOTtarget)
+include(find_package_ROOT)
 find_package(Hathor)
 
 #Use c++11
