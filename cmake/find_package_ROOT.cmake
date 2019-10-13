@@ -15,7 +15,7 @@ if(EXISTS ${root-config})
   list(APPEND ROOT_HINTS ${ROOT_PREFIX})
 endif()
 
-find_package(ROOT HINTS ${ROOT_HINTS})
+find_package(ROOT QUIET HINTS ${ROOT_HINTS})
 if(ROOT_FOUND)
   #Create a ROOT imported target using variables provided by ROOTConfig.cmake
 

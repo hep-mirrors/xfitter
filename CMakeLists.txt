@@ -30,7 +30,7 @@ find_package(LHAPDF)
 find_package(APPLgrid)
 find_package(APFEL)
 find_package(APFELxx)
-find_package(Ceres)
+find_package(Ceres QUIET)
 include(find_package_ROOT)
 find_package(Hathor)
 
