@@ -37,7 +37,7 @@ elif [ "$1" == "uninstall" ];then
     #else remove the whole install dir
     rm -r $INSTALL_DIR
   fi
-elif [ "$1" == "install" ] || [ "$1" == "run" ] || [ -z "$1" ];then
+elif [ "$1" == "install" ] || [ "$1" == "run" ] || [ "$1" == "build" ] || [ -z "$1" ];then
   #make sure build directory exists
   mkdir -p $BUILD_DIR
   #cd to build directory and invoke cmake theere
