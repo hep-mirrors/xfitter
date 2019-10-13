@@ -61,6 +61,13 @@ endif()
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${DEST_LIB};${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 1)
 
+#Suppress install messages
+#Only works since cmake 3.1
+#LAZY   to show "-- Installing", but not "-- Up-to-date"
+#ALWAYS to show both
+#NEVER  to hide both
+set(CMAKE_INSTALL_MESSAGE NEVER)
+
 add_subdirectory(src)
 #ABM is a shared library used by the FFABM_DISNC and FFABM_DISCC reactions
 add_subdirectory(src/ABM)
