@@ -56,6 +56,11 @@ else()
   message(FATAL_ERROR "Unknown Fortran compiler ${CMAKE_Fortran_COMPILER_ID}")
 endif()
 
+#When linking, set rpath to install directories
+#This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${DEST_LIB};${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH 1)
+
 add_subdirectory(src)
 #ABM is a shared library used by the FFABM_DISNC and FFABM_DISCC reactions
 add_subdirectory(src/ABM)

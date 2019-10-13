@@ -66,7 +66,7 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
   fi
   if [ "$?" -eq 0 ] && [ "$cmd" == "run" ];then
     cd $SOURCE_DIR #cd to where steering files are
-    LD_LIBRARY_PATH=$INSTALL_DIR/lib/xfitter/:$INSTALL_DIR/lib/:$LD_LIBRARY_PATH $INSTALL_DIR/bin/xfitter
+    $INSTALL_DIR/bin/xfitter
   fi
 else
   echo "Unknown command \"$1\""
