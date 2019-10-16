@@ -54,20 +54,21 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
     rm CMakeCache.txt
   fi
   if [ ! -f Makefile ] || [ ! -f CMakeCache.txt ];then
-    cmake $CMAKE_OPTIONS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR
+    cmake $CMAKE_OPTIONS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
   fi
   if [ "$cmd" == "reconfigure" ];then
-    exit
+    exit 0
   fi
   if [ "$cmd" == "install" ] || [ "$cmd" == "run" ];then
-    make -j$(nproc) install
+    make -j$(nproc) install || exit
   else
-    make -j$(nproc)
+    make -j$(nproc) || exit
   fi
-  if [ "$?" -eq 0 ] && [ "$cmd" == "run" ];then
+  if [ "$cmd" == "run" ];then
     cd $SOURCE_DIR #cd to where steering files are
-    $INSTALL_DIR/bin/xfitter
+    $INSTALL_DIR/bin/xfitter || exit
   fi
 else
   echo "Unknown command \"$1\""
+  exit 10
 fi
