@@ -1,0 +1,5 @@
+set(TARGET reactionBaseDISCC)
+add_library(${TARGET} SHARED ReactionBaseDISCC.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter evolutionQCDNUM)
+target_include_directories(${TARGET} PUBLIC .)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})

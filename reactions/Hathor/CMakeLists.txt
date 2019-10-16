@@ -1,0 +1,11 @@
+if(NOT HATHOR_FOUND)
+  message(STATUS "Skipping optional reaction Hathor because Hathor library was not found")
+  return()
+endif()
+
+set(TARGET reactionHathor)
+add_library(${TARGET} MODULE src/ReactionHathor.cc src/HathorPdfxFitter.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter HATHOR)
+target_include_directories(${TARGET} PRIVATE include)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES yaml/parameters.yaml DESTINATION ${DEST_YAML}/reactions RENAME Hathor.yaml)

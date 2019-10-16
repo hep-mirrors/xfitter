@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+print "This code-generating script was written for an older version and is currently broken and needs to be rewritten.\nSorry!"
+exit(-1)
 
 ''' Script to generate templates for new PDF parameterisation '''
 

@@ -114,38 +114,6 @@ C--------------------------------------------------
           XParValueByName = ExtraParamValue(idx)
         endif
       end
-! ---]
-
-
-      integer Function GetKFactIndex(IDataSet,CName)
-C-----------------------------------------------------------------
-C
-C  Created 26/05/2011 by SG
-C  Return info index corresponding to kfactor name CName
-C
-C-----------------------------------------------------------------
-      implicit none
-#include "ntot.inc"
-#include "for_debug.inc"
-#include "datasets.inc"
-      integer IDataSet
-      character *(*) CName
-      integer i
-C----------------------------------------------------------------
-
-      do i=1,DATASETNKfactors(IDataSet)
-         if (CName.eq. DATASETKFactorNames(i,IDataSet)) then
-            GetKFactIndex = i
-            Return
-         endif
-      enddo
-      
-      GetKFactIndex = 0
-      print *,'ERROR: Could not find index for kfactor ',cname
-
-      end
-
-
       Logical Function FailSelectionCuts(reaction,nbin,bins,binnames,IndexDataset)
 C----------------------------------------------------------------------
 C  Created 24/05/11 by SG.

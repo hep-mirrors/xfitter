@@ -1,0 +1,5 @@
+set(TARGET reactionFractal_DISNC)
+add_library(${TARGET} MODULE ReactionFractal_DISNC.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES Fractal_DISNC.yaml DESTINATION ${DEST_YAML}/reactions)

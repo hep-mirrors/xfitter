@@ -1,0 +1,8 @@
+if(NOT LHAPDF_FOUND)
+  message(STATUS "Skipping optional LHAPDF evolution because LHAPDF library was not found")
+  return()
+endif()
+set(TARGET evolutionLHAPDF)
+add_library(${TARGET} MODULE EvolutionLHAPDF.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter LHAPDF)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
