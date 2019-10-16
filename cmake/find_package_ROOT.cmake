@@ -1,3 +1,9 @@
+if(CMAKE_DISABLE_FIND_PACKAGE_ROOT)
+  set(ROOT_FOUND 0)
+  message(STATUS "Skipping disabled package ROOT")
+  return()
+else()
+
 set(ROOT_HINTS)
 if(EXISTS $ENV{ROOT_DIR})
   set(ROOT_DIR $ENV{ROOT_DIR})
@@ -49,6 +55,7 @@ elseif(EXISTS ${root-config})
   #Remove some extra flags from ROOT_DEFINITIONS
   separate_arguments(ROOT_DEFINITIONS)
   list(REMOVE_ITEM ROOT_DEFINITIONS "-std=c++11" "-I${ROOT_INCLUDE_DIRS}")
+endif()
 endif()
 
 if(ROOT_FOUND)

@@ -13,12 +13,12 @@
 #main library             goes to ./lib
 #dynamically loaded modules go to ./lib/xfitter
 
-CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release"
+CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Release"
 
 #Uncommect to disable some some of the optional packages
-#CMAKE_OPTIONS=$CMAKE_OPTIONS" -DCMAKE_DISABLE_FIND_PACKAGE_APFEL=TRUE"
-#CMAKE_OPTIONS=$CMAKE_OPTIONS" -DCMAKE_DISABLE_FIND_PACKAGE_APFELxx=TRUE"
-#CMAKE_OPTIONS=$CMAKE_OPTIONS" -DCMAKE_DISABLE_FIND_PACKAGE_Ceres=TRUE"
+#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_APFEL=TRUE"
+#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_APFELxx=TRUE"
+#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_Ceres=TRUE"
 
 SOURCE_DIR=$(dirname $(readlink -e $0)) #absolute path to directory of this script
 BUILD_DIR=$SOURCE_DIR/build
@@ -54,7 +54,7 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
     rm CMakeCache.txt
   fi
   if [ ! -f Makefile ] || [ ! -f CMakeCache.txt ];then
-    cmake $CMAKE_OPTIONS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
+    cmake $CMAKE_FLAGS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
   fi
   if [ "$cmd" == "reconfigure" ];then
     exit 0

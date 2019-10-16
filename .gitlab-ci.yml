@@ -18,6 +18,8 @@ job:
   stage: commit
   script:
     - ./make.sh install
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
   only:
     - master
   except:
