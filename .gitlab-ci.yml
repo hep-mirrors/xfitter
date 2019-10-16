@@ -17,17 +17,17 @@ before_script:
 job:
   stage: commit
   script:
-    - ./scripts/test-build.sh
+    - ./make.sh install
   only:
     - master
   except:
     - triggers
 
-nightly_devel:
-  stage: nightly
-  script:
-    - ./scripts/test-build.sh
-    - ./scripts/test-build.sh apfel applgrid lhapdf
-  only:
-    - devel
-    - triggers
+#nightly_devel:
+#  stage: nightly
+#  script:
+#    - ./scripts/test-build.sh
+#    - ./scripts/test-build.sh apfel applgrid lhapdf
+#  only:
+#    - devel
+#    - triggers
