@@ -22,7 +22,6 @@ class ReactionFONLL_DISNC : public ReactionBaseDISNC
   //ReactionFONLL_DISNC & operator = (const ReactionAFONLL_DISNC &r) { return *(new ReactionFONLL_DISNC(r)); };
 
   virtual string getReactionName() const { return "FONLL_DISNC"; };
-  virtual void atStart() override final;
   virtual void atIteration() override final;
   virtual void initTerm(TermData*)override final;
 

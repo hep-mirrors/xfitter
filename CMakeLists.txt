@@ -22,6 +22,7 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 
 #Find packages
 #see cmake/FindXXX.cmake for find scripts
+#TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
 find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(QCDNUM REQUIRED)
@@ -30,9 +31,8 @@ find_package(LHAPDF)
 find_package(APPLgrid)
 find_package(APFEL)
 find_package(APFELxx)
-find_package(Ceres)
-find_package(ROOT)
-include(importROOTtarget)
+find_package(Ceres QUIET)
+include(find_package_ROOT)
 find_package(Hathor)
 
 #Use c++11
@@ -56,6 +56,18 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
 else()
   message(FATAL_ERROR "Unknown Fortran compiler ${CMAKE_Fortran_COMPILER_ID}")
 endif()
+
+#When linking, set rpath to install directories
+#This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${DEST_LIB};${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH 1)
+
+#Suppress install messages
+#Only works since cmake 3.1
+#LAZY   to show "-- Installing", but not "-- Up-to-date"
+#ALWAYS to show both
+#NEVER  to hide both
+set(CMAKE_INSTALL_MESSAGE NEVER)
 
 add_subdirectory(src)
 #ABM is a shared library used by the FFABM_DISNC and FFABM_DISCC reactions
