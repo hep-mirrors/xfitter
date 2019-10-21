@@ -1,6 +1,8 @@
 find_package(PkgConfig REQUIRED)
 #save PKG_CONFIG_PATH from environment
 set(PKG_CONFIG_PATH_SAVED "$ENV{PKG_CONFIG_PATH}")
+#Append ./deps/yaml-cpp/lib/pkgconfig to PKG_CONFIG_PATH
+set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${CMAKE_SOURCE_DIR}/deps/yaml-cpp/lib/pkgconfig")
 if(EXISTS "$ENV{yaml_cpp_DIR}")
   #if yaml_cpp_DIR environment variable is set, make pkg-config search there too
   set(ENV{PKG_CONFIG_PATH} "$ENV{yaml_cpp_DIR}/lib/pkgconfig:$ENV{yaml_cpp_DIR}/pkgconfig:$ENV{yaml_cpp_DIR}:$ENV{PKG_CONFIG_PATH}")
