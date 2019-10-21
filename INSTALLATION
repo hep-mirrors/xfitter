@@ -11,7 +11,7 @@
 0) Pre-requirements.
 ====================
 
--- QCDNUM version at least qcdnum-17-01/13, can be found at 
+-- QCDNUM version at least qcdnum-17-01/14, can be found at 
    http://www.nikhef.nl/~h24/qcdnum/QcdnumDownload.html
 
 -- Link to recent Root libraries (e.g. version 5.34). This is optional, but recommended to enable drawing tools, APPLgrid.
