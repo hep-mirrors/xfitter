@@ -23,26 +23,26 @@ extern "C" {
   void update_theory_iteration_();
 }
 
-//return error if LHAPDF is not enabled
-#if !defined LHAPDF_ENABLED
-void chi2_scan_()
-{
-  string msg = "S: Call to chi2_scan but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
-  hf_errlog_(14060204, msg.c_str(), msg.size());
-}
-#elif !defined ROOT_ENABLED
-void chi2_scan_()
-{
-  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
-  hf_errlog_(14062501, msg.c_str(), msg.size());
-}
-#elif !defined APPLGRID_ENABLED
-void chi2_scan_()
-{
-  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
-  hf_errlog_(14062501, msg.c_str(), msg.size());
-}
-#else
+////return error if LHAPDF is not enabled
+//#if !defined LHAPDF_ENABLED
+//void chi2_scan_()
+//{
+//  string msg = "S: Call to chi2_scan but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
+//  hf_errlog_(14060204, msg.c_str(), msg.size());
+//}
+//#elif !defined ROOT_ENABLED
+//void chi2_scan_()
+//{
+//  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
+//  hf_errlog_(14062501, msg.c_str(), msg.size());
+//}
+//#elif !defined APPLGRID_ENABLED
+//void chi2_scan_()
+//{
+//  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
+//  hf_errlog_(14062501, msg.c_str(), msg.size());
+//}
+//#else
 
 #include <LHAPDF/LHAPDF.h>
 
@@ -1269,7 +1269,7 @@ void chi2_scan_()
 	      store_pdfs_(filename.c_str(), filename.size());
 	      if (cset == 0)
 		{
-		  fill_c_common_();
+		  //fill_c_common_(); //What was this doing?
 		  print_lhapdf6_();
 		}
 	      else
@@ -1412,7 +1412,7 @@ void chi2_scan_()
 
   cout << endl;
 }
-#endif
+//#endif
 
 void decompose(map <int, map <int, map <double, double> > > &systchi2, double value)
 {
@@ -1758,7 +1758,7 @@ void decompose_fits(map <int, map <int, map <double, double> > > systchi2, doubl
       char chi2name[200];
       sprintf(chi2name, "chi2scan_syst_%d_p.txt", s);
       fitchi2_and_store (systchi2[0][s], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
-
+      
       sprintf(chi2name, "chi2scan_syst_%d_m.txt", s);
       fitchi2_and_store (systchi2[1][s], min_i_m, deltap_i, deltam_i, chi2min_i, chi2name);
 
