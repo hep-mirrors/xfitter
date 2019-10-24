@@ -584,7 +584,7 @@ void TheorEval::ChangeTheorySource(string term, string source)
     //Replace dsPars
     term_source=GetParamDS(term_source.substr(4),_ds_name,_dsIndex);
   }
-  ReactionTheory*rt=getReaction(term_source);
+  ReactionTheory*rt=xfitter::getReaction(term_source);
   size_t termID=_dsId*1000+iterm;
   TermData*term_data=new TermData(termID,rt,this,term_info.c_str());
   term_data->val=_mapInitdTerms[term];
