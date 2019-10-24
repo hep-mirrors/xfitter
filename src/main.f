@@ -75,10 +75,10 @@ C      call hfbanner
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
 
-      if (LHAPDFErrors) then  ! PDF errors
-         call get_lhapdferrors
-         goto 36
-      endif
+c      if (LHAPDFErrors) then  ! PDF errors
+c         call get_lhapdferrors
+c         goto 36
+c      endif
       
       if (SCAN) then            ! chi2 scan
          call chi2_scan
