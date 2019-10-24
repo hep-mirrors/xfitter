@@ -47,7 +47,7 @@ TPad * DrawLogo(string pos)
   string ver = VERSION;
 
   TImage *logo = TImage::Create();
-  logo->SetImageBuffer(logo_xpm, TImage::kXpm);
+  logo->SetImageBuffer(const_cast<char**>(logo_xpm), TImage::kXpm);
   if (!logo) 
     {
       cout << "Error, Could not find logo" << endl;

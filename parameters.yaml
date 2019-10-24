@@ -76,7 +76,7 @@ Parameterisations:
 DefaultDecomposition: proton
 Decompositions:
   proton:
-    class: UvDvubardbars
+    class: UvDvUbarDbarS
     xuv: par_uv
     xdv: par_dv
     xubar: par_ubar
@@ -90,10 +90,10 @@ DefaultEvolution: proton-QCDNUM
 
 Evolutions:
   proton-APFELff:
-    ? !include evolutions/APFEL/parameters.yaml
+    ? !include evolutions/APFEL.yaml
     decomposition: proton
   proton-QCDNUM:
-    ? !include evolutions/QCDNUM/parameters.yaml
+    ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
     # The following allows QCDNUM to read PDFs from other evolutions:
     #EvolutionCopy: "proton-LHAPDF"
@@ -103,7 +103,7 @@ Evolutions:
     #set: "CT10nlo"
     member: 0
 #  proton-APFEL:
-#    ? !include evolutions/APFELxx/parameters.yaml
+#    ? !include evolutions/APFELxx.yaml
 #    decomposition: proton
   antiproton:
     class: FlipCharge
@@ -122,7 +122,7 @@ alphas : 0.118
 byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
-    ? !include reactions/RT_DISNC/parameters.yaml
+    ? !include reactions/RT_DISNC.yaml
     # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
     #evolution: proton-QCDNUM
   # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
@@ -130,23 +130,23 @@ byReaction:
   #  evolution: proton-QCDNUM
   # FONLL scheme settings:
   FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC/parameters.yaml
+    ? !include reactions/FONLL_DISNC.yaml
   FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC/parameters.yaml
+    ? !include reactions/FONLL_DISCC.yaml
   # FF ABM scheme settings:
   FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC/parameters.yaml
+    ? !include reactions/FFABM_DISNC.yaml
   FFABM_DISCC:
-    ? !include reactions/FFABM_DISCC/parameters.yaml
+    ? !include reactions/FFABM_DISCC.yaml
   # AFB settings:
   AFB:
-    ? !include reactions/AFB/parameters.yaml
+    ? !include reactions/AFB.yaml
   # APPLgrid settings:
   APPLgrid:
-    ? !include reactions/APPLgrid/parameters.yaml
+    ? !include reactions/APPLgrid.yaml
   # (optional) Fractal module settings:
   Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC/parameters.yaml
+    ? !include reactions/Fractal_DISNC.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
@@ -177,6 +177,8 @@ Profiler:
   Status: "Off"               # "Off" to turn off profiler
   WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
   getChi2: "Off"              # determine and report chi2 for each variation
+
+OutputDirectory: "output" #Can be omitted, default is "output"
 
 WriteLHAPDF6:
   name: "proton"

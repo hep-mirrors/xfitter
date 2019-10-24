@@ -30,19 +30,12 @@ C Special branch for rotation
 
       call read_infilesnml   ! Read data file names THIRD
       call read_outputnml   ! output options
-      call read_outdirnml   ! output dir
 
-!     if(Itheory.lt.100) then
       call read_lhapdfnml    ! read lhapdf
       call read_chi2scan        ! read chi2scan
-!     endif   ! Itheory < 100
 
       call read_mcerrorsnml  ! MC uncertainties
       call read_hqscalesnml  ! read HQ scales
-
-      if (itheory.ge.100) then
-         call read_ccfmfilesnml
-      endif
 
       call Read_InCorrNml   ! Covariance matrix
       call read_scalesnml   ! Read scales namelist
@@ -53,8 +46,6 @@ c WS 2013-01-07 always read CSOffsetNML
 
 C 30/08/2015  KK - Twist analyses
       call read_HigherTwists
-C 09/01/2013 Check consistency of the input
-      call CheckInputs
 
       end
 
@@ -86,11 +77,7 @@ C------------------------------------------------------
 
       nExtraParam = 0
 
-      Itheory = 0
-
       ExtraPdfs = .false.
-
-      EWFIT=0
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
 
@@ -114,33 +101,11 @@ C     Initialise LHAPDF parameters
       IPDFSET = 1
       vIPDFSET = IPDFSET
 
-C 25 Jan 2011
-C     Pure polynomial param for the valence quarks:
-C     by default starting from N=61 for Uv and N=71 for Dv
-      NPOLYVAL = 0
-
-C Add option to change Z of valence PDFs at x=1 from  (1-x) to (1-x)^2
-      IZPOPOLY = 1
-
-C Square polynom before calculating dv,uv. This forces positivity
-      IPOLYSQR = 0
 C  Key for W range
       WMNlen =  20.
       WMXlen = 320.
-
-C  Hermes-like strange (off by default):
-      ifsttype = 0
-
-C  Cache PDF calls
-!  are currently broken
-!     CachePDFs     = .false.
-
 ! Do not split the data into fit and control sub-samples:
       ControlFitSplit = .false.
-
-C  Fast applgrid:
-      LFastAPPLGRID = .false.
-      LUseAPPLgridCKM = .true.
 *
 C MC Errors defaults:
       lRAND = .false.
@@ -157,18 +122,11 @@ C PDF output options:
       outxrange(1) = 1e-4
       outxrange(2) = 1.0
 
-      strange_frac = 0.31
-      charm_frac = 0.00
-
       mch        = 1.4D0
       mbt        = 4.75D0
       mtp        = 174.D0
 
-      HFSCHEME = 0
-
       OutDirName  = 'output'
-      UseGridLHAPDF5=.false.
-      WriteLHAPDF6=.true.
 
       Debug = .false.
 
@@ -196,42 +154,27 @@ C----------------------------------------------
       implicit none
 
 #include "ntot.inc"
-#include "datasets.inc"
 #include "steering.inc"
-#include "scales.inc"
 #include "indata.inc"
-#include "theorexpr.inc"
-#include "chi2scan.inc"
 #include "for_debug.inc"
 C-----------------------------------------------
 
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8)
-!Starting scale and order were moved to YAML since 2.2.0
-!     real*8 Q02       ! Starting scale
-!     integer IOrder   ! Evolution order
-!     character*8 Order  !
-      character*16 TheoryType
       integer i
 
 C Main steering parameters namelist
       namelist/xFitter/
-     $     ITheory,         ! keep for backward compatibility
-     $     HF_SCHEME,
-     $     LDebug, ifsttype,  LFastAPPLGRID, LUseAPPLgridCKM,
-     $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc,
-     $     ControlFitSplit,TheoryType,
+     $     LDebug,
+     $     Chi2MaxError, iDH_MOD, H1qcdfunc,
+     $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate, RunningMode
+     $     AsymErrorsIterations, pdfRotate
 
 C--------------------------------------------------------------
 
 C Some defaults
-!     Order     = ' '
-      TheoryType = ' '
-      RunningMode = ' '
-      HF_SCHEME = 'ZMVFNS'
       Chi2SettingsName(1) = 'undefined' ! triggering the old style chi2 settings
       do i=1, 8
          Chi2ExtraParam(i) = 'undefined'
@@ -252,43 +195,6 @@ C
      $        'I: Symmetrise asymmetric uncertainties if present')
       endif
 
-C Decode Running Mode:
-      if ( RunningMode .eq. ' ' ) then
-         Call hf_errlog(15072201,
-     $        'I: RunningMode not set,check LHAPDFERRors'
-     $        //' and SCAN for backward compatibility')
-         scan = .false.
-         lhapdferrors = .false.
-         pdfrotate = .false.
-      else if  ( RunningMode .eq. 'Fit') then
-         scan = .false.
-         lhapdferrors = .false.
-         pdfrotate = .false.
-      else if  ( RunningMode .eq. 'PDF Rotate') then
-         scan = .false.
-         lhapdferrors = .false.
-         pdfrotate = .true.
-      else if  ( RunningMode .eq. 'Chi2 Scan') then
-         scan = .true.
-         lhapdferrors = .false.
-         pdfrotate = .false.
-      else
-         call hf_errlog(15072202,'F:Running mode unknonw value: '//
-     $        trim(RunningMode))
-      endif
-
-C Decode computation order:
-!     if (Order.ne.' ') then
-!        Call DecodeOrder(Order)
-!     else
-!        I_FIT_ORDER = IOrder
-!     endif
-
-C Decode theory type:
-      if (TheoryType.ne.' ') then
-         Call DecodeTheoryType(TheoryType)
-      endif
-
 C     set debug flag used elsewhere according to steering
       Debug = lDebug
 C
@@ -297,15 +203,6 @@ C
 
       call SetChi2Style(Chi2SettingsName, Chi2Settings,
      $     Chi2ExtraParam)
-
-      if (itheory.lt.100) then
-C
-C Decode HFSCHEME:
-C
-         call SetHFSCHEME
-      endif
-
-!     starting_scale = Q02 !broken since 2.2.0
 
       if (LDebug) then
 C Print the namelist:
@@ -392,13 +289,6 @@ C
        bq2 = -4*scaleb1/scalea1
        hqscale1in = scalea1
        hqscale2in = scaleb1
-       if(mod(HFSCHEME,10).eq.1) then
-       if(massh.eq.1) then
-       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_c^2 )'
-       elseif(massh.eq.2) then
-       print*,'factorisation scale for heavy quarks is set to  sqrt(', hqscale1in,'*Q^2 + ',hqscale2in , '* 4m_b^2 )'
-        endif
-        endif
       if (LDebug) then
 C Print the namelist:
          print HQScale
@@ -422,7 +312,7 @@ C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/
      $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
-     $     WriteAlphaSToMemberPDF,DataToTheo,nremovepriors,
+     $     DataToTheo,nremovepriors,
      $     lhapdfprofile,lhascaleprofile
 
       logical lhapdferrors_save
@@ -439,8 +329,6 @@ C LHAPDFErrors default
       LHAPDFVARSET = ''
       NREMOVEPRIORS = 0
 C
-      WriteAlphaSToMemberPDF = .false.
-
       DataToTheo = .false.
 C
 C  Read the lhapdf namelist:
@@ -754,8 +642,8 @@ C------------------------------------------------
       integer i, ilastq2
 
 C Output style namelist
-      namelist/Output/Q2VAL, OutNX, OutXRange,UseGridLHAPDF5,
-     $     WriteLHAPDF5,WriteLHAPDF6,
+      namelist/Output/Q2VAL, OutNX, OutXRange,
+     $     WriteLHAPDF5,
      $     ReadParsFromFile, ParsFileName, CovFileName
 
 C--------------------------------------------------------
@@ -792,187 +680,6 @@ c      print *,'q2val ', (q2val(i),i=1,NBANDS)
       call HF_stop
 
       end
-
-
-C
-!> Read output dir name
-C------------------------------------------------
-      subroutine read_outdirnml
-
-      implicit none
-#include "steering.inc"
-      namelist/OutDir/OutDirName, LHAPDF6OutDir
-      LOGICAL ex
-C--------------------------------------------------------
-C  Read the OutDir namelist:
-C
-      LHAPDF6OutDir='xfitter_pdf'
-      open (51,file='steering.txt',status='old')
-      read (51,NML=OutDir,END=152,ERR=56)
- 152  continue
-      close (51)
-
-C check if limit of 22 char is not exceeded:
-      if(LEN(TRIM(OutDirName)).gt.256) then
-          call hf_errlog(09092013,
-     $   'F: Name of result directory is too long (max is 256 char) ')
-          call hf_stop
-      endif
-
-
-      if (LDebug) then
-         print OutDir
-      endif
-
-#if ifort==1
-      inquire(directory=TRIM(OutDirName),EXIST=ex)
-#else
-      inquire(file=TRIM(OutDirName),EXIST=ex)
-#endif
-      if(ex) then
-#if ifort==1
-         inquire(directory=TRIM(OutDirName)//"_OLD",EXIST=ex)
-#else
-         inquire(file=TRIM(OutDirName)//"_OLD",EXIST=ex)
-#endif
-         if (ex) then
-            call hf_errlog(1303201701,
-     $           'W: Removing directory to backup results: '
-     $           //TRIM(OutDirName)//"_OLD")
-            call system("rm -fr "//trim(OutDirName)//"_OLD")
-
-            print *,achar(27)//'[31m'//
-     $           'W: Removing directory to backup results: '
-     $           //TRIM(OutDirName)//"_OLD"
-     $           //achar(27)//'[0m'
-
-
-         endif
-
-         call hf_errlog(1303201702,
-     $        'W: Backup '//TRIM(OutDirName)//' to '
-     $        //TRIM(OutDirName)//"_OLD"
-     $        )
-
-            print *,achar(27)//'[31m'//
-     $        'W: Backup '//TRIM(OutDirName)//' to '
-     $        //TRIM(OutDirName)//"_OLD"
-     $           //achar(27)//'[0m'
-
-
-
-         call system("mv "//trim(OutDirName)//" "
-     $        //trim(OutDirName)//"_OLD")
-      endif
-
-      call hf_errlog(250420132,
-     $     'I: Creating directory to store results: '//TRIM(OutDirName))
-      CALL system('mkdir -p '//TRIM(OutDirName))
-
-      return
- 56   continue
-      print '(''Error reading namelist &OutDir, STOP'')'
-      call HF_stop
-
-      end
-C---------------------------------------
-C
-!>  Set Heavy Flavour Scheme
-C
-C---------------------------------------
-      Subroutine SetHFSCHEME
-
-      implicit none
-!      integer nordAcot
-!      Common /Iacot/  nordAcot  !*** pass nordAcot to ACOT module
-
-#include "steering.inc"
-C---------------------------------
-
-      if (HF_SCHEME.eq.'ZMVFNS') then
-          HFSCHEME = 0
-      elseif (HF_SCHEME.eq.'ZMVFNS MELA') then
-          HFSCHEME = 6
-      elseif (HF_SCHEME.eq.'ACOT ZM') then
-          HFSCHEME = 1
-          nordAcot=1
-      elseif (HF_SCHEME.eq.'ACOT ZM +N2LO') then
-          HFSCHEME = 1
-          nordAcot=2
-      elseif (HF_SCHEME.eq.'ACOT ZM +N3LO') then
-          HFSCHEME = 1
-          nordAcot=3
-      elseif (HF_SCHEME.eq.'ACOT Full') then
-          HFSCHEME = 11
-          nordAcot=1
-      elseif (HF_SCHEME.eq.'ACOT Full +N2LO') then
-          HFSCHEME = 11
-          nordAcot=2
-      elseif (HF_SCHEME.eq.'ACOT Full +N3LO') then
-          HFSCHEME = 11
-          nordAcot=3
-      elseif (HF_SCHEME.eq.'ACOT Chi') then
-          HFSCHEME = 111
-          nordAcot=1
-      elseif (HF_SCHEME.eq.'ACOT Chi +N2LO') then
-          HFSCHEME = 111
-          nordAcot=2
-      elseif (HF_SCHEME.eq.'ACOT Chi +N3LO') then
-          HFSCHEME = 111
-          nordAcot=3
-      elseif (HF_SCHEME.eq.'RT') then
-          HFSCHEME = 2
-      elseif (HF_SCHEME.eq.'RT FAST') then
-          HFSCHEME = 22
-      elseif (HF_SCHEME.eq.'RT OPT') then
-          HFSCHEME = 202
-      elseif (HF_SCHEME.eq.'RT OPT FAST') then
-          HFSCHEME = 222
-      elseif (HF_SCHEME.eq.'FF') then
-          HFSCHEME = 3
-      elseif (HF_SCHEME.eq.'FF ABM') then
-         HFSCHEME = 4
-      elseif (HF_SCHEME.eq.'BMSN ABM') then
-         HFSCHEME = 44
-      elseif (HF_SCHEME.eq.'FF ABM RUNM') then
-         HFSCHEME = 444
-      elseif (HF_SCHEME.eq.'FONLL-A') then
-         HFSCHEME = 5
-      elseif (HF_SCHEME.eq.'FONLL-A RUNM OFF') then
-         HFSCHEME = 1005
-      elseif (HF_SCHEME.eq.'FONLL-A RUNM ON') then
-         HFSCHEME = 2005
-      elseif (HF_SCHEME.eq.'FONLL-A NLLx') then
-         HFSCHEME = 3005
-      elseif (HF_SCHEME.eq.'FONLL-B') then
-         HFSCHEME = 55
-      elseif (HF_SCHEME.eq.'FONLL-B RUNM OFF') then
-         HFSCHEME = 1055
-      elseif (HF_SCHEME.eq.'FONLL-B RUNM ON') then
-         HFSCHEME = 2055
-      elseif (HF_SCHEME.eq.'FONLL-B NLLx') then
-         HFSCHEME = 3055
-      elseif (HF_SCHEME.eq.'FONLL-C') then
-         HFSCHEME = 555
-      elseif (HF_SCHEME.eq.'FONLL-C RUNM OFF') then
-         HFSCHEME = 1555
-      elseif (HF_SCHEME.eq.'FONLL-C RUNM ON') then
-         HFSCHEME = 2555
-      elseif (HF_SCHEME.eq.'FONLL-C NLLx') then
-         HFSCHEME = 3555
-      elseif (HF_SCHEME.eq.'S-ACOT Chi') then
-          HFSCHEME = 17
-      elseif (HF_SCHEME.eq.'S-ACOT Chi RC') then
-          HFSCHEME = 27
-      else
-         print *,'Unsupported HFSCHEME =',HF_SCHEME
-         print *,'Check value in steering.txt'
-         call HF_stop
-      endif
-      end
-
-
-
 C---------------------------------------
 C
 !>  Set HQ scale parameter
@@ -1303,52 +1010,6 @@ C--------------------------------------------------
 C--------------------------------------------------
       end
 
-C--------------------------------------------------
-!> Decode type of theory to be used
-!> @param TheoryType name of theory
-C--------------------------------------------------
-      subroutine DecodeTheoryType(TheoryType)
-
-      character*(*) TheoryType
-#include "steering.inc"
-C------------------------------------------------
-      if (TheoryType.eq.'DGLAP') then
-         iTheory =  0
-      elseif (TheoryType.eq.'DGLAP_APFEL') then
-         iTheory = 10
-         IPDFSET = 7
-      elseif (TheoryType.eq.'DGLAP_APFEL_QED') then
-         iTheory = 35
-         IPDFSET = 7
-         ExtraPdfs = .true.
-      elseif (TheoryType.eq.'DGLAP_QEDEVOL') then
-         iTheory = 11
-         IPDFSET = 8
-         ExtraPdfs = .true.
-      else if ( TheoryType.eq.'DIPOLE') then
-      else if ( TheoryType.eq.'FRACTAL') then
-         iTheory = 50
-      else if ( TheoryType.eq.'uPDF') then
-         iTheory = 101
-      else if ( TheoryType.eq.'uPDF1') then
-         iTheory = 101
-      else if ( TheoryType.eq.'uPDF2') then
-         iTheory = 102
-      else if ( TheoryType.eq.'uPDF3') then
-         iTheory = 103
-      else if ( TheoryType.eq.'uPDF4') then
-         iTheory = 104
-      else if ( TheoryType.eq.'uPDF5') then
-         iTheory = 105
-      else
-         print *,'Unknown TheoryType = TheoryType'
-         print *,'Check your steering.txt file'
-         call hf_stop
-      endif
-      vIPDFSET = IPDFSET
-
-      end
-
 C
 !> Check if the systematic source is already on the list.
 !> Takes care of asymmetric errors and : modifier.
@@ -1539,12 +1200,4 @@ C-----------------
 134   continue
       print '(''Error reading namelist &HighTwist, STOP'')'
       call HF_stop
-      end
-
-!> DEPRECATED
-!>  Check consistency of the data input, abort for unsupported combinations
-!> TODO: remove me
-      Subroutine CheckInputs
-      implicit none
-      return
       end

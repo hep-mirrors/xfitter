@@ -11,13 +11,17 @@
 #include "xfitter_steer.h"
 #include "xfitter_cpp.h"
 #include "xfitter_cpp_base.h"
-#include <fstream>
 #include <string.h>
 #include <cmath>
 #include "BaseEvolution.h"
 #include "BasePdfDecomposition.h"
 #include "BaseMinimizer.h"
-#include"dependent_pars.h"
+#include "dependent_pars.h"
+#include "ansi_codes.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 // Fortran bindings:
 extern "C" {
@@ -176,11 +180,6 @@ double getEvolutionParamD(const string& evName,const string& parName){
   std::abort();//unreachable
 }
 
-// Helper function
-bool fileExists(const string&fileName){
-  return std::ifstream(fileName).good();
-}
-
 YAML::Node loadYamlFile(const string&filename){
   YAML::Node node;
   try{
@@ -191,6 +190,29 @@ YAML::Node loadYamlFile(const string&filename){
   }
   return node;
 }
+/*
+\brief Process "? !include" directives in the YAML steering
+\details
+  For each "? !include" directive in the loaded YAML tree,
+  open the included file and insert its contents in place of the !include,
+  possibly ignoring some keys if they are already defined locally.
+
+  When looking for the included file, search relative to current working directory first.
+  If the included file is not found there,
+  AND the given path is not absolute (absolute paths begin with '/'),
+  AND the given path is not explicitly relative to working dir (begin with '.'),
+  then look in the system directory for standard xfitter YAML files,
+  which is XFITTER_YAML_PATH=INSTALL_PREFIX/share/xfitter/
+
+  This function operates on YAML maps, looking for "include" tag on key of each entry.
+
+  Include expansion is recursive, which means that "!include" statements will be expanded in sub-maps too
+  (on any indentation level of the YAML steering).
+
+  Included files can also contain "!include" directives
+
+  The recursionLimit is meant to protect from circular includes.
+*/
 void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   if(recursionLimit==0){
     hf_errlog(18092605,"F: Recursion limit reached while handling includes");
@@ -226,12 +248,13 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       char c=filename[0];
       bool file_not_found=(c=='/'||c=='.');
       if(!file_not_found){
-        string prefix_filename=PREFIX+string("/yaml/")+filename;
+        string prefix_filename=XFITTER_YAML_PATH+filename;
         if(fileExists(prefix_filename))filename=prefix_filename;
         else file_not_found=true;
       }
       if(file_not_found){
-        cerr<<"[ERROR] YAML include file "<<filename<<" not found"<<endl;
+        cerr<<"[ERROR] YAML include file "<<filename<<" not found\n"
+        "Default search prefix is "<<XFITTER_YAML_PATH<<'\n'<<endl;
         hf_errlog(19040135,"F: YAML include file not found, see stderr");
       }
     }
@@ -308,6 +331,28 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     }
   }
 
+  void createOutputDir(){
+    string outputDir = "output";//default
+    if(rootNode["OutputDirectory"]){
+      outputDir = rootNode["OutputDirectory"].as<string>();
+    }
+    stringToFortran(coutdirname_.outdirname, 256, outputDir);
+
+    //create the output directory
+    //if that directory already exists, presumably from the previous run, rename it to output_OLD first
+    //if output_OLD also exists, delete it
+    if(fileExists(outputDir)){
+      string oldOutputDir=outputDir+"_OLD";
+      if(fileExists(oldOutputDir)){
+        hf_errlog(1303201701, "W: Removing old results directory "+oldOutputDir);
+        int ret = system(("rm -rf "+oldOutputDir).c_str());
+      }
+      hf_errlog(1303201702, "W: Backing up previous results to "+oldOutputDir);
+      rename(outputDir.c_str(), oldOutputDir.c_str());
+    }
+    mkdir(outputDir.c_str(),0755);
+  }
+
   void ParsToFortran(){
 
     // helper macros
@@ -339,8 +384,14 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
 
     // EW couplings
     FortAssignD(Alphaem,ew_couplings_)
-    FortAssignD(sin2thW,ew_couplings_)
-    FortAssignD(cos2thW,ew_couplings_)
+
+    //Weinberg angle
+    if( rootNode["cos2thW"] or !rootNode["sin2thW"] ) {
+      cerr<<"[ERROR] Weinberg angle must be given as sin2thW, not as cos2thW. Make sure sin2thW is specified in YAML steering and cos2thW is not."<<endl;
+      hf_errlog(19090500, "F: Bad Weinberg angle: need sin2thW, not cos2thW, see stderr");
+    }
+    ew_couplings_.sin2thW = rootNode["sin2thW"].as<double>();
+    ew_couplings_.cos2thW = 1. - ew_couplings_.sin2thW;
 
     // constants
     FortAssignD(Gf,constants_)
@@ -370,10 +421,6 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     FortAssignD(mst,fermion_masses_)
     FortAssignD(mtp,fermion_masses_)
     FortAssignD(mbt,fermion_masses_)
-
-    // Steering
-    FortAssignS(hf_scheme,steering_)
-
   }
 
   const double*createConstantParameter(const string&n,double val){
@@ -569,6 +616,7 @@ void ensureMapValidity(const string&nodeName){
 
 void parse_params_(){
   using namespace XFITTER_PARS;
+  createOutputDir();
   rootNode=loadYamlFile("parameters.yaml");
   expandIncludes(rootNode);
   ensureMapValidity("Parameterisations");

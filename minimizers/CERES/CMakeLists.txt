@@ -1,0 +1,10 @@
+if(NOT CERES_FOUND)
+  message(STATUS "Skipping optional CERES minimizer because Ceres library was not found
+(If Ceres is actually installed, set Ceres_DIR environment variable to its install prefix)")
+  return()
+endif()
+set(TARGET minimizerCERES)
+add_library(${TARGET} MODULE CERESMinimizer.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter ${CERES_LIBRARIES})
+target_include_directories(${TARGET} PRIVATE ${CERES_INCLUDE_DIRS})
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
