@@ -1902,7 +1902,7 @@ C      call hf_errlog(1,'I:Read covariance matrix from file')
       print *,'Nuisance paramters (point, Uncor, Corr1, ... CorrN):'
       print *,'NCorr=',NCorr
       do i=1,NCovar
-         print '(I4,300E12.8)',i,alpha(i),(beta(j,i),j=1,NCorr)
+         print '(I4,300E12.4)',i,alpha(i),(beta(j,i),j=1,NCorr)
       enddo
 
       dev = 0.
