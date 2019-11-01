@@ -359,7 +359,7 @@ const string GetParamDS(const string&parName,const std::string&dsName,int dsInde
   hf_errlog(19042002,"F: Key in \"use:\" has no value, see stderr");
   std::abort();//unreachable
 }
-void TheorEval::initReactionTerm(int iterm, valarray<double> *val){
+void TheorEval::initReactionTerm(int iterm, valarray<double> *val, bool change_source){
   string reactionName = _termSources.at(iterm);
   string term_info =  _termInfos.at(iterm);
   if(beginsWith(reactionName,"use:")){//then redefine term source
@@ -371,7 +371,13 @@ void TheorEval::initReactionTerm(int iterm, valarray<double> *val){
   size_t termID=_dsId*1000+iterm;
   TermData*term_data=new TermData(termID,rt,this,term_info.c_str());
   term_data->val=val;
-  term_datas.push_back(term_data);
+  if (change_source)
+    {
+      delete term_datas[iterm];
+      term_datas[iterm] = term_data;
+    }
+  else
+    term_datas.push_back(term_data);
   rt->initTerm(term_data);
 }
 
@@ -577,20 +583,7 @@ void TheorEval::ChangeTheorySource(string term, string source)
   //  cout << "switch " << _termInfos[iterm] << " to " << source << endl;
   _termInfos[iterm] = source;
 
-  string term_source = _termSources.at(iterm);
-  string term_info =  _termInfos.at(iterm);
-  if(beginsWith(term_source,"use:")){//then redefine term source
-    //I am not sure this works correctly right now --Ivan
-    //Replace dsPars
-    term_source=GetParamDS(term_source.substr(4),_ds_name,_dsIndex);
-  }
-  ReactionTheory*rt=xfitter::getReaction(term_source);
-  size_t termID=_dsId*1000+iterm;
-  TermData*term_data=new TermData(termID,rt,this,term_info.c_str());
-  term_data->val=_mapInitdTerms[term];
-  delete term_datas[iterm];
-  term_datas[iterm] = term_data;
-  rt->initTerm(term_data);
+  initReactionTerm(iterm, _mapInitdTerms[term], true);
 }
 
 //This method is used by chi2scan to get the theory input file for the central prediction
