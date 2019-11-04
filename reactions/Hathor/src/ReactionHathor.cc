@@ -30,6 +30,7 @@ ReactionHathor::ReactionHathor()
 {
   _pdf = NULL;
   _rndStore = NULL;
+  _hathor = NULL;
   //_mtop = -1.0;
   //_mr = -1.0;
   //_mf = -1.0;
@@ -51,23 +52,53 @@ ReactionHathor::~ReactionHathor()
   //    delete item.second;
 }
 
+void ReactionHathor::atStart()
+{
+  // PDFs for Hathor
+  _pdf = new HathorPdfxFitter(this);
+
+    // random number generator
+  rlxd_init(1, 1);
+  int nRnd = rlxd_size();
+  //std::cout << " Size of random number array = " << nRnd << "\n";
+  _rndStore = new int[nRnd];
+  rlxd_get(_rndStore);
+
+  // instantiate one Hathor instance for all terms
+  _hathor = new Hathor(*_pdf);
+}
+
 void ReactionHathor::initTerm(TermData *td)
 {
-  ReactionTheory::initTerm(td);
+  ReactionTheory::initTerm(td); //Stefano: What is this needed for?
   int dataSetID = td->id;
-  _tdDS[dataSetID] = td;
+  _tdDS[dataSetID] = td;        //Stefano: this array is actually never used
 
   // check if dataset with provided ID already exists
-  if(_hathorArray.find(dataSetID) != _hathorArray.end())
+  if(_mtopPerInstance.find(dataSetID) != _mtopPerInstance.end() && !chi2scan_.scan)
   {
     char str[256];
     sprintf(str, "F: dataset with id = %d already exists", dataSetID);
     hf_errlog_(17080701, str, strlen(str));
   }
 
-  // instantiate Hathor
-  Hathor* hathor = new Hathor(*_pdf);
-  //Hathor* hathor = new Hathor();
+  // instantiate Hathor for each term
+  //Hathor* hathor = new Hathor(*_pdf);
+  //_hathorArray[dataSetID] = _hathor;
+}
+
+// Main function to compute results at an iteration
+void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
+{
+  td->actualizeWrappers();
+  int dataSetID = td->id;
+  _pdf->IsValid = true;
+  rlxd_reset(_rndStore);
+
+  //Suppress Hathor output
+  freopen("/dev/null", "a", stdout);
+  
+  //_hathor->getXsection(_mtop, _mr, _mf);
 
   // set collision type
   // read ppbar (0 for pp, 1 for ppbar) from provided dataset parameters
@@ -79,9 +110,9 @@ void ReactionHathor::initTerm(TermData *td)
   else if(td->hasParam("ppbar"))
     ppbar = td->getParamI("ppbar");
   if(ppbar)
-    hathor->setColliderType(Hathor::PPBAR);
+    _hathor->setColliderType(Hathor::PPBAR);
   else
-    hathor->setColliderType(Hathor::PP);
+    _hathor->setColliderType(Hathor::PP);
 
   // read centre-of-mass energy from provided dataset parameters (must be provided)
   // here local value is preferred over global one (to allow different data sets with difference centre-of-mass energies)
@@ -90,11 +121,13 @@ void ReactionHathor::initTerm(TermData *td)
     sqrtS = *td->getParamD("SqrtS");
   else
     hf_errlog(17080702, "F: no SqrtS for dataset with id = " + std::to_string(dataSetID));
-  hathor->setSqrtShad(sqrtS);
+  _hathor->setSqrtShad(sqrtS);
 
   // set mass
   // here local value is preferred over global one (to allow calculations with several mass values, e.g. for translation into MSbar mass scheme)
   _mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(*td->getParamD("mtp")));
+  if(td->hasParam("mtp"))
+    *_mtopPerInstance[dataSetID] = *td->getParamD("mtp");
 
   // set renorm. scale
   _mrPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
@@ -113,7 +146,7 @@ void ReactionHathor::initTerm(TermData *td)
   if(schemeName == "NLO")
     scheme = scheme | Hathor::NLO;
   else if(schemeName == "NNLO")
-    scheme = scheme | Hathor::NNLO;
+    scheme = scheme | Hathor::NLO | Hathor::NNLO;
   // set mass scheme (default is pole mass scheme)
   // here local value is preferred over global one
   int msMass = 0; // pole mass by default
@@ -121,7 +154,7 @@ void ReactionHathor::initTerm(TermData *td)
     msMass = td->getParamI("MS_MASS");
   if(msMass)
     scheme = scheme | Hathor::MS_MASS;
-  hathor->setScheme(scheme);
+  _hathor->setScheme(scheme);
 
   // set precision level
   // read precision level from provided dataset parameters
@@ -139,53 +172,35 @@ void ReactionHathor::initTerm(TermData *td)
   // precisionLevel = 3 -> Hathor::HIGH
   if(precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH)
     hf_errlog(17081102, "F: provided precision level = " + std::to_string(precisionLevel) + " not supported by Hathor");
-  hathor->setPrecision(precisionLevel);
+  _hathor->setPrecision(precisionLevel);
 
-  std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
-  double mt = *_mtopPerInstance[dataSetID];
-  std::cout << " mtop = " << mt << "[GeV] " << std::endl;
-  std::cout << " renorm. scale = " << *_mrPerInstance[dataSetID] << "[GeV] " << std::endl;
-  std::cout << " factor. scale = " << *_mfPerInstance[dataSetID] << "[GeV] " << std::endl;
-  std::cout << " SqrtS = " << sqrtS << std::endl;
-  std::cout << " scheme: " << scheme << std::endl;
-  std::cout << " precisionLevel: " << precisionLevel << std::endl;
-  std::cout << std::endl;
+  //Resume standard output
+  freopen ("/dev/tty", "a", stdout);
 
-  // done
-  hathor->PrintOptions();
-  _hathorArray[dataSetID] = hathor;
-}
+  if (steering_.ldebug)
+    {
+      std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
+      double mt = *_mtopPerInstance[dataSetID];
 
-void ReactionHathor::atStart()
-{
-  // PDFs for Hathor
-  _pdf = new HathorPdfxFitter(this);
+      std::cout << " mtop = " << mt << "[GeV] " << std::endl;
+      std::cout << " renorm. scale = " << *_mrPerInstance[dataSetID] << "[GeV] " << std::endl;
+      std::cout << " factor. scale = " << *_mfPerInstance[dataSetID] << "[GeV] " << std::endl;
+      std::cout << " SqrtS = " << sqrtS << std::endl;
+      std::cout << " scheme: " << scheme << std::endl;
+      std::cout << " precisionLevel: " << precisionLevel << std::endl;
+      std::cout << std::endl;
 
-  // random number generator
-  rlxd_init(1, 1);
-  int nRnd = rlxd_size();
-  //std::cout << " Size of random number array = " << nRnd << "\n";
-  _rndStore = new int[nRnd];
-  rlxd_get(_rndStore);
-}
+      // done
+      _hathor->PrintOptions();
+    }
 
-// Main function to compute results at an iteration
-void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
-{
-  td->actualizeWrappers();
-  int dataSetID = td->id;
-  _pdf->IsValid = true;
-  rlxd_reset(_rndStore);
-
-  Hathor* hathor = _hathorArray.at(dataSetID);
-  //hathor->getXsection(_mtop, _mr, _mf);
   double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : *td->getParamD("mtp");
   double mr = *_mrPerInstance[dataSetID];
   double mf = *_mfPerInstance[dataSetID];
-  hathor->getXsection(mt, mr, mf);
+  _hathor->getXsection(mt, mr, mf);
   double dum = 0.0;
   double xsec = 0.0;
-  hathor->getResult(0, xsec, dum);
+  _hathor->getResult(0, xsec, dum);
   //printf("mt,mr,mf,xsec: %f %f %f %f\n", mt, mr, mf, xsec);
   val = xsec;
   //printf("VAL ************ %f\n", val[0]);
