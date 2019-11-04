@@ -96,7 +96,8 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   rlxd_reset(_rndStore);
 
   //Suppress Hathor output
-  freopen("/dev/null", "a", stdout);
+  if (!steering_.ldebug)
+    freopen("/dev/null", "a", stdout);
   
   //_hathor->getXsection(_mtop, _mr, _mf);
 
@@ -175,7 +176,8 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   _hathor->setPrecision(precisionLevel);
 
   //Resume standard output
-  freopen ("/dev/tty", "a", stdout);
+  if (!steering_.ldebug)
+    freopen ("/dev/tty", "a", stdout);
 
   if (steering_.ldebug)
     {
