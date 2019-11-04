@@ -757,13 +757,33 @@ void chi2_scan_()
 	      double factor = 2.;
 
 	      //Consider global reaction-specific scale parameters
-	      double *mur = XFITTER_PARS::getParamD("APPLgrid/muR");
-	      double *muf = XFITTER_PARS::getParamD("APPLgrid/muF");
-	      double mur0 = *mur;
-	      double muf0 = *muf;
+	      double *murappl = 0;
+	      double *mufappl = 0;
+	      if (XFITTER_PARS::gParameters.find("APPLgrid/muR") != XFITTER_PARS::gParameters.end())
+		murappl = XFITTER_PARS::getParamD("APPLgrid/muR");
+	      if (XFITTER_PARS::gParameters.find("APPLgrid/muF") != XFITTER_PARS::gParameters.end())
+		mufappl = XFITTER_PARS::getParamD("APPLgrid/muF");
+	      double mur0appl, muf0appl;
+	      if (murappl)
+		mur0appl = *murappl;
+	      if (mufappl)
+		muf0appl = *mufappl;
 
-	      //Could consider instead TermData specific scale parameters
+	      double *murhathor = 0;
+	      double *mufhathor = 0;
+
+	      if (XFITTER_PARS::gParameters.find("Hathor/muR") != XFITTER_PARS::gParameters.end())
+		murhathor = XFITTER_PARS::getParamD("Hathor/muR");
+	      if (XFITTER_PARS::gParameters.find("Hathor/muF") != XFITTER_PARS::gParameters.end())
+		mufhathor = XFITTER_PARS::getParamD("Hathor/muF");
+	      double mur0hathor, muf0hathor;
+	      if (murhathor)
+		mur0hathor = *murhathor;
+	      if (mufhathor)
+		muf0hathor = *mufhathor;
+
 	      /*
+	      //Could consider instead TermData specific scale parameters
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++) //loop on all datasets
 		for(const auto td:gTEmap[*dit]->term_datas) //loop on all theory terms
 		  {
@@ -775,36 +795,42 @@ void chi2_scan_()
 	      */
 	      
 	      //mur*2
-	      *mur = mur0*factor;
+	      if (murappl) *murappl = mur0appl*factor;
+	      if (murhathor) *murhathor = mur0hathor*factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
 
 	      //mur*0.5
-	      *mur = mur0/factor;
+	      if (murappl) *murappl = mur0appl/factor;
+	      if (murhathor) *murhathor = mur0hathor/factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
 
 	      //muf*2
-	      *muf = muf0*factor;
+	      if (mufappl) *mufappl = muf0appl*factor;
+	      if (mufhathor) *mufhathor = muf0hathor*factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
 
 	      //muf*0.5
-	      *muf = muf0/factor;
+	      if (mufappl) *mufappl = muf0appl/factor;
+	      if (mufhathor) *mufhathor = muf0hathor/factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
 
 	      //restore nominal scale
-	      *mur = mur0;
-	      *muf = muf0;
+	      if (murappl) *murappl = mur0appl;
+	      if (mufappl) *mufappl = muf0appl;
+	      if (murhathor) *murhathor = mur0hathor;
+	      if (mufhathor) *mufhathor = muf0hathor;
 	      xfitter::updateAtConfigurationChange();
 	    }
 	  
