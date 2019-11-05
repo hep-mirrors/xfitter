@@ -23,26 +23,26 @@ extern "C" {
   void update_theory_iteration_();
 }
 
-//return error if LHAPDF is not enabled
-#if !defined LHAPDF_ENABLED
-void chi2_scan_()
-{
-  string msg = "S: Call to chi2_scan but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
-  hf_errlog_(14060204, msg.c_str(), msg.size());
-}
-#elif !defined ROOT_ENABLED
-void chi2_scan_()
-{
-  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
-  hf_errlog_(14062501, msg.c_str(), msg.size());
-}
-#elif !defined APPLGRID_ENABLED
-void chi2_scan_()
-{
-  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
-  hf_errlog_(14062501, msg.c_str(), msg.size());
-}
-#else
+////return error if LHAPDF is not enabled
+//#if !defined LHAPDF_ENABLED
+//void chi2_scan_()
+//{
+//  string msg = "S: Call to chi2_scan but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
+//  hf_errlog_(14060204, msg.c_str(), msg.size());
+//}
+//#elif !defined ROOT_ENABLED
+//void chi2_scan_()
+//{
+//  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
+//  hf_errlog_(14062501, msg.c_str(), msg.size());
+//}
+//#elif !defined APPLGRID_ENABLED
+//void chi2_scan_()
+//{
+//  string msg = "S: Call to chi2_scan but ROOT library are not linked. Run ./configure with root available in your PATH";
+//  hf_errlog_(14062501, msg.c_str(), msg.size());
+//}
+//#else
 
 #include <LHAPDF/LHAPDF.h>
 
@@ -760,13 +760,33 @@ void chi2_scan_()
 	      double factor = 2.;
 
 	      //Consider global reaction-specific scale parameters
-	      double *mur = XFITTER_PARS::getParamD("APPLgrid/muR");
-	      double *muf = XFITTER_PARS::getParamD("APPLgrid/muF");
-	      double mur0 = *mur;
-	      double muf0 = *muf;
+	      double *murappl = 0;
+	      double *mufappl = 0;
+	      if (XFITTER_PARS::gParameters.find("APPLgrid/muR") != XFITTER_PARS::gParameters.end())
+		murappl = XFITTER_PARS::getParamD("APPLgrid/muR");
+	      if (XFITTER_PARS::gParameters.find("APPLgrid/muF") != XFITTER_PARS::gParameters.end())
+		mufappl = XFITTER_PARS::getParamD("APPLgrid/muF");
+	      double mur0appl, muf0appl;
+	      if (murappl)
+		mur0appl = *murappl;
+	      if (mufappl)
+		muf0appl = *mufappl;
 
-	      //Could consider instead TermData specific scale parameters
+	      double *murhathor = 0;
+	      double *mufhathor = 0;
+
+	      if (XFITTER_PARS::gParameters.find("Hathor/muR") != XFITTER_PARS::gParameters.end())
+		murhathor = XFITTER_PARS::getParamD("Hathor/muR");
+	      if (XFITTER_PARS::gParameters.find("Hathor/muF") != XFITTER_PARS::gParameters.end())
+		mufhathor = XFITTER_PARS::getParamD("Hathor/muF");
+	      double mur0hathor, muf0hathor;
+	      if (murhathor)
+		mur0hathor = *murhathor;
+	      if (mufhathor)
+		muf0hathor = *mufhathor;
+
 	      /*
+	      //Could consider instead TermData specific scale parameters
 	      for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++) //loop on all datasets
 		for(const auto td:gTEmap[*dit]->term_datas) //loop on all theory terms
 		  {
@@ -778,36 +798,42 @@ void chi2_scan_()
 	      */
 	      
 	      //mur*2
-	      *mur = mur0*factor;
+	      if (murappl) *murappl = mur0appl*factor;
+	      if (murhathor) *murhathor = mur0hathor*factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
 
 	      //mur*0.5
-	      *mur = mur0/factor;
+	      if (murappl) *murappl = mur0appl/factor;
+	      if (murhathor) *murhathor = mur0hathor/factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
 
 	      //muf*2
-	      *muf = muf0*factor;
+	      if (mufappl) *mufappl = muf0appl*factor;
+	      if (mufhathor) *mufhathor = muf0hathor*factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
 
 	      //muf*0.5
-	      *muf = muf0/factor;
+	      if (mufappl) *mufappl = muf0appl/factor;
+	      if (mufhathor) *mufhathor = muf0hathor/factor;
 	      xfitter::updateAtConfigurationChange();
 	      update_theory_iteration_();
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
 
 	      //restore nominal scale
-	      *mur = mur0;
-	      *muf = muf0;
+	      if (murappl) *murappl = mur0appl;
+	      if (mufappl) *mufappl = muf0appl;
+	      if (murhathor) *murhathor = mur0hathor;
+	      if (mufhathor) *mufhathor = muf0hathor;
 	      xfitter::updateAtConfigurationChange();
 	    }
 	  
@@ -1272,7 +1298,7 @@ void chi2_scan_()
 	      store_pdfs_(filename.c_str(), filename.size());
 	      if (cset == 0)
 		{
-		  fill_c_common_();
+		  //fill_c_common_(); //What was this doing?
 		  print_lhapdf6_();
 		}
 	      else
@@ -1415,7 +1441,7 @@ void chi2_scan_()
 
   cout << endl;
 }
-#endif
+//#endif
 
 void decompose(map <int, map <int, map <double, double> > > &systchi2, double value)
 {
@@ -1761,7 +1787,7 @@ void decompose_fits(map <int, map <int, map <double, double> > > systchi2, doubl
       char chi2name[200];
       sprintf(chi2name, "chi2scan_syst_%d_p.txt", s);
       fitchi2_and_store (systchi2[0][s], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
-
+      
       sprintf(chi2name, "chi2scan_syst_%d_m.txt", s);
       fitchi2_and_store (systchi2[1][s], min_i_m, deltap_i, deltam_i, chi2min_i, chi2name);
 

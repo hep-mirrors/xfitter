@@ -145,7 +145,7 @@ class TheorEval{
   */
   void initReactionToken(tToken& token,const string& name);
   //! Initialise reaction term
-  void initReactionTerm(int iterm, valarray<double>* val);
+  void initReactionTerm(int iterm, valarray<double>* val, bool change_source = false);
   //! Update the reaction values into the tokens
   void updateReactionValues();
 

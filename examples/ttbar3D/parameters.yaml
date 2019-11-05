@@ -66,7 +66,7 @@ Parameterisations:
 DefaultDecomposition: proton
 Decompositions:
   proton:
-    class: UvDvubardbars
+    class: UvDvUbarDbarS
     xuv: par_uv
     xdv: par_dv
     xubar: par_ubar
@@ -78,7 +78,7 @@ DefaultEvolution: proton-QCDNUM
 
 Evolutions:
   proton-QCDNUM:
-    ? !include evolutions/QCDNUM/parameters.yaml
+    ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
     # The following allows QCDNUM to read PDFs from other evolutions:
     # EvolutionCopy: "proton-LHAPDF"
@@ -93,9 +93,9 @@ Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
 byReaction:
   RT_DISNC:
-    ? !include reactions/RT_DISNC/parameters.yaml
+    ? !include reactions/RT_DISNC.yaml
   APPLgrid:
-    ? !include reactions/APPLgrid/parameters.yaml
+    ? !include reactions/APPLgrid.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :

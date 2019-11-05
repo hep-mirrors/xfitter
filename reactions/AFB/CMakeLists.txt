@@ -1,0 +1,5 @@
+set(TARGET reactionAFB)
+add_library(${TARGET} MODULE ReactionAFB.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter GSL)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES AFB.yaml DESTINATION ${DEST_YAML}/reactions)

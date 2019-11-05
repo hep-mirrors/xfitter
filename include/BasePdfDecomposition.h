@@ -35,7 +35,7 @@ namespace xfitter
      * pdfs[i] tb bb cb sb ub db g  d  u  s  c  b  t
      */
     virtual std::map<int,double>xfxMap(double x)const=0;
-    /// Get class name, can be used to verify that the correct concrete class is being used
+    /// Get class name. this is used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
   };
 }

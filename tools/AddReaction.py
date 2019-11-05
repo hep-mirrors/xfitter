@@ -1,4 +1,6 @@
 #!/usr/bin/env python 
+print "This code-generating script was written for an older version and is currently broken and needs to be rewritten.\nSorry!"
+exit(-1)
 #TODO: needs to be updated for the new ReactionTheory interface
 
 ''' Script to generate templates for a new theory module '''

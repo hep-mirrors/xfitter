@@ -1,0 +1,5 @@
+set(TARGET reactionFFABM_DISNC)
+add_library(${TARGET} MODULE ReactionFFABM_DISNC.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISNC ABM)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES FFABM_DISNC.yaml DESTINATION ${DEST_YAML}/reactions)

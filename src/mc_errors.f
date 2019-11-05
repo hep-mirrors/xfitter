@@ -442,6 +442,7 @@ C Seed from the steering:
          icount = iseedmc
       else
 C Seed from current time
+C Does not actually work, since datime is a dummy placeholder --Ivan
          call datime(ndate,ntime)
          ntime = ntime*1000000+is(6)
          icount=ntime
@@ -458,4 +459,3 @@ C--------------------------------------------------------------
 
 
       end
-

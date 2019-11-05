@@ -1,3 +1,6 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
 #include "xfitter_cpp_base.h"
 #include <string>
 #include <map>
@@ -5,6 +8,8 @@
 //Maybe we should move this functions to some other places that makes more sense?
 using std::string;
 using std::map;
+using std::cerr;
+using std::endl;
 
 int OrderMap(std::string ord) {
   std::map <std::string,int> mOrderMap  = { {"NNNLO",4}, {"NNLO",3}, {"NLO",2}, {"LO",1} };
@@ -32,6 +37,16 @@ std::string stringFromFortran(char*s,size_t size){
   }
   return std::string(s,p-s);
 }
+void stringToFortran(char* dest, size_t maxlen, const string& s){
+  size_t len=s.size();
+  if(len>maxlen){
+    cerr<<"[ERROR] Failed to convert c++ string \""<<s<<"\" to Fortran character array: string length ("<<len<<") larger than size of destination array ("<<maxlen<<");"<<endl;
+    hf_errlog(19081610, "F: C++ string too long to convert to Fortran, see stderr");
+  }
+  memcpy(dest, s.c_str(), len);
+  char* end=dest+maxlen;
+  for(char* p=dest+len;p<end;++p) *p=' ';
+}
 bool beginsWith(const string&s,const string&p){
   return s.compare(0,p.size(),p)==0;
 }
@@ -56,10 +71,13 @@ void stripString(string&s){
   s=s.substr(size_t(p1-s.c_str()),size_t(p2-p1+1));
 }
 
+bool fileExists(const string&name){
+  return std::ifstream(name).good();
+}
+
 extern "C"{
   extern struct {
-    char outdirname[256]; // outout dir name
-    char lhapdf6outdir[256]; // DEPRECATED
+    char outdirname[256]; // output dir name
   } coutdirname_;
 }
 

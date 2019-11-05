@@ -1,6 +1,6 @@
 #include<iostream>
 #include<vector>
-#include<algorithm>
+#include<numeric>
 #include<cmath>
 #include<numeric>
 #include<sys/stat.h>

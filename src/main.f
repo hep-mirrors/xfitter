@@ -1,7 +1,7 @@
       subroutine xFitter 
 C--------------------------------------------------------
 C
-C> HERA PDF Fit Program
+C> xFitter PDF Fit Program
 C
 C-------------------------------------------------------
 
@@ -33,7 +33,7 @@ C-----------------------------------------------------
 *     ------------------------------------------------
 *     Print HFitter banner
 *     ------------------------------------------------
-      call hfbanner
+C      call hfbanner
 
       narg = command_argument_count()
       if (narg.gt.0) then
@@ -54,22 +54,15 @@ C-----------------------------------------------------
 *     ------------------------------------------------ 
       call read_steer
 
+      call hf_errlog(12020501,
+     +  'I: steering.txt has been read successfully')
 
 * Init random numbers 
       call init_rnd_seeds()
 
-      call hf_errlog(12020501,
-     +     'I: steering.txt has been read successfully') 
-
-
-
 *
 *  Read parameters:
 *
-*Read the list of dynamically loaded objects from Reactions.txt
-*Confusingly, this is used not only for reactions, but also for
-*minimizers, decompositions, parameterisations and evolutions
-      call read_reactions()
       call parse_params() !read parameters.yaml
 
 *This makes sure that the default evolution exists and is acessible from
@@ -84,16 +77,6 @@ c      call qcdnum_ini
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
 
-*  
-!     call init_func_map()
-      call Init_EW_parameters
-
-      if (LHAPDFErrors) then  ! PDF errors
-         call get_lhapdferrors
-         goto 36
-      endif
-      
-C chi2scan is broken since 2.2.0
       if (SCAN) then            ! chi2 scan
          call chi2_scan
          goto 36
@@ -131,7 +114,6 @@ c ..........................................................
         CorSysIndex = 0
       endif
 
-      
       call init_minimizer()
 
       call run_minimizer()
@@ -150,24 +132,23 @@ c ..........................................................
         call Do_Fit
       endif
       
-      
-      if (doOffset) then
-        call Offset_Finalize(icond)
-        call flush(6)
-        if(icond .ne. 0) goto 36
-        Call RecovCentrPars
+*Offset is broken in 2.2.1
+*      if (doOffset) then
+*        call Offset_Finalize(icond)
+*        call flush(6)
+*        if(icond .ne. 0) goto 36
+*        Call RecovCentrPars
+*      else
+      if (ControlFitSplit) then
+         Call FindBestFCN3  !> Overfitting protection.
       else
-        if (ControlFitSplit) then
-           Call FindBestFCN3  !> Overfitting protection.
-        else
 *
 * Write out central parameters
 *
-           call write_pars(0)
-        endif
-        close(24)
-        close(25)
+        call write_pars(0)
       endif
+      close(24)
+      close(25)
 
       call report_convergence_status()
 
@@ -179,40 +160,4 @@ c ..........................................................
 *     Print error log summary
 *     ------------------------------------------------
       call HF_errsum(6)
-
-*     ------------------------------------------------
-*     Done
-*     ------------------------------------------------
-*     stop
       end
-
-C-----------------------------------------------------
-
-C-----DEPRECATED: replaced by report_convergence_status()
-#if 0
-      subroutine CheckMinuitStatus
-      implicit none
-#include "steering.inc"
-      double precision fmin, fedm, errdef
-      integer npari, nparx, istat
-C----------------------------------------------------------
-      call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
-      if (istat.eq.0) then
-         call hf_errlog(16042801,'I: No minimization has run')
-      else if (istat.eq.3) then
-         call hf_errlog(16042802,'I: Successful run')
-      else if (istat.eq.1) then
-         call hf_errlog(16042803,'E: Error matrix not accurate')
-      else if (istat.eq.2) then
-         call hf_errlog(16042804,'E: Error matrix forced positive')
-      endif
-C Save in output file
-      open (51,file=Trim(OutDirName)//'/Status.out',status='unknown')
-      if (istat.eq.3) then
-         write (51,'(''OK'')') 
-      else
-         write (51,'(''Failed'')') 
-      endif
-      close (51)
-      end
-#endif

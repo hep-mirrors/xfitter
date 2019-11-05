@@ -202,7 +202,6 @@ void get_lhapdferrors_()
     hf_errlog_(15051301,msg.c_str(), msg.size());
     strncpy(coutdirname_.lhapdf6outdir, clhapdf_.lhapdfset, 256);
   }
-  fill_c_common_(); //set the PDF name and the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
   print_lhapdf6_();
   //save_data_lhapdf6_(pdfmember);
 
@@ -301,9 +300,6 @@ void get_lhapdferrors_()
               steering_.hf_mass[1] = LHAPDF::getThreshold(5);
               steering_.hf_mass[2] = LHAPDF::getThreshold(6);
 #endif
-
-              //set the HF masses in the common block, so they are written out correctly in the LHAPDF6 output
-              fill_c_common_();
 
               //In VAR PDF set determine if it is a model or parametrisation variation
               if (pdfset == 1)
