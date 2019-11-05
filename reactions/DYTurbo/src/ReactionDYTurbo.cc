@@ -43,7 +43,7 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //cout << "binning read from file : qt " << bins.qtbins.size() << "  m " << bins.mbins.size() << " y " << bins.ybins.size() << endl;
   
   //check settings
-  opts.check_consitency();
+  opts.check_consistency();
 
   //Init physics parameters
   DYTurbo::init_params();
