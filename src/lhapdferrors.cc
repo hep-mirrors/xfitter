@@ -145,7 +145,6 @@ void get_lhapdferrors_()
   cout << "Chi2 test on central prediction:" << endl;
 
   LHAPDF::initPDFSet(lhapdfset.c_str());
-  //Dyturbo::pdfname = lhapdfset;
 
   int central_pdfmember;
   if (pdfprofile)
@@ -438,7 +437,6 @@ void get_lhapdferrors_()
       map <int, int> iordmap;
       map <int, double> murmap;
       map <int, double> mufmap;
-      map <int, double> muresmap;
 
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
         {
@@ -453,10 +451,9 @@ void get_lhapdferrors_()
         }
 
       //Apply a factor for scale variations
-      double factor = scalefactor;//2.;//sqrt(2.);
+      double factor = 2.;
       double chi2tot;
 
-      bool mv;
       //mur*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
         tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]*factor, mufmap[tit->first]);
@@ -468,7 +465,7 @@ void get_lhapdferrors_()
            << endl;
       char tag[10]; sprintf (tag, "_%04d", cset);
       writefittedpoints_(); //write out fittedresults.txt file
-      mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
+      bool mv = system(((string)"mv " + outdirname + "/fittedresults.txt " + outdirname + "/fittedresults.txt_scale" + tag).c_str());
       for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
         pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
       cset++;
