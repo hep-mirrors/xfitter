@@ -42,13 +42,6 @@ extern"C" {
   void appl_fnpdf_(const double& x, const double& Q, double* f);
   double appl_fnalphas_(const double& Q);
 
-  //QCDnum initialisation
-  //void qcdnum_ini_();
-
-  //Cute interface functions
-  //double flav_number_(const double& q);
-  //double flav_threshold_(const int& fl);
-
   //Covariance matrix to nuisance parameter conversion
   void getnuisancefromcovar_(const int& NDimCovar, const int& NDimSyst, const int& NCovar,
 			     double* Covar, double *ANuisance, const double& Tolerance, 
@@ -102,7 +95,6 @@ extern"C" {
     int nremovepriors;
     int lhapdfprofile;
     int lhascaleprofile;
-    double scalefactor;
   } clhapdf_;
 
   //alphas
@@ -251,6 +243,7 @@ extern"C" {
     char chi2lhapdfvarset[128];
     int chi2nparvar;
     int chi2parpoint;
+
   } chi2scan_;
 
   extern struct {
