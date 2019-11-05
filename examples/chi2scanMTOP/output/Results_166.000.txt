@@ -1,0 +1,37 @@
+After minimisation       3.22     1     3.222
+
+  Partial chi2s 
+Dataset    1      2.16( -0.16)     1  ATLAS total ttbar 7TeV mt=173.3 GeV             
+
+ Correlated Chi2    1.2178467537385000     
+ Log penalty Chi2  -0.15655457814507451     
+ Systematic shifts           27
+  
+                                Name          Shift   +/-    Error          Type
+    1  PDF_nuisance_param_01                 -0.0369   +/-   0.9998        :N:M:T
+    2  PDF_nuisance_param_02                  0.0977   +/-   0.9986        :N:M:T
+    3  PDF_nuisance_param_03                  0.0589   +/-   0.9995        :N:M:T
+    4  PDF_nuisance_param_04                  0.0113   +/-   1.0000        :N:M:T
+    5  PDF_nuisance_param_05                  0.0056   +/-   1.0000        :N:M:T
+    6  PDF_nuisance_param_06                  0.0136   +/-   1.0000        :N:M:T
+    7  PDF_nuisance_param_07                 -0.0074   +/-   1.0000        :N:M:T
+    8  PDF_nuisance_param_08                  0.0140   +/-   1.0000        :N:M:T
+    9  PDF_nuisance_param_09                 -0.0557   +/-   0.9995        :N:M:T
+   10  PDF_nuisance_param_10                  0.0377   +/-   0.9998        :N:M:T
+   11  PDF_nuisance_param_11                 -0.0464   +/-   0.9997        :N:M:T
+   12  PDF_nuisance_param_12                  0.1125   +/-   0.9981        :N:M:T
+   13  PDF_nuisance_param_13                  0.0795   +/-   0.9991        :N:M:T
+   14  PDF_nuisance_param_14                 -0.0438   +/-   0.9997        :N:M:T
+   15  PDF_nuisance_param_15                  0.5300   +/-   0.9575        :N:M:T
+   16  PDF_nuisance_param_16                 -0.3949   +/-   0.9767        :N:M:T
+   17  PDF_nuisance_param_17                  0.1845   +/-   0.9949        :N:M:T
+   18  PDF_nuisance_param_18                 -0.3138   +/-   0.9853        :N:M:T
+   19  PDF_nuisance_param_19                 -0.0274   +/-   0.9999        :N:M:T
+   20  PDF_nuisance_param_20                 -0.1826   +/-   0.9951        :N:M:T
+   21  PDF_nuisance_param_21                  0.4728   +/-   0.9664        :N:M:T
+   22  PDF_nuisance_param_22                  0.1305   +/-   0.9975        :N:M:T
+   23  PDF_nuisance_param_23                 -0.1506   +/-   0.9966        :N:M:T
+   24  PDF_nuisance_param_24                  0.1096   +/-   0.9982        :N:M:T
+   25  PDF_nuisance_param_25                  0.0777   +/-   0.9991        :N:M:T
+   26  scale_nuisance_param_01               -0.4904   +/-   0.9638        :N:M:T
+   27  scale_nuisance_param_02                0.2237   +/-   0.9926        :N:M:T
