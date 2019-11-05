@@ -324,7 +324,7 @@ C LHAPDFErrors default
 
       lhapdfprofile = .true.
       lhascaleprofile = .false.
-      
+
       Scale68 = .false.
       NPARVAR = 0
       LHAPDFVARSET = ''
