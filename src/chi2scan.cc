@@ -142,7 +142,6 @@ void fitchi2_and_store(map <double, double> chi2, double& min, double& deltap, d
   //3rd order fit
   TF1 *parfit3 = new TF1("ParFit3", "pol3");
   chi2graph->Fit(parfit3, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
-  parfit3->SetParameter(3,0);
   parfit3->SetParameter(2,a);
   parfit3->SetParameter(1,b);
   parfit3->SetParameter(0,c);
@@ -601,8 +600,6 @@ void chi2_scan_()
       if (sets == 2)
 	vardeltaasym(xi, chi2scan_.chi2nparvar, eplus, eminus); //need to set npar
 
-      //if (decomposition)
-      //decompose_fits(systchi2, min, deltapi, deltami);
     }
   else if(lhapdfprofile) //lhapdferror profile mode
     {
