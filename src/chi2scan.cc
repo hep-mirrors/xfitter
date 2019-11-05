@@ -600,6 +600,8 @@ void chi2_scan_()
       if (sets == 2)
 	vardeltaasym(xi, chi2scan_.chi2nparvar, eplus, eminus); //need to set npar
 
+      //if (decomposition)
+      //decompose_fits(systchi2, min, deltapi, deltami);
     }
   else if(lhapdfprofile) //lhapdferror profile mode
     {
