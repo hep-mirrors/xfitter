@@ -72,7 +72,6 @@ C      call hfbanner
 *     ------------------------------------------------
 *     Read the measured data points
 *     ------------------------------------------------
-c      call qcdnum_ini
       call read_data
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
