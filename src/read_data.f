@@ -627,7 +627,7 @@ C     ---> copy the names in a new variable
         do i = 1,NTermsMax
           if(TermType(i).eq.'applgrid'.and.DataSetIOrder(NDATASETS).gt.2) then
             print*,'Cannot run NNLO fit with applgrids, please specify DataSetTheoryOrder="NLO" in Scales in steering.txt'
-c            call HF_stop
+            call HF_stop
           endif
         enddo
       endif
