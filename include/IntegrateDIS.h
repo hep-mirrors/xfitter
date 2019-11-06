@@ -1,3 +1,5 @@
+#ifndef __INTEGRATEDIS_H
+#define __INTEGRATEDIS_H
 #include <valarray>
 
 // Class used by ReactionBaseDISNC and ReactionBaseDISCC for integrating DIS cross sections
@@ -39,3 +41,4 @@ class IntegrateDIS
     std::valarray<double>* getBinValuesX() { return &_x; }
     std::valarray<double>* getBinValuesY() { return &_y; }
 };
+#endif

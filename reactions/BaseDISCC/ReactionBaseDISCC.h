@@ -1,6 +1,6 @@
 #pragma once
 #include "ReactionTheory.h"
-#include <IntegrateDIS.h>
+#include "IntegrateDIS.h"
 
 /**
   @class' ReactionBaseDISCC
@@ -37,7 +37,8 @@ protected:
 
   // for integrated cross sections
   // method is based on legacy subroutine GetIntegratedDisXsection
-  map<unsigned, IntegrateDIS *> _integrated;
+  // is the map with pointers IntegrateDIS* outdated (seems to be in ReactionData)? --SZ
+  //map<unsigned, IntegrateDIS *> _integrated;
   virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
 };
 
