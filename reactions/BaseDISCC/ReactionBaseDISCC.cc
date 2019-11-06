@@ -290,7 +290,7 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   auto *xminp = td->getBinColumnOrNull("xmin");
   auto *xmaxp = td->getBinColumnOrNull("xmax");
 
-  if (q2minp && q2maxp && yminp && ymaxp)
+  if (q2minp && q2maxp)
   {
     // integrated cross section
     if (s < 0)
@@ -309,18 +309,19 @@ void ReactionBaseDISCC::initTerm(TermData *td)
 
 const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const string &binName)
 {
-  unsigned termID = td->id;
+  //unsigned termID = td->id;
+  BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
 
-  if (_integrated.find(termID) == _integrated.end())
+  if (!rd->_integrated)
     return td->getBinColumnOrNull(binName);
   else
   {
     if (binName == "Q2")
-      return _integrated[termID]->getBinValuesQ2();
+      return rd->_integrated->getBinValuesQ2();
     else if (binName == "x")
-      return _integrated[termID]->getBinValuesX();
+      return rd->_integrated->getBinValuesX();
     else if (binName == "y")
-      return _integrated[termID]->getBinValuesY();
+      return rd->_integrated->getBinValuesY();
     else
       return td->getBinColumnOrNull(binName);
   }

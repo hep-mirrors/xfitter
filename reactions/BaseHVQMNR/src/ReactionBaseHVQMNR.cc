@@ -47,9 +47,9 @@ void ReactionBaseHVQMNR::initTerm(TermData *td)
   _tdDS[dataSetID] = td;
 
   // Order
-  const string order = td->getParamS("Order");
-  if(order != "NLO")
-    hf_errlog(19020301, "F: order " + order + " not supported");
+  //const string order = td->getParamS("Order");
+  //if(order != "NLO")
+  //  hf_errlog(19020301, "F: order " + order + " not supported");
 
   // add new dataset
   DataSet dataSet;

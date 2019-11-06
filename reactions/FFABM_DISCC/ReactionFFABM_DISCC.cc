@@ -104,6 +104,9 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
 
   unsigned termID = td->id;
   auto nBins = td->getNbins();
+  BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
+  if(rd->_integrated)
+    nBins = rd->_integrated->getBinValuesQ2()->size();
   _f2abm[termID].resize(nBins);
   _flabm[termID].resize(nBins);
   _f3abm[termID].resize(nBins);
@@ -152,7 +155,9 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
     auto q2 = *q2p, x = *xp;
 
     // Number of data points
-    const size_t Np = td->getNbins();
+    // SZ getNbins does not work for integrated cross sections (returning number of bins)
+    //const size_t Np = td->getNbins();
+    const size_t Np = xp->size();
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     double cos2thw = 1.0 - *_sin2thwPtr;
