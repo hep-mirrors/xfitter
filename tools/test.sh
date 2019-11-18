@@ -61,15 +61,15 @@ checkFile()
   $diff $1 $2 > /dev/null
   exitcode=$?
   
-  if [ $exitcode = 1 ]; then
-    # check if we can tolerate small differences in some tests
-    # allow not more than 2% of different lines in some output files of ZMVFNS-fit test
-    # (see tolerateDiff for details which files could be different)
-    if [[ $1 = *"ZMVFNS-fit"* ]]; then
-      tolerateDiff $1 $2 0.02
-      exitcode=$?
-    fi
-  fi
+  #if [ $exitcode = 1 ]; then
+  #  # check if we can tolerate small differences in some tests
+  #  # allow not more than 2% of different lines in some output files of ZMVFNS-fit test
+  #  # (see tolerateDiff for details which files could be different)
+  #  if [[ $1 = *"ZMVFNS-fit"* ]]; then
+  #    tolerateDiff $1 $2 0.02
+  #    exitcode=$?
+  #  fi
+  #fi
   
   if [ $exitcode = 0 ]; then
     echo "PASSED"
