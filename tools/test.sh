@@ -47,7 +47,7 @@ function tolerateDiff()
     return 1;
   fi
   # calculate which fraction of lines is different
-  nldiff=`diff $1 $2 | grep "^>" | wc -l`
+  nldiff=`$diff $1 $2 | grep "^>" | wc -l`
   fractionDiff=`echo $nldiff/$nl1 | bc -l`
   #echo "tolerateDiff $1 $fractionDiff"
   status=`echo "$fractionDiff>$maxFractionDiff" | bc -l` # will be 1 if difference is too large and test not passed
@@ -57,8 +57,8 @@ function tolerateDiff()
 # function to check if $1 and $2 are identical
 checkFile()
 {
-  printf "diff $1 $2 ... "
-  diff $1 $2 > /dev/null
+  printf "$diff $1 $2 ... "
+  $diff $1 $2 > /dev/null
   exitcode=$?
   
   if [ $exitcode = 1 ]; then
@@ -95,6 +95,13 @@ runTest()
   COPYRESULTS=$3
   #rm -rf $rundir
   #mkdir -p $rundir
+  
+  # diff command: by defult use 'diff', but if available use 'numdiff' which tolerate small differences
+  diff='diff'
+  if type "numdiff" > /dev/null; then
+    # we have numdiff and we wil use it with tolerance 1e-4 for either absolute or relative differneces between numbers
+    diff='numdiff -a 1e-4 -r 1e-4'
+  fi
 
   echo "========================================"
   echo "Running check: $TESTNAME"
@@ -146,7 +153,7 @@ runTest()
       exitcode=$?
       if [ $exitcode = 0 ]; then
         cat temp/out.txt
-        diff temp/out.txt temp/def.txt 
+        $diff temp/out.txt temp/def.txt 
         exitcode=$?
         if [ $exitcode = 0 ]; then
           echo "========================================"
