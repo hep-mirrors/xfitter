@@ -130,6 +130,8 @@ runTest()
   cp ${INPUTDIR}/steering.txt $rundir
   cp ${INPUTDIR}/parameters.yaml $rundir
   cp ${INPUTDIR}/constants.yaml $rundir
+  # also copy any .dat files
+  cp ${INPUTDIR}/*.dat $rundir
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
