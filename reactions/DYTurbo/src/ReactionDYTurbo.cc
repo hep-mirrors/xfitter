@@ -36,7 +36,7 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   
   //read settings from input file
   string filename = "";
-  if(td->hasParam("FileName"))
+  if (td->hasParam("FileName"))
     filename = td->getParamS("FileName");
   opts.readfromfile(filename);
   bins.readfromfile(filename);
@@ -45,6 +45,32 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //check settings
   opts.check_consistency();
 
+  if (td->hasParam("g1"))
+    opts.g1 = *(td->getParamD("g1"));
+
+  if (td->hasParam("g2"))
+    opts.g2 = *(td->getParamD("g2"));
+
+  if (td->hasParam("g3"))
+    opts.g3 = *(td->getParamD("g3"));
+
+  if (td->hasParam("Q0"))
+    opts.Q0 = *(td->getParamD("Q0"));
+
+  if (td->hasParam("order"))
+    opts.order = *(td->getParamI("order"));
+  
+  if (td->hasParam("muR"))
+    opts.kmuren = *(td->getParamD("muR"));
+
+  if (td->hasParam("muF"))
+    opts.kmufac = *(td->getParamD("muF"));
+
+  if (td->hasParam("muRes"))
+    opts.kmures = *(td->getParamD("muRes"));
+
+  //cout << opts.kmuren << "  " << opts.kmufac << "  " << opts.kmures << endl;
+  
   //Init physics parameters
   DYTurbo::init_params();
 
