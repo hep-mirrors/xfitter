@@ -321,17 +321,25 @@ const double *TermData::getParamD(const string &parName)
       //Try constant: "10" or "2.0", then create a constant parameter specifically for this value
       //Name it "termID/NAME", with some ID and NAME
       const string parFullname = "term" + to_string(id) + '/' + parName;
-      //First check if this constant parameter has already been created
-      const auto itp = gParameters.find(parFullname);
-      if (itp != gParameters.end())
-        return itp->second;
-      //Else try converting to double:
+
+      //First try converting to double:
       char *endp;
       double value = strtod(definition.c_str(), &endp);
       if (endp == definition.c_str())
       {
         reportFailedConversion(parName, Type::DoublePtr, ParamScope::Term, reaction, nullptr, &definition);
       }
+
+      //Then check if this constant parameter has already been created
+      const auto itp = gParameters.find(parFullname);
+      if (itp != gParameters.end())
+	{
+	  //update the value
+	  *(itp->second) = value;
+	  return itp->second;
+	}
+
+      //Else create a new constant parameter
       return createConstantParameter(parFullname, value);
     }
   }

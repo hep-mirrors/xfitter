@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ReactionTheory.h"
+#include "Hathor.h"
 
 /**
   @class' ReactionHathor
@@ -38,7 +39,10 @@ protected:
 
   // this is map of key = dataset, value = pointer to Hathor instances,
   // one instance per one dataset
-  std::map<int, Hathor*> _hathorArray;
+  //std::map<int, Hathor*> _hathorArray;
+
+  //Global Hathor instance for all terms
+  Hathor* _hathor;
 
   HathorPdfxFitter* _pdf;
   int* _rndStore;
