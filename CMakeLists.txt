@@ -61,7 +61,10 @@ endif()
 #When linking, set rpath to install directories
 #This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${DEST_LIB};${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}")
-set(CMAKE_BUILD_WITH_INSTALL_RPATH 1)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+# add the to the install RPATH directories for external libraries which are outside the build tree
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 #Suppress install messages
 #Only works since cmake 3.1
