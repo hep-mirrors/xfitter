@@ -127,6 +127,7 @@ add_subdirectory(reactions/HVQMNR_LHCb_7TeV_beauty)
 add_subdirectory(reactions/HVQMNR_LHCb_7TeV_charm)
 add_subdirectory(reactions/Hathor)
 add_subdirectory(reactions/HathorSingleTop)
+add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/DYTurbo)
 
 #Tools
