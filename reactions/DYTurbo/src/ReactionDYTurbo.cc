@@ -58,7 +58,7 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
     opts.Q0 = *(td->getParamD("Q0"));
 
   if (td->hasParam("order"))
-    opts.order = *(td->getParamI("order"));
+    opts.order = td->getParamI("order");
   
   if (td->hasParam("muR"))
     opts.kmuren = *(td->getParamD("muR"));
