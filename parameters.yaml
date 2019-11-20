@@ -147,6 +147,8 @@ byReaction:
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
+  DYTurbo:
+    ? !include reactions/DYTurbo.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :

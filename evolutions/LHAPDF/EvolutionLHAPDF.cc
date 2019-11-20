@@ -25,6 +25,8 @@ const char*EvolutionLHAPDF::getClassName()const{return "LHAPDF";}
 
 /// Global initialization
   void EvolutionLHAPDF::atStart() {
+    LHAPDF::Info& cfg = LHAPDF::getConfig();
+    cfg.set_entry("Verbosity", 0);
     atConfigurationChange();
   };
   void EvolutionLHAPDF::atConfigurationChange() {
