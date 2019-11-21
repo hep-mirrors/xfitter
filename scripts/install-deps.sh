@@ -5,8 +5,8 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.1.5
-hoppetver=1.1.5
+lhapdfver=6.2.3
+hoppetver=1.2.0
 applgridver=1.4.70
 qcdnumver=17-01-14
 apfelver=2.7.2
