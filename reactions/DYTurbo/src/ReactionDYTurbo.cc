@@ -41,6 +41,9 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   opts.readfromfile(filename);
   bins.readfromfile(filename);
   //cout << "binning read from file : qt " << bins.qtbins.size() << "  m " << bins.mbins.size() << " y " << bins.ybins.size() << endl;
+
+  opts.silent      = true;
+  opts.makehistos  = false;
   
   //check settings
   opts.check_consistency();
