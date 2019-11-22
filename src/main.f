@@ -19,6 +19,7 @@ C-------------------------------------------------------
 #include "covar.inc"
 #include "theorexpr.inc"
 #include "chi2scan.inc"
+#include "alphasscan.inc"
 
       integer icond
       integer nOffset
@@ -84,6 +85,11 @@ C      call hfbanner
          goto 36
       endif
 
+c      if (ASSCAN) then  ! alphas scan
+c         call alphas_scan
+c         goto 36
+c      endif
+      
 *     ------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------
