@@ -311,7 +311,7 @@ C----------------------------------------
 C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/
-     $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
+     $     LHAPDFErrors,Scale68,LHAPDFSET,LHAPDFVARSET,NPARVAR,
      $     DataToTheo,nremovepriors,
      $     lhapdfprofile,lhascaleprofile
 
@@ -319,7 +319,7 @@ C (Optional) LHAPDF steering card
 
 C LHAPDFErrors default
 
-      lhapdferrors_save = lhapdferrors ! may be set by running mode.
+!      lhapdferrors_save = lhapdferrors ! may be set by running mode.
 
       lhapdfprofile = .true.
       lhascaleprofile = .false.
@@ -338,9 +338,9 @@ C
  68   continue
       close (51)
 
-      if ( RunningMode .ne. ' ' ) then
-         lhapdferrors = lhapdferrors_save
-      endif
+!      if ( RunningMode .ne. ' ' ) then
+!         lhapdferrors = lhapdferrors_save
+!      endif
 
       if (LDebug) then
 C Print the namelist:

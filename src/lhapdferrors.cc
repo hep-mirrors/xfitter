@@ -2,10 +2,13 @@
 
 #include "pdferrors.h"
 #include "dimensions.h"
+#include "Profiler.h"
+#include "xfitter_steer.h"
+#include "BaseEvolution.h"
 
-#ifdef LHAPDF_ENABLED
+//#ifdef LHAPDF_ENABLED
 #include <LHAPDF/LHAPDF.h>
-#endif
+//#endif
 #define LHAPDF6 6
 
 #include "TheorEval.h"
@@ -39,6 +42,32 @@ struct point
   double th_err_dn;          //theory error down
 };
 
+extern "C" {
+  void update_theory_iteration_();
+}
+
+void getpdfunctype_le(int& MonteCarloPDFErr, int& AsymHessPDFErr, int& SymmHessPDFErr, xfitter::BaseEvolution* evol)
+{
+  string errortype = evol->getPropertyS("ErrorType");
+  if (errortype == "hessian" )
+    {
+      AsymHessPDFErr = true;
+      SymmHessPDFErr = false;
+      MonteCarloPDFErr = false;
+    }
+  if (errortype == "symmhessian" )
+    {
+      AsymHessPDFErr = false;
+      SymmHessPDFErr = true;
+      MonteCarloPDFErr = false;
+    }
+  if (errortype == "replicas" )
+    {
+      AsymHessPDFErr = false;
+      SymmHessPDFErr = false;
+      MonteCarloPDFErr = true;
+    }
+}
 
 vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
 {
@@ -80,21 +109,21 @@ vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
 }
 
 
-//return error if LHAPDF is not enabled
-#ifndef LHAPDF_ENABLED
-void get_lhapdferrors_()
-{
-  string msg = "S: Call to LHAPDFErrors but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
-  hf_errlog_(14060101, msg.c_str(), msg.size());
-}
-
-void set_verbosity_(int& i)
-{
-  string msg = "S: Call to LHAPDF set_verbosity but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
-  hf_errlog_(17030201, msg.c_str(), msg.size());
-}
-
-#else
+////return error if LHAPDF is not enabled
+//#ifndef LHAPDF_ENABLED
+//void get_lhapdferrors_()
+//{
+//  string msg = "S: Call to LHAPDFErrors but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
+//  hf_errlog_(14060101, msg.c_str(), msg.size());
+//}
+//
+//void set_verbosity_(int& i)
+//{
+//  string msg = "S: Call to LHAPDF set_verbosity but LHAPDF is not enabled. Run ./configure --enable-lhapdf and link the executable";
+//  hf_errlog_(17030201, msg.c_str(), msg.size());
+//}
+//
+//#else
 
 void set_verbosity_(int& i)
 {
@@ -139,12 +168,17 @@ void get_lhapdferrors_()
   string outdirname = string(coutdirname_.outdirname, 256);
   outdirname = outdirname.erase(outdirname.find_last_not_of(" ")+1, string::npos);
 
+  // get evolution
+  auto evol=xfitter::get_evolution("proton-LHAPDF");
+  YAML::Node gNode=XFITTER_PARS::getEvolutionNode("proton-LHAPDF");
+  
   /*****************************************************/
   // Central PDF
   cout << "-------------------------------------------" << endl;
   cout << "Chi2 test on central prediction:" << endl;
-
-  LHAPDF::initPDFSet(lhapdfset.c_str());
+  
+  //LHAPDF::initPDFSet(lhapdfset.c_str());
+  gNode["set"] = lhapdfset;
 
   int central_pdfmember;
   if (pdfprofile)
@@ -152,22 +186,26 @@ void get_lhapdferrors_()
   else
     central_pdfmember = clhapdf_.ilhapdfset;
   clhapdf_.ilhapdfset = central_pdfmember;
-  LHAPDF::initPDF(clhapdf_.ilhapdfset);
-
+  //LHAPDF::initPDF(clhapdf_.ilhapdfset);
+  gNode["member"] = central_pdfmember;
+  evol->atConfigurationChange();
+  
   //set alphas from LHAPDF
-  c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+  //c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+  c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
 
-#if LHAPDF_FAMILY == LHAPDF6
+  //#if LHAPDF_FAMILY == LHAPDF6
   //set also mc, mb and mt from LHAPDF
-  steering_.hf_mass[0] = LHAPDF::getThreshold(4);
-  steering_.hf_mass[1] = LHAPDF::getThreshold(5);
-  steering_.hf_mass[2] = LHAPDF::getThreshold(6);
-#endif
+  //steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+  //steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+  //steering_.hf_mass[2] = LHAPDF::getThreshold(6);
+  //#endif
 
   //Evaluate chi2 for the central PDF member
   double chi2tot;
   //  mc_method_();
   chi2tot = chi2data_theory_(1); //Needed for initialiion
+  fclose_(85);
   string fname = outdirname + "/Results.txt";
   fopen_(85, fname.c_str(), fname.size());
   chi2tot = chi2data_theory_(3);
@@ -195,12 +233,12 @@ void get_lhapdferrors_()
   store_pdfs_(filename.c_str(), filename.size());
 
   //Save the input PDFs in LHAPDF6 format
-  if ( strstr(coutdirname_.lhapdf6outdir ,"xfitter_pdf") != NULL) {
-    // Overwrite default name with the PDF name
-    string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset;
-    hf_errlog_(15051301,msg.c_str(), msg.size());
-    strncpy(coutdirname_.lhapdf6outdir, clhapdf_.lhapdfset, 256);
-  }
+  //if ( strstr(coutdirname_.lhapdf6outdir ,"xfitter_pdf") != NULL) {
+  //  // Overwrite default name with the PDF name
+  //  string msg = (string) "I: Overwrite the lhapdf6 output dir name  with input PDF name, "+  clhapdf_.lhapdfset;
+  //  hf_errlog_(15051301,msg.c_str(), msg.size());
+  //  strncpy(coutdirname_.lhapdf6outdir, clhapdf_.lhapdfset, 256);
+  //}
   print_lhapdf6_();
   //save_data_lhapdf6_(pdfmember);
 
@@ -209,11 +247,11 @@ void get_lhapdferrors_()
     pointsmap[i].thc = c_theo_.theo[i];
   /*****************************************************/
 
-#if LHAPDF_FAMILY == LHAPDF6
+  //#if LHAPDF_FAMILY == LHAPDF6
   //Reduce LHAPDF verbosity
   LHAPDF::Info& cfg = LHAPDF::getConfig();
   cfg.set_entry("Verbosity", 0);
-#endif
+  //#endif
 
 
   /*****************************************************/
@@ -223,7 +261,8 @@ void get_lhapdferrors_()
     {
       cout << "-------------------------------------------" << endl;
       cout << "Chi2 test on PDF variations" << endl;
-      getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+      getpdfunctype_le(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, evol);
+      //getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
       string msg = "";
       if (MonteCarloPDFErr)
         msg = (string) "I: Use Monte Carlo errors approach for: " + lhapdfset;
@@ -253,19 +292,26 @@ void get_lhapdferrors_()
         {
           if (pdfset ==  0)
             {
-              LHAPDF::initPDFSet(lhapdfset.c_str());
+              //LHAPDF::initPDFSet(lhapdfset.c_str());
               //          LHAPDF::initPDFSetByName(lhapdfset.c_str());
+	      gNode["set"] = lhapdfset;
               cout << "PDF set: " << lhapdfset;
-              getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
+	      getpdfunctype_le(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, evol);
+              //getpdfunctype_heraf_(MonteCarloPDFErr, AsymHessPDFErr, SymmHessPDFErr, lhapdfset.c_str(), lhapdfset.size());
             }
           else if (pdfset ==  1)
             {
               if (lhapdfvarset == "")
                 continue;
-              LHAPDF::initPDFSet(lhapdfvarset.c_str());
+              //LHAPDF::initPDFSet(lhapdfvarset.c_str());
+	      gNode["set"] = lhapdfvarset;
             }
+	  gNode["member"] = 0;
+	  evol->atConfigurationChange();
+
           //Number of PDF members
-          int nsets = LHAPDF::numberPDF();
+          //int nsets = LHAPDF::numberPDF();
+	  int nsets = evol->getPropertyI("NumMembers")-1;
 
           cout << ", number of PDF variations for this set: " << nsets << endl;
           if (nsets == 1) //Needed for PDF sets with only the central member
@@ -289,16 +335,19 @@ void get_lhapdferrors_()
                 continue;
 
               //Init PDF member and alphas(MZ)
-              LHAPDF::initPDF(iset);
-              clhapdf_.ilhapdfset = iset;
-              c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+              //LHAPDF::initPDF(iset);
+              //clhapdf_.ilhapdfset = iset;
+              //c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+	      gNode["member"] = iset;
+	      evol->atConfigurationChange();
+	      c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
 
-#if LHAPDF_FAMILY == LHAPDF6
+	      //#if LHAPDF_FAMILY == LHAPDF6
               //set also mc, mb and mt from LHAPDF
-              steering_.hf_mass[0] = LHAPDF::getThreshold(4);
-              steering_.hf_mass[1] = LHAPDF::getThreshold(5);
-              steering_.hf_mass[2] = LHAPDF::getThreshold(6);
-#endif
+              //steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+              //steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+              //steering_.hf_mass[2] = LHAPDF::getThreshold(6);
+	      //#endif
 
               //In VAR PDF set determine if it is a model or parametrisation variation
               if (pdfset == 1)
@@ -402,36 +451,164 @@ void get_lhapdferrors_()
         } //End loop on eig var PDF sets
 
       // Reset the central PDF set:
-      LHAPDF::initPDFSet(lhapdfset.c_str());
-      LHAPDF::initPDF(central_pdfmember);
-      clhapdf_.ilhapdfset = central_pdfmember;
-      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
-#if LHAPDF_FAMILY == LHAPDF6
-      steering_.hf_mass[0] = LHAPDF::getThreshold(4);
-      steering_.hf_mass[1] = LHAPDF::getThreshold(5);
-      steering_.hf_mass[2] = LHAPDF::getThreshold(6);
-#endif
+      //LHAPDF::initPDFSet(lhapdfset.c_str());
+      //LHAPDF::initPDF(central_pdfmember);
+      //clhapdf_.ilhapdfset = central_pdfmember;
+      //c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+      gNode["set"] = lhapdfset;
+      gNode["member"] = central_pdfmember;
+      evol->atConfigurationChange();
+      c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
+
+      
+      //#if LHAPDF_FAMILY == LHAPDF6
+      //steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+      //steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+      //steering_.hf_mass[2] = LHAPDF::getThreshold(6);
+      //#endif
 
     }//End of pdfprofile
 
   /*************************************************/
   //In QCD scales profiling mode, add two nuisance parameters for the renormalisation and factorisation scales
-/*Broken since "TermData rewrite"
   if (scaleprofile)
     {
       cout << "-------------------------------------------" << endl;
       cout << "Chi2 test on QCD scale variations" << endl;
 
       //Set the central PDF
-      LHAPDF::initPDFSet(lhapdfset.c_str());
-      LHAPDF::initPDF(central_pdfmember);
-      clhapdf_.ilhapdfset = central_pdfmember;
-      c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
-#if LHAPDF_FAMILY == LHAPDF6
-      steering_.hf_mass[0] = LHAPDF::getThreshold(4);
-      steering_.hf_mass[1] = LHAPDF::getThreshold(5);
-      steering_.hf_mass[2] = LHAPDF::getThreshold(6);
-#endif
+      //LHAPDF::initPDFSet(lhapdfset.c_str());
+      //LHAPDF::initPDF(central_pdfmember);
+      //clhapdf_.ilhapdfset = central_pdfmember;
+      //c_alphas_.alphas = LHAPDF::alphasPDF(boson_masses_.Mz);
+      gNode["set"] = lhapdfset;
+      gNode["member"] = central_pdfmember;
+      evol->atConfigurationChange();
+      c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
+
+      double factor = 2.;
+
+      //Consider global reaction-specific scale parameters
+      double *murappl = 0;
+      double *mufappl = 0;
+      if (XFITTER_PARS::gParameters.find("APPLgrid/muR") != XFITTER_PARS::gParameters.end())
+	murappl = XFITTER_PARS::getParamD("APPLgrid/muR");
+      if (XFITTER_PARS::gParameters.find("APPLgrid/muF") != XFITTER_PARS::gParameters.end())
+	mufappl = XFITTER_PARS::getParamD("APPLgrid/muF");
+      double mur0appl, muf0appl;
+      if (murappl)
+	mur0appl = *murappl;
+      if (mufappl)
+	muf0appl = *mufappl;
+
+      double *murhathor = 0;
+      double *mufhathor = 0;
+      if (XFITTER_PARS::gParameters.find("Hathor/muR") != XFITTER_PARS::gParameters.end())
+	murhathor = XFITTER_PARS::getParamD("Hathor/muR");
+      if (XFITTER_PARS::gParameters.find("Hathor/muF") != XFITTER_PARS::gParameters.end())
+	mufhathor = XFITTER_PARS::getParamD("Hathor/muF");
+      double mur0hathor, muf0hathor;
+      if (murhathor)
+	mur0hathor = *murhathor;
+      if (mufhathor)
+	muf0hathor = *mufhathor;
+
+      double *murdyt = 0;
+      double *mufdyt = 0;
+      double *muresdyt = 0;
+      if (XFITTER_PARS::gParameters.find("DYTurbo/muR") != XFITTER_PARS::gParameters.end())
+	murdyt = XFITTER_PARS::getParamD("DYTurbo/muR");
+      if (XFITTER_PARS::gParameters.find("DYTurbo/muF") != XFITTER_PARS::gParameters.end())
+	mufdyt = XFITTER_PARS::getParamD("DYTurbo/muF");
+      if (XFITTER_PARS::gParameters.find("DYTurbo/muRes") != XFITTER_PARS::gParameters.end())
+	muresdyt = XFITTER_PARS::getParamD("DYTurbo/muRes");
+      double mur0dyt, muf0dyt, mures0dyt;
+      if (murdyt)
+	mur0dyt = *murdyt;
+      if (mufdyt)
+	muf0dyt = *mufdyt;
+      if (muresdyt)
+	mures0dyt = *muresdyt;
+
+      //mur*2
+      if (murappl) *murappl = mur0appl*factor;
+      if (murhathor) *murhathor = mur0hathor*factor;
+      if (murdyt) *murdyt = mur0dyt*factor;
+      xfitter::updateAtConfigurationChange();
+      //update_theory_iteration_();
+      chi2data_theory_(2);
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
+
+      //mur*0.5
+      if (murappl) *murappl = mur0appl/factor;
+      if (murhathor) *murhathor = mur0hathor/factor;
+      if (murdyt) *murdyt = mur0dyt/factor;
+      xfitter::updateAtConfigurationChange();
+      //update_theory_iteration_();
+      chi2data_theory_(2);
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
+
+      //restore nominal scale
+      if (murappl) *murappl = mur0appl;
+      if (murhathor) *murhathor = mur0hathor;
+      if (murdyt) *murdyt = mur0dyt;
+      
+      //muf*2
+      if (mufappl) *mufappl = muf0appl*factor;
+      if (mufhathor) *mufhathor = muf0hathor*factor;
+      if (mufdyt) *mufdyt = muf0dyt*factor;
+      xfitter::updateAtConfigurationChange();
+      //update_theory_iteration_();
+      chi2data_theory_(2);
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
+      
+      //muf*0.5
+      if (mufappl) *mufappl = muf0appl/factor;
+      if (mufhathor) *mufhathor = muf0hathor/factor;
+      if (mufdyt) *mufdyt = muf0dyt/factor;
+      xfitter::updateAtConfigurationChange();
+      //update_theory_iteration_();
+      chi2data_theory_(2);
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
+
+      //restore nominal scale
+      if (mufappl) *mufappl = muf0appl;
+      if (mufhathor) *mufhathor = muf0hathor;
+      if (mufdyt) *mufdyt = muf0dyt;
+
+      //mures*2
+      if (muresdyt) *muresdyt = mures0dyt*factor;
+      xfitter::updateAtConfigurationChange();
+      //update_theory_iteration_();
+      chi2data_theory_(2);
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_p.push_back(c_theo_.theo[i]);
+      
+      //mures*0.5
+      if (muresdyt) *muresdyt = mures0dyt/factor;
+      xfitter::updateAtConfigurationChange();
+      //update_theory_iteration_();
+      chi2data_theory_(2);
+      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
+	pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
+
+      //restore nominal scale
+      if (muresdyt) *muresdyt = mures0dyt;
+
+      xfitter::updateAtConfigurationChange();
+    }
+      
+
+  /*      
+      //#if LHAPDF_FAMILY == LHAPDF6
+      //steering_.hf_mass[0] = LHAPDF::getThreshold(4);
+      //steering_.hf_mass[1] = LHAPDF::getThreshold(5);
+      //steering_.hf_mass[2] = LHAPDF::getThreshold(6);
+      //#endif
 
       //Store current values of scales
       map <int, int> iordmap;
@@ -955,6 +1132,7 @@ void get_lhapdferrors_()
 
       cout << "Total Number of systematic uncertainties: " << systema_.nsys << endl;
       fname = outdirname + "/Results.txt";
+      fclose_(85);
       fopen_(85, fname.c_str(), fname.size());
       chi2tot = chi2data_theory_(3);
       fclose_(85);
@@ -965,4 +1143,4 @@ void get_lhapdferrors_()
                         + outdirname + "/fittedresults.txt_set" + tag).c_str());
     }
 }
-#endif
+//#endif
