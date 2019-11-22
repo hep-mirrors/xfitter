@@ -812,6 +812,10 @@ void chi2_scan_()
 	      for (int i = 0; i < npoints; i++) //Store the scale variation for each data point
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
 
+	      //restore nominal scale
+	      if (murappl) *murappl = mur0appl;
+	      if (murhathor) *murhathor = mur0hathor;
+
 	      //muf*2
 	      if (mufappl) *mufappl = muf0appl*factor;
 	      if (mufhathor) *mufhathor = muf0hathor*factor;
@@ -829,9 +833,7 @@ void chi2_scan_()
 		pointsmap[i].th_scale_m.push_back(c_theo_.theo[i]);
 
 	      //restore nominal scale
-	      if (murappl) *murappl = mur0appl;
 	      if (mufappl) *mufappl = muf0appl;
-	      if (murhathor) *murhathor = mur0hathor;
 	      if (mufhathor) *mufhathor = muf0hathor;
 	      xfitter::updateAtConfigurationChange();
 	    }
