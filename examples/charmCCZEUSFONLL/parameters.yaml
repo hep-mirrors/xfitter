@@ -71,7 +71,7 @@ Parameterisations:
 DefaultDecomposition: proton
 Decompositions:
   proton:
-    class: UvDvubardbars
+    class: UvDvUbarDbarS
     xuv: par_uv
     xdv: par_dv
     xubar: par_ubar
@@ -99,7 +99,7 @@ Evolutions:
     set: "NNPDF31_nlo_as_0118"
     member: 0
 #  proton-APFEL:
-#    ? !include yaml/evolutions/APFELxx/parameters.yaml
+#    ? !include yaml/evolutions/APFELxx.yaml
 #    decomposition: proton
 #  antiproton:
 #    class: FlipCharge
