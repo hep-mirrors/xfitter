@@ -2,7 +2,7 @@
 #define NSYSMAX_C 750
 #endif
 #ifndef NTOT_C
-#define NTOT_C 2700
+#define NTOT_C 3500
 #endif
 #ifndef NCHI2POINTS_C
 #define NCHI2POINTS_C 100
