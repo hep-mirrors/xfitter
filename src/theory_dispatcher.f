@@ -46,7 +46,7 @@ c         call usepar(vIPDFSET)
       endif
 C-------------------------------------------------------------------
       if ( UseFixedTheory(IDataSet)) then
-         Call UseFixedTheoryXsection(IDataSet) 
+         Call UseFixedTheoryXsection(IDataSet)
       elseif (DATASETREACTION(IDataSet).eq.'NC e+-p integrated') then         
          if(Itheory.lt.100.) then
             Call GetIntegratedNCXsection(IDataSet, HFSCHEME)
@@ -84,6 +84,17 @@ C Standard DGLAP:& TMDs
          Call GetNCFL(IDataSet, HFSCHEME)
        elseif (DATASETREACTION(IDataSet).eq.'NC e+-p F2') then
          Call GetNCF2(IDataSet, HFSCHEME)
+         
+C ----        15/03/2018 Marina Walt, University of Tuebingen
+C ----        CC DIS for neutrino data
+      elseif (DATASETREACTION(IDataSet).eq.'neutrino+p F2') then
+         Call GetCCF2neutrino(IDataSet, HFSCHEME)
+      elseif (DATASETREACTION(IDataSet).eq.'neutrino+p xF3') then
+         Call GetCCxF3neutrino(IDataSet, HFSCHEME)
+      elseif (DATASETREACTION(IDataSet).eq.'neutrino+p CC') then
+         Call GetCCneutrino(IDataSet, HFSCHEME)
+      elseif (DATASETREACTION(IDataSet).eq.'antineutrino+p CC') then
+         Call GetCCantineutrino(IDataSet, HFSCHEME)                     
 c           
       elseif (DATASETREACTION(IDataSet).eq.'CC e+-p integrated') then         
          if(Itheory.lt.100.) then
@@ -142,6 +153,7 @@ c
            write(6,*) 'pp jets APPLGRID: invalid dataset for ithory>100'
             call hf_stop
          Endif
+
       elseif (DATASETREACTION(IDataSet).eq.'pp jets fastNLO') then
          if(Itheory.lt.100) then
            if ( DATASETTheoryType(IDataSet).eq.'expression' ) then
