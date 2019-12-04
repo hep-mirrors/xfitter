@@ -15,6 +15,12 @@
       
       integer STATYPE,SYSTYPE  !> For MC method, type of errors.
       logical lDEBUG           !> Debug flag
+
+      logical nCTEQ            !> 26/04/2017 Marina Walt, nCTEQ flag to select the PDF parametrisation and input parameters format used in nCTEQ15 Paper (only valid in connection with PDFStyle 'CTEQ')
+      logical nCTEQframework   !> 10/10/2017 Marina Walt, nCTEQframework flag to select the sum rules and pdf composition used in nCTEQ15 paper (valid only in connection with PDFStyle 'CTEQ' and nCTEQ=True)
+      logical nTUJU            !> 16/04/2018 Marina Walt, nPDFs with 'HERA' parametrisation
+      logical nCTEQparams      !> 15/05/2018 Marina Walt, flag to reflect CTEQ form of minuit input parameters but used for nTUJU scenario
+
       logical DOBANDS            !> Produce PDF error bands 
       logical DoBandsSym        !> Produce symmetric bands
       logical lRAND            !> MC method activation flag 
@@ -90,6 +96,10 @@ C
       integer vIPDFSET         !>  value of IPDFSET for each dataset
       integer cIDataSet        !>  dataset index to be used to dermine the number of active flavour in the H-VFNS
       integer ICHECK_QCDNUM    !>  Flag to perform out-of-grid check
+
+      !> 07/02/2017 new parameter introduced by Marina Walt, University of Tuebingen
+      logical nucleus          !>  Flag to trigger nuclear PDFs 
+
       logical lead             !> Flag to trigger lead PDF	
       logical deuteron             !> Flag to trigger deuteron PDF	
       logical CachePDFs        !> Cache PDF calls to speedup
@@ -111,10 +121,13 @@ C
 
 
       integer AsymErrorsIterations !> Number of iterations for asymmetric errors. 0 -- off 
+
+      integer steering_check
       common/STEERING/
      &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
      $     HF_MASS,charm_frac,
      &     lDEBUG,DOBANDS,UseGridLHAPDF5,WriteLHAPDF6,h1qcdfunc,WriteAlphaSToMemberPDF,
+     &     nucleus,nCTEQ,nCTEQframework,nCTEQparams,nTUJU,
      &     Itheory,I_FIT_ORDER,IPARAM,HFSCHEME,
      $     lRAND,STATYPE,SYSTYPE,
      $     outxrange, outnx,ILENPDF,nchebGLU,chebxmin,
@@ -132,7 +145,7 @@ C
      $     CorChi2Type, hf_scheme, AsymErrorsIterations,
      $     LUseAPPLgridCKM, pdfrotate, ExtraPdfs, WriteLHAPDF5, 
      $     DoBandsSym
-      
+     $     , steering_check ! Keep this at the end of the common block 
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
 
@@ -172,7 +185,13 @@ C     Value for selection of a dipole model fit
       character*32 PDFType           !> PDF type definition
       common/CPdfStyle/PDFType
 
+      !> 07/02/2017 new parameters introduced by Marina Walt, University of Tuebingen for nuclear PDFs
+      double precision Znucleus      !> number of protons Z for PDFType 'nucleus'
+      double precision Anucleus      !> number of nucleons A for PDFType 'nucleus'
+      common/CPdfStyle/Znucleus,Anucleus  
+      
       character*128  LHAPDFSET        !> LHAPDF set name
+      character*128  LHAPDFSETin      !> LHAPDF set name (as per input in the steering file)
       character*128  LHAPDFVARSET     !> LHAPDF VAR set name
       integer ILHAPDFSET              !> LHAPDF set number
       integer nLHAPDF_Sets 	      !> Number of members in LHAPDF set
@@ -182,7 +201,7 @@ C     Value for selection of a dipole model fit
       logical lhascaleprofile         !> Add QCD scale variations to the chi2
       logical Scale68                 !> Scale LHAPDF uncertainties from 90cl to 68cl
       integer nremovepriors           !> remove prior of last <n> PDF nuisance parameters
-      common/CLHAPDF/LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,
+      common/CLHAPDF/LHAPDFSET,LHAPDFSETin,LHAPDFVARSET,ILHAPDFSET,nLHAPDF_Sets,NPARVAR,
      $	 LHAPDFErrors,Scale68,nremovepriors,lhapdfprofile,lhascaleprofile
 
       character*256 OutDirName   !> outout dir name
