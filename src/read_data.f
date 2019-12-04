@@ -216,10 +216,12 @@ C------------------------------------------------------------------------
 #include "scales.inc"
 
       character *(*) CFile
-C Namelist  variables:    
-      integer ndataMax,ninfomax,nsystMax,ncolumnMax
+C Namelist  variables:   
+C     07/11/2019 MW: variables provided in include-files commented out 
+C      integer ndataMax,ninfomax,nsystMax,ncolumnMax
+      integer ndataMax,nsystMax,ncolumnMax	  
       parameter (ndataMax=ntot)
-      parameter (ninfoMax=100)
+C      parameter (ninfoMax=100)
       parameter (nsystMax=nsysmax)
 
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
@@ -227,13 +229,13 @@ C Namelist  variables:
       character *80 Name
       integer  NData
       integer  NUncert
-      integer  NInfo
+C      integer  NInfo
       integer  NBinDimension
 
       
       character *80 BinName(NBinDimensionMax)
-      double precision datainfo(ninfoMax)
-      character *80 CInfo(ninfoMax)
+C      double precision datainfo(ninfoMax)
+C      character *80 CInfo(ninfoMax)
       character *80 Reaction
 
       double precision buffer(ncolumnMax)
@@ -264,7 +266,7 @@ C     character*80 applgridNames(NapplgridMax)
       integer      NTheoryFiles
 C Namelist definition:
       namelist/Data/Name,NData
-     $     ,NInfo,datainfo,CInfo,Reaction,Percent
+     $     ,NInfo,datainfo,CInfo,Reaction,Percent	 
      $     ,SystScales, IndexDataset
      $     ,TheoryInfoFile,TheoryType,KFactorNames,NKFactor
      $     ,TermName,TermType,TermInfo, TermSource,TheorExpr
@@ -483,6 +485,9 @@ C Extra info:
          DATASETInfoNames(i,NDATASETS) = CInfo(i)
          DATASETInfo(i,NDATASETS) =      DataInfo(i)
       enddo
+      
+C 04/06/2017 Marina Walt, University of Tuebingen
+      call ReadnuclDataFile       
 
 C Prepare systematics:
       do i=1,NUncert
