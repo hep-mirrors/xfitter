@@ -35,6 +35,10 @@
         c_kmuc = kmuc
         c_kmub = kmub
         c_kmut = kmut
+        
+        c_nucleus = nucleus
+        c_Anucleus = Anucleus
+        c_Znucleus = Znucleus
 
       end
 
