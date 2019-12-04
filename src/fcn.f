@@ -20,6 +20,7 @@ C---------------------------------------------------------
       double precision g_dummy(*),parminuit(*),chi2out,futil
       external futil
 
+#include "steering.inc"      
 #include "fcn.inc"
 #include "endmini.inc"
 #include "for_debug.inc"
@@ -74,7 +75,13 @@ C Print MINUIT extra parameters
 *     PDF parameterisation at the starting scale
 *     ---------------------------------------------------------
 
-      call PDF_Param_Iteration(parminuit,iflag)
+
+C---  22/11/2017 MW, modification to be able to treat LHAPDFs.
+      if( PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFQ0') then
+        call PDF_Param_Iteration(parminuit,iflag)
+      endif
+C---
+
 
 ! [--- WS 2015-10-10
 #ifdef TRACE_CHISQ
@@ -88,7 +95,7 @@ C Print MINUIT extra parameters
 *
 * Evaluate the chi2:
 *     
-      chi2out = chi2data_theory(iflag)
+      chi2out = chi2data_theory(parminuit,iflag)
       
 #ifdef TRACE_CHISQ
       if (iflag.eq.1) then
@@ -110,7 +117,7 @@ C> @param[in] iflag minuit flag indicating minimisation stage
 C> @authors   Sasha Glazov, Voica Radescu
 C> @date      22.03.2012
 C------------------------------------------------------------------------------
-      double precision function chi2data_theory(iflag)
+      double precision function chi2data_theory(parminuit,iflag)
 
       implicit none
 C--------------------------------------------------------------
@@ -129,6 +136,9 @@ C--------------------------------------------------------------
 #include "polarity.inc"
 #include "endmini.inc"
 #include "fractal.inc"
+
+C (Optional) LHAPDF steering card
+      namelist/clhapdf/LHAPDFSET,LHAPDFSETin
 
 *     ---------------------------------------------------------
 *     declaration related to chisquare
@@ -186,6 +196,7 @@ c updf stuff
       Integer Itheory_ca
       Common/theory/Itheory_ca
       Integer idx
+      
 
       character*2 TypeC, FormC, TypeD
       character*64 Msg
@@ -195,6 +206,21 @@ c updf stuff
 
 C Penalty from MINUIT extra parameters constraints
       double precision extraparsconstrchi2
+      
+      
+      integer Nratiostep, stepcount	! 30/03/2017 Marina Walt, new parameter
+      double precision Anucl, Znucl			! 23/05/2017 Marina Walt, new parameter
+      integer intAnucl, intZnucl
+      integer intidxDataSet
+      character*3 charAnucl, charZnucl		! 23/05/2017 Marina Walt, new parameter (to be used for filename during PDF storage)
+      character*3 charidxDataSet	! 17/10/2017 Marina Walt, new parameter (to be used for filename during PDF storage)
+      character*35 lhapdfsetnucl
+      
+C functions:       
+      integer GetInfoIndex
+      double precision parminuit(*)          
+      
+C --------------------------------------------------------------      
 
 
 C--OZ 21.04.2016 Increment IfcnCount here instead of fcn routine
@@ -249,118 +275,234 @@ c        write(6,*) ' fcn npoint ',npoints
          Fccfm1=.true.
         
       endif
+      
+*     --------------------------------------------------------- 
+C ---- 21/03/2017 modified by Marina Walt, University of Tuebingen
+C                 program code to call sumrules moved to the do-idataset-loop
+*     ---------------------------------------------------------
+      
+
+*     --------------------------------------------------------- 
+C ---- 15/03/2017 modified by Marina Walt, University of Tuebingen
+C                 program code to call evolution moved to the do-idataset-loop
+*     ---------------------------------------------------------
+
+*     --------------------------------------------------------- 	
+C ---- 19/04/2017 GetTheoryIteration moved to A1/A2 loop
+*     --------------------------------------------------------- 
+		 
+*     ---------------------------------------------------------  	       
+*     Calculate theory for datasets:
+*     ---------------------------------------------------------  	 
+      do idataset=1,NDATASETS
+         idxADataSet = idataset
+         if(NDATAPOINTS(idataset).gt.0) then
+         
+*         
+C ---- 15/03/2017 original code re-placed by Marina Walt (since PDF parametrisation depends on DataSet for nuclei)
+*     ---------------------------------------------------------  	 
+*     Call evolution
+*     ---------------------------------------------------------  	 
+           
+C ---- 30/03/2017 Marina Walt, modification to consider experimental data provided for a ratio sigma(A1)/sigma(A2)
+
+           Nratiostep = 1	! default value
+           
+           if (nucleus) then
+            ratio = DATASETInfo( GetInfoIndex(idxADataSet, 'ratio'), idxADataSet)
+            if (ratio.eq.1.0) then
+             Nratiostep = 2
+            endif  
+           endif
+           
+C ---- begin A1/A2-loop          
+           do stepcount=1,Nratiostep
+            ratiostep = stepcount
+            if (Debug) then
+             print*,'before evolution'
+             print *,'fcn: ratiostep'
+             print *,ratiostep
+            endif
+            
+C ---- 22/11/2017
+
+            if (ratiostep.eq.1) then
+                Anucl=DATASETInfo( GetInfoIndex(idxADataSet, 'A1'), idxADataSet)
+                Znucl=DATASETInfo( GetInfoIndex(idxADataSet, 'Z1'), idxADataSet) 
+                intAnucl=Anucl		!to convert double into integer to be used as file name
+                intZnucl=Znucl
+            elseif (ratiostep.eq.2) then
+                Anucl=DATASETInfo( GetInfoIndex(idxADataSet, 'A2'), idxADataSet)
+                intAnucl=Anucl		!to convert double into integer to be used as file name
+                Znucl = DATASETInfo( GetInfoIndex(idxADataSet, 'Z2'), idxADataSet)
+                intZnucl=Znucl
+            endif
+
+             
+
+            
+            
+*     ---------------------------------------------------------
+*     19/04/2017 Marina Walt, moved to A1/A2 loop inside of chi2data_theory function
+*     PDF parameterisation at the starting scale
+*     ---------------------------------------------------------           
+            if( PDFStyle.eq.'LHAPDF'.or.PDFStyle.eq.'LHAPDFQ0') then
+               if (nucleus) then
+                 write(charAnucl, '(i0)'), intAnucl
+                 write(charZnucl, '(i0)'), intZnucl
+C                 print *,'hello world chi2_datatheory 0', LHAPDFSETin, charAnucl, charZnucl
+                 lhapdfsetnucl = TRIM(LHAPDFSETin)//'_'//TRIM(charAnucl)//'_'//TRIM(charZnucl)
+C                 print *,'hello world chi2_datatheory 1', lhapdfsetnucl
+               else
+                 lhapdfsetnucl = TRIM(LHAPDFSETin)
+               endif
+               call InitPDFset(lhapdfsetnucl)
+C               print *,'hello world chi2_datatheory 2', lhapdfsetnucl
+            else    
+               call PDF_Param_Iteration(parminuit,iflag)
+            endif   
+
+*     ---------------------------------------------------------  	 
+*     Initialise theory calculation per iteration
+*     ---------------------------------------------------------  	 
+            call GetTheoryIteration
+            if(itheory.ge.103) call GetGridkt
+
+            if (Debug) then
+               print*,'after GetTheoryIteration'
+            endif
+            
+C ---- 18/04/2017 Marina Walt, sum rules code block included in the A1/A2 loop
+
+*
+C ---- 21/03/2017 original code re-placed by Marina Walt (since PDF sumrules depend on the mass number A, so on the DataSet for nuclei)
 
 *     ---------------------------------------------------------
 *     Extra constraints on input PDF due to momentum and quark 
 *     counting sum rules:
 *     ---------------------------------------------------------
 
-      kflag=0
-      if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
+            kflag=0
+            if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
      $.or.itheory.eq.35)  then 
-         call SumRules(kflag)
-      endif
-      if (kflag.eq.1) then
-         write(6,*) ' --- problem in SumRules, kflag = 1'
-         call HF_errlog(12020516,
+               call SumRules(kflag)
+            endif
+            if (kflag.eq.1) then
+               write(6,*) ' --- problem in SumRules, kflag = 1'
+               call HF_errlog(12020516,
      +        'F: FCN - problem in SumRules, kflag = 1')
-      endif
+            endif
 
-      if (iflag.eq.1) then
-         open(87,file=TRIM(OutDirName)//'/pulls.first.txt')
-      endif
+            if (iflag.eq.1) then
+               open(87,file=TRIM(OutDirName)//'/pulls.first.txt')
+            endif
 
-      if ((iflag.eq.3).or.(iflag.eq.4)) then
-         open(88,file=TRIM(OutDirName)//'/pulls.last.txt')
-         do i=1,nset
-            npts(i) = 0
-         enddo
-      endif
+            if ((iflag.eq.3).or.(iflag.eq.4)) then
+               open(88,file=TRIM(OutDirName)//'/pulls.last.txt')
+               do i=1,nset
+                  npts(i) = 0
+               enddo
+            endif
 
 C
 C     Call a subrotine which vanishes nonvalence DGLAP contribution
-C     for dipole model fits.
-C
-      if (DipoleModel.eq.3.or.DipoleModel.eq.4) then
-         call LeaveOnlyValenceQuarks
-      endif
+C      for dipole model fits.
 
-*     ---------------------------------------------------------  	 
-*     Call evolution
-*     ---------------------------------------------------------  	 
-      if (Debug) then
-         print*,'before evolution'
-      endif
-      if (itheory.eq.0.or.itheory.eq.10.or.itheory.eq.11.or.
-     1    itheory.eq.35) then         
-         call Evolution
-      elseif(Itheory.ge.100) then
-          if(itheory.eq.101) then 
-             Iglu=1112 
-             filename='ccfm-test.dat'
-             call calcglu
+            if (DipoleModel.eq.3.or.DipoleModel.eq.4) then
+             call LeaveOnlyValenceQuarks
+            endif
+*   
+            
+C ---- 18/04/2017 end ------               
+           
+            if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
+     $.or.itheory.eq.35) then
+             call Evolution
+            elseif(Itheory.ge.100) then
+             if(itheory.eq.101) then 
+                Iglu=1112 
+                filename='ccfm-test.dat'
+                call calcglu
 c iglu is set in sigcalc to iglu=1111
-          elseif(itheory.eq.102) then 
+             elseif(itheory.eq.102) then 
 c iglu in sigcalc is set by steer-ep 
-          elseif(itheory.eq.103) then 
+             elseif(itheory.eq.103) then 
 c iglu is set in sigcalc to iglu=1113
-             Iglu = 1113
-          elseif(itheory.eq.104) then 
-             Iglu=1112            
+                Iglu = 1113
+             elseif(itheory.eq.104) then 
+                Iglu=1112            
 c call evolution to generate grid file
-             evolfname='Cascade/updfGrids/ccfm-grid.dat'
-             if(iflag.eq.1) call evolve_tmd
+                evolfname='Cascade/updfGrids/ccfm-grid.dat'
+                if(iflag.eq.1) call evolve_tmd
 c iglu is set in sigcalc to iglu=1111
-          elseif(itheory.eq.105) then 
+             elseif(itheory.eq.105) then 
 c call evolution to generate grid file
-             evolfname='ccfm-test.dat'
-             if(iflag.eq.1) call evolve_tmd
+                evolfname='ccfm-test.dat'
+                if(iflag.eq.1) call evolve_tmd
 c iglu is set in sigcalc to iglu=1111
-          endif 
-          firsth=.false.
-      endif
+             endif 
+             firsth=.false.
+            endif
 
 c fill PDFs for ABKM scheme
-      if (mod(HFSCHEME,10).eq.4) then 
+            if (mod(HFSCHEME,10).eq.4) then 
 c update heavy-quark masses (for FF ABM and FF ABM RUNM schemes)
-        if (HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
-          call UpdateHQMasses()
-          rmass(8)  = HF_MASS(1)
-          rmass(10) = HF_MASS(2)
-        endif
-        call PDFFILLGRID
+             if (HFSCHEME.eq.4.or.HFSCHEME.eq.444) then
+              call UpdateHQMasses()
+              rmass(8)  = HF_MASS(1)
+              rmass(10) = HF_MASS(2)
+             endif
+             call PDFFILLGRID
 c this will need to BMSN             
 c             call fillvfngrid
-      endif
+            endif
 
-      if (Debug) then
-         print*,'after evolution'
-      endif
+            if (Debug) then
+             print*,'after evolution'
+            endif
+            
+C --------- 15/03/2017 ----- end -------------            
+            call GetTheoryForDataset(idataset)	! original program code         
+            
+C --------- 23/05/2017 Marina Walt, University of Tuebingen
+C --------- Plug in of the PDF storage routine into the A1/A2 loop in order to store A-dependent PDFs, per dataset for debug purpose
+CC 07.11.2019, MW: commented out since not required            
+CC            if (Debug) then
+            
+CC              intidxDataSet = idxADataSet
+            
+CC              write(charAnucl, '(i0)'), intAnucl
+CC              write(charidxDataSet, '(i0)'), intidxDataSet
+CC              base_pdfname = TRIM(OutDirName)//'/A-'//TRIM(charAnucl)//
+CC     $                   '_idx-'//TRIM(charidxDataSet)//'_pdfs_q2val_'
+CC              open(90,file=base_pdfname)
+CC              call store_pdfs(base_pdfname)
+CC            
+CC            endif
+            
+           
+           enddo
+C ---- end A1/A2-loop
+
+C --------- 30/03/2017 ----- end -------------  
 
 
-	
-*     ---------------------------------------------------------  	 
-*     Initialise theory calculation per iteration
-*     ---------------------------------------------------------  	 
-      call GetTheoryIteration
-      if(itheory.ge.103) call GetGridkt
-
-
-      if (Debug) then
-         print*,'after GetTheoryIteration'
-      endif
-		 
-*     ---------------------------------------------------------  	       
-*     Calculate theory for datasets:
-*     ---------------------------------------------------------  	 
-      do idataset=1,NDATASETS
-         if(NDATAPOINTS(idataset).gt.0) then
-            call GetTheoryForDataset(idataset)
+C ---- 10/04/2017 Marina Walt, call new subroutine 
+C      to store calculated cross sections
+C ---- 08/05/2019 MW modified to reduce Metadata operations      
+           if (Debug) then      
+              call WriteCSforDebugging
+           endif
+C ----         
+       
          else 
              write (Msg,
-     $  '(''W: Data set '',i2,'' contains no data points, will be ignored'')') idataset
+     $  '(''W: Data set '',i2,'' contains no data points, 
+     $                      will be ignored'')') idataset
            call hf_errlog(29052013,Msg)
          endif
+        
+
       enddo
 
       if (Debug) then
@@ -403,12 +545,14 @@ c             call fillvfngrid
           call MC_Method()
         endif
 
+						  
         NSysData = 0
         do i=1,NSys
           if(ISystType(i).eq.iDataSyst)then
             NSysData=NSysData+1
           endif
         enddo
+		   
 
         if(DataToTheo)then !Copy theory to data
           do i=1,npoints
@@ -462,6 +606,11 @@ c             call fillvfngrid
          if (dobands) then
             print *,'SAVE PDF values'
          endif
+
+         TheoFCN3 = Theo  ! save 
+         TheoModFCN3 = Theo_Mod
+         ALphaModFCN3 = ALPHA_Mod
+
 *     ---------------------------------------------------------
 *     write out data points with fitted theory
 *     ---------------------------------------------------------
@@ -496,10 +645,12 @@ c             call fillvfngrid
       endif
       
       
-c Penalty from MINUIT extra parameters constraints
-      call getextraparsconstrchi2(extraparsconstrchi2)
-      fchi2 = fchi2 + extraparsconstrchi2
-
+c Penalty from MINUIT extra parameters constraints (only for fits) 
+C However when/if LHAPDFErrors mode will be combined with minuit, this will need modification.
+      if (.not. LHAPDFErrors) then
+         call getextraparsconstrchi2(extraparsconstrchi2)
+         fchi2 = fchi2 + extraparsconstrchi2
+      endif
 
       chi2out = fchi2+
      $     shift_polRHp**2+shift_polRHm**2+
@@ -568,17 +719,15 @@ c     $           ,chi2_cont/NControlPoints
 
 
       if (iflag.eq.3) then
-!          if(itheory.eq.0) then      
-!          endif
          
-      if (doOffset) then
-        fcorchi2 = 0d0
-        do h1iset=1,nset
-          pchi2(h1iset) = pchi2offs(h1iset)
-          fcorchi2 = fcorchi2 + pchi2offs(h1iset)
-        enddo
-!         fcorchi2 = chi2out+OffsDchi2
-      endif
+         if (doOffset) then
+            fcorchi2 = 0d0
+            do h1iset=1,nset
+               pchi2(h1iset) = pchi2offs(h1iset)
+               fcorchi2 = fcorchi2 + pchi2offs(h1iset)
+            enddo
+!     fcorchi2 = chi2out+OffsDchi2
+         endif
       
 ! ----------------  RESULTS OUTPUT ---------------------------------
          write(85,*) ' Partial chi2s '
@@ -621,101 +770,175 @@ c     $           ,chi2_cont/NControlPoints
             write(85,*) 'Log penalty Chi2 ', chi2_log
          endif
 
-       base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
+         base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
 
-       if (ITheory.ne.2) then
+         if (ITheory.ne.2) then
 
-          IF((Itheory.ge.100).or.(Itheory.eq.50)) then
-              auh(1) = parminuitsave(1)
-              auh(2) = parminuitsave(2)
-              auh(3) = parminuitsave(3)
-              auh(4) = parminuitsave(4)
-              auh(5) = parminuitsave(5)
-              auh(6) = parminuitsave(6)
-              auh(7) = parminuitsave(7)
-              auh(8) = parminuitsave(8)
-              auh(9) = parminuitsave(9)
-              if(Itheory.ge.103) then
-              idx = index(ccfmfile,' ')-1
-                 if(idx.gt.2) then
-                   filename=ccfmfile(1:idx)//'.dat'
-                   firsth=.true.
-                   call calcglu
+            IF((Itheory.ge.100).or.(Itheory.eq.50)) then
+               auh(1) = parminuitsave(1)
+               auh(2) = parminuitsave(2)
+               auh(3) = parminuitsave(3)
+               auh(4) = parminuitsave(4)
+               auh(5) = parminuitsave(5)
+               auh(6) = parminuitsave(6)
+               auh(7) = parminuitsave(7)
+               auh(8) = parminuitsave(8)
+               auh(9) = parminuitsave(9)
+               if(Itheory.ge.103) then
+                  idx = index(ccfmfile,' ')-1
+                  if(idx.gt.2) then
+                     filename=ccfmfile(1:idx)//'.dat'
+                     firsth=.true.
+                     call calcglu
+                  endif
+               endif         
+               open(91,file=TRIM(OutDirName)//'/params.txt')
+               write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
+               
+             
+
+            else
+                      
+            
+C ---- 17/10/2017 MW           
+              do idataset=1,NDATASETS
+                 idxADataSet = idataset
+            
+C ---- modifications to consider experimental data provided for a ratio sigma(A1)/sigma(A2)
+
+                 Nratiostep = 1	! default value
+           
+                 if (nucleus) then
+                    ratio = DATASETInfo( GetInfoIndex(idxADataSet, 
+     $                       'ratio'), idxADataSet)
+                    if (ratio.eq.1.0) then
+                      Nratiostep = 2
+                    endif  
                  endif
-              endif         
-              open(91,file=TRIM(OutDirName)//'/params.txt')
-              write(91,*) auh(1),auh(2),auh(3),auh(4),auh(5),auh(6),auh(7),auh(8),auh(9)
+           
+C ---- begin A1/A2-loop          
+                 do stepcount=1,Nratiostep
+                    ratiostep = stepcount
 
-             
+                    if (ratiostep.eq.1) then
+                       Anucl=DATASETInfo( GetInfoIndex(idxADataSet, 
+     $                                            'A1'),idxADataSet)
+                       Znucl=DATASETInfo( GetInfoIndex(idxADataSet, 
+     $                                            'Z1'),idxADataSet)
+                       intAnucl=Anucl      !to convert double into integer to be used as file name
+                       intZnucl=Znucl
+                    elseif (ratiostep.eq.2) then
+                       Anucl=DATASETInfo( GetInfoIndex(idxADataSet, 
+     $                                           'A2'),idxADataSet)
+                       intAnucl=Anucl      !to convert double into integer to be used as file name
+                       Znucl = DATASETInfo( GetInfoIndex(idxADataSet, 
+     $                                           'Z2'),idxADataSet)
+                       intZnucl=Znucl
+                    endif
 
-          else
 C  Hardwire:
-             if ( ReadParsFromFile .and. DoBandsSym) then
-                call ReadPars(ParsFileName, pkeep)
-                call PDF_param_iteration(pkeep,2)
-                kflag = 0
-                call SumRules(kflag)
-             endif
-             
-             call Evolution
+                    if ( ReadParsFromFile .and. DoBandsSym) then
+                     call ReadPars(ParsFileName, pkeep)
+                     call PDF_param_iteration(pkeep,2)
+                     kflag = 0
+                     call SumRules(kflag)
+                    endif
 
+C 16/07/2019  MW
+                    if (Itheory.eq.0.or.Itheory.eq.10.or.itheory.eq.11
+     $                   .or.itheory.eq.25.or.itheory.eq.35)  then
+                        call SumRules(kflag)
+                    endif
+
+            
+                    call Evolution
+                  
 C LHAPDF output:
 c WS: for the Offset method save central fit only
-            if (CorSysIndex.eq.0) then
-              open (76,file=TRIM(OutDirName)//'/lhapdf.block.txt',status='unknown')
-
-              call store_pdfs(base_pdfname)
-              call fill_c_common
-              call print_lhapdf6
+                    if (CorSysIndex.eq.0) then
+C ---------        17/10/2017, Marina Walt, modifications in order to store A-dependent PDFs
+            
+                     write(charAnucl, '(i0)'), intAnucl 
+                 
+                     open (76,file=TRIM(OutDirName)//'/A-'
+     $                    //TRIM(charAnucl)//'_lhapdf.block.txt')
+                     call store_pdfs(TRIM(OutDirName)//'/A-'
+     $                    //TRIM(charAnucl)//'_pdfs_q2val_')
+                 
+                     !> proton PDFs
+                     if (Anucl.eq.1.D0) then
+                        open (76,file=TRIM(OutDirName)//
+     $                                  '/lhapdf.block.txt')
+                        call store_pdfs(TRIM(OutDirName)//'/pdfs_q2val_')
+                     endif
+                     
+                     Anucleus=Anucl
+                     Znucleus=Znucl
+                     
+                    !> print *,'Debugging lhapdfoutput fortran, Anucleus, Znucleus ', Anucleus, Znucleus
+                 
+                     LHAPDF6OutDir='/A-'//TRIM(charAnucl)
+     $                                       //'_xfitter_pdf'  
+                 
+                     call fill_c_common
+                     call print_lhapdf6
+                    endif
+             
+                 enddo 
+              enddo
+C ----             
             endif
-          endif
-       endif
+            
+         endif
 
 c WS: print NSYS --- needed for batch Offset runs
-       write(85,*) 'Systematic shifts ',NSYS
-       write(85,*) ' '
-       write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)')
-     $         ' ', 'Name     ', 'Shift','Error',' ','Type'
-       do jsys=1,nsys
-C !> Store also type of systematic source info
-          if ( SysForm(jsys) .eq. isNuisance ) then
-             FormC = ':N'
-          elseif ( SysForm(jsys) .eq. isMatrix ) then
-             FormC = ':C'
-          elseif ( SysForm(jsys) .eq. isOffset ) then
-             FormC = ':O'
-          elseif ( SysForm(jsys) .eq. isExternal ) then
-             FormC = ':E'
-          endif
+         write(85,*) 'Systematic shifts ',NSYS
+         write(85,*) ' '
+         write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)')
+     $        ' ', 'Name     ', 'Shift','Error',' ','Type'
+         do jsys=1,nsys
+C     !> Store also type of systematic source info
+            if ( SysForm(jsys) .eq. isNuisance ) then
+               FormC = ':N'
+            elseif ( SysForm(jsys) .eq. isMatrix ) then
+               FormC = ':C'
+            elseif ( SysForm(jsys) .eq. isOffset ) then
+               FormC = ':O'
+            elseif ( SysForm(jsys) .eq. isExternal ) then
+               FormC = ':E'
+            endif
 
-          if ( SysScalingType(jsys) .eq. isPoisson ) then
-             TypeC = ':P'
-          elseif ( SysScalingType(jsys) .eq. isNoRescale ) then
-             TypeC = ':A'
-          elseif ( SysScalingType(jsys) .eq. isLinear ) then
-             TypeC = ':M'
-          endif
+            if ( SysScalingType(jsys) .eq. isPoisson ) then
+               TypeC = ':P'
+            elseif ( SysScalingType(jsys) .eq. isNoRescale ) then
+               TypeC = ':A'
+            elseif ( SysScalingType(jsys) .eq. isLinear ) then
+               TypeC = ':M'
+            endif
 
-          if (ISystType(jsys).eq. iDataSyst) then
-             TypeD = ':D'
-          elseif (ISystType(jsys).eq. iTheorySyst ) then
-             TypeD = ':T'
-          endif
+            if (ISystType(jsys).eq. iDataSyst) then
+               TypeD = ':D'
+            elseif (ISystType(jsys).eq. iTheorySyst ) then
+               TypeD = ':T'
+            endif
 
-          write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
-     $         jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, 
-     $         TypeC,TypeD
-       enddo
+            write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
+     $           jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC, 
+     $           TypeC,TypeD
+         enddo
+
+
+
 
 c AS release applgrids
 c AS applgrid example
-       if ( useapplg ) then
-          call ag_releasegrids
-       endif
-       call cpu_time(time2)
-       print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
+         if ( useapplg ) then
+            call ag_releasegrids
+         endif
+         call cpu_time(time2)
+         print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
 
-       
+         
       endif
 
       
