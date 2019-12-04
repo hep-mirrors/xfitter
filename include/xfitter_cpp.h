@@ -21,7 +21,7 @@ extern"C" {
   //Error logging function
   void hf_errlog_(const int &id, const char text[], int);
 
-  double chi2data_theory_(const int &iflag);
+  double chi2data_theory_(double * parminuitlhapdf, const int &iflag);
 
   //IO functions
   void writefittedpoints_();
@@ -176,6 +176,13 @@ extern"C" {
     int ewfit_;
     int npolyval_;
     int lead_;
+// 21/11/2018 Marina Walt, new parameters for nuclear pdfs    
+    int nucleus_;
+    int nCTEQ_;
+    int nCTEQframework_;
+    int nCTEQparams_;
+    int nTUJU_;
+// -------------------------------------------------------      
     int izpopoly_;
     int ipolysqr_;
     int useapplg_;
@@ -201,6 +208,12 @@ extern"C" {
     int ExtraPdfs_;
     int WriteLHAPDF5_;
   } steering_;
+  
+// 10/07/2019 Marina Walt  
+  extern struct {
+    double Anucleus_;
+    double Znucleus_;
+  } cpdfstyle_;  
 
   extern struct {
     double e_stat_poisson_[NTOT_C];
