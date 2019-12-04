@@ -70,9 +70,8 @@ C--------------------------------------------------
          if (ExtraParamNames(i).eq.cName) then
             GetParameterIndex = i
             Return
-         endif
-      enddo
-
+		 endif
+      enddo														
 C Not found
       GetParameterIndex = 0
 C--------------------------------------------------
@@ -297,9 +296,13 @@ C--------------------------------------------------------------
       character *(*) BinNames(NBin)
 #include "ntot.inc"
 #include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
 
-      integer idxQ2,idxX,idxY,i
+      integer idxQ2,idxX,idxY,i,idxS,IDataSet
+	  double precision S
       real*4 q2,x,y, cut
+	  integer GetInfoIndex				
 
       logical FailCuts
 C---------------------------------------------------------------
@@ -316,17 +319,40 @@ C---------------------------------------------------------------
          endif
          if (BinNames(i).eq.'y') then
             idxY = i
-         endif
+            if (idxY.eq.0) then
+                 idxS =  GetInfoIndex(IDataSet,'sqrt(S)')
+                 if (idxS.gt.0) then
+                    S = (DATASETInfo( GetInfoIndex(IDataSet,'sqrt(S)')
+     $           , IDataSet))**2
+                 else
+                    print *,
+     $ 'ERROR: DIS sample, neigher S nor y are defined !'
+                    print *,' !!! STOP STOP STOP STOP !!!'
+                    call HF_stop
+                 endif
+            endif
+         endif         
       enddo
-      if (idxQ2.eq.0 .or. idxX.eq.0 .or. idxY.eq.0) then
+      
+!>      if (idxQ2.eq.0 .or. idxX.eq.0 .or. idxY.eq.0) then          !> 23/10/2017 modified by Marina Walt, University of Tuebingen  
+      if (idxQ2.eq.0 .or. idxX.eq.0) then
          print 
-     $    '(''ERROR in FAIL DIS SELECTION: missing, q2, x or Y'',3I4)'    
+     $    '(''ERROR in FAIL DIS SELECTION: missing, q2 or x'',3I4)'    
      $        ,idxQ2,idxX,idxY
          call HF_stop
       endif
       q2 = bins(idxQ2)
       X  = bins(idxX)
-      Y  = bins(idxY)
+      
+C --- 23/10/2017 modified by Marina Walt, University of Tuebingen     
+      if (idxY.eq.0) then
+            Y   = bins(idxQ2) / ( bins(idxX) * S )
+      else
+            Y   = bins(idxY)
+      endif
+!>      Y  = bins(idxY)     23/10/2017 modified by Marina Walt, University of Tuebingen  
+
+      
       cut = Real (CutMin)
 
       FailDISSelection = FailCuts(q2,x,y,cut)
