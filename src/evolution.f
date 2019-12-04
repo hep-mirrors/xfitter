@@ -26,11 +26,12 @@ c      common/thresholds/q0,qc,qb
       external func22text       ! text input
       external func30
 
-      double precision def0, def1, def24, def22,pdfv,glu,glu1,x
+      double precision def0, def1, def24, def22, def22nCTEQ, pdfv,glu,glu1,x    !16/08/2017 new: def22nCTEQ
       double precision def30
 
       dimension pdfv(-6:6)
       dimension def22(-6:6,12)    !flavor composition
+      dimension def22nCTEQ(-6:6,12)    !16/08/2017 Marina Walt, nCTEQ like flavor composition      
       dimension def1(-6:6,12)    !flavor composition
       dimension def0(-6:6,12)    !flavor composition
       dimension def24(-6:6,12)    !flavor composition
@@ -114,6 +115,22 @@ cvC--     -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6
      +     0., 0., 0., 1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s+sbar
      +     78*0.    /
 
+     
+C --- 16/08/2017 Marina Walt, new definition to reflect nCTEQ like Ubar and Dbar pdf decomposition
+C --- (after testing/debugging TBD! if logic is correct!!!)
+
+      data def22nCTEQ  /
+C--       tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
+C--       -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6  
+     +     0., 0., 0., 0., 0.,-1., 0., 1., 0., 0., 0., 0., 0., !dval
+     +     0., 0., 0., 0.,-1., 0., 0., 0., 1., 0., 0., 0., 0., !uval
+     +     0., 0., 0., 1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s+sbar
+     +     0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., !Ubar
+     +     0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., !Dbar
+     +     0., 0., 0., -1., 0., 0., 0., 0., 0., 1., 0., 0., 0., !s-sbar
+     +     78*0.    /  
+     
+     
       data def22  /
 C--       tb  bb  cb  sb  ub  db   g   d   u   s   c   b   t
 C--       -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6  
@@ -182,7 +199,6 @@ c      call setcbt(nfin,iqc,iqb,999) !thesholds in the vfns
 
 C ---- LHAPDF ----
       if(IPDFSET.eq.5) then
-C         call PDFEXT(LHAPDFsubr,IPDFSET,NextraSets,dble(0.001),epsi)
          call EXTPDF(LHAPDFsubr,IPDFSET,NextraSets,dble(0.001),epsi)
          return
 C ---- APFEL ----
@@ -190,7 +206,6 @@ C ---- APFEL ----
          if(itheory.eq.35)then
             q2p = starting_scale
             call SetPDFSet("external")
-C            call PDFEXT(APFELsubrPhoton,IPDFSET,1,dble(0.001),epsi)
             call EXTPDF(APFELsubrPhoton,IPDFSET,1,dble(0.001),epsi)
          else
 *     6 flavours (default)
@@ -198,7 +213,6 @@ C            call PDFEXT(APFELsubrPhoton,IPDFSET,1,dble(0.001),epsi)
             call SetPDFSet("external")
             call SetMaxFlavourPDFs(6)
             call SetMaxFlavourAlpha(6)
-c     call PDFEXT(APFELsubr,IPDFSET,0,dble(0.001),epsi)
             call EXTPDF(APFELsubr,IPDFSET,0,dble(0.001),epsi)
 C
 C     If the use of the H-VFNS is required, enable the evolutions
@@ -210,21 +224,18 @@ C
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(5)
                call SetMaxFlavourAlpha(5)
-c     call PDFEXT(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
                call EXTPDF(APFELsubr,IPDFSET+1,0,dble(0.001),epsi)
 *     4 flavours (redefine alphas)
                q2p   = starting_scale
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(4)
                call SetMaxFlavourAlpha(4)
-c     call PDFEXT(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
                call EXTPDF(APFELsubr,IPDFSET+2,0,dble(0.001),epsi)
 *     3 flavours (redefine alphas)
                q2p   = starting_scale
                call SetPDFSet("external")
                call SetMaxFlavourPDFs(3)
                call SetMaxFlavourAlpha(3)
-c     call PDFEXT(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
                call EXTPDF(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
             endif
          endif
@@ -232,14 +243,13 @@ c     call PDFEXT(APFELsubr,IPDFSET+3,0,dble(0.001),epsi)
 C ---- QEDEVOL ----
       elseif (IPDFSET.eq.8) then
          call qedevol_main
-CC         call PDFEXT(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
+CC         call EXTPDF(QEDEVOLsubr,IPDFSET,1,dble(0.001),epsi)
          return
       endif
 
 cv ===
       if (PDF_DECOMPOSITION.eq.'LHAPDF')  then
          call evolfg(1,func0,def0,iq0,eps) !evolve all pdf's: LHAPDF
-
       elseif (PDF_DECOMPOSITION.eq.'QCDNUM_GRID') then
          call evolfg(1,func22text,def22,iq0,eps)
 
@@ -253,7 +263,19 @@ cv ===
          call evolfg(1,func30,def30,iq0,eps) !evolve all pdf's: ZEUS diffractive (hard Pomeron)
 
       elseif (Index(PDF_DECOMPOSITION,'Dbar_Ubar').gt.0) then
-         call evolfg(1,func22,def22,iq0,eps) ! uv, dv, Ubar, Dbar (and also strange)
+C         call evolfg(1,func22,def22,iq0,eps) ! uv, dv, Ubar, Dbar (and also strange)
+      
+C --- 16/08/2017 Marina Walt, modifications to reflect nCTEQ like Ubar and Dbar pdf decomposition
+C --- (after testing/debugging TBD! if logic is correct!!!)
+
+C         if (nCTEQ.or.nTUJU) then
+         if (nCTEQ) then
+           call evolfg(1,func22,def22nCTEQ,iq0,eps) ! uv, dv, Ubar, Dbar
+           
+         else  
+           call evolfg(1,func22,def22,iq0,eps) ! uv, dv, Ubar, Dbar (and also strange)
+         endif
+C ---          
 
       else
          print *,'Unknown PDF Decomposition: '//PDF_DECOMPOSITION
@@ -488,6 +510,7 @@ c         q0 = sqrt(starting_scale)
       return
       end
 
+
       double precision function LHAPDFsubr(ipdf, x, qmu2,first )
 C-------------------------------------------------------
 C
@@ -495,6 +518,7 @@ C External PDF reading for QCDNUM
 C
 C--------------------------------------------------------
       implicit none
+					   
 
       integer ipdf
       logical first
