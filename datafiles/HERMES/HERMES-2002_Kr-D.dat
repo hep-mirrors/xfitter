@@ -1,0 +1,43 @@
+* info from hepdata:                                                 
+*Experiment  = DESY HERMES 2002              
+*e-Print	= hep-ex/0210068
+*Beam energy = 27.5 GeV (positron beam)     
+*Measurement of $R = sigma_L\sigma_T in Deep-Inelastic Scattering on Nuclei.
+*
+* assumption for calculation of sqrt(S): fixed target experiment
+*
+*
+&Data
+	 Name = 'HERMES 2002 N/d DIS'
+
+         Reaction = 'NC e+-p'
+
+         NDATA = 1
+
+         NColumn = 6
+	 ColumnType = 'Bin','Bin','Sigma',3*'Error'
+	 ColumnName = 'x','Q2','reduced x-section','stat','uncor','uncor','cor norm'
+	 
+	 Percent = 2*False,1*True
+	 
+         NInfo 	  = 10
+         DataInfo = -1.,	    1.,        0.,	84.0, 36.0, 2.0, 1.0, 1.0, 0.0, 7.15
+	 CInfo 	  = 'e charge',	'reduced', 'e polarity', 'A1', 'Z1', 'A2', 'Z2', 'ratio', 'pernucleus', 'sqrt(S)'
+	 IndexDataset = 843621
+&End
+*format: x,Q2,sigma(A)/sigma(D),stat,sys,normalization error
+*
+0.35	4.138	0.966	0.006	0.017	1.5
+0.25	3.1	1.014	0.004	0.01	1.5
+0.175	2.704	1.04	0.005	0.015	1.5
+0.125	2.342	1.036	0.004	0.015	1.5
+0.09	2.016	1.032	0.009	0.013	1.5
+0.07	1.758	0.989	0.007	0.012	1.5
+0.055	1.527	0.969	0.01	0.018	1.5
+0.045	1.341	0.942	0.009	0.017	1.5
+0.035	1.124	0.937	0.008	0.027	1.5
+0.025	0.872	0.876	0.012	0.039	1.5
+0.018	0.66	0.85	0.02	0.066	1.5
+0.013	0.498	0.829	0.016	0.06	1.5
+
+
