@@ -7,6 +7,8 @@ C---------------------------------------------------
 
       implicit none
 
+
+
 #include "steering.inc"
 #include "ntot.inc"
 #include "indata.inc"
@@ -227,6 +229,11 @@ C
       do i=1,NSYS
          System(i) = ' '
       enddo
+
+									
+							 
+									   
+
       end
 
 
@@ -266,7 +273,12 @@ C Main steering parameters namelist
      $     Chi2MaxError, EWFIT, iDH_MOD, H1qcdfunc, CachePDFs, 
      $     ControlFitSplit,Order,TheoryType,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate, RunningMode
+     $     AsymErrorsIterations, pdfRotate, RunningMode,
+     $     nCTEQ, nCTEQparams, nCTEQframework, nTUJU,   ! new steering parameters for nuclear PDFs
+     $     Znucleus,Anucleus                            ! new parameters for nPDFType 'nucleu'
+
+																								  
+																							  
 
 C--------------------------------------------------------------
 
@@ -533,7 +545,7 @@ C----------------------------------------
 #include "steering.inc"
 C------------------------------------
 C (Optional) LHAPDF steering card
-      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,
+      namelist/lhapdf/LHAPDFSET,ILHAPDFSET,LHAPDFSETin,
      $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
      $     WriteAlphaSToMemberPDF,DataToTheo,nremovepriors,
      $     lhapdfprofile,lhascaleprofile
@@ -759,6 +771,14 @@ C---
       integer i
 C Namelist for datafiles to read
       namelist/InFiles/NInputFiles,InputFileNames
+
+						 
+	  
+				 
+					 
+				   
+							   
+		   
 C-------------------------------------------------
 C  Read the data namelist:
 C
@@ -766,6 +786,29 @@ C
       read (51,NML=InFiles,END=71,ERR=72)
       print '(''Read '',I4,'' data files'')',NInputFiles
       close (51)
+
+														
+			
+				   
+										  
+					   
+			  
+		   
+
+								 
+														  
+		  
+									
+						
+							   
+															  
+								
+										 
+				 
+							
+			  
+		   
+															 
 C---------------------
 C
 C  Data-set dependent scales. First set defaults
@@ -1054,30 +1097,17 @@ C check if limit of 22 char is not exceeded:
 C---------------------------------------
 C
 !>  Set PDF parameterisation type
+!>  07/02/2017 modified by Marina Walt, University of Tuebingen
+!>  replacement of original source code by plog in of module for the treatment of nuclear PDFs
 C
 C---------------------------------------
       Subroutine SetPDFType()
 
-      implicit none
-#include "steering.inc"
+				   
+					   
 
-
-      if (PDFType.eq.'proton'.or. PDFType.eq.'PROTON') then
-         lead = .false.
-         deuteron = .false.
-         print *,'Fitting for PROTON PDFs, PDFType=', PDFType
-      elseif (PDFType.eq.'lead'.or. PDFType.eq.'LEAD') then
-         lead = .true. 
-         deuteron = .false.
-         print *,'Fitting for LEAD PDFs, PDFType=', PDFType
-      elseif (PDFType.eq.'DEUTERON'.or. PDFType.eq.'deuteron') then
-         lead = .true. 
-         deuteron = .true. 
-         print *,'Fitting for DEUTERON PDFs, PDFType=', PDFType
-      else
-         call hf_errlog(300920131,
-     $   'F: Unsupported PDFType used!')
-      endif
+      call SetnPDFType()
+      
       end
 C---------------------------------
 
@@ -1091,6 +1121,7 @@ C---------------------------------------
 
       implicit none
 
+				   
       external CheckForPDF
       logical lhapdffile_exists
       integer*1 has_photon
@@ -1145,10 +1176,33 @@ cv         iparam = 301
          call HF_stop
       endif
 
+	  
       if ((PDFStyle.eq.'LHAPDF').or.(PDFStyle.eq.'LHAPDFQ0')
      $     .or.(PDFStyle.eq.'LHAPDFNATIVE')) then
+
          call checkforpdf(LHAPDFSET)
+
+
          INQUIRE(FILE=LHAPDFSET, EXIST=lhapdffile_exists) 
+		 
+C--- 22/11/2014 MW placeholder/dummy routine to provide initial _A_Z dependent lhapdf dataset
+         LHAPDFSETin=LHAPDFSET
+         if (nucleus) then
+            LHAPDFSET=TRIM(LHAPDFSET)//'_1_1'
+            print*,'LHAPDFSET after modification'
+            print*,LHAPDFSET
+         endif
+C---           
+		  
+							  
+						  
+											 
+												 
+							
+			  
+			   
+		 
+
          if(lhapdffile_exists) then
             call InitPDFset(LHAPDFSET)
          else
@@ -1251,18 +1305,24 @@ C---------------------------------
          HFSCHEME = 1005
       elseif (HF_SCHEME.eq.'FONLL-A RUNM ON') then
          HFSCHEME = 2005
+											   
+						
       elseif (HF_SCHEME.eq.'FONLL-B') then
          HFSCHEME = 55
       elseif (HF_SCHEME.eq.'FONLL-B RUNM OFF') then
          HFSCHEME = 1055
       elseif (HF_SCHEME.eq.'FONLL-B RUNM ON') then
          HFSCHEME = 2055
+											   
+						
       elseif (HF_SCHEME.eq.'FONLL-C') then
          HFSCHEME = 555
       elseif (HF_SCHEME.eq.'FONLL-C RUNM OFF') then
          HFSCHEME = 1555
       elseif (HF_SCHEME.eq.'FONLL-C RUNM ON') then
          HFSCHEME = 2555
+											   
+						
       elseif (HF_SCHEME.eq.'S-ACOT Chi') then
           HFSCHEME = 17
       elseif (HF_SCHEME.eq.'S-ACOT Chi RC') then
@@ -1408,6 +1468,12 @@ C
             name(i) = ' '
          enddo
          read (51,NML=ExtraMinimisationParameters,END=71,ERR=72)
+
+								 
+													 
+														   
+																	  
+									   
          
          do i=1,maxExtra
             if (name(i).ne.' ') then
@@ -1436,17 +1502,23 @@ C
 !> @param min, max range of allowed values in case of fitting
 !> @param constrval constrain to this value in case of fitting
 !> @param construnc uncertainty on constrain in case of fitting
+											  
 C-----------------------------------------------
       Subroutine AddExternalParam(name, value, step, min, max, 
      $                            constrval, construnc)
+				   
 
       implicit none
 #include "extrapars.inc"
       character*(*) name
       double precision value, step, min, max, constrval, construnc
+							 
+					   
+					 
 C---------------------------------------------
 C Add extra param
 C
+
       nExtraParam = nExtraParam + 1
       if (nExtraParam.gt. nExtraParamMax) then
          print *,'Number of extra parameters exceeds the limit'
@@ -1464,6 +1536,18 @@ C
       ExtraParamMax  (nExtraParam) = max
       ExtraParamConstrVal  (nExtraParam) = constrval
       ExtraParamConstrUnc  (nExtraParam) = construnc
+
+				 
+							  
+					
+		   
+
+							
+						 
+																	 
+																
+		   
+
       end
 
 
