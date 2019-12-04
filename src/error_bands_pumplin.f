@@ -56,6 +56,8 @@ C Function
       double precision GetUmat
       ! double precision DecorVarShift
 
+      double precision fmin, fedm, errdef
+      integer npari, nparx, istat													 
 C---------------------------------------------------------------
       
 C
@@ -140,7 +142,9 @@ C
                   if(doOffset) then
                     shift = shift_dir * DecorVarShift(iint, j)
                   else
-                    shift = shift_dir * GetUmat(iint,j)
+                    call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)   !> MW for scaling with DeltaChi2>1.0
+                    shift = shift_dir * GetUmat(iint,j)*SQRT(errdef)	!> MW for scaling with DeltaChi2>1.0
+CC 															  
                   endif
                   a(i) = a(i) + shift
                endif
