@@ -1132,10 +1132,17 @@ C---------------------------------------------------------------
 C 
 C  Created 22 Apr 2011 by SG. Add sum-rules for CTEQ-like parameterisation 
 C
+C  21/03/2017 modified by Marina Walt, University of Tuebingen, sumrules modified to consider additional coefficients for nuclear data
+C  12/04/2017 for testing purpose: modification of sum rules for Uv and gluon
+C
 C---------------------------------------------------------------
       implicit none
+#include "ntot.inc"
 #include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
 #include "pdfparam.inc"
+#include "for_debug.inc"
       double precision sumUv, sumDv
       double precision sumMom, sumGlue,x
       integer i
@@ -1145,16 +1152,99 @@ C---------------------------------------------------------------
       
       integer IDebug
       data IDebug/1/
+      
+C ------------------------------------
+C ---
+      double precision SumRuleCTEQ_nucl
+
+C --- 
+      double precision sumDv_nucl, sumUv_nucl, sumMom_nucl, sumGlue_nucl, Anucl, Anucl1, Anucl2 !> new parameters to implement sum rules for nuclear PDFs
+      double precision sumMom_nucl_u, sumUD_nucl    !> new parameters to implement sum rules for nuclear PDFs  15/10/2018 MW  
+      
+!> new parameters in order to reflect "sum rules" as part of nCTEQframework      
+      double precision kappa        
+      double precision Mg
+      
+      double precision tempctstr(1:27),tempctubar(1:27)
+      double precision sumMomUD, sumMomwithoutUD, tempref
+      
+C functions:       
+      integer GetInfoIndex   
+      
 
 C---------------------------------------------------------------
 
+C ---- 18/04/2017 ----------
+      if (nucleus) then
+      
+        Anucl1=DATASETInfo( GetInfoIndex(idxADataSet, 'A1'), idxADataSet)
+        
+        if (ratio.eq.1.0) then		! value of the global parameter ratio is set inside the FCN routine
+         if (ratiostep.eq.1) then
+          Anucl=Anucl1
+         elseif (ratiostep.eq.2) then
+          Anucl2=DATASETInfo( GetInfoIndex(idxADataSet, 'A2'), idxADataSet)
+          Anucl=Anucl2
+         else
+          print '(''Error: ratiostep not defined!'')'
+          call HF_stop
+         endif
+        else
+         Anucl=Anucl1
+        endif
+
+      endif
+
+
 C Counting sum-rule for uv:
-      sumUv = SumRuleCTEQ(-1,ctuval)
+
+C --- 08/05/2017 Marina Walt, modification of sum rules (variant 2: normalization NOT A-dependent).
+      
+      if (nucleus) then
+        sumUv = SumRuleCTEQ_nucl(-1,ctuval)
+      else
+        sumUv = SumRuleCTEQ(-1,ctuval)      
+      endif
+      
       ctuval(1) = 2.0D0 / sumUv
 
 C Counting sum-rule for dv:
-      sumDv = SumRuleCTEQ(-1,ctdval)
+
+      if (nucleus) then
+        sumDv = SumRuleCTEQ_nucl(-1,ctdval)
+      else
+        sumDv = SumRuleCTEQ(-1,ctdval)
+      endif
+      
       ctdval(1) = 1.0D0 / sumDv
+
+C ---
+
+
+C Momentum sum rule:
+C 19/11/2018 MW, original source code replaced
+C----------------
+C Sea:
+
+      
+CC      if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
+CC         tStr = ctstr(1)*SumRuleCTEQ(0,ctstr)
+CC      else
+CC         tStr = 0               ! Strange already included in Dbar
+CC      endif
+
+
+CC      sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
+CC     $     2.D0*ctdbar(1)*SumRuleCTEQ(0,ctdbar) +
+CC     $     ctuval(1)*SumRuleCTEQ(0,ctuval) +
+CC     $     ctdval(1)*SumRuleCTEQ(0,ctdval)+ 2.D0*tStr 
+CC      sumGlue = SumRuleCTEQ(0,ctglue)
+CC      sumMom = sumMom - ctglue(7)*CalcIntegral(ctglue(8),ctglue(9))
+
+
+CC      ctglue(1) = (1.0 - SumMom)/sumGlue
+C----------------   
+
 
 C Momentum sum rule:
 C----------------
@@ -1162,23 +1252,194 @@ C Sea:
 
       
       if (Index(PDF_DECOMPOSITION,'Str').gt.0) then
-         tStr = ctstr(1)*SumRuleCTEQ(0,ctstr)
+         if (nucleus) then
+           if (nCTEQ) then
+           
+             if (nCTEQframework) then 
+C --- 26/09/2017 testing the exact implementation of the logic of nCTEQ15 paper saying s+sbar=kappa/2*(ubar+dbar)       
+           
+               kappa = ctstr(1)+ctstr(9+1)*(1-Anucl**(-ctstr(9+2)))
+
+CC      23/11/2017 MW, based on reverse engineering, works for proton and lead, doesn't work for the rest. 
+CC                 for testing purpose only!!!
+               if (Anucl.eq.1.0) then
+                 tStr = kappa*ctpara(x, ctubar)/2.0     ! for proton 
+C                elseif (Anucl.eq.2.0) then
+C                tStr = ctstr(1)*ctpara(x, ctubar)/2.0     ! for proton     
+               elseif (Anucl.eq.208.0) then
+                 tStr = 0.1*ctpara(x, ctstr)/2.D0       ! for lead
+               elseif (Anucl.eq.40.0) then
+                 tStr = 0.09*ctpara(x, ctstr)/2.D0       ! for Ca
+               elseif (Anucl.eq.12.0) then
+                 tStr = 0.081*ctpara(x, ctstr)/2.D0       ! for C
+               else
+                 tStr = ctpara(x, ctstr)/2.0
+               endif  
+             else
+               tStr = (ctstr(1)+ctstr(9+1)*(1-Anucl**(-1*ctstr(9+2))))*SumRuleCTEQ_nucl(0,ctstr)/2.0
+             endif
+             
+           elseif (nTUJU) then
+C             if(ctstr(1).eq.0) then    ! 06/06/2018 MW, commented out for simplicity reasons since for nTUJU the flexibility is not required.
+C             tStr= kappas*(ctubar(1)*SumRuleCTEQ_nucl(0,ctubar) + ctdbar(1)*SumRuleCTEQ_nucl(0,ctdbar)) ! 07/01/2019 commented out since not used in code.
+             tStr = 0
+           else
+             tStr = (ctstr(1)+ctstr(9+1)*(1-Anucl**(-1*ctstr(9+2))))*SumRuleCTEQ_nucl(0,ctstr)
+           endif
+         else
+           if (nTUJU) then
+             tStr = kappas*(ctubar(1)*SumRuleCTEQ_nucl(0,ctubar) + ctdbar(1)*SumRuleCTEQ_nucl(0,ctdbar))
+           else
+             tStr = ctstr(1)*SumRuleCTEQ(0,ctstr)
+           endif
+         endif
       else
          tStr = 0               ! Strange already included in Dbar
       endif
+      
 
+                   
+      
+C     22/05/2017 Marina Walt, University of Tuebingen
+C     22/05/2017 Modification of sum rules after implementation of new (numerical) integration routine, for nCTEQ parametrization.
 
-      sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
+      sumGlue = SumRuleCTEQ(0,ctglue)
+
+      if (nucleus) then
+C       10/08/2017 Marina Walt, adaptation of sum rules, to consider input parameters in the format as given in the nCTEQ15 paper.
+C       14/08/2017 Marina Walt, normalization of strange-quarks as given in nCTEQ15 paper, is A-dependent.
+
+        if (nCTEQ.or.nCTEQparams) then
+
+C ----     23/08/2017 This is the form, how I understand the momentum sum rule with the given nCTEQ15 parametrisation        
+           sumMom_nucl = 2.D0*ctubar(1)*SumRuleCTEQ_nucl(0,ctubar) +
+     $     ctuval(1)*SumRuleCTEQ_nucl(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQ_nucl(0,ctdval) +
+     $     (ctstr(1)+ctstr(10)*(1-Anucl**((-1)*ctstr(11))))*SumRuleCTEQ_nucl(0,ctstr)
+
+        elseif (nTUJU) then     !15/10/2018 MW for testing purpose
+           sumMom_nucl_u = ctglue(1)*SumRuleCTEQ_nucl(0,ctglue) +
+     $     ctuval(1)*SumRuleCTEQ_nucl(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQ_nucl(0,ctdval) 
+     
+           sumUD_nucl = 2.D0*(1+kappas)*(SumRuleCTEQ_nucl(0,ctubar) + SumRuleCTEQ_nucl(0,ctdbar))     
+     
+        else      ! (if nucleus, but NOT nCTEQ)
+           print *,'start sumMom_nucl calculation'
+           sumMom_nucl = 2.D0*ctubar(1)*SumRuleCTEQ_nucl(0,ctubar) +
+     $     2.D0*ctdbar(1)*SumRuleCTEQ_nucl(0,ctdbar) +
+     $     ctuval(1)*SumRuleCTEQ_nucl(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQ_nucl(0,ctdval)+ 2.D0*tStr
+           print *,'sumMom_nucl calculation done'
+        endif
+        
+        sumGlue_nucl = SumRuleCTEQ_nucl(0,ctglue)
+C        sumGlue_count = SumRuleCTEQ_nucl(-1,ctglue)        !> 19/11/2018 MW, commented out, considered as not-required
+        
+
+C ---  22/08/2017 MW,modification of gluon sum rules to reflect nCTEQ parametrisation.
+C ---  22/08/2017 input parameter ctglue(7) will be used as the introduced free parameter for gluon momentum fraction Mg.
+        
+        
+        if (nCTEQframework) then         
+C --- 26/09/2017 MW, gluon normalization as per nCTEQ15 paper. phyical reason unclear!
+
+!>>>> gluon normalization
+
+C ---- In the nCTEQ15 paper, eq.(2.10) a certain form of gluon normalization is used,
+C ---- with parameter Mg and the parameters c00, c01, c02 on the right hand side of the equation.
+C ---- Since this is not clear from the paper, if these are the same parameters as used to parametrize the gluon distribution function, new parameters will be used, namely ctglue(22),ctglue(23),ctglue(24)
+
+           Mg = ctglue(7) ! 0.382
+           
+CC           sumGlue_nucl = SumRuleCTEQ(0,ctglue)
+           print *,'sumrules debugging: sumGlue_nucl'
+           print *,sumGlue_nucl
+           
+           print *,'sumrules debugging: nCTEQframework: Mg, ctglue(22)-(24)'
+           print *,Mg, ctglue(22), ctglue(23), ctglue(24)
+
+           ctglue(1) = Mg*exp(ctglue(22)+ctglue(23)*(1-Anucl**((-1)*ctglue(24))))/sumGlue_nucl
+C           ctglue(1) = Mg*exp(0.0-0.256*(1-Anucl**(0.037)))/SumRuleCTEQ_nucl(0,ctglue)
+           
+           print *,'sumrules debugging: ctglue'
+           print *,ctglue(1)
+           
+C --- 05/10/2017
+!>>>> normalization ubar+dbar (input as "ctubar")
+
+           kappa = (ctstr(1)+ctstr(1+9)*(1-Anucl**((-1)*ctstr(1+9+1))))
+           sumMomUD = (2.D0+kappa)*SumRuleCTEQ_nucl(0,ctubar)
+           
+           sumMomwithoutUD = ctuval(1)*SumRuleCTEQ_nucl(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQ_nucl(0,ctdval) +
+     $     (ctglue(1)+ctglue(10)*(1-Anucl**((-1)*ctglue(11))))*SumRuleCTEQ_nucl(0,ctglue)   
+C     $    + (ctstr(1)+ctstr(10)*(1-Anucl**((-1)*ctstr(11))))*SumRuleCTEQ_nucl(0,ctstr)  
+           ctubar(1) = (1 - sumMomwithoutUD)/sumMomUD
+
+        else  ! (if nCTEQframework flag = false, but maybe nCTEQ=true)
+C ---     general form of gluon normalization ...   
+           
+           if (nCTEQ) then
+C         14/08/2017 Marina Walt, normalization of gluons as given in nCTEQ15 paper, is A-dependent.
+             ctglue(1) = (1.0 - sumMom_nucl)/sumGlue_nucl - ctglue(10)*(1-Anucl**((-1)*ctglue(11)))
+           elseif (nTUJU) then
+             ctdbar(1)=(1.0 - sumMom_nucl_u)/sumUD_nucl
+             ctubar(1)=ctdbar(1)
+             ctstr(1)=ctdbar(1)         ! 07/01/2019 MW
+           else  ! (if nucleus, but NOT nCTEQ)
+             ctglue(1) = (1.0 - sumMom_nucl)/sumGlue_nucl   
+           endif
+          
+        endif
+C ---        
+        
+      else !(if NOT nucleus)
+      
+        if (nCTEQ.or.nCTEQparams) then     !(if NOT nucleus, gut nCTEQ (although nCTEQ is meant to be used only with nucleus flag))
+
+C ----     23/08/2017 This is the form, how I understand the momentum sum rule with the given nCTEQ15 parametrisation        
+           sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
+     $     ctuval(1)*SumRuleCTEQ(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQ(0,ctdval) +
+     $     ctstr(1)*SumRuleCTEQ(0,ctstr)
+     
+           sumMom = sumMom - ctglue(7)*CalcIntegral(ctglue(8),ctglue(9))    !15/01/2019 MW re-placed
+           ctglue(1) = (1.0 - SumMom)/sumGlue
+     
+     
+        elseif (nTUJU) then     !15/01/2019 MW 
+           sumMomwithoutUD = ctglue(1)*SumRuleCTEQ(0,ctglue) +
+     $     ctuval(1)*SumRuleCTEQ(0,ctuval) +
+     $     ctdval(1)*SumRuleCTEQ(0,ctdval) 
+     
+           sumMomUD = 2.D0*(1+kappas)*(SumRuleCTEQ(0,ctubar) + SumRuleCTEQ(0,ctdbar))  
+           
+           ctdbar(1)=(1.0 - sumMomwithoutUD)/sumMomUD
+           ctubar(1)=ctdbar(1)
+           ctstr(1)=ctdbar(1)         
+        
+        else        !(if NOT nucleus, and NOT nCTEQ (caution: nCTEQ is meant to be used only with nucleus flag))
+      
+           sumMom = 2.D0*ctubar(1)*SumRuleCTEQ(0,ctubar) +
      $     2.D0*ctdbar(1)*SumRuleCTEQ(0,ctdbar) +
      $     ctuval(1)*SumRuleCTEQ(0,ctuval) +
      $     ctdval(1)*SumRuleCTEQ(0,ctdval)+ 2.D0*tStr 
-      sumGlue = SumRuleCTEQ(0,ctglue)
-      sumMom = sumMom - ctglue(7)*CalcIntegral(ctglue(8),ctglue(9))
+     
+           sumMom = sumMom - ctglue(7)*CalcIntegral(ctglue(8),ctglue(9))    !15/01/2019 MW re-placed
+           ctglue(1) = (1.0 - SumMom)/sumGlue
 
-
-
-      ctglue(1) = (1.0 - SumMom)/sumGlue
-
+        endif
+        
+C        sumGlue_count = SumRuleCTEQ(-1,ctglue)          !> 19/11/2018 MW, commented out, considered as not-required
+        
+C        sumMom = sumMom - ctglue(7)*CalcIntegral(ctglue(8),ctglue(9))  !15/01/2019 MW re-placed
+        
+C        ctglue(1) = (1.0 - SumMom)/sumGlue                             !15/01/2019 MW re-placed
+         
+      endif
+      
+C  --------------------
 
 
       if (IDebug.eq.1) then
@@ -1283,6 +1544,9 @@ C Sea:
 
 
       double precision function SumRuleCTEQ(n,acteq)
+      
+C ---- 24/05/2017 modified by Marina Walt, University of Tuebingen          
+      
 C---------------------------------------------------------------
 C Sum-rule integral for 
 C  
@@ -1290,13 +1554,41 @@ C UF = a0*E**(a3*x)*(1 - x)**a2*x**(a1 + n)*(1 + E**a4*x + E**a5*x**2)
 C
 C parameterisation where n = 0 (momentum sum-rule) or -1 ( counting sum rule)
 C---------------------------------------------------------------
-      implicit none 
+      implicit none
+#include "steering.inc"
+#include "for_debug.inc"      
       integer n
       double precision acteq(1:6)
       double precision YF
       double precision DGammF,HypG1F1r, HypG1F1
+      
+C C++ functions:
+CC      external integratecncteq
+      double precision xmin, xmax, res, err   
+      double precision SumRuleCTEQ_nucl
+      
 C-----------------------------------------------------
-      YF = (
+
+C --- In case nCTEQ parametrization form is used for PDFs, a modified integration routine has to be called.
+CC      if (nCTEQ) then
+CC        xmin = 0.0001
+CC        xmax = 1.0
+CC        call integratecncteq(n,acteq, xmin, xmax, res, err)
+CC        SumRuleCTEQ = res
+        
+CC      elseif (nTUJU) then
+      if (nTUJU) then  
+CCC      MW:  numerical integration routine (C++)          
+C        xmin = 0.0001
+C        xmax = 1.0
+C        call integratecntuju(n,acteq, xmin, xmax, res, err)
+C        SumRuleCTEQ = res
+CCC      MW: analytical integration routine
+        SumRuleCTEQ=SumRuleCTEQ_nucl(n,acteq)
+        
+      else  
+
+        YF = (
      &  DGammF(1 + acteq(3) )*DGammF(1 + acteq(2) + n)*(
      &   Hypg1F1(1 + acteq(2) + n,2 + acteq(2) + acteq(3) + n,
      $     acteq(4)) + 
@@ -1311,7 +1603,9 @@ C-----------------------------------------------------
      &  )
      & )/DGammF(2 + acteq(2) + acteq(3) + n)
 
-      SumRuleCTEQ = YF
+        SumRuleCTEQ = YF
+      
+      endif
 
       end
 
