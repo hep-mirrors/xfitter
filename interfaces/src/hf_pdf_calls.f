@@ -1,3 +1,52 @@
+C> @brief PDF for p (vs Q)
+
+      subroutine HF_Get_PDFsQ(x,q,PDFSF)
+      double precision x,q,PDFSF(*)
+      call HF_Get_PDFs(x,q*q,PDFSF)
+      end
+
+C> @brief PDF for pbar  (vs Q)
+
+      subroutine HF_Get_PDFsQ_bar(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      do ifl =1,N_CHARGE_PDF
+         xft=xf(ifl)
+         xf(ifl) = xf(-ifl)
+         xf(-ifl)=xft
+      enddo
+
+      end subroutine
+
+C> @brief PDF for n  (vs Q)
+      subroutine HF_Get_PDFsQ_n(x,q,xf)
+      implicit none 
+      include "steering.inc"
+      double precision x,q,xf(-N_CHARGE_PDF:
+     $     N_CHARGE_PDF+N_NEUTRAL_PDF),xft
+      integer ifl
+C-----
+      call HF_Get_PDFs(x,q*q,xf)
+
+      ! switch up and down
+      xft=xf(1)
+      xf(1) = xf(2)
+      xf(2) = xft
+      ! switch anti-up and anti-down
+      xft=xf(-1)
+      xf(-1) = xf(-2)
+      xf(-2) = xft
+
+      end subroutine
+
+
+
       subroutine HF_Get_PDFs(x,q2,PDFSF)
 C----------------------------------------------------------------------
 C Interface to PDF 
@@ -9,13 +58,26 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 #include "steering.inc"
 #include "fcn.inc"
+#include "ntot.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "pdfparam.inc"
 
       double precision x,q2
      $     ,pdfsf(-N_CHARGE_PDF:N_CHARGE_PDF+N_NEUTRAL_PDF)
 
       integer i,Q2vIPDFSET
       double precision A,Z, tmpU,tmpD,tmpUb,tmpDb
+      double precision Anucl,Znucl  !> 13/02/2017 modified by Marina Walt, University of Tuebingen
+
       data A,Z /207,82/
+      
+C -----------------------------   
+C 10/03/2017
+      integer IDataSet
+
+C functions:       
+      integer GetInfoIndex       
 
 
 C----------------------------------------------------------------------
@@ -73,8 +135,42 @@ C----     For full cross setion on lead, multiply by A
          PDFSF( 2) = tmpD
          PDFSF(-1) = tmpUb
          PDFSF(-2) = tmpDb
+      
+      elseif(nucleus) then
 
-          
+C --- 30/03/2017 Marina Walt, modification to consider experimental data provided for a ratio sigma(A1)/sigma(A2)
+
+         if (ratio.eq.1.0) then			! value of the global parameter ratio is set inside the FCN routine
+          if (ratiostep.eq.1) then
+           Anucl=DATASETInfo( GetInfoIndex(idxADataSet, 'A1'), idxADataSet)
+           Znucl=DATASETInfo( GetInfoIndex(idxADataSet, 'Z1'), idxADataSet)
+          elseif (ratiostep.eq.2) then
+           Anucl=DATASETInfo( GetInfoIndex(idxADataSet, 'A2'), idxADataSet)
+           Znucl=DATASETInfo( GetInfoIndex(idxADataSet, 'Z2'), idxADataSet)
+          else
+           print '(''hf_pfd_calls Error: ratiostep not defined!'')'
+           call HF_stop
+          endif
+         else
+          Anucl=DATASETInfo( GetInfoIndex(idxADataSet, 'A1'), idxADataSet)
+          Znucl=DATASETInfo( GetInfoIndex(idxADataSet, 'Z1'), idxADataSet)
+          if (Anucl.eq.0) then 
+           Anucl = Anucleus         
+           Znucl = Znucleus
+          endif
+         endif
+C ---         
+         tmpU  = (Znucl*PDFSF( 1) + (Anucl-Znucl)*PDFSF( 2) )/Anucl
+         tmpD  = (Znucl*PDFSF( 2) + (Anucl-Znucl)*PDFSF( 1) )/Anucl
+         tmpUb = (Znucl*PDFSF(-1) + (Anucl-Znucl)*PDFSF(-2) )/Anucl
+         tmpDb = (Znucl*PDFSF(-2) + (Anucl-Znucl)*PDFSF(-1) )/Anucl  
+
+         
+         PDFSF( 1) = tmpU
+         PDFSF( 2) = tmpD
+         PDFSF(-1) = tmpUb
+         PDFSF(-2) = tmpDb     
+
 
       endif
 
@@ -133,6 +229,34 @@ C----------------------------------------------------
       endif
 C----------------------------------------------------
       end
+
+
+      double precision Function HF_Get_alphasQ(Q)
+C----------------------------------------------------
+C
+C  Return alpha_S value for a given Q
+C
+C----------------------------------------------------
+      implicit none
+#include "steering.inc" 
+      double precision Q
+      integer nf,ierr
+      double precision ASFUNC,alphaQCD
+      double precision alphaspdf
+
+C----------------------------------------------------
+      if (PDFStyle.eq.'LHAPDFNATIVE') then
+         HF_Get_alphasQ = alphaspdf(Q)
+      else
+      if (itheory.eq.10) then
+         HF_Get_alphasQ = alphaQCD(Q)
+      else
+         HF_Get_alphasQ = ASFUNC(Q*Q,nf,ierr) 
+      endif
+      endif
+C----------------------------------------------------
+      end
+
 
 
       double precision function hf_get_mur(iDataSet)
