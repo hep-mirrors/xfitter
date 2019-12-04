@@ -11,6 +11,16 @@ C QCDNUM:
       DATA CNEM2F/0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0./
       DATA CNEP3F/0.,0.,-1.,0.,-1.,0.,0.,0.,1.,0.,1.,0.,0./
       DATA CNEM3F/0.,-1.,0.,-1.,0.,-1.,0.,1.,0.,1.,0.,1.,0./
+      
+      !> 11/12/2017 Marina Walt, new parameters for nuclear PDFs
+      double precision cnu(-6:6)
+      double precision cnubar(-6:6)
+      double precision cnd(-6:6)
+      double precision cndbar(-6:6)
+      DATA CNU/0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.,0./
+      DATA CNUBAR/0.,0.,0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,0./
+      DATA CND/0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.,0.,0./
+      DATA CNDBAR/0.,0.,0.,0.,0.,1.,0.,0.,0.,0.,0.,0.,0./
 
       double precision ccep2f(-6:6)
       double precision ccem2f(-6:6)
@@ -22,4 +32,6 @@ C QCDNUM:
       DATA CCEM3F/0.,0. ,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0./
 
       integer NPmaxDIS
-      parameter (NPmaxDIS =  2000)
+      parameter (NPmaxDIS =  3500)      !> 20/02/2018: old NPmaxDIS = 2000 
+
+      double precision ADIS, ZDIS
