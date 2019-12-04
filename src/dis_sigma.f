@@ -76,6 +76,36 @@ C----------------------------------------------------
          call GetDisXsection(IDataSet, 'F2', local_hfscheme)
       endif
       end
+      
+C----------------------------------------------------
+C> 15/03/2018 Marina Walt, University of Tuebingen
+C----------------------------------------------------
+      Subroutine GetCCF2neutrino(IDataSet, local_hfscheme)
+#include "steering.inc"
+      call GetDisXsection(IDataSet, 'F2neutrino', local_hfscheme)
+      end           
+      
+C----------------------------------------------------
+C> 15/03/2018 Marina Walt, University of Tuebingen
+C----------------------------------------------------
+      Subroutine GetCCxF3neutrino(IDataSet, local_hfscheme)
+#include "steering.inc"
+      call GetDisXsection(IDataSet, 'xF3neutrino', local_hfscheme)
+      end
+      
+C----------------------------------------------------
+C> 15/03/2018 Marina Walt, University of Tuebingen
+C----------------------------------------------------
+      Subroutine GetCCneutrino(IDataSet, local_hfscheme)
+#include "steering.inc"
+      call GetDisXsection(IDataSet, 'CCDISneutrino', local_hfscheme)
+      end        
+
+      Subroutine GetCCantineutrino(IDataSet, local_hfscheme)
+#include "steering.inc"
+      call GetDisXsection(IDataSet, 'CCDISantineutrino', local_hfscheme)
+      end         
+      
 
 C----------------------------------------------------
 C> \brief Get DIS NC cross section
@@ -120,6 +150,9 @@ C---------------------------------------------------------------
 #include "indata.inc"
 #include "theo.inc"
 #include "qcdnumhelper.inc"
+#include "pdfparam.inc"
+#include "for_debug.inc"
+#include "steering.inc"
 
       character*(*) XSecType
       integer IDataSet
@@ -147,6 +180,11 @@ C Functions:
       integer GetBinIndex
       integer GetInfoIndex
       double precision AEMRUN
+      
+C MW, new parameters for nuclear PDFs
+      double precision pernucleusflag,nuclfactorA1,nuclfactorA2
+      double precision isocorrection(NPMaxDIS)             !> 24/10/2017 Marina Walt, new parameters to consider exp data provided with isoscalar corrections 
+      double precision isocorrectionfunc
 
 C---------------------------------------------------------
 
@@ -320,10 +358,63 @@ c               alphaem_run = alm_mz/(1. - alm_mz * 2/(3.*pi)*log(q2(j)/mz**2))
             XSecT(j) = XSecT(j) * dq2(j)
             XSecT(j) = XSecT(j) * dx(j)
 
+C ------ 24/10/2017 Marina Walt, modifications to consider exp data with isoscalar corrections 
+            
+            if (nucleus) then
+              isocorrection(j) = isocorrectionfunc(IDataSet,x(j),Q2(j)) 
+            else 
+              isocorrection(j) = 1.0          
+            endif 
+            
+C ------ 24/10/2017  
+           
             XSec = XSec+XSecT(j)
+            
          enddo
          
-         THEO(idx) =  XSec
+C ---- 30/03/2017 Marina Walt, University of Tuebingen
+C ---- modification to consider experimental data provided for a ratio sigma(A1)/sigma(A2) 
+C ---- and modifications to consider experimental data providing cross section per nucleus (not per nucleon!)     
+              
+         if (nucleus) then
+           pernucleusflag = DATASETInfo( GetInfoIndex(IDataSet, 'pernucleus'), IDataSet)
+           
+           if (pernucleusflag.eq.1) then
+             nuclfactorA1=DATASETInfo( GetInfoIndex(IDataSet, 'A1'), IDataSet)
+             if (ratio.eq.1) then
+              if (ratiostep.eq.2) then
+                nuclfactorA2=DATASETInfo( GetInfoIndex(IDataSet, 'A2'), IDataSet)
+              endif
+             endif
+           else
+             nuclfactorA1 = 1.0
+             nuclfactorA2 = 1.0
+           endif
+         else  
+           nuclfactorA1 = 1.0
+           nuclfactorA2 = 1.0
+         endif
+         
+         if (ratio.eq.1.0) then
+           if (ratiostep.eq.1) then
+             THEOA1(idx) = XSec*nuclfactorA1*isocorrection(j)
+             THEO(idx) = THEOA1(idx)	! temporary result, valid only in step 1
+           elseif (ratiostep.eq.2) then
+             THEOA2(idx) = XSec*nuclfactorA2*isocorrection(j)
+             THEO(idx) = THEOA1(idx)/THEOA2(idx)		! final result for ratios
+           else
+             print '(''dis_sigma Error: ratiostep not defined!'')'
+             call HF_stop
+           endif
+         else
+           THEO(idx) =  XSec*nuclfactorA1*isocorrection(j)
+         endif
+         
+C ----            
+         
+C         THEO(idx) =  XSec             !> 19/11/2018 MW, original source code xfitter 2.0.0 replaced by above expressions
+
+
 c temporary divide over dq2
 c         THEO(idx) =  XSec / (q2max - q2min)
 c         print *, idx, ':', THEO(idx)
@@ -363,6 +454,7 @@ C---------------------------------------------------------------
 #include "couplings.inc"
 #include "qcdnumhelper.inc"
 #include "for_debug.inc"
+#include "pdfparam.inc"
 
       character*(*) XSecType
       integer IDataSet, local_hfscheme
@@ -383,6 +475,13 @@ C Functions:
 c H1qcdfunc
       integer ifirst
       data ifirst /1/
+      
+C MW, new parameters for nuclear pdfs
+      double precision pernucleusflag         !> 24/10/2017 Marina Walt, new parameters to consider exp data provided with isoscalar corrections     
+      double precision isocorrection(NPMaxDIS)
+
+      double precision isocorrectionfunc
+      
 C---------------------------------------------------------
       if(debug) then
         print*,'GetDisXsection: XSEC TYPE = ', XSecType
@@ -454,15 +553,15 @@ C
          if(.not. IsReduced) then
             if (XSecType.eq.'CCDIS') then
                factor=(Mw**4/(Mw**2+q2(i))**2)*Gf**2/(2*pi*x(i))*convfac
+            else if (XSecType.eq.'CCDISneutrino'.or.XSecType.eq.'CCDISantineutrino') then                 
+               factor=(Mw**4/((Mw**2+q2(i))**2))*Gf**2/(2*pi)*(q2(i)/(x(i)*y(i)))*convfac              ! 03/04/2018: from Particle Data Group Book (2016), for d sigma/dx*dy       
             else if (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS'.or.
      $              XSecType.eq.'BEAUTYDIS') then
 !               alphaem_run = aemrun(q2(i))
                alphaem_run = alphaem
                factor=2*pi*alphaem_run**2*Yplus/(x(i)*q2(i)**2)*convfac
-            else if (XSecType.eq.'FL') then
-               factor=1.D0
-            else if (XSecType.eq.'F2') then
-               factor=1.D0
+            else if (XSecType.eq.'FL'.or.XSecType.eq.'F2'.or.XSecType.eq.'F2neutrino'.or.XSecType.eq.'xF3neutrino') then
+               factor=1.D0 
             else
                print *, 'GetDisXsection, XSecType',XSecType,
      $              'not supported'
@@ -471,8 +570,66 @@ C
          endif
 
          if (local_hfscheme==27) factor=1d0
+         
+         
+C ---- 30/03/2017 Marina Walt, University of Tuebingen
+C ---- modification to consider experimental data provided for a ratio sigma(A1)/sigma(A2) 
+C ---- and modifications to consider experimental data providing cross section per nucleus (not per nucleon!)     
+         
+         if (nucleus) then
+         
+           pernucleusflag = DATASETInfo( GetInfoIndex(IDataSet, 'pernucleus'), IDataSet)
+          
+C ------ 24/10/2017 Marina Walt, modifications to consider exp data with isoscalar corrections 
+            
+           isocorrection(i) = isocorrectionfunc(IDataSet,x(i),Q2(i)) 
+              
+         else 
+           isocorrection(i) = 1.0          
 
-         THEO(idx) =  XSec(i)*factor
+         endif         
+         
+         
+C ------ 24/10/2017 Marina Walt, University of Tuebingen, modifications due to nuclear data/nuclear pdfs
+
+
+         if (ratio.eq.1.0) then
+           if (ratiostep.eq.1) then
+             if(pernucleusflag.eq.1) then
+               THEOA1(idx) = XSec(i)*factor*DATASETInfo( GetInfoIndex(IDataSet, 'A1'), IDataSet)*isocorrection(i)
+             else
+               THEOA1(idx) = XSec(i)*factor*isocorrection(i)
+             endif
+             THEO(idx) = THEOA1(idx)	! temporary result, valid only in step 1
+           elseif (ratiostep.eq.2) then
+             if(pernucleusflag.eq.1.0) then
+               THEOA2(idx) = XSec(i)*factor*DATASETInfo( GetInfoIndex(IDataSet, 'A2'), IDataSet)*isocorrection(i)
+             else
+               THEOA2(idx) = XSec(i)*factor*isocorrection(i)
+             endif
+             THEO(idx) = THEOA1(idx)/THEOA2(idx)		! final result for ratios
+           else
+             print '(''dis_sigma Error: ratiostep not defined!'')'
+             call HF_stop
+           endif
+         else
+           if (Debug) then
+             print *,'dis_sigma.f: ratio NOT 1 loop'
+           endif
+           if(pernucleusflag.eq.1.0) then
+             THEO(idx) =  XSec(i)*factor*DATASETInfo( GetInfoIndex(IDataSet, 'A1'), IDataSet)*isocorrection(i)
+           else
+             THEO(idx) =  XSec(i)*factor*isocorrection(i)
+           endif
+         endif
+        
+C ----
+C ----          
+
+CC         THEO(idx) =  XSec(i)*factor      !> 19/11/2018 MW, original source code from xfitter 2.0.0 replaced
+         
+         
+         
          
 ! [--- KK 2015-08-30, WS 2015-10-10
 C         print*,'Twist study: Prepare to implemented. doHiTwist = ', doHiTwist
@@ -607,6 +764,7 @@ C---------------------------------------------------------------
 #include "steering.inc"
 #include "datasets.inc"
 #include "qcdnumhelper.inc"
+#include "pdfparam.inc"
 
 C Input:
       integer npts, IDataSet, local_hfscheme
@@ -624,6 +782,10 @@ C Output:
       double precision F2gammain(NPMaxDIS),FLgammain(NPMaxDIS)
 
       double precision F2c(NPMaxDIS),FLc(NPMaxDIS),F2b(NPMaxDIS),FLb(NPMaxDIS)
+      
+C Functions:
+      integer GetBinIndex
+      integer GetInfoIndex      
 
 
 C---------------------------------------------------------
@@ -636,11 +798,26 @@ C
          print *,'INCREASE NPMaxDIS (qcdnumhelper.inc) to ',npts
          call HF_stop
       endif
+      
+      
+      if (nucleus) then     ! 2017 Marina Walt, University of Tuebingen
+              if (ratiostep.eq.1) then
+                   ADIS = DATASETInfo( GetInfoIndex(IDataSet, 'A1'), IDataSet)
+                   ZDIS = DATASETInfo( GetInfoIndex(IDataSet, 'Z1'), IDataSet)
+              elseif (ratiostep.eq.2) then
+                   ADIS = DATASETInfo( GetInfoIndex(IDataSet, 'A2'), IDataSet)
+                   ZDIS = DATASETInfo( GetInfoIndex(IDataSet, 'Z2'), IDataSet)
+              endif
+      else
+              ADIS=1.0
+              ZDIS=1.0
+      endif
+      
 
       if (itheory.lt.50) then
 
          call UseZmvnsScheme(F2, FL, xF3, F2gamma, FLgamma,
-     $        q2, x, npts, polarity, charge, XSecType, local_hfscheme)
+     $        q2, x, npts, polarity, charge, XSecType, local_hfscheme, ADIS, ZDIS)
 
          F2in=F2
          FLin=FL
@@ -712,6 +889,17 @@ C all the transformations below are array operations!
       else if(XSecType.eq.'NCDIS') then
          XSec = F2 + yminus/yplus*xF3 - y*y/yplus*FL
 
+         
+C 19/03/2018 Marina Walt, University of Tuebingen
+      elseif(XSecType.eq.'CCDISneutrino') then
+         XSec = 0.5*(yplus*F2 + yminus*xF3 - y*y*FL)         
+      elseif(XSecType.eq.'CCDISantineutrino') then
+         XSec = 0.5*(yplus*F2 - yminus*xF3 - y*y*FL)           
+      elseif(XSecType.eq.'F2neutrino') then
+         XSec = F2                          
+      elseif(XSecType.eq.'xF3neutrino') then
+         XSec = xF3           
+         
 
 c         XSec = FL !hp
       else if(XSecType.eq.'CHARMDIS') then
@@ -732,6 +920,7 @@ c         XSec = FL !hp
       end
 
 
+
 C----------------------------------------------------------------
 C> \brief Calculates F2, FL, xF3, F2gamma and FLgamma using ZMVFNS from QCDNUM
 C> \param[out] f2, fl, xf3, f2gamma, flgamma structure functions
@@ -744,7 +933,7 @@ C
 C  Created by Krzysztof Nowak, 31/01/2012
 C---------------------------------------------------------------
       subroutine UseZmvnsScheme(f2, fl, xf3, f2gamma, flgamma,
-     $     q2, x, npts, polarity, charge, XSecType, local_hfscheme)
+     $     q2, x, npts, polarity, charge, XSecType, local_hfscheme, ADIS, ZDIS)
 
       implicit none
 #include "steering.inc"
@@ -778,32 +967,94 @@ C EW param
       double precision cau, cad, cvu, cvd
 
 
+C nuclear PDFs parameters
+C 11/12/2017 Marina Walt, University of Tuebingen, new pdf variables
 
+      double precision CNEP2Fnucl(-6:6), CNEM2Fnucl(-6:6), CNEP3Fnucl(-6:6), CNEM3Fnucl(-6:6)          
+      double precision Utemp(-6:6), Ubartemp(-6:6), Dtemp(-6:6), Dbartemp(-6:6)
+      double precision CCEP2Fnucl(-6:6), CCEM2Fnucl(-6:6), CCEP3Fnucl(-6:6), CCEM3Fnucl(-6:6), CCxF3(-6:6), CCF2(-6:6)
+      
+      
+C---------------------------------------------------------
+
+      Utemp = (ZDIS/ADIS)*CNU+((ADIS-ZDIS)/ADIS)*CND
+      Dtemp = (ZDIS/ADIS)*CND+((ADIS-ZDIS)/ADIS)*CNU
+      Ubartemp = (ZDIS/ADIS)*CNUBAR+((ADIS-ZDIS)/ADIS)*CNDBAR
+      Dbartemp = (ZDIS/ADIS)*CNDBAR+((ADIS-ZDIS)/ADIS)*CNUBAR      
+
+      CNEP2Fnucl=CNEP2F-CNU-CNUBAR+Utemp+Ubartemp
+
+      CNEM2Fnucl = CNEM2F - CND - CNDBAR + Dtemp + Dbartemp
+
+      CNEP3Fnucl = CNEP3F - CNU + CNUBAR + Utemp - Ubartemp
+      CNEM3Fnucl = CNEM3F - CND + CNDBAR + Dtemp - Dbartemp
+      
+      CCEP2Fnucl = CCEP2F - CNUBAR - CND + Ubartemp + Dtemp
+      CCEM2Fnucl = CCEM2F - CNDBAR - CNU + Dbartemp + Utemp
+      CCEP3Fnucl = CCEP3F + CNUBAR - CND - Ubartemp + Dtemp 
+      CCEM3Fnucl = CCEM3F + CNDBAR - CNU - Dbartemp + Utemp
+   
+      CCF2 = CCEP2Fnucl + CCEM2Fnucl                ! as per Phys.Lett. B632 (2006) 65-75  (SUM of neutrino and antineutrino F2)      
+      CCxF3 = CCEP3Fnucl + CCEM3Fnucl               ! as per Phys.Lett. B632 (2006) 65-75  (SUM of neutrino and antineutrino F2)
+
+      
 
 C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 
       if(XSecType.eq.'CCDIS') then
          if (charge.gt.0) then
-            CALL ZMSTFUN(1,CCEP2F,X,Q2,FL,npts,0)
-            CALL ZMSTFUN(2,CCEP2F,X,Q2,F2,npts,0)
-            CALL ZMSTFUN(3,CCEP3F,X,Q2,XF3,npts,0)    
+            CALL ZMSTFUN(1,CCEP2Fnucl,X,Q2,FL,npts,0)   !> 11/12/2017 MW, CCEP2F replaced by CCEP2Fnucl, etc.
+            CALL ZMSTFUN(2,CCEP2Fnucl,X,Q2,F2,npts,0)
+            CALL ZMSTFUN(3,CCEP3Fnucl,X,Q2,XF3,npts,0)    
          else
-            CALL ZMSTFUN(1,CCEM2F,X,Q2,FL,npts,0)
-            CALL ZMSTFUN(2,CCEM2F,X,Q2,F2,npts,0)      
-            CALL ZMSTFUN(3,CCEM3F,X,Q2,XF3,npts,0) 
+            CALL ZMSTFUN(1,CCEM2Fnucl,X,Q2,FL,npts,0)
+            CALL ZMSTFUN(2,CCEM2Fnucl,X,Q2,F2,npts,0)  
+            CALL ZMSTFUN(3,CCEM3Fnucl,X,Q2,XF3,npts,0) 
          endif
+ 
+      elseif(XSecType.eq.'CCDISneutrino') then          !31/08/2018
+C         CALL ZMSTFUN(1,CCEP2Fnucl,X,Q2,FL,npts,0)   !> 21/03/2018 MW, polarity > 0 neutrino, polarity -1.0 antineutrino
+C         CALL ZMSTFUN(2,CCEP2Fnucl,X,Q2,F2,npts,0)
+C         CALL ZMSTFUN(3,CCEP3Fnucl,X,Q2,XF3,npts,0)    
+         CALL ZMSTFUN(1,CCF2,X,Q2,FL,npts,0)   !> 21/03/2018 MW, polarity > 0 neutrino, polarity -1.0 antineutrino
+         CALL ZMSTFUN(2,CCF2,X,Q2,F2,npts,0)
+         CALL ZMSTFUN(3,CCxF3,X,Q2,XF3,npts,0)          
+      elseif(XSecType.eq.'CCDISantineutrino') then      !31/08/2018
+C         CALL ZMSTFUN(1,CCEM2Fnucl,X,Q2,FL,npts,0)
+C         CALL ZMSTFUN(2,CCEM2Fnucl,X,Q2,F2,npts,0)      
+C         CALL ZMSTFUN(3,CCEM3Fnucl,X,Q2,XF3,npts,0) 
+         CALL ZMSTFUN(1,CCF2,X,Q2,FL,npts,0)
+         CALL ZMSTFUN(2,CCF2,X,Q2,F2,npts,0)      
+         CALL ZMSTFUN(3,CCxF3,X,Q2,XF3,npts,0)  
+ 
+ 
+ 
+C 19/03/2018 Marina Walt, University of Tuebingen
+C            sum of neutrino and antineutrino scattering
+C            TBD if the logic is correct!!!!!!!!!!!!!!!
+
+      elseif(XSecType.eq.'F2neutrino') then
+         CALL ZMSTFUN(2,CCF2,X,Q2,F2,npts,0)         
+
+      elseif(XSecType.eq.'xF3neutrino') then
+         CALL ZMSTFUN(3,CCxF3,X,Q2,XF3,npts,0)
+    
+
+         
       elseif (XSecType.eq.'NCDIS'.or.XSecType.eq.'CHARMDIS'
      $        .or.XSecType.eq.'F2'
      $        .or.XSecType.eq.'FL'.or.XSecType.eq.'BEAUTYDIS') then
 C     u-type ( u+c ) contributions 
-         CALL ZMSTFUN(1,CNEP2F,X,Q2,FL,npts,0)
-         CALL ZMSTFUN(2,CNEP2F,X,Q2,F2,npts,0)
-         CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3,npts,0)    
+         CALL ZMSTFUN(1,CNEP2Fnucl,X,Q2,FL,npts,0)
+C         CALL ZMSTFUN(2,CNEP2F,X,Q2,F2,npts,0)         !> 11/12/2017 MW, commented out 
+         CALL ZMSTFUN(2,CNEP2Fnucl,X,Q2,F2,npts,0)
+         CALL ZMSTFUN(3,CNEP3Fnucl,X,Q2,XF3,npts,0)    
          
 C     d-type (d + s + b) contributions
-         CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,npts,0)
-         CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,npts,0)
-         CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,npts,0) 
+         CALL ZMSTFUN(1,CNEM2Fnucl,X,Q2,FLm,npts,0)
+C         CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,npts,0)        !> 11/12/2017 MW, commented out 
+         CALL ZMSTFUN(2,CNEM2Fnucl,X,Q2,F2m,npts,0)
+         CALL ZMSTFUN(3,CNEM3Fnucl,X,Q2,XF3m,npts,0) 
       else
          print *, 'UseZmvnsScheme, XSecType',XSecType,
      $        'not supported'
@@ -909,11 +1160,20 @@ cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
             FL(i)   = A_U*FL(i)   + A_D*FLm(i)
             
          enddo
-      elseif(XSecType.eq.'CCDIS') then
+         
+      elseif(XSecType.eq.'CCDIS'.or.XSecType.eq.'F2') then
          do i=1,npts
             F2Gamma(i) = 4.D0/9.D0 * F2(i)  + 1.D0/9.D0 * F2m(i)
             FLGamma(i) = 4.D0/9.D0 * FL(i)  + 1.D0/9.D0 * FLm(i)
          enddo
+         
+      elseif(XSecType.eq.'CCDISneutrino'.or.XSecType.eq.'CCDISantineutrino'
+     $        .or.XSecType.eq.'F2neutrino'.or.XSecType.eq.'xF3neutrino') then        
+         do i=1,npts
+            F2Gamma(i) = F2(i)      ! variables required for RT scheme
+            FLGamma(i) = FL(i)      ! variables required for RT scheme
+         enddo           
+         
       else 
          print *, 'UseZmvnsScheme, XSecType',XSecType,
      $        'not supported'
@@ -1187,7 +1447,10 @@ C Additional variables:
       Double precision f2cRT,flcRT,f2bRT,flbRT
 
 C RT code good only for NC case      
-      if (XSecType.eq.'CCDIS') return
+      
+      if (XSecType.eq.'CCDIS'.or.XSecType.eq.'CCDISneutrino'.or.XSecType.eq.'CCDISantineutrino') return
+      
+      if (XSecType.eq.'F2neutrino'.or.XSecType.eq.'xF3neutrino') return        
       
       
       if (local_hfscheme.eq.22.or.local_hfscheme.eq.222) then 
@@ -1439,6 +1702,7 @@ C> \param[in] local_hfscheme heavy flavour scheme
 C> \param[in] IDataSet data set index
 C
 C  Created by Valerio Bertone, 25/03/2015
+C  Modified by Marina Walt, 30/08/2018 for neutrino DIS with nuclear data
 C---------------------------------------------------------------
       subroutine UseFONLLScheme(F2,FL,xF3,F2c,FLc,F2b,FLb, 
      1                          x,q2,npts,polarity,XSecType,
@@ -1475,19 +1739,26 @@ C---------------------------------------------------------------
 *
       call SetPolarizationDIS(polarity)
 *
-      if(XSecType.eq.'CCDIS')then
+      if(XSecType.eq.'CCDIS'.or.XSecType.eq.'CCDISneutrino'.or.XSecType.eq.'CCDISantineutrino'.or.
+     $      XSecType.eq.'xF3neutrino'.or.XSecType.eq.'F2neutrino')then                                  ! 30/08/2018 MW
          call SetProcessDIS("CC")
       elseif(XSecType.eq.'NCDIS')then
          call SetProcessDIS("NC")
       elseif(XSecType.eq.'CHARMDIS'.or.XSecType.eq.'BEAUTYDIS') then
          call SetProcessDIS("NC")
+      elseif(XSecType.eq.'F2') then
+         call SetProcessDIS("EM")         
       else
          write(6,*) 'UseFONLLScheme, XSecType ',XSecType,
      1              ' not supported'
          call HF_stop
       endif
 *
-      if(charge.lt.0d0)then
+      if(XSecType.eq.'CCDISneutrino')then               ! 30/08/2018 MW
+         call SetProjectileDIS("neutrino") 
+      elseif(XSecType.eq.'CCDISantineutrino')then       ! 30/08/2018 MW
+         call SetProjectileDIS("antineutrino")
+      elseif(charge.lt.0d0)then
          call SetProjectileDIS("electron")
       else
          call SetProjectileDIS("positron")
@@ -1548,8 +1819,18 @@ c      if(scalea1.ne.1d0.or.scaleb1.ne.0d0)then
             FL(i) = FL(i) + FLb(i)
          enddo
       endif
+
+      
+C   21/03/2018 Marina Walt, University of Tuebingen, this process step not required for neutrino DIS (TBD!!!)      
+      if(XSecType.eq.'CCDISneutrino'.or.XSecType.eq.'CCDISantineutrino'.or.
+     $      XSecType.eq.'F2neutrino'.or.XSecType.eq.'xF3neutrino') then
+        print *,'neutrino DIS with FONLL scheme'
+      else  
 *     Adjust sign of F3
-      xF3 = - charge * xF3
+        xF3 = - charge * xF3
+      endif      
+      
+      
 *     Divide structure functions by 2 for the CC process
       if(XSecType.eq.'CCDIS')then
          F2  = 0.5d0 * F2
@@ -1559,6 +1840,30 @@ c      if(scalea1.ne.1d0.or.scaleb1.ne.0d0)then
          FLc = 0.5d0 * FLc
          F2b = 0.5d0 * F2b
          FLb = 0.5d0 * FLb
+      elseif(XSecType.eq.'CCDISneutrino'.or.XSecType.eq.'CCDISantineutrino'.or.
+     $      XSecType.eq.'F2neutrino'.or.XSecType.eq.'xF3neutrino') then         !30/08/2018 MW
+      
+CC         F2  = 0.5d0 * (F2nu + F2nubar)
+CC         FL  = 0.5d0 * (FLnu + FLnubar)
+CC         xF3 = 0.5d0 * (xF3nu + xF3nubar)
+         
+C         xF3 = - 1.0d0 * charge * xF3
+         
+CC         F2c = 0.5d0 * (F2cnu + F2cnubar)
+CC         FLc = 0.5d0 * (FLcnu + FLcnubar)
+CC         F2b = 0.5d0 * (F2bnu + F2bnubar)
+CC         FLb = 0.5d0 * (FLbnu + FLbnubar)
+
+         F2  = 1.0d0 * F2
+         FL  = 1.0d0 * FL
+         xF3 = 1.0d0 * xF3 
+         
+         
+         F2c = 1.0d0 * F2c
+         FLc = 1.0d0 * FLc
+         F2b = 1.0d0 * F2b
+         FLb = 1.0d0 * FLb   
+         
       endif
 *
       return
