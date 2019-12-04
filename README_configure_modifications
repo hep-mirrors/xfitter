@@ -1,0 +1,5 @@
+CPPFLAGS="$CPPFLAGS -fPIC -L/<yourpathtogsl>/lib -lgsl -I/<yourpathtogsl>/include"
+
+CXXFLAGS="$CXXFLAGS -std=c++11 -lstdc++ -L/<yourpathtogsl>/lib -lgsl -I/<yourpathtogsl>/include"
+
+
