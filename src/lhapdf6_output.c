@@ -18,10 +18,11 @@ extern struct { //{{{
   int lead, useGridLHAPDF5, writeLHAPDF6, WriteAlphaSToMemberPDF,
     c_itheory, c_extrapdfs;
   float c_kmuc, c_kmub, c_kmut;
+  int nucleus;
+  double Anucleus;
+  double Znucleus;
 } ccommoninterface_;
 //}}}
-
-
 
 typedef struct GridQX_s { //{{{
         int nx,nq2;
@@ -51,6 +52,7 @@ double raw_qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2);
 double raw_external_pdf_ij(GridQX grid, int pid, int ix, int iq2);
 double qcdnum_pdf_ij(GridQX grid, int pid, int ix, int iq2);
 double lead_pdf_ij(GridQX grid, int pid, int ix, int iq2);
+double nucleus_pdf_ij(GridQX grid, int pid, int ix, int iq2);
 void save_alphas_info(FILE* fp, GridQX grid);
 
 extern double qfrmiq_(int *);
@@ -127,7 +129,9 @@ GridQX new_grid() { //{{{
                 grid.raw_pdf_ij=raw_qcdnum_pdf_ij;
                 grid.pdf_ij=qcdnum_pdf_ij;
         }
-        if(ccommoninterface_.lead) grid.pdf_ij=lead_pdf_ij;
+        // printf ("Debugging lhapdfoutput: %s %d \n", "nucleus: ", ccommoninterface_.nucleus);
+        if(ccommoninterface_.nucleus) {grid.pdf_ij=nucleus_pdf_ij;}
+        else if(ccommoninterface_.lead) {grid.pdf_ij=lead_pdf_ij;}
         return grid;
 }
 //}}}
@@ -195,6 +199,24 @@ double lead_pdf_ij(GridQX grid, int pid, int ix, int iq2) { //{{{
 }
 //}}}
 
+
+// 09.07.2019 MW, testing
+// nucleus pdf interface
+double nucleus_pdf_ij(GridQX grid, int pid, int ix, int iq2) { //{{{
+        // const double A=207.0, Z= 82.0;
+        double A = ccommoninterface_.Anucleus;
+        double Z = ccommoninterface_.Znucleus;
+        //printf ("Debugging lhapdfoutput: %s %f %f \n", "A, Z ", A, Z);
+        //printf ("Debugging lhapdfoutput: %s %f %f \n", "Anucleus, Znucleus ", ccommoninterface_.Anucleus, ccommoninterface_.Znucleus);
+        double val1,val2;
+        int pid2;
+        if(abs(pid)!=1 && abs(pid)!=2) return grid.raw_pdf_ij(grid, pid, ix, iq2);
+        pid2= (abs(pid)==1?2:1)*abs(pid)/pid;
+        val1=grid.raw_pdf_ij(grid, pid, ix, iq2);
+        val2=grid.raw_pdf_ij(grid, pid2, ix, iq2);
+        return (Z*val1 + (A-Z)*val2)/A;
+}
+//}}}
 
 
 // write central value and info
