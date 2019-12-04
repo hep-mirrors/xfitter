@@ -61,6 +61,11 @@ C-------------------------------------------------------
       data LPolFits/.false./
 
 C-------------------------------------------------------
+
+C      integer idxKappas     ! MW commented out on 21/06/2018
+
+C-------------------------------------------------------
+
       if(ITheory.ge.100) return 
       if(Itheory.eq.50) then
          call DecodeFractal(p) 
@@ -102,7 +107,7 @@ C-------------------------------------------------------
             
          endif
 
-         idxAlphaS = GetParameterIndex('alphas')     
+         idxAlphaS = GetParameterIndex('alphas')
          if (idxAlphaS.eq.0) then
             print *,'Did not find alpha_S parameter'
             print *,'Add to ExtraParamters with the name alphas'
@@ -315,6 +320,16 @@ C  22 Apr 2011: CT parameterisation:
 
       endif
 
+C  05/06/2018 MW        ! commented out on 21/06/2018
+C         idxKappas = GetParameterIndex('kappas')
+C         if (idxKappas.gt.0) then
+C            idxKappas = iExtraParamMinuit(idxKappas)
+C            kappas=p(idxKappas) 
+C         endif
+      if (kappas.eq.0) then
+         kappas = 0.5
+      endif      
+      
 C  22 Sep 2011: AS parameterisation:
         if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          Call DecodeASPara(p)
@@ -545,7 +560,7 @@ C------------------------------------------------------
 #include "pdfparam.inc"
 #include "steering.inc"
       double precision pars(*)
-      integer i
+      integer i,j,imax              !> C 03/03/2017 modified by Marina Walt, new parameter j to count array position to store A-dependent coefficients
       logical lfirstt
       data lfirstt /.true./
 
@@ -565,7 +580,20 @@ C Hermes strange prepare:
       endif
 
 C simple copy first:
-      do i=1,9
+
+C     24/04/2018 modified MW
+      if (nCTEQ) then
+         imax = 6
+      elseif (nTUJU) then
+         imax = 5
+      else
+         imax = 9
+      endif
+
+C 03/03/2017 modified by Marina Walt, new parameter j to count up array position to store A-dependent coefficients
+      j=1	! start value 
+
+      do i=1,imax
          ctglue(i) = pars(i)
          ctuval(i) = pars(10+i)
          ctdval(i) = pars(20+i)
@@ -574,24 +602,134 @@ C simple copy first:
 cv add str
          ctstr(i)  = pars(80+i)
          ctother(i)= pars(90+i)
+         
+         
+!> 18/10/2018 MW replaced         
+!>         if (ctubar(i).eq.0) then
+!>           if (nTUJU) then           
+!>             ctubar(i) = ctdbar(i)
+!>           endif  
+!>        endif            
+
+C 03/03/2017 new A-dependent coefficients for the parameters (two for each flavor)           
+         if (nucleus) then
+          ctglue(9+j) = pars(110+j)
+          ctglue(9+j+1) = pars(110+j+1)
+          ctuval(9+j) = pars(130+j)
+          ctuval(9+j+1) = pars(130+j+1)    
+          ctdval(9+j) = pars(150+j)
+          ctdval(9+j+1) = pars(150+j+1)
+          
+          ctubar(9+j) = pars(170+j)
+          ctubar(9+j+1) = pars(170+j+1)          
+    
+          
+          if (ctstr(i).eq.0) then
+             
+             if (nCTEQ.or.nCTEQparams) then
+               ctstr(i) = ctubar(i)
+               ctstr(9+j) = ctubar(9+j)
+               ctstr(9+j+1) = ctubar(9+j+1)
+             elseif (nTUJU) then        !> added on 21/06/2018 MW
+               kappas = pars(99)
+               if (i.eq.1) then
+                 ctstr(9+1) = pars(129)
+                 ctstr(9+2) = pars(130)
+               else
+                 ctstr(9+j) = ctubar(9+j)
+                 ctstr(9+j+1) = ctubar(9+j+1)
+               endif
+             endif   
+             
+          else 
+           
+C!04/05/2017, additional logic applied for Strange, due to the limitations of MINUIT  
+             if (i.eq.1) then
+               ctstr(9+1) = pars(129)
+               ctstr(9+2) = pars(130)
+             elseif (i.eq.2) then
+               ctstr(9+3) = pars(149)
+               ctstr(9+4) = pars(150)
+             elseif (i.eq.3) then
+               ctstr(9+5) = pars(169)
+               ctstr(9+6) = pars(170)
+             elseif (i.eq.4) then
+               ctstr(9+7) = pars(184)
+               ctstr(9+8) = pars(185)
+             elseif (i.eq.5) then  
+               ctstr(9+9) = pars(186)
+               ctstr(9+10) = pars(187)
+             endif
+             
+          endif
+          
+C        15/05/2018 MW, modifications for s+sbar = ubar+dbar   (or s=sbar=ubar=dbar respectively)
+          
+          if (ctdbar(i).eq.0) then
+C             ctubar(i) = ctdbar(i)         !> 28/06/2018 MW commented out (placed above)
+             
+C        15/05/2018 MW, modifications for s+sbar = ubar+dbar  (or s=sbar=ubar=dbar respectively)         
+             ctdbar(9+j) = ctubar(9+j)      !>   + ctstr(9+j)
+             ctdbar(9+j+1) = ctubar(9+j+1)  !>   + ctstr(9+j+1)
+          else 
+             ctdbar(9+j) = pars(188+j)
+             ctdbar(9+j+1) = pars(188+j+1)
+             
+          endif          
+          
+          j=j+2   ! to be increased by 2 in each step, as there are two additional A-dependent coefficients for every parameter               
+          
+         endif
+C        --------------          
+
+C 18/10/2018 MW     
+
+         if (ctstr(i).eq.0) then
+           if (nTUJU) then
+             ctstr(i) = ctubar(i)         
+           endif
+         endif   
+
+         if (ctdbar(i).eq.0) then
+           if (nTUJU) then
+             ctdbar(i) = ctubar(i)          !>  +ctstr(i)
+           endif
+         endif
+         
       enddo
+      
+      if (nCTEQframework) then
+        ctglue(7) = pars(7)
+        ctglue(22) = pars(123)
+        ctglue(23) = pars(124)
+        ctglue(24) = pars(125)
+      endif  
 
 c      UF = a(1)*exp(a(4)*x)*(1 - x)**a(3)*x**(a(2))*(1 + exp(a(5))*x 
 c     $     + exp(a(6))*x**2)
 
 
+C 15/05/2018 Marina Walt, section with Extra constrains modified, so that these are applied for proton only. Extra constrains for nucleus are placed above
+      if (nucleus) then
+         print *,'nucleus'
+      elseif (nTUJU) then
+         print *,'nTUJU'
+      else   
+
 C Extra constrains:
-      if (ctubar(2).eq.0) ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
-      if (ctuval(2).eq.0) ctuval(2) = ctdval(2)  ! Buv = Bdv
+        if (ctubar(2).eq.0) ctubar(2) = ctdbar(2)  ! Bubar = Bdbar
+        if (ctuval(2).eq.0) ctuval(2) = ctdval(2)  ! Buv = Bdv
 
 !> use ubar and dbar (not Dbar and Ubar)
-      ctstr(1)=fs/(1.-fs)*ctdbar(1)
-      if (ctubar(1).eq.0) ctubar(1) = ctdbar(1)
+        ctstr(1)=fs/(1.-fs)*ctdbar(1)
+        if (ctubar(1).eq.0) ctubar(1) = ctdbar(1)
 
 !> use coupled strange to Dbar ! 
-      if (ctstr(2).eq.0) ctstr(2)=ctdbar(2)
-      if (ctstr(3).eq.0) ctstr(3)=ctdbar(3)
-      if (ctstr(4).eq.0) ctstr(4)=ctdbar(4)
+        if (ctstr(2).eq.0) ctstr(2)=ctdbar(2)
+        if (ctstr(3).eq.0) ctstr(3)=ctdbar(3)
+        if (ctstr(4).eq.0) ctstr(4)=ctdbar(4)
+      
+      endif 
             
 
 C (other constraints from sum-rules)
@@ -599,6 +737,13 @@ C (other constraints from sum-rules)
 
 C---------------------------------------------------------
       end
+
+      
+C---------------------------------------------------------      
+C 03/03/2017 function ctpara modified by Marina Walt, University of Tuebingen
+C in order to adapt pdf parametrisation to make coefficients A-dependent
+C C a(k) --> a(k,A)=a0(k)+a1(k)*(1-A**(-a2(k)))
+C------------------------------------------------------- 
 
       double precision function ctpara(x,a)
 C----------------------------------------------------
@@ -608,14 +753,97 @@ C  UF = a0*E**(a3*x)*(1 - x)**a2*x**(a1 + n)*(1 + E**a4*x + E**a5*x**2)
 C
 C-----------------------------------------------------
       implicit none
-      double precision x,a(1:9)
-      double precision UF
-      UF = a(1)*exp(a(4)*x)*(1 - x)**a(3)*x**(a(2))*(1 + exp(a(5))*x 
+#include "ntot.inc"
+#include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
+#include "pdfparam.inc"
+#include "for_debug.inc"
+
+      double precision Anucl1,Anucl2,Anucl
+      integer k,j,kmax      
+
+C functions:       
+      integer GetInfoIndex            
+      
+      double precision x,a(1:27),atemp(1:27)	! 03/03/2017 Marina Walt, parameter dimension von a(1:9) increased, new parameter atemp
+      double precision UF  
+C --------------------------- 
+
+      if (nucleus) then
+C ---- 30/03/2017 Marina Walt, modification to consider experimental data provided for a ratio sigma(A1)/sigma(A2)
+       Anucl1=DATASETInfo( GetInfoIndex(idxADataSet, 'A1'), idxADataSet)
+       if (ratio.eq.1.0) then		! value of the global parameter ratio is set inside the FCN routine
+        if (ratiostep.eq.1) then
+         Anucl=Anucl1 
+        elseif (ratiostep.eq.2) then
+         Anucl2=DATASETInfo( GetInfoIndex(idxADataSet, 'A2'), idxADataSet)
+         Anucl=Anucl2
+        else
+         print '(''Error: ratiostep not defined!'')'
+         call HF_stop
+        endif
+       else
+        Anucl=Anucl1
+       endif
+C ----       
+       j = 1	! start value
+       
+C --   10/10/2017
+       if (nCTEQframework) then
+        kmax=6
+       elseif (nTUJU) then
+        kmax=5
+       else
+        kmax=9
+       endif 
+C --   
+       
+       do k=1,kmax
+        if (Anucl.gt.0) then
+         atemp(k) = a(k)+a(j+9)*(1-Anucl**((-1)*a(j+9+1)))
+         j = j+2   ! to be increased by 2 in each step, as there are two additional A-Dependent coefficients for every parameter
+        else
+         atemp(k) = a(k)
+        endif 
+       enddo
+       
+       if (nCTEQ) then
+!C ---- 12/04/2017 Marina Walt, modification of CTEQ parametrisation in order to align it to format used in nCTEQ15 frame.
+         UF = atemp(1)*x**(atemp(2))*(1 - x)**atemp(3)*exp(atemp(4)*x)*(1 + exp(atemp(5))*x)**atemp(6)
+       elseif (nTUJU) then
+         UF = atemp(1)*x**(atemp(2))*(1 - x)**atemp(3)*(1+atemp(4)*x+atemp(5)*x**2)
+       else
+!C ---- 12/04/2017 with original form of CTEQ parametrisation in xFitter            
+         UF = atemp(1)*exp(atemp(4)*x)*(1 - x)**atemp(3)*x**(atemp(2))*(1 + exp(atemp(5))*x 
+     $     + exp(atemp(6))*x**2)-atemp(7)*x**atemp(8)*(1-x)**atemp(9)
+       endif       
+
+      else  ! If (nucleus), else... (so if NOT nucleus)
+      
+       if (nCTEQ) then
+!C ---- 12/04/2017 Marina Walt, modification of CTEQ parametrisation in order to align it to format used in nCTEQ15 frame.       
+         UF = a(1)*x**(a(2))*(1 - x)**a(3)*exp(a(4)*x)*(1 + exp(a(5))*x)**a(6) 
+       elseif (nTUJU) then
+         UF = a(1)*x**(a(2))*(1 - x)**a(3)*(1+a(4)*x+a(5)*x**2)
+       else      
+       
+!C ---- original code  ----         
+         UF = a(1)*exp(a(4)*x)*(1 - x)**a(3)*x**(a(2))*(1 + exp(a(5))*x 
      $     + exp(a(6))*x**2)-a(7)*x**a(8)*(1-x)**a(9)
+C ---- 12/04/2017 end of paragraph with original form of CTEQ parametrisation in xFitter       
+      
+       endif
+       
+      endif ! endif of (nucleus) loopg
+     
       
       ctpara = UF
 
       end
+      
+
+      
 
       double precision function ctherapara(x,a)
 C----------------------------------------------------
@@ -732,9 +960,6 @@ c value in allowed range
       end
 
       
-
-
-
 
 * -------------------------------------------------------
       double precision function gluon(x)
@@ -1054,18 +1279,55 @@ C-------------------------------------------------
       return
       end
 
+
 * -------------------------------------------------------
       double precision function qstrange (x)
 * -------------------------------------------------------
 * new jf , added to fit a la ZEUS, qstrange = 0.1 (i.e. fstrange *.5) * sea
       implicit none
+#include "ntot.inc"
 #include "steering.inc"
+#include "datasets.inc"
+#include "indata.inc"
 #include "pdfparam.inc"
+#include "for_debug.inc"
       double precision x,sea,Dbar, para, ctpara,ctherapara
 C SG: x-dependent fs:
       double precision fs
       double precision fshermes
+      
+C --- MW: new params for nPDFs      
+      double precision kappa       
+      double precision Anucl1,Anucl2,Anucl
+      integer k,j      
+
+C functions:       
+      integer GetInfoIndex       
 C----------------------------------------------------
+
+C --- Marina Walt, University of Tuebingen, modifications for nuclear PDFs
+
+      if (nucleus) then
+            Anucl1=DATASETInfo( GetInfoIndex(idxADataSet, 'A1'), idxADataSet)
+            if (ratio.eq.1.0) then		! value of the global parameter ratio is set inside the FCN routine
+             if (ratiostep.eq.1) then
+              Anucl=Anucl1
+             elseif (ratiostep.eq.2) then
+              Anucl2=DATASETInfo( GetInfoIndex(idxADataSet, 'A2'), idxADataSet)
+              Anucl=Anucl2
+             else
+              print '(''Error: ratiostep not defined!'')'
+              call HF_stop
+             endif
+            else
+             Anucl=Anucl1
+            endif
+      else
+            Anucl=1.0 
+      endif 
+
+
+
       if (ifsttype.eq.0) then
          fs = fstrange
       else
@@ -1073,8 +1335,47 @@ C----------------------------------------------------
       endif
       
       if (PDFStyle.eq.'CTEQ') then
-         qstrange = ctpara(x, ctstr)
+CC         qstrange = ctpara(x, ctstr)      !> original source code (xfitter release 2.0.0), replaced by MW
+CC         return
+         if (nCTEQ.or.nCTEQparams) then
+          if (nCTEQframework) then 
+C --- 26/09/2017 testing the exact implementation of the logic of nCTEQ15 paper saying s+sbar=kappa/2*(ubar+dbar)       
+           
+           kappa = ctstr(1)+ctstr(9+1)*(1-Anucl**(-ctstr(9+2)))
+
+CC      23/11/2017 MW, based on reverse engineering, works for proton and lead, doesn't work for the rest. 
+CC                 for testing purpose only!!!
+           if (Anucl.eq.1.0) then
+             qstrange = kappa*ctpara(x, ctubar)/2.0     ! for proton 
+C           elseif (Anucl.eq.2.0) then
+C             qstrange = ctstr(1)*ctpara(x, ctubar)/2.0     ! for proton     
+           elseif (Anucl.eq.208.0) then
+             qstrange = 0.1*ctpara(x, ctstr)/2.D0       ! for lead
+           elseif (Anucl.eq.40.0) then
+             qstrange = 0.09*ctpara(x, ctstr)/2.D0       ! for Ca
+           elseif (Anucl.eq.12.0) then
+             qstrange = 0.081*ctpara(x, ctstr)/2.D0       ! for C
+           else
+             qstrange = ctpara(x, ctstr)/2.0
+           endif  
+
+C --- 26/09/2017
+          else   ! (if nCTEQ, but flag nCTEQframework=false)
+           qstrange = ctpara(x, ctstr)/2.0    ! as parameters provided by nCTEQ15 are provided for s+sbar ==> s=(s+sbar)/2; modified 06/07/2017 by Marina Walt
+          endif 
+
+         elseif(nTUJU) then                         !16/04/2018
+         
+           qstrange = (kappas+ctstr(9+1)*(1-Anucl**(-ctstr(9+2))))*(ctpara(x,ctubar)+ctpara(x,ctdbar))      !>enhanced on 06/07/2018 MW
+           
+         else  ! (if NOT nCTEQ, but just 'CTEQ')
+         
+           qstrange = ctpara(x, ctstr)
+           
+         endif
+         
          return
+
       endif
 
       if (PDFStyle.eq.'CTEQHERA') then
@@ -1133,6 +1434,7 @@ cv      endif
       return
       end
 
+
 * -------------------------------------------------------
       double precision function Ubar(x)
 * -------------------------------------------------------
@@ -1142,13 +1444,18 @@ cv      endif
 #include "steering.inc"
 #include "pdfparam.inc"
 #include "thresholds.inc"
+#include "for_debug.inc"
       double precision x,sea,dbmub,qstrange,cbar
       double precision sing,flav_number,QPDFXQ
       integer iflag,iq0,iqb,iqc,iqfromq,jtest
       double precision ctpara,ctherapara,para, splogn
+      
+C MW:      
+      double precision UbplusDb, DbdivUb, nCTEQparaDU     ! 06/07/2017 Marina Walt, new parameters (in order to reflect nCTEQ15 parametrisation)      
 C----------------------------------------------
 * new2 jf SPECIAL TEST with dubar
 
+C    06 Jul 17, Marina Walt, University of Tuebingen, implementation of nCTEQ parametrisation style
 C    22 Sep 11, VR, Add AS
       if ((PDFStyle.eq.'AS').or.(PDFStyle.eq.'BiLog')) then
          Ubar = splogn(x,asubar)
@@ -1158,8 +1465,20 @@ C    22 Sep 11, VR, Add AS
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (PDFStyle.eq.'CTEQ') then
-         Ubar=ctpara(x,ctubar)/(1-fcharm)
-         return
+CC         Ubar=ctpara(x,ctubar)/(1-fcharm)         !19/11/2018 MW, origincal source code from xfitter 2.0.0 replaced by below expressions
+CC         return
+
+         if (nCTEQ.or.nCTEQparams) then
+           UbplusDb = ctpara(x,ctubar)
+           DbdivUb = nCTEQparaDU(x,ctdbar)
+           Ubar = UbplusDb/(1.D0+DbdivUb)          
+         elseif (nTUJU) then
+           Ubar=ctpara(x,ctubar)
+         else
+           Ubar=ctpara(x,ctubar)/(1-fcharm)
+         endif
+         return         
+         
       endif
 
       if (PDFStyle.eq.'CTEQHERA') then
@@ -1201,6 +1520,9 @@ cv     $        .or.iparam.eq.2011) then
 C SG: x-dependent fs:
       double precision fs
       double precision fshermes
+      
+C MW:      
+      double precision UbplusDb, DbdivUb, nCTEQparaDU     ! 06/07/2017 Marina Walt, new parameters (in order to reflect nCTEQ15 parametrisation)           
 C----------------------------------------------------
       if (ifsttype.eq.0) then
          fs = fstrange
@@ -1218,8 +1540,20 @@ C    22 Sep 11, VR, Add AS
 
 C    22 Apr 11, SG, Add CTEQ-like
       if (PDFStyle.eq.'CTEQ') then
-         Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
+CC         Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)        !19/11/2018 source code from release 2.0.0 replaced by MW
+CC         return
+
+         if (nCTEQ.or.nCTEQparams) then
+           UbplusDb = ctpara(x,ctubar)
+           DbdivUb = nCTEQparaDU(x,ctdbar)
+           Dbar = (UbplusDb*DbdivUb)/(1.D0+DbdivUb)
+         elseif (nTUJU) then
+           Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
+         else
+           Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
+         endif
          return
+         
       endif
 
       if (PDFStyle.eq.'CTEQHERA') then
@@ -1243,7 +1577,7 @@ C    22 Apr 11, SG, Add CTEQ-like
 
 
       end
-
+      
 
 C---------------------------------------------------      
       double precision function fshermes(x)
