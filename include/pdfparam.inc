@@ -13,7 +13,8 @@ C !> Standard parameterisation
 
 C---
        double precision fcharm,fstrange !> charm, strange fractions
-       common/pdfparam/fcharm,fstrange
+       double precision kappas		!> Marina Walt, nPDFs s+sbar=kappas*(ubar+dbar)
+       common/pdfparam/fcharm,fstrange,kappas
     
 C
 C !>  Chebyshev polynoms for the gluon, sea
@@ -42,9 +43,16 @@ C !> internal order of the polynom:
        common/pdfpolyval/PolyUval,PolyDval,NPOLYVALINT
 
 C !> CTEQ-like parameterisation
-       double precision ctuval(1:9), ctdval(1:9),ctubar(1:9),ctdbar(1:9), 
-     $      ctglue(1:9),ctother(1:9),ctstr(1:9), ctphoton(1:9)
-       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother,ctstr,ctphoton
+       
+       integer idxADataSet, ratiostep          !> 15/03/2017 Marina Walt, new parameters
+       double precision ratio
+  
+       !> 15/03/2017 dimension of ctparams changed to 27 - to reflect parameters for nuclear PDFs
+
+       double precision ctuval(1:27), ctdval(1:27),ctubar(1:27),ctdbar(1:27), 
+     $      ctglue(1:27),ctother(1:27),ctstr(1:27), ctphoton(1:27)
+       common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother,ctstr,ctphoton,
+     $      idxADataSet, ratiostep, ratio
 
 C !> Add AS parameterisation
        double precision asuval(1:5), asdval(1:5), asubar(1:5), asdbar(1:5),
