@@ -166,10 +166,12 @@ void get_lhapdferrors_()
   //Evaluate chi2 for the central PDF member
   double chi2tot;
   //  mc_method_();
-  chi2tot = chi2data_theory_(1); //Needed for initialiion
+  // chi2tot = chi2data_theory_(1); //Needed for initialiion
+  chi2tot = chi2data_theory_(0,1); //Needed for initialiion //18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)  
   string fname = outdirname + "/Results.txt";
   fopen_(85, fname.c_str(), fname.size());
-  chi2tot = chi2data_theory_(3);
+  //chi2tot = chi2data_theory_(3);
+  chi2tot = chi2data_theory_(0,3); //18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)
   fclose_(85);
   bool cp = system(((string)"cp " + outdirname + "/Results.txt " + outdirname + "/Results_00.txt").c_str());
 
@@ -271,16 +273,22 @@ void get_lhapdferrors_()
 	  if (nsets == 1) //Needed for PDF sets with only the central member
 	    nsets = 0;
 
+      
+      // 01/02/2019 Marina Walt, commented out this block, since it was giving a "buffer overflow error".
+      //  01/02/2019 Marina Walt, commented out since considered as not substential for the LHAPDF analysis procedure.
+      
 	  //VAR set info message
-	  if (pdfset ==  1)
-	    {
-	      char mod[10];
-	      char par[10];
-	      sprintf (par, "%d", clhapdf_.nparvar_);
-	      sprintf (mod, "%d", nsets - clhapdf_.nparvar_);
-	      msg = (string) "I: Add " + mod + " model and " + par + " parametrisation uncertainties from " + lhapdfvarset;
-	      hf_errlog_(14012702, msg.c_str(), msg.size());
-	    }
+	  //if (pdfset ==  1)
+	  //  {
+	  //    char mod[10];
+	  //    char par[10];
+	  //    sprintf (par, "%d", clhapdf_.nparvar);
+	  //    sprintf (mod, "%d", nsets - clhapdf_.nparvar);
+	  //    msg = (string) "I: Add " + mod + " model and " + par + " parametrisation uncertainties from " + lhapdfvarset;
+	  //    hf_errlog_(14012702, msg.c_str(), msg.size());
+	  //  }
+      // 01/02/2019 MW end	    
+	    
 
 	  for (int iset = 1; iset <= nsets; iset++)
 	    {
@@ -326,10 +334,12 @@ void get_lhapdferrors_()
 	      /*
 	      string fname = outdirname + "/Results_" + tag + ".txt";
 	      fopen_(85, fname.c_str(), fname.size());
-	      chi2tot = chi2data_theory_(3);
+	      chi2tot = chi2data_theory_(0,3);
 	      fclose_(85);
 	      */
-	      chi2tot = chi2data_theory_(2);
+	      //chi2tot = chi2data_theory_(2);
+          chi2tot = chi2data_theory_(0,2);//18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)  
+        
 
 	      char chi2c[500];
 	      sprintf(chi2c, "%.2f", chi2tot);
@@ -459,7 +469,8 @@ void get_lhapdferrors_()
       //mur*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]*factor, mufmap[tit->first]);
-      chi2tot = chi2data_theory_(2);
+      //chi2tot = chi2data_theory_(2);
+      chi2tot = chi2data_theory_(0,2); //18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)
       char chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mur = 2.0: "
@@ -475,7 +486,8 @@ void get_lhapdferrors_()
       //mur*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first]/factor, mufmap[tit->first]);
-      chi2tot = chi2data_theory_(2);
+      //chi2tot = chi2data_theory_(2);
+      chi2tot = chi2data_theory_(0,2); //18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "mur = 0.5: "
@@ -491,7 +503,8 @@ void get_lhapdferrors_()
       //muf*2
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]*factor);
-      chi2tot = chi2data_theory_(2);
+      //chi2tot = chi2data_theory_(2);
+      chi2tot = chi2data_theory_(0,2); //18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "muf = 2.0: "
@@ -507,7 +520,8 @@ void get_lhapdferrors_()
       //muf*0.5
       for (map <int, TheorEval* >::iterator tit = gTEmap.begin(); tit != gTEmap.end(); tit++)
 	tit->second->SetOrdScales(iordmap[tit->first], murmap[tit->first], mufmap[tit->first]/factor);
-      chi2tot = chi2data_theory_(2);
+      //chi2tot = chi2data_theory_(2);
+      chi2tot = chi2data_theory_(0,2); //18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)
       chi2c[500];
       sprintf(chi2c, "%.2f", chi2tot);
       cout << setw(20) << "muf = 0.5: "
@@ -958,7 +972,8 @@ void get_lhapdferrors_()
       cout << "Total Number of systematic uncertainties: " << systema_.nsys_ << endl;
       fname = outdirname + "/Results.txt";
       fopen_(85, fname.c_str(), fname.size());
-      chi2tot = chi2data_theory_(3);
+      //chi2tot = chi2data_theory_(3);
+      chi2tot = chi2data_theory_(0,3); //18/01/2019 MW: Dummy argument '0' added to chi2data_theory_(0,iflag)
       fclose_(85);
     }
   else
