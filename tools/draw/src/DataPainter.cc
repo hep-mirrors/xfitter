@@ -287,15 +287,15 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   //create template histogram for axis
   TH1F *up_templ = new TH1F(("up_templ_"+cnvname).c_str(), "", nbins, axmin, axmax);
 
-  up_templ->GetYaxis()->SetLabelFont(62);
-  up_templ->GetYaxis()->SetTitleFont(62);
+  up_templ->GetYaxis()->SetLabelFont(opts.rootfont);
+  up_templ->GetYaxis()->SetTitleFont(opts.rootfont);
   up_templ->GetYaxis()->SetLabelSize(txtsize/my);
   up_templ->GetYaxis()->SetTitleSize(txtsize/my);
   up_templ->GetYaxis()->SetTitleOffset((offset+0.3) * my);
   up_templ->GetYaxis()->SetTitle(data->GetYaxis()->GetTitle());
 
-  up_templ->GetXaxis()->SetLabelFont(62);
-  up_templ->GetXaxis()->SetTitleFont(62);
+  up_templ->GetXaxis()->SetLabelFont(opts.rootfont);
+  up_templ->GetXaxis()->SetTitleFont(opts.rootfont);
   up_templ->GetXaxis()->SetLabelSize(txtsize/my);
   up_templ->GetXaxis()->SetTitleSize(txtsize/my);
   up_templ->GetXaxis()->SetTitle(data->GetXaxis()->GetTitle());
@@ -379,7 +379,11 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
         datahistos[0].Draw((TH1F*)datatot->Clone(), "PE3 same");
     }
   if (!opts.onlytheory)
-    datahistos[0].Draw(data, "PE1 same");
+    if (!opts.nouncorrerr)
+      datahistos[0].Draw(data, "P same");
+    else
+      datahistos[0].Draw(data, "PE1 same");
+  
   //reset axis range
   datatot->GetXaxis()->SetRange(datahistos[0].getlowrange(), datahistos[0].getuprange());
 
@@ -441,11 +445,16 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       if (datahistos[0].getexperiment() != "")
         datalab = datahistos[0].getexperiment() + " " + datalab;
       if (!opts.onlytheory)
-        {
-          leg->AddEntry(data, datalab.c_str(), "pl");
-          leg->AddEntry(data, "#delta uncorrelated", "pe");
-          leg->AddEntry(datatot, "#delta total", "f");
-        }
+	{
+	  leg->AddEntry(data, datalab.c_str(), "pl");
+	  if (!opts.nouncorrerr)
+	    {
+	      leg->AddEntry(data, "#delta uncorrelated", "pe");
+	      leg->AddEntry(datatot, "#delta total", "f");
+	    }
+	  else
+	    leg->AddEntry(datatot, "Total uncertainty", "f");
+	}
       TH1 *mark = (TH1F*)datahistos[0].getth()->Clone();
       mark->SetMarkerStyle(opts.markers[labels[0]]);
       mark->SetMarkerSize(2 * opts.resolution / 1200);
@@ -480,7 +489,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   leg1->SetBorderSize(0);
   leg1->SetTextAlign(12);
   leg1->SetTextSize(txtsize * 0.8/my);
-  leg1->SetTextFont(62);
+  leg1->SetTextFont(opts.rootfont);
 
   //Auxiliary legend
   int leg2size =  datahistos.size();
@@ -490,7 +499,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   leg2->SetFillColor(0);
   leg2->SetBorderSize(0);
   leg2->SetTextAlign(12);
-  leg2->SetTextFont(62);
+  leg2->SetTextFont(opts.rootfont);
   leg2->SetTextSize(txtsize * 0.8/my);
 
   //Plot theories
@@ -638,7 +647,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   data->SetMarkerStyle(20);
   data->SetMarkerSize(2 * opts.resolution / 1200);
   if (!opts.onlytheory)
-    datahistos[0].Draw(data, "PE1 same");
+    if (!opts.nouncorrerr)
+      datahistos[0].Draw(data, "P same");
+    else
+      datahistos[0].Draw(data, "PE1 same");
 
   leg1->Draw();
   leg2->Draw();
@@ -753,10 +765,10 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   //create template histogram for axis
   TH1F *r_templ = new TH1F(("r_templ_"+cnvname).c_str(), "", nbins, axmin, axmax);
 
-  r_templ->GetYaxis()->SetLabelFont(62);
-  r_templ->GetYaxis()->SetTitleFont(62);
-  r_templ->GetXaxis()->SetLabelFont(62);
-  r_templ->GetXaxis()->SetTitleFont(62);
+  r_templ->GetYaxis()->SetLabelFont(opts.rootfont);
+  r_templ->GetYaxis()->SetTitleFont(opts.rootfont);
+  r_templ->GetXaxis()->SetLabelFont(opts.rootfont);
+  r_templ->GetXaxis()->SetTitleFont(opts.rootfont);
   r_templ->GetYaxis()->SetNdivisions(505);
   r_templ->GetXaxis()->SetNdivisions(505);
   if (datahistos[0].getlogx())
@@ -1022,14 +1034,17 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
 
   //Draw data points
   if (!opts.onlytheory)
-    datahistos[0].Draw(r_data, "PE1 same");
+    if (!opts.nouncorrerr)
+      datahistos[0].Draw(r_data, "P same");
+    else
+      datahistos[0].Draw(r_data, "PE1 same");
 
   if (opts.multitheory)
     {
       legr->SetFillColor(0);
       legr->SetBorderSize(0);
       legr->SetTextAlign(12);
-      legr->SetTextFont(62);
+      legr->SetTextFont(opts.rootfont);
       legr->SetTextSize(txtsize * 0.8/ry);
       legr->Draw();
     }
@@ -1215,7 +1230,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       legr->SetFillColor(0);
       legr->SetBorderSize(0);
       legr->SetTextAlign(12);
-      legr->SetTextFont(62);
+      legr->SetTextFont(opts.rootfont);
       legr->SetTextSize(txtsize * 0.8/sy);
       legr->Draw();
     }
@@ -1497,7 +1512,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
       legr->SetFillColor(0);
       legr->SetBorderSize(0);
       legr->SetTextAlign(12);
-      legr->SetTextFont(62);
+      legr->SetTextFont(opts.rootfont);
       legr->SetTextSize(txtsize * 0.8/py);
       legr->Draw();
     }

@@ -32,7 +32,7 @@ C Special branch for rotation
       call read_outputnml   ! output options
 
       call read_lhapdfnml    ! read lhapdf
-!        call read_chi2scan     ! read chi2scan
+      call read_chi2scan        ! read chi2scan
 
       call read_mcerrorsnml  ! MC uncertainties
       call read_hqscalesnml  ! read HQ scales
@@ -368,7 +368,7 @@ C (Optional) Chi2Scan steering card
      $     dataid,term,TheorySources,scan,pdferrors,
      $     pdfprofile,scaleprofile,
      $	   chi2lhapdfref,chi2lhapdfset,chi2lhapdfvarset,chi2nparvar,
-     $     chi2parpoint
+     $     chi2parpoint,datatotheo
 
 C Chi2Scan default
       scan = .false.
@@ -384,6 +384,7 @@ C Chi2Scan default
       chi2lhapdfvarset = ''
       chi2nparvar = 0
       chi2parpoint = 0
+      datatotheo =.false.
 
 C
 C  Read the chi2scan namelist:

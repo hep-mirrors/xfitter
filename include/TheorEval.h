@@ -117,10 +117,11 @@ class TheorEval{
   const valarray<double>* getBinColumn(const string& columnName)const;//return nullptr if not found
   const vector<int>* getBinFlags()const{return&_binFlags;}
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-  /*TODO: delete this?
+
+  //The following methods are used by chi2scan and allow changing a theory input file
   void ChangeTheorySource(string term, string source);
   string GetTheorySource(string term);
-  */
+
  private:
   //! Checks that the bin boundaries in theory sources are complied with data ones.
   int checkBins();
@@ -144,7 +145,7 @@ class TheorEval{
   */
   void initReactionToken(tToken& token,const string& name);
   //! Initialise reaction term
-  void initReactionTerm(int iterm, valarray<double>* val);
+  void initReactionTerm(int iterm, valarray<double>* val, bool change_source = false);
   //! Update the reaction values into the tokens
   void updateReactionValues();
 
