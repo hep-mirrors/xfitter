@@ -60,6 +60,7 @@ set(xfitter_SOURCES
   Xstring.cc
   FitPars_base.cc
   FTNFitPars.cc
+  ../tools/draw/src/pdferrors.cc
 )
 if(LHAPDF_FOUND)
   list(APPEND xfitter_SOURCES CheckForPDF.cxx)
@@ -71,6 +72,7 @@ add_library(xfitter SHARED ${xfitter_SOURCES})
 target_include_directories(xfitter PUBLIC
   ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/include/linalg
+  ${CMAKE_SOURCE_DIR}/tools/draw/include/
 )
 target_compile_definitions(xfitter PRIVATE
   -DXFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}"
@@ -89,6 +91,10 @@ endif()
 target_link_libraries(xfitter PUBLIC
   yaml-cpp
 )
+if(ROOT_FOUND)
+  target_link_libraries(xfitter PUBLIC ROOT)
+endif()
+
 install(TARGETS xfitter DESTINATION ${DEST_LIB})
 
 #Executable

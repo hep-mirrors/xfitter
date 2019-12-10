@@ -151,12 +151,14 @@ C using covariance matrix. In this case LConvertCotToNui is set to true
 C and warrning message is issued.
 C
       if (LRand) then
-         if (NSys .ne. NSysSave) then
-            if (.not. LConvertCovToNui ) then
-               LConvertCovToNui = .true.
-               call hf_errlog(14080401,
+         if (STATYPE.ne.0.or.SYSTYPE.ne.0) then
+            if (NSys .ne. NSysSave) then
+               if (.not. LConvertCovToNui ) then
+                  LConvertCovToNui = .true.
+                  call hf_errlog(14080401,
      $              'W: READ_DATA: MC method requested for cov. info.'
      $              //' Set LConvertCovToNui to true')
+               endif
             endif
          endif
       endif
@@ -965,6 +967,19 @@ C  Symmetrise:
                   LAsymSyst(CompressIdx(i)) = .true.
                endif
 
+C     Correct total error shown in plots
+               if (NAsymPlus(CompressIdx(i)).eq.1
+     $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
+                  E_TOT(npoints)  = sqrt(E_TOT(npoints)**2
+     $                 -(BetaAsym(CompressIdx(i),1,npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2
+     $                 -(BetaAsym(CompressIdx(i),2,npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2
+     $                 +(BETA(CompressIdx(i),npoints)
+     $                 /SysScaleFactor(CompressIdx(i)))**2)
+               endif
+
+               
                if ( (NAsymPlus(CompressIdx(i)).eq.1
      $              .and. NAsymMinus(CompressIdx(i)).eq.1)
      $              .or. 

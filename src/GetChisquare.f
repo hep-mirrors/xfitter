@@ -230,6 +230,27 @@ C
          Call Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in,n0_in)
       endif
 
+c     export systematic uncertainties and shifts
+      do k=1,nsys
+         do j=1,n_syst_meas(k)
+            i = syst_meas_idx(j,k)
+
+            scgamma(k,i) = ScaledGammaSav(k,i)
+            if (AsymErrorsIterations.eq.0) then
+               scomega(k,i) = 0d0
+            else
+               scomega(k,i) = ScaledOmega(k,i)
+            endif
+            sysshift(k) = rsys_in(k)
+         enddo
+      enddo
+
+c     export uncorrelated errors
+      do i=1,n0_in
+         scerrors(i) = 1./sqrt(ScaledErrors(i))
+c         print *,i,1./sqrt(ScaledErrors(i))
+      enddo
+
 
       return
       end

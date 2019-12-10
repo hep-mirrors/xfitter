@@ -130,8 +130,12 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       }
 
       (*it)->SetFillColor(opts.colors[labels[it-pdfgraphs.begin()]]);
-      if (opts.filledbands)
-        (*it)->SetFillStyle(1001);
+      if (opts.filledbands || opts. transparentbands)
+	{
+	  (*it)->SetFillStyle(1001);
+	  if (opts. transparentbands)
+	    (*it)->SetFillColorAlpha((*it)->GetFillColor(), 0.5);
+	}
       else
         (*it)->SetFillStyle(opts.styles[labels[it-pdfgraphs.begin()]]);
       (*it)->SetLineStyle(1);
@@ -257,6 +261,8 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       shade->SetLineColor((*it)->GetLineColor());
       shade->SetFillColor((*it)->GetLineColor());
       shade->SetFillStyle((*it)->GetFillStyle());
+      if (opts. transparentbands)
+	shade->SetFillColorAlpha((*it)->GetFillColor(), 0.5);
       shade->SetLineWidth(0);
 
       //add graphs
@@ -305,32 +311,43 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
     }
 
   mg->GetXaxis()->Set(100, opts.xmin, opts.xmax);
-  mg->GetXaxis()->SetTitleFont(62);
-  mg->GetXaxis()->SetLabelFont(62);
+  mg->GetXaxis()->SetRange(opts.xmin, opts.xmax);
+  mg->GetXaxis()->SetTitleFont(opts.rootfont);
+  mg->GetXaxis()->SetLabelFont(opts.rootfont);
   mg->GetXaxis()->SetTitleSize(txtsize);
   mg->GetXaxis()->SetLabelSize(txtsize);
 
-  mg->GetYaxis()->SetTitleFont(62);
-  mg->GetYaxis()->SetLabelFont(62);
+  mg->GetYaxis()->SetTitleFont(opts.rootfont);
+  mg->GetYaxis()->SetLabelFont(opts.rootfont);
   mg->GetYaxis()->SetTitleSize(txtsize);
   mg->GetYaxis()->SetLabelSize(txtsize);
   mg->GetYaxis()->SetTitleOffset(offset);
 
   mg_shade->Draw("");
-  if (opts.filledbands)
+  if (opts.filledbands && !opts.transparentbands)
     mg_dotted_lines->Draw("l");
   else
     mg_lines->Draw("l");
 
   //Make legend
-  TLegend * leg = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
-  leg->SetTextFont(62);
+  //TLegend * leg = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
+  TLegend * leg = new TLegend(lmarg+0.03, 1-tmarg-0.07-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.03);
+  leg->SetTextFont(opts.rootfont);
   leg->SetTextSize(txtsize);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
-  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - " + opts.q2label + " = " + q2str + " GeV^{2}").c_str(), "");
-  leg->AddEntry((TObject*)0, (opts.q2label + " = " + q2str + " GeV^{2}").c_str(), "");
+  string q2string = opts.q2label + " = " + q2str + " GeV^{2}";
+  if (fabs(sqrt(q2) - 80.385) < 1)
+    q2string = opts.q2label + " = m_{W}^{2}";
+  else if (fabs(sqrt(q2) - 91.1876) < 1)
+    q2string = opts.q2label + " = m_{Z}^{2}";
+  else if (fabs(sqrt(q2) - 125) < 1)
+    q2string = opts.q2label + " = m_{H}^{2}";
+  else if (fabs(sqrt(q2) - 173.3) < 1)
+    q2string = opts.q2label + " = m_{t}^{2}";
+  //  leg->AddEntry((TObject*)0, ((string)"x" + pdflabels[ipdf] + " - " + opts.q2label + " = " + q2string).c_str(), "");
+  leg->AddEntry((TObject*)0, q2string.c_str(), "");
 
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
@@ -592,6 +609,8 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       r_shade->SetLineColor(r->GetLineColor());
       r_shade->SetFillColor(r->GetLineColor());
       r_shade->SetFillStyle(r->GetFillStyle());
+      if (opts. transparentbands)
+	r_shade->SetFillColorAlpha(r->GetFillColor(), 0.5);
       r_shade->SetLineWidth(0);
 
 
@@ -650,14 +669,14 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
 
   mg_ratio->GetXaxis()->Set(100, opts.xmin, opts.xmax);
-  mg_ratio->GetXaxis()->SetTitleFont(62);
-  mg_ratio->GetXaxis()->SetLabelFont(62);
+  mg_ratio->GetXaxis()->SetTitleFont(opts.rootfont);
+  mg_ratio->GetXaxis()->SetLabelFont(opts.rootfont);
   mg_ratio->GetXaxis()->SetTitleSize(txtsize);
   mg_ratio->GetXaxis()->SetLabelSize(txtsize);
   //  mg_ratio->GetXaxis()->SetTitleOffset(offset);
-
-  mg_ratio->GetYaxis()->SetTitleFont(62);
-  mg_ratio->GetYaxis()->SetLabelFont(62);
+  
+  mg_ratio->GetYaxis()->SetTitleFont(opts.rootfont);
+  mg_ratio->GetYaxis()->SetLabelFont(opts.rootfont);
   mg_ratio->GetYaxis()->SetTitleSize(txtsize);
   mg_ratio->GetYaxis()->SetLabelSize(txtsize);
   mg_ratio->GetYaxis()->SetTitleOffset(offset);
@@ -665,23 +684,25 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
   //  mg_ratio->Draw("ALE3");
   mg_ratio_shade->Draw("");
-  if (opts.filledbands)
+  if (opts.filledbands && !opts.transparentbands)
     mg_ratio_dotted_lines->Draw("l");
   else
     mg_ratio_lines->Draw("l");
 
   //Make legend
   TLegend * leg2;
-  if (ipdf == ubar || ipdf == dbar || ipdf == s || ipdf == Sea)// || ipdf == g)
-    leg2 = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
+  if (ipdf == ubar || ipdf == dbar || ipdf == s || ipdf == Sea || ipdf == g)
+    //leg2 = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
+    leg2 = new TLegend(lmarg+0.03, 1-tmarg-0.07-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.03);
   else
-    leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.45, 1-tmarg-0.01);
-  leg2->SetTextFont(62);
+    //leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.45, 1-tmarg-0.01);
+    leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.07-pdfgraphs.size()*0.05, lmarg+0.45, 1-tmarg-0.03);
+  leg2->SetTextFont(opts.rootfont);
   leg2->SetTextSize(txtsize);
   leg2->SetFillColor(0);
   leg2->SetFillStyle(0);
   leg2->SetBorderSize(0);
-  leg2->AddEntry((TObject*)0, (opts.q2label + " = " + q2str + " GeV^{2}").c_str(), "");
+  leg2->AddEntry((TObject*)0, q2string.c_str(), "");
 
   for (vector <TGraphAsymmErrors*>::iterator it = pdfgraphs.begin(); it != pdfgraphs.end(); it++)
     {
@@ -697,7 +718,8 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
 
   if (opts.drawlogo)
     DrawLogo("bc")->Draw();
-  DrawLabels("bc");
+  //DrawLabels("bc");
+  DrawLabels("ur");
 
   return cnvs;
 }

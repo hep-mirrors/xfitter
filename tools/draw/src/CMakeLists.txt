@@ -6,7 +6,9 @@ endif()
 add_executable(xfitter-draw
   Chi2.cc
   Chi2scanData.cc
+  Chi2scanGauss.cc
   Chi2scanPainter.cc
+  Chi2scanUnc.cc
   CommandParser.cc
   DataPainter.cc
   Dataset.cc

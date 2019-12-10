@@ -46,6 +46,8 @@ extern"C" {
 			     double* Covar, double *ANuisance, const double& Tolerance, 
 			     int& Ncorrelated, double* Uncor, const int& LSepDiag);
 
+  //chi2 evaluation
+  void getnewchisquare_(int &flag_in, int &n0_in, double &fchi2_in, double *rsys_in, double *ersys_in, double *pchi2_in, double &fcorchi2_in);
 
   extern struct {
     double alpha[NTOT_C];       // Total uncorrelated errors
@@ -62,6 +64,25 @@ extern"C" {
     int lasymsyst[NSYSMAX_C];        // asymmetric uncertainty
   } systasym_;
 
+  extern struct {
+    double scgamma_[NTOT_C][NSYSMAX_C]; //scaled gamma
+    double scomega_[NTOT_C][NSYSMAX_C]; //scaled omega
+    double sysshift_[NSYSMAX_C];        //systematic shift
+    double scerrors_[NTOT_C];           //scaled uncorrelated errors
+  } systexport_;
+  
+  extern struct {
+    double daten_[NTOT_C];   //!> Data values
+    double e_unc_[NTOT_C];              //!> Uncorelated uncertainty 
+    double e_tot_[NTOT_C];              //!> Total uncertainty
+    double e_sta_[NTOT_C];              //!> Uncorelated uncertainty
+    double e_sta_const_[NTOT_C];              //!> Uncorelated uncertainty 
+    double e_unc_const_[NTOT_C];        //!> Uncorelated, unscaled error
+    int jset_[NTOT_C];        //!> Uncorelated, unscaled error
+    int indextheorybin_[NTOT_C];
+    int jplot_[NTOT_C];
+  } indata2_;
+  
   extern struct {
     char lhapdfset[128];
     char lhapdfvarset[128];
@@ -210,8 +231,8 @@ extern"C" {
     double central;
     double values[NCHI2POINTS_C];
     int dataid[NSET_C];
-    char term[NSET_C][16][8];
-    char theorysources[NSET_C][16][NCHI2POINTS_C][1000];
+    char term[NSET_C][NTERMSMAX_C][8];
+    char theorysources[NSET_C][NTERMSMAX_C][NCHI2POINTS_C][1000];
     int scan;
     int pdferrors;
     int pdfprofile;

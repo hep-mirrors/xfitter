@@ -75,6 +75,11 @@ C      call hfbanner
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
 
+      if (SCAN) then            ! chi2 scan
+         call chi2_scan
+         goto 36
+      endif
+
 *     ------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------
