@@ -250,7 +250,6 @@ ReactionTheory* getReaction(const string& name){
 
 /// Temporary interface for fortran
 extern "C" {
-void init_evolution_();
 void init_minimizer_();
 void run_minimizer_();
 void report_convergence_status_();
@@ -258,11 +257,12 @@ void run_error_analysis_();
 }
 
 namespace xfitter{
-BaseEvolution*defaultEvolution=nullptr;//declared in xfitter_steer.h
-}
-//Make sure default evolution exists
-void init_evolution_() {
-  xfitter::defaultEvolution=xfitter::get_evolution();
+  BaseEvolution*defaultEvolution=nullptr;//declared in xfitter_steer.h
+
+  BaseEvolution* defaultEvolutionInstance() {
+    if ( defaultEvolution==nullptr) defaultEvolution=xfitter::get_evolution();
+    return defaultEvolution;
+  }
 }
 
 void init_minimizer_() {
