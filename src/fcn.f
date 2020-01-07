@@ -391,7 +391,9 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
 c If for any reason we got chi2==NaN, set it to +inf so that that
 c a minimizer would treat it as very bad
       if(chi2out/=chi2out)then !if chi2out is NaN
-        chi2out=transfer(z'7FF0000000000000',1d0) !+infinity
+        chi2out=1e10 !set it to a very large (but finite) number, so
+        !that the minimizer would move away from this point
+        !We used to use +Infinity, but that breaks MINUIT
       endif
 
 c Print time, number of calls, chi2
