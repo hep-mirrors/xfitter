@@ -280,7 +280,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
 
     if (q2p == nullptr || xp == nullptr || yp == nullptr)
     {
-      string msg = "F: Q2, x or Y bins are missing for NC DIS reaction for dataset " + std::to_string(termID);
+      string msg = "F: Q2, x or y bins are missing for NC DIS reaction for dataset " + std::to_string(termID);
       hf_errlog(17040801, msg);
     }
     _npoints[termID] = (*q2p).size();
