@@ -75,6 +75,7 @@ extern struct thexpr_cb {
   char theorexpr[THEOREXPR_LEN];
   int ppbar_collisions;
   int normalised;
+  double normalisation;
   int murdef;
   int mufdef;
   int ninfo;  // dataset info as well
@@ -132,6 +133,7 @@ int set_theor_eval_(int *dsId){
   te->_dsId=*dsId;
   te->_dsIndex=theorexpr_.ds_index;
   te->SetNormalised(theorexpr_.normalised);
+  te->SetNormalisation(theorexpr_.normalisation);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }

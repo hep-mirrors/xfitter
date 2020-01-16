@@ -121,6 +121,9 @@ void ReactionAPPLgrid::initTerm(TermData*td){
       data->grids[i].eScale=1;
     }
   }
+  //Make sure input evolutions are initialized
+  td->getPDF(0);
+  td->getPDF(1);
 }
 void ReactionAPPLgrid::freeTerm(TermData*td){
   DatasetData*data=(DatasetData*)td->reactionData;

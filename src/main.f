@@ -65,10 +65,6 @@ C      call hfbanner
 *
       call parse_params() !read parameters.yaml
 
-*This makes sure that the default evolution exists and is acessible from
-*fortran using hf_get_pdfs(x,Q,pdfs) etc
-      call init_evolution()
-
 *     ------------------------------------------------
 *     Read the measured data points
 *     ------------------------------------------------

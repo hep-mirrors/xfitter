@@ -655,8 +655,8 @@ C     ---> copy the names in a new variable
         idxReaction = GetInfoIndex(NDATASETS,'Normalised')
         normalised = 0    ! defaults to absolute cross section
         if ( idxReaction .ne. 0 ) then
-           theory_normalised = DATASETInfo(idxReaction, NDATASETS)
-           if ( theory_normalised .eq. 1 ) normalised = 1
+           normalisation = DATASETInfo(idxReaction, NDATASETS)
+           if ( normalisation .ge. 0 ) normalised = 1
 
        write (Msg,'(''I: Normalise APPLGRID prediction dataset: '',A20,'' '')')
      $        Name
