@@ -967,16 +967,16 @@ C  Symmetrise:
                   LAsymSyst(CompressIdx(i)) = .true.
                endif
 
-C     Correct total error shown in plots
-               if (NAsymPlus(CompressIdx(i)).eq.1
-     $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
-                  E_TOT(npoints)  = sqrt(E_TOT(npoints)**2
-     $                 -(BetaAsym(CompressIdx(i),1,npoints)
-     $                 /SysScaleFactor(CompressIdx(i)))**2
-     $                 -(BetaAsym(CompressIdx(i),2,npoints)
-     $                 /SysScaleFactor(CompressIdx(i)))**2
-     $                 +(BETA(CompressIdx(i),npoints)
-     $                 /SysScaleFactor(CompressIdx(i)))**2)
+cC     Correct total error shown in plots --> This is may be summing up to many errors in chi2scan? To be checked
+c               if (NAsymPlus(CompressIdx(i)).eq.1
+c     $              .and. NAsymMinus(CompressIdx(i)).eq.1 ) then
+c                  E_TOT(npoints)  = sqrt(E_TOT(npoints)**2
+c     $                 -(BetaAsym(CompressIdx(i),1,npoints)
+c     $                 /SysScaleFactor(CompressIdx(i)))**2
+c     $                 -(BetaAsym(CompressIdx(i),2,npoints)
+c     $                 /SysScaleFactor(CompressIdx(i)))**2
+c     $                 +(BETA(CompressIdx(i),npoints)
+c     $                 /SysScaleFactor(CompressIdx(i)))**2)
                endif
 
                
