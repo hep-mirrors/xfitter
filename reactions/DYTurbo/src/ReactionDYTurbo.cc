@@ -7,6 +7,8 @@
 */
 
 #include "ReactionDYTurbo.h"
+#include "BaseEvolution.h"
+#include "xfitter_steer.h"
 #include "dyturbo/dyturbo.h"
 #include "dyturbo/settings.h"
 #include "dyturbo/pdf.h"
@@ -42,6 +44,22 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   bins.readfromfile(filename);
   //cout << "binning read from file : qt " << bins.qtbins.size() << "  m " << bins.mbins.size() << " y " << bins.ybins.size() << endl;
 
+  //Fill PDF infos
+  pdf::order = xfitter::get_evolution()->getPropertyI("OrderQCD");
+  pdf::xmin = xfitter::get_evolution()->getPropertyD("XMin");
+  pdf::qmin = xfitter::get_evolution()->getPropertyD("QMin");
+
+  pdf::mc = xfitter::get_evolution()->getPropertyD("MCharm");
+  pdf::mb = xfitter::get_evolution()->getPropertyD("MBottom");
+  pdf::mt = xfitter::get_evolution()->getPropertyD("MTop");
+
+  //cout << "order " << pdf::order << endl;
+  //cout << "xmin " << pdf::xmin << endl;
+  //cout << "qmin " << pdf::qmin << endl;
+  //cout << "mc " << pdf::mc << endl;
+  //cout << "mb " << pdf::mb << endl;
+  //cout << "mt " << pdf::mt << endl;
+  
   opts.silent      = true;
   opts.makehistos  = false;
   
@@ -82,8 +100,8 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   vector <double> errs;
   DYTurbo::compute(vals, errs);
 
-  //  for (uint i = 0; i < vals.size(); i++)
-  //     cout << i << "  " << vals.size() << "  " << vals[i] << "  " << errs[i] << endl;
+  //for (uint i = 0; i < vals.size(); i++)
+  //cout << i << "  " << vals.size() << "  " << vals[i] << "  " << errs[i] << endl;
 
   //TODO: check bins size
   
