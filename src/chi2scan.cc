@@ -324,14 +324,10 @@ void chi2_scan_()
 
   /*
   //check
-  vector< vector <string> >::iterator it = sources.begin();
-  for (vector <double>::iterator vit = values.begin(); vit != values.end(); vit++, it++)
-    {
-      vector<string>::iterator sit = (*it).begin();
-      for (vector<string>::iterator tit = terms.begin(); tit != terms.end(); tit++, sit++)
-	cout << *tit << " " << *sit << "  " << *vit << endl;
-    }
-  //endcheck
+  for (vector <double>::iterator vit = values.begin(); vit != values.end(); vit++)
+    for (vector<int>::iterator dit = dataid.begin(); dit != dataid.end(); dit++)
+      for (vector<string>::iterator tit = terms[*dit].begin(); tit != terms[*dit].end(); tit++)
+	cout << *tit << " " << *dit << "  " << *vit << "  " << sources[*vit][*dit][*tit] << endl;
   */
 
   //check if lhapdf sets are specified
