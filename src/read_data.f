@@ -977,7 +977,7 @@ c     $                 -(BetaAsym(CompressIdx(i),2,npoints)
 c     $                 /SysScaleFactor(CompressIdx(i)))**2
 c     $                 +(BETA(CompressIdx(i),npoints)
 c     $                 /SysScaleFactor(CompressIdx(i)))**2)
-               endif
+c               endif
 
                
                if ( (NAsymPlus(CompressIdx(i)).eq.1
