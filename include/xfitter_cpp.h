@@ -11,7 +11,7 @@ using namespace std;
 
 extern"C" {
   void chi2_scan_();
-  //  void alphas_scan_();
+  void alphas_scan_();
 
   void mc_method_();
 

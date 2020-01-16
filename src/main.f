@@ -81,10 +81,10 @@ C      call hfbanner
          goto 36
       endif
 
-c      if (ASSCAN) then  ! alphas scan
-c         call alphas_scan
-c         goto 36
-c      endif
+      if (ASSCAN) then  ! alphas scan
+         call alphas_scan
+         goto 36
+      endif
       
 *     ------------------------------------------------
 *     Do the fit
