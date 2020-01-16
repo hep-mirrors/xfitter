@@ -31,6 +31,9 @@ public:
   virtual void atStart();            //called once after everything else is initialized
   virtual void atIteration();        //called in the beginning of each chi2 evaluation
   virtual void initTerm  (TermData*);//called once for each term, after atStart()
+  /*NOTE
+    If your reaction uses an evolution, make sure to access it using TermData::getPDF at least once at initialization, in order to make sure that the evolution instance exists
+  */
   virtual void reinitTerm(TermData*);//called when some parameters for this term have changed and need to be re-read
   virtual void freeTerm  (TermData*);//called for each term just before the ReactionTheory is destroyed. For cleanup
   //The following 2 methods are TEMPORARY, poorly defined and probably will be replaced

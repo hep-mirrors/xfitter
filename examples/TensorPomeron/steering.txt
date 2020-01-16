@@ -3,12 +3,19 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 1
+    NInputFiles = 8
  
   ! Input files:
 
-     InputFileNames = 'datafiles/lhc/pseudo-ttbar/pseudo_yttbar_nnlo.dat'
-
+     InputFileNames = 
+     'datafiles/hera/h1/inclusiveDis/9509001/h1_gammap.dat',
+     'datafiles/hera/zeus/inclusiveDis/0202034/zeus_gammap.dat',
+     'datafiles/fixedTarget/slac/inclusiveDis/PRL_40_1978_1222/slac_gammap.dat',
+     'datafiles/fixedTarget/baksan/Yad_Fiz_66_2003_591/baksan_gammap.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
 &End
 
 &InCorr
@@ -46,7 +53,7 @@
 *
 * (Optional) Modify renormalisation/factorisation scales, dataset
 * dependently. The numbering follows sequential numbering of input files
-*
+* Does this still work? --Ivan
 &Scales 
     DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
     DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
@@ -98,6 +105,7 @@
  ! Debug flag
   LDEBUG     = False
 
+
  ! Quadratic approximation for asymmetric uncertainties
  ! AsymErrorsIterations = 10
 &End
@@ -106,19 +114,7 @@
 *
 * Output steering cards
 *
-&Output 
-  ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
-!  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
-
-  ! How many x points to write (standard = 101)
-  OUTNX = 101
-
-  ! x-range of output (standard = 1E-4 1.0)
-  OUTXRANGE = 1E-4, 0.9999
-
-  ! Write out LHAPDF5 output
-  ! WriteLHAPDF5 = false
+&Output
 &End
 
 
@@ -133,14 +129,14 @@
   ! Rule #1: Q2 cuts
    ProcessName(1)     = 'NC e+-p'
    Variable(1)        = 'Q2'
-   CutValueMin(1)     = 3.5
-   CutValueMax(1)     = 1000000.0
+   CutValueMin(1)     = -1.
+   CutValueMax(1)     = 50.0
 
   ! Rule #2: x cuts
    ProcessName(2)     = 'NC e+-p'
    Variable(2)        = 'x'
-   CutValueMin(2)     = 0.000001 
-   CutValueMax(2)     = 1.0
+   CutValueMin(2)     = -0.00000001 
+   CutValueMax(2)     = 0.01
 
   !---------------------  CC ep  ------------------
 

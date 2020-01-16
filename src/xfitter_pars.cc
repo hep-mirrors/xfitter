@@ -616,9 +616,9 @@ void ensureMapValidity(const string&nodeName){
 
 void parse_params_(){
   using namespace XFITTER_PARS;
-  createOutputDir();
   rootNode=loadYamlFile("parameters.yaml");
   expandIncludes(rootNode);
+  createOutputDir();
   ensureMapValidity("Parameterisations");
   ensureMapValidity("Decompositions");
   ensureMapValidity("Evolutions");

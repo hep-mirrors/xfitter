@@ -60,7 +60,10 @@ endif()
 #When linking, set rpath to install directories
 #This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${DEST_LIB};${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}")
-set(CMAKE_BUILD_WITH_INSTALL_RPATH 1)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+# add the to the install RPATH directories for external libraries which are outside the build tree
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 #Suppress install messages
 #Only works since cmake 3.1
@@ -116,6 +119,7 @@ add_subdirectory(reactions/APPLgrid)
 add_subdirectory(reactions/Fractal_DISNC)
 add_subdirectory(reactions/KFactor)
 add_subdirectory(reactions/KMatrix)
+add_subdirectory(reactions/TensorPomeron)
 #add_subdirectory(reactions/KRunning)  KRunning needs to be rewritten
 add_subdirectory(reactions/BaseHVQMNR)
 add_subdirectory(reactions/cbdiff)
@@ -123,6 +127,7 @@ add_subdirectory(reactions/HVQMNR_LHCb_7TeV_beauty)
 add_subdirectory(reactions/HVQMNR_LHCb_7TeV_charm)
 add_subdirectory(reactions/Hathor)
 add_subdirectory(reactions/HathorSingleTop)
+add_subdirectory(reactions/fastNLO)
 
 #Tools
 add_subdirectory(tools/draw/src)
