@@ -437,7 +437,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
   else
     {
       TLegend * leg;
-      if (opts.nothshifts)
+      if (opts.nothshifts && datahistos.size() != 1)
         leg = new TLegend(lmarg+0.04, mb+0.03, lmarg+0.04+0.30, mb+0.03+0.12/my);
       else
         leg = new TLegend(lmarg+0.04, mb+0.03, lmarg+0.04+0.30, mb+0.03+0.2/my);
@@ -475,7 +475,7 @@ TCanvas * DataPainter(int dataindex, int subplotindex)
         leg->AddEntry((TObject*)0, opts.theorylabel.c_str(), "");
       else
         {
-          if (opts.nothshifts)
+          if (opts.nothshifts && datahistos.size() == 1)
             if ((opts.points && !datahistos[0].bincenter()) || datahistos[0].nbins() == 1)
               leg->AddEntry(mark, opts.theorylabel.c_str(), "p");
             else
