@@ -644,7 +644,6 @@ echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 
 
 echo cd xfitter-\$version                                        >> compile
-echo autoreconf --install                                 >> compile
 
 # check for YAML
 # xfitter 2.0.0 and 2.0.1 do not need YAML
@@ -683,14 +682,20 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
 fi
 
 # configure
-if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
+if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
+  echo autoreconf --install                                 >> compile
+  echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
+  echo make -j 9 install                                    >> compile
+elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
   # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
   echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
+  echo make -j 9 install                                    >> compile
+  echo autoreconf --install                                 >> compile
 else
-  echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
+  # cmake compilation
+  echo ./make.sh install >> compile
 fi
 
-echo make -j 9 install                                    >> compile
 
 chmod +x compile
 echo "Compiling xFitter $version..."
@@ -758,3 +763,5 @@ then
     echo "To read again these instructions, see quickstart-readme.txt"
     echo "Have fun!"
 fi
+
+
