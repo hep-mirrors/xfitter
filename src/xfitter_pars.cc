@@ -626,6 +626,10 @@ void parse_params_(){
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
   createParameters();
   ParsToFortran();
+  // init default evol if present
+  if (getDefaultEvolutionName() !=  "default") {
+    xfitter::get_evolution();
+  }
 }
 
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:
