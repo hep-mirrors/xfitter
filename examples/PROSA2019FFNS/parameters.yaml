@@ -145,6 +145,7 @@ byReaction:
     mf_B: 4.0
     mr_A: 1.0
     mr_B: 4.0
+    steer_nf: 3
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
