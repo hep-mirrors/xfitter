@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_INIT([XFitter],
-m4_esyscmd(git describe --always 2>&1 | awk '/Not a git/  {print "2.0.0\033@<:@1;32m FrozenFrog\033@<:@0m"}; !/Not a git/ {print $0}'  | tr -d '\n'),
+m4_esyscmd(git describe --always 2>&1 | awk '/Not a git/  {print "2.0.1\033@<:@1;32m OldFashioned\033@<:@0m"}; !/Not a git/ {print $0}'  | tr -d '\n'),
 [xfitter-help@desy.de],[xfitter],[http://xfitter.org])
 m4_ifndef([AC_PACKAGE_URL], AC_DEFINE([PACKAGE_URL],["http://xfitter.org"]))
 
@@ -222,6 +222,31 @@ if test $enable_lhapdf; then
 fi
 AM_CONDITIONAL(ENABLE_LHAPDF, [test $enable_lhapdf])
 
+
+# 05.02.2020 MW
+# check for gsl installation
+
+gsl_config=`which gsl-config`
+if test x$gsl_config == x; then
+    AC_MSG_ERROR([Unable to find gsl-config.])
+else 
+    GSLVERS=`gsl-config --version`
+    GSL_CPPFLAGS=`gsl-config --cflags`
+    GSL_LDFLAGS=`gsl-config --libs`
+    AC_MSG_RESULT([Using $gsl_config version $GSLVERS])
+    AC_SUBST(GSL_FAMILY)
+    AC_SUBST(GSL_CPPFLAGS)
+    AC_SUBST(GSL_LDFLAGS)
+
+    gsl_family=`gsl-config --version | sed 's/\..*$//'`
+    if test "x$gsl_family" != "x5"; then 
+      AC_DEFINE([GSL_FAMILY],[6],[Define value of GSL family])
+    fi
+fi
+
+
+
+
 # check for apfel installation
 AC_ARG_ENABLE([apfel],
   [AC_HELP_STRING(--enable-apfel, [use apfel (default=no)])])
@@ -272,10 +297,10 @@ if test x$enable_applgrid == xyes; then
     AC_MSG_ERROR([Unable to find applgrid-config.])
   else 
     APPLGRIDVERS=`applgrid-config --version`
-    APPLGRID_CPPFLAGS=`applgrid-config --cxxflags`
+    APPLGRID_CXXFLAGS=`applgrid-config --cxxflags`
     APPLGRID_LDFLAGS=`applgrid-config --ldcflags`
     AC_MSG_RESULT([Using $applgrid_config version $APPLGRIDVERS])
-    AC_SUBST(APPLGRID_CPPFLAGS)
+    AC_SUBST(APPLGRID_CXXFLAGS)
     AC_SUBST(APPLGRID_LDFLAGS)
     AC_DEFINE([APPLGRID_ENABLED],[1],[Define if applgrid is enabled])
   fi
