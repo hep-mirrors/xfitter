@@ -1563,28 +1563,27 @@ C---------------------------------------------------------------
       double precision DGammF,HypG1F1r, HypG1F1
       
 C C++ functions:
-CC      external integratecncteq
+      external integratecncteq
       double precision xmin, xmax, res, err   
-      double precision SumRuleCTEQ_nucl
       
 C-----------------------------------------------------
 
 C --- In case nCTEQ parametrization form is used for PDFs, a modified integration routine has to be called.
-CC      if (nCTEQ) then
-CC        xmin = 0.0001
-CC        xmax = 1.0
-CC        call integratecncteq(n,acteq, xmin, xmax, res, err)
-CC        SumRuleCTEQ = res
+      if (nCTEQ) then
+        xmin = 0.0001
+        xmax = 1.0
+        call integratecncteq(n,acteq, xmin, xmax, res, err)
+        SumRuleCTEQ = res
         
-CC      elseif (nTUJU) then
-      if (nTUJU) then  
-CCC      MW:  numerical integration routine (C++)          
-C        xmin = 0.0001
-C        xmax = 1.0
-C        call integratecntuju(n,acteq, xmin, xmax, res, err)
-C        SumRuleCTEQ = res
-CCC      MW: analytical integration routine
-        SumRuleCTEQ=SumRuleCTEQ_nucl(n,acteq)
+      elseif (nTUJU) then
+        xmin = 0.0001
+        xmax = 1.0
+        call integratecntuju(n,acteq, xmin, xmax, res, err)
+        SumRuleCTEQ = res
+CCC      MW: analytical integration routine, supposed to give the same results (workaround without GSL libraries)
+CCC        SumRuleCTEQ=SumRuleCTEQ_nucl(n,acteq)        
+        
+        
         
       else  
 
