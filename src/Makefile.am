@@ -15,7 +15,7 @@ dis_sigma.f  dataset_tools.f theory_dispatcher.f dy_cc_sigma.f pp_jets_applgrid.
 getncxskt.f Getgridkt.f GetDummyXsection.f main.f \
 GetDiffDisXsection.f FixModelParams.f  prep_corr.f GetPDFUncType.f rediagonalize.f qedevol.f \
 ExtraParConstr.cc CommonGrid.cc TheorEval.cc ftheor_eval.cc \
-nucl_pdf.f
+nucl_pdf.f nucl_pdfcc.cc
 
 # WS 2013-01-19 for the Offset method
 libxfitter_a_SOURCES += offset_fns.f g_offset.cc
@@ -34,6 +34,7 @@ libxfitter_a_SOURCES += chi2scan.cc
 AM_CXXFLAGS = -I$(srcdir)/../include  -I$(srcdir)/../interfaces/include -I$(srcdir)/../FastNLO/include
 AM_CXXFLAGS += -I$(srcdir)/../common -I$(srcdir)/../common/linalg
 AM_CXXFLAGS += -I$(srcdir)/../tools/draw/include
+AM_CXXFLAGS += -I/mnt/u/GSL/include
 
 if ENABLE_APFEL
   libxfitter_a_SOURCES+= apfel.f
@@ -74,7 +75,7 @@ endif
 AM_FFLAGS = $(DEFS) -cpp -I$(srcdir)/../include $(NOAUTOFCFLAG) -I$(srcdir)/../minuit/src
 
 # 
-AM_CPPFLAGS = -I$(srcdir)/../include 
+AM_CPPFLAGS = -I$(srcdir)/../include -I/mnt/u/GSL/include
 
 if ENABLE_APPLGRID 
   AM_CXXFLAGS+=$(APPLGRID_CXXFLAGS) $(ROOT_CFLAGS)
@@ -120,6 +121,12 @@ if ENABLE_LHAPDF
   AM_CPPFLAGS+=$(LHAPDF_CPPFLAGS)
   AM_FFLAGS+=$(DEFS) $(LHAPDF_CPPFLAGS)
 endif
+
+# 05.02.2020 MW
+LDADD+=$(GSL_LDFLAGS)
+F2PYLIBS +=  $(GSL_LDFLAGS)
+AM_CPPFLAGS+=$(GSL_CPPFLAGS)
+AM_FFLAGS+=$(DEFS) $(GSL_CPPFLAGS)
 
 if ENABLE_UPDF
    LDADD += $(CASCADELIBS)  $(PYTHIALIBS) 
