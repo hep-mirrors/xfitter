@@ -14,8 +14,11 @@
 #include <string.h>
 #include <cmath>
 #include "BaseEvolution.h"
+#include "BasePdfParam.h"
 #include "BasePdfDecomposition.h"
 #include "BaseMinimizer.h"
+#include"ReactionTheory.h"
+#include <dlfcn.h>
 #include "dependent_pars.h"
 #include "ansi_codes.h"
 #include <stdlib.h>
@@ -41,6 +44,120 @@ extern "C" {
   void update_pars_fortran_();
 }
 
+/*
+\brief instantiate an object from a dynamically loaded library
+\param moduleType
+  moduleType is:
+  "pdfparam"  for PDF parameterisations
+  "pdfdecomp" for PDF decompositions
+  "evolution" for evolutions
+  "minimizer" for minimizers
+  "reaction"  for reactions
+\details
+  Used to create evolutions, decompositions, parameterisations, reactions could be used to create minimizer
+
+  The object is loaded using a (void*)create(instanceName) function loaded from dlopen-ed from an .so (shared object) library (module)
+  The name of the loaded module library is
+    "lib"+moduleType+className+".so"
+
+  For moduleType in ["pdfparam", "pdfdecomp", "evolution"]
+    instanceName is passed to create
+  For moduleType in ["minimizer", "reaction"]
+    create is called without arguments, and instanceName must be empty.
+    (minimizers and reactions are supposed to be singletons)
+*/
+void* createDynamicObject(const string& moduleType, const string& className,const string& instanceName=""){
+
+  using std::cerr;
+  using std::endl;
+  //On first call, initialize module prefix
+  static bool first_call = true;
+  //The following macro is defined in src/CMakeLists.txt
+  //By default, it is INSTALL_PREFIX/lib/xfitter/
+  static string module_prefix = XFITTER_DEFAULT_MODULE_PATH;
+  const char* XFITTER_MODULE_PATH_ENV_NAME="XFITTER_MODULE_PATH";
+  if (first_call) {
+    first_call = false;
+    const char* from_env = getenv(XFITTER_MODULE_PATH_ENV_NAME);
+    if (from_env != nullptr) {
+      module_prefix = from_env;
+    }
+
+    //Make fure module_prefix ends in "/"
+    if ( module_prefix.empty() ) {
+      hf_errlog(19081600,"W: XFITTER_MODULE_PREFIX environment variable is defined and empty, will search for dynamically loaded libraries in the working directory");
+    } else if( module_prefix.back() != '/' ) {
+      module_prefix += '/';
+    }
+  }
+
+  //form the path to the loaded library
+  string libpath = module_prefix + "lib" + moduleType + className + ".so";
+  //load the library
+  void* shared_library = dlopen(libpath.c_str(), RTLD_NOW);
+  //by the way, do we ever call dlclose? I don't think so... Maybe we should call it eventually. --Ivan Novikov
+
+  //error if failed to load library
+  if ( shared_library == nullptr ){
+    cerr<<"[ERROR] dlopen() error while trying to open shared library for class \""<<className<<"\":\n"
+      <<dlerror()<<"\n"
+      "xFitter failed to load module "<<libpath<<
+      "\nMake sure that the class name \""<<className<<"\" in the YAML steering is correct, and that the required module is installed\n"
+      "If your modules directory is located elsewhere, set the environment variable "<<XFITTER_MODULE_PATH_ENV_NAME<<" to the correct directory"
+      "\n[/ERROR]"<<endl;
+    hf_errlog(18091900,"F: dlopen() error, see stderr");
+  }
+  //reset errors
+  dlerror();
+
+  //load the create() function from the library
+  void* create = dlsym(shared_library,"create");
+  if ( create == nullptr ){
+    cerr<<"[ERROR] dlsym() failed to find \"create\" function for class \""<<className<<"\":\n"<<dlerror()<<"in loaded module "<<libpath<<"\n[/ERROR]"<<endl;
+    hf_errlog(18091902,"F:dlsym() error, see stderr");
+  }
+
+  void* obj;
+  if( moduleType=="reaction" or moduleType=="minimizer"){
+    if (not instanceName.empty()) {
+      cerr<<"[ERROR] "<<__func__<<"() called with invalid arguments:\n"
+      "moduleType=\""<<moduleType<<"\n"
+      "className=\""<<className<<"\" (should have been empty)\n"
+      "instanceName=\""<<instanceName<<"\" (should have been empty =\"\")\n"
+      "a "<<moduleType<<" should be a singleton, it cannot have an instanceName."
+      "Somebody go fix the code"<<endl;
+      hf_errlog(19081601,"F: Tried to name a create a named singleton, see std");
+    }
+    //call create without arguments
+    obj=((void*(*)())create)();
+  }else{
+    //pass instanceName to create
+    obj=((void*(*)(const char*))create)(instanceName.c_str());
+  }
+
+  //Name consistency check: the requested name and the one reported by the class must match
+  string reportedName;
+
+  //get reported name depending on base class
+  if( moduleType == "pdfdecomp" ){
+    reportedName=((xfitter::BasePdfDecomposition*)obj)->getClassName();
+  }else if( moduleType == "evolution" ){
+    reportedName=((xfitter::BaseEvolution*)obj)->getClassName();
+  }else if( moduleType == "reaction" ){
+    reportedName=((ReactionTheory*)obj)->getReactionName();
+  }else{
+    //no check for pdfparam or minimizer, just return
+    return obj;
+  }
+  if( reportedName != className ) {
+    cerr<<"[ERROR] class name mismatch:\n"
+      "\""<<className<<" expected\n"
+      "\""<<reportedName<<" reported by the class\n"
+      "for dynamically loaded module "<<libpath<<endl;
+    hf_errlog(19081602,"F: Class name check failed, see stderr");
+  }
+  return obj;
+}
 
 namespace XFITTER_PARS {
 
@@ -580,6 +697,85 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
     }
   }
 
+  void createParameterisations(){
+    //Read YAML steering and create the parameterisations that are defined there
+    YAML::Node paramsNode=rootNode["Parameterisations"];
+    if(!paramsNode)return;
+    for(const auto it:paramsNode){
+      string name=it.first.as<string>();
+      try{
+        YAML::Node definition=it.second;
+        string classname=definition["class"].as<string>();
+        gParameterisations[name] = (BasePdfParam*)createDynamicObject("pdfparam", classname, name);
+      }catch(const YAML::InvalidNode&ex){
+        cerr<<"[ERROR] Failed to create parameterisation \""<<name<<"\": bad YAML definition"<<endl;
+        hf_errlog(20021500,"F: Bad parameterisation definition, see stderr");
+      }
+    }
+    //Initialize
+    for(const auto&pdfparam:gParameterisations){
+      try{
+        pdfparam.second->atStart();
+      }catch(...){
+        string name=pdfparam.first;
+        cerr<<"[ERROR] Unhandled exception during initialization of parameterisation \""<<name<<"\". Check that its YAML definition is correct. Rethrowing the exception..."<<endl;
+        throw;
+      }
+    }
+  }
+  void createDecompositions(){
+    //Read YAML steering and create the decompositions that are defined there
+    YAML::Node decompsNode=rootNode["Decompositions"];
+    if(!decompsNode)return;
+    for(const auto it:decompsNode){
+      string name=it.first.as<string>();
+      try{
+        YAML::Node definition=it.second;
+        string classname=definition["class"].as<string>();
+        gPdfDecompositions[name] = (BasePdfDecomposition*)createDynamicObject("pdfdecomp", classname, name);
+      }catch(const YAML::InvalidNode&ex){
+        cerr<<"[ERROR] Failed to create decomposition \""<<name<<"\": bad YAML definition"<<endl;
+        hf_errlog(20021501,"F: Bad decomposition definition, see stderr");
+      }
+    }
+    //Initialize
+    for(const auto&decomp:gPdfDecompositions){
+      try{
+        decomp.second->atStart();
+      }catch(...){
+        string name=decomp.first;
+        cerr<<"[ERROR] Unhandled exception during initialization of decomposition \""<<name<<"\". Check that its YAML definition is correct. Rethrowing the exception..."<<endl;
+        throw;
+      }
+    }
+  }
+  void createEvolutions(){
+    //Read YAML steering and create the evolutions that are defined there
+    YAML::Node evolsNode=rootNode["Evolutions"];
+    if(!evolsNode)return;
+    for(const auto it:evolsNode){
+      string name=it.first.as<string>();
+      try{
+        YAML::Node definition=it.second;
+        string classname = definition["class"].as<string>();
+        gEvolutions[name] = (BaseEvolution*)createDynamicObject("evolution", classname, name);
+      }catch(const YAML::InvalidNode&ex){
+        cerr<<"[ERROR] Failed to create evolution \""<<name<<"\": bad YAML definition"<<endl;
+        hf_errlog(20021502,"F: Bad evolution definition, see stderr");
+      }
+    }
+    //Initialize
+    for(const auto&evolution:gEvolutions){
+      try{
+        evolution.second->atStart();
+      }catch(...){
+        string name=evolution.first;
+        cerr<<"[ERROR] Unhandled exception during initialization of evolution \""<<name<<"\". Check that its YAML definition is correct. Rethrowing the exception..."<<endl;
+        throw;
+      }
+    }
+  }
+
   std::string getParamFromNodeS(const std::string& name, const YAML::Node& node)
   {
     if(node[name].IsDefined())
@@ -589,6 +785,37 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   }
 
 }
+
+namespace xfitter{
+
+BaseMinimizer* get_minimizer() {
+  std::string name = XFITTER_PARS::getParamS("Minimizer");
+
+  // Check if already present
+  if (XFITTER_PARS::gMinimizer != nullptr ) {
+    return  XFITTER_PARS::gMinimizer;  //already loaded
+  }
+
+  // else load, initialize and return
+  XFITTER_PARS::gMinimizer =(BaseMinimizer*) createDynamicObject("minimizer", name);
+  XFITTER_PARS::gMinimizer->atStart();
+  return XFITTER_PARS::gMinimizer;
+}
+
+ReactionTheory* getReaction(const string& name){
+  //if already exists, return it
+  auto it = gNameReaction.find(name);
+  if ( it != gNameReaction.end() ) return it->second;
+  //else create and return
+  ReactionTheory* rt=(ReactionTheory*)createDynamicObject("reaction", name);
+  gNameReaction[name] = rt;
+  //initialize
+  rt->atStart();
+  return rt;
+}
+
+}
+
 void ensureMapValidity(const string&nodeName){
   //Report an error if a YAML map has duplicate keys
   //This is used for checking redefinition of parameterisations etc
@@ -624,8 +851,11 @@ void parse_params_(){
   ensureMapValidity("Evolutions");
   ensureMapValidity("byReaction");
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
-  createParameters();
   ParsToFortran();
+  createParameters();
+  createParameterisations();
+  createDecompositions();
+  createEvolutions();
 }
 
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:

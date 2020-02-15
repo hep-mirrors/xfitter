@@ -19,15 +19,15 @@ namespace xfitter
   class BasePdfParam;
   class BaseMinimizer;
 
-  ///Get evolution by its name, creating it if needed
+  ///Get evolution by its name
   //If name=="", returns default evolution
   BaseEvolution* get_evolution(std::string name="");  
-  ///Get decomposition by its name, creating it if needed
+  ///Get decomposition by its name
   BasePdfDecomposition* get_pdfDecomposition(std::string name="");
   BasePdfParam*getParameterisation(const std::string&name="");
   ///Get minimizer
   BaseMinimizer*get_minimizer();
-  ///Get reaction, creating it if needed
+  ///Get reaction
   ReactionTheory* getReaction(const std::string& name);
 
 
