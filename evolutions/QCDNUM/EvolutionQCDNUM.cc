@@ -22,6 +22,7 @@ xfitter::BaseEvolution* gExternalEvolution;
 
 // Wrapper for QCDNUM
 double funcPDF(int *ipdf, double *x) {
+  if (*ipdf<0) return 0.;
   const std::map <int,int> ip = { {1,-3}, {2,-2}, {3,-1}, {4,1}, {5,2}, {6,3}, {0,21} } ;
   return gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)];
 }
