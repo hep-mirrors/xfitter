@@ -1,0 +1,6 @@
+set(TARGET reactionfastNLO)
+add_library(${TARGET} MODULE src/fastNLOCoeffAddBase.cc src/fastNLOCoeffAddFlex.cc src/fastNLOCoeffData.cc src/fastNLOCoeffMult.cc src/fastNLOPDFLinearCombinations.cc src/fastNLOTable.cc src/FastNLOxFitter.cc src/speaker.cc src/fastNLOCoeffAddFix.cc src/fastNLOCoeffBase.cc src/fastNLOCoefficients.cc src/FastNLOInterface.cc src/fastNLOReader.cc src/fastNLOTools.cc src/ReactionfastNLO.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter)
+target_include_directories(${TARGET} PRIVATE include)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES yaml/parameters.yaml DESTINATION ${DEST_YAML}/reactions RENAME fastNLO.yaml)

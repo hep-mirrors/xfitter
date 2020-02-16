@@ -37,5 +37,6 @@ namespace xfitter
   void updateAtConfigurationChange();
 
   //When fortran code accesses pdfs, it accesses this default evolution
-  extern BaseEvolution*defaultEvolution;
+  //extern BaseEvolution*defaultEvolution;
+  BaseEvolution* defaultEvolutionInstance(); 
 }
