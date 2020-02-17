@@ -84,30 +84,16 @@ DefaultEvolution: proton-QCDNUM
 #DefaultEvolution: proton-LHAPDF
 
 Evolutions:
-  proton-APFELff:
-    ? !include evolutions/APFEL.yaml
-    decomposition: proton
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
-    decomposition: proton #this could be omitted, as the default decomposition is set
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    #EvolutionCopy: "proton-LHAPDF"
+    decomposition: proton
   proton-LHAPDF:
     class: LHAPDF
     set: "CT10nlo"
-#    set: "CT14nlo"
-#    set: "NNPDF31_nlo_as_0118"
     member: 0
-#  proton-APFEL:
-#    ? !include yaml/evolutions/APFELxx.yaml
-#    decomposition: proton
   antiproton:
     class: FlipCharge
-    #input: proton-QCDNUM
     input: proton-LHAPDF
-#  neutron:
-#    class: FlipUD
-#    input: proton-QCDNUM
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
