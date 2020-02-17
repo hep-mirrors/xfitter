@@ -65,7 +65,6 @@ Parameterisations:
     expression: "Adbar*(x^Bdbar*(1-x)^Cdbar)*(1+Ddbar*x+Edbar*x^2)"
 
 DefaultDecomposition: proton
-#DefaultDecomposition: proton-LHAPDF0
 Decompositions:
   proton:
     class: UvDvUbarDbarS
@@ -75,10 +74,6 @@ Decompositions:
     xdbar: par_dbar
     xs: par_s
     xg: par_g
-  proton-LHAPDF0:
-    class: LHAPDF0
-    set: "NNPDF31_nlo_as_0118_hessian"
-    member: 0
 
 #DefaultEvolution: proton-QCDNUM
 #DefaultEvolution: proton-LHAPDF
