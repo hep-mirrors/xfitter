@@ -350,14 +350,11 @@ C ---- 22/11/2017
                if (nucleus) then
                  write(charAnucl, '(i0)'), intAnucl
                  write(charZnucl, '(i0)'), intZnucl
-C                 print *,'hello world chi2_datatheory 0', LHAPDFSETin, charAnucl, charZnucl
                  lhapdfsetnucl = TRIM(LHAPDFSETin)//'_'//TRIM(charAnucl)//'_'//TRIM(charZnucl)
-C                 print *,'hello world chi2_datatheory 1', lhapdfsetnucl
                else
                  lhapdfsetnucl = TRIM(LHAPDFSETin)
                endif
                call InitPDFset(lhapdfsetnucl)
-C               print *,'hello world chi2_datatheory 2', lhapdfsetnucl
             else    
                call PDF_Param_Iteration(parminuit,iflag)
             endif   
@@ -464,23 +461,7 @@ c             call fillvfngrid
 C --------- 15/03/2017 ----- end -------------            
             call GetTheoryForDataset(idataset)	! original program code         
             
-C --------- 23/05/2017 Marina Walt, University of Tuebingen
-C --------- Plug in of the PDF storage routine into the A1/A2 loop in order to store A-dependent PDFs, per dataset for debug purpose
-CC 07.11.2019, MW: commented out since not required            
-CC            if (Debug) then
-            
-CC              intidxDataSet = idxADataSet
-            
-CC              write(charAnucl, '(i0)'), intAnucl
-CC              write(charidxDataSet, '(i0)'), intidxDataSet
-CC              base_pdfname = TRIM(OutDirName)//'/A-'//TRIM(charAnucl)//
-CC     $                   '_idx-'//TRIM(charidxDataSet)//'_pdfs_q2val_'
-CC              open(90,file=base_pdfname)
-CC              call store_pdfs(base_pdfname)
-CC            
-CC            endif
-            
-           
+                     
            enddo
 C ---- end A1/A2-loop
 
@@ -874,8 +855,7 @@ C ---------        17/10/2017, Marina Walt, modifications in order to store A-de
                      
                      Anucleus=Anucl
                      Znucleus=Znucl
-                     
-                    !> print *,'Debugging lhapdfoutput fortran, Anucleus, Znucleus ', Anucleus, Znucleus
+
                  
                      LHAPDF6OutDir='/A-'//TRIM(charAnucl)
      $                                       //'_xfitter_pdf'  
