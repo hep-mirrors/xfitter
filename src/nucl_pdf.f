@@ -5,77 +5,13 @@ C in order to be able to call the new routines from the old subprograms of xFitt
 C nucl_pdf.f needs to be added to the Makefile in /src folder 
 C (and commands make clean, make, install to be executed after the modification of the Makefile).
 
-C -------------------------------------------------------- 
-C Test subroutine
-C -------------------------------------------------------- 
-
-       subroutine nucl_pdf
-       
-       implicit none
-       
-       print*,'Testing nucl_pdf.f'
-       
-       end
-
 
 C --------------------------------------------------------    
 C Subroutine to set nPDFType
 C -------------------------------------------------------- 
 
-C Subroutine to set the PDFType (incl. new value 'nuclear').
-C The functions of this new subroutine are meant to replace the former Subroutine SetPDFType().
-C For that, it is necessary to modify the existing xFitter source code file 'read_steer.f' as follows.
-C First, modify main steering parameters namelist, by adding the new parameters:
-C       namelist/xFitter/
-C     $     Znucleus,Anucleus	         ! new parameters for nPDFType 'nucleus'
-C Second, modify the subroutine:
-C       Subroutine SetPDFType()
-C       call SetnPDFType()      
-C       end
-
-C In order to activate the treatment of flexible input parameters A, Z in the existing xFitter code,
-C the code in the file 'interface/src/hf_pdf_calls.f' needs to be modified as fallows:
-C      data A,Z /207,82/		! comment out
-C ! Old program code
-C      if(lead) then
-C         if (deuteron) then		! comment out
-C            A=2			! comment out
-C            Z=1			! comment out
-C         endif				! comment out
-C ! New program code - set nuclear numbers A,Z to the input parameters from the steering.txt file
-C      if(nucleus) then
-C         A = Anucleus
-C         Z = Znucleus
-C ----
-C            for fitting of nuclear PDFs with nuclear data, division by A is NOT required, but needs to be disabled.
-C ! Old program code
-C         tmpU  = (Z*PDFSF( 1) + (A-Z)*PDFSF( 2) )/A	
-C         tmpD  = (Z*PDFSF( 2) + (A-Z)*PDFSF( 1) )/A	
-C         tmpUb = (Z*PDFSF(-1) + (A-Z)*PDFSF(-2) )/A	
-C         tmpDb = (Z*PDFSF(-2) + (A-Z)*PDFSF(-1) )/A	
-C ! New program code
-C         tmpU  = (Z*PDFSF( 1) + (A-Z)*PDFSF( 2) )
-C         tmpD  = (Z*PDFSF( 2) + (A-Z)*PDFSF( 1) )
-C         tmpUb = (Z*PDFSF(-1) + (A-Z)*PDFSF(-2) )
-C         tmpDb = (Z*PDFSF(-2) + (A-Z)*PDFSF(-1) )  
-
        Subroutine SetnPDFType()
-       
-C     07/02/2017 new parameters introduced by Marina Walt, university of Tuebingen 
-C     (include/steering.inc needs to be modified as follows)
-C      logical nucleus             		!> Flag to trigger nuclear PDF	
-C     --------
-C     ! modify namelist 
-C      common/STEERING/
-C     &     Q2VAL,starting_scale,strange_frac, Chi2MaxError,
-C     ...
-C     $     ,npolyval, lead, deuteron, nucleus !> add deuteron and nucleus to common steering namelist
-C     ---------
-C      double precision Znucleus		!> proton number Z for PDFType 'nucleus'
-C      double precision Anucleus		!> nucleon number A for PDFType 'nucleus'
-C      common/CPdfStyle/PDFStyle,PDFType,
-C     $     Znucleus,Anucleus     
-       
+          
        implicit none
 #include "steering.inc"
      
@@ -128,19 +64,6 @@ C --------------------------------------------------------
 C additional input data are necessary for treatment of nPDFs
 
        Subroutine ReadnuclDataFile
-
-C       double precision function ReadnuclDataFile()
-
-C to test the new subroutine, the existing subroutine 'ReadDataFile(CFile)' in 'read_data.f' needs to be modified as follows
-C ! existing code
-C      DATASETInfoDimension(NDATASETS) = NInfo		! existing code
-C      do i=1,NInfo					! existing code
-C         DATASETInfoNames(i,NDATASETS) = CInfo(i)	! existing code
-C         DATASETInfo(i,NDATASETS) =      DataInfo(i)	! existing code
-C      enddo						! existing code
-C ! new code line          
-C         call ReadnuclDataFile			
-
        
        implicit none       
 #include "ntot.inc"
@@ -155,13 +78,6 @@ C         call ReadnuclDataFile
 
        integer i,k
        integer IDataSet
-
-C   19/11/2018 xfitter-2.0.0        
-C       parameter (ninfoMax=100)  !>PARAMETER attribute of 'ninfomax' conflicts with PARAMETER attribute at (1)
-C       integer ninfomax !> Symbol 'ninfomax' already has basic type of INTEGER
-C       integer  NInfo   !> Symbol 'ninfo' already has basic type of INTEGER
-C       double precision DataInfo(ninfoMax)  !> Symbol 'datainfo' already has basic type of REAL
-C       character *80 CInfo(ninfoMax) !>Symbol 'cinfo' already has basic type of CHARACTER
        
 C output:
        double precision A1,Z1,A2,Z2
@@ -174,15 +90,6 @@ C Namelist definition:
      $     NInfo,DataInfo,CInfo
           
           
-C For reference purpose only...
-C Extra info:
-C       DATASETInfoDimension(NDATASETS) = NInfo
-C       do i=1,NInfo
-C         DATASETInfoNames(i,NDATASETS) = CInfo(i)
-C         DATASETInfo(i,NDATASETS) =      DataInfo(i)
-C       enddo      
-
-C ------- 
        IDataSet = NDATASETS
 
 C      set nuclear number A (variable called 'A1')      
@@ -287,7 +194,7 @@ C---------------------------------------------------------------
       integer n
       double precision acteq(1:27), atempcteq(1:27), acteqinput(1:27)
       double precision YF_nucl, temp
-      double precision DGammF,HypG1F1r, HypG1F1,SumRulenTUJU
+      double precision DGammF,HypG1F1r, HypG1F1, SumRulenTUJU
       
 C functions:       
       integer GetInfoIndex
@@ -299,9 +206,7 @@ C C++ functions:
        
 C-----------------------------------------------------
       
-C      print *,'debugging SumRulesCTEQ_nucl, before if-loop: acteq'
-C      print *,acteq
-      
+     
       acteqinput = acteq
       
       if (nucleus) then
@@ -342,25 +247,23 @@ C --
        endif
       endif
       
-      xmin = 0.0
+      xmin = 0.0001
       xmax = 1.0
       
       if (nCTEQ) then
         call integratecncteq(n,acteq, xmin, xmax, res, err)
         SumRuleCTEQ_nucl = res
-        if (Debug) then
-          print *,'c++ integration result'
-          print *,res
-        endif  
+CC        if (Debug) then
+CC          print *,'c++ integration result'
+CC          print *,res
+CC        endif  
       
       elseif (nTUJU) then
+
 C        numerical integration routine (C++)      
 C        call integratecnTUJU(n,acteq, xmin, xmax, res, err)
 C        SumRuleCTEQ_nucl = res
 
-C        For debugging purpose only, to compare with analytical integration routine
-C        temp = SumRulenTUJU(n,acteq)
-C        print *,'check analytical integration,num-res,an-res',SumRuleCTEQ_nucl,temp
 
 C        18/04/2018 Marina Walt, University of Tuebingen
 C        analytical integration routine, (x=1).
@@ -605,7 +508,6 @@ C                modification to activate the treatment of flexible, dataset dep
 
       if(nucleus) then
 C --- 30/03/2017 Marina Walt, modification to consider experimental data provided for a ratio sigma(A1)/sigma(A2)
-         print *,'debug hf_pdf_calls_nucl.f'
 
          if (ratio.eq.1.0) then			! value of the global parameter ratio is set inside the FCN routine
           if (ratiostep.eq.1) then
