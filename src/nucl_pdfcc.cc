@@ -11,15 +11,15 @@
 #include <string>
 #include <cmath>
 
+#include "../include/xfitter_cpp.h"
+#include "gsl/gsl_integration.h"
+#include "gsl/gsl_math.h"
+#include "gsl/gsl_errno.h"
+
 using std::cout;
 using std::endl;
 using namespace std;
 
-#include "../include/xfitter_cpp.h"
-//#include "gsl/gsl_integration.h"
-//#include <gsl/gsl_math.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_integration.h>
 
 // Define struct (for fortran common blocks)
 extern "C" {
@@ -70,14 +70,12 @@ void integrateab(double (* f) (double x, void * p), void * data, double &a, doub
   cout << "GSL integration error occured:" << endl;
   cout << gsl_strerror(status) << endl; 
 // Error handling  
-  if (status == GSL_ERANGE) {
-//      gsl_set_error_handler_off(); 
+  if (status == GSL_ERANGE) { 
       cout << "error: GSL_ERANGE: result not representable, overflow/underflow" << endl;
       result = 0;
       return; 
   }
   else if (status == GSL_ENOMEM) {
-//      gsl_set_error_handler_off();
       gsl_integration_workspace_free (w);
       key = 1;
       integ_space = 1000;
@@ -136,14 +134,14 @@ double nCTEQfunction0 (double x, void * p)
    i=i+1;
   }while(i<26);
  
-  cout << "ctparaC[0] Test in nCTEQfunction0" << endl;
-  cout << ctparaC[0]<< endl; 
+//  cout << "ctparaC[0] Test in nCTEQfunction0" << endl;
+//  cout << ctparaC[0]<< endl; 
   
-  cout << "ctparaC[1] Test in nCTEQfunction0" << endl;
-  cout << ctparaC[1]<< endl; 
+//  cout << "ctparaC[1] Test in nCTEQfunction0" << endl;
+//  cout << ctparaC[1]<< endl; 
   
-  cout << "ctparaC[1+9] Test in nCTEQfunction0" << endl;
-  cout << ctparaC[10]<< endl; 
+//  cout << "ctparaC[1+9] Test in nCTEQfunction0" << endl;
+//  cout << ctparaC[10]<< endl; 
   
  //debugging
 bool debugC = for_debug_.DEBUG;
@@ -170,14 +168,14 @@ double nCTEQfunction1 (double x, void * p)
    i=i+1;
   }while(i<26);
   
-  cout << "ctparaC[0] Test in nCTEQfunction1" << endl;
-  cout << ctparaC[0]<< endl; 
+//  cout << "ctparaC[0] Test in nCTEQfunction1" << endl;
+//  cout << ctparaC[0]<< endl; 
   
-  cout << "ctparaC[1] Test in nCTEQfunction1" << endl;
-  cout << ctparaC[1]<< endl; 
+//  cout << "ctparaC[1] Test in nCTEQfunction1" << endl;
+//  cout << ctparaC[1]<< endl; 
   
-  cout << "ctparaC[1+9] Test in nCTEQfunction1" << endl;
-  cout << ctparaC[10]<< endl; 
+//  cout << "ctparaC[1+9] Test in nCTEQfunction1" << endl;
+//  cout << ctparaC[10]<< endl; 
 
  //debugging
  bool debugC = for_debug_.DEBUG;
@@ -253,14 +251,14 @@ double nTUJUfunction0 (double x, void * p)
    i=i+1;
   }while(i<26);
  
-  cout << "ctparaC[0] Test in nTUJUfunction0" << endl;
-  cout << ctparaC[0]<< endl; 
+//  cout << "ctparaC[0] Test in nTUJUfunction0" << endl;
+//  cout << ctparaC[0]<< endl; 
   
-  cout << "ctparaC[1] Test in nTUJUfunction0" << endl;
-  cout << ctparaC[1]<< endl; 
+//  cout << "ctparaC[1] Test in nTUJUfunction0" << endl;
+//  cout << ctparaC[1]<< endl; 
   
-  cout << "ctparaC[1+9] Test in nTUJUfunction0" << endl;
-  cout << ctparaC[10]<< endl; 
+//  cout << "ctparaC[1+9] Test in nTUJUfunction0" << endl;
+//  cout << ctparaC[10]<< endl; 
   
  //debugging
 bool debugC = for_debug_.DEBUG;
@@ -287,14 +285,14 @@ double nTUJUfunction1 (double x, void * p)
    i=i+1;
   }while(i<26);
   
-  cout << "ctparaC[0] Test in nTUJUfunction1" << endl;
-  cout << ctparaC[0]<< endl; 
+//  cout << "ctparaC[0] Test in nTUJUfunction1" << endl;
+//  cout << ctparaC[0]<< endl; 
   
-  cout << "ctparaC[1] Test in nTUJUfunction1" << endl;
-  cout << ctparaC[1]<< endl; 
+//  cout << "ctparaC[1] Test in nTUJUfunction1" << endl;
+//  cout << ctparaC[1]<< endl; 
   
-  cout << "ctparaC[1+9] Test in nTUJUfunction1" << endl;
-  cout << ctparaC[10]<< endl; 
+//  cout << "ctparaC[1+9] Test in nTUJUfunction1" << endl;
+//  cout << ctparaC[10]<< endl; 
 
  //debugging
  bool debugC = for_debug_.DEBUG;
