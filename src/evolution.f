@@ -266,9 +266,7 @@ cv ===
 C         call evolfg(1,func22,def22,iq0,eps) ! uv, dv, Ubar, Dbar (and also strange)
       
 C --- 16/08/2017 Marina Walt, modifications to reflect nCTEQ like Ubar and Dbar pdf decomposition
-C --- (after testing/debugging TBD! if logic is correct!!!)
 
-C         if (nCTEQ.or.nTUJU) then
          if (nCTEQ) then
            call evolfg(1,func22,def22nCTEQ,iq0,eps) ! uv, dv, Ubar, Dbar
            
