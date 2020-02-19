@@ -603,13 +603,6 @@ cv add str
          ctstr(i)  = pars(80+i)
          ctother(i)= pars(90+i)
          
-         
-!> 18/10/2018 MW replaced         
-!>         if (ctubar(i).eq.0) then
-!>           if (nTUJU) then           
-!>             ctubar(i) = ctdbar(i)
-!>           endif  
-!>        endif            
 
 C 03/03/2017 new A-dependent coefficients for the parameters (two for each flavor)           
          if (nucleus) then
@@ -666,7 +659,6 @@ C!04/05/2017, additional logic applied for Strange, due to the limitations of MI
 C        15/05/2018 MW, modifications for s+sbar = ubar+dbar   (or s=sbar=ubar=dbar respectively)
           
           if (ctdbar(i).eq.0) then
-C             ctubar(i) = ctdbar(i)         !> 28/06/2018 MW commented out (placed above)
              
 C        15/05/2018 MW, modifications for s+sbar = ubar+dbar  (or s=sbar=ubar=dbar respectively)         
              ctdbar(9+j) = ctubar(9+j)      !>   + ctstr(9+j)
