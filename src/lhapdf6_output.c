@@ -200,14 +200,12 @@ double lead_pdf_ij(GridQX grid, int pid, int ix, int iq2) { //{{{
 //}}}
 
 
-// 09.07.2019 MW, testing
+// 09.07.2019 MW
 // nucleus pdf interface
 double nucleus_pdf_ij(GridQX grid, int pid, int ix, int iq2) { //{{{
         // const double A=207.0, Z= 82.0;
         double A = ccommoninterface_.Anucleus;
         double Z = ccommoninterface_.Znucleus;
-        //printf ("Debugging lhapdfoutput: %s %f %f \n", "A, Z ", A, Z);
-        //printf ("Debugging lhapdfoutput: %s %f %f \n", "Anucleus, Znucleus ", ccommoninterface_.Anucleus, ccommoninterface_.Znucleus);
         double val1,val2;
         int pid2;
         if(abs(pid)!=1 && abs(pid)!=2) return grid.raw_pdf_ij(grid, pid, ix, iq2);
