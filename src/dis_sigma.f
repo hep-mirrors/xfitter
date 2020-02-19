@@ -1031,7 +1031,6 @@ C         CALL ZMSTFUN(3,CCEM3Fnucl,X,Q2,XF3,npts,0)
  
 C 19/03/2018 Marina Walt, University of Tuebingen
 C            sum of neutrino and antineutrino scattering
-C            TBD if the logic is correct!!!!!!!!!!!!!!!
 
       elseif(XSecType.eq.'F2neutrino') then
          CALL ZMSTFUN(2,CCF2,X,Q2,F2,npts,0)         
