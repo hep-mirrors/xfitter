@@ -82,6 +82,12 @@ set(xfitter_DEFINITIONS
 if(ROOT_FOUND)
   list(APPEND xfitter_DEFINITIONS -DROOT_FOUND="1")
 endif()
+if(APPLgrid_FOUND)
+  list(APPEND xfitter_DEFINITIONS -DAPPLgrid_FOUND="1")
+endif()
+if(LHAPDF_FOUND)
+  list(APPEND xfitter_DEFINITIONS -DLHAPDF_FOUND="1")
+endif()
 target_compile_definitions(xfitter PRIVATE ${xfitter_DEFINITIONS})
 target_link_libraries(xfitter PRIVATE
   MINUIT
