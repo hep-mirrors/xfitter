@@ -25,8 +25,6 @@
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat',
     ! 'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
     ! 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
-    ! 'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004-thexp.dat'
-
 
 &End
 
