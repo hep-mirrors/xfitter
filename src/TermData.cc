@@ -118,7 +118,7 @@ using XFITTER_PARS::gParameters;
 using XFITTER_PARS::rootNode;
 YAML::Node getFromByReaction(const string &parName, const ReactionTheory *const reaction)
 {
-  //Return a node corresponding to reation-specific parameter
+  //Return a node corresponding to reaction-specific parameter
   //Or, if such a node is not found, return an invalid(undefined) node
   YAML::Node byReactionNode = rootNode[BY_REACTION];
   if (byReactionNode.IsMap())
@@ -484,7 +484,7 @@ BaseEvolution *TermData::getPDF(int ind)
   {
     return get_evolution(pdfName);
   }
-  return get_evolution(); //returns default evolution, which always exists
+  return get_evolution(); //returns default evolution
 }
 void TermData::actualizeWrappers()
 {

@@ -330,40 +330,6 @@ void TheorEval::initTerm(int iterm, valarray<double> *val)
   this->initReactionTerm(iterm, val);
 }
 
-ReactionTheory* getReaction(const string& name){
-  string libname = gReactionLibs[name];
-  if (libname == "") {
-    hf_errlog(16120501,"F: Reaction " +name+ " not present in Reactions.txt file");
-  }
-  if ( gNameReaction.find(name) == gNameReaction.end()) {
-    string path_to_lib=PREFIX+string("/lib/")+libname;
-    void *theory_handler = dlopen(path_to_lib.c_str(), RTLD_NOW);
-    if (theory_handler == NULL)  {
-      std::cerr<<"[ERROR] Failed to open shared library "<<path_to_lib<<" for "<<name<<"; error:\n"
-               <<dlerror()<<"\n Check that the correct library is given in Reactions.txt"<<std::endl;
-      hf_errlog(16120502,"F: Failed to open reaction shared library, see stderr for details");
-    }
-
-    // reset errors
-    dlerror();
-
-    void*dispatch_theory=dlsym(theory_handler, "create");
-    ReactionTheory*rt=(ReactionTheory*)((void*(*)())dispatch_theory)();//Create the ReactionTheory
-    gNameReaction[name] = rt;
-    // First make sure the name matches:
-    if ( rt->getReactionName() == name) {
-      hf_errlog(17041610,"I: Loaded reaction "+name);
-    }else{
-      hf_errlog(16120801,"F: Reaction "+name+" does not match library: "+rt->getReactionName());
-    }
-    // initialize
-    rt->atStart();
-    return rt;
-  } else {
-    return gNameReaction.at(name);
-  }
-}
-
 const string GetParamDS(const string&parName,const std::string&dsName,int dsIndex){
   using XFITTER_PARS::rootNode;
   //Get option referred to by "use:" from YAML
@@ -393,19 +359,25 @@ const string GetParamDS(const string&parName,const std::string&dsName,int dsInde
   hf_errlog(19042002,"F: Key in \"use:\" has no value, see stderr");
   std::abort();//unreachable
 }
-void TheorEval::initReactionTerm(int iterm, valarray<double> *val){
-  string term_source = _termSources.at(iterm);
+void TheorEval::initReactionTerm(int iterm, valarray<double> *val, bool change_source){
+  string reactionName = _termSources.at(iterm);
   string term_info =  _termInfos.at(iterm);
-  if(beginsWith(term_source,"use:")){//then redefine term source
+  if(beginsWith(reactionName,"use:")){//then redefine term source
     //I am not sure this works correctly right now --Ivan
     //Replace dsPars
-    term_source=GetParamDS(term_source.substr(4),_ds_name,_dsIndex);
+    reactionName = GetParamDS(reactionName.substr(4),_ds_name,_dsIndex);
   }
-  ReactionTheory*rt=getReaction(term_source);
+  ReactionTheory* rt = xfitter::getReaction(reactionName);
   size_t termID=_dsId*1000+iterm;
   TermData*term_data=new TermData(termID,rt,this,term_info.c_str());
   term_data->val=val;
-  term_datas.push_back(term_data);
+  if (change_source)
+    {
+      delete term_datas[iterm];
+      term_datas[iterm] = term_data;
+    }
+  else
+    term_datas.push_back(term_data);
   rt->initTerm(term_data);
 }
 
@@ -580,7 +552,7 @@ void TheorEval::Evaluate(valarray<double> &vte )
             integral += (_dsBins[1][bin] - _dsBins[0][bin]) * vte[bin];
         if (integral != 0)
           for (int bin = 0; bin < _binFlags.size(); bin++)
-            vte[bin] /= integral;
+            vte[bin] *= _normalisation/integral;
       }
   }
 }
@@ -598,7 +570,7 @@ const valarray<double>*TheorEval::getBinColumn(const string&n)const{
   return &_dsBins[it->second];
 }
 
-/* What are those? They are currently unused, and I am not sure they work correctly now, with TermData. --Ivan
+//This method is used by chi2scan to change the theory input file
 void TheorEval::ChangeTheorySource(string term, string source)
 {
   vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
@@ -608,12 +580,13 @@ void TheorEval::ChangeTheorySource(string term, string source)
       hf_errlog_(14020603, msg.c_str(), msg.size());
     }
   int iterm = int(found_term-_termNames.begin());
-  //  cout << "switch " << _termSources[iterm] << " to " << source << endl;
-  _termSources[iterm] = source;
+  //  cout << "switch " << _termInfos[iterm] << " to " << source << endl;
+  _termInfos[iterm] = source;
 
-  initTerm(int(found_term-_termNames.begin()), _mapInitdTerms[term]);
+  initReactionTerm(iterm, _mapInitdTerms[term], true);
 }
 
+//This method is used by chi2scan to get the theory input file for the central prediction
 string TheorEval::GetTheorySource(string term)
 {
   vector<string>::iterator found_term = find(_termNames.begin(), _termNames.end(), term);
@@ -622,6 +595,5 @@ string TheorEval::GetTheorySource(string term)
       hf_errlog(14020603,(string) "S: Undeclared term " + term);
     }
   int iterm = int(found_term-_termNames.begin());
-  return _termSources[iterm];
+  return _termInfos.at(iterm);
 }
-*/

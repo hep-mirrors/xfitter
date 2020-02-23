@@ -13,3 +13,6 @@
 #ifndef NSET_C
 #define NSET_C 150
 #endif
+#ifndef NTERMSMAX_C
+#define NTERMSMAX_C 128
+#endif

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -10,7 +11,7 @@ class Chi2scanData
 {
  public:
   Chi2scanData() {};
-  Chi2scanData(string dirname);
+  Chi2scanData(string dirname, string dirlabel);
   string label;
   double min2, delta2, chi2min2;
   double a, b, c;
@@ -38,5 +39,18 @@ class Chi2scanData
 
   map <int, double> pdfmin;
   map <int, map <double, double> > pdfchi2;
+
+  //uncertainty decomposition
+  double statp, statm, systp, systm, pdfp, pdfm, scalep, scalem, totdecp, totdecm, totp, totm;
+
+  //MC replicas
+  vector <double> min2_mc;
+  vector <double> delta2_mc;
+  vector <double> min3_mc;
+  vector <double> deltap3_mc;
+  vector <double> deltam3_mc;
+  vector <double> min4_mc;
+  vector <double> deltap4_mc;
+  vector <double> deltam4_mc;
 };
 #endif

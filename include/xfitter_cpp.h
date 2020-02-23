@@ -46,6 +46,8 @@ extern"C" {
 			     double* Covar, double *ANuisance, const double& Tolerance, 
 			     int& Ncorrelated, double* Uncor, const int& LSepDiag);
 
+  //chi2 evaluation
+  void getnewchisquare_(int &flag_in, int &n0_in, double &fchi2_in, double *rsys_in, double *ersys_in, double *pchi2_in, double &fcorchi2_in);
 
   extern struct {
     double alpha[NTOT_C];       // Total uncorrelated errors
@@ -62,6 +64,25 @@ extern"C" {
     int lasymsyst[NSYSMAX_C];        // asymmetric uncertainty
   } systasym_;
 
+  extern struct {
+    double scgamma_[NTOT_C][NSYSMAX_C]; //scaled gamma
+    double scomega_[NTOT_C][NSYSMAX_C]; //scaled omega
+    double sysshift_[NSYSMAX_C];        //systematic shift
+    double scerrors_[NTOT_C];           //scaled uncorrelated errors
+  } systexport_;
+  
+  extern struct {
+    double daten_[NTOT_C];   //!> Data values
+    double e_unc_[NTOT_C];              //!> Uncorelated uncertainty 
+    double e_tot_[NTOT_C];              //!> Total uncertainty
+    double e_sta_[NTOT_C];              //!> Uncorelated uncertainty
+    double e_sta_const_[NTOT_C];              //!> Uncorelated uncertainty 
+    double e_unc_const_[NTOT_C];        //!> Uncorelated, unscaled error
+    int jset_[NTOT_C];        //!> Uncorelated, unscaled error
+    int indextheorybin_[NTOT_C];
+    int jplot_[NTOT_C];
+  } indata2_;
+  
   extern struct {
     char lhapdfset[128];
     char lhapdfvarset[128];
@@ -118,8 +139,7 @@ extern"C" {
       } cfcn_;
 
   extern struct {
-    char outdirname[256]; // outout dir name
-    char lhapdf6outdir[256]; //DEPRECATED
+    char outdirname[256]; // output dir name
   } coutdirname_;
 
   extern struct {
@@ -160,19 +180,10 @@ extern"C" {
   
   extern struct {
     float q2val[40];
-    float starting_scale;
-    float strange_frac;
     double chi2maxerror;
-    float hf_mass[3];
-    float charm_frac;
     int ldebug;
-    int usegridlhapdf5;
-    int writelhapdf6;
     int h1qcdfunc;
-    int writealphastomemberpdf;
-    int itheory;
     int i_fit_order;
-    int hfscheme;
     int lrand;
     int statype;
     int systype;
@@ -181,17 +192,10 @@ extern"C" {
     int ilenpdf;
     float wmnlen;
     float wmxlen;
-    int ifsttype;
     int iseedmc;
-    int ewfit;
-    int npolyval;
-    int lead;
-    int izpopoly;
-    int ipolysqr;
     int useapplg;
     int napplgrids;
     int lfitdy;
-    int lfastapplgrid;
     int lranddata;
     int idh_mod;
     int ipdfset;
@@ -206,9 +210,7 @@ extern"C" {
     char corsysscale[32];
     char uncorchi2type[32];
     char corchi2type[32];
-    char hf_scheme[32];
     int asymerrorsiterations;
-    int luseapplgridckm;
     int pdfrotate;
     int ExtraPdfs;
     int WriteLHAPDF5;
@@ -229,8 +231,8 @@ extern"C" {
     double central;
     double values[NCHI2POINTS_C];
     int dataid[NSET_C];
-    char term[NSET_C][16][8];
-    char theorysources[NSET_C][16][NCHI2POINTS_C][1000];
+    char term[NSET_C][NTERMSMAX_C][8];
+    char theorysources[NSET_C][NTERMSMAX_C][NCHI2POINTS_C][1000];
     int scan;
     int pdferrors;
     int pdfprofile;

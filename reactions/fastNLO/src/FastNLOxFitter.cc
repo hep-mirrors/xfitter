@@ -1,5 +1,4 @@
 #include "FastNLOxFitter.h"
-#include "get_pdfs.h"
 
 using namespace std;
 
@@ -8,8 +7,7 @@ extern "C"{
   //void evolution_();
   //double asfunc_( double* r2, int* nf  , int* ierr);
   double hf_get_alphasq_(double const&Q);
-  void hf_get_pdfsq_(double const&x,double const&Q,double*pdfs);
-  
+  void hf_get_pdfsq_(double const&x,double const&Q,double*pdfs);  
 }
 
 

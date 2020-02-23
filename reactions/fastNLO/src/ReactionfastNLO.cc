@@ -164,9 +164,13 @@ void ReactionfastNLO::compute(TermData* td, valarray<double> &val, map<string, v
     for ( std::size_t i=0; i<cs.size(); i++) valfnlo.push_back(cs[i]);
   }
 
-  if ( val.size()!=valfnlo.size() )
+  if ( !(val.size() == valfnlo.size()) && !(td->hasParam("Symmetrise") && (2*val.size())==valfnlo.size()))
     hf_errlog(17112501,"F: Size of fastNLO cross section array does not match data.");
-  for ( std::size_t i=0; i<val.size(); i++) val[i]=valfnlo[i];
+  
+  if ( td->hasParam("Symmetrise") && (2*val.size())==valfnlo.size() )
+    for ( std::size_t i=0; i<val.size(); i++) val[i]=valfnlo[i+val.size()]+valfnlo[val.size()-1-i];
+  else
+    for ( std::size_t i=0; i<val.size(); i++) val[i]=valfnlo[i];
 }
 
 

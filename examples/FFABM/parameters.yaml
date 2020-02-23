@@ -73,7 +73,7 @@ Parameterisations:
 DefaultDecomposition: proton
 Decompositions:
   proton:
-    class: UvDvubardbars
+    class: UvDvUbarDbarS
     xuv: par_uv
     xdv: par_dv
     xubar: par_ubar
@@ -85,27 +85,13 @@ Decompositions:
 DefaultEvolution: proton-QCDNUM
 
 Evolutions:
-  proton-APFELff:
-    ? !include evolutions/APFEL/parameters.yaml
-    decomposition: proton
   proton-QCDNUM:
-    ? !include evolutions/QCDNUM/parameters.yaml
-    decomposition: proton #this could be omitted, as the default decomposition is set
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    # EvolutionCopy: "proton-LHAPDF"
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton
   proton-LHAPDF:
     class: LHAPDF
     set: "CT10"
     member: 0
-#  proton-APFEL:
-#    ? !include yaml/evolutions/APFELxx/parameters.yaml
-#    decomposition: proton
-#  antiproton:
-#    class: FlipCharge
-#    input: proton-QCDNUM
-#  neutron:
-#    class: FlipUD
-#    input: proton-QCDNUM
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
@@ -116,28 +102,28 @@ alphas : 0.106
 byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
-    ? !include reactions/RT_DISNC/parameters.yaml
+    ? !include reactions/RT_DISNC.yaml
   # FONLL scheme settings:
   FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC/parameters.yaml
+    ? !include reactions/FONLL_DISNC.yaml
   FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC/parameters.yaml
+    ? !include reactions/FONLL_DISCC.yaml
   # FF ABM scheme settings:
   FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC/parameters.yaml
+    ? !include reactions/FFABM_DISNC.yaml
     ordfl: 0
   FFABM_DISCC:
-    ? !include reactions/FFABM_DISCC/parameters.yaml
+    ? !include reactions/FFABM_DISCC.yaml
     ordfl: 0
   # AFB settings:
   AFB:
-    ? !include reactions/AFB/parameters.yaml
+    ? !include reactions/AFB.yaml
   # APPLgrid settings:
   APPLgrid:
-    ? !include reactions/APPLgrid/parameters.yaml
+    ? !include reactions/APPLgrid.yaml
   # (optional) Fractal module settings:
   Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC/parameters.yaml
+    ? !include reactions/Fractal_DISNC.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :

@@ -1,0 +1,10 @@
+if(NOT APFELxx_FOUND)
+  message(STATUS "Skipping optional evolution APFELxx because APFELxx library was not found")
+  return()
+endif()
+
+set(TARGET evolutionAPFELxx)
+add_library(${TARGET} SHARED EvolutionAPFELxx.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter APFELxx)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES APFELxx.yaml DESTINATION ${DEST_YAML}/evolutions)

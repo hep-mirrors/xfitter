@@ -1,0 +1,102 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "MMHT2014nnlo68cl"
+    member: 0
+  antiproton:
+    class: FlipCharge
+    input: proton-LHAPDF
+DefaultEvolution: proton-LHAPDF
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+? !include constants.yaml
+
+alphas : 0.118
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
+    #evolution: proton-QCDNUM
+  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
+  #BaseDISCC:
+  #  evolution: proton-QCDNUM
+  # FONLL scheme settings:
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC.yaml
+  # FF ABM scheme settings:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC.yaml
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid.yaml
+  # (optional) Fractal module settings:
+  Fractal_DISNC:
+    ? !include reactions/Fractal_DISNC.yaml
+  Hathor:
+     MS_MASS: 1
+     muR: 1.
+     muF: 1.
+     RATIO: 0
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+#  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+#  defaultValue : 'FONLL_DISCC'     # global specification
+#  defaultValue : 'FFABM_DISCC'     # global specification
+
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  Parameters:
+    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
+  #Evolutions:
+  #  proton-LHAPDF:
+  #    sets:    [CT10]
+  #    members: [[0,1,end]]
+  Status: "Off"               # "Off" to turn off profiler
+  WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "Off"              # determine and report chi2 for each variation
+
+OutputDirectory: "output" #Can be omitted, default is "output"
+
+#WriteLHAPDF6:
+#  name: "proton"
+#  description: "..."
+#  authors: "..."
+#  reference: "..."
+#    # use DefaultEvolution
+#  #evolution: proton-QCDNUM
+#    # take internal grid
+#  preferInternalGrid:
+#    # or define grid
+#  #Xrange: [1e-4, 1]
+#  #Qrange: [1,1000]
+#  #Xnpoints: 200
+#  #Qnpoints: 120

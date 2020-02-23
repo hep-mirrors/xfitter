@@ -12,7 +12,7 @@
 #include <fstream>
 #include <valarray>
 
-#include "get_pdfs.h"
+// #include "get_pdfs.h"
 #include "xfitter_cpp.h"
 #include "xfitter_cpp_base.h"
 
@@ -49,7 +49,6 @@ extern "C" {
   void init_theor_eval_(int *dsId);
   void update_theor_ckm_();
   void get_theor_eval_(int *dsId, int* np, int* idx);
-  int read_reactions_();
   void close_theor_eval_();
   void init_at_iteration_(); ///< Loop over reactions, initialize them
   void fcn3action_();      ///< Loop over reactions, call actionAtFCN3
@@ -58,7 +57,6 @@ extern "C" {
 
 /// global dataset to theory evaluation pointer map
 tTEmap gTEmap;
-tReactionLibsmap gReactionLibs;
 tNameReactionmap gNameReaction;
 
 const size_t NTERMMAX      =128;
@@ -77,6 +75,7 @@ extern struct thexpr_cb {
   char theorexpr[THEOREXPR_LEN];
   int ppbar_collisions;
   int normalised;
+  double normalisation;
   int murdef;
   int mufdef;
   int ninfo;  // dataset info as well
@@ -133,6 +132,7 @@ int set_theor_eval_(int *dsId){
   te->_dsId=*dsId;
   te->_dsIndex=theorexpr_.ds_index;
   te->SetNormalised(theorexpr_.normalised);
+  te->SetNormalisation(theorexpr_.normalisation);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }
@@ -238,42 +238,6 @@ void close_theor_eval_()
 
   gTEmap.clear();
 }
-
-
-/*!
- */
-int read_reactions_()
-{
-  ifstream frt((PREFIX+string("/lib/Reactions.txt")).c_str());
-  if ( frt.is_open() ) {
-    while (1){
-      string rname, lib;
-      frt >> rname >> lib;
-      if (frt.eof()) break;
-      if (gReactionLibs.find(rname) == gReactionLibs.end() ) {
-        // possible check
-      }
-      gReactionLibs[rname] = lib;
-    }
-  }
-  else {
-    string text = string("F: can not open Reactions.txt file. Check your ")+PREFIX+string("/lib directory");
-    hf_errlog_(16121401,text.c_str(),text.size());
-  }
-  return 1;
-}
-
-/* Broken since 2.2.0
-double xg(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+0]; }
-double xu(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6+1]; }
-double xub(const double& x, const double& q2) {  double pdfs[20]; HF_GET_PDFS_WRAP(x,q2,pdfs); return pdfs[6-1]; }
-
-void init_func_map_() {
-  g2Dfunctions["xg"] = &xg;
-  g2Dfunctions["xu"] = &xu;
-  g2Dfunctions["xub"] = &xub;
-}
-*/
 
 void init_at_iteration_() {
   xfitter::updateDependentParameters();

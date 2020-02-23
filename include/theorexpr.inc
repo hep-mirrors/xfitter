@@ -10,6 +10,7 @@ C> Common block for theory expression
       character*256 TermSource(NTermsMax)
       character*10000 TheorExpr
       integer normalised
+      double precision normalisation
       !TODO: remove the following 3 variables
       integer ppbar_collisions
       integer murdef
@@ -27,6 +28,6 @@ C Also store dataset info here
 C And some basic vars:
 
       common/theorexpr/ dynscale, NTerms, TermName, TermType, TermInfo,
-     &     TermSource, TheorExpr, ppbar_collisions, normalised,
+     &     TermSource, TheorExpr, ppbar_collisions, normalised, normalisation,
      $     murdef, mufdef,
      $     ninfo, datainfo, CInfo, dsname, ds_index

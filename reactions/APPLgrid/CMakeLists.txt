@@ -1,0 +1,10 @@
+if(NOT APPLgrid_FOUND)
+  message(STATUS "Skipping optional reaction APPLgrid because APPLgrid library was not found")
+  return()
+endif()
+
+set(TARGET reactionAPPLgrid)
+add_library(${TARGET} MODULE ReactionAPPLgrid.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter APPLgrid)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES APPLgrid.yaml DESTINATION ${DEST_YAML}/reactions)
