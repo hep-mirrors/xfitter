@@ -66,7 +66,7 @@ extern "C" {
 			}
 			parname[std::string(parname).find(' ')]='\0';
 			printf("%5d%32s%9.4f%9.4f", extrapars_.iExtraParamMinuit[p], parname, par, unc);
-			if(bound_l!=0.0&&bound_h!=0.0) {
+			if(bound_l!=0.0 || bound_h!=0.0) {
 				printf("%9.4f%9.4f", bound_l, bound_h);
 			}
 			else {
