@@ -28,7 +28,7 @@ package QCDNUM developed by M. Botje and includes other parts of the code:
    hadronic parametric contribution (based on e+,e- data)
 -- Bayesian reweighting tool from A. Guffanti (a la NNPDF) and based on
    EIGENVECTORS from G. Watt (a la MSTW).
--- DIPOLE models (GBW, IIM, BGS)
+-- DIPOLE models (GBW, IIM, BGK) from A. Luszczak
 -- TDM (uPDFs) as an alternative to DGLAP formalism (J. Jung)
 -- Diffractive PDFs (W. Slominski)
 -- total ttbar production cross sections via HATHOR (S. Moch et al.)

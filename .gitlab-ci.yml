@@ -5,8 +5,7 @@ cache:
     - deps
 
 stages:
-  - commit
-  - nightly
+  - build
 
 before_script:
   - yum -y install yum-plugin-ovl
@@ -14,16 +13,12 @@ before_script:
   - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 
-job:
-  stage: commit
-  script:
-    - ./make.sh install
+job-install:
+  stage: build
+  only: [merge_requests]
+  script: "./make.sh install"
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
-  only:
-    - master
-  except:
-    - triggers
 
 #nightly_devel:
 #  stage: nightly
