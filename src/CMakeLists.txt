@@ -74,11 +74,21 @@ target_include_directories(xfitter PUBLIC
   ${CMAKE_SOURCE_DIR}/include/linalg
   ${CMAKE_SOURCE_DIR}/tools/draw/include/
 )
-target_compile_definitions(xfitter PRIVATE
+set(xfitter_DEFINITIONS
   -DXFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}"
   -DXFITTER_YAML_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_YAML}/"
   -DPREFIX="${CMAKE_INSTALL_PREFIX}"
 )
+if(ROOT_FOUND)
+  list(APPEND xfitter_DEFINITIONS -DROOT_FOUND="1")
+endif()
+if(APPLgrid_FOUND)
+  list(APPEND xfitter_DEFINITIONS -DAPPLgrid_FOUND="1")
+endif()
+if(LHAPDF_FOUND)
+  list(APPEND xfitter_DEFINITIONS -DLHAPDF_FOUND="1")
+endif()
+target_compile_definitions(xfitter PRIVATE ${xfitter_DEFINITIONS})
 target_link_libraries(xfitter PRIVATE
   MINUIT
   QCDNUM
