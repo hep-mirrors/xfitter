@@ -117,7 +117,7 @@ class TheorEval{
   const valarray<double>* getBinColumn(const string& columnName)const;//return nullptr if not found
   const vector<int>* getBinFlags()const{return&_binFlags;}
   void SetNormalised(int normalised) {_normalised = (normalised == 1);};
-  void SetNormalisation(double normalisation) {_normalisation = normalisation;};  
+  void SetNormalisation(double normalisation) {_normalisation = normalisation;};
 
   //The following methods are used by chi2scan and allow changing a theory input file
   void ChangeTheorySource(string term, string source);

@@ -553,9 +553,6 @@ void TheorEval::Evaluate(valarray<double> &vte )
         if (integral != 0)
           for (int bin = 0; bin < _binFlags.size(); bin++)
             vte[bin] *= _normalisation/integral;
-
-	//for (int bin = 0; bin < _binFlags.size(); bin++)
-	//vte[bin] *= 265.171535;
       }
   }
 }
