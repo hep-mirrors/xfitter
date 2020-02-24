@@ -554,7 +554,8 @@ void WriteLHAPDF6info(FILE* f, const LHAPDF6_Options& info, const QX_Grid& qx_gr
   //TODO: photon
 
   int order = OrderMap(XFITTER_PARS::getParamS("Order"));
-  fprintf(f, "OrderQCD: %i\n", order - 1); // qcdnum notation LO=1, ...; LHAPDF6 LO=0, ...
+  order -= 1; // qcdnum convention LO=1, NLO=2, ...; LHAPDF6 convention LO=0, NLO=1, ...
+  fprintf(f, "OrderQCD: %i\n", order);
   if (!info.flavor_scheme.empty()) fprintf(f, "FlavorScheme: %s\n", info.flavor_scheme.c_str());
   if (!info.error_type.empty())    fprintf(f, "ErrorType: %s\n"   , info.error_type.c_str());
 
@@ -579,7 +580,7 @@ void WriteLHAPDF6info(FILE* f, const LHAPDF6_Options& info, const QX_Grid& qx_gr
   BaseEvolution* pdf = info.pdf;
   //Write alphaS
   fprintf(f, "AlphaS_MZ: %g\n", pdf->getAlphaS(Mz));
-  fprintf(f, "AlphaS_OrderQCD: %i\n", order);//How is this different from OrderQCD? --Ivan
+  fprintf(f, "AlphaS_OrderQCD: %i\n", order);
   fprintf(f, "AlphaS_Type: ipol\n");//I have no idea what that is --Ivan
 
   //Tabulate alphaS
