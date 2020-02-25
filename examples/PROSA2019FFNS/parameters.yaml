@@ -63,8 +63,6 @@ Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
-    #class: QCDNUM
-    #xGrid   :   [9.9e-9, 0.01, 0.1, 0.4, 0.7]
     class: QCDNUM
     #xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
     xGrid   :   [9.9e-9, 0.01, 0.1, 0.4, 0.7]
