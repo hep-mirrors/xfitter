@@ -1,5 +1,6 @@
 #include<iostream>
 #include<vector>
+#include<algorithm>
 #include<numeric>
 #include<cmath>
 #include<numeric>
@@ -51,7 +52,7 @@ vector<double> clipPoints(double a, double b, const vector<double>& points){
 */
 vector<size_t> apportionWebsters(const vector<double>& W, const size_t N){
   size_t size = W.size();
-  double Wsum = accumulate(W.begin(), W.end(), double(0));//Wsum=sum of elements of W
+  double Wsum = std::accumulate(W.begin(), W.end(), double(0));//Wsum=sum of elements of W
   if (std::isnan(Wsum)) {
     cerr<<"[FATAL ERROR] nan in apportionWebsters"<<endl;
     abort();
@@ -59,7 +60,7 @@ vector<size_t> apportionWebsters(const vector<double>& W, const size_t N){
   //start with an approximate solution
   vector<size_t> R(size);
   for (size_t i=0; i<size; ++i) R[i] = round(W[i]/Wsum*N);
-  size_t Rsum = accumulate(R.begin(), R.end(), size_t(0));
+  size_t Rsum = std::accumulate(R.begin(), R.end(), size_t(0));
   //if the rounded number of points is as requested, we are lucky: return
   if (Rsum == N) return R;
   //else add or remove some seates so that N==sum(R)

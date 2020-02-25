@@ -212,7 +212,7 @@ void fastNLOCoeffBase::Print(int iprint) const {
    }
    fastNLOTools::PrintVector(CtrbDescript,"Contribution description (CtrbDescript)","#");
    fastNLOTools::PrintVector(CodeDescript,"Code description (CodeDescript)","#");
-   if ( abs(iprint) > 0 ) {
+   if ( std::abs(iprint) > 0 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 0) " << fastNLO::_SSEP20 << endl;
       printf(" #   IXsectUnits                       %d\n",IXsectUnits);
       printf(" #   IDataFlag                         %d\n",IDataFlag);

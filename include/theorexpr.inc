@@ -28,6 +28,6 @@ C Also store dataset info here
 C And some basic vars:
 
       common/theorexpr/ dynscale, NTerms, TermName, TermType, TermInfo,
-     &     TermSource, TheorExpr, ppbar_collisions, normalised, normalisation,
+     &     TermSource, TheorExpr, ppbar_collisions, normalisation, normalised,
      $     murdef, mufdef,
      $     ninfo, datainfo, CInfo, dsname, ds_index

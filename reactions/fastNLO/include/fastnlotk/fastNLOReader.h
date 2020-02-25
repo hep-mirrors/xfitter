@@ -48,11 +48,11 @@ public:
       else return false;
    }
    void SelectProcesses( const std::vector< std::pair<int,int> >& proclist );   //!< tries to select the specified subprocesses for calculation. Prints a warning on failure.
-   void SelectProcesses( const std::string& processes );                      //!< tries to select the specified subprocesses for calculation. Prints a warning on failure.
+   void SelectProcesses( const std::string& processes, bool symmetric = true );                      //!< tries to select the specified subprocesses for calculation. Prints a warning on failure.
 
    // ---- setters for specific options ---- //
-   void SetCalculateSingleSubprocessOnly(int iSub);					//!< only use one subprocess for calculation
-   void SetCalculateSubprocesses( const std::vector< int >& iSub );			//!< use several but not all subprocesses in calculation
+   void SetCalculateSingleSubprocessOnly(int iSub);                                     //!< only use one subprocess for calculation
+   void SetCalculateSubprocesses( const std::vector< int >& iSub );                     //!< use several but not all subprocesses in calculation
    void SetNewSqrtS(double NewSqrtS, double OldSqrtS=0 );
 
    // ---- setters for scales of MuVar tables ---- //
@@ -117,8 +117,8 @@ public:
    double GetScaleFactorMuF() const { return fScaleFacMuF; };
    int GetScaleVariation() const { return fScalevar; };
    std::string GetScaleDescription(const fastNLO::ESMOrder eOrder, int iScale=0) const;
-   double GetNevt(const fastNLO::ESMOrder eOrder) const;		//!< Get number of events in contribution
-   int GetNSubproc(const fastNLO::ESMOrder eOrder) const;		//!< Get number of subprocesses in this contribution
+   double GetNevt(const fastNLO::ESMOrder eOrder) const;                //!< Get number of events in contribution
+   int GetNSubproc(const fastNLO::ESMOrder eOrder) const;               //!< Get number of subprocesses in this contribution
    std::vector < std::vector < std::pair < int,int > > > GetSubprocIndices(const fastNLO::ESMOrder eOrder) const; //!< Get information on the members of each subprocess. Each member of the [iSubproc][iPartonPair] pair is a pair of PDGIds indicating the particles involved in the subprocess.
 
    int GetNScaleVariations() const;                                                     //!< Get number of available scale variations
@@ -185,7 +185,7 @@ protected:
    void CalcCrossSectionv21(fastNLOCoeffAddFlex* B);
 
    fastNLOCoeffAddBase* B_LO() const {
-      //if ( BBlocksSMCalc[fastNLO::kFixedOrder][fastNLO::kLeading] !=0 ) 
+      //if ( BBlocksSMCalc[fastNLO::kFixedOrder][fastNLO::kLeading] !=0 )
       return (fastNLOCoeffAddBase*) BBlocksSMCalc[fastNLO::kFixedOrder][fastNLO::kLeading];
       // else if ( B_NLO()!= NULL ) return B_NLO();
       // else if ( B_NNLO()!= NULL ) return B_NNLO();
@@ -207,9 +207,9 @@ protected:
       // else if ( B_ThC(0)!= NULL ) return B_ThC(0);
       // else if ( B_ThC(1)!= NULL ) return B_ThC(1);
       else {
-	 std::cerr<<"Error. Cannot get any additive contribution, but requested."<<std::endl;
-	 exit(3);
-	 return NULL;
+         std::cerr<<"Error. Cannot get any additive contribution, but requested."<<std::endl;
+         exit(3);
+         return NULL;
       }
    };
 
@@ -255,6 +255,7 @@ protected:
    std::vector < double > QScale;
    std::vector < std::map< double, double > > fXSection_vsX1; //! Cross section vs. x ( XSection_vsX1[bin][<x,xs>] )
    std::vector < std::map< double, double > > fXSection_vsX2;
+   std::vector < std::map< double, double > > fXSection_vsQ2; //RADEK add
 
    // ----  reference tables ---- //
    std::vector < double > XSectionRef;

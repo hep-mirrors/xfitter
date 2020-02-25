@@ -71,8 +71,7 @@ public:
    bool IsCompatible(const fastNLOCoeffBase& other) const;
 
    bool IsEnabled() const {return enabled;}
-   void Enable() {enabled = true;}
-   void Enable(bool on) {enabled = on;}
+   void Enable(bool on=true) {enabled = on;}
 
 protected:
    void ReadBase(std::istream& table);

@@ -153,11 +153,11 @@ void fastNLOCoeffMult::Print(int iprint) const {
    if (Nuncorrel > 0) {fastNLOTools::PrintVector(UncDescr,"Uncorr. uncertainties (UncDescr)","#");}
    printf(" # No. of corr. unc. (Ncorrel)         %d\n",Ncorrel);
    if (Ncorrel > 0) {fastNLOTools::PrintVector(CorDescr,"Corr. uncertainties (CorDescr)","#");}
-   if ( abs(iprint) > 1 ) {
+   if ( std::abs(iprint) > 1 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 1) " << fastNLO::_SSEP20 << endl;
       fastNLOTools::PrintVector(fact,"Correction factors (fact)","#    ");
    }
-   if ( abs(iprint) > 2 ) {
+   if ( std::abs(iprint) > 2 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 2) " << fastNLO::_SSEP20 << endl;
       for (int i=0; i<fNObsBins; i++) {
          // Print only for first and last observable bin
