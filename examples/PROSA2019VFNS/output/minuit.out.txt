@@ -4,38 +4,30 @@
     NO.   NAME         VALUE      STEP SIZE      LIMITS
      1 'Adbar     '   0.94084E-01  0.50624E-02     no limits
      2 'Adv       '    1.0000      constant
-     3 'Ag        '    1.0000      constant
-     4 'Agp       '    0.0000      constant
-     5 'As        '   0.72144E-01  constant
-     6 'Auv       '    1.0000      constant
-     7 'BG_g_A    '    1.0000      constant
-     8 'BG_g_B    '   0.64639E-01  0.59842E-01     no limits
-     9 'BG_g_C    '    7.1219      0.38089         no limits
-    10 'BG_g_F    '   0.79171E-01  0.22539E-01     no limits
-    11 'BG_g_G    '    0.0000      constant
-    12 'BG_g_H    '    0.0000      constant
-    13 'Bdbar     '  -0.17988      0.61849E-02     no limits
-    14 'Bdv       '   0.86165      0.69917E-01     no limits
-    15 'Bg        '   -1.0000      constant
-    16 'Bgp       '  -0.10000      constant
-    17 'Buv       '   0.63145      0.29544E-01     no limits
-    18 'Cdbar     '    16.014       3.8686         no limits
-    19 'Cdv       '    4.4461      0.32715         no limits
-    20 'Cg        '    6.4917      constant
-    21 'Cgp       '    25.000      constant
-    22 'Cubar     '    7.6126      0.73395         no limits
-    23 'Cuv       '    4.8437      0.76461E-01     no limits
-    24 'Ddbar     '    0.0000      constant
-    25 'Ddv       '    0.0000      constant
-    26 'Dg        '    0.0000      constant
-    27 'Dubar     '    14.147       2.8595         no limits
-    28 'Duv       '    0.0000      constant
-    29 'Edbar     '    0.0000      constant
-    30 'Edv       '    0.0000      constant
-    31 'Eg        '    0.0000      constant
-    32 'Eubar     '    0.0000      constant
-    33 'Euv       '    17.472       2.3215         no limits
-    34 'ZERO      '    0.0000      constant
+     3 'As        '   0.72144E-01  constant
+     4 'Auv       '    1.0000      constant
+     5 'BG_g_A    '    1.0000      constant
+     6 'BG_g_B    '   0.64639E-01  0.59842E-01     no limits
+     7 'BG_g_C    '    7.1219      0.38089         no limits
+     8 'BG_g_F    '   0.79171E-01  0.22539E-01     no limits
+     9 'BG_g_G    '    0.0000      constant
+    10 'BG_g_H    '    0.0000      constant
+    11 'Bdbar     '  -0.17988      0.61849E-02     no limits
+    12 'Bdv       '   0.86165      0.69917E-01     no limits
+    13 'Buv       '   0.63145      0.29544E-01     no limits
+    14 'Cdbar     '    16.014       3.8686         no limits
+    15 'Cdv       '    4.4461      0.32715         no limits
+    16 'Cubar     '    7.6126      0.73395         no limits
+    17 'Cuv       '    4.8437      0.76461E-01     no limits
+    18 'Ddbar     '    0.0000      constant
+    19 'Ddv       '    0.0000      constant
+    20 'Dubar     '    14.147       2.8595         no limits
+    21 'Duv       '    0.0000      constant
+    22 'Edbar     '    0.0000      constant
+    23 'Edv       '    0.0000      constant
+    24 'Eubar     '    0.0000      constant
+    25 'Euv       '    17.472       2.3215         no limits
+    26 'ZERO      '    0.0000      constant
  **********
  **    1 **SET STR    2.000    
  **********
@@ -53,35 +45,27 @@
   NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
    1    Adbar      0.94084E-01   0.50624E-02
    2    Adv         1.0000       constant   
-   3    Ag          1.0000       constant   
-   4    Agp         0.0000       constant   
-   5    As         0.72144E-01   constant   
-   6    Auv         1.0000       constant   
-   7    BG_g_A      1.0000       constant   
-   8    BG_g_B     0.64639E-01   0.59842E-01
-   9    BG_g_C      7.1219       0.38089    
-  10    BG_g_F     0.79171E-01   0.22539E-01
-  11    BG_g_G      0.0000       constant   
-  12    BG_g_H      0.0000       constant   
-  13    Bdbar     -0.17988       0.61849E-02
-  14    Bdv        0.86165       0.69917E-01
-  15    Bg         -1.0000       constant   
-  16    Bgp       -0.10000       constant   
-  17    Buv        0.63145       0.29544E-01
-  18    Cdbar       16.014        3.8686    
-  19    Cdv         4.4461       0.32715    
-  20    Cg          6.4917       constant   
-  21    Cgp         25.000       constant   
-  22    Cubar       7.6126       0.73395    
-  23    Cuv         4.8437       0.76461E-01
-  24    Ddbar       0.0000       constant   
-  25    Ddv         0.0000       constant   
-  26    Dg          0.0000       constant   
-  27    Dubar       14.147        2.8595    
-  28    Duv         0.0000       constant   
-  29    Edbar       0.0000       constant   
-  30    Edv         0.0000       constant   
-  31    Eg          0.0000       constant   
-  32    Eubar       0.0000       constant   
-  33    Euv         17.472        2.3215    
-  34    ZERO        0.0000       constant   
+   3    As         0.72144E-01   constant   
+   4    Auv         1.0000       constant   
+   5    BG_g_A      1.0000       constant   
+   6    BG_g_B     0.64639E-01   0.59842E-01
+   7    BG_g_C      7.1219       0.38089    
+   8    BG_g_F     0.79171E-01   0.22539E-01
+   9    BG_g_G      0.0000       constant   
+  10    BG_g_H      0.0000       constant   
+  11    Bdbar     -0.17988       0.61849E-02
+  12    Bdv        0.86165       0.69917E-01
+  13    Buv        0.63145       0.29544E-01
+  14    Cdbar       16.014        3.8686    
+  15    Cdv         4.4461       0.32715    
+  16    Cubar       7.6126       0.73395    
+  17    Cuv         4.8437       0.76461E-01
+  18    Ddbar       0.0000       constant   
+  19    Ddv         0.0000       constant   
+  20    Dubar       14.147        2.8595    
+  21    Duv         0.0000       constant   
+  22    Edbar       0.0000       constant   
+  23    Edv         0.0000       constant   
+  24    Eubar       0.0000       constant   
+  25    Euv         17.472        2.3215    
+  26    ZERO        0.0000       constant   

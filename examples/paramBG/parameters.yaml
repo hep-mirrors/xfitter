@@ -48,9 +48,6 @@ Parameterisations:
     class: Expression
     expression: "Adbar*(x^Bdbar*(1-x)^Cdbar)*(1+Ddbar*x+Fdbar*ln(x))"
   par_s:
-    #class: HERAPDF
-    #parameters: [As,Bs,Cs]
-    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
     class: Expression
     expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)*(1+Ddbar*x+Fdbar*ln(x))"
   par_g:

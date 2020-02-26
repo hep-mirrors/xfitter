@@ -9,14 +9,6 @@ MINUIT:
 #  doErrors :  Hesse # None
 
 Parameters:
-  Ag : [ 1.00000000, 0.00000000 ]
-  Bg : [ -1.00000000, 0.00000000 ]
-  Cg : [ 6.49166200, 0.00000000 ]
-  Dg : [ 0.00000000, 0.00000000 ]
-  Eg : [ 0.00000000, 0.00000000 ]
-  Agp : [ 0.00000000, 0.00000000 ]
-  Bgp : [ -0.10000000, 0.00000000 ]
-  Cgp : [ 25.00000000, 0.00000000 ]
   Auv : [ 1.00000000, 0.00000000 ]
   Buv : [ 0.64424500, 0.02809139 ]
   Cuv : [ 4.86220438, 0.07418798 ]
@@ -47,13 +39,13 @@ Parameters:
   mbt : [ 3.97814400, 0.09746271, 3.00000000, 9.00000000 ]
 
 
+
 Parameterisations:
   par_s:
     class: Expression
     expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
   par_g:
     class: Expression
-    #expression: "Ag*(x^Bg*(1-x)^Cg*(1+Dg*x+Eg*x^2)-Agp*x^Bgp*(1-x)^Cgp)"
     expression: "BG_g_A * x^BG_g_B * (1 - x)^BG_g_C * (1 + BG_g_F * ln(x) + BG_g_G * ln(x)^2 + BG_g_H * ln(x)^3)"
   par_uv:
     class: Expression
@@ -85,8 +77,6 @@ Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
-    #class: QCDNUM
-    #xGrid   :   [9.9e-9, 0.01, 0.1, 0.4, 0.7]
     class: QCDNUM
     #xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
     xGrid   :   [9.9e-9, 0.01, 0.1, 0.4, 0.7]
