@@ -100,7 +100,7 @@ runTest()
   diff='diff'
   # we want this numdiff: https://www.nongnu.org/numdiff/
   # check "numdiff -v" command: avoid using some other "numdiff" installed on some systems (like presently on naf-xfitter.desy.de) which does not recognize "-v"
-  if [ `numdiff -ffdv >& /dev/null; echo $?` == "0" ]; then
+  if [ `numdiff -v >& /dev/null; echo $?` == "0" ]; then
     # we have numdiff and we wil use it with tolerance 1e-4 for either absolute or relative differneces between numbers
     diff='numdiff -a 1e-4 -r 1e-4'
     # on naf-xfitter.desy.de, 'numdiff' command seems to do something different
