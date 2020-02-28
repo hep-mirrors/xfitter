@@ -13,6 +13,7 @@
 #include <float.h>
 #include <valarray>
 #include <dlfcn.h>
+#include<stdexcept>
 
 #include "TheorEval.h"
 #include "ReactionTheory.h"
@@ -405,18 +406,14 @@ void TheorEval::Evaluate(valarray<double> &vte )
   this->updateReactionValues();
 
   // calculate expression result
-  stack<valarray<double> > stk;
-  vector<tToken>::iterator it = _exprRPN.begin();
-  while(it!= _exprRPN.end()){
-    if ( it->opr < 0 ){
-      cout << "ERROR: Expression RPN is wrong" << endl;
-      return;
-    }
+  vector<valarray<double> >stk;
+  for(auto it=_exprRPN.cbegin();it<_exprRPN.cend();++it){
+    if ( it->opr < 0 )throw runtime_error("Invalid token in TheorEval");
+    size_t stack_size = stk.size();
     if ( it->opr == 0 ){
-      stk.push(*(it->val));
+      stk.push_back(*(it->val));
     } else if ( it->name == string("sum") ){
-      double sum = stk.top().sum();
-      stk.top() = sum;
+      stk.back()=stk.back().sum();
 /*    } else if ( it->name == string("avg") ){
       if (0 == stk.top().size()) {
         cout << "ERROR: avg() argument dimension is 0." << endl;
@@ -426,123 +423,101 @@ void TheorEval::Evaluate(valarray<double> &vte )
     } else if ( it->name == string("spline") || it->name == string("splinederivative") )
     {
       // load all arguments
-      int narg = it->narg;
-      std::valarray<double> x0 = stk.top();
-      stk.pop();
-      int nsections = (it->narg - 1) / 2;
-      std::valarray<std::valarray<double> > x(nsections);
-      std::valarray<std::valarray<double> > y(nsections);
-      for(int sect = nsections - 1; sect >= 0; sect--)
-      {
-        y[sect] = stk.top();
-        stk.pop();
-        x[sect] = stk.top();
-        stk.pop();
+      const size_t narg = it->narg;
+      if(narg%2!=1)throw runtime_error("In TheorEval: spline must have an odd number of arguments, but it has "+to_string(it->narg));
+      if(narg>stack_size)throw runtime_error("Stack underflow in TheorEval when initializing spline");
+      const size_t nsections = (narg-1)/2;
+      const size_t sections_start = stack_size-narg;
+      const size_t result_size = stk[stack_size-1].size();
+      valarray<double> result(result_size);
+      //check size of valarrays
+      for(size_t i = sections_start; i < stack_size; ++i){
+        if(stk[i].size() != result_size)
+          throw runtime_error("In TheorEval: valarray size mismatch for arguments of spline");
       }
-      auto result = x0;
-      for(int p = 0; p < x0.size(); p++)
-      {
+      for(size_t p = 0; p < result_size; ++p){
         std::vector<double> xSpline(nsections);
         std::vector<double> ySpline(nsections);
-        for(int sect = 0; sect < nsections; sect++)
-        {
-          xSpline[sect] = x[sect][p];
-          ySpline[sect] = y[sect][p];
+        for(size_t sect = 0; sect < nsections; ++sect){
+          xSpline[sect] = stk[sections_start+2*sect][p];
+          ySpline[sect] = stk[sections_start+2*sect+1][p];
         }
         //TSpline3 spline("", &xSpline[0], &ySpline[0], ySpline.size());
         tk::spline spline;
         spline.set_points(xSpline, ySpline);
+        const double x=stk[stack_size-1][p];
         if(it->name == string("spline"))
         {
           //result[p] = spline.Eval(x0[p]);
-          result[p] = spline(x0[0]);
+          result[p] = spline(x);
         }
         else if(it->name == string("splinederivative"))
         {
           //result[p] = spline.Derivative(x0[p]);
-          result[p] = spline(x0[0], 1);
+          result[p] = spline(x, 1);
         }
       }
-      stk.push(result);
+      stack_size -= narg-1;
+      stk.resize(stack_size);
+      stk[stack_size-1] = result;
     }
     else if ( it->name == string("norm") )
     {
-      double sum = stk.top().sum();
-      stk.top() = stk.top() / sum;
+      if(stack_size<1)throw runtime_error("Stack underflow in TheorEval operator norm");
+      stk.back() /= stk.back().sum();
     } else if ( it->name == string("+") ){
-      valarray<double> a(stk.top());
-      stk.pop();
-      stk.top() += a;
+      if (stack_size<2) throw runtime_error("Stack underflow in TheorEval operator +");
+      stk[stack_size-2] += stk[stack_size-1];
+      stk.pop_back();
     } else if ( it->name == string("-") ){
-      valarray<double> a(stk.top());
-      stk.pop();
-      stk.top() -= a;
+      if (stack_size<2) throw runtime_error("Stack underflow in TheorEval operator -");
+      stk[stack_size-2] -= stk[stack_size-1];
+      stk.pop_back();
     } else if ( it->name == string("*") ){
-      valarray<double> a(stk.top());
-      stk.pop();
-      stk.top() *= a;
+      if (stack_size<2) throw runtime_error("Stack underflow in TheorEval operator *");
+      stk[stack_size-2] *= stk[stack_size-1];
+      stk.pop_back();
     } else if ( it->name == string("/") ){
-      valarray<double> a(stk.top());
-      stk.pop();
-      stk.top() /= a;
+      if (stack_size<2) throw runtime_error("Stack underflow in TheorEval operator /");
+      stk[stack_size-2] /= stk[stack_size-1];
+      stk.pop_back();
     }
     else if ( it->name == string(".") ){
-      valarray<double> temp;
+      if (stack_size<2) throw runtime_error("Stack underflow in TheorEval matrix multiplication");
+      const valarray<double>& a = stk[stack_size-1];
+      const size_t size_a = a.size();
+      const valarray<double>& b = stk[stack_size-2];
+      const size_t size_b = b.size();
+
       valarray<double> result;
-
-      valarray<double> a(stk.top());
-      int size_a = a.size();
-      stk.pop();
-      valarray<double> b(stk.top());
-      int size_b = b.size();
-
       if(size_a % size_b == 0){  // Matrix * Vector
-        int size_return = size_a / size_b;
+        size_t size_return = size_a / size_b;
         result.resize(size_return);
-        for ( int n = 0; n < size_b; n++){
-          temp.resize(size_return);
-          temp = a[std::slice(n*size_return, size_return, 1)]; //creating nth colum vector
-          temp *= b[n];
-          result += temp;
+        valarray<double> temp(size_return);
+        for(size_t n = 0; n < size_b; n++){
+          temp = a[slice(n*size_return, size_return, 1)]; //creating nth column vector
+          result += temp * b[n];
         }
-        stk.top() = result;
       }else if(size_b % size_a == 0){  //  Transposed(Vector)*Matrix -> Transposed(Matrix) vector
-        int size_return = size_b / size_a;
+        size_t size_return = size_b / size_a;
         result.resize(size_return);
-        for ( int n = 0; n < size_a; n++){
-          temp.resize(size_return);
-          temp = b[std::slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector
-          temp *= a[n];
-          result += temp;
+        valarray<double> temp(size_return);
+        for(size_t n = 0; n < size_a; n++){
+          temp = b[slice(n, size_return, size_a)]; // creating nth row vector -> nth colum vector
+          result += temp * a[n];
         }
-        stk.top() = result;
       }else{
-        cout<<"ERROR: Dimensions do not match"<<endl;
+        throw runtime_error("Cannot multiply matrices in TheorEval: dimensions do not match");
       }
-      /*if(it + 1 ->name == string("kmatrix")){//possible matrix matrix multiplication
-          int nb1 = ?;//TODO find dimensions of matrices for check and multiplication
-          int mb1 = ?;
-          int nb2 = ?;
-          int mb2 = ?;
-          result.resize(mb1*nb2);
-          for(int m = 0; m < mb1; m++){
-              for(int n = 0; n < nb2; n++){
-                  temp.resize(nb1);
-                  temp = M.slize(m*nb1,1, nb);
-                  temp *= M2.slize(n, mb2, nb2);
-                  result[m*nb1 + n] = temp.sum();
-              }
-          }
-      }*/
+      stk.pop_back();
+      stk.back()=result;
     }
-    it++;
   }
 
   if (stk.size() != 1 ) {
-    cout << "ERROR: Expression RPN calculation error." << endl;
-    return;
+    throw runtime_error("TheorEval RPN calculation error: more than one return value on stack");
   } else {
-    vte = stk.top();
+    vte = stk.back();
     //Normalised cross section
     if (_normalised)
       {
