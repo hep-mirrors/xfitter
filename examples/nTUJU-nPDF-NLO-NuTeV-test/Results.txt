@@ -1,0 +1,57 @@
+ First iteration    2069.7770717234780             2336  0.88603470536107787     
+After minimisation    2069.78  2336     0.886
+
+  Partial chi2s 
+Dataset    1    124.85( +1.14)   120  NMC-97 d DIS 24.922 Gev?                        
+Dataset    2     12.44( -0.07)    13  NMC-95,re. He/d DIS                             
+Dataset    3      7.06( +0.14)    12  NMC-95 Li/d DIS                                 
+Dataset    4     38.08( -0.18)    13  NMC-95re C/d DIS                                
+Dataset    5     29.61( -0.11)    12  NMC-95,re. Ca/d DIS                             
+Dataset    6     14.80( -0.28)    14  NMC-96 Be/C DIS                                 
+Dataset    7     17.27( +0.17)    10  NMC-95,re. C/Li DIS                             
+Dataset    8      6.51( +0.02)    14  NMC-96 Al/C DIS                                 
+Dataset    9      7.36( +0.13)    10  NMC-95, re. Ca/Li DIS                           
+Dataset   10      6.47( -0.05)    10  NMC-95,re. Ca/C DIS                             
+Dataset   11      7.14( +0.11)    14  NMC-96 Ca/C DIS                                 
+Dataset   12      9.82( -0.07)    14  NMC-96 Fe/C DIS                                 
+Dataset   13     12.90( +0.09)    14  NMC-96 Sn/C DIS                                 
+Dataset   14     13.32( +0.14)    14  NMC-96 Sn/C DIS, Q^2 dependence                 
+Dataset   15     81.37( +0.78)   120  NMC-96 Sn/C DIS, Q^2 dependence, F2             
+Dataset   16      9.93( +0.48)    14  NMC-96 Pb/C DIS                                 
+Dataset   17      7.17( +0.38)    11  SLAC E-139 He/d                                 
+Dataset   18      7.83( -0.19)    10  SLAC E-139 Be/d                                 
+Dataset   19     15.08( -0.03)     6  SLAC E-139 C/d                                  
+Dataset   20     11.05( -0.14)    10  SLAC E-139 Al/d                                 
+Dataset   21      8.20( -0.11)     6  SLAC E-139 Ca/d                                 
+Dataset   22     32.52( -0.04)    14  SLAC E-139 Fe/d                                 
+Dataset   23      0.05( +0.00)     2  SLAC E-140 Fe                                   
+Dataset   24     15.79( -0.00)     6  SLAC E-139 Ag/d                                 
+Dataset   25     16.63( +0.01)    11  SLAC E-139 Au/d                                 
+Dataset   26      5.12( -0.30)     3  FNAL C/D DIS                                    
+Dataset   27      4.43( -0.30)     3  FNAL E665 Ca/d DIS                              
+Dataset   28      2.13( -0.18)     3  FNAL E665 Xe/d DIS                              
+Dataset   29     12.24( -0.39)     2  FNAL E665 Pb/d DIS                              
+Dataset   30     14.56( +0.66)     8  EMC-88 Sn/D DIS                                 
+Dataset   31     29.23( -2.76)    21  EMC-90 Deuterium DIS                            
+Dataset   32     11.01( +2.05)    17  EMC-90 Carbon DIS                               
+Dataset   33     13.17( +0.76)    19  EMC-90 Calcium DIS                              
+Dataset   34     18.12( -0.15)    19  EMC-93 Cu/D DIS                                 
+Dataset   35      5.59( -0.04)     9  EMC-88 Cu/D DIS                                 
+Dataset   36      4.49( +0.29)     9  EMC-88 C/d DIS                                  
+Dataset   37     54.65( +0.47)     7  HERMES 2002 He3/d DIS                           
+Dataset   38      2.20( +0.04)     1  HERMES 2002 N/d DIS                             
+Dataset   39      2.02( +0.07)     1  HERMES 2002 N/d DIS                             
+Dataset   40    229.11( -7.47)   405  nu Pb DIS                                       
+Dataset   41    361.36( +3.82)   405  numbar Pb DIS                                   
+Dataset   42    347.72( -1.55)   464  CDHSW nu Fe DIS                                 
+Dataset   43    423.05(+17.49)   462  CDHSW antineutrino nubar Fe DIS                 
+
+ Correlated Chi2    1.4771532602061499     
+ Log penalty Chi2    14.836958528608305     
+ Systematic shifts            4
+  
+                                Name          Shift   +/-    Error          Type
+    1  cor norm                               0.4738   +/-   0.0919        :N:M:D
+    2  cor sys                               -0.9441   +/-   0.3532        :N:M:D
+    3  cor sys target                         0.5905   +/-   0.2547        :N:M:D
+    4  cor sys-target                        -0.1129   +/-   0.5264        :N:M:D

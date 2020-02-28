@@ -1,0 +1,37 @@
+* info from hepdata:                     
+*REACtion       = e- C --> e- X / e- p --> e- X                                
+*Experiment  	= SLAC E139                  
+*REFerence      = Phys.Rev. D49 (1994) 4348-4372
+*DOI		= Phys.Rev. D49 (1994) 4348-4372
+*Additional info: Measurement of the A-dependence of deep inelastic electron scattering.
+*
+*
+&Data
+	 Name = 'SLAC E-139 Be/d'
+
+	 Reaction = 'NC e+-p'
+
+         NDATA = 10
+
+         NColumn = 10
+	 ColumnType = 'Bin','Bin',2*'Dummy','Sigma',4*'Error','Bin'
+	 ColumnName = 'Q2','x', 'ignore', 'ignore', 'sigma', 'uncor stat', 'ignore', 'cor sys', 'cor sys-target','y'
+	 Percent = 2*False, 2*True
+        NInfo = 10
+        DataInfo = -1.0, 1.0, 0.0, 9.0122, 4.0, 2.0, 1.0, 1.0, 1.0, 0.0 
+        CInfo   = 'e charge',  'reduced', 'e polarity', 'A1', 'Z1', 'A2', 'Z2', 'ratio', 'SLAC','pernucleus'
+        IndexDataset = 202
+&End
+*Q2 x	xlow	xhigh	y_min	y_max	sigma	dsigma+	dsigma-
+5.00	0.22	0.00	0.00	1.000	0.015	0.015	1.000	0.700	0.508
+5.00	0.30	0.00	0.00	0.993	0.015	0.015	1.000	0.700	0.621
+5.00	0.40	0.00	0.00	0.974	0.010	0.010	1.000	0.700	0.277
+5.00	0.50	0.00	0.00	0.961	0.010	0.010	1.000	0.700	0.285
+5.00	0.60	0.00	0.00	0.941	0.010	0.010	1.000	0.700	0.136
+10.00	0.40	0.00	0.00	0.960	0.013	0.013	1.000	0.700	0.187
+10.00	0.50	0.00	0.00	0.943	0.018	0.018	1.000	0.700	0.181
+10.00	0.60	0.00	0.00	0.921	0.013	0.013	1.000	0.700	0.121
+10.00	0.70	0.00	0.00	0.932	0.018	0.018	1.000	0.700	0.119
+15.00	0.60	0.00	0.00	0.901	0.015	0.015	1.000	0.700	0.128
+5.00	0.70	0.00	0.00	0.911	0.010	0.010	1.000	0.700	0.225
+*10.0	0.80	0.00	0.00	0.962	0.018	0.018	1.000	0.700	0.094

@@ -1,0 +1,36 @@
+* info from hepdata:                     
+*REACtion       = e- Fe --> e- X / e- p --> e- X                                
+*Experiment  	= SLAC E140                 
+*REFerence      = Phys.Rev. D49 (1994) 5641-5670
+*DOI		= 10.1103/PhysRevD.49.5641
+*Additional info: Measurement of kinematic and nuclear dependence of R = sigma-L / sigma-t 
+*                 in deep inelastic electron scattering.
+*
+*
+&Data
+	 Name = 'SLAC E-140 Fe'
+
+	 Reaction = 'NC e+-p F2'
+
+         NDATA = 2
+         
+         NColumn = 15
+	 ColumnType = 'Bin','Bin', 2*'Dummy','Sigma',5*'Error',5*'Dummy'
+	 ColumnName = 'x', 'Q2','ignore', 'ignore','reduced x-section', 'stat', 'ignore', 'uncor', 'ignore', 'cor norm', 'ignore', 'ignore', 'ignore', 'ignore', 'ignore'
+	 Percent = 4*False, 1*True
+         NInfo = 9
+         DataInfo = -1.,	    1.,        0.,	56., 26.0, 0., 1.0, 1.0,    0.0
+	 CInfo 	  = 'e charge',	'reduced', 'e polarity', 'A1', 'Z1', 'ratio', 'SLAC', 'sqrt(S)','pernucleus'
+	 IndexDataset = 208
+&End
+*X	Q2			y	dy	dy	dy	dy					
+*0.2	1	1	1	0.299	0.009	0.009	0.007	0.007	1.1    0.298	0.043	0.043	0.027	0.027
+*0.2	1.5	1.5	1.5	0.299	0.01	0.01	0.008	0.008	1.1    0.158	0.038	0.038	0.027	0.027
+*0.2	2.5	2.5	2.5	0.31	0.016	0.016	0.01	0.01	1.1     0.254	0.058	0.058	0.033	0.033
+*0.35	1.5	1.5	1.5	0.235	0.011	0.011	0.007	0.007	1.1  	0.348	0.062	0.062	0.038	0.038
+*0.35	2.5	2.5	2.5	0.223	0.009	0.009	0.006	0.006	1.1  	0.257	0.044	0.044	0.029	0.029
+0.35	5	5	5	0.205	0.012	0.012	0.008	0.008	1.1  	0.148	0.044	0.044	0.026	0.026
+*0.5    2.5	2.5	2.5	0.132	0.006	0.006	0.004	0.004	1.1  	0.226	0.029	0.029	0.017	0.017
+0.5	    5	5	5	0.109	0.011	0.011	0.006	0.006	1.1  	0.078	0.042	0.042	0.02	0.02
+*0.2	1	1	1	0.297	0.009	0.009	0.007	0.007	1.1  	0.357	0.045	0.045	0.03	0.03
+*0.5	2.5	2.5	2.5	0.13	0.02	0.02	0.006	0.006	1.1  	0.223	0.05	0.05	0.02	0.02

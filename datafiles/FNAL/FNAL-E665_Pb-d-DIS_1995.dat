@@ -1,0 +1,40 @@
+* info from hepdata:                     
+*REACtion       = muon Pb--> muon X / muon d --> muon X
+*Plab           = 200 GeV                                   
+*Experiment  = FNAL E665                   
+*REFerence      = Z.Phys. C67 (1995) 403-410
+*e-Print	= hep-ex/9505006
+*Additional info: Shadowing in inelastic scattering of muons on carbon, calcium and lead at low x(Bj).
+*
+*
+*
+&Data
+	 Name = 'FNAL E665 Pb/d DIS'
+
+         Reaction = 'NC e+-p F2'
+
+         NDATA = 2
+
+         NColumn = 11
+	 ColumnType = 'Bin','Dummy','Bin', 2*'Dummy','Sigma',5*'Error'
+	 ColumnName = 'Q2','y','x','ignore', 'ignore','reduced x-section','stat','ignore','uncor sys','ignore','cor norm'
+	 
+	 Percent = 4*False,1*True
+	 
+         NInfo 	  = 10
+         DataInfo = -1.,	    1.,        0.,	208.0, 82.0, 2.0, 1.0, 1.0, 0.0, 150.0
+	 CInfo 	  = 'e charge',	'reduced', 'e polarity', 'A1', 'Z1', 'A2', 'Z2', 'ratio', 'pernucleus', 'sqrt(S)'
+	 IndexDataset = 2072
+&End
+*Q^2	y	     x	xlow	xhigh	sigma	dsigma+	dsigma-
+*0.15	0.59	0.00024	0.0001	0.0004	0.628	0.048	-0.048	0.079	-0.079	1.55	
+*0.26	0.49	0.00062	0.00037	0.0009	0.679	0.025	-0.025	0.031	-0.031	1.55	
+*0.39	0.41	0.0011	0.00087	0.0013	0.698	0.026	-0.026	0.036	-0.036	1.55	
+*0.51	0.34	0.00169	0.00133	0.0021	0.699	0.023	-0.023	0.04	-0.04	1.55	
+*0.67	0.27	0.00261	0.00205	0.0032	0.734	0.022	-0.022	0.029	-0.029	1.55	
+*0.93	0.29	0.00402	0.00316	0.0049	0.767	0.022	-0.022	0.044	-0.044	1.55	
+*1.35	0.25	0.00619	0.00487	0.0075	0.841	0.025	-0.025	0.049	-0.049	1.55	
+*1.35	0.25	0.01153	0.0075	0.0156	0.891	0.022	-0.022	0.03	-0.03	1.55	
+*2.42    0.25   0.02028 0.0156  0.025   0.985   0.037   -0.037  0.061   -0.061  1.55
+4.45	0.26	0.04	0.025	0.055	1.019	0.037	-0.037	0.054	-0.054	1.55
+7.91	0.24	0.30867	0.055	0.5623	1.125	0.04	-0.04	0.054	-0.054	1.55

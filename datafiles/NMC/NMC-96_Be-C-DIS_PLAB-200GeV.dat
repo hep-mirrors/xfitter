@@ -1,0 +1,64 @@
+* info from hepdata:                     
+*REACtion       = muon Be --> muon X / muon C --> muon X
+*Plab           = 200 GeV                                   
+*Experiment  = NMC-96                   
+*REFerence      = Nucl.Phys. B481 (1996) 3-22
+*Additional info: The A dependence of the nuclear structure function ratios.
+*
+*
+*
+&Data
+	 Name = 'NMC-96 Be/C DIS'
+
+	 Reaction = 'NC e+-p'
+
+         NDATA = 15
+
+         NColumn = 15
+	 ColumnType = 'Bin',2*'Dummy','Bin',2*'Dummy','Bin',2*'Dummy','Sigma',5*'Error'
+	 ColumnName = 'x','ignore', 'ignore','Q2','ignore','ignore','y','ignore','ignore','reduced x-section','stat','ignore','uncor','ignore','cor norm'
+	 
+	 Percent = 5*False
+ 
+         NInfo 	  = 8
+         DataInfo = -1.,	    1.,        0.,	9.0121, 4.0, 12.0107, 6.0, 1.
+	 CInfo 	  = 'e charge',	'reduced', 'e polarity', 'A1', 'Z1', 'A2', 'Z2', 'ratio'
+	 IndexDataset = 105
+&End
+&PlotDesc
+   PlotN = 15 
+   PlotDefColumn = 'Q2'
+   PlotVarColumn = 'x'
+   PlotDefValue = 3.5, 5.0, 6.5, 9.0, 10.0, 12.0, 14.0, 17.0, 22.0, 28.0, 36.0, 46.0, 54.0, 61.0, 67.0
+   PlotOptions(1)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 3.4  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(2)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 4.5  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(3)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 6.0  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(4)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 8.0  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(5)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 9.8  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(6)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 11.4  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(7)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 13.8  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(8)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 16.8  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(9)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 21.4  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(10)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 27.6  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(11)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 35.5  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(12)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 45.4  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(13)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 53.9  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(14)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} = 60.5  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+   PlotOptions(15)  = 'Experiment:NMC-96 Be/C DIS@ExtraLabel:#energy E = 200 GeV @XTitle: x @YTitle: F_{2}(x, Q^{2}) @Title:Q^{2} =66.7  @Ymin:0.1@Ymax:1.@Xlog@Ylog'
+&End
+*x	xlow	xhigh	x2	x2low	x2high	x3	x3low	x3high	y	dy+	dy-	dy+	dy-	
+0.0125	0.0125	0.0125	3.4	3.4	3.4	0.73	0.73	0.73	1.014	0.013	-0.01	0.02	-0.02	0.002
+0.0175	0.0175	0.0175	4.5	4.5	4.5	0.69	0.69	0.69	1.021	0.013	-0.01	0.02	-0.021	0.002
+0.025	0.025	0.025	6	6	6	0.66	0.66	0.66	1.019	0.009	-0.01	0.01	-0.009	0.002
+0.035	0.035	0.035	8	8	8	0.62	0.62	0.62	1	0.009	-0.01	0.01	-0.01	0.002
+0.045	0.045	0.045	9.8	9.8	9.8	0.59	0.59	0.59	1.01	0.01	-0.01	0.01	-0.013	0.002
+0.055	0.055	0.055	11.4	11.4	11.4	0.57	0.57	0.57	0.997	0.011	-0.01	0.02	-0.016	0.002
+0.07	0.07	0.07	13.8	13.8	13.8	0.54	0.54	0.54	1.002	0.008	-0.01	0.01	-0.01	0.002
+0.09	0.09	0.09	16.8	16.8	16.8	0.51	0.51	0.51	0.998	0.009	-0.01	0.02	-0.016	0.002
+0.125	0.125	0.125	21.4	21.4	21.4	0.47	0.47	0.47	0.993	0.007	-0.01	0.01	-0.008	0.002
+0.175	0.175	0.175	27.6	27.6	27.6	0.43	0.43	0.43	1.007	0.008	-0.01	0.01	-0.012	0.002
+0.25	0.25	0.25	35.5	35.5	35.5	0.39	0.39	0.39	1.001	0.008	-0.01	0.01	-0.01	0.002
+0.35	0.35	0.35	45.4	45.4	45.4	0.36	0.36	0.36	1.001	0.014	-0.01	0.02	-0.024	0.002
+0.45	0.45	0.45	53.9	53.9	53.9	0.33	0.33	0.33	0.985	0.023	-0.02	0.03	-0.029	0.002
+0.55	0.55	0.55	60.5	60.5	60.5	0.3	0.3	0.3	0.938	0.038	-0.04	0.05	-0.046	0.002
+0.7	0.7	0.7	66.7	66.7	66.7	0.26	0.26	0.26	0.997	0.061	-0.06	0.08	-0.082	0.002

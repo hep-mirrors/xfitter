@@ -1,0 +1,35 @@
+* info from hepdata:                     
+*REACtion       = muon Sn --> muon X / muon D --> muon X
+*Plab           = 200 GeV                                   
+*Experiment  = CERN-EP-88-06               
+*REFerence      = Phys.Lett. B202 (1988) 603-610
+*Additional info: Measurement of the Ratios of Deep Inelastic Muon - Nucleus Cross-Sections on Various Nuclei Compared to Deuterium 
+*
+*
+&Data
+	 Name = 'EMC-88 Sn/D DIS'
+
+     Reaction = 'NC e+-p'
+
+         NDATA = 8
+
+         NColumn = 10
+	 ColumnType = 'Bin','Bin',2*'Dummy','Sigma',5*'Error'
+	 ColumnName = 'Q2','x','ignore','ignore','reduced x-section','stat','ignore','uncor','ignore','cor norm'
+	 
+	 Percent = 4*False,1*True
+ 
+    NInfo = 10
+    DataInfo = -1.0,    1.0,   0.0,  119.0, 50.0,   2.0,    1.0,    1.0,    200.0,  1.0
+    CInfo   = 'e charge',   'reduced',  'e polarity',   'A1',   'Z1',   'A2',   'Z2',   'ratio',    'sqrt(S)',  'EMC'
+    IndexDataset = 508
+&End
+*Q2	x	xlow	xhigh	y	dy+	dy-	dy+	dy-	
+4	0.031	0.03	0.03	0.8	0.042	-0.042	0.033	-0.033	0.9
+7.7	0.05	0.05	0.05	0.873	0.037	-0.037	0.027	-0.027	0.9
+11.1	0.079	0.08	0.08	0.948	0.031	-0.031	0.028	-0.028	0.9
+14.6	0.123	0.12	0.12	1.008	0.037	-0.037	0.03	-0.03	0.9
+17.1	0.173	0.17	0.17	1.03	0.044	-0.044	0.031	-0.031	0.9
+19.8	0.246	0.25	0.25	1.009	0.041	-0.041	0.03	-0.03	0.9
+24.8	0.343	0.34	0.34	0.927	0.056	-0.056	0.028	-0.028	0.9
+32.4	0.443	0.44	0.44	0.841	0.083	-0.083	0.026	-0.026	0.9

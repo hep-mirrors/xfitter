@@ -1,0 +1,29 @@
+* info from hepdata:                     
+*REACtion       = muon Sn --> muon X / muon C --> muon X
+*Plab           = 200 GeV                                   
+*Experiment  = NMC-96                   
+*REFerence      = Nucl.Phys. B481 (1996) 3-22
+*Additional info: The A dependence of the nuclear structure function ratios.
+*
+*
+*
+&Data
+	 Name = 'NMC-96 Sn/C DIS'
+
+	 Reaction = 'NC e+-p'
+
+         NDATA = 1
+
+         NColumn = 15
+	 ColumnType = 'Bin',2*'Dummy','Bin',2*'Dummy','Bin',2*'Dummy','Sigma',5*'Error'
+	 ColumnName = 'x','ignore', 'ignore','Q2','ignore','ignore','y','ignore','ignore','reduced x-section','stat','ignore','uncor','ignore','cor norm'
+	 
+	 Percent = 5*False
+ 
+         NInfo 	  = 9
+         DataInfo = -1.,	    1.,        0., 12.01, 6.0, 119., 50.0, 1., 1.
+	 CInfo 	  = 'e charge',	'reduced', 'e polarity', 'A1', 'Z1', 'A2', 'Z2', 'ratio', 'NMC'
+	 IndexDataset = 112
+&End
+*x	xlow	xhigh	x2	x2low	x2high	x3	x3low	x3high	y	dy+	dy-	dy+	dy-	
+0.07	0.07	0.07	11.2	11.2	11.2	0.4	  0.4	    0.4	    0.993	+0.005	-0.005	+0.007	-0.007  0.002
