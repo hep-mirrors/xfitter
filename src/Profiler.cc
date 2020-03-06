@@ -155,15 +155,19 @@ namespace xfitter
     YAML::Node gNode=XFITTER_PARS::getEvolutionNode(evolName);
     YAML::Node const sets = node["sets"];
     YAML::Node const members = node["members"];
+    YAML::Node const error_type_override = node["error_type_override"];
     //Sanity checks
     if ( !sets || !members  ) {
       hf_errlog(2018082401,"S: Profiler: missing set or member parameters for evolution "+evolName);  // XXXXXXXXXXXXXXXX
     }
-    if(!sets.IsSequence()||!members.IsSequence()){
-      hf_errlog(2018082402,"S: Profiler: sets and members must be sequence");  // XXXXXXXXXXXXXXXX
+    if(!sets.IsSequence()||!members.IsSequence()||(error_type_override&&!error_type_override.IsSequence())){
+      hf_errlog(2018082402,"S: Profiler: sets, members and (optional) error_type_override must be sequence");  // XXXXXXXXXXXXXXXX
     }
     if(sets.size()!=members.size()){
       hf_errlog(2018082403,"S: Profiler: sets and members must be the same length");  // XXXXXXXXXXXXXXXX
+    }
+    if(error_type_override&&sets.size()!=error_type_override.size()){
+      hf_errlog(2018082405,"S: Profiler: sets and error_type_override must be the same length");  // XXXXXXXXXXXXXXXX
     }
 
 
@@ -197,6 +201,22 @@ namespace xfitter
           hf_errlog(2018082410,"S: No set or member variables for evolution : "+evolName);
         }//This should be evolution's problem, not Profiler's --Ivan
 
+        // now we can get set properties: is it hessian asymmetric, MC or symmetric hessian
+        std::string errorType = evol->getPropertyS("ErrorType");
+        std::cout << "errorType: " << errorType << std::endl;
+        if(error_type_override)
+        {
+            auto str = error_type_override[i].as<string>();
+            if(str != "None")
+            {
+                errorType = str;
+                std::cout << "errorType overwritten with: " << errorType << std::endl;
+            }
+        }
+        if ( errorType != "symmhessian" && errorType != "hessian" && errorType != "replicas") {
+           hf_errlog(2018082441,"S: Profiler Unsupported PDF error type : "+errorType);
+        }
+
         // all predictions
         std::vector< std::valarray<double> > preds;
 
@@ -205,11 +225,6 @@ namespace xfitter
         gNode["member"]=central;
         evol->atConfigurationChange();
         preds.push_back(evaluatePredictions() );
-
-
-        // now we can get set properties: is it hessian asymmetric, MC or symmetric hessian
-        std::string errorType = evol->getPropertyS("ErrorType");
-        std::cout << errorType << std::endl;
 
         if ( last == 0) {
           // auto determine XXXXXXXXXXXXXXXX
@@ -250,14 +265,14 @@ namespace xfitter
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
           for (int imember = first; imember<=last; imember++) {
-            addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T",(preds[imember]-preds[0])/preds[0]);
+            addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T",(preds[imember-first+1]-preds[0])/preds[0]);
           }
         }
         else if ( errorType == "hessian") {
           for (int imember = first; imember<=last; imember += 2) {
             addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T"
-                           ,(preds[imember]-preds[0])/preds[0]
-                           ,(preds[imember+1]-preds[0])/preds[0]);
+                           ,(preds[imember-first+1]-preds[0])/preds[0]
+                           ,(preds[imember+1-first+1]-preds[0])/preds[0]);
           }
         }
         else if ( errorType == "replicas") {
@@ -266,13 +281,13 @@ namespace xfitter
             preds[0][i] = 0;
           }
           for ( int i=first; i<=last; i++) {
-            preds[0] += preds[i];
+            preds[0] += preds[i-first+1];
           }
           preds[0] /= (last-first+1);
           
           // convert replicas to deviations from average:
           for ( int i=first; i<=last; i++) {
-            preds[i] -= preds[0];
+            preds[i-first+1] -= preds[0];
           }
 
           // convert to eigenvectors, add to list of systematics
