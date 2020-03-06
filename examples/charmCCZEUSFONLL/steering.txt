@@ -8,8 +8,8 @@
   ! Input files:
 
      InputFileNames = 
-     'datafiles/pseudo/zeus-charmcc-integrated-em.dat',
-     'datafiles/pseudo/zeus-charmcc-integrated-ep.dat',
+     'datafiles/hera/zeus/charmCC/1904.03261/ZEUS_charmCC_em.dat',
+     'datafiles/hera/zeus/charmCC/1904.03261/ZEUS_charmCC_ep.dat',
 
 &End
 
