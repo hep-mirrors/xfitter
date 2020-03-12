@@ -331,8 +331,6 @@ YAML::Node loadYamlFile(const string&filename){
   The recursionLimit is meant to protect from circular includes.
 */
 void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
-//void expandIncludes(YAML::Node node,unsigned int recursionLimit=256){
-    printf("recursionLimit = %u\n", recursionLimit);
   if(recursionLimit==0){
     hf_errlog(18092605,"F: Recursion limit reached while handling includes");
   }
