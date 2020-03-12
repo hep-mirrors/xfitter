@@ -331,22 +331,24 @@ YAML::Node loadYamlFile(const string&filename){
   The recursionLimit is meant to protect from circular includes.
 */
 void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
+//void expandIncludes(YAML::Node node,unsigned int recursionLimit=256){
+    printf("recursionLimit = %u\n", recursionLimit);
   if(recursionLimit==0){
     hf_errlog(18092605,"F: Recursion limit reached while handling includes");
   }
   if(!node.IsMap())return;//maybe this should even be an error
   vector<YAML::Node>include_keys;
   for(YAML::iterator it=node.begin();it!=node.end();++it){
-    YAML::Node&key=it->first;
-    YAML::Node&val=it->second;
-    if(key.Tag()=="!include"){
+    //YAML::Node&key=it->first;
+    //YAML::Node&val=it->second;
+    if(it->first.Tag()=="!include"){
       if(!it->second.IsNull()){
-        cerr<<"[ERROR] Value given after include key "<<key<<" (make sure there is no \":\" after the filename)"<<endl;
+        cerr<<"[ERROR] Value given after include key "<<it->first<<" (make sure there is no \":\" after the filename)"<<endl;
         hf_errlog(18092602,"F: Value after include key, see stderr");
       }
-      include_keys.push_back(key);
-    }else if(val.IsMap()){
-      expandIncludes(val,recursionLimit-1);
+      include_keys.push_back(it->first);
+    }else if(it->second.IsMap()){
+      expandIncludes(it->second,recursionLimit-1);
     }
   }
   //Load and merge
