@@ -531,6 +531,7 @@ else
     make install >> $CURRENTDIR/install.log  2>&1
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
+    cd - >& /dev/null
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
