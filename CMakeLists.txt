@@ -47,6 +47,12 @@ endif()
 #Use c preprocessor with fortran
 set(CMAKE_Fortran_FLAGS "-cpp")
 
+# SZ memory checking for Toni
+set(MEM_SANITIZE "-fsanitize=address -fsanitize-recover=all -fno-optimize-sibling-calls -fno-omit-frame-pointer -fstack-protector-strong -fsanitize=undefined -fsanitize=bounds-strict -fstack-check -fno-common")
+set(MEM_CHECK_BOUNDS "-fcheck=bounds")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MEM_SANITIZE}")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${MEM_SANITIZE} ${MEM_CHECK_BOUNDS}")
+
 #For Fortran
 #set max line length to 132
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
