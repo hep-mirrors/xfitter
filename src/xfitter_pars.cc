@@ -385,7 +385,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       if(it->first.IsScalar()){
         string key=it->first.Scalar();
         if(node[key]){
-          clog<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
+          cout<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
           hf_errlog(18092604,"I: locally defined setting overrides included, see stdlog");
         }else node[key]=it->second;
       }else{
