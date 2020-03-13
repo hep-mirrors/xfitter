@@ -78,7 +78,7 @@ Profiler:
   Evolutions:
     proton-LHAPDF:
       sets:    [NNPDF30_nlo_as_0118]
-      members: [[0,1,end]]
+      members: [[0,1,99]] # skip last replica because difference between 0 and 100 is linear combination of differences between 0 and 1-99 members
   Status: "On"               # "Off" to turn off profiler
   WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
   getChi2: "Off"              # determine and report chi2 for each variation
