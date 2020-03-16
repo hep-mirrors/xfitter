@@ -20,6 +20,11 @@ job-install:
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
+job-tests:
+  stage: test
+  only: [merge_requests]
+  script: "./tools/test.sh"
+
 #nightly_devel:
 #  stage: nightly
 #  script:
