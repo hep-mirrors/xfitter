@@ -88,10 +88,6 @@ Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton
-  proton-LHAPDF:
-    class: LHAPDF
-    set: "CT10"
-    member: 0
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
