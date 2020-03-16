@@ -19,6 +19,7 @@ C-------------------------------------------------------
 #include "covar.inc"
 #include "theorexpr.inc"
 #include "chi2scan.inc"
+#include "datasets.inc"
 
       integer icond
       integer nOffset
@@ -33,6 +34,9 @@ C-----------------------------------------------------
 *     Print HFitter banner
 *     ------------------------------------------------
 C      call hfbanner
+      print*,GPlotOptions(npoints-npoints+1501)
+      GPlotOptions(npoints-npoints+1501) = 'qqqqqqqqqqqqqq'
+      print*,GPlotOptions(npoints-npoints+1501)
 
       narg = command_argument_count()
       if (narg.gt.0) then
