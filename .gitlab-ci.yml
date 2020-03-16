@@ -24,7 +24,14 @@ job-install:
 job-tests:
   stage: test
   only: [merge_requests]
-  script: "./tools/test.sh"
+  script:
+    - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+    - ./tools/test.sh FFABM
 
 #nightly_devel:
 #  stage: nightly
