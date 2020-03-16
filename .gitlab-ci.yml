@@ -5,8 +5,7 @@ cache:
     - deps
 
 stages:
-#  - build
-  - test
+  - build
 
 before_script:
   - yum -y install yum-plugin-ovl
@@ -15,24 +14,20 @@ before_script:
   - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 
-#job-install:
-#  stage: build
-#  only: [merge_requests]
-#  script: "./make.sh install"
-#  variables:
-#    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
-
-job-tests:
-  stage: test
+job-install:
+  stage: build
   only: [merge_requests]
-  script:
-    - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles temp-datafiles
+  script: 
+    - ./make.sh install
+    - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
     - rm -rf temp-datafiles
     - cd datafiles
     - git reset --hard HEAD
     - cd -
     - ./tools/test.sh FFABM
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
 #nightly_devel:
 #  stage: nightly
