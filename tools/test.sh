@@ -281,6 +281,8 @@ for arg in `echo $listOfTests`; do
       testsPassed=$[$testsPassed+1]
     else
       echo -e $FAILED [details in $log]
+      cat $log
+      cat $dir/xfitter.log
       testsFailed=$[$testsFailed+1]
     fi
   fi
