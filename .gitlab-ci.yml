@@ -6,6 +6,7 @@ cache:
 
 stages:
   - build
+  - test
 
 before_script:
   - yum -y install yum-plugin-ovl
