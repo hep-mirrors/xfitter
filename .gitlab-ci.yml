@@ -25,6 +25,7 @@ job-install:
     - cd datafiles
     - git reset --hard HEAD
     - cd -
+    - lhapdf install CT10
     - ./tools/test.sh FFABM
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
