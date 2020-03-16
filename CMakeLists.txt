@@ -48,7 +48,7 @@ endif()
 set(CMAKE_Fortran_FLAGS "-cpp")
 
 # SZ memory checking for Toni
-set(MEM_SANITIZE "-fsanitize=address -fsanitize-recover=all -fno-optimize-sibling-calls -fno-omit-frame-pointer -fstack-protector-strong -fsanitize=undefined -fsanitize=bounds-strict -fstack-check -fno-common")
+set(MEM_SANITIZE "-fsanitize=address -fno-optimize-sibling-calls -fno-omit-frame-pointer -fstack-protector-strong -fstack-check -fno-common")
 set(MEM_CHECK_BOUNDS "-fcheck=bounds")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MEM_SANITIZE}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${MEM_SANITIZE} ${MEM_CHECK_BOUNDS}")
