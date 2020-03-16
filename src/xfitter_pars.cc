@@ -385,8 +385,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       if(it->first.IsScalar()){
         string key=it->first.Scalar();
         if(node[key]){
-          cout<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
-          hf_errlog(18092604,"I: locally defined setting overrides included, see stdlog");
+            if((it->second.as<string>() != node[key].as<string>())){
+              cout<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
+              hf_errlog(18092604,"I: locally defined setting overrides included, see stdlog");
+            }
         }else node[key]=it->second;
       }else{
         hf_errlog(19033101,"W: including YAML maps with non-scalar keys is poorly supported and does not handle overriding keys, use at your own risk!");
