@@ -11,7 +11,7 @@ before_script:
   - yum -y install yum-plugin-ovl
   - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake
   - yum -y install git 
-  - yum -y install tar # untar LHAPDF sets
+  - yum -y install tar gzip # untar LHAPDF sets
   - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 
