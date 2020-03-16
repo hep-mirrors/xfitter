@@ -5,21 +5,22 @@ cache:
     - deps
 
 stages:
-  - build
+#  - build
   - test
 
 before_script:
   - yum -y install yum-plugin-ovl
   - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake
+  - yum -y install git
   - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 
-job-install:
-  stage: build
-  only: [merge_requests]
-  script: "./make.sh install"
-  variables:
-    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+#job-install:
+#  stage: build
+#  only: [merge_requests]
+#  script: "./make.sh install"
+#  variables:
+#    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
 job-tests:
   stage: test
