@@ -9,9 +9,7 @@ stages:
 
 before_script:
   - yum -y install yum-plugin-ovl
-  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake
-  - yum -y install git 
-  - yum -y install tar gzip # untar LHAPDF sets
+  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake git 
   - . ./scripts/setup.sh
   - ./scripts/install-deps.sh
 
@@ -26,8 +24,8 @@ job-install:
     - cd datafiles
     - git reset --hard HEAD
     - cd -
-    - lhapdf install CT10
-    - ./tools/test.sh FFABM
+    - lhapdf install --source=http://lhapdfsets.web.cern.ch/lhapdfsets/current/ CT10 HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl 
+    - ./tools/test.sh
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
