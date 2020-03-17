@@ -8,31 +8,24 @@ stages:
   - build
 
 before_script:
-#  - yum -y install yum-plugin-ovl
-#  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake git tar gzip
-#  - . ./scripts/setup.sh
-#  - ./scripts/install-deps.sh
+  - yum -y install yum-plugin-ovl
+  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake git tar gzip
+  - . ./scripts/setup.sh
+  - ./scripts/install-deps.sh
 
 job-install:
   stage: build
   only: [merge_requests]
   script: 
-     - ls -ltr
-#     - ./lhapdf --source=http://lhapdfsets.web.cern.ch/lhapdfsets/current/ install CT10 HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl
-     - ./lhapdf --source=http://lhapdfsets.web.cern.ch/lhapdfsets/current/ install CT10f4
-     - ls -ltr
-#    - ./make.sh install
-#    - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles.git temp-datafiles
-#    - mv temp-datafiles/.git datafiles/.git
-#    - rm -rf temp-datafiles
-#    - cd datafiles
-#    - git reset --hard HEAD
-#    - cd -
-#    - wget http://lhapdfsets.web.cern.ch/lhapdfsets/current/CT10.tar.gz
-#    - lhapdf --source=http://lhapdfsets.web.cern.ch/lhapdfsets/current/ install CT10 
-#    - lhapdf --source=http://lhapdfsets.web.cern.ch/lhapdfsets/current/ install HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl 
-#    - ls -ltr
-#    - ./tools/test.sh
+     - ./scripts/download-lhapdf.sh CT10 HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl
+    - ./make.sh install
+    - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+    - ./tools/test.sh
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
