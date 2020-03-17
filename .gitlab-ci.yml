@@ -9,7 +9,7 @@ stages:
 
 before_script:
   - yum -y install yum-plugin-ovl
-  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake git tar gzip
+  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake git tar
   - . ./tools/setup.sh
   - ./tools/install-deps.sh
 
