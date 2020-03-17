@@ -10,8 +10,8 @@ stages:
 before_script:
   - yum -y install yum-plugin-ovl
   - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake git tar gzip
-  - . ./scripts/setup.sh
-  - ./scripts/install-deps.sh
+  - . ./tools/setup.sh
+  - ./tools/install-deps.sh
 
 job-install:
   stage: build
