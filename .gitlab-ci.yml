@@ -17,7 +17,7 @@ job-install:
   stage: build
   only: [merge_requests]
   script: 
-     - ./scripts/download-lhapdf.sh CT10 HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl
+    - ./scripts/download-lhapdf.sh CT10 HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl
     - ./make.sh install
     - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
