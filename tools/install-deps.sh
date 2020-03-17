@@ -12,7 +12,7 @@ qcdnumver=17-01-14
 apfelver=2.7.2
 melaver=2.0.1
 
-#. scripts/setup.sh
+#. tools/setup.sh
 
 if [ -e $_LOCALINST ] ; then
   echo "Dependencies taken from cache, skip installation"
