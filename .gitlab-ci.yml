@@ -10,14 +10,17 @@ stages:
 before_script:
   - yum -y install yum-plugin-ovl
   - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake git tar
-  - . ./tools/setup.sh
-  - ./tools/install-deps.sh
+#  - . ./tools/setup.sh
+#  - ./tools/install-deps.sh
+  - 
 
 job-install:
   stage: build
   only: [merge_requests]
   script: 
-    - ./tools/download-lhapdf.sh CT10 HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl
+    - ./tools/install-xfitter deps
+    - . setup.sh
+    - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl
     - ./make.sh install
     - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
