@@ -57,9 +57,13 @@ In order to activate the nPDF analysis one needs to set the following parameters
 \item Znucleus = 1.0 [Proton number $Z$, =1 for proton]
 \end{enumerate}
 \vskip 0.2in
-\noindent Please note: there are several nuclei, and not a single one, involved in a global analysis. Therefore, it is strongly recommended to provide the information on the individual combinations of $A$ and $Z$ inside the data files. Here, in the steering.txt file, the parameters Anucleus, Znucleus are used only in case that this information is \textit{not} provided in the data files.\\
-\\
-As per the current implementation, the nPDFs are available only for the following combination of parameterization:
+\noindent Please note: there are several nuclei, and not a single one, involved in a global analysis. Therefore, it is strongly recommended to provide the information on the individual combinations of $A$ and $Z$ inside the data files. Here, in the steering.txt file, the parameters Anucleus, Znucleus are used only in case that this information is \textit{not} provided in the data files.
+
+
+\subsection{TUJU19 Framework}
+\label{sec-tuju19}
+
+As per the current implementation, the nPDFs are available only for the following combination of flags:
 \begin{enumerate}
 \item[4.] PDFStyle = 'CTEQ'
 \item[5.] nTUJU = True [Flag to activate constraints, like e.g. sum rules, in the TUJU19 style \cite{Walt:2019slu}]
@@ -113,12 +117,20 @@ Parameter $\#$ & Parameter name & Parton \\ \hline
 151, 152 & $c_{0,1}$, $c_{0,2}$ & $d_v$ \\
 153, 154 & $c_{1,1}$, $c_{1,2}$ &  \\
 155 - 160 & \dots &  \\ \hdashline[.4pt/2pt]
-171, 172 & $c_{0,1}$, $c_{0,2}$ & $\bar{u}=\bar{d}$ \\
-173, 174 & $c_{1,1}$, $c_{1,2}$ &  \\
-175 - 180 & \dots & 
 \end{tabular}
 \vskip 0.2in
-\noindent The $c_{k,1}$ and $c_{k,2}$ parameters for $\bar{d}$ are determined by the constrain $\bar{u}=\bar{d}$. Due to the limited maximum number of parameter allowed in \textbf{minuit.in.txt} file, the $c_{k,1}$ and $c_{k,2}$ coefficients for $s$ have been assigned to the following parameter space:
+\noindent and \\
+\begin{tabular}[h!]{lll}
+Parameter $\#$ & Parameter name & Parton \\ \hline
+171, 172 & $c_{0,1}$, $c_{0,2}$ & $\bar{u}$ \\
+173, 174 & $c_{1,1}$, $c_{1,2}$ &  \\
+175 - 180 & \dots & \\ \hdashline[.4pt/2pt]
+189, 190 & $c_{0,1}$, $c_{0,2}$ & $\bar{d}$, in TUJU19 $\bar{d}=\bar{u}$ \\
+191, 192 & $c_{1,1}$, $c_{1,2}$ &  \\
+193 - 198 & \dots & %\\ \hdashline[.4pt/2pt]
+\end{tabular}
+\vskip 0.2in
+\noindent The $c_{k,1}$ and $c_{k,2}$ parameters for $\bar{d}$ are determined by the constrain $\bar{d}=\bar{u}$ if the parameters for $\bar{d}$ are left empty, i.e. if the normalization parameter $c_{0,0}$ (no 41) is left empty. Due to the limited maximum number of parameter allowed in \textbf{minuit.in.txt} file, the $c_{k,1}$ and $c_{k,2}$ coefficients for $s$ have been assigned to the following parameter space:
 \vskip 0.2in
 \begin{tabular}[h!]{lll}
 Parameter $\#$ & Parameter name & Parton \\ \hline
@@ -142,6 +154,87 @@ f_i^{\,N/A} \left( x,Q^{\,2} \right) = \frac{Z\cdot f_i^{\,p/A}+ (A-Z)\cdot f_i^
 where $Z$ is the number of protons in the nucleus. The PDF of the \textit{bound} neutron~$f_i^{\,n/A}$ is determined from the fitted proton's PDF using the isospin symmetry.\\
 \\
 This nucleon decomposition has been implemented in xFitter for the calculation of DIS cross sections by using the following heavy-quark schemes only: '\textbf{ZMVFNS}' scheme and '\textbf{FONLL}' scheme. For the other schemes available in xFitter, the nucleon decomposition has not been implemented/validated.
+
+\subsection{TUJU19 Example}
+
+The first nuclear PDFs 'TUJU19' obtained with xFitter have been published in \cite{Walt:2019slu}. The according minuit.in.TUJU19-(N)NLO.txt and the steering.TUJU19-(N)NLO input files are placed inside the folder 'input\_steering'. The minuit.in.txt files include the final parameters obtained during the fit (\textit{not} the initial values used for that). Furthermore, in order to run the according calculations it is necessary to configure xFitter with the settings '--enable-apfel' (since FONLL scheme has been used in the TUJU19 fit) and also '--enable-lhapdf'.\\
+Please note that the results published in \cite{Walt:2019slu} have been obtained by the numerical tool set based on xFitter version 2.0.0, whereas the released version is based on xFitter 2.0.1. Therefore, minor numerical deviations in the $\Chi^2$ values are possible.
+
+\subsection{nCTEQ Flags}
+
+The parameterization described in subsection \ref{sec-tuju19} has been tested, verified and the results have been published officially \cite{Walt:2019slu}. However, during the code modification and testing phase, also parts of the nCTEQ15 framework \cite{Kovarik:2015cma} have been implemented in xFitter for \textit{testing} purposes only. The according flags and options are described in this subsection. Please note: that the results do \textit{not} reflect the full nCTEQ15 framework nor the officially published results. They provide only an additional setup for testing purposes. \\
+\\
+The available nCTEQ flags are meant to be used in conjunction with the flags $1-4$ described in subsection \ref{sec-tuju19}. The flag 
+\begin{enumerate}
+\item[5.] nCTEQ = True 
+\end{enumerate}
+
+\noindent needs to be used instead of nTUJU, i.e. with nTUJU=False. The combination of PDFStyle = 'CTEQ' and nCTEQ = True leads to the PDF parameterization of the form
+
+\begin{equation}
+xf^{p/A}_i\left(x,Q_0^2 \right) = c_0\,x^{c_1} (1-x)^{c_2} e^{c_3 x}\left(1+e^{c_4}\,x \right)^{c_5}
+\end{equation}
+
+\noindent for $i=u_v,\,d_v,\,g,\,\bar{u},\,\bar{d},\,s+\bar{s}$ with $A$-dependentn coefficients $c_i$ ($i=0,\dots,5$) as given in equation (\ref{eq:coeff-A}).\\
+\\
+\noindent The flag 'nCTEQ=True' activates all options described in the following. Alternatively, also subsets can be used by setting
+\begin{itemize}
+\item nCTEQparams = True, or
+\item nCTEQframework = True
+\end{itemize}
+
+\noindent only. The flag '\textbf{nCTEQframework}' activates the sum rules of the style as given in equations (2.10) and (2.11) of the original publication \cite{Kovarik:2015cma} and the constraint $s=\bar{s}=\frac{\kappa(A)}{2} \left( \bar{u}+\bar{d} \right)$ with $\kappa(A)=c^{s+\bar{s}}_{0,0}+c^{s+\bar{s}}_{0,1}\left(1-A^{-c^{s+\bar{s}}_{0,2}}\right)$. Here, one needs to mention that especially the latter relation could \textit{not} be reproduced completely for all nuclei, but was fixed manually by reverse engineering for a set of selected nuclei, which was sufficient for testing purposes. This flag can be activated intependent of the nCTEQ=True setting, if required.\\
+\\
+The flag '\textbf{nCTEQparams}' changes how the input parameters from minuit.in.txt file are interpreted. Here, the following logic is applied:\\
+
+\begin{tabular}[h!]{lll}
+Parameter $\#$ & Parameter name & Parton \\ \hline
+$1-6$ & $c_{i,0}$ & $g$ \\
+$7$ & $M_g$ & as used in Eq. (2.10) in Ref. \cite{Kovarik:2015cma} \\
+$11-19$ & $c_{i,0}$ & $u_v$\\
+$21-29$ & $c_{i,0}$ & $d_v$\\
+$31-39$ & $c_{i,0}$ & $\bar{u}+\bar{d}$\\
+$41-49$ & $c_{i,0}$ & $\bar{d}/\bar{u}$\\
+$81-89$ & $c_{i,0}$ & $s+\bar{s}$\\
+$90-100$ & others & - \\
+\end{tabular}
+\vskip 0.2in
+\noindent and\\
+
+\begin{tabular}[h!]{lll}
+Parameter $\#$ & Parameter name & Parton \\ \hline
+113, 114 & $c_{1,1}$, $c_{1,2}$ & $g$ \\
+115, 116 & $c_{2,1}$, $c_{2,2}$ &  \\
+117, 118 & $c_{3,1}$, $c_{3,2}$ &  \\
+119, 120 & $c_{4,1}$, $c_{4,2}$ & \\ 
+123 & $c^g_{0,0}$ & as used in Eq. (2.10) in Ref. \cite{Kovarik:2015cma} \\
+124 & $c^g_{0,1}$ & as used in Eq. (2.10) in Ref. \cite{Kovarik:2015cma} \\
+125 & $c^g_{0,2}$ & as used in Eq. (2.10) in Ref. \cite{Kovarik:2015cma} \\ \hdashline[.4pt/2pt]
+131, 132 & $c_{0,1}$, $c_{0,2}$ & $u_v$ \\
+133, 134 & $c_{1,1}$, $c_{1,2}$ &  \\
+135 - 140 & \dots &  \\\hdashline[.4pt/2pt]
+151, 152 & $c_{0,1}$, $c_{0,2}$ & $d_v$ \\
+153, 154 & $c_{1,1}$, $c_{1,2}$ &  \\
+155 - 160 & \dots &  \\ \hdashline[.4pt/2pt]
+171, 172 & $c_{0,1}$, $c_{0,2}$ & $\bar{u}+\bar{d}$ \\
+173, 174 & $c_{1,1}$, $c_{1,2}$ &  \\
+175 \dots & \dots & \\
+155 - 160 & \dots &  \\ \hdashline[.4pt/2pt]
+189, 190 & $c_{0,1}$, $c_{0,2}$ & $\bar{d}/\bar{u}$ \\
+191, 192 & $c_{1,1}$, $c_{1,2}$ &  \\
+193 \dots & \dots & \\ \hdashline[.4pt/2pt]
+129, 130 & $c_{0,1}$, $c_{0,2}$ & $s+\bar{s}$ \\
+149, 150 & $c_{1,1}$, $c_{1,2}$ &  \\
+169, 170 & $c_{2,1}$, $c_{2,2}$ &  \\
+184, 185 & $c_{3,1}$, $c_{3,2}$ &  \\
+186, 187 & $c_{4,1}$, $c_{4,2}$ &  \\ 
+\end{tabular}
+\vskip 0.2in
+
+\noindent as per Tab. V. in Ref. \cite{Kovarik:2015cma}. The input parameters of the form $\bar{u}+\bar{d}$ and $\bar{d}/\bar{u}$ are used to construct the output for $\bar{u}$ and $\bar{d}$. If input parameters for $s+\bar{s}$ are left empty in the minuit.in.txt file the constraint $s=\bar{s}=\frac{\kappa(A)}{2} \left( \bar{u}+\bar{d} \right)$ is applied. \\
+\\
+Summary:  The flag 'nCTEQ=True' activates all options described in this subsection. Alternatively, also a subset can be activated by using the flags 'nCTEQparams' and/or 'nCTEQframework'. Please note that the results do \textit{not} reflect the full nCTEQ15 framework nor the officially published results \cite{Kovarik:2015cma}. They provide only an additional setup for testing purposes only.
+
 
 \section{Nuclear Data}
 \label{sec-nucldata}
