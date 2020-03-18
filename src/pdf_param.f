@@ -629,8 +629,12 @@ C 03/03/2017 new A-dependent coefficients for the parameters (two for each flavo
                  ctstr(9+1) = pars(129)
                  ctstr(9+2) = pars(130)
                else
-                 ctstr(9+j) = ctubar(9+j)
-                 ctstr(9+j+1) = ctubar(9+j+1)
+C              !> 18/02/2020 MW: to add flexibility if one wants to release the constraint ubar=dbar=s=sbar              
+                     if (ctdbar(1).eq.0) then
+                         DUbarEqual = .true.               
+                         ctstr(9+j) = ctubar(9+j)
+                         ctstr(9+j+1) = ctubar(9+j+1)
+                     endif 
                endif
              endif   
              
@@ -658,7 +662,7 @@ C!04/05/2017, additional logic applied for Strange, due to the limitations of MI
           
 C        15/05/2018 MW, modifications for s+sbar = ubar+dbar   (or s=sbar=ubar=dbar respectively)
           
-          if (ctdbar(i).eq.0) then
+          if (ctdbar(1).eq.0) then  !> 18/02/2020 MW
              
 C        15/05/2018 MW, modifications for s+sbar = ubar+dbar  (or s=sbar=ubar=dbar respectively)         
              ctdbar(9+j) = ctubar(9+j)      !>   + ctstr(9+j)
@@ -677,12 +681,23 @@ C        --------------
 C 18/10/2018 MW     
 
          if (ctstr(i).eq.0) then
-           if (nTUJU) then
-             ctstr(i) = ctubar(i)         
+           
+           if (ctdbar(1).eq.0) then     !> 18/02/2020 MW
+               DUbarEqual = .true.
            endif
+           
+           if (nTUJU) then
+C!> 18/02/2020 MW
+             if (DUbarEqual) then
+                 ctstr(i) = ctubar(i)
+             endif
+C!>             
+           endif
+           
          endif   
 
-         if (ctdbar(i).eq.0) then
+         if (ctdbar(1).eq.0) then
+           DUbarEqual = .true.
            if (nTUJU) then
              ctdbar(i) = ctubar(i)          !>  +ctstr(i)
            endif
@@ -1514,7 +1529,9 @@ C SG: x-dependent fs:
       double precision fshermes
       
 C MW:      
-      double precision UbplusDb, DbdivUb, nCTEQparaDU     ! 06/07/2017 Marina Walt, new parameters (in order to reflect nCTEQ15 parametrisation)           
+      double precision UbplusDb, DbdivUb, nCTEQparaDU     ! 06/07/2017 Marina Walt, new parameters (in order to reflect nCTEQ15 parametrisation)   
+      
+      double precision qstrange
 C----------------------------------------------------
       if (ifsttype.eq.0) then
          fs = fstrange
@@ -1540,7 +1557,12 @@ CC         return
            DbdivUb = nCTEQparaDU(x,ctdbar)
            Dbar = (UbplusDb*DbdivUb)/(1.D0+DbdivUb)
          elseif (nTUJU) then
-           Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
+C!>        18/02/2020 MW         
+           if (DUbarEqual) then
+              Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
+           else
+              Dbar=ctpara(x,ctdbar) + qstrange(x)
+           endif   
          else
            Dbar=ctpara(x,ctdbar)+ctpara(x,ctstr)
          endif
