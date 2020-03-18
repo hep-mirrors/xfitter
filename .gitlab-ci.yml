@@ -9,7 +9,7 @@ stages:
 
 before_script:
   - yum -y install yum-plugin-ovl
-  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel gcc-gfortran cmake git tar root
+  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel gcc-gfortran cmake git tar root mt m4
 
 job-install:
   stage: build
