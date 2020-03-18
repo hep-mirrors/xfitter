@@ -776,5 +776,3 @@ else
       echo "Have fun!"
   fi
 fi
-
-cat install.log
