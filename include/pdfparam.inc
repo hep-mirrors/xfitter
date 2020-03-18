@@ -46,13 +46,15 @@ C !> CTEQ-like parameterisation
        
        integer idxADataSet, ratiostep          !> 15/03/2017 Marina Walt, new parameters
        double precision ratio
+       
+       logical DUbarEqual         !>  18/02/2020 Marina Walt, new parameter to set ubar=dbar=s=sbar       
   
        !> 15/03/2017 dimension of ctparams changed to 27 - to reflect parameters for nuclear PDFs
 
        double precision ctuval(1:27), ctdval(1:27),ctubar(1:27),ctdbar(1:27), 
      $      ctglue(1:27),ctother(1:27),ctstr(1:27), ctphoton(1:27)
        common/ctpar/ctuval,ctdval,ctubar,ctdbar,ctglue,ctother,ctstr,ctphoton,
-     $      idxADataSet, ratiostep, ratio
+     $      idxADataSet, ratiostep, ratio, DUbarEqual
 
 C !> Add AS parameterisation
        double precision asuval(1:5), asdval(1:5), asubar(1:5), asdbar(1:5),
