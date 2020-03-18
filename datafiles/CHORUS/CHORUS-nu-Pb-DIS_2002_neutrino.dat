@@ -8,7 +8,7 @@
 *
 *
 &Data
-	 Name = 'nu Pb DIS'
+	 Name = 'CHORUS nu Pb DIS'
 
 	 Reaction = 'neutrino+p CC'
 
