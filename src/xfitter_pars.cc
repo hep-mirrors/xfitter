@@ -337,8 +337,8 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   if(!node.IsMap())return;//maybe this should even be an error
   vector<YAML::Node>include_keys;
   for(YAML::iterator it=node.begin();it!=node.end();++it){
-    YAML::Node&key=it->first;
-    YAML::Node&val=it->second;
+    YAML::Node key=it->first;
+    YAML::Node val=it->second;
     if(key.Tag()=="!include"){
       if(!it->second.IsNull()){
         cerr<<"[ERROR] Value given after include key "<<key<<" (make sure there is no \":\" after the filename)"<<endl;
