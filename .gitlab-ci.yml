@@ -9,20 +9,12 @@ stages:
 
 before_script:
   - yum -y install yum-plugin-ovl
-  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel gcc-gfortran cmake git tar root m4 glib2-devel locate libgfortran-static
+  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel gcc-gfortran cmake git tar root m4 glib2-devel libgfortran-static
 
 job-install:
   stage: build
   only: [merge_requests]
   script: 
-    - echo gfortran -print-file-name=libgfortran.a
-    - gfortran -print-file-name=libgfortran.a
-    - echo gfortran -print-file-name=libgfortran.so
-    - gfortran -print-file-name=libgfortran.so
-    - echo locate libgfortran.a
-    - locate libgfortran.a
-    - echo locate libgfortran.so
-    - locate libgfortran.so
     - ./tools/install-xfitter deps
     - cat install.log
     - . setup.sh
