@@ -285,6 +285,9 @@ for arg in `echo $listOfTests`; do
     fi
   fi
   cat $log
+  cat $log | grep FAILED | sed -e 's/ ... FAILED//' > com.sh
+  cat com.sh
+  bash com.sh
 done
 
 if [ $COPY -eq 1 ]; then
