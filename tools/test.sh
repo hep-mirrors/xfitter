@@ -284,6 +284,7 @@ for arg in `echo $listOfTests`; do
       testsFailed=$[$testsFailed+1]
     fi
   fi
+  cat $log
 done
 
 if [ $COPY -eq 1 ]; then

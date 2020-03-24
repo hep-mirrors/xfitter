@@ -13,6 +13,10 @@ melaver=2.0.1
 apfelgridver=1.0.1
 apfelxxver=4.0.0
 
+# skip some packages depending on xfitter version
+skip_mela=0
+skip_apfelgrid=0
+
 ## Optional manual configurations
 #MANUALCONF=1
 
@@ -143,6 +147,12 @@ fi
 #    echo
 #    exit
 #fi
+
+# skip some packages depending on xfitter version
+if [[ $version == "master" ]]; then
+  skip_mela=1
+  skip_apfelgrid=1
+fi
 
 #automatically detect system:
 if [[ -z $MANUALCONF ]]
@@ -458,66 +468,70 @@ else
     cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
 
  #apfelgrid
-    if [ -d /cvmfs ]
-    then
-                lhapdf get NNPDF30_nlo_as_0118  >> $CURRENTDIR/install.log  2>&1
-        else
-                wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-                tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
-                mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir` >> $CURRENTDIR/install.log  2>&1
-                rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-        fi
-        echo "Installing APFELgrid $apfelgridver..."
-    # tmp solution is to use fork @zenaiev
-    apfelgridver=1.0.5
-    if [[ $http == "curl" ]]
-    then
-#       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
-        curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
-    else
-#       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-        wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    if [[ $skip_apfelgrid != 1 ]]; then
+      if [ -d /cvmfs ]
+      then
+                  lhapdf get NNPDF30_nlo_as_0118  >> $CURRENTDIR/install.log  2>&1
+          else
+                  wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+                  tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
+                  mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir` >> $CURRENTDIR/install.log  2>&1
+                  rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+          fi
+          echo "Installing APFELgrid $apfelgridver..."
+      # tmp solution is to use fork @zenaiev
+      apfelgridver=1.0.5
+      if [[ $http == "curl" ]]
+      then
+  #       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+          curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+      else
+  #       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+          wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      fi
+      mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
+      tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      cd APFELgrid-${apfelgridver}
+      ./setup.sh  >> $CURRENTDIR/install.log  2>&1
+      if [[ $? != 1 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      cd - >& /dev/null
     fi
-    mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
-    tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    cd APFELgrid-${apfelgridver}
-    ./setup.sh  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 1 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
-
+    
  #mela
-    echo "Installing MELA $melaver..."
+    if [[ $skip_mela != 1 ]]; then
+      echo "Installing MELA $melaver..."
 
-    if [[ $http == "curl" ]]
-    then
-        curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
-    else
-        wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    fi
-    mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
-    tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    cd MELA-${melaver}
-    ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
+      if [[ $http == "curl" ]]
+      then
+          curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
+      else
+          wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      fi
+      mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
+      tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      cd MELA-${melaver}
+      ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
 
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      cd - >& /dev/null
+   # setup paths for mela:
+      export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
- # setup paths for mela:
-    export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
-
+    
  #apfel
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
