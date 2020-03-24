@@ -577,6 +577,34 @@ else
         exit
     fi
     cd - >& /dev/null
+
+  # numdiff
+    numdiff -v >& /dev/null
+    if [[ `echo $?` != "0" ]]; then
+      numdiffver='5.9.0'
+      if [[ $http == "curl" ]]
+      then
+          curl http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+      else
+          wget http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      fi
+      tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+      cd numdiff-${numdiffver}
+      ./configure  --prefix=$CURRENTDIR/deps/numdiff  >> $CURRENTDIR/install.log  2>&1
+      export PATH=$CURRENTDIR/deps/numdiff/bin/:$PATH
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      cd - >& /dev/null
+    fi
 fi
 cd $CURRENTDIR
 
