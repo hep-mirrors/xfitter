@@ -645,7 +645,7 @@ fi
 
 #make a setup run enviroment script
 echo $version > version
-echo "export CURRENTDIR=`pwd`" > setup.sh
+echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
 echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
