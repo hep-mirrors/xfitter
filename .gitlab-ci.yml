@@ -18,6 +18,7 @@ job-install:
     - ./tools/install-xfitter deps
     - cat setup.sh
     - . setup.sh
+    - numdiff -v
     - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl
     - ./make.sh install
     - git clone https://gitlab.cern.ch/ozenaiev/xfitter-datafiles.git temp-datafiles
