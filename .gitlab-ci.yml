@@ -15,6 +15,14 @@ job-install:
   stage: build
   only: [merge_requests]
   script: 
+    - echo gfortran -print-file-name=libgfortran.a
+    - gfortran -print-file-name=libgfortran.a
+    - echo gfortran -print-file-name=libgfortran.so
+    - gfortran -print-file-name=libgfortran.so
+    - echo locate libgfortran.a
+    - locate libgfortran.a
+    - echo locate libgfortran.so
+    - locate libgfortran.so
     - ./tools/install-xfitter deps
     - cat install.log
     - . setup.sh
