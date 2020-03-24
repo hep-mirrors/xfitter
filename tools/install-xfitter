@@ -592,7 +592,7 @@ else
       tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
       cd numdiff-${numdiffver}
       ./configure  --prefix=$CURRENTDIR/deps/numdiff  >> $CURRENTDIR/install.log  2>&1
-      echo export PATH=\$CURRENTDIR/deps/numdiff/bin/:\$PATH >> ../setup.sh
+      echo export PATH=\$CURRENTDIR/deps/numdiff/bin/:\$PATH >> ../../setup.sh
       if [[ $? != 0 ]]
       then
           echo "Error, check install.log for details"
