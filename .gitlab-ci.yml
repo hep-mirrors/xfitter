@@ -9,12 +9,13 @@ stages:
 
 before_script:
   - yum -y install yum-plugin-ovl
-  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel gcc-gfortran cmake git tar root libgfortran-static
+  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel gcc-gfortran cmake git tar root libgfortran-static numdiff
 
 job-install:
   stage: build
   only: [merge_requests]
   script: 
+    - numdiff -v
     - ./tools/install-xfitter deps
 #    - cat install.log
     - . setup.sh
