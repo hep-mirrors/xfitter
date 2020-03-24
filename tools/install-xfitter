@@ -417,7 +417,7 @@ else
     echo "Installing APFEL $apfelver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl https://github.com/scarrazza/apfel/releases/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
         wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
@@ -472,11 +472,11 @@ else
     apfelgridver=1.0.5
     if [[ $http == "curl" ]]
     then
-#       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
-        curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+#        curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-#       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-        wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+#        wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
     tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
