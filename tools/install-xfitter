@@ -609,7 +609,6 @@ else
 fi
 cd $CURRENTDIR
 
-RNA
  #xfitter
 if [[ $mode != "deps" ]]
 then
