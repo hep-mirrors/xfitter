@@ -308,7 +308,7 @@ YAML::Node loadYamlFile(const string&filename){
   return node;
 }
 /*
-\brief compare if two nodes are equal (works only if they are scalars or sequences, does not work for maps: return false)
+\brief compare two nodes, returns true if they are equal (works only if they are scalars or sequences, does not work for maps: returns false)
 */
 int compareNodes(const YAML::Node&node1,const YAML::Node&node2,unsigned int recursionLimit=256){
     if(recursionLimit==0){
@@ -405,8 +405,6 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
         string key=it->first.Scalar();
         if(node[key]){
             if(!compareNodes(it->second, node[key])){
-            //if((it->second.as<string>() != node[key].as<string>())){
-            //if(!it->second.is(node[key])){
               cout<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
               hf_errlog(18092604,"I: locally defined setting overrides included, see stdlog");
             }
