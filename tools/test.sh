@@ -206,7 +206,7 @@ runTest()
     fi
     echo "========================================"
   else
-    rm -rf $EXAMPLEDIRflagBAD
+    rm -rf $EXAMPLEDIR
     cp -r $rundir/output $EXAMPLEDIR
     echo "Output copied"
     echo "========================================"
