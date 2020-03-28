@@ -13,15 +13,16 @@
 
 -- cmake version at least 2.8.12.2
 
--- QCDNUM version at least qcdnum-17-01/14, can be found at 
-   http://www.nikhef.nl/~h24/qcdnum/QcdnumDownload.html
-
 -- Link to recent Root libraries (e.g. version 5.34). This is optional, but recommended to enable drawing tools, APPLgrid.
 
 -- libyaml (required for xfitter-process) and libyaml-cpp (required for xFitter itself). If not installed on the system,
    they can be installed using tools/install-yaml script
 
 -- libblas and liblapack. These libraries can be also compiled using tools/install-lapack, however central installation is recommended.
+
+-- Optional, but highly recommended:
+   QCDNUM version at least qcdnum-17-01/14, can be found at 
+   http://www.nikhef.nl/~h24/qcdnum/QcdnumDownload.html
 
 -- Optional: APPLgrid, LHAPDF, APFEL, APFELxx, Ceres, Hathor
 
