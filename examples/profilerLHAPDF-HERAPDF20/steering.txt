@@ -202,6 +202,9 @@
 *
 * (Optional) MC errors steering cards
 *
+*
+* (Optional) MC errors steering cards
+*
 &MCErrors
   ! Activate MC method for error estimation if lRand = True
   lRAND   = False
@@ -218,9 +221,10 @@
   ! STATYPE (SYS_TYPE)  =   3  lognormal
   ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
   !
-  ! STATYPE = SYS_TYPE = 0 with lRANDDATA = False yeilds in substitution of data by theory (useful for sensitivity tests)
+  ! STATYPE = SYS_TYPE = 0 with lRANDDATA = False and lRAND   = True yeilds in substitution of data by theory (useful for sensitivity tests)
   !
   STATYPE =  1
   SYSTYPE =  1
 &End
+
 
