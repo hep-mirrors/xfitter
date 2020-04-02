@@ -261,9 +261,6 @@
 *
 * (Optional) MC errors steering cards
 *
-*
-* (Optional) MC errors steering cards
-*
 &MCErrors
   ! Activate MC method for error estimation if lRand = True
   lRAND   = False
