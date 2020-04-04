@@ -89,9 +89,9 @@ DefaultEvolution: proton-QCDNUM
 #DefaultEvolution: proton-LHAPDF
 
 Evolutions:
-  proton-APFELff:
-    ? !include evolutions/APFEL.yaml
-    decomposition: proton
+  #proton-APFELff:
+    #? !include evolutions/APFEL.yaml
+    #decomposition: proton
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
@@ -147,6 +147,11 @@ byReaction:
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
+
+#byDataset: #Here one can redefine some parameters for specific datasets
+#  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
+#  "HERA1+2 NCep 920":
+#    epolarity: 2
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
