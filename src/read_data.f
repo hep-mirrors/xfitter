@@ -642,15 +642,6 @@ C     ---> copy the names in a new variable
 	endif
         DATASETTheoryType(NDATASETS) = TheoryType(1)
         idxReaction = GetInfoIndex(NDATASETS,'ppbar')
-        ppbar_collisions = 0    ! defaults to LHC
-        if ( idxReaction .ne. 0 ) then
-           ppbar_reaction = DATASETInfo(idxReaction, NDATASETS)
-           if ( ppbar_reaction .eq. 1 ) ppbar_collisions = 1
-
-           write (Msg,'(''I: Use proton anti-proton PDF convolution dataset: '',A20,'' '')')
-     $        Name
-           call HF_errlog(14012301,trim(Msg))
-        endif
 
         idxReaction = GetInfoIndex(NDATASETS,'Normalised')
         normalised = 0    ! defaults to absolute cross section
@@ -672,29 +663,6 @@ C     ---> copy the names in a new variable
      $        Name
            call HF_errlog(14042001,trim(Msg))
         endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'MurDef')
-        murdef = -1    ! defaults: scale1 for pp/ppbar
-        if ( idxReaction .ne. 0 ) then
-           murdef = DATASETInfo(idxReaction, NDATASETS)
-           if ( murdef .ne. -1 ) then
-              write (Msg,'(''I: Use mur defintion '',i1,'' for fastNLO dataset: '',A20,'' '')')
-     $             murdef,Name
-              call HF_errlog(15102301,trim(Msg))
-           endif
-        endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'MufDef')
-        mufdef = -1    ! defaults: scale1 for pp/ppbar
-        if ( idxReaction .ne. 0 ) then
-           mufdef = DATASETInfo(idxReaction, NDATASETS)
-           if ( murdef .ne. -1 ) then
-              write (Msg,'(''I: Use muf defintion '',i1,'' for fastNLO dataset: '',A20,'' '')')
-     $             murdef, Name
-              call HF_errlog(15102302,trim(Msg))
-           endif
-        endif
-
 
         call set_theor_eval(NDATASETS)
       endif

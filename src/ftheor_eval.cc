@@ -73,13 +73,10 @@ extern struct thexpr_cb {
   char terminfo  [NTERMMAX][TERMINFO_LEN];
   char termsource[NTERMMAX][TERMSOURCE_LEN];
   char theorexpr[THEOREXPR_LEN];
-  int ppbar_collisions;
   int normalised;
   double normalisation;
-  int murdef;
-  int mufdef;
-  int ninfo;  // dataset info as well
   double datainfo[100];
+  int ninfo;  // dataset info as well
   char CInfo[100][80];
   char dsname[80];
   int  ds_index;
