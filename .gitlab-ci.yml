@@ -9,8 +9,7 @@ stages:
   - build-full
 
 before_script:
-  - yum -y install yum-plugin-ovl
-  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
 
 job-install-minimal:
   stage: build-minimal
@@ -29,7 +28,7 @@ job-install-full:
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
     - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl >& download-lhapdf.log
     - cat *.log
-    - ./make.sh install > compile-xfitter.log
+    - ./make.sh install
     - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
     - rm -rf temp-datafiles
