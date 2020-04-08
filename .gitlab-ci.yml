@@ -12,7 +12,7 @@ before_script:
   - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
 
 job-install-minimal:
-  stage: build-minimal
+#  stage: build-minimal
   only: [merge_requests]
   script: 
     - ./make.sh install
@@ -20,7 +20,7 @@ job-install-minimal:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
 job-install-full:
-  stage: build-full
+#  stage: build-full
   only: [merge_requests]
 #  cache: {}
   timeout: 120m
