@@ -22,8 +22,6 @@ job-install-full:
   stage: build-full
   only: [merge_requests]
   script: 
-    - ls
-    - ls bin
     - yum -y install gcc-gfortran git tar root libgfortran-static
     - ./tools/install-xfitter deps
     - . setup.sh
