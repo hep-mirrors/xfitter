@@ -368,7 +368,7 @@ else
  # setup paths for applgrid:
     export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
     export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
-    export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib
+    export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}
     export LD_LIBRARY_PATH=$CURRENTDIR/deps/lhapdf/lib/:$LD_LIBRARY_PATH
     echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
     export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a`
@@ -614,7 +614,7 @@ rm /tmp/xf_py1234_a
 
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
-echo export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib       >> setup.sh
+echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
@@ -638,7 +638,7 @@ fi
 echo source ./setup.sh > compile
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
-echo export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib       >> compile
+echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
@@ -763,5 +763,6 @@ then
     echo "To read again these instructions, see quickstart-readme.txt"
     echo "Have fun!"
 fi
+
 
 
