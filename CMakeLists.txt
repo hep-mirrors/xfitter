@@ -25,8 +25,8 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 #TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
 find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
-find_package(QCDNUM REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(QCDNUM)
 find_package(LHAPDF)
 find_package(APPLgrid)
 find_package(APFEL)
@@ -55,6 +55,15 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132")
 else()
   message(FATAL_ERROR "Unknown Fortran compiler ${CMAKE_Fortran_COMPILER_ID}")
+endif()
+
+#For Debug builds, enable checks of array bounds and trap floating-point errors
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fbounds-check -ffpe-trap='invalid,overflow,zero'")
+  elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -check bounds -fpe0")
+  endif()
 endif()
 
 #When linking, set rpath to install directories

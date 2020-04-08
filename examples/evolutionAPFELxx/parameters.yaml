@@ -1,22 +1,16 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
     call fcn 3
-#    call fcn 1
-#    migrad
-#    hesse
-#    call fcn 3
-    
-#  doErrors :  Hesse # None
 
 Parameters:
   Ag   :  DEPENDENT
   Bg   : [ -0.061953, 0.27 ]
   Cg   : [  5.562367,  0.32 ]
-  Agp  : [ 0.07311, 0.01 ]  # negative gluon ....
+  Agp  : [ 0.07311, 0.01 ]
   Bgp  : [ -0.383100, 0.01 ]
-  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  Cgp  : [ 25.0, 0.]
   Auv  :  DEPENDENT
   Buv  : [ 0.810476, 0.016 ]
   Cuv  : [ 4.823512, 0.06 ]
@@ -25,21 +19,13 @@ Parameters:
   Adv  :  DEPENDENT
   Bdv  : [ 1.029995, 0.06 ]
   Cdv  : [ 4.846279, 0.3 ]
-  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
-  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
   Cubar: [ 7.059694, 0.8 ]
   Dubar: [ 1.548098, 1.0 ]
   Adbar: [ 0.1613, 0.01 ]
   Bdbar: [ -0.1273, 0.004  ]
-  Cdbar: # another example of providing value, step etc.
-    value: 9.586246
-    step: 1.2345
-    #min
-    #max
-    #pr_mean
-    #pr_sigma
-  ZERO : [ 0. ]          # zero
-  fs   :   0.4   #no step means fixed
+  Cdbar: [ 9.586246, 1.2345 ]
+  ZERO : 0
+  fs   : 0.4
   DbarToS: "=fs/(1-fs)"
 
 Parameterisations:
@@ -62,16 +48,6 @@ Parameterisations:
   par_g:
     class: NegativeGluon
     parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
-  #par_s:
-    #class: HERAPDF
-    #parameters: [As,Bs,Cs]
-  #par_s:
-    #class: Expression
-    #expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
-  # Another example for Expression parameterisation
-  #par_g:
-    #class: Expression
-    #expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
 DefaultDecomposition: proton
 Decompositions:
@@ -84,36 +60,12 @@ Decompositions:
     xs: par_s
     xg: par_g
 
-#DefaultEvolution: proton-APFELff
-#DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
-
 DefaultEvolution: proton-APFEL
 
 Evolutions:
-  proton-APFELff:
-    ? !include evolutions/APFEL.yaml
-    decomposition: proton
-  proton-QCDNUM:
-    ? !include evolutions/QCDNUM.yaml
-    decomposition: proton #this could be omitted, as the default decomposition is set
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    #EvolutionCopy: "proton-LHAPDF"
-  proton-LHAPDF:
-    class: LHAPDF
-    set: "NNPDF30_nlo_as_0118"
-    #set: "CT10nlo"
-    member: 0
   proton-APFEL:
     ? !include evolutions/APFELxx.yaml
     decomposition: proton
-  antiproton:
-    class: FlipCharge
-    #input: proton-QCDNUM
-    input: proton-LHAPDF
-#  neutron:
-#    class: FlipUD
-#    input: proton-QCDNUM
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
@@ -122,75 +74,16 @@ Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 alphas : 0.118
 
 byReaction:
-  # RT DIS scheme settings:
-  RT_DISNC:
-    ? !include reactions/RT_DISNC.yaml
-    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-    #evolution: proton-QCDNUM
-  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-  #BaseDISCC:
-  #  evolution: proton-QCDNUM
-  # FONLL scheme settings:
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
-  # FF ABM scheme settings:
-  FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC.yaml
-  FFABM_DISCC:
-    ? !include reactions/FFABM_DISCC.yaml
-  # AFB settings:
-  AFB:
-    ? !include reactions/AFB.yaml
-  # APPLgrid settings:
   APPLgrid:
     ? !include reactions/APPLgrid.yaml
-  # (optional) Fractal module settings:
-  Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC.yaml
 
-# Specify HF scheme used for DIS NC processes:
-hf_scheme_DISNC :
-  defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
-#  defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
-
-# Specify HF scheme used for DIS CC processes:
-hf_scheme_DISCC :
-  defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
-
-#
-# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
-#
 Profiler:
   Parameters:
-    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
-  #Evolutions:
-  #  proton-LHAPDF:
-  #    sets:    [CT10]
-  #    members: [[0,1,end]]
-  Status: "Off"               # "Off" to turn off profiler
-  WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
-  getChi2: "Off"              # determine and report chi2 for each variation
+    alphas: [ 0.118, 0.119, 0.117 ]
+  Status: "Off"
+  WriteTheo: "Off"
+  getChi2: "Off"
 
 WriteLHAPDF6:
   name: "proton"
-  description: "..."
-  authors: "..."
-  reference: "..."
-    # use DefaultEvolution
-  #evolution: proton-QCDNUM
-    # take internal grid
   preferInternalGrid:
-    # or define grid
-  #Xrange: [1e-4, 1]
-  #Qrange: [1,1000]
-  #Xnpoints: 200
-  #Qnpoints: 120
