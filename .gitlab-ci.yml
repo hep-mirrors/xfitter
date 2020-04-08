@@ -5,14 +5,22 @@ cache:
     - deps
 
 stages:
-  - build
+  - build-minimal
+  - build-full
 
 before_script:
   - yum -y install yum-plugin-ovl
   - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel gcc-gfortran cmake git tar root libgfortran-static
 
-job-install:
-  stage: build
+job-install-minimal:
+  stage: build-minimal
+  only: [merge_requests]
+  script: "./make.sh install"
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+
+job-install-full:
+  stage: build-full
   only: [merge_requests]
   script: 
     - ./tools/install-xfitter deps
