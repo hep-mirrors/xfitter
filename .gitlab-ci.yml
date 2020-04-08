@@ -4,9 +4,9 @@ image: "gitlab-registry.cern.ch/fitters/xfitter"
 #  paths:
 #    - deps
 
-stages:
-  - build-minimal
-  - build-full
+#stages:
+#  - build-minimal
+#  - build-full
 
 before_script:
   - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
@@ -15,7 +15,6 @@ job-install-minimal:
   stage: build-minimal
   only: [merge_requests]
   script: 
-    - ls deps
     - ./make.sh install
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
