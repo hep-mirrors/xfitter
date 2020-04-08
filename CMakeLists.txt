@@ -25,8 +25,8 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 #TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
 find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
-find_package(QCDNUM REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(QCDNUM)
 find_package(LHAPDF)
 find_package(APPLgrid)
 find_package(APFEL)
