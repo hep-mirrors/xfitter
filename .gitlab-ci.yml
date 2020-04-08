@@ -6,7 +6,6 @@ cache:
 
 stages:
   - build-minimal
-  - build-full
 
 before_script:
   - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
