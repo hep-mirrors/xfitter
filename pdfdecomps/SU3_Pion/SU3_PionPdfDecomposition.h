@@ -11,17 +11,17 @@
     ubar=d
     dbar=u=s=sbar
   Parametrised distributions are:
-    v:=(dval-uval)/2=d-u
-    S:=(u   +dbar)/2=u
+    v:=dval-uval=2(d-u)
+    S:=2u+2dbar+s+sbar=6u
     g
-  Therefore, transformations to physical basis:
-    d=ubar=v+S
-    u=dbar=s=sbar=S
+  Therefore, transformations to flavor basis:
+    d=ubar=v/2+S/6
+    u=dbar=s=sbar=S/6
     g=g
     others=0
   And sum rules for pi- are:
-    \int_0^1 v dx=1
-    \int_0^1 x*(6S+2v+g) dx=1
+    \int_0^1 v dx=2
+    \int_0^1 x*(v+S+g) dx=1
   @version 0.2
   @date 2018-08-14
   */
