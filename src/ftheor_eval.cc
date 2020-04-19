@@ -22,8 +22,9 @@
 #include "xfitter_pars.h"
 #include"dependent_pars.h"
 
-#include "BaseEvolution.h"
+#include "BasePdfParam.h"
 #include "BasePdfDecomposition.h"
+#include "BaseEvolution.h"
 #include "BaseMinimizer.h"
 
 using namespace std;
@@ -241,6 +242,11 @@ void close_theor_eval_()
 
 void init_at_iteration_() {
   xfitter::updateDependentParameters();
+
+  for(const auto it:XFITTER_PARS::gParameterisations){
+    it.second->atIteration();
+  }
+
   for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
     pdfdecomposition.second->atIteration();//Among other things, sumrules are handled here
   }
