@@ -308,6 +308,25 @@ YAML::Node loadYamlFile(const string&filename){
   return node;
 }
 /*
+\brief compare two nodes, returns true if they are equal (works only if they are scalars or sequences, does not work for maps: returns false)
+*/
+bool areEqual(const YAML::Node&node1,const YAML::Node&node2,unsigned int recursionLimit=256){
+    if(recursionLimit==0){
+        hf_errlog(20032501,"F: Recursion limit reached while checking YAML list equality");
+    }
+    if(node1.IsScalar() && node2.IsScalar()){
+        return (node1.as<string>() == node2.as<string>());
+    }
+    else if(node1.IsSequence() && node2.IsSequence()){
+        for(size_t i = 0; i < node1.size(); i++){
+            auto ret = areEqual(node1[i], node2[i], recursionLimit-1);
+            if (!ret) return false;
+        }
+    }
+    // otherwise we assume nodes are different: it is not clear how to compare maps
+    return false;
+}
+/*
 \brief Process "? !include" directives in the YAML steering
 \details
   For each "? !include" directive in the loaded YAML tree,
@@ -385,8 +404,10 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
       if(it->first.IsScalar()){
         string key=it->first.Scalar();
         if(node[key]){
-          clog<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
-          hf_errlog(18092604,"I: locally defined setting overrides included, see stdlog");
+            if(!areEqual(it->second, node[key])){
+              cout<<"[INFO] Option "<<key<<"="<<it->second<<" included from file "<<filename<<" is overridden by locally defined option "<<key<<"="<<node[key]<<endl;
+              hf_errlog(18092604,"I: locally defined setting overrides included, see stdlog");
+            }
         }else node[key]=it->second;
       }else{
         hf_errlog(19033101,"W: including YAML maps with non-scalar keys is poorly supported and does not handle overriding keys, use at your own risk!");
