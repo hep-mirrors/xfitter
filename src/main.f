@@ -48,6 +48,11 @@ C      call hfbanner
          endif
       endif
 
+*
+*  Read parameters:
+*
+      call parse_params() !read parameters.yaml
+
 *     ------------------------------------------------
 *     Read the steering file steering.txt
 *     ------------------------------------------------ 
@@ -58,11 +63,6 @@ C      call hfbanner
 
 * Init random numbers 
       call init_rnd_seeds()
-
-*
-*  Read parameters:
-*
-      call parse_params() !read parameters.yaml
 
 *     ------------------------------------------------
 *     Read the measured data points
