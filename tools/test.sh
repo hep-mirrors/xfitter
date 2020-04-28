@@ -2,7 +2,7 @@
 
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
-omitTests=('ceresZMVFNSfastChi2')
+omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
 
 install_dir=$(pwd)
 # xfitter binary
@@ -302,4 +302,4 @@ else
   fi
 fi
 
-exit $flagBAD
+exit $testsFailed

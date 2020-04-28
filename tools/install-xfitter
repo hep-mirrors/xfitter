@@ -13,6 +13,10 @@ melaver=2.0.1
 apfelgridver=1.0.1
 apfelxxver=4.0.0
 
+# skip some packages depending on xfitter version
+skip_mela=0
+skip_apfelgrid=0
+
 ## Optional manual configurations
 #MANUALCONF=1
 
@@ -69,15 +73,19 @@ if [[ $mode != "deps" ]]
 else
     if [[ ! -e version ]]
         then
-        echo
-        echo "could not find file \"version\""
-        echo "cannot determine current version"
-        echo "run first:"
-        echo "$0 <version>"
-        echo
-        exit
+        # assume it is master (e.g. for gitlab CI)
+        version="master"
+        #
+        #echo
+        #echo "could not find file \"version\""
+        #echo "cannot determine current version"
+        #echo "run first:"
+        #echo "$0 <version>"
+        #echo
+        #exit
+    else
+        version=`cat version`
     fi
-    version=`cat version`
     echo "reinstalling dependencies for xFitter version $version"
 fi
 # strip the xfitter version
@@ -131,13 +139,19 @@ then
     echo
     exit
 fi
-if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
-then
-    echo
-    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
-    echo "$0 $version"
-    echo
-    exit
+#if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
+#then
+#    echo
+#    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
+#    echo "$0 $version"
+#    echo
+#    exit
+#fi
+
+# skip some packages depending on xfitter version
+if [[ $version == "master" ]]; then
+  skip_mela=1
+  skip_apfelgrid=1
 fi
 
 #automatically detect system:
@@ -454,66 +468,70 @@ else
     cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
 
  #apfelgrid
-    if [ -d /cvmfs ]
-    then
-                lhapdf get NNPDF30_nlo_as_0118  >> $CURRENTDIR/install.log  2>&1
-        else
-                wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-                tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
-                mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir` >> $CURRENTDIR/install.log  2>&1
-                rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-        fi
-        echo "Installing APFELgrid $apfelgridver..."
-    # tmp solution is to use fork @zenaiev
-    apfelgridver=1.0.5
-    if [[ $http == "curl" ]]
-    then
-#       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
-        curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
-    else
-#       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-        wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    if [[ $skip_apfelgrid != 1 ]]; then
+      if [ -d /cvmfs ]
+      then
+                  lhapdf get NNPDF30_nlo_as_0118  >> $CURRENTDIR/install.log  2>&1
+          else
+                  wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+                  tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
+                  mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir` >> $CURRENTDIR/install.log  2>&1
+                  rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+          fi
+          echo "Installing APFELgrid $apfelgridver..."
+      # tmp solution is to use fork @zenaiev
+      apfelgridver=1.0.5
+      if [[ $http == "curl" ]]
+      then
+  #       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+          curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+      else
+  #       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+          wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      fi
+      mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
+      tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      cd APFELgrid-${apfelgridver}
+      ./setup.sh  >> $CURRENTDIR/install.log  2>&1
+      if [[ $? != 1 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      cd - >& /dev/null
     fi
-    mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
-    tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    cd APFELgrid-${apfelgridver}
-    ./setup.sh  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 1 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
-
+    
  #mela
-    echo "Installing MELA $melaver..."
+    if [[ $skip_mela != 1 ]]; then
+      echo "Installing MELA $melaver..."
 
-    if [[ $http == "curl" ]]
-    then
-        curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
-    else
-        wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    fi
-    mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
-    tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    cd MELA-${melaver}
-    ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
+      if [[ $http == "curl" ]]
+      then
+          curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
+      else
+          wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      fi
+      mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
+      tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      cd MELA-${melaver}
+      ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
 
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      cd - >& /dev/null
+   # setup paths for mela:
+      export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
- # setup paths for mela:
-    export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
-
+    
  #apfel
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
@@ -559,9 +577,37 @@ else
         exit
     fi
     cd - >& /dev/null
+
+  # numdiff
+    numdiff -v >& /dev/null
+    if [[ `echo $?` != "0" ]]; then
+      numdiffver='5.9.0'
+      echo "Installing numdiff $numdiffver..."
+      if [[ $http == "curl" ]]
+      then
+          curl http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+      else
+          wget http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      fi
+      tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+      cd numdiff-${numdiffver}
+      ./configure  --prefix=$CURRENTDIR/deps/numdiff  >> $CURRENTDIR/install.log  2>&1
+      echo export PATH=$CURRENTDIR/deps/numdiff/bin/:\$PATH >> $CURRENTDIR/setup.sh
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      cd - >& /dev/null
+    fi
 fi
 cd $CURRENTDIR
-
 
  #xfitter
 if [[ $mode != "deps" ]]
@@ -591,14 +637,14 @@ then
         rm -fr xfitter-${version}
         mkdir xfitter-${version} ; tar xfz xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
     fi
-else
-    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
+#else
+#    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
 fi
 
 
 #make a setup run enviroment script
 echo $version > version
-echo "export CURRENTDIR=`pwd`" > setup.sh
+echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
 echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
@@ -644,7 +690,10 @@ echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 
 
-echo cd xfitter-\$version                                        >> compile
+if [[ $mode != "deps" ]]
+then
+  echo cd xfitter-\$version                                        >> compile
+fi
 
 # check for YAML
 # xfitter 2.0.0 and 2.0.1 do not need YAML
@@ -671,7 +720,7 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   else
     echo "YAMLCPP no" >> $CURRENTDIR/install.log
   fi
-  #rm -f test-tmp.cc
+  rm -f test-tmp.cc
   rm -f test-tmp.o
 
   if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
@@ -682,24 +731,26 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   fi
 fi
 
-# configure
-if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
-  echo autoreconf --install                                 >> compile
-  echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
-  echo make -j 9 install                                    >> compile
-elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
-  # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
-  echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
-  echo make -j 9 install                                    >> compile
-  echo autoreconf --install                                 >> compile
-else
-  # cmake compilation
-  echo ./make.sh install >> compile
-fi
-
-
 chmod +x compile
-echo "Compiling xFitter $version..."
+
+# configure
+if [[ $mode != "deps" ]]
+then
+  if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
+    echo autoreconf --install                                 >> compile
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
+    echo make -j 9 install                                    >> compile
+  elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
+    # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
+    echo make -j 9 install                                    >> compile
+    echo autoreconf --install                                 >> compile
+  else
+    # cmake compilation
+    echo ./make.sh install >> compile
+  fi
+  echo "Compiling xFitter $version..."
+fi
 
 ./compile >> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
@@ -708,61 +759,62 @@ then
     exit
 fi
 
-# run test
 source ./setup.sh
-cd xfitter-${version}
 
-bin/xfitter >> $CURRENTDIR/install.log  2>&1
-
-
-
-if [[ $? != 0 ]]
+if [[ $mode == "deps" ]]
 then
-    echo "Error in testing xfitter executable, check install.log for details"
-    exit
-fi
-cd - >& /dev/null
-echo "xFitter installation successful!"
-echo "Check install.log file for details"
-echo
-# setup a run dir
-if [[ ! -e run ]]
-then
-    mkdir -p run
-    cp  xfitter-${version}/steering.txt \
-        xfitter-${version}/parameters.yaml \
-        xfitter-${version}/constants.yaml \
-        run
-    rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-    rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
+  echo "Installing xfitter dependencies is complete"
+  echo "Check install.log file for details"
 else
-    echo "\"run\" directory already exists, I won't touch it"
-    echo
+  # run test
+  cd xfitter-${version}
+  bin/xfitter >> $CURRENTDIR/install.log  2>&1
+
+  if [[ $? != 0 ]]
+  then
+      echo "Error in testing xfitter executable, check install.log for details"
+      exit
+  fi
+  cd - >& /dev/null
+  echo "xFitter installation successful!"
+  echo "Check install.log file for details"
+  echo
+  # setup a run dir
+  if [[ ! -e run ]]
+  then
+      mkdir -p run
+      cp  xfitter-${version}/steering.txt \
+          xfitter-${version}/parameters.yaml \
+          xfitter-${version}/constants.yaml \
+          run
+      rsync -a --exclude=".*" xfitter-${version}/datafiles run/
+      rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
+  else
+      echo "\"run\" directory already exists, I won't touch it"
+      echo
+  fi
+
+  #quick start guide
+  if [[ ! -e quickstart-readme.txt ]]
+  then
+      echo "for a quick start do:" >> quickstart-readme.txt
+      echo >> quickstart-readme.txt
+      echo "source setup.sh #setup environment" >> quickstart-readme.txt
+      echo "cd run          #enter your run directory" >> quickstart-readme.txt
+      echo "xfitter          #run your fit" >> quickstart-readme.txt
+      echo >> quickstart-readme.txt
+      echo "The fit options are controlled by the 3 files steering.txt, parameters.yaml, and constants.yaml" >> quickstart-readme.txt
+      echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
+      echo >> quickstart-readme.txt
+      echo "After the fit, display you results with:" >> quickstart-readme.txt
+      echo "xfitter-draw output/" >> quickstart-readme.txt
+      echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
+      echo "You can find further documentation in xfitter-$version/README and xfitter-$version/doc/tex/manual/" >> quickstart-readme.txt
+      echo "-----------------------------------------------------------"
+      cat quickstart-readme.txt
+      echo "-----------------------------------------------------------"
+      echo
+      echo "To read again these instructions, see quickstart-readme.txt"
+      echo "Have fun!"
+  fi
 fi
-
-#quick start guide
-if [[ ! -e quickstart-readme.txt ]]
-then
-    echo "for a quick start do:" >> quickstart-readme.txt
-    echo >> quickstart-readme.txt
-    echo "source setup.sh #setup environment" >> quickstart-readme.txt
-    echo "cd run          #enter your run directory" >> quickstart-readme.txt
-    echo "xfitter          #run your fit" >> quickstart-readme.txt
-    echo >> quickstart-readme.txt
-    echo "The fit options are controlled by the 3 files steering.txt, parameters.yaml, and constants.yaml" >> quickstart-readme.txt
-    echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
-    echo >> quickstart-readme.txt
-    echo "After the fit, display you results with:" >> quickstart-readme.txt
-    echo "xfitter-draw output/" >> quickstart-readme.txt
-    echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
-    echo "You can find further documentation in xfitter-$version/README and xfitter-$version/doc/tex/manual/" >> quickstart-readme.txt
-    echo "-----------------------------------------------------------"
-    cat quickstart-readme.txt
-    echo "-----------------------------------------------------------"
-    echo
-    echo "To read again these instructions, see quickstart-readme.txt"
-    echo "Have fun!"
-fi
-
-
-
