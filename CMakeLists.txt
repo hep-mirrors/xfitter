@@ -34,6 +34,7 @@ find_package(APFELxx)
 find_package(Ceres QUIET)
 include(find_package_ROOT)
 find_package(Hathor)
+find_package(yaml)
 
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
@@ -131,3 +132,5 @@ add_subdirectory(reactions/fastNLO)
 
 #Tools
 add_subdirectory(tools/draw/src)
+add_subdirectory(pdf2yaml)
+add_subdirectory(tools/process)
