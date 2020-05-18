@@ -25,7 +25,8 @@ job-install-full:
 #  cache: {}
   timeout: 120m
   script: 
-    - yum -y install gcc-gfortran git tar root libgfortran-static
+#    - yum -y install gcc-gfortran git tar root libgfortran-static
+    - yum -y install gcc-gfortran git tar root-6.18.04 libgfortran-static
     - ./tools/install-xfitter deps
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
