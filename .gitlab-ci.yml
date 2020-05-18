@@ -40,6 +40,7 @@ job-install-full:
     - cd -
     - ./tools/test.sh
     - cat temp/FFABM/test.log
+    - cat temp/FFABM/xfitter.log
 
 #nightly_devel:
 #  stage: nightly
