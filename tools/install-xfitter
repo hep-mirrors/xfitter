@@ -583,11 +583,14 @@ else
     if [[ `echo $?` != "0" ]]; then
       numdiffver='5.9.0'
       echo "Installing numdiff $numdiffver..."
+      # 17 May 2020: this link to download numdiff seems to be dead
+      #numdiff_url=http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz
+      numdiff_url=http://ftp.igh.cnrs.fr/pub/nongnu/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
-          curl http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+          curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
       else
-          wget http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+          wget ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       fi
       tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
       cd numdiff-${numdiffver}
