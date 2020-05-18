@@ -41,6 +41,9 @@ job-install-full:
     - ./tools/test.sh FFABM
     - cat temp/FFABM/test.log
     - cat temp/FFABM/xfitter.log
+    - cat temp/FFABM/output/parsout_0
+    - cat temp/FFABM/output/parsout_1
+    - cat temp/FFABM/output/minuit.out.txt
 
 #nightly_devel:
 #  stage: nightly
