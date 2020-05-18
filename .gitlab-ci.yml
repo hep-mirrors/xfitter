@@ -39,6 +39,7 @@ job-install-full:
     - git reset --hard HEAD
     - cd -
     - ./tools/test.sh
+    - cat temp/FFABM/test.log
 
 #nightly_devel:
 #  stage: nightly
