@@ -38,7 +38,7 @@ job-install-full:
     - cd datafiles
     - git reset --hard HEAD
     - cd -
-    - ./tools/test.sh
+    - ./tools/test.sh FFABM
     - cat temp/FFABM/test.log
     - cat temp/FFABM/xfitter.log
 
