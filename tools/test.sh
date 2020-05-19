@@ -302,5 +302,4 @@ else
   fi
 fi
 
-#exit $testsFailed
-exit 0
+exit $testsFailed
