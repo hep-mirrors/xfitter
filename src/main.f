@@ -19,6 +19,7 @@ C-------------------------------------------------------
 #include "covar.inc"
 #include "theorexpr.inc"
 #include "chi2scan.inc"
+#include "extrapars.inc"
 
       integer icond
       integer nOffset
@@ -51,6 +52,7 @@ C      call hfbanner
 *
 *  Read parameters:
 *
+      nExtraParam = 0
       call parse_params() !read parameters.yaml
 
 *     ------------------------------------------------
