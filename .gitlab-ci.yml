@@ -26,7 +26,7 @@ job-install-full:
   timeout: 120m
   script: 
 #    - yum -y install gcc-gfortran git tar root libgfortran-static
-    - yum -y install gcc-gfortran git tar root-6.18.04 libgfortran-static
+    - yum -y install gcc-gfortran git tar root libgfortran-static
     - ./tools/install-xfitter deps
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
@@ -39,12 +39,7 @@ job-install-full:
     - cd datafiles
     - git reset --hard HEAD
     - cd -
-    - ./tools/test.sh FFABM
-    - cat temp/FFABM/test.log
-    - cat temp/FFABM/xfitter.log
-    - cat temp/FFABM/output/parsout_0
-    - cat temp/FFABM/output/parsout_1
-    - cat temp/FFABM/output/minuit.out.txt
+    - ./tools/test.sh
 
 #nightly_devel:
 #  stage: nightly
