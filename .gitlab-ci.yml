@@ -16,7 +16,6 @@ job-install-minimal:
   only: [merge_requests]
   script: 
     - ./make.sh install
-    - ./tools/test.sh defaultNNLO
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
