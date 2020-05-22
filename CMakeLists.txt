@@ -20,6 +20,13 @@ set(DEST_LIB lib) #main library
 set(DEST_MODULE lib/xfitter) #dynamically-loaded libraries
 set(DEST_YAML share/xfitter) #YAML configuration files
 
+############################################################
+#  Include local definitions here
+include(${CMAKE_CURRENT_SOURCE_DIR}/paths.cmake)
+############################################################
+
+
+
 #Find packages
 #see cmake/FindXXX.cmake for find scripts
 #TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
