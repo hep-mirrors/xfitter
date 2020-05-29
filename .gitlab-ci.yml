@@ -13,7 +13,9 @@ before_script:
 
 job-install-minimal:
 #  stage: build-minimal
-  only: [merge_requests]
+  only: 
+    - merge_requests
+    - schedules
   script: 
     - ./make.sh install
   variables:
@@ -21,7 +23,9 @@ job-install-minimal:
 
 job-install-full:
 #  stage: build-full
-  only: [merge_requests]
+  only: 
+    - merge_requests
+    - schedules
 #  cache: {}
   timeout: 120m
   script: 
