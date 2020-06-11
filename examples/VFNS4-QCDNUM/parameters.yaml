@@ -90,8 +90,8 @@ DefaultEvolution: proton-QCDNUM
 
 Evolutions:
   #proton-APFELff:
-    #? !include evolutions/APFEL.yaml
-    #decomposition: proton
+  #  ? !include evolutions/APFEL.yaml
+  #  decomposition: proton
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
