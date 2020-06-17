@@ -113,7 +113,7 @@ void ReactionHathor::initTerm(TermData *td)
   if(schemeName == "NLO")
     scheme = scheme | Hathor::NLO;
   else if(schemeName == "NNLO")
-    scheme = scheme | Hathor::NNLO;
+    scheme = scheme | Hathor::NLO | Hathor::NNLO;
   // set mass scheme (default is pole mass scheme)
   // here local value is preferred over global one
   int msMass = 0; // pole mass by default
