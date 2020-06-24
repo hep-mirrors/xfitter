@@ -154,7 +154,7 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
   if(order == "NLO")
     _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;
   if(order == "NNLO")
-    _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NNLO;
+    _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO | Hathor::NNLO;
   int msMass = 0; // pole mass by default
   if(td->hasParam("MS_MASS"))
     msMass = td->getParamI("MS_MASS");
