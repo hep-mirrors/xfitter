@@ -23,7 +23,7 @@ xfitter::BaseEvolution* gExternalEvolution;
 // Wrapper for QCDNUM
 double funcPDF(int *ipdf, double *x) {
   if (*ipdf<0) return 0.;
-  const std::map <int,int> ip = { {1,-3}, {2,-2}, {3,-1}, {4,1}, {5,2}, {6,3}, {0,21} } ;
+  const std::map <int,int> ip = { {1,-3}, {2,-2}, {3,-1}, {4,1}, {5,2}, {6,3}, {7,-4}, {8,4}, {9,-5}, {10,5}, {11,-6}, {12,6}, {0,21} } ;
   return gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)];
 }
 
@@ -63,12 +63,12 @@ double static   qcdnumDef[] = {
   0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.,  // d
   0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.,  // u
   0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.,  // s
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  //
-  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.  //
+  0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // cb
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.,  // c
+  0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // bb
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.,  // b
+  1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // tb
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.  // t
 };
 
 
@@ -184,20 +184,30 @@ namespace xfitter {
 
     // For now VFNS only and NFlavour = 3 only
     int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
-    if(nflavour == 3)
+    if(nflavour < 3 || nflavour > 6)
+      hf_errlog(110520201, "F: Unsupported NFlavour = " + std::to_string(nflavour));
+    int isFFNS = 0; // VFNS by default
+    if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end())
+      isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
+    if(isFFNS == 1)
     {
-      std::cout << "Fixed Flavour Number Scheme set with nf=3" << std::endl;
-      QCDNUM::setcbt(3,iqc,iqb,iqt);
+      std::cout << "Fixed Flavour Number Scheme set with nf=" << nflavour << std::endl;
+      QCDNUM::setcbt(nflavour,0,0,0);
     }
-    else if(nflavour == 5)
+    else if(isFFNS == 0)
     {
-      std::cout << "Variable Flavour Number Scheme set with nf=5" << std::endl;
-      QCDNUM::setcbt(0,iqc,iqb,iqt);
+      std::cout << "Variable Flavour Number Scheme set with nf=" << nflavour << std::endl;
+      if(nflavour == 3)
+        QCDNUM::setcbt(0,0,0,0);
+      else if(nflavour == 4)
+        QCDNUM::setcbt(0,iqc,0,0);
+      else if(nflavour == 5)
+        QCDNUM::setcbt(0,iqc,iqb,0);
+      else if(nflavour == 6)
+        QCDNUM::setcbt(0,iqc,iqb,iqt);
     }
     else
-    {
-      hf_errlog(280320191, "F: Unsupported NFlavour = " + std::to_string(nflavour));
-    }
+      hf_errlog(110520202, "F: Unsupported isFFNS = " + std::to_string(isFFNS));
 
     // Init SF
     int id1=0;      int id2=0;      int nw=0;      int ierr=1;
