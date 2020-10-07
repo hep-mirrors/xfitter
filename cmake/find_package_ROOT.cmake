@@ -21,7 +21,9 @@ if(EXISTS ${root-config})
   list(APPEND ROOT_HINTS ${ROOT_PREFIX})
 endif()
 
-find_package(ROOT QUIET HINTS ${ROOT_HINTS})
+if(NOT CMAKE_VERSION VERSION_LESS 3.0.0)
+  find_package(ROOT QUIET HINTS ${ROOT_HINTS})
+endif()
 if(ROOT_FOUND)
   #Use variables provided by ROOTConfig.cmake
   #Remove some extra flags from ROOT_DEFINITIONS
