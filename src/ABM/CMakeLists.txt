@@ -19,5 +19,7 @@ add_library(ABM SHARED
   sf_abkm_wrap.f
   spline.f
   split.f
+  WGPLG.f
 )
+target_link_libraries(ABM xfitter)
 install(TARGETS ABM DESTINATION ${DEST_MODULE})

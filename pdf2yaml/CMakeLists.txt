@@ -10,5 +10,5 @@ install(TARGETS ${TARGET} DESTINATION ${DEST_LIB})
 
 # also test executable
 add_executable(test_pdf2yaml tests.c)
-target_link_libraries(test_pdf2yaml pdf2yaml xfitter)
+target_link_libraries(test_pdf2yaml pdf2yaml xfitter yaml)
 # Note that test_pdf2yaml executable can be found in ./build/pdf2yaml/ directory"
