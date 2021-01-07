@@ -47,7 +47,14 @@ else()
 endif()
 
 #Use c preprocessor with fortran
-set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+
+if(UNIX AND NOT APPLE)
+  set(CMAKE_Fortran_FLAGS "-cpp -Wno-argument-mismatch")
+endif()
+
+if(APPLE)
+  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+endif()
 
 #For Fortran
 #set max line length to 132
