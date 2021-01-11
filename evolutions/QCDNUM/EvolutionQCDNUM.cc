@@ -242,7 +242,7 @@ namespace xfitter {
 
       //Re-read Mz and alphas at each iteration so that they can be fitted
       double alS = *alphas;
-      if ( std::isnan(alS) ) {
+      if ( isnan(alS) ) {
         alS = 0.0001; //this should make chi2 bad and force minimizer to an earlier, valid, value of alphas
         cerr<<"[WARN] QCDNUM got alphas = NaN; using alphas = "<<alS<<" instead"<<endl;
         hf_errlog(19070500, "W: alphas = NaN in QCDNUM, see stderr");

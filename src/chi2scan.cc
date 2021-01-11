@@ -30,7 +30,7 @@ void chi2_scan_()
 #elif !defined APPLgrid_FOUND
 void chi2_scan_()
 {
- hf_errlog(14062501, "S: Call to chi2_scan but APPLgrid library are not linked.";);
+ hf_errlog(14062501, "S: Call to chi2_scan but APPLgrid library are not linked.");
 }
 #else
 
