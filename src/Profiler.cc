@@ -31,15 +31,27 @@ namespace xfitter
     return valarray<double>(c_theo_.theo, cndatapoints_.npoints);
   }
 
-  void Profiler::storePdfFiles(int imember) {
+  void Profiler::storePdfFiles(int imember, int iPDF, std::string const& type) {
     string filename = _outputDir + "/pdfs_q2val_";
 
     char tag[10];
-    
+
     if (imember>0) {
-      sprintf (tag, "s%02d", (imember+1) / 2);
-      filename +=  tag;
-      filename +=  imember%2 == 1 ? "p_" : "m_";
+      if (type == "hessian") {
+	sprintf (tag, "s%02d", (imember+1) / 2);
+	filename +=  tag;
+	filename +=  imember%2 == 1 ? "p_" : "m_";
+      }
+      else if ( type == "symmhessian") {
+	sprintf (tag, "s%02d", imember );
+	filename +=  tag;
+	filename +=  "s_";
+      }
+      else if ( type == "replicas") {
+	sprintf (tag, "mc%03d", imember );
+	filename +=  tag;
+	filename +=  "s_";
+      }
     }
     writefittedpoints_();
     store_pdfs_(filename.c_str(),filename.size());
@@ -251,12 +263,22 @@ namespace xfitter
         auto oMember=Clone(gNode["member"]);
 
         if ( ! oSet  || ! oMember ) {
-          hf_errlog(2018082410,"S: No set or member variables for evolution : "+evolName);
-        }//This should be evolution's problem, not Profiler's --Ivan
+          hf_errlog(2018082410,"W: No central set or member variables for evolution : "+evolName);
+        }
+
+	if (oSet.as<string>() != pName) {
+	  hf_errlog(2021011301,"W: Mismatch of the PDF set in the evolution and profiler: \033[1;31m" + oSet.as<string>() + " vs " + pName +  "\033[0m Could be ok, but beware.");
+	}
+
+        // Set central PDF and init 
+        gNode["set"]   =pName;
+        gNode["member"]=central;
+        evol->atConfigurationChange();
 
         // now we can get set properties: is it hessian asymmetric, MC or symmetric hessian
         std::string errorType = evol->getPropertyS("ErrorType");
         std::cout << "errorType: " << errorType << std::endl;
+
         if(error_type_override)
         {
             auto str = error_type_override[i].as<string>();
@@ -273,14 +295,10 @@ namespace xfitter
         // all predictions
         std::vector< std::valarray<double> > preds;
 
-        // Set central PDF and init 
-        gNode["set"]   =pName;
-        gNode["member"]=central;
-        evol->atConfigurationChange();
         preds.push_back(evaluatePredictions() );
 
 	if (_storePdfs) {
-	  storePdfFiles(0);
+	  storePdfFiles(0,i);
 	}
 
         if ( last == 0) {
@@ -311,16 +329,18 @@ namespace xfitter
           //}
           //std::cout << imember << std::endl;
 	  if (_storePdfs) {
-	    storePdfFiles(imember);
+	    storePdfFiles(imember,i,errorType);
 	  }
         }
 
         // Restore original
 
-        gNode["set"]   =oSet;
-        gNode["member"]=oMember;
-        evol->atConfigurationChange();
-
+	if ( oSet && oMember ) {
+	  gNode["set"]   =oSet;
+	  gNode["member"]=oMember;
+	  evol->atConfigurationChange();
+	}
+	
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
           for (int imember = first; imember<=last; imember++) {

@@ -46,8 +46,8 @@ namespace xfitter
     void profilePDF( std::string const& evolName, YAML::Node const& node) ;
 
 
-    /// Dump aux. plots
-    void storePdfFiles(int irep);
+    /// Dump aux. files
+    void storePdfFiles(int imember, int iPDF=0, std::string const& type="central");
 
     /// convert MC replicas  to eigenvectors
     void addReplicas(std::string const& pdfName,  std::vector< std::valarray<double> > const& uncertainties);
