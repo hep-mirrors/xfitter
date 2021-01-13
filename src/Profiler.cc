@@ -158,16 +158,13 @@ namespace xfitter
       }
     }
 
-    if (_getChi2) {
+    if (_storePdfs) {
       auto fname = _outputDir + "/Results.txt";
       bool cp = system(( (string)"rm -f " + fname  ).c_str());
       systematicsflags_.resetcommonsyst = true;
       fopen_(85, fname.c_str(), fname.size());
       double chi2Tot = chi2data_theory_(3);
       fclose_(85);
-    }
-
-    if (_storePdfs) {
       writefittedpoints_();
     }
   }
