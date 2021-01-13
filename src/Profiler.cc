@@ -10,6 +10,8 @@
 extern "C" {
   void update_theory_iteration_();
   void addsystematics_(char const* name, int len);
+  void store_pdfs_(char const* base, int len);
+  void writefittedpoints_();
 }
   
 namespace xfitter
@@ -29,6 +31,24 @@ namespace xfitter
     return valarray<double>(c_theo_.theo, cndatapoints_.npoints);
   }
 
+  void Profiler::storePdfFiles(int imember) {
+    string filename = _outputDir + "/pdfs_q2val_";
+
+    char tag[10];
+    
+    if (imember>0) {
+      sprintf (tag, "s%02d", (imember+1) / 2);
+      filename +=  tag;
+      filename +=  imember%2 == 1 ? "p_" : "m_";
+    }
+    writefittedpoints_();
+    store_pdfs_(filename.c_str(),filename.size());
+    sprintf (tag, "_%04d", imember);
+    bool cp = system(((string)"cp " + _outputDir + "/fittedresults.txt "
+		 + _outputDir + "/fittedresults.txt_set" + tag).c_str());
+
+  }
+  
   void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertainties ) {
 
     // Fortran inteface
@@ -82,9 +102,32 @@ namespace xfitter
       _getChi2 = node["getChi2"].as<string>() == "On";
     }
 
+    // extra info for xfitter-draw and xfitter-profile:
+    if (node["enableExternalProfiler"]) {
+      if (node["enableExternalProfiler"].as<string>() != "Off") {
+	_storePdfs = true;
+	_getChi2 = true;
+      }
+    }
+
+    //    _outputDir = "output";    //default
+    if(XFITTER_PARS::rootNode["OutputDirectory"]){
+      _outputDir = XFITTER_PARS::rootNode["OutputDirectory"].as<string>();
+    }
+
     int nsysloc = systema_.nsys;
     _nSourcesOrig = nsysloc;
 
+    if (_getChi2) { // central prediction
+      auto chi2tot = chi2data_theory_(1);
+      auto fname = _outputDir + "/Results.txt";
+      bool cp = system(( (string)"rm -f " + fname  ).c_str());
+      fopen_(85, fname.c_str(), fname.size());
+      double chi2Tot = chi2data_theory_(3);
+      fclose_(85);
+      cp = system(((string)"cp " + _outputDir + "/Results.txt " + _outputDir + "/Results_00.txt").c_str());
+    }
+    
     for(auto const&term:node){
       string name=term.first.as<string>();
       if(name=="Evolutions"){
@@ -113,6 +156,19 @@ namespace xfitter
         writetheoryfiles_(ntot-nsysloc, &cent[0], node["WriteTheo"].as<string>() != "Asymmetric");
         systema_.nsys = ntot;
       }
+    }
+
+    if (_getChi2) {
+      auto fname = _outputDir + "/Results.txt";
+      bool cp = system(( (string)"rm -f " + fname  ).c_str());
+      systematicsflags_.resetcommonsyst = true;
+      fopen_(85, fname.c_str(), fname.size());
+      double chi2Tot = chi2data_theory_(3);
+      fclose_(85);
+    }
+
+    if (_storePdfs) {
+      writefittedpoints_();
     }
   }
 
@@ -226,6 +282,10 @@ namespace xfitter
         evol->atConfigurationChange();
         preds.push_back(evaluatePredictions() );
 
+	if (_storePdfs) {
+	  storePdfFiles(0);
+	}
+
         if ( last == 0) {
           // auto determine XXXXXXXXXXXXXXXX
           last = evol->getPropertyI("NumMembers")-1;
@@ -253,6 +313,9 @@ namespace xfitter
           //std::cout << th << std::endl;
           //}
           //std::cout << imember << std::endl;
+	  if (_storePdfs) {
+	    storePdfFiles(imember);
+	  }
         }
 
         // Restore original
@@ -260,7 +323,6 @@ namespace xfitter
         gNode["set"]   =oSet;
         gNode["member"]=oMember;
         evol->atConfigurationChange();
-
 
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {

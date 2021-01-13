@@ -45,6 +45,10 @@ namespace xfitter
     /// profile PDFerrors
     void profilePDF( std::string const& evolName, YAML::Node const& node) ;
 
+
+    /// Dump aux. plots
+    void storePdfFiles(int irep);
+
     /// convert MC replicas  to eigenvectors
     void addReplicas(std::string const& pdfName,  std::vector< std::valarray<double> > const& uncertainties);
 
@@ -56,6 +60,12 @@ namespace xfitter
 
     /// keep info of the number of input syst. sources
     int _nSourcesOrig{0};
+
+    /// store pdf files or not (for plotting)
+    bool _storePdfs{false};
+
+    /// output directory name
+    string _outputDir{"output"};
   };
   
 } //namespace xfitter
