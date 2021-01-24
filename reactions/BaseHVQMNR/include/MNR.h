@@ -42,7 +42,7 @@ namespace MNR
     void CalcBinning();
 
     // Calculate cross sections for provided grid and heavy-quark mass xm
-    void CalcXS(Grid* grid, double xm);
+    void CalcXS(Grid* grid, double xm, double xm_mu0=-1.0);
 
     // Get number of light flavours
     int GetNl() { return fC_nl; }

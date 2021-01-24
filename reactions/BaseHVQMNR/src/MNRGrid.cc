@@ -287,7 +287,7 @@ namespace MNR
   // flag = 0: MSbar mass scheme with mu = mu_R
   // flag = 1: MSbar mass scheme with mu = mu_R and l != 0
   // flag = 2: MSR mass scheme with R provided (nf should be provided - number of flavours)
-  void Grid::InterpolateGrid(Grid *gridorig, Grid *gridtrg, double mq, Grid *gridorig_LO_massUp, double mq_masUp, Grid *gridorig_LO_massDown, double mq_masDown, int flag, double* R, int* nf)
+  void Grid::InterpolateGrid(Grid *gridorig, Grid *gridtrg, double mq, Grid *gridorig_LO_massUp, double mq_masUp, Grid *gridorig_LO_massDown, double mq_masDown, int flag, double* R, int* nf, double mq_mu0)
   {
     double mqDiff = mq_masUp - mq_masDown;
     // Get pT array of target grid
@@ -341,13 +341,16 @@ namespace MNR
             double xsecOld_LO_massUp = spline_LO_massUp.Eval(pt2);
             double xsecOld_LO_massDown = spline_LO_massDown.Eval(pt2);
             double delta = 0.0;
-            if(flag == 0 || flag == 1)
+            if(flag == 0 || flag == 1 || flag == 11)
             {
               double as = spline_as.Eval(pt2);
               double mr = spline_mr.Eval(pt2);
               double d1 = 4.0 / 3.0;
               if(flag == 1)
                 d1 += 2.0 * TMath::Log(mr / mq);
+              else if(flag == 11)
+                //d1 += 2.0 * TMath::Log(2.*mr / mq);
+                d1 += 2.0 * TMath::Log(mq_mu0 / mq);
               delta = as / TMath::Pi() * d1 * mq * (xsecOld_LO_massUp - xsecOld_LO_massDown) / mqDiff;
             }
             else if(flag == 2)
