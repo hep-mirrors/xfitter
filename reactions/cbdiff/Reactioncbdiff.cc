@@ -98,12 +98,18 @@ void Reactioncbdiff::initTerm(TermData *td)
   //GetMuPar('r', 'q', par->mr_A_c, par->mr_B_c, par->mr_C_c, pars);
   par->mf_A_c = *td->getParamD("mf_A");
   par->mf_B_c = *td->getParamD("mf_B");
+  par->mf_C_c = 0.0;
+  if(td->hasParam("mf_C"))
+    par->mf_C_c = *td->getParamD("mf_C");
   par->mr_A_c = *td->getParamD("mr_A");
   par->mr_B_c = *td->getParamD("mr_B");
+  par->mr_C_c = 0.0;
+  if(td->hasParam("mr_C"))
+    par->mr_C_c = *td->getParamD("mr_C");
   // fragmentation parameters
   par->fragpar_c = *td->getParamD("FragPar");
   PrintParameters(par.get());
-  // pole, MSbar or MSR mass (0 pole, 1 MSbar, 2 MSR)
+  // pole, MSbar or MSR mass (0 pole, 1 MSbar, 2 MSR, 10 MSbar with log term in d1, 11 MSbar with varied mu_m - mq_mu0 must be secified)
   _mapMassScheme[dataSetID] = td->hasParam("MS_MASS") ? td->getParamI("MS_MASS") : 0;
   printf("MNR: order = %s MS_MASS = %d\n", order.c_str(), _mapMassScheme[dataSetID]);
   // divide or not by bin width
@@ -244,7 +250,14 @@ void Reactioncbdiff::compute(TermData *td, valarray<double> &val, map<string, va
   if(par->mc < 0.0 || par->mc != par->mc)
     par->mc = 1000.0; // probably there are no heavy quarks for which mass of 1000 GeV would be reasonable
 
-  mnr->CalcXS(grid.get(), par->mc);
+  double mc_mu0 = -1.0;
+  double mc_mu0_var = 0;
+  if(_mapMassScheme[dataSetID] == 11) 
+  {
+    mc_mu0 = *td->getParamD("mq_mu0");
+    mc_mu0_var = *td->getParamD("mq_mu0_var");
+  }
+  mnr->CalcXS(grid.get(), par->mc, mc_mu0);
 
   // tarnsformation to MSbar mass scheme
   if(_mapMassScheme[dataSetID])
@@ -258,14 +271,14 @@ void Reactioncbdiff::compute(TermData *td, valarray<double> &val, map<string, va
     mnr->fMf_B = mfB * pow(par->mc / massU, 2.0);
     mnr->fMr_B = mrB * pow(par->mc / massU, 2.0);
     std::shared_ptr<MNR::Grid> gridLOMassU(_mapGridLOMassUp[dataSetID]);
-    mnr->CalcXS(gridLOMassU.get(), massU);
+    mnr->CalcXS(gridLOMassU.get(), massU, mc_mu0);
 
     // LO mass down variation
     double massD = par->mc - _mapMassDiff[dataSetID];
     mnr->fMf_B = mfB * pow(par->mc / massD, 2.0);
     mnr->fMr_B = mrB * pow(par->mc / massD, 2.0);
     std::shared_ptr<MNR::Grid> gridLOMassD(_mapGridLOMassDown[dataSetID]);
-    mnr->CalcXS(gridLOMassD.get(), massD);
+    mnr->CalcXS(gridLOMassD.get(), massD, mc_mu0);
 
     // restore original scales
     mnr->fMf_B = mfB;
@@ -276,6 +289,11 @@ void Reactioncbdiff::compute(TermData *td, valarray<double> &val, map<string, va
       int flagMSbarTransformation = 0; // d1=4/3 (no ln)
       MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, flagMSbarTransformation);
     }
+    else if(_mapMassScheme[dataSetID] == 10)
+    {
+      int flagMSbarTransformation = 1; // d1=4/3 + ln
+      MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, flagMSbarTransformation);
+    }
     else if(_mapMassScheme[dataSetID] == 2)
     {
       double R = 3.0;
@@ -283,6 +301,11 @@ void Reactioncbdiff::compute(TermData *td, valarray<double> &val, map<string, va
         R = 1.0;
       int nl = mnr->GetNl();
       MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, 2, &R, &nl);
+    }
+    else if(_mapMassScheme[dataSetID] == 11)
+    {
+      // MSbar with mu_m variation as used in 2009.07763
+      MNR::Grid::InterpolateGrid(grid.get(), gridSm.get(), par->mc, gridLOMassU.get(), massU, gridLOMassD.get(), massD, 11, 0, 0, mc_mu0*mc_mu0_var);
     }
   }
   else
