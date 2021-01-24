@@ -10,6 +10,8 @@
 extern "C" {
   void update_theory_iteration_();
   void addsystematics_(char const* name, int len);
+  void store_pdfs_(char const* base, int len);
+  void writefittedpoints_();
 }
   
 namespace xfitter
@@ -29,6 +31,36 @@ namespace xfitter
     return valarray<double>(c_theo_.theo, cndatapoints_.npoints);
   }
 
+  void Profiler::storePdfFiles(int imember, int iPDF, std::string const& type) {
+    string filename = _outputDir + "/pdfs_q2val_";
+
+    char tag[10];
+
+    if (imember>0) {
+      if (type == "hessian") {
+	sprintf (tag, "s%02d", (imember+1) / 2);
+	filename +=  tag;
+	filename +=  imember%2 == 1 ? "p_" : "m_";
+      }
+      else if ( type == "symmhessian") {
+	sprintf (tag, "s%02d", imember );
+	filename +=  tag;
+	filename +=  "s_";
+      }
+      else if ( type == "replicas") {
+	sprintf (tag, "mc%03d", imember );
+	filename +=  tag;
+	filename +=  "s_";
+      }
+    }
+    writefittedpoints_();
+    store_pdfs_(filename.c_str(),filename.size());
+    sprintf (tag, "_%04d", imember);
+    bool cp = system(((string)"cp " + _outputDir + "/fittedresults.txt "
+		 + _outputDir + "/fittedresults.txt_set" + tag).c_str());
+
+  }
+  
   void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertainties ) {
 
     // Fortran inteface
@@ -82,9 +114,32 @@ namespace xfitter
       _getChi2 = node["getChi2"].as<string>() == "On";
     }
 
+    // extra info for xfitter-draw and xfitter-profile:
+    if (node["enableExternalProfiler"]) {
+      if (node["enableExternalProfiler"].as<string>() != "Off") {
+	_storePdfs = true;
+	_getChi2 = true;
+      }
+    }
+
+    //    _outputDir = "output";    //default
+    if(XFITTER_PARS::rootNode["OutputDirectory"]){
+      _outputDir = XFITTER_PARS::rootNode["OutputDirectory"].as<string>();
+    }
+
     int nsysloc = systema_.nsys;
     _nSourcesOrig = nsysloc;
 
+    if (_getChi2) { // central prediction
+      auto chi2tot = chi2data_theory_(1);
+      auto fname = _outputDir + "/Results.txt";
+      bool cp = system(( (string)"rm -f " + fname  ).c_str());
+      fopen_(85, fname.c_str(), fname.size());
+      double chi2Tot = chi2data_theory_(3);
+      fclose_(85);
+      cp = system(((string)"cp " + _outputDir + "/Results.txt " + _outputDir + "/Results_00.txt").c_str());
+    }
+    
     for(auto const&term:node){
       string name=term.first.as<string>();
       if(name=="Evolutions"){
@@ -113,6 +168,16 @@ namespace xfitter
         writetheoryfiles_(ntot-nsysloc, &cent[0], node["WriteTheo"].as<string>() != "Asymmetric");
         systema_.nsys = ntot;
       }
+    }
+
+    if (_storePdfs) {
+      auto fname = _outputDir + "/Results.txt";
+      bool cp = system(( (string)"rm -f " + fname  ).c_str());
+      systematicsflags_.resetcommonsyst = true;
+      fopen_(85, fname.c_str(), fname.size());
+      double chi2Tot = chi2data_theory_(3);
+      fclose_(85);
+      writefittedpoints_();
     }
   }
 
@@ -198,12 +263,22 @@ namespace xfitter
         auto oMember=Clone(gNode["member"]);
 
         if ( ! oSet  || ! oMember ) {
-          hf_errlog(2018082410,"S: No set or member variables for evolution : "+evolName);
-        }//This should be evolution's problem, not Profiler's --Ivan
+          hf_errlog(2018082410,"W: No central set or member variables for evolution : "+evolName);
+        }
+
+	if (oSet.as<string>() != pName) {
+	  hf_errlog(2021011301,"W: Mismatch of the PDF set in the evolution and profiler: \033[1;31m" + oSet.as<string>() + " vs " + pName +  "\033[0m Could be ok, but beware.");
+	}
+
+        // Set central PDF and init 
+        gNode["set"]   =pName;
+        gNode["member"]=central;
+        evol->atConfigurationChange();
 
         // now we can get set properties: is it hessian asymmetric, MC or symmetric hessian
         std::string errorType = evol->getPropertyS("ErrorType");
         std::cout << "errorType: " << errorType << std::endl;
+
         if(error_type_override)
         {
             auto str = error_type_override[i].as<string>();
@@ -220,11 +295,11 @@ namespace xfitter
         // all predictions
         std::vector< std::valarray<double> > preds;
 
-        // Set central PDF and init 
-        gNode["set"]   =pName;
-        gNode["member"]=central;
-        evol->atConfigurationChange();
         preds.push_back(evaluatePredictions() );
+
+	if (_storePdfs) {
+	  storePdfFiles(0,i);
+	}
 
         if ( last == 0) {
           // auto determine XXXXXXXXXXXXXXXX
@@ -253,15 +328,19 @@ namespace xfitter
           //std::cout << th << std::endl;
           //}
           //std::cout << imember << std::endl;
+	  if (_storePdfs) {
+	    storePdfFiles(imember,i,errorType);
+	  }
         }
 
         // Restore original
 
-        gNode["set"]   =oSet;
-        gNode["member"]=oMember;
-        evol->atConfigurationChange();
-
-
+	if ( oSet && oMember ) {
+	  gNode["set"]   =oSet;
+	  gNode["member"]=oMember;
+	  evol->atConfigurationChange();
+	}
+	
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
           for (int imember = first; imember<=last; imember++) {
