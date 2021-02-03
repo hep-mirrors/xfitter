@@ -93,6 +93,14 @@ void* createDynamicObject(const string& moduleType, const string& className,cons
 
   //form the path to the loaded library
   string libpath = module_prefix + "lib" + moduleType + className + ".so";
+
+  // Check if the library with extension .so exists (this should be the case on Linux)
+  struct stat info;
+  int ret = stat(libpath.c_str(), &info);
+  // If not try with extension .dylib (this should be the case on MacOS)
+  if (ret != 0)
+    libpath = module_prefix + "lib" + moduleType + className + ".dylib";
+
   //load the library
   void* shared_library = dlopen(libpath.c_str(), RTLD_NOW);
   //by the way, do we ever call dlclose? I don't think so... Maybe we should call it eventually. --Ivan Novikov

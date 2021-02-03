@@ -4,7 +4,7 @@ if(NOT APFELxx_FOUND)
 endif()
 
 set(TARGET evolutionAPFELxx)
-add_library(${TARGET} SHARED EvolutionAPFELxx.cc)
+add_library(${TARGET} MODULE EvolutionAPFELxx.cc)
 target_link_libraries(${TARGET} PRIVATE xfitter APFELxx)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 install(FILES APFELxx.yaml DESTINATION ${DEST_YAML}/evolutions)

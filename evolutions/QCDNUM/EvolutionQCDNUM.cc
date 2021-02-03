@@ -14,7 +14,7 @@
 #include "xfitter_steer.h"
 #include"BasePdfDecomposition.h"
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 // Global var to hold current pdfDecomposition
 xfitter::BasePdfDecomposition* gPdfDecomp;

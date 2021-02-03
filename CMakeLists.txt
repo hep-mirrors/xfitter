@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12.2)
+set(CMAKE_MACOSX_RPATH 1)
 
 project(xFitter CXX C Fortran)
 
@@ -46,7 +47,14 @@ else()
 endif()
 
 #Use c preprocessor with fortran
-set(CMAKE_Fortran_FLAGS "-cpp")
+
+if(UNIX AND NOT APPLE)
+  set(CMAKE_Fortran_FLAGS "-cpp -Wno-argument-mismatch")
+endif()
+
+if(APPLE)
+  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+endif()
 
 #For Fortran
 #set max line length to 132
@@ -81,6 +89,8 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 #ALWAYS to show both
 #NEVER  to hide both
 set(CMAKE_INSTALL_MESSAGE NEVER)
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(src)
 #ABM is a shared library used by the FFABM_DISNC and FFABM_DISCC reactions
