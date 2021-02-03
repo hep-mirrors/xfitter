@@ -222,14 +222,11 @@ namespace xfitter
     YAML::Node const members = node["members"];
     YAML::Node const error_type_override = node["error_type_override"];
     //Sanity checks
-    if ( !sets || !members  ) {
-      hf_errlog(2018082401,"S: Profiler: missing set or member parameters for evolution "+evolName);  // XXXXXXXXXXXXXXXX
+    if ( !sets  ) {
+      hf_errlog(2018082401,"S: Profiler: missing set parameters for evolution "+evolName);  // XXXXXXXXXXXXXXXX
     }
-    if(!sets.IsSequence()||!members.IsSequence()||(error_type_override&&!error_type_override.IsSequence())){
-      hf_errlog(2018082402,"S: Profiler: sets, members and (optional) error_type_override must be sequence");  // XXXXXXXXXXXXXXXX
-    }
-    if(sets.size()!=members.size()){
-      hf_errlog(2018082403,"S: Profiler: sets and members must be the same length");  // XXXXXXXXXXXXXXXX
+    if(!sets.IsSequence()||(error_type_override&&!error_type_override.IsSequence())){
+      hf_errlog(2018082402,"S: Profiler: sets and (optional) error_type_override must be sequence");  // XXXXXXXXXXXXXXXX
     }
     if(error_type_override&&sets.size()!=error_type_override.size()){
       hf_errlog(2018082405,"S: Profiler: sets and error_type_override must be the same length");  // XXXXXXXXXXXXXXXX
@@ -240,31 +237,37 @@ namespace xfitter
     for (size_t i=0; i< endi; i++) {
       std::string pName = sets[i].as<string>();
 
-      if ( members[i].IsSequence() ) {
+      int central = 0;
+      int first = 1;
+      int last = 0;
+      if ( members && members[i].IsSequence() ) {
         int msize = members[i].size();
-
+        if(!members.IsSequence()){
+          hf_errlog(2018082402,"S: Profiler: members must be sequence");  // XXXXXXXXXXXXXXXX
+        }
+        if(sets.size()!=members.size()){
+          hf_errlog(2018082403,"S: Profiler: sets and members must be the same length");  // XXXXXXXXXXXXXXXX
+        }
         if ( msize != 3) {
           hf_errlog(2018082404,"S: Profiler: sets must be sequence of length 3");  // XXXXXXXXXXXXXXXX
         }
-
-        int central = members[i][0].as<int>();
-        int first   = members[i][1].as<int>();
-        int last = 0;
-
+        central = members[i][0].as<int>();
+        first   = members[i][1].as<int>();
         try {
           last =  members[i][2].as<int>();
         }
         catch (...) {
           last = 0; /// auto-decodez
         }
+      }
           
-        // save original
-        auto oSet   =Clone(gNode["set"]);
-        auto oMember=Clone(gNode["member"]);
+      // save original
+      auto oSet   =Clone(gNode["set"]);
+      auto oMember=Clone(gNode["member"]);
 
-        if ( ! oSet  || ! oMember ) {
-          hf_errlog(2018082410,"W: No central set or member variables for evolution : "+evolName);
-        }
+      if ( ! oSet  || ! oMember ) {
+        hf_errlog(2018082410,"W: No central set or member variables for evolution : "+evolName);
+      }
 
 	if (oSet.as<string>() != pName) {
 	  hf_errlog(2021011301,"W: Mismatch of the PDF set in the evolution and profiler: \033[1;31m" + oSet.as<string>() + " vs " + pName +  "\033[0m Could be ok, but beware.");
@@ -376,10 +379,6 @@ namespace xfitter
           hf_errlog(2018082441,"S: Profiler Unsupported PDF error type : "+errorType);
         }
         
-      }
-      else {
-        hf_errlog(2018082404,"S: Profiler: sets must be sequence of length 3");  // XXXXXXXXXXXXXXXX
-      }
     }
   }
   

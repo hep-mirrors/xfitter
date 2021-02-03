@@ -156,7 +156,7 @@ Profiler:
   Evolutions:
     proton-LHAPDF:
       sets: [HERAPDF20_NNLO_EIG, HERAPDF20_NNLO_VAR, HERAPDF20_NNLO_VAR]
-      members: [[0,1,end],[0,1,10],[0,11,13]]
+      members: [,[0,1,10],[0,11,13]] # when omitted, default members is [0,1,end]
       error_type_override: [None,hessian,symmhessian] # treat parametrisation variations (members 11-13 from HERAPDF20_NNLO_VAR) as symmetric hessian
   Status: "On"               # "Off" to turn off profiler
   WriteTheo: "Asymmetric"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
