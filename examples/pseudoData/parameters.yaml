@@ -1,0 +1,93 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+#    call fcn 1
+#    migrad
+#    hesse
+#    call fcn 3    
+#  doErrors :  Hesse # None
+
+#DefaultEvolution: proton-QCDNUM
+DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    # The following allows QCDNUM to read PDFs from other evolutions:
+    EvolutionCopy: "proton-LHAPDF"
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "NNPDF30_nlo_as_0118"
+    member: 0
+  antiproton:
+    class: FlipCharge
+  neutron:
+    class: FlipUD
+
+? !include constants.yaml
+
+# the two parameters below are not used: why one needs them with the present setup?
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9) 
+alphas : 0.118
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+    # RT_DISNC works only with QCDNUM evolution, need to specify it explicitly (in this case it is copied from LHAPDF, while default evloution is LHAPDF)
+    evolution: proton-QCDNUM
+  BaseDISCC:
+    # BaseDISCC works only with QCDNUM evolution, need to specify it explicitly (in this case it is copied from LHAPDF, while default evloution is LHAPDF)
+    evolution: proton-QCDNUM
+  # FONLL scheme settings:
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC.yaml
+  # FF ABM scheme settings:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC.yaml
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid.yaml
+  # (optional) Fractal module settings:
+  Fractal_DISNC:
+    ? !include reactions/Fractal_DISNC.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+#  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+#  defaultValue : 'FONLL_DISCC'     # global specification
+#  defaultValue : 'FFABM_DISCC'     # global specification
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120
