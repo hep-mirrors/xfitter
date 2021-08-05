@@ -4,7 +4,7 @@
 &InFiles
   ! Number of intput files
     !NInputFiles = 78 ! no LHCb data
-    NInputFiles = 85
+    NInputFiles = 30
 
    InputFileNames =
 
@@ -13,202 +13,90 @@
   !********!
 
   ! HERA I+II combined inclusive DIS:
-    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
-    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
-    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
-    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
-    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
-    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
-    'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
-
-  ! H1 Jets:
-  ! 'datafiles/hera/h1/jets/0706.3722/H1_InclJets_HighQ2_99-00-thexp.dat',
-  ! 'datafiles/hera/h1/jets/0911.5678/H1_InclJets_LowQ2_99-00-thexp.dat',
-
-  ! ZEUS Jets:
-  !  'datafiles/hera/zeus/jets/0208037/ZEUS_InclJets_HighQ2_96-97-thexp.dat',
-  !  'datafiles/hera/zeus/jets/0608048/ZEUS_InclJets_HighQ2_98-00-thexp.dat',
-  !  'datafiles/hera/zeus/jets/1010.6167/ZEUS_dijet_98-07-thexp.dat',
-
-  ! H1 and ZEUS combined charm and beauty
-  !  'datafiles/hera/h1zeusCombined/charmbeautyProduction/1804.01019/H1ZEUS_Charm_combined-thexp.dat', 
-  !  'datafiles/hera/h1zeusCombined/charmbeautyProduction/1804.01019/H1ZEUS_Beauty_combined-thexp.dat', 
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
 
   !****************!
   !  Fixed Target  !
   !****************!
-
-  ! BCDMS F2 proton:
-  !  'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.100gev-thexp.dat',
-  !  'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.120gev-thexp.dat',
-  !  'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.200gev-thexp.dat',
-  !  'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.280gev-thexp.dat',
 
   ! NuSea DY
   !  'datafiles/tevatron/e866/dy/0103030/x2-low-mass-thexp.dat',
   !  'datafiles/tevatron/e866/dy/0103030/x2-mid-mass-thexp.dat',
   !  'datafiles/tevatron/e866/dy/0103030/x2-hi-mass-thexp.dat',
 
+  ! NuTeV dimuon cross-sections
+
   !************!
   !  Tevatron  !
   !************!
 
-  ! CDF Jets, W, Z production:
-  !  'datafiles/tevatron/cdf/jets/0807.2204/CDF_JETS2008-thexp.dat',
-  !  'datafiles/tevatron/cdf/wzProduction/0901.2169/CDF_W_asymmetry-thexp.dat',
-  !  'datafiles/tevatron/cdf/wzProduction/0908.3914/CDF_Z_Boson_Rapidity-thexp.dat',
+  ! D0 Z production:
+   '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity-thexp.dat',
 
-  ! D0 Jets, W, Z production:
-  !  'datafiles/tevatron/d0/jets/0802.2400/D0_JETS-thexp.dat',
-  !  'datafiles/tevatron/d0/wzProduction/0702025/D0_Z_Boson_Rapidity-thexp.dat',
-  !  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry-thexp.dat',
-  !  'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt35_asymmetry-thexp.dat',
-  !  'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry-thexp.dat',
-  !  'datafiles/tevatron/d0/wzProduction/1412.2862/D0_Wel_pt25_asymmetry-thexp.dat',
-  
-  ! Do and CDF combined ttbar production (NOTE: need Hathor package):
-  ! 'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT-thexp.dat',
 
   !*******!
   !  LHC  !
   !*******!
-
-  ! CMS W, Z production:
-  !  'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity-thexp.dat',
-  !  'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001-thexp.dat',
-  !  'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021-thexp.dat',
-  
-  ! CMS Jets:
-  !  'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004-thexp.dat',
-
-  ! ATLAS W, Z production:
-  !  'datafiles/lhc/atlas/wzProduction/1203.4051/WP_applgrid_nnlo-thexp.dat',
-  !  'datafiles/lhc/atlas/wzProduction/1203.4051/WM_applgrid_nnlo-thexp.dat',
-  !  'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo-thexp.dat',
-  
-  ! ATLAS Drell-Yann:
-  !  'datafiles/lhc/atlas/drellYan/1305.4192/dy_highmass-thexp.dat', 
-  !  'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass-thexp.dat',
-  !  'datafiles/lhc/atlas/drellYan/1404.1212/dy_lowmass_extended-thexp.dat',
-  
-  ! ATLAS Jets (NOTE: use R06 or R04 data, but never both at the same time!):
-  !  'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_00_03-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_03_08-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_08_12-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_12_21-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_21_28-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_28_36-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1112.6297/inclusivejets_R06_36_44-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_00_03-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_03_08-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_08_12-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_12_21-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_21_28-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_28_36-thexp.dat',
-  !  'datafiles/lhc/atlas/jets/1304.4739/inclusivejets_2p76_R06_36_44-thexp.dat',
-
   ! ATLAS Dec 2016 W,Z:
-    'datafiles/lhc/atlas/wzProduction/1612.03016/wminus-thexp.dat',
-    'datafiles/lhc/atlas/wzProduction/1612.03016/wplus-thexp.dat',
-    'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cc-thexp.dat',
-    'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cf-thexp.dat',
-    'datafiles/lhc/atlas/wzProduction/1612.03016/zylow_cc-thexp.dat',
-    'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cc-thexp.dat',
-    'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cf-thexp.dat',
+!  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/atlas/wzProduction/1612.03016/wminus-thexp.dat',
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/atlas/wzProduction/1612.03016/wplus-thexp.dat',
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/atlas/wzProduction/1612.03016/zypeak_cc-thexp.dat',
 
-  ! LHCb charm and beauty (in principle need fixed flavour scheme with nf=3, see also steering.txt.hvqmnr.abs and .norm)
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dzero_pty_Normy-thexp.dat',  
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dch_pty_Normy-thexp.dat',
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Dstar_pty_Normy-thexp.dat',
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Ds_pty_Normy-thexp.dat',
-  !  'datafiles/lhc/lhcb/charmProduction/1302.2864/LHCb_7TeV_Charm_Lambdac_y_Normy-thexp.dat',
+  ! CMS 7TeV W asymmetry
 
-  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bch_pty_Normy-thexp.dat',
-  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bzero_pty_Normy-thexp.dat',
-  !  'datafiles/lhc/lhcb/beautyProduction/1306.3663/LHCb_7TeV_Beauty_Bs_pty_Normy-thexp.dat',
-    
-  ! CMS W+c
-  !  'datafiles/lhc/cms/wzProduction/1310.1138/CMS_W_plus_c_SPM_12_002-thexp.dat',
-  
-  ! CMS W asymmetry 8 TeV (with NNLO Kfactors enabled)
-  !  'datafiles/lhc/cms/wzProduction/1603.01803/CMS_mAsymmetry_SMP_14_022_Kfactors-thexp.dat',
+  ! LHCb 7TeV W, Z cross-sections	
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1212.4620/LHCB_7TeV_Zee_rap.dat'
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1505.07024/LHCB_7TeV_Zmm_rap.dat'
+
+  ! LHCb 8TeV W, Z cross-sections
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1503.00963/LHCB_8TeV_Zee_rap.dat'
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1511.08039/LHCB_8TeV_Zmm_rap.dat'
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1511.08039/LHCB_8TeV_Wplusmunu_rap.dat'
+  '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1511.08039/LHCB_8TeV_Wminusmunu_rap.dat'
   
   ! CMS 8 TeV jets
-    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1-thexp.dat',
-    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2-thexp.dat',
-    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3-thexp.dat',
-    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4-thexp.dat',
-    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5-thexp.dat',
-    'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6-thexp.dat',
-
-  ! CMS double-differential ttbar Run 1 (include only one file, not all from directory datafiles/lhc/cms/topProduction/1703.01630):
-  !  'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_ytt-thexp.dat',
-
-  ! CMS and ATLAS ttbar and single top production (NOTE: need Hathor package):
-  !  'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT-Hathor-thexp.dat',
-  !  'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT-Hathor-thexp.dat',
-  !  'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_quark-thexp.dat',
-  !  'datafiles/lhc/atlas/singleTopProduction/1406.7844/atlas_singletop_antiquark-thexp.dat',
-  !  'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_quark-thexp.dat',
-  !  'datafiles/lhc/cms/singleTopProduction/1403.7366/cms_singletop_antiquark-thexp.dat',
-
-  !******************************************!
-  !  obsolete or not supported anymore data  !
-  !******************************************!
-
-  ! HERA I (commented out, I+II replaces the samples)
-    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e-p_HERA1.0.dat',  superseded
-    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_NC_e+p_HERA1.0.dat',
-    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e-p_HERA1.0.dat',
-    !>  'datafiles/hera/h1zeusCombined/inclusiveDis/0911.0884/H1ZEUS_CC_e+p_HERA1.0.dat',
-  
-  ! H1 Jets (superseded):
-    !>  'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07.dat'
-  
-  ! H1 Inclusive DIS low Ep: (included in HERA I+II combination)
-    !>  'datafiles/hera/h1/inclusiveDis/1012.4355/H1_LowEp_460_575.dat',  ! superseded
-
-  ! H1 and ZEUS combined charm and beauty production (superseded by charm+beauty combination 1804.01019):
-    !>  'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined-thexp.dat', 
-    !>  'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex-thexp.dat',
-    !>  'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty-thexp.dat',
-
-  ! these CMS ttbar data partially overlap with other data
-    !>  'datafiles/lhc/cms/topProduction/cms-pas-top-11-024/CMS-TOP-11-024_prelim.dat'
-
-  ! CMS and ATLAS differential ttbar production (requires DiffTop fastNLO with some custom interface, not supported from xfitter-2.2):
-    !>  'datafiles/lhc/cms/topProduction/1208.2671/Diff_ttbar_7TeV_TOT.dat',
-    !>  'datafiles/lhc/cms/topProduction/1211.2220/Diff_ttbar_7TeV_pt.dat',
-    !>  'datafiles/lhc/atlas/topProduction/1406.5375/Diff_ttbar_ATL_7TeV_TOT.dat',
-    !>  'datafiles/lhc/atlas/topProduction/1407.0371/Diff_ttbar_7TeV_pt-ATL.dat',
-
-  ! normalised jets: theory expression not implemented, not supported since xfitter-2.2
-    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormTrijets_HighQ2_03-07.dat'
-    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormInclJets_HighQ2_03-07.dat'
-    !>  'datafiles/hera/h1/jets/1406.4709/H1_NormDijets_HighQ2_03-07.dat'
-
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5-thexp.dat',
+    '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6-thexp.dat',
+    
 &End
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 14
+    NCorrFiles = 9
  
   ! Correlation files:
     CorrFileNames = 
-      'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
-      'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
-      'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
-      'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
-      'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
-      'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_ytt__CMS_8TeV_ttbar_DoubleDiff_mtt_ytt.dat'
-      'datafiles/lhc/cms/wzProduction/1310.1138/CMS_W_plus_c_SPM_12_002___CMS_W_plus_c_SPM_12_002.cov'
-      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_mAsymmetry_SMP_14_022___CMS_mAsymmetry_SMP_14_022.corr'
-      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1___CMS_8TeV_jets_Ybin1.dat'
-      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2___CMS_8TeV_jets_Ybin2.dat'
-      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3___CMS_8TeV_jets_Ybin3.dat'
-      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4___CMS_8TeV_jets_Ybin4.dat'
-      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5___CMS_8TeV_jets_Ybin5.dat'
-      'datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6___CMS_8TeV_jets_Ybin6.dat'
+!      'datafiles/lhc/cms/wzProduction/1206.2598/CMS_eAsymmetry_SPM_12_001___CMS_eAsymmetry_SPM_12_001.corr'
+!      'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
+!      'datafiles/lhc/cms/wzProduction/1110.4973/CMS_Z_boson_Rapidity___CMS_Z_boson_Rapidity.corr'
+!      'datafiles/lhc/cms/jets/1212.6660/CMS_IncJets2011_QCD_11_004___QCD_11_004.corr'
+!      'datafiles/tevatron/d0/wzProduction/1312.2895/D0_W_asymmetry.corr'
+!      'datafiles/lhc/cms/topProduction/1703.01630/CMS_8TeV_ttbar_DoubleDiff_mtt_ytt__CMS_8TeV_ttbar_DoubleDiff_mtt_ytt.dat'
+!      'datafiles/lhc/cms/wzProduction/1310.1138/CMS_W_plus_c_SPM_12_002___CMS_W_plus_c_SPM_12_002.cov'
+!      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_mAsymmetry_SMP_14_022___CMS_mAsymmetry_SMP_14_022.corr'
+
+      '/media/simone/storage/programs/xfitter/datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin1___CMS_8TeV_jets_Ybin1.dat'
+      '/media/simone/storage/programs/xfitter/datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin2___CMS_8TeV_jets_Ybin2.dat'
+      '/media/simone/storage/programs/xfitter/datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin3___CMS_8TeV_jets_Ybin3.dat'
+      '/media/simone/storage/programs/xfitter/datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin4___CMS_8TeV_jets_Ybin4.dat'
+      '/media/simone/storage/programs/xfitter/datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin5___CMS_8TeV_jets_Ybin5.dat'
+      '/media/simone/storage/programs/xfitter/datafiles/lhc/cms/jets/1609.05331/CMS_8TeV_jets_Ybin6___CMS_8TeV_jets_Ybin6.dat'
+
+      '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1212.4620/LHCB_7TeV_Zee_rap___LHCB_7TeV_Zee_rap.dat'
+      '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1503.00963/LHCB_8TeV_Zee_rap___LHCB_8TeV_Zee_rap.dat'
+      '/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1511.08039/LHCB_8TeV_Zmm_rap___LHCB_8TeV_Zmm_rap.dat'
+      
+
 
   ! for superseeded or not supported anymore data
     !>  'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
