@@ -1,0 +1,47 @@
+
+ !*  File produced by HERAVerager
+ !*  Created on 20160405
+
+&Data
+  Name = 'LHCb 8TeV Zee Boson Rapidity'
+  IndexDataset = 5020
+  Reaction = 'NC pp'
+
+  TheoryType = 'expression'
+  TermName = 'K' 
+  TermSource = 'KFactor'
+  TermInfo = 'FileName=/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1503.00963/kfactors.txt'
+  TheorExpr = 'K'
+
+  NData = 17
+  NColumn = 10
+
+  ColumnType = "Flag",2*"Bin","Sigma", 4*"Error","Error","Error"
+  ColumnName ="binFlag", "y1","y2","Sigma", "stat", "uncor","uncor","Lumi_LHCb8","ignore","ignore"
+  Percent = false, false, false, false, false, false, false, false 
+&End
+&PlotDesc
+	 PlotN = 1
+	 PlotDefColumn = 'y2'
+	 PlotDefValue = 2., 5.
+	 PlotOptions(1)  = 'Experiment:LHCb@ExtraLabel:pp #rightarrow Z; #sqrt{s} = 8 TeV; L = 2.0 fb^{-1}@Title: 60 < M_{Z} < 120@XTitle: y @YTitle: d#sigma/dy [pb] '
+&End
+*flag y1  y2    sigma  stat. uncor sys   lumi  FSR    FSRerr
+1 2.000 2.125    8.27  0.37  0.21  0.14  0.10  0.953  0.003  
+1 2.125 2.250   26.17  0.61  0.32  0.43  0.32  0.955  0.002  
+1 2.250 2.375   40.29  0.72  0.36  0.62  0.49  0.959  0.001  
+1 2.375 2.500   52.16  0.80  0.39  0.81  0.64  0.960  0.001  
+1 2.500 2.625   61.92  0.86  0.40  1.01  0.77  0.958  0.001  
+1 2.625 2.750   72.32  0.93  0.45  1.10  0.88  0.958  0.001  
+1 2.750 2.875   76.29  0.98  0.47  1.16  0.93  0.956  0.001  
+1 2.875 3.000   77.67  0.99  0.48  1.18  0.95  0.952  0.001  
+1 3.000 3.125   77.72  1.03  0.51  1.18  0.95  0.952  0.001  
+1 3.125 3.250   69.58  1.02  0.50  1.06  0.85  0.949  0.001  
+1 3.250 3.375   62.03  1.01  0.51  0.96  0.76  0.950  0.001  
+1 3.375 3.500   46.26  0.92  0.46  0.71  0.56  0.949  0.001  
+1 3.500 3.625   33.49  0.84  0.41  0.53  0.41  0.947  0.002  
+1 3.625 3.750   22.81  0.74  0.37  0.36  0.28  0.951  0.002  
+1 3.750 3.875   13.56  0.64  0.33  0.28  0.17  0.946  0.002  
+1 3.875 4.000    6.28  0.57  0.28  0.13  0.08  0.939  0.004  
+1 4.000 4.250    1.85  0.33  0.16  0.04  0.02  0.928  0.005
+

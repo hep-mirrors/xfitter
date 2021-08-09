@@ -1,0 +1,91 @@
+&StatCorr
+
+  ! Matrix of systematic uncertainties correlation for LHCb-PAPER-2015-049
+  ! Numbers from http://lhcbproject.web.cern.ch/lhcbproject/Publications/LHCbProjectPublic/Directory_LHCb-PAPER-2015-049/Table_4.pdf
+
+   Name1 = 'LHCb 7TeV W+ munu Lepton Rapidity'
+   Name2 = 'LHCb 7TeV W- munu Lepton Rapidity'
+
+   NIdColumns1 = 2
+   NIdColumns2 = 2
+
+   IdColumns1 = 'y1','y2'
+   IdColumns2 = 'y1','y2'
+
+   NCorr = 63
+
+  ! Matrix Type:
+  !   'Statistical correlations':     Given are correlation factors that need to be applied to statistical errors
+  !                                   needs 'stat' column in data files
+  !   'Systematic correlations' :     Given are correlation factors that need to be applied to systematic errors
+  !                                   needs 'uncor' column in data files
+  !   'Systematic covariance matrix': Given is a systematic covariance matrix
+  !
+  !   'Full covariance matrix':       Given is a full covariance matrix including stat and syst parts
+
+   MatrixType = 'Systematic correlations'
+&End
+2.00	2.25	2.00    2.25	0.46
+2.25	2.50	2.00    2.25	0.34
+2.50	2.75	2.00    2.25	0.23
+2.75	3.00	2.00    2.25	-0.07
+3.00	3.25	2.00	2.25	0.24
+3.25	3.50	2.00    2.25	0.29
+3.50	4.00	2.00    2.25	0.15
+4.00 	4.50	2.00    2.25	0.13
+2.00	2.25	2.25    2.50	0.30
+2.25	2.50	2.25    2.50	0.09
+2.50	2.75	2.25    2.50	-0.13
+2.75	3.00	2.25    2.50	0.25
+3.00	3.25	2.25	2.50	-0.16
+3.25	3.50	2.25    2.50	-0.27
+3.50	4.00	2.25    2.50	-0.05
+4.00 	4.50	2.25    2.50	-0.08
+2.00	2.25	2.50    2.75	0.24
+2.25	2.50	2.50    2.75	-0.21
+2.50	2.75	2.50    2.75	0.41
+2.75	3.00	2.50    2.75	0.21
+3.00	3.25	2.50	2.75	-0.08
+3.25	3.50	2.50    2.75	-0.17
+3.50	4.00	2.50    2.75	-0.01
+4.00 	4.50	2.50    2.75	-0.05
+2.00	2.25	2.75	3.00	-0.19
+2.25	2.50	2.75    3.00	0.46
+2.50	2.75	2.75    3.00	0.27
+2.75	3.00	2.75    3.00	0.28
+3.00	3.25	2.75	3.00	0.29
+3.25	3.50	2.75    3.00	0.40
+3.50	4.00	2.75    3.00	0.17
+4.00 	4.50	2.75    3.00	0.15
+2.00	2.25	3.00	3.25	0.31
+2.25	2.50	3.00    3.25	-0.32
+2.50	2.75	3.00    3.25	-0.13
+2.75	3.00	3.00    3.25	0.25
+3.00	3.25	3.00	3.25	0.27
+3.25	3.50	3.00    3.25	-0.27
+3.50	4.00	3.00    3.25	-0.04
+4.00 	4.50	3.00    3.25	-0.07
+2.00	2.25	3.25	3.50	0.33
+2.25	2.50	3.25    3.50	-0.41
+2.50	2.75	3.25    3.50	-0.19
+2.75	3.00	3.25    3.50	0.28
+3.00	3.25	3.25	3.50	-0.21
+3.25	3.50	3.25    3.50	-0.07
+3.50	4.00	3.25    3.50	-0.08
+4.00 	4.50	3.25    3.50	-0.12
+2.00	2.25	3.50	4.00	0.21
+2.25	2.50	3.50    4.00	-0.14
+2.50	2.75	3.50    4.00	-0.02
+2.75	3.00	3.50    4.00	0.19
+3.00	3.25	3.50	4.00	-0.04
+3.25	3.50	3.50    4.00	-0.12
+3.50	4.00	3.50    4.00	0.45
+4.00 	4.50	3.50    4.00	0.02
+2.00	2.25	4.00	4.50	0.08
+2.25	2.50	4.00    4.50	-0.01
+2.50	2.75	4.00    4.50	0.03
+2.75	3.00	4.00    4.50	0.07
+3.00	3.25	4.00	4.50	0.02
+3.25	3.50	4.00    4.50	-0.02
+3.50	4.00	4.00    4.50	0.03
+4.00 	4.50	4.00    4.50	0.11

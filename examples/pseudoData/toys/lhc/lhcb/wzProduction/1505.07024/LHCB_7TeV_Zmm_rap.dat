@@ -1,0 +1,46 @@
+
+ !*  File produced by HERAVerager
+ !*  Created on 20160405
+ !* http://lhcbproject.web.cern.ch/lhcbproject/Publications/LHCbProjectPublic/LHCb-PAPER-2015-049.html
+
+&Data
+  Name = 'LHCb 7TeV Zmm Boson Rapidity'
+  IndexDataset = 502
+  Reaction = 'NC pp'
+
+  TheoryType = 'expression'
+  TermName = 'K' 
+  TermSource = 'KFactor'	
+  TermInfo = 'FileName=/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1511.08039/KFactors.dat'
+  TheorExpr = 'K'
+
+  NData = 17
+  NColumn = 10
+  ColumnType = "Flag",2*"Bin","Sigma", 4*"Error","Error","Error"
+  ColumnName ="binFlag", "y1","y2","Sigma", "stat", "uncor","sys","Lumi_LHCb7","ignore","ignore"
+  Percent = false, false, false, false, false, false, false, false 
+&End
+&PlotDesc
+	 PlotN = 1
+	 PlotDefColumn = 'y2'
+	 PlotDefValue = 2., 5.
+	 PlotOptions(1)  = 'Experiment:LHCb@ExtraLabel:pp #rightarrow Z; #sqrt{s} = 7 TeV; #int L = 1.0 fb^{-1}@Title: 60 < M_{Z} < 120@XTitle: y @YTitle: d#sigma/dy [pb] '
+&End
+*flag y1  y2    sigma  stat sys beam  lumi  FSR    FSRerr
+1 2.000 2.125  0.969   0.039	0.032 0.012 0.017  1.050	0.020
+1 2.125 2.250  2.840   0.063	0.050 0.036 0.049  1.032	0.008
+1 2.250 2.375  4.428   0.077	0.078 0.055 0.076  1.027	0.006
+1 2.375 2.500  5.823   0.088	0.060 0.073 0.100  1.026	0.004	      
+1 2.500 2.625  6.877   0.095	0.068 0.086 0.118  1.025	0.004
+1 2.625 2.750  7.669   0.100	0.069 0.096 0.132  1.026	0.004
+1 2.750 2.875  8.306   0.104	0.070 0.104 0.143  1.026	0.003
+1 2.875 3.000  8.241   0.103	0.066 0.103 0.142  1.025	0.003
+1 3.000 3.125  7.783   0.099	0.059 0.097 0.134  1.026	0.003
+1 3.125 3.250  7.094   0.096	0.058 0.089 0.122  1.028	0.004
+1 3.250 3.375  5.894   0.087	0.049 0.074 0.101  1.026	0.004	
+1 3.375 3.500  4.160   0.073	0.041 0.052 0.072  1.027	0.005
+1 3.500 3.625  2.896   0.061	0.030 0.036 0.050  1.026	0.005
+1 3.625 3.750  1.741   0.047	0.023 0.022 0.030  1.021	0.007
+1 3.750 3.875  0.825   0.032	0.014 0.010 0.014  1.025	0.010
+1 3.875 4.000  0.321   0.020	0.008 0.004 0.006  1.011	0.015
+1 4.000 4.250  0.115   0.013	0.006 0.001 0.002  1.018	0.033

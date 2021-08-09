@@ -1,0 +1,47 @@
+
+ !*  File produced by HERAVerager
+ !*  Created on 20160405
+
+&Data
+  Name = 'LHCb 13TeV Zmm Boson rapidity'
+  IndexDataset = 503
+  Reaction = 'NC pp'
+
+  TheoryType = 'expression'
+  TermName = 'A' 
+  TermType = 'reaction'
+  TermSource = 'APPLgrid'
+  TermInfo = 'GridName=/media/simone/storage/programs/xfitter/datafiles/lhc/lhcb/wzProduction/1607.06495/grid-40-6-15-3-Z0_zrap13lhcb.root'
+  TheorExpr = 'A/2000'
+
+  NData = 17
+  NColumn = 7
+  ColumnType = "Flag",2*"Bin","Sigma", "Error","Error","Error"
+  ColumnName ="binFlag", "y1","y2","Sigma", "stat", "sys", "Lumi_LHCb13"
+  Percent = false, false, false, false, false, false, false, false 
+&End
+&PlotDesc
+	 PlotN = 1
+	 PlotDefColumn = 'y1'
+	 PlotDefValue = 2., 5.
+	 PlotOptions(1)  = 'Experiment:LHCb@ExtraLabel:pp #rightarrow Z; #sqrt{s} = 13 TeV; L = 294 pb^{-1}@Title: 60 < M_{Z} < 120@XTitle: y @YTitle: d#sigma/dy [pb] '
+&End
+*flag y1  y2    sigma  stat  sys   lumi
+1 2.000 2.125    14.2	0.7	0.5	0.6
+1 2.125 2.250	 41.9	1.2	1.2	1.6
+1 2.250 2.375	 65.2	1.5	1.8	2.5
+1 2.375 2.500	 91.3	1.8	2.3	3.6
+1 2.500 2.625	 108.0	2.0	2.7	4.2
+1 2.625 2.750	 121.4	2.1	3.0	4.7
+1 2.750 2.875	 136.0	2.2	3.3	5.3
+1 2.875 3.000	 140.8	2.2	3.4	5.5
+1 3.000 3.125	 145.5	2.3	3.5	5.7
+1 3.125 3.250	 144.0	2.3	3.4	5.6
+1 3.250 3.375	 137.1	2.2	3.3	5.3
+1 3.375 3.500	 121.8	2.1	3.0	4.8
+1 3.500 3.625	 100.4	1.9	2.4	3.9
+1 3.625 3.750	 75.2	1.7	1.8	2.9
+1 3.750 3.875	 57.9	1.5	1.5	2.3
+1 3.875 4.000	 41.1	1.2	1.3	1.6
+1 4.000 4.250	 18.4	0.6	0.6	0.7
+1 4.250 4.500	 2.6	0.2	0.3	0.1

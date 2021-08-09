@@ -1,0 +1,32 @@
+&Data
+  Name = 'LHCb 7TeV W+ munu Lepton Rapidity'
+  IndexDataset = 502
+  Reaction = 'CC pp'
+
+  TheoryType = 'expression'
+  TermName = 'K'
+  TermSource = 'KFactor'
+  TermInfo = 'FileName=/media/simone/storage/programs/xfitter/examples/pseudoData/toys/lhc/lhcb/wzProduction/1511.08039/KFactors.dat'
+  TheorExpr = 'K'
+
+  NData = 8
+  NColumn = 10
+  ColumnType = "Flag",2*"Bin","Sigma", 4*"Error","Error","Error"
+  ColumnName ="binFlag", "y1","y2","Sigma", "stat", "uncor","sys","Lumi_LHCb7","ignore","ignore"
+  Percent = false, false, false, false, false, false, false, false
+&End
+&PlotDesc
+         PlotN = 1
+         PlotDefColumn = 'y2'
+         PlotDefValue = 2., 5.
+         PlotOptions(1)  = 'Experiment:LHCb@ExtraLabel:pp #rightarrow W^{+}; #sqrt{s} = 7 TeV; #int L = 1.0 fb^{-1}@Title: @XTitle: #eta_{#mu} @YTitle: d#sigma/d#eta_{#mu} [pb] '
+&End
+*flag y1  y2    sigma  stat sys beam  lumi  FSR    FSRerr
+1	2.00 2.25      192.2	1.2   3.5   2.0   3.3	1.016	0.004
+1	2.25 2.50      178.8	0.9   3.1   1.9	  3.1	1.018	0.004
+1	2.50 2.75      154.3	0.8   2.1   1.6	  2.6	1.025	0.005
+1	2.75 3.00      122.8	0.7   1.6   1.3	  2.1	1.015	0.004
+1	3.00 3.25      94.3	0.6   1.3   1.0	  1.6	1.021	0.005
+1	3.25 3.50      61.6	0.5   0.9   0.7	  1.1	1.015	0.005
+1	3.50 4.00      60.0	0.5   0.7   0.6	  1.0	1.024	0.005
+1	4.00 4.50      14.3	0.4   0.4   0.2	  0.2	1.021	0.005
