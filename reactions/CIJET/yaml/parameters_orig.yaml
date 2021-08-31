@@ -1,0 +1,8 @@
+CIJET :
+  LamoTeV : 10.0
+  CIcase : 1
+CI1 :
+  value: 1.00
+  step:  0.01
+CI3 : 1.00
+CI5 : 1.00 
