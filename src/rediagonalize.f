@@ -13,7 +13,7 @@ C#include "datasets.inc"
 #include "covar.inc"
 #include "theo.inc"
 
-      integer Ndata,NSyst
+      integer Ndata,NSyst,ifail
       integer i,j,k,nsysloc
       double precision theo_err2_loc(Ndata)
       double precision Eigenvalues(Nsyst)  
@@ -48,6 +48,8 @@ c         print *,'ho',sqrt(theo_err2_loc(k))
          enddo
       endif
 
+      print *,nsyst,ndata
+      
       do i=1,nsyst
          do j=1,nsyst
             cov(i,j) = 0.
@@ -61,7 +63,7 @@ c         print *,'ho',sqrt(theo_err2_loc(k))
          enddo
       enddo
 
-      call MyDSYEVD(Nsyst,Cov,NTot,Eigenvalues)
+      call MyDSYEVD(Nsyst,Cov,NTot,Eigenvalues,ifail)
 
       print '(''Eigenvalues:'')'
       do i=nsyst,1,-1

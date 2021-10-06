@@ -316,7 +316,7 @@ c     bin-by-bin dynamic scale in applgrid prediction
       logical LReadKFactor
 
 C Temporary buffer to read the data (allows for comments starting with *)
-      character *4096 CTmp
+      character *14096 CTmp
 
       integer SystematicsExist,iLen
       integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)
@@ -1448,7 +1448,11 @@ C Store:
                iError = iError + 1
                syst(iError) = buffer(i)    
                if (.not. Percent(iError)) then
-                  syst(iError) = syst(iError)/daten(idx)*100. ! BUG buffer(idxSigma)*100.
+                  if (daten(idx).ne.0) then
+                     syst(iError) = syst(iError)/daten(idx)*100. ! BUG buffer(idxSigma)*100.
+                  else
+                     syst(iError) = syst(iError)/buffer(idxSigma)*100.  ! for rotate.
+                  endif
                endif
             elseif (ColumnType(i).eq.'Bin') then
                iBin  = iBin + 1

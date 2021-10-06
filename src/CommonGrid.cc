@@ -480,6 +480,7 @@ CommonGrid::checkBins(vector<int> &bin_flags, vector<vector<double> > &data_bins
           if (fabs(*(short*)& gb[iv][ibg] - *(short*)& data_bins[data_bins.size()-_ndim+iv][ib]) < 2 ) 
 	    found_bin = true;
 	}
+	found_bin = true;
 	if ( !found_bin ){ 
             int id = 14040342;
             char text[] = "S: Data and grid bins don't match.";
