@@ -363,7 +363,7 @@ else
     then
         curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
     else
-        wget http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+        wget  --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
     cd hoppet-${hoppetver}
@@ -398,7 +398,7 @@ else
     then
         curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
     else
-        wget $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
