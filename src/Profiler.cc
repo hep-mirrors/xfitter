@@ -6,6 +6,9 @@
 #include "xfitter_cpp.h"
 #include "xfitter_steer.h"
 #include "BaseEvolution.h"
+#include "xfitter_cpp.h"
+#include <algorithm>
+#include <string.h>
 
 extern "C" {
   void update_theory_iteration_();
@@ -277,6 +280,11 @@ namespace xfitter
         gNode["set"]   =pName;
         gNode["member"]=central;
         evol->atConfigurationChange();
+
+	// Compatibility with fortran:
+	auto c_str = pName.c_str();
+	strcpy(clhapdf_.lhapdfset,c_str);
+	std::fill(clhapdf_.lhapdfset+strlen(c_str),clhapdf_.lhapdfset+128,' ');
 
         // now we can get set properties: is it hessian asymmetric, MC or symmetric hessian
         std::string errorType = evol->getPropertyS("ErrorType");

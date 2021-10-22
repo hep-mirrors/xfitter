@@ -1,4 +1,4 @@
-LHAPDF set=                   cteq65.LHgrid
+LHAPDF set=     NNPDF31_nlo_as_0118_hessian
 100
   1 -0.0000  1.0000
   2  0.0000  1.0000
