@@ -1,4 +1,4 @@
-LHAPDF set=                   cteq65.LHgrid
+LHAPDF set=              HERAPDF20_NNLO_VAR
  22
   1  0.0502  0.9990
   2 -0.0606  0.9967
