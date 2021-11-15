@@ -1,0 +1,35 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'Ag        '    1.0000      constant
+     2 'As        '   0.21000      0.10000         no limits
+     3 'Av        '    1.0000      constant
+     4 'Bg        '    0.0000      constant
+     5 'Bs        '   0.50000      0.10000        -1.0000       10.000    
+     6 'Bv        '   0.75000      0.30000E-01     no limits
+     7 'Cg        '    3.0000       1.0000         no limits
+     8 'Cs        '    8.0000       3.0000         no limits
+     9 'Cv        '   0.95000      0.40000E-01     0.0000       10.000    
+ **********
+ **    1 **#MINIMIZE #UNCOMMENT
+ **********
+           UNKNOWN COMMAND IGNORED:#MINIMIZE #UNCOMMENT
+ **********
+ **    2 **CALL FCN    3.000    
+ **********
+
+ FCN=   445.7603     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1      Ag        1.0000       constant   
+   2      As       0.21000       0.10000    
+   3      Av        1.0000       constant   
+   4      Bg        0.0000       constant   
+   5      Bs       0.50000       0.10000       -1.0000        10.000    
+   6      Bv       0.75000       0.30000E-01
+   7      Cg        3.0000        1.0000    
+   8      Cs        8.0000        3.0000    
+   9      Cv       0.95000       0.40000E-01    0.0000        10.000    
