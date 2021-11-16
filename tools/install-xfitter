@@ -151,7 +151,6 @@ fi
 # skip some packages depending on xfitter version
 if [[ $version == "master" ]]; then
   skip_mela=1
-  skip_apfelgrid=1
 fi
 
 #automatically detect system:
