@@ -4,24 +4,33 @@
 */
 
 #include"ReactionAPFELgrid.h"
-#include"APFELgridGeneration.h"
 #include"TFile.h"
 #include"xfitter_pars.h"
 #include"xfitter_steer.h"
 #include"xfitter_cpp_base.h"
 #include"appl_grid/appl_grid.h"
 
-#include "APFELgrid/fastkernel.h"                                                                                                                                                                            
-#include "APFELgrid/transform.h"                                                                                                                                                                             
-
 #include<memory>
 #include"BaseEvolution.h"
+
+
+#include "APFELgrid/fastkernel.h"                                                                                                                                                                            
+#include "APFELgrid/transform.h"                                                                                                                                                                             
+// PDF in the evolution basis needed by APFELgrid
+extern "C" void apfel_fnpdf_(const double& x, const double& Q, double* f);
+void fkpdf (const double& x, const double& Q, const size_t& n, double* pdf)
+{
+  static double* lha_pdf = new double[13];
+  pdf_xfxq_wrapper_(x,Q,lha_pdf);
+  NNPDF::LHA2EVLN<double, double>(lha_pdf, pdf);
+}
+#include "APFELgridGeneration.h"
 
 using namespace std;
 using namespace xfitter;
 
 struct GridData{
-  unique_ptr<appl::grid>grid=nullptr;
+  unique_ptr<NNPDF::FKTable<double>>grid=nullptr;
   int Ndummysize=0;
   //Each grid is either a real APFELgrid or a dummy
   //For real  grids, grid is a valid pointer, and Ndummysize==0
@@ -45,6 +54,8 @@ extern "C" ReactionAPFELgrid* create() {
 void ReactionAPFELgrid::initTerm(TermData*td){
   DatasetData*data=new DatasetData;
   td->reactionData=(void*)data;
+
+  NNPDF::FKTable<double> *FK;
   //Split entries in GridName and load grids
   string GridName=td->getParamS("GridName");
   try{
@@ -53,6 +64,35 @@ void ReactionAPFELgrid::initTerm(TermData*td){
     while(std::getline(ss, token, ',')){
       data->grids.push_back(GridData());
       GridData&gd=data->grids.back();
+      // Read FK table
+      ifstream infile;
+      infile.open(token.c_str());
+      NNPDF::FKTable<double> *FK;
+      if (infile) {
+	FK = new NNPDF::FKTable<double>(infile);
+
+	// Check that the relevant parameters agree with those given in the steering card
+	double AsRef   = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "AlphasRef")).c_str());
+	double QRef    = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "QRef")).c_str());
+	double Q0      = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "Q0")).c_str());
+	double MCharm  = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MCharm")).c_str());
+	double MBottom = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MBottom")).c_str());
+	double MTop    = atof((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "MTop")).c_str());
+	int    PtOrd   = atoi((FK->NNPDF::FKHeader::GetTag(NNPDF::FKHeader::THEORYINFO, "PerturbativeOrder")).c_str());
+	cout << "AsRef:" << AsRef << endl;
+      }
+      else {
+	cout << "The file '" << token << "' does not exist. Generating FK table ..." << endl;
+	cout << endl;
+	APFELgridGen::generateFK(token, *td->getParamD("Q0"),
+				 *td->getParamD("mch"), *td->getParamD("mbt"), *td->getParamD("mtp"),
+				 *td->getParamD("alphas"), *td->getParamD("Mz"),
+				 OrderMap(td->getParamS("Order"))-1);
+	ifstream infile1;
+	infile1.open(token.c_str());
+	FK = new NNPDF::FKTable<double>(infile1);
+      }
+      gd.grid.reset(FK);
       //      appl::grid*g=new appl::grid(token);
     }
   }
@@ -62,20 +102,23 @@ void ReactionAPFELgrid::initTerm(TermData*td){
   }
   // Get Order
   data->order=OrderMap(td->getParamS("Order"));
+
   // Get MuR and MuF, or use 1.0 as default
-  if(td->hasParam("muR"))data->muR=td->getParamD("muR");
-  else data->muR=&ONE;
-  if(td->hasParam("muF"))data->muF=td->getParamD("muF");
-  else data->muF=&ONE;
+  if(td->hasParam("muR"))
+    data->muR=td->getParamD("muR");
+  else
+    data->muR=&ONE;
+  
+  if(td->hasParam("muF"))
+    data->muF=td->getParamD("muF");
+  else
+    data->muF=&ONE;
+
   // Get if should normalize by dividing by bin width (no by default)
   data->flagNorm=false;
+
   if(td->hasParam("norm")){
-    int norm=td->getParamI("norm");
-    if(norm==1){
-      data->flagNorm=true;
-    }else if(norm!=0){
-      hf_errlog(17102102, "F: unrecognised norm = " + norm);
-    }
+    hf_errlog(21111601, "F: APFELgrid does not support norm (yet) " );
   }
   size_t Ngrids=data->grids.size();
 }
@@ -89,33 +132,30 @@ void ReactionAPFELgrid::freeTerm(TermData*td){
 }
 
 void ReactionAPFELgrid::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err){
+
   const DatasetData&data=*(DatasetData*)td->reactionData;
   const int order=data.order;
   const double muR=*data.muR;
   const double muF=*data.muF;
   unsigned int pos = 0;
-  //calculate output array size
-  {
+
   size_t np=0;
   for(const GridData&gd:data.grids){
-    if(gd.grid)np+=gd.grid->Nobs();
-    else       np+=gd.Ndummysize;
+    np+=gd.grid->GetNData();
   }
+
+  cout << np << endl;
+  
   val.resize(np);
-  }
+  
   for(const GridData&gd:data.grids){
-    appl::grid*grid=gd.grid.get();
-    vector<double>gridVals;
-    if(grid){//real, non-dummy grid
-      gridVals.resize(grid->Nobs());
-      td->actualizeWrappers();
-      // gridVals=grid->vconvolute(pdf_xfxq_wrapper_,pdf_xfxq_wrapper1_,alphas_wrapper_,order-1,muR,muF,eScale);
-      if(data.flagNorm)//scale by bin width
-        for(size_t i=0; i<gridVals.size(); i++)
-          gridVals[i] *= grid->deltaobs(i);
-    }
+    auto *grid=gd.grid.get();
+    vector<double> gridVals;
+    gridVals.resize(grid->GetNData());
+    td->actualizeWrappers();
+    grid->Convolute(fkpdf,1,gridVals.data());
     // insert values from this grid into output array
     copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
-    pos += grid->Nobs();
+    pos += grid->GetNData();
   }
 }

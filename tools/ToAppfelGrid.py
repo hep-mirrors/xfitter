@@ -14,7 +14,7 @@ def Fk_file(name):
     present = 0
     with open(name, "r+") as r:
         for l in r:
-            if l.find('applgrid')>0:
+            if l.find('APPLgrid')>0:
                 present = 1
 
     if present:
@@ -26,8 +26,8 @@ def Fk_file(name):
     with open(name+'_fk',"w+") as w:
         with open(name, "r+") as r:
             for l in r:
-                if l.lower().find('termtype')>=0:
-                    l = l.replace('applgrid','apfelgrid')
+                if l.lower().find('termsource')>=0:
+                    l = l.replace('APPLgrid','APFELgrid')
                 l = l.replace('.root','.fk')
                 w.write(l)
     return name
