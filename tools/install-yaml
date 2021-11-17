@@ -76,5 +76,6 @@ echo export CPPFLAGS=\"\$CPPGLAGS -I\$CURRENTDIR/$dir/yaml/include $incspp\" >> 
 echo export CXXFLAGS=\"\$CXXFLAGS -I\$CURRENTDIR/$dir/yaml/include $incspp\" >> setup_yaml.sh
 echo export LDFLAGS=\"\$LDFLAGS -L\$CURRENTDIR/$dir/yaml/lib $libspp\" >> setup_yaml.sh
 echo export yaml_cpp_DIR=$CURRENTDIR/$dir/yaml-cpp >> setup_yaml.sh
+echo export yaml_DIR=$CURRENTDIR/$dir/yaml >> setup_yaml.sh
 
 chmod +x setup_yaml.sh

@@ -263,6 +263,9 @@ then
     exit
 fi
 
+# Get root c flags:
+root_c_flags=`root-config --cflags`
+
 which wget >& /dev/null
 if [[ $? == 0 ]]
 then
@@ -321,7 +324,7 @@ else
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cat $CURRENTDIR/install.log 
     cd ${lhapdf}-${lhapdfver}
-    ./configure --prefix=$CURRENTDIR/deps/lhapdf  >> $CURRENTDIR/install.log  2>&1
+    ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -348,7 +351,7 @@ else
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC' -j9 >> $CURRENTDIR/install.log  2>&1
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -401,8 +404,8 @@ else
     fi
     tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
-    # need to supply c++11 flag explicitly
-    ./configure CXXFLAGS='--std=c++11' --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
+    # need to supply c++1X flag from root explicitly
+    ./configure CXXFLAGS="${root_c_flags}" --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -706,7 +709,7 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   rm -f test-tmp.cc
   echo "#include <yaml.h>" >> test-tmp.cc
   echo "yaml_document_t doc;" >> test-tmp.cc
-  g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
+  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
   if [ `echo $?` -eq 0 ]; then
     echo "YAML yes" >> $CURRENTDIR/install.log
     HAVEYAML=1
@@ -717,7 +720,7 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   rm -f test-tmp.cc
   echo "#include <yaml-cpp/yaml.h>" >> test-tmp.cc
   echo "YAML::Node node;" >> test-tmp.cc
-  g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
+  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
   if [ `echo $?` -eq 0 ]; then
     echo "YAMLCPP yes" >> $CURRENTDIR/install.log
     HAVEYAMLCPP=1
