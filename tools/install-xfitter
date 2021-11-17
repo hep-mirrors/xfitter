@@ -475,7 +475,7 @@ else
     if [[ $skip_apfelgrid != 1 ]]; then
         wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
         tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
-        mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir` >> $CURRENTDIR/install.log  2>&1
+        mv NNPDF30_nlo_as_0118 lhapdf/share/LHAPDF >> $CURRENTDIR/install.log  2>&1
         rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
         echo "Installing APFELgrid $apfelgridver..."
       # tmp solution is to use fork @zenaiev
@@ -492,7 +492,6 @@ else
 	if [[ $? != 1 ]]
 	then
             echo "Error, check install.log for details"
-            exit
 	fi
 	make install
 	cd - >& /dev/null
