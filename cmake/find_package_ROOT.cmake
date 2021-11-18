@@ -19,6 +19,8 @@ find_program(root-config root-config HINTS ${root-config_HINTS})
 if(EXISTS ${root-config})
   execute_process(COMMAND ${root-config} --prefix OUTPUT_VARIABLE ROOT_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
   list(APPEND ROOT_HINTS ${ROOT_PREFIX})
+  # also store C++
+  execute_process(COMMAND ${root-config} --cflags OUTPUT_VARIABLE ROOT_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 if(NOT CMAKE_VERSION VERSION_LESS 3.0.0)

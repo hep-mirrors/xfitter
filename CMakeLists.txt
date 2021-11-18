@@ -37,6 +37,9 @@ include(find_package_ROOT)
 find_package(Hathor)
 find_package(yaml)
 
+if(ROOT_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
+else()
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
   #workaround for older versions of cmake
@@ -44,6 +47,7 @@ if(CMAKE_VERSION VERSION_LESS "3.1")
 else()
   set(CMAKE_CXX_STANDARD 11)
   set(CMAKE_CXX_STANDARD_REQUIRED YES)
+endif()
 endif()
 
 #Use c preprocessor with fortran
@@ -104,6 +108,7 @@ add_subdirectory(minimizers/CERES)
 
 #Parameterisations
 add_subdirectory(pdfparams/HERAPDF)
+add_subdirectory(pdfparams/Normalized)
 add_subdirectory(pdfparams/Factor)
 add_subdirectory(pdfparams/NegativeGluon)
 add_subdirectory(pdfparams/ABMPgluon)

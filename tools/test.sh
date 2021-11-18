@@ -103,10 +103,6 @@ runTest()
   if [ `numdiff -v >& /dev/null; echo $?` == "0" ]; then
     # we have numdiff and we wil use it with tolerance 1e-4 for either absolute or relative differneces between numbers
     diff='numdiff -a 1e-4 -r 1e-4'
-    # on naf-xfitter.desy.de, 'numdiff' command seems to do something different
-    if [ $HOSTNAME == "naf-xfitter.desy.de" ]; then
-      diff='diff'
-    fi
   fi
 
   echo "========================================"
