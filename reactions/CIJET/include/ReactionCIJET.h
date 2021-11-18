@@ -23,9 +23,9 @@
 
 class CIJETReaction : public CIJETReader {
 public:
-   CIJETReaction(string name, ReactionTheory* reaction) : CIJETReader(name, reaction) {};
+    CIJETReaction(string name, ReactionTheory* reaction) : CIJETReader(name, reaction) {};
 protected:
-   CIJETReaction(string name) : CIJETReader(name) {}; // not public!
+    CIJETReaction(string name) : CIJETReader(name) {}; // not public!
 };
 
 class ReactionCIJET : public ReactionTheory {
@@ -34,14 +34,14 @@ public:
 
 
 public:
-   virtual string getReactionName() const { return  "CIJET" ;};
-   virtual void initTerm(TermData* td) override final;
-   virtual void atStart() {} //< nothing todo
-   virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err);
+    virtual string getReactionName() const { return  "CIJET" ;};
+    virtual void initTerm(TermData* td) override final;
+    virtual void atStart() {} //< nothing todo
+    virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err);
 protected:
-   virtual int parseOptions(){ return 0;};
-   // CIJET inherited functions 
-   std::map<int,std::vector<CIJETReaction*> > ffnlo;
+    virtual int parseOptions(){ return 0;};
+    // CIJET inherited functions 
+    std::map<int,std::vector<CIJETReaction*> > ffnlo;
 };
 
 #endif

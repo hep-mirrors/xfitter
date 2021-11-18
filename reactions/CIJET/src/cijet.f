@@ -6,12 +6,11 @@ c performing grid reading and initialization
 ! new line
       implicit none
 ! maximum number of data sets and points per set
-      integer, parameter :: mset=1, mpint=200
+      integer, parameter :: mset=4, mpint=200
       integer, parameter :: xnd=40, qnd=15, nbk=42
 
 ! input scale choices, CI shape choice, only color-singlet
       real(8) :: mufip, murip, fut
-      integer :: cshape ! 1 for LL, 2 for RR, 3 for vector, 4 for av
       real(8) :: cpl(3)=0.d0 ! color singlet couplings, LL, LR, RR
       real(8) :: ash(10) ! individual coupling combinations 
 ! input QCD order
@@ -75,15 +74,7 @@ c performing grid reading and initialization
 
 ! end of initialization of commons
 
-! define the couplings apart from 1/Lambda^2
-!      select case (cshape)
-!      case(3)
-!      cpl(1)=1.d0;cpl(2)= 2.d0;cpl(3)=1.d0
-!      case(4)
-!      cpl(1)=1.d0;cpl(2)=-2.d0;cpl(3)=1.d0
-!      case default
-!      cpl(1)=1.d0;cpl(2)=0.d0;cpl(3)=0.d0
-!      end select
+! init couplings apart from 1/Lambda^2
       ash(1) =1.d0 !cpl(1)+cpl(3)
       ash(2) =1.d0 !cpl(1)^2+cpl(3)^2
       ash(3) =1.d0 !cpl(2)^2
@@ -314,7 +305,7 @@ c perform grid convolution and calculation of xsecs
 ! new line
       implicit none
 ! maximum number of data sets and points per set
-      integer, parameter :: mset=1, mpint=200
+      integer, parameter :: mset=4, mpint=200
       integer, parameter :: xnd=40, qnd=15, nbk=42
 ! input 1/Lambda^2 [in TeV^-2]
       real(8) :: invlamsq, res(mpint), pres(mpint)
@@ -514,9 +505,7 @@ c end of PDF calculation
       end subroutine cijetxsec
 
 
-!!!!!!must rely on external Fortran routines for alphas
-!!!!!!and PDFs; can not really wrapped them into reaction
-!!!!!!class due to problem of passing functions within class
+!!!!!!Routines for alphas and PDFs
 
 c link to PDF routines 
       subroutine cievolPDF(x, q, res)
@@ -528,7 +517,7 @@ c link to PDF routines
 
       res=0.d0
 ! e.g.,
-      call appl_fnpdf(x, Q, xf)
+      call pdf_xfxq_wrapper(x, Q, xf)
 ! test with LHAPDF     call evolvePDF(x, Q, xf)
 
       res(-6:6)=xf
@@ -542,12 +531,12 @@ c link to PDF routines
 ! new line
       implicit none
       real(8) :: q
-      real(8), external :: appl_fnalphas
+      real(8), external :: alphas_wrapper
 ! test with LHAPDF      real(8), external :: alphasPDF 
 
       cialphas=0.118d0
 ! e.g.,
-      cialphas=appl_fnalphas(Q)
+      cialphas=alphas_wrapper(Q)
 ! test with LHAPDF      cialphas=alphasPDF(Q)
       return
 
