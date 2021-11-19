@@ -1,0 +1,24 @@
+###############
+### Job to be submitted with: condor_submit PDFfit.submit
+### ClusterID and ProcId are assigned automatically by the system
+### -> The operative system and version should be the same as where xfitter was compiled
+### -> The directories ./output, ./error and ./log have to be created before submiting the job
+### -> The length of the job is indicated with: nextweek = 1 week, testmatch = 3 days, tomorrow = 1 day, workday = 8 hours, longlunch = 2 hours, microcentury = 1 hour, espresso = 20 minutes
+### -> It is possible to control, to some extent, when the temporary output of xfitter is copied. The option is commented bellow
+###############
+ 
+executable            = PDFfit.sh
+requirements	      = (OpSysAndVer =?= "CentOS7")
+arguments             = $(ClusterId) $(ProcId)
+
+output                = output/PDFfit.$(ClusterId).$(ProcId).out
+error                 = error/PDFfit.$(ClusterId).$(ProcId).err
+log                   = log/PDFfit.$(ClusterId).log
+notify_user           = francesco.giuli@cern.ch
+
+# should_transfer_files = YES
+# when_to_transfer_output = ON_EXIT_OR_EVICT
+
++JobFlavour = "testmatch"
+
+queue

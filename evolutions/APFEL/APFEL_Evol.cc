@@ -157,17 +157,29 @@ void APFEL_Evol::atStart()
 
   // treat number of flavours
   int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
-  APFEL::SetMaxFlavourPDFs(nflavour);
-  APFEL::SetMaxFlavourAlpha(nflavour);
-  //
-  // this seems to be not needed (are two lines above sufficient?)
-  // Another issue: is APFEL::SetFFNS(4) equivavelent to APFEL::SetMaxFlavourPDFs(4)
-  // and APFEL::SetMaxFlavourAlpha(4) below the charm quark threshold?
-  //
-  //if(nflavour == 3 || nflavour == 4)
-  //  APFEL::SetFFNS(nflavour);
-  //else
-  //  APFEL::SetVFNS();
+  if(nflavour < 3 || nflavour > 6)
+    hf_errlog(110520204, "F: Unsupported NFlavour = " + std::to_string(nflavour));
+  int isFFNS = 0; // VFNS by default
+  if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end())
+    isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
+  if(isFFNS == 1)
+  {
+    std::cout << "Fixed Flavour Number Scheme set with nf=" << nflavour << std::endl;
+    APFEL::SetMassScheme("FFNS" + std::to_string(nflavour));
+    APFEL::SetFFNS(nflavour);
+  }
+  else if(isFFNS == 0)
+  {
+    std::cout << "Variable Flavour Number Scheme set with nf=" << nflavour << std::endl;
+    APFEL::SetVFNS();
+    APFEL::SetMaxFlavourPDFs(nflavour);
+    APFEL::SetMaxFlavourAlpha(nflavour);
+  }
+  else
+  {
+    std::cout << "Variable Flavour Number Scheme set with nf=" << nflavour << std::endl;
+    hf_errlog(110520203, "F: Unsupported isFFNS = " + std::to_string(isFFNS));
+  }
 
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
@@ -208,10 +220,16 @@ void APFEL_Evol::atStart()
     }
   }
   // heavy-quark thresholds
-  double kmc = _yAPFEL["kmc"] ? _yAPFEL["kmc"].as<double>() : 1.0;
-  double kmb = _yAPFEL["kmb"] ? _yAPFEL["kmb"].as<double>() : 1.0;
-  double kmt = _yAPFEL["kmt"] ? _yAPFEL["kmt"].as<double>() : 1.0;
-  APFEL::SetMassMatchingScales(kmc, kmb, kmt);
+  if(isFFNS == 0)
+  {
+    double kmc = _yAPFEL["kmc"] ? _yAPFEL["kmc"].as<double>() : 1.0;
+    double kmb = _yAPFEL["kmb"] ? _yAPFEL["kmb"].as<double>() : 1.0;
+    double kmt = _yAPFEL["kmt"] ? _yAPFEL["kmt"].as<double>() : 1.0;
+    APFEL::SetMassMatchingScales(kmc, kmb, kmt);
+  }
+  //else
+  //  APFEL::SetMassMatchingScales(0., 0., 0.);
+  
 
   if (nllxResummation == "On")
   {

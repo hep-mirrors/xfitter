@@ -156,12 +156,12 @@ void fastNLOCoeffData::Print(int iprint) const {
    if (Nuncorrel > 0) {fastNLOTools::PrintVector(UncDescr,"Uncorr. uncertainties (UncDescr)","#");}
    printf(" # No. of corr. unc. (Ncorrel)         %d\n",Ncorrel);
    if (Ncorrel > 0) {fastNLOTools::PrintVector(CorDescr,"Corr. uncertainties (CorDescr)","#");}
-   if ( abs(iprint) > 0 ) {
+   if ( std::abs(iprint) > 0 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 0) " << fastNLO::_SSEP20 << endl;
       fastNLOTools::PrintVector(Xcenter,"Data bin centers (Xcenter)","#  ");
       fastNLOTools::PrintVector(Value,"Data values (Value)","#  ");
    }
-   if ( abs(iprint) > 1 ) {
+   if ( std::abs(iprint) > 1 ) {
       cout << fastNLO::_SSEP20C << " Extended information (iprint > 1) " << fastNLO::_SSEP20 << endl;
       for (int i=0; i<fNObsBins; i++) {
          // Print only for first and last observable bin

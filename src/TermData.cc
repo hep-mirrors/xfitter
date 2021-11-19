@@ -113,44 +113,36 @@ void splitTermInfo(map<string, string> &out, const char *s)
   //NOTE: only spaces are treated as whitespace, tabs and other stuff is not handled
 }
 const char *const BY_REACTION = "byReaction";
+const char *const BY_DATASET = "byDataset";
 using XFITTER_PARS::createConstantParameter;
 using XFITTER_PARS::gParameters;
 using XFITTER_PARS::rootNode;
-YAML::Node getFromByReaction(const string &parName, const ReactionTheory *const reaction)
-{
+YAML::Node getFromByDataset(const string& parName, const string& datasetName) {
+  //Return a node corresponding to dataset-specific parameter in the YAML steering
+  //Or, if such a node is not found, return an invalid(undefined) node
+  YAML::Node byDatasetNode = rootNode[BY_DATASET];
+  if (byDatasetNode.IsMap())
+  {
+    YAML::Node reactionNode = byDatasetNode[datasetName];
+    if (reactionNode.IsMap()) return reactionNode[parName];
+    else if (reactionNode.IsDefined())
+    {
+      cerr<< "[ERROR] Dataset-specific parameters node " << BY_DATASET << '/' << datasetName << " is not a YAML map" << endl;
+      hf_errlog(20032800, "F: Dataset parameter node is not a map, see stderr");
+    }
+  }
+  return YAML::Node(YAML::NodeType::Undefined);
+}
+YAML::Node getFromByReaction(const string& parName, const string& reaction_name) {
   //Return a node corresponding to reaction-specific parameter
   //Or, if such a node is not found, return an invalid(undefined) node
   YAML::Node byReactionNode = rootNode[BY_REACTION];
-  if (byReactionNode.IsMap())
-  {
-    YAML::Node reactionNode = byReactionNode[reaction->getReactionName()];
-    if (reactionNode.IsMap())
-      return reactionNode[parName];
-    else if (reactionNode.IsDefined())
-    {
-      cerr << "[ERROR] Reaction-specific parameters node " << BY_REACTION << '/' << reaction->getReactionName() << " is not a YAML map" << endl;
+  if (byReactionNode.IsMap()) {
+    YAML::Node reactionNode = byReactionNode[reaction_name];
+    if (reactionNode.IsMap()) return reactionNode[parName];
+    else if (reactionNode.IsDefined()) {
+      cerr << "[ERROR] Reaction-specific parameters node " << BY_REACTION << '/' << reactionNode << " is not a YAML map" << endl;
       hf_errlog(19041301, "F: Reaction parameter node is not a map, see stderr");
-    }
-  }
-  else
-  { //Check in case somebody still uses the old syntax
-    //When everyone has migrated, you can remove this whole block
-    static bool once = true;
-    if (once)
-    {
-      YAML::Node oldstyleNode = XFITTER_PARS::rootNode[reaction->getReactionName()];
-      if (oldstyleNode.IsDefined())
-      {
-        once = false;
-        cerr << "[WARN] When searching for parameter \"" << parName << "\" requested by reaction \"" << reaction->getReactionName() << "\" I noticed that there is no \"" << BY_REACTION << "\" node, but there is a node named \"" << reaction->getReactionName() << "\" at YAML root. "
-                                                                                                                                                                                                                                                                      "It seems you are using the old syntax to pass reaction-specific parameters. By the new syntax, which was introduced during the \"TermData rewrite\", reaction node should be under \""
-             << BY_REACTION << "\", like this:\n"
-             << BY_REACTION << ":\n  " << reaction->getReactionName() << ":\n    #YOUR PARAMETERS HERE\n  some_other_reaction:\n    #other parameters\n  ...\n"
-                                                                         "I am NOT reading old-style reaction-specific parameters this time, go change your YAML input. I will try to get this parameter from YAML root now.\n"
-                                                                         "This type of warning will not be issued again."
-             << endl;
-        hf_errlog(19041302, "W: Old-style reaction parameter syntax detected, see stderr");
-      }
     }
   }
   return YAML::Node(YAML::NodeType::Undefined);
@@ -165,346 +157,271 @@ enum class Type
 }; //None is unused
 const char *to_cstring(Type t)
 {
-  static const char *a[] = {"None", "double*", "string", "int", "vector<double*>"};
+  static const char* a[] = {"None", "double*", "string", "int", "vector<double*>"};
   return a[int(t)];
 }
 std::ostream &operator<<(std::ostream &os, Type t) { return os << to_cstring(t); }
 enum class ParamScope
 {
-  Term = 0,
-  Reaction = 1,
-  Global = 2
+  Dataset = 0, //Dataset-specific override from yaml steering
+  Term = 1, //Term-specific from TermInfo in datafile
+  Reaction = 2, //Reaction-specfic from yaml steering
+  Global = 3, //Global from yaml steering
+  Undefined = 4
+  //Smaller number means higher priority
+  //Scope with smaller number overrides scope with larger number
 };
-void reportUndefinedParameter[[noreturn]](const string &parName, const Type type, const ReactionTheory *reaction)
-{
-  cerr << "[ERROR] Undefined parameter \"" << parName << "\" requested as " << type << " by reaction \"" << reaction->getReactionName() << "\"" << endl;
-  hf_errlog(19041303, "F: Reaction requested undefined parameter, see stderr");
-  abort(); //unreachable
+ParamScope getParameterScope(const string& parName, const map<string,string>& term_info, const string& dataset_name, const string& reaction_name){
+  if (getFromByDataset(parName, dataset_name).IsDefined()) return ParamScope::Dataset;
+  if (term_info.count(parName) > 0) return ParamScope::Term;
+  if (getFromByReaction(parName, reaction_name).IsDefined()) return ParamScope::Reaction;
+  if (gParameters.count(parName) > 0 or rootNode[parName].IsDefined()) return ParamScope::Global;
+  return ParamScope::Undefined;
 }
-void reportFailedConversion[[noreturn]](const string &parName, const Type type, const ParamScope scope, const ReactionTheory *reaction, const YAML::Node *node = nullptr, const string *definition = nullptr)
-{
-  cerr << "[ERROR] Failed to convert parameter \"" << parName << "\" to " << type << ".\nThis parameter was requested as " << type << " by reaction \"" << reaction->getReactionName() << "\", and was found in ";
-  switch (scope)
-  {
-  case ParamScope::Term:
-    cerr << "corresponding TermInfo";
+/// \brief Print a debug message to cerr describing where the parameter was found
+void printScopeDescription(
+  const string& parameter_name,
+  const ParamScope scope,
+  const Type type,
+  const string& dataset_name,
+  const string& reaction_name
+){
+  cerr<<
+    "Parameter \""<<parameter_name<<"\" "
+    "was requested as type \""<<type<<"\" "
+    "by reaction \""<<reaction_name<<"\" "
+    "for dataset \""<<dataset_name<<"\". "
+    "The parameter is ";
+  if (scope == ParamScope::Undefined) {
+    cerr<<"undefined";
+    return;
+  }
+  cerr<<"defined in the ";
+  if (scope == ParamScope::Term) {
+    cerr<<"corresponding TermInfo";
+    return;
+  }
+  cerr<<"YAML steering at ";
+  switch (scope) {
+  case ParamScope::Dataset:
+    cerr<<BY_DATASET<<"/\""<<dataset_name<<"\"/"<<parameter_name;
     break;
   case ParamScope::Reaction:
-    cerr << "YAML steering as " << BY_REACTION << '/' << reaction->getReactionName() << '/' << parName;
+    cerr<<BY_REACTION<<'/'<<reaction_name<<'/'<<parameter_name;
     break;
   case ParamScope::Global:
-    cerr << "root of YAML steering";
+    cerr<<"global scope";
     break;
+  default:break;
   }
-  if (node)
-  {
-    cerr << ". Trying to print the node:" << endl;
+}
+void reportUndefinedParameter[[noreturn]](
+  const string& parameter_name,
+  const Type type,
+  const string& dataset_name,
+  const string& reaction_name
+){
+  cerr<<"[ERROR] ";
+  printScopeDescription(parameter_name, ParamScope::Undefined, type, dataset_name, reaction_name);
+  cerr<<endl<<"[/ERROR]"<<endl;
+  hf_errlog(19041303, "F: Reaction requested undefined parameter, see stderr"); //does not return
+  abort(); //unreachable
+}
+void reportFailedConversion[[noreturn]](
+  const string& parameter_name,
+  const Type type,
+  const ParamScope scope,
+  const string& dataset_name,
+  const string& reaction_name,
+  const YAML::Node* node = nullptr,
+  const string* definition = nullptr
+){
+  cerr<<"[ERROR] Type conversion failed"<<endl;
+  printScopeDescription(parameter_name, scope, type, dataset_name, reaction_name);
+  cerr<<endl;
+  if (node) {
+    cerr << "Trying to print the node:" << endl;
     cerr << *node << endl;
   }
-  if (definition)
-  { //for TermInfo
-    cerr << ". Parameter definition: \"" << parName << '=' << *definition << "\"" << endl;
+  if (definition) { //for TermInfo
+    cerr << "Parameter definition: \"" << parameter_name << '=' << *definition << "\"" << endl;
   }
   cerr << "[/ERROR]" << endl;
   hf_errlog(19041300, "F: Failed to convert parameter to requested type, see stderr");
   abort(); //unreachable
 }
-const char *const PAR_TAG = "!parameter";
-void reportUndefinedReference[[noreturn]](const string &parName, const string &refName, const ParamScope scope, const ReactionTheory *reaction)
-{
-  cerr << "[ERROR] Reference to undefined parameter \"" << refName << "\" in ";
-  switch (scope)
-  {
-  case ParamScope::Term:
-    cerr << "TermInfo parameter \"" << parName << "\" for reaction \"" << reaction->getReactionName() << '\"';
-    break;
-  case ParamScope::Reaction:
-    cerr << "YAML steering at node " << BY_REACTION << '/' << reaction->getReactionName() << '/' << parName;
-    break;
-  case ParamScope::Global:
-    cerr << "parameter \"" << parName << "\" at root of YAML steering";
-    break;
-  }
-  cerr << endl;
-  hf_errlog(19041710, "F: Reference to undefined parameter, see stderr");
+static const char* const PAR_TAG = "!parameter";
+void reportUndefinedReference[[noreturn]](
+  const string& parameter_name,
+  const string& reference_name,
+  const ParamScope scope,
+  const string& dataset_name,
+  const string& reaction_name
+){
+  cerr<<"[ERROR] Parameter \""<<parameter_name<<"\" is a reference to undefined parameter \""<<reference_name<<'\"'<<endl;
+  printScopeDescription(parameter_name, scope, Type::DoublePtr, dataset_name, reaction_name);
+  cerr<<"\n[/ERROR]"<<endl;
+  hf_errlog(19041710, "F: Reference to undefined parameter, see stderr"); //does not return
   abort(); //unreachable
 }
-//TODO: Implement TheorEval managing instances of TermData
-TermData::TermData(unsigned _id, ReactionTheory *_reaction, TheorEval *_parent, const char *term_info_string) : id{_id}, reaction{_reaction}, parent{_parent}
-{
+TermData::TermData(unsigned _id, ReactionTheory *_reaction, TheorEval *_parent, const char *term_info_string) : id{_id}, reaction{_reaction}, parent{_parent} {
   splitTermInfo(term_info, term_info_string); //fills term_info
 }
-int TermData::getStringFromTermOrReaction(const string &parName, string *out)
-{
-  //On sucess return 0 and set out
-  //On failure return 1
-  //1. TermInfo from datafile
-  {
-    const auto it = term_info.find(parName);
-    if (it != term_info.end())
-    {
-      *out = it->second;
-      return 0;
-    }
+string TermData::getParamS(const string& parameter_name) {
+  const Type type = Type::String;
+  const string& dataset_name = parent->_ds_name;
+  const string& reaction_name = reaction->getReactionName();
+  ParamScope scope = getParameterScope(parameter_name, term_info, dataset_name, reaction_name);
+  if (scope == ParamScope::Undefined) reportUndefinedParameter(parameter_name, type, dataset_name, reaction_name);
+  if (scope == ParamScope::Term) return term_info.at(parameter_name);
+  YAML::Node node;
+  if (scope == ParamScope::Dataset) node = getFromByDataset(parameter_name, dataset_name);
+  else if (scope == ParamScope::Reaction) node = getFromByReaction(parameter_name, reaction_name);
+  else if (scope == ParamScope::Global) node = rootNode[parameter_name];
+  else {//this branch is unreachable
+    hf_errlog(20040400, "F: Programming error: unhandled parameter scope");
+    abort();
   }
-  //2. Reaction-specific from yaml steering
-  {
-    YAML::Node parNode = getFromByReaction(parName, reaction);
-    if (parNode.IsDefined())
-    {
-      try
-      {
-        *out = parNode.as<string>();
-      }
-      catch (const YAML::TypedBadConversion<string> &ex)
-      {
-        reportFailedConversion(parName, Type::String, ParamScope::Reaction, reaction, &parNode);
-      }
-      return 0;
-    }
+  try{
+    return node.as<string>();
+  } catch (const YAML::TypedBadConversion<string> &ex) {
+    reportFailedConversion(parameter_name, type, scope, dataset_name, reaction_name, &node);
   }
-  return 1;
 }
-string TermData::getParamS(const string &parName)
-{
-  //Try to get the parameter from the following places, in the following order/priority:
-  //1. Term-specific from datafile
-  //2. Reaction-specfic from yaml steering
-  //3. Global from yaml steering
-
-  //1, 2. Term and Reaction
-  {
-    string out;
-    if (getStringFromTermOrReaction(parName, &out) == 0)
-      return out;
-  }
-  //3. Global from YAML
-  //NOTE: I do not use gParametersI, gParametersS, gParametersV, gParametersY because I do not like them --Ivan
-  {
-    YAML::Node parNode = rootNode[parName];
-    if (parNode.IsDefined())
-    {
-      try
-      {
-        return parNode.as<string>();
-      }
-      catch (const YAML::TypedBadConversion<string> &ex)
-      {
-        reportFailedConversion(parName, Type::String, ParamScope::Global, reaction, &parNode);
-      }
+const double* TermData::getParamD(const string& parameter_name) {
+  const Type type = Type::DoublePtr;
+  const string& dataset_name = parent->_ds_name;
+  const string& reaction_name = reaction->getReactionName();
+  ParamScope scope = getParameterScope(parameter_name, term_info, dataset_name, reaction_name);
+  if (scope == ParamScope::Undefined) reportUndefinedParameter(parameter_name, type, dataset_name, reaction_name);
+  if (scope == ParamScope::Term) {
+    const string& definition = term_info.at(parameter_name);
+    //Try reference to parameter defined in YAML: "!parameter Bv"
+    static const char REFERENCE_TAG[] = "!parameter ";
+    if (beginsWith(definition, REFERENCE_TAG)) {
+      const size_t p = definition.find_first_not_of(' ', sizeof(REFERENCE_TAG) - 1); //because definition cannot end in ' ', this will always succeed
+      const string& reference_name = definition.substr(p);
+      auto itp = gParameters.find(reference_name);
+      if (itp == gParameters.end()) reportUndefinedReference(parameter_name, reference_name, scope, dataset_name, reaction_name);
+      return itp->second;
     }
-  }
-  reportUndefinedParameter(parName, Type::String, reaction);
-}
-const double *TermData::getParamD(const string &parName)
-{
-  //1. TermInfo from datafile
-  {
-    const auto it = term_info.find(parName);
-    if (it != term_info.end())
-    {
-      //Try reference to parameter defined in YAML: "!parameter Bv"
-      string definition = it->second;
-#define PAR_PREFIX "!parameter "
-      if (beginsWith(definition, PAR_PREFIX))
-      {
-        size_t p = definition.find_first_not_of(' ', sizeof(PAR_PREFIX) - 1); //because definition cannot end in ' ', this will always succeed
-        string refName = definition.substr(p);
-        auto itp = gParameters.find(refName);
-        if (itp == gParameters.end())
-        {
-          reportUndefinedReference(parName, refName, ParamScope::Term, reaction);
-        }
-        return itp->second;
-      }
-#undef PAR_PREFIX
-      //Try constant: "10" or "2.0", then create a constant parameter specifically for this value
-      //Name it "termID/NAME", with some ID and NAME
-      const string parFullname = "term" + to_string(id) + '/' + parName;
+    //Try constant: "10" or "2.0", then create a constant parameter specifically for this value
+    //Name it "termID/NAME", with some ID and NAME
+    const string full_name = "term" + to_string(id) + '/' + parameter_name;
 
-      //First try converting to double:
-      char *endp;
-      double value = strtod(definition.c_str(), &endp);
-      if (endp == definition.c_str())
-      {
-        reportFailedConversion(parName, Type::DoublePtr, ParamScope::Term, reaction, nullptr, &definition);
-      }
+    /*
+    //First check if this constant parameter has already been created
+    const auto it = gParameters.find(full_name);
+    if (it != gParameters.end()) return it->second;
 
-      //Then check if this constant parameter has already been created
-      const auto itp = gParameters.find(parFullname);
-      if (itp != gParameters.end())
-	{
-	  //update the value
-	  *(itp->second) = value;
-	  return itp->second;
-	}
+    //Else try converting to double:
+    char *endp;
+    double value = strtod(definition.c_str(), &endp);
+    if (endp == definition.c_str()) reportFailedConversion(parameter_name, type, scope, dataset_name, reaction_name, nullptr, &definition);
+    */
 
-      //Else create a new constant parameter
-      return createConstantParameter(parFullname, value);
-    }
-  }
-  //2. Reaction-specfic from yaml steering
-  {
-    YAML::Node parNode = getFromByReaction(parName, reaction);
-    if (parNode.IsDefined())
-    {
-      //2.1 reference to another parameter, like
-      //alphas: !parameter fitted_alphas
-      if (parNode.Tag() == PAR_TAG)
-      {
-        try
-        {
-          string refName = parNode.as<string>();
-          const auto it = gParameters.find(refName);
-          if (it == gParameters.end())
-          {
-            reportUndefinedReference(parName, refName, ParamScope::Reaction, reaction);
-          }
-          return it->second;
-        }
-        catch (YAML::TypedBadConversion<string>)
-        {
-          cerr << "[ERROR] Failed to convert name of reference parameter to string in reference\n"
-               << BY_REACTION << ":\n  " << reaction->getReactionName() << ":\n    " << parName << ": " << PAR_TAG << " ???\nTrying to print it:" << endl;
-          cerr << parNode << endl;
-          cerr << "[/ERROR]";
-          hf_errlog(19041700, "F: Failed to convert parameter name to string, see stderr");
-        }
-      }
-      //2.2 constant
-      string parFullname = reaction->getReactionName() + "/" + parName;
-      //first check if it exists already
-      const auto it = gParameters.find(parFullname);
-      if (it != gParameters.end())
-        return it->second;
-      //else create it
-      try
-      {
-        return createConstantParameter(parFullname, parNode.as<double>());
-      }
-      catch (YAML::TypedBadConversion<double>)
-      {
-        reportFailedConversion(parName, Type::DoublePtr, ParamScope::Reaction, reaction, &parNode);
-      }
-    }
-  }
-  //3. Global
-  {
-    //First check if it exists already
-    const auto it = gParameters.find(parName);
+    //First try converting to double:
+    char *endp;
+    double value = strtod(definition.c_str(), &endp);
+    if (endp == definition.c_str()) reportFailedConversion(parameter_name, type, scope, dataset_name, reaction_name, nullptr, &definition);
+
+    //Then check if this constant parameter has already been created
+    const auto it = gParameters.find(full_name);
     if (it != gParameters.end())
-      return it->second;
-    //Else try to create a new constant parameter
-    const YAML::Node parNode = rootNode[parName];
-    if (parNode.IsDefined())
-    {
-      try
       {
-        return createConstantParameter(parName, parNode.as<double>());
+	//update the value
+	*(it->second) = value;
+	return it->second;
       }
-      catch (YAML::TypedBadConversion<double>)
-      {
-        reportFailedConversion(parName, Type::DoublePtr, ParamScope::Global, reaction, &parNode);
+    
+    //Else create a new constant parameter
+    return createConstantParameter(full_name, value);
+  }
+  YAML::Node node;
+  if (scope == ParamScope::Dataset) node = getFromByDataset(parameter_name, dataset_name);
+  else if (scope == ParamScope::Reaction) node = getFromByReaction(parameter_name, reaction_name);
+  else if (scope == ParamScope::Global) node = rootNode[parameter_name];
+  else {//this branch is unreachable
+    hf_errlog(20040400, "F: Programming error: unhandled parameter scope");
+    abort();
+  }
+  try{
+    //Case 1: reference to another double-typed parameter
+    if (scope != ParamScope::Global && node.Tag() == PAR_TAG) {
+      const string reference_name = node.as<string>();
+      try{
+        return gParameters.at(reference_name);
+      } catch (std::out_of_range& ex){
+        reportUndefinedReference(parameter_name, reference_name, scope, dataset_name, reaction_name);
       }
     }
+    //Case 2: constant double
+    string full_name;
+    if (scope == ParamScope::Dataset) full_name = "dataset" + dataset_name + '/' + parameter_name;
+    else if (scope == ParamScope::Reaction) full_name = reaction_name + '/' + parameter_name;
+    else if (scope == ParamScope::Global) full_name = parameter_name;
+    else {//this branch is unreachable
+      hf_errlog(20040401, "F: Programming error: unhandled parameter scope");
+      abort();
+    }
+    //Check if already exists
+    const auto it = gParameters.find(full_name);
+    if (it != gParameters.end()) return it->second;
+    //else create and return a new constant parameter
+    return createConstantParameter(full_name, node.as<double>());
+  } catch (const YAML::TypedBadConversion<double> &ex) {
+    reportFailedConversion(parameter_name, Type::DoublePtr, scope, dataset_name, reaction_name, &node);
+  } catch (const YAML::TypedBadConversion<string> &ex) {
+    reportFailedConversion(parameter_name, Type::String, scope, dataset_name, reaction_name, &node);
   }
-  reportUndefinedParameter(parName, Type::DoublePtr, reaction);
 }
-int TermData::getParamI(const string &parName)
-{
-  //1. TermInfo from datafile
-  {
-    const auto it = term_info.find(parName);
-    if (it != term_info.end())
-    {
-      try
-      {
-        return stoi(it->second);
-      }
-      catch (...)
-      {
-        reportFailedConversion(parName, Type::Int, ParamScope::Term, reaction, nullptr, &it->second);
-      }
+int TermData::getParamI(const string& parameter_name) {
+  //Copy-pasted from getParamS with minimal changes
+  const Type type = Type::Int;
+  const string& dataset_name = parent->_ds_name;
+  const string& reaction_name = reaction->getReactionName();
+  ParamScope scope = getParameterScope(parameter_name, term_info, dataset_name, reaction_name);
+  if (scope == ParamScope::Undefined) reportUndefinedParameter(parameter_name, type, dataset_name, reaction_name);
+  if (scope == ParamScope::Term) {
+    string definition = term_info.at(parameter_name);
+    try{
+      return std::stoi(definition);
+    } catch (...) {
+      reportFailedConversion(parameter_name, type, scope, dataset_name, reaction_name, nullptr, &definition);
     }
   }
-  //2. Reaction-specific from yaml steering
-  {
-    YAML::Node parNode = getFromByReaction(parName, reaction);
-    if (parNode.IsDefined())
-    {
-      try
-      {
-        return parNode.as<int>();
-      }
-      catch (const YAML::TypedBadConversion<int> &ex)
-      {
-        reportFailedConversion(parName, Type::Int, ParamScope::Reaction, reaction, &parNode);
-      }
-    }
+  YAML::Node node;
+  if (scope == ParamScope::Dataset) node = getFromByDataset(parameter_name, dataset_name);
+  else if (scope == ParamScope::Reaction) node = getFromByReaction(parameter_name, reaction_name);
+  else if (scope == ParamScope::Global) node = rootNode[parameter_name];
+  else {//this branch is unreachable
+    hf_errlog(20040400, "F: Programming error: unhandled parameter scope");
+    abort();
   }
-  //3. Global from YAML
-  {
-    YAML::Node parNode = rootNode[parName];
-    if (parNode.IsDefined())
-    {
-      try
-      {
-        return parNode.as<int>();
-      }
-      catch (const YAML::TypedBadConversion<int> &ex)
-      {
-        reportFailedConversion(parName, Type::Int, ParamScope::Global, reaction, &parNode);
-      }
-    }
+  try{
+    return node.as<int>();
+  } catch (const YAML::TypedBadConversion<int> &ex) {
+    reportFailedConversion(parameter_name, type, scope, dataset_name, reaction_name, &node);
   }
-  reportUndefinedParameter(parName, Type::Int, reaction);
 }
-bool TermData::hasParam(const string &parName)
-{
-  //1. TermInfo from datafile
-  if (term_info.count(parName) > 0)
-    return true;
-  { //2. Reaction-specific from yaml steering
-    YAML::Node parNode = getFromByReaction(parName, reaction);
-    if (parNode.IsDefined())
-      return true;
-  }
-  { //3. Global from YAML
-    YAML::Node parNode = rootNode[parName];
-    if (parNode.IsDefined())
-      return true;
-  }
-  return false;
+bool TermData::hasParam(const string& parName) {
+  return getParameterScope(parName, term_info, parent->_ds_name, reaction->getReactionName()) != ParamScope::Undefined;
 }
-BaseEvolution *TermData::getPDF(int ind)
-{
+BaseEvolution* TermData::getPDF(int ind) {
   using xfitter::get_evolution;
-  string pdfName;
-  if (ind == 0)
-  {
-    if (getStringFromTermOrReaction("evolution", &pdfName) == 0)
-    {
-      return get_evolution(pdfName);
-    }
-  }
+  if (ind == 0 and hasParam("evolution")) return get_evolution(getParamS("evolution"));
   string parName = "evolution" + to_string(ind + 1);
-  if (getStringFromTermOrReaction(parName, &pdfName) == 0)
-  {
-    return get_evolution(pdfName);
-  }
+  if (hasParam(parName)) return get_evolution(getParamS(parName));
   return get_evolution(); //returns default evolution
 }
-void TermData::actualizeWrappers()
-{
-  //TODO: possible to speed up by caching calls to getPDF
+void TermData::actualizeWrappers() {
   wrappedPDFs[0] = getPDF(0);
   wrappedPDFs[1] = getPDF(1);
 }
-const valarray<double> &TermData::getBinColumn(const string &n)
+const valarray<double>& TermData::getBinColumn(const string& n)
 {
-  const valarray<double> *ret = parent->getBinColumn(n);
-  if (ret)
-    return *ret;
+  const valarray<double>* ret = parent->getBinColumn(n);
+  if (ret) return *ret;
   cerr << "[ERROR] Reaction \"" << reaction->getReactionName() << "\" requested bins of nonexistant column \"" << n << "\"" << endl;
   hf_errlog(19042700, "F: Reaction requested nonexistant bin column, see stderr");
   abort(); //unreachable

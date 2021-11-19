@@ -123,7 +123,7 @@ C--   G.W. 11/04/2012 Avoid rounding errors by subtracting 10^{-10}.
       ELSE
       ffx=FX+FX*AL39*CF*(-9.-2.*PI2/3.+AL1*(-3.+2.*AL1))
 c$$$      fflx=fflx+fx*al**2*(-0.012)
-      fflx=fflx+fx*al**2*CLNN2C(x) ! G.W. 02/11/2007
+      fflx=fflx+fx*al**2*CLNN2C_MSTW(x) ! G.W. 02/11/2007
       END IF
 
       DO 23 I=1,NTERMS
@@ -161,7 +161,7 @@ c$$$      FNS2LQ=128./9.d0*y*DLM1**2-46.50*y*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*y
 c$$$     X+33.82*y**2+y*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*flavor*(6.*y*DLM1-12*y*DL-25.*y+6.)
-      FNS2LQ = CLNN2A(Y,INT(flavor)) ! G.W. 02/11/2007
+      FNS2LQ = CLNN2A_MSTW(Y,INT(flavor)) ! G.W. 02/11/2007
       FS2LQ=fac*((15.94-5.212*y)*Y1*Y1*DLM1+(0.421+1.520*y)*DL*DL
      X+28.09*Y1*DL-(2.370/Y-19.27)*Y1**3)
       F2LG=fac*((94.74-49.20*y)*y1*DLM2+864.8*Y1*DLM1
@@ -397,7 +397,7 @@ c$$$     &     ( singxy + 9./4.*ftemp(3) + 9.*ftemp(4) ))
       if(epsc.gt.1.) ftemp(3)=0. ! G.W. 05/11/2007
 c$$$      fflc=fflc+ftemp(3)*(AL**2*(-0.0012))
 c$$$     .*1.25*(1/(1+4.*epsc)-0.2)
-      fflc=fflc+ftemp(3)*(AL**2*CLNN2C(xcmup))
+      fflc=fflc+ftemp(3)*(AL**2*CLNN2C_MSTW(xcmup))
      &     *1.25*(1/(1+4.*epsc)-0.2) ! G.W. 05/11/2007
 
  529  continue      
@@ -445,7 +445,7 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2A(YMUL,INT(enf))   ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A_MSTW(YMUL,INT(enf))   ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
       cgvfl=facc*((clgffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
@@ -623,7 +623,7 @@ C--   G.W. 05/11/2007 This contribution was missing for b, but included for c.
       xbmup=x/xbmax
       CALL FETCH(XBMUP,S,IPN,FTEMP)
       if(epsb.gt.1.) ftemp(4)=0. ! G.W. 05/11/2007
-      fflb=fflb+ftemp(4)*(AL**2*CLNN2C(xbmup))
+      fflb=fflb+ftemp(4)*(AL**2*CLNN2C_MSTW(xbmup))
      &     *1.25*(1/(1+4.*epsb)-0.2) ! G.W. 05/11/2007
 
  629  continue
@@ -671,7 +671,7 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2A(YMUL,INT(ENF)) ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A_MSTW(YMUL,INT(ENF)) ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
 c$$$      cgvfl=facb*((clgffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
@@ -795,10 +795,10 @@ C--   G.W. 11/04/2012 Avoid rounding errors by subtracting 10^{-10}.
 
       ffx=FX+FX*AL39*CF*(-9.-2.*PI2/3.+AL1*(-3.+2.*AL1))
 c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
-      fflx=fflx+fx*al**2*CLNN2C(x)+fx*al**3*(0.113+enf*0.006) ! G.W. 02/11/2007
+      fflx=fflx+fx*al**2*CLNN2C_MSTW(x)+fx*al**3*(0.113+enf*0.006) ! G.W. 02/11/2007
       if(iord.gt.1) then
-      ffx=ffx+fx*al39*al39*c2nn2c(x,3)
-      ffx=ffx+fg*al39*al39*sfac*c2g2c(x,3)
+      ffx=ffx+fx*al39*al39*c2nn2c_mstw(x,3)
+      ffx=ffx+fg*al39*al39*sfac*c2g2c_mstw(x,3)
       endif
 
       if(epsc.gt.1.) go to 281
@@ -994,14 +994,14 @@ c$$$      fflx=fflx+fx*al**2*(-0.012)+fx*al**3*(0.113+enf*0.006)
       fflx=fflx+.5*(1.-x)*wi(i)*al*f1lq*ftemp(1)
       fflx=fflx+.5*(1.-x)*wi(i)*al*f1lg*ftemp(2)
       if(iord.gt.1) then
-c$$$      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(5)*c2s2a(y,3)
+c$$$      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(5)*c2s2a_mstw(y,3)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
-      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*c2s2a(y,3)*
+      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*c2s2a_mstw(y,3)*
      &     ( ftemp(5) + 9./4.*ftemp(3) + 9.*ftemp(4) )
       termm=+0.5*(1.-x)*wi(i)*al39*al39*
-     .(ftemp(1)*c2nn2a(y,3) + (ftemp(1)-fx)*c2ns2b(y,3))
+     .(ftemp(1)*c2nn2a_mstw(y,3) + (ftemp(1)-fx)*c2ns2b_mstw(y,3))
       ffx=ffx+termm
-      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(2)*c2g2a(y,3)
+      ffx=ffx+0.5*(1.-x)*wi(i)*al39*al39*sfac*ftemp(2)*c2g2a_mstw(y,3)
       endif
 
       Y1=1.-Y
@@ -1015,7 +1015,7 @@ c$$$      FNS2LQ=128./9.d0*y*DLM1**2-46.50*y*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*y
 c$$$     X+33.82*y**2+y*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*flavor*(6.*y*DLM1-12*y*DL-25.*y+6.)
-      FNS2LQ = CLNN2A(Y,INT(flavor)) ! G.W. 02/11/2007
+      FNS2LQ = CLNN2A_MSTW(Y,INT(flavor)) ! G.W. 02/11/2007
       FS2LQ=fac*((15.94-5.212*y)*Y1*Y1*DLM1+(0.421+1.520*y)*DL*DL
      X+28.09*Y1*DL-(2.370/Y-19.27)*Y1**3)
       F2LG=fac*((94.74-49.20*y)*y1*DLM2+864.8*Y1*DLM1
@@ -1149,10 +1149,10 @@ c$$$      xcmup=x/xcmax
       fc=ftemp(3)
       AL1c=log(1.-xcmup)
 c$$$      ffc=Fc+Fc*AL*CF*(-9.-2.*PI2/3.+AL1c*(-3.+2.*AL1c))
-c$$$      ffc=ffc+fc*al*al*c2nn2c(xcmup,3)
+c$$$      ffc=ffc+fc*al*al*c2nn2c_mstw(xcmup,3)
       ffc=(1.+var3*epsc**var2)*(Fc+Fc*AL*CF*(-9.-2.*PI2/3.
      .+AL1c*(-3.+2.*AL1c))) ! G.W. 12/04/2012
-      ffc=ffc+fc*al*al*(1.+var3*epsc**var2)*c2nn2c(xcmup,3) ! G.W. 12/04/2012
+      ffc=ffc+fc*al*al*(1.+var3*epsc**var2)*c2nn2c_mstw(xcmup,3) ! G.W. 12/04/2012
 
       DO 323 I=1,NTERMS
       Y=0.5*(xcmax-X)*XI(I)+0.5*(xcmax+X)
@@ -1249,7 +1249,7 @@ c$$$     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2gvfsub(ymul,eps)/xcmax)
 c$$$      cqvf2=facc*((c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
 c$$$     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2qvfsub(ymul,eps)/xcmax)
 c$$$      ffc=ffc+0.5/xcmax*(xcmax-x)*wi(i)*al*al*
-c$$$     .(fcxy*c2nn2a(ymul,3) + (fcxy-fc)*c2ns2b(ymul,3))
+c$$$     .(fcxy*c2nn2a_mstw(ymul,3) + (fcxy-fc)*c2ns2b_mstw(ymul,3))
       ymul=y/xcmax ! G.W. 12/04/2012
       cgvf2=facc*((c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
      .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))
@@ -1282,7 +1282,7 @@ c      eps=1.
       cgvf2v=-facc*((1.+var3*epsc**var2)*c2gvfsub(ymul,eps)/xcvar)
       cqvf2v=-facc*((1.+var3*epsc**var2)*c2qvfsub(ymul,eps)/xcvar)
       ffc=ffc+0.5/xcvar*(1.+var3*epsc**var2)*(xcvar-x)*wi(i)*al*al*
-     .(fcxy*c2nn2a(ymul,3) + (fcxy-fc)*c2ns2b(ymul,3))
+     .(fcxy*c2nn2a_mstw(ymul,3) + (fcxy-fc)*c2ns2b_mstw(ymul,3))
 c$$$      ffc=ffc+0.5*(xcmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       ffc=ffc+0.5*(xcvar-x)*wi(i)*al**2.*(cgvf2v*gluxy+cqvf2v*
@@ -1341,7 +1341,7 @@ C--   G.W. 02/11/2007 Only add these terms if above threshold.
       if(epsc.gt.1.) ftemp(3)=0. ! G.W. 05/11/2007
 c$$$      fflc=fflc+ftemp(3)*(AL**2*(-0.0012)+al**3*(0.113+enf*0.006))
 c$$$     .*1.25*(1/(1+4.*epsc)-0.2) ! N.B. -0.0012 not 0.012?
-      fflc=fflc+ftemp(3)*(AL**2*CLNN2C(xcmup)+al**3*(0.113+enf*0.006))
+      fflc=fflc+ftemp(3)*(AL**2*CLNN2C_MSTW(xcmup)+al**3*(0.113+enf*0.006))
      &     *1.25*(1/(1+4.*epsc)-0.2) ! G.W. 02/11/2007
 
  529  continue      
@@ -1389,7 +1389,7 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2A(YMUL,INT(ENF)) ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A_MSTW(YMUL,INT(ENF)) ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
       c3lg1mul=((144.*DLM4-47024./27.*DLM3+6319.*DLM2
@@ -1510,10 +1510,10 @@ c$$$      xbmup=x/xbmax
       fb=ftemp(4)
       AL1b=log(1.-xbmup)
 c$$$      ffb=Fb+Fb*AL*CF*(-9.-2.*PI2/3.+AL1b*(-3.+2.*AL1b))
-c$$$      ffb=ffb+fb*al*al*c2nn2c(xbmup,3)
+c$$$      ffb=ffb+fb*al*al*c2nn2c_mstw(xbmup,3)
       ffb=(1.+var3*epsb**var2)*(Fb+Fb*AL*CF*(-9.-2.*PI2/3.
      .+AL1b*(-3.+2.*AL1b))) ! G.W. 12/04/2012
-      ffb=ffb+fb*al*al*(1.+var3*epsb**var2)*c2nn2c(xbmup,3) ! G.W. 12/04/2012
+      ffb=ffb+fb*al*al*(1.+var3*epsb**var2)*c2nn2c_mstw(xbmup,3) ! G.W. 12/04/2012
 
       DO 423 I=1,NTERMS
       Y=0.5*(xbmax-X)*XI(I)+0.5*(xbmax+X)
@@ -1613,7 +1613,7 @@ c$$$     .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2gvfsub(ymul,eps)/xbmax)
 c$$$      cqvf2=facb*((c2qffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
 c$$$     .c2qffnsl(y,eps)*0.5*exp(1-1/eps**2))-c2qvfsub(ymul,eps)/xbmax)
 c$$$      ffb=ffb+0.5/xbmax*(xbmax-x)*wi(i)*al*al*
-c$$$     .(fbxy*c2nn2a(ymul,3) + (fbxy-fb)*c2ns2b(ymul,3))
+c$$$     .(fbxy*c2nn2a_mstw(ymul,3) + (fbxy-fb)*c2ns2b_mstw(ymul,3))
       cgvf2=facb*((c2gffnsh(y,eps)*(1-0.5*exp(1-1/eps**2))+
      .c2gffnsl(y,eps)*0.5*exp(1-1/eps**2))
      .-(0.+0.0*epsb)*c2gvfsub(ymul,eps)/xbmax) ! G.W. 12/04/2012
@@ -1642,7 +1642,7 @@ c$$$      singxy=ftemp(5)+9./8.*ftemp(3) ! Why 9/8 and not 9/4?
       cgvf2v=-facb*((1.+var3*epsb**var2)*c2gvfsub(ymul,eps)/xbvar)
       cqvf2v=-facb*((1.+var3*epsb**var2)*c2qvfsub(ymul,eps)/xbvar)
       ffb=ffb+0.5/xbvar*(1.+var3*epsb**var2)*(xbvar-x)*wi(i)*
-     .al*al*(fbxy*c2nn2a(ymul,3) + (fbxy-fb)*c2ns2b(ymul,3))
+     .al*al*(fbxy*c2nn2a_mstw(ymul,3) + (fbxy-fb)*c2ns2b_mstw(ymul,3))
 c$$$      ffb=ffb+0.5*(xbmax-x)*wi(i)*al**2.*(cgvf2*gluxy+cqvf2*singxy)
 C--   G.W. 25/07/2007 Add charm and bottom contributions to singlet.
       ffb=ffb+0.5*(xbvar-x)*wi(i)*al**2.*(cgvf2v*gluxy+cqvf2v*
@@ -1701,7 +1701,7 @@ C--   G.W. 02/11/2007 This contribution was missing for b, but included for c.
       xbmup=x/xbmax
       CALL FETCH(XBMUP,S,IPN,FTEMP)
       if(epsb.gt.1.) ftemp(4)=0. ! G.W. 05/11/2007
-      fflb=fflb+ftemp(4)*(AL**2*CLNN2C(xbmup)+al**3*(0.113+enf*0.006))
+      fflb=fflb+ftemp(4)*(AL**2*CLNN2C_MSTW(xbmup)+al**3*(0.113+enf*0.006))
      &     *1.25*(1/(1+4.*epsb)-0.2) ! G.W. 02/11/2007
 
  629  continue
@@ -1749,7 +1749,7 @@ c$$$      FNS2LQmul=128./9.d0*ymul*DLM1**2-46.50*ymul*DLM1-84.094*DL*DLM1
 c$$$     x-37.338 +89.53*ymul
 c$$$     X+33.82*ymul**2+ymul*DL*(32.90+18.41*DL)-128./9.d0*DL
 c$$$     X+16./27.d0*enf*(6.*ymul*DLM1-12*ymul*DL-25.*ymul+6.)
-      FNS2LQmul = CLNN2A(YMUL,INT(ENF)) ! G.W. 02/11/2007
+      FNS2LQmul = CLNN2A_MSTW(YMUL,INT(ENF)) ! G.W. 02/11/2007
       FS2LQmul=((15.94-5.212*ymul)*Y1mul*Y1mul*DLM1+(0.421+1.520*ymul)
      x*DL*DL+28.09*Y1mul*DL-(2.370/Ymul-19.27)*Y1mul**3)
       c3lg1mul=((144.*DLM4-47024./27.*DLM3+6319.*DLM2
@@ -2725,176 +2725,176 @@ cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
 c $$$$$ End: Added functions for nonsinglet F_L RST 26-02-2009 $$$$$
 
 
-cv*
-cv*
-cv* ..This is the regular non-singlet piece for the electromagnetic F2, 
-cv*    corresponding to CLNSP+C2NSM in W. van Neerven's program. The 
-cv*    8 numerical coefficients are fitted to his results, using x values 
-cv*    between 10^-6 and 1-10^-6. 
-cv*
-cv       FUNCTION CLNN2A (Y, NF)
-cv       IMPLICIT REAL*8 (A-Z)
-cv       INTEGER NF
-cv*
-cv       DL  = LOG (Y)
-cv       DL1 = LOG (1.-Y)
-cv*
-cv       CLNN2A = 
-cv     1          - 40.41 + 97.48 * Y
-cv     2          + (26.56 * Y - 0.031) * DL**2 - 14.85 * DL 
-cv     3          + 13.62 * DL1**2 - 55.79 * DL1 - 150.5 * DL * DL1 
-cv     4        + NF * 16./27.D0 * ( 6.* Y*DL1 - 12.* Y*DL - 25.* Y + 6.)
-cv*
-cv       RETURN
-cv       END
-cv
-cv* ---------------------------------------------------------------------
-cv*
-cv*
-cv* ..This is the 'local' NS piece for the e.m. FL, with no counterpart 
-cv*    in WvN's program, as it does not exist in the exact expressions.
-cv*    The value is fixed from the lowest integer moments.
-cv*
-cv       FUNCTION CLNN2C (Y)
-cv       IMPLICIT REAL*8 (A-Z)
-cv*
-cv       CLNN2C = -0.164
-cv*
-cv       RETURN
-cv       END
-cv*
-cv* ---------------------------------------------------------------------
-cv*
-cv*
-cv* ..This is the regular non-singlet piece for the electromagnetic F2, 
-cv*    corresponding to C2NSP+C2NSN in W. van Neerven's program. The 
-cv*    (10+8) numerical coefficients are fitted to his results, using x 
-cv*    values between 10^-6 and 1-10^-6. 
-cv*
-cv      FUNCTION C2NN2A (Y, NF)
-cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-cv
-cv       DL  = LOG (Y)
-cv       DL1 = LOG (1.-Y)
-cv*
-cv       C2NN2A = 
-cv     1          - 69.59 - 1008.* Y
-cv     2          - 2.835 * DL**3 - 17.08 * DL**2 + 5.986 * DL 
-cv     3          - 17.19 * DL1**3 + 71.08 * DL1**2 - 660.7 * DL1
-cv     4          - 174.8 * DL * DL1**2 + 95.09 * DL**2 * DL1
-cv     5        + NF * ( - 5.691 - 37.91 * Y 
-cv     6          + 2.244 * DL**2 + 5.770 * DL 
-cv     7          - 1.707 * DL1**2  + 22.95 * DL1
-cv     8          + 3.036 * DL**2 * DL1 + 17.97 * DL * DL1 )     
-cv*
-cv       RETURN
-cv       END
-cv*
-cv* ---------------------------------------------------------------------
-cv*
-cv*
-cv* ..This is the singular NS piece, denoted by SOFT2 in WvN's program. 
-cv*    It is the same for all F2 and F3 cases. The numerical coefficients 
-cv*    are exact, but truncated.
-cv*
-cv       FUNCTION C2NS2B (Y, NF)
-cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-cv
-cv*
-cv       DL1 = LOG (1.-Y)
-cv       DM  = 1./(1.-Y)
-cv*
-cv       C2NS2B = 
-cv     1          + 14.2222 * DL1**3 - 61.3333 * DL1**2 - 31.105 * DL1 
-cv     2          + 188.64 
-cv     3        + NF * ( 1.77778 * DL1**2 - 8.5926 * DL1 + 6.3489 ) 
-cv       C2NS2B = DM * C2NS2B
-cv*
-cv       RETURN
-cv       END
-cv*
-cv* ---------------------------------------------------------------------
-cv*
-cv*
-cv* ..This is the 'local' NS piece for the e.m. F2, denoted by COR2 in 
-cv*    WvN's program. The numerical coefficients of the logs are exact,
-cv*    but truncated, the constant one (from the delta-function) is 
-cv*    slightly adjusted (+ 0.485 - 0.0035 NF) using the lowest moments.
-cv*
-cv       FUNCTION C2NN2C (Y, NF)
-cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-cv
-cv       DL1 = LOG (1.-Y)
-cv*
-cv       C2NN2C = 
-cv     1          + 3.55555 * DL1**4 - 20.4444 * DL1**3 - 15.5525 * DL1**2
-cv     2          + 188.64 * DL1 - 338.531 + 0.485 
-cv     3        + NF * (0.592593 * DL1**3 - 4.2963 * DL1**2 
-cv     4          + 6.3489 * DL1 + 46.844 - 0.0035)
-cv*
-cv       RETURN
-cv       END
-cv*
-cv* ---------------------------------------------------------------------
-cv*
-cv*
-cv* ..This is the pure singlet piece, denoted by C2S in WvN's program. 
-cv*    Seven numerical coefficients (all but the one of 1/y, which is 
-cv*    exact up to truncation) are fitted to his results, using x values
-cv*    between 10^-6 and 1-10^-6.
-cv*
-cv      FUNCTION C2S2A (Y, NF)
-cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-cv
-cv       DL  = LOG (Y)
-cv       DL1 = LOG (1.-Y)
-cv*
-cv       C2S2A =   NF * ( 5.290 * (1./Y-1.) + 4.310 * DL**3   
-cv     1         - 2.086 * DL**2 + 39.78 * DL - 0.101 * (1.-Y) * DL1**3 
-cv     2         - (24.75 - 13.80 * Y) * DL**2 * DL1 + 30.23 * DL * DL1 )
-cv*
-cv       RETURN
-cv       END
-cv*
-cv* ---------------------------------------------------------------------
-cv*
-cv*
-cv* ..This is the regular gluon piece, denoted by C2G2 in WvN's program. 
-cv*    Nine numerical coefficients are fitted as above, the ones of 1/y, 
-cv*    ln^3(1-y), and ln^2(1-y) are exact up to truncation.
-cv*
-cv      FUNCTION C2G2A (Y, NF)
-cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-cv
-cv       DL  = LOG (Y)
-cv       DL1 = LOG (1.-Y)
-cv*
-cv       C2G2A =   NF * ( 1./Y * (11.90 + 1494.* DL1) + 5.319 * DL**3  
-cv     1         - 59.48 * DL**2 - 284.8 * DL + 392.4 - 1483.* DL1
-cv     2         + (6.445 + 209.4 * (1.-Y)) * DL1**3 - 24.00 * DL1**2
-cv     3         - 724.1 * DL**2 * DL1 - 871.8 * DL * DL1**2 )
-cv*
-cv       RETURN
-cv       END
-cv* 
-cv* ---------------------------------------------------------------------
-cv*
-cv*
-cv* ..This is the 'local' gluon piece, which has no counterpart in WvN's
-cv*    program, as it does not exist in the exact expressions. Here it 
-cv*    is, however, relevant for achieving a high accuracy of the convo-
-cv*    lution, as are the adjustments of the constant in the non-singlet
-cv*    quark coefficient functions. The value is fixed from the lowest 
-cv*    even-integer moments. 
-cv*
-cv      FUNCTION C2G2C (Y, NF)
-cv      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
-cv
-cv       C2G2C = - NF * 0.28  
-cv*
-cv       RETURN
-cv       END
-cv
+*
+*
+* ..This is the regular non-singlet piece for the electromagnetic F2, 
+*    corresponding to CLNSP+C2NSM in W. van Neerven's program. The 
+*    8 numerical coefficients are fitted to his results, using x values 
+*    between 10^-6 and 1-10^-6. 
+*
+       FUNCTION CLNN2A_MSTW (Y, NF)
+       IMPLICIT REAL*8 (A-Z)
+       INTEGER NF
+*
+       DL  = LOG (Y)
+       DL1 = LOG (1.-Y)
+*
+       CLNN2A_MSTW = 
+     1          - 40.41 + 97.48 * Y
+     2          + (26.56 * Y - 0.031) * DL**2 - 14.85 * DL 
+     3          + 13.62 * DL1**2 - 55.79 * DL1 - 150.5 * DL * DL1 
+     4        + NF * 16./27.D0 * ( 6.* Y*DL1 - 12.* Y*DL - 25.* Y + 6.)
+*
+       RETURN
+       END
+
+* ---------------------------------------------------------------------
+*
+*
+* ..This is the 'local' NS piece for the e.m. FL, with no counterpart 
+*    in WvN's program, as it does not exist in the exact expressions.
+*    The value is fixed from the lowest integer moments.
+*
+       FUNCTION CLNN2C_MSTW (Y)
+       IMPLICIT REAL*8 (A-Z)
+*
+       CLNN2C_MSTW = -0.164
+*
+       RETURN
+       END
+*
+* ---------------------------------------------------------------------
+*
+*
+* ..This is the regular non-singlet piece for the electromagnetic F2, 
+*    corresponding to C2NSP+C2NSN in W. van Neerven's program. The 
+*    (10+8) numerical coefficients are fitted to his results, using x 
+*    values between 10^-6 and 1-10^-6. 
+*
+      FUNCTION C2NN2A_MSTW (Y, NF)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+
+       DL  = LOG (Y)
+       DL1 = LOG (1.-Y)
+*
+       C2NN2A_MSTW = 
+     1          - 69.59 - 1008.* Y
+     2          - 2.835 * DL**3 - 17.08 * DL**2 + 5.986 * DL 
+     3          - 17.19 * DL1**3 + 71.08 * DL1**2 - 660.7 * DL1
+     4          - 174.8 * DL * DL1**2 + 95.09 * DL**2 * DL1
+     5        + NF * ( - 5.691 - 37.91 * Y 
+     6          + 2.244 * DL**2 + 5.770 * DL 
+     7          - 1.707 * DL1**2  + 22.95 * DL1
+     8          + 3.036 * DL**2 * DL1 + 17.97 * DL * DL1 )     
+*
+       RETURN
+       END
+*
+* ---------------------------------------------------------------------
+*
+*
+* ..This is the singular NS piece, denoted by SOFT2 in WvN's program. 
+*    It is the same for all F2 and F3 cases. The numerical coefficients 
+*    are exact, but truncated.
+*
+       FUNCTION C2NS2B_MSTW (Y, NF)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+
+*
+       DL1 = LOG (1.-Y)
+       DM  = 1./(1.-Y)
+*
+       C2NS2B_MSTW = 
+     1          + 14.2222 * DL1**3 - 61.3333 * DL1**2 - 31.105 * DL1 
+     2          + 188.64 
+     3        + NF * ( 1.77778 * DL1**2 - 8.5926 * DL1 + 6.3489 ) 
+       C2NS2B_MSTW = DM * C2NS2B_MSTW
+*
+       RETURN
+       END
+*
+* ---------------------------------------------------------------------
+*
+*
+* ..This is the 'local' NS piece for the e.m. F2, denoted by COR2 in 
+*    WvN's program. The numerical coefficients of the logs are exact,
+*    but truncated, the constant one (from the delta-function) is 
+*    slightly adjusted (+ 0.485 - 0.0035 NF) using the lowest moments.
+*
+       FUNCTION C2NN2C_MSTW (Y, NF)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+
+       DL1 = LOG (1.-Y)
+*
+       C2NN2C_MSTW = 
+     1          + 3.55555 * DL1**4 - 20.4444 * DL1**3 - 15.5525 * DL1**2
+     2          + 188.64 * DL1 - 338.531 + 0.485 
+     3        + NF * (0.592593 * DL1**3 - 4.2963 * DL1**2 
+     4          + 6.3489 * DL1 + 46.844 - 0.0035)
+*
+       RETURN
+       END
+*
+* ---------------------------------------------------------------------
+*
+*
+* ..This is the pure singlet piece, denoted by C2S in WvN's program. 
+*    Seven numerical coefficients (all but the one of 1/y, which is 
+*    exact up to truncation) are fitted to his results, using x values
+*    between 10^-6 and 1-10^-6.
+*
+      FUNCTION C2S2A_MSTW (Y, NF)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+
+       DL  = LOG (Y)
+       DL1 = LOG (1.-Y)
+*
+       C2S2A_MSTW =   NF * ( 5.290 * (1./Y-1.) + 4.310 * DL**3   
+     1         - 2.086 * DL**2 + 39.78 * DL - 0.101 * (1.-Y) * DL1**3 
+     2         - (24.75 - 13.80 * Y) * DL**2 * DL1 + 30.23 * DL * DL1 )
+*
+       RETURN
+       END
+*
+* ---------------------------------------------------------------------
+*
+*
+* ..This is the regular gluon piece, denoted by C2G2 in WvN's program. 
+*    Nine numerical coefficients are fitted as above, the ones of 1/y, 
+*    ln^3(1-y), and ln^2(1-y) are exact up to truncation.
+*
+      FUNCTION C2G2A_MSTW (Y, NF)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+
+       DL  = LOG (Y)
+       DL1 = LOG (1.-Y)
+*
+       C2G2A_MSTW =   NF * ( 1./Y * (11.90 + 1494.* DL1) + 5.319 * DL**3  
+     1         - 59.48 * DL**2 - 284.8 * DL + 392.4 - 1483.* DL1
+     2         + (6.445 + 209.4 * (1.-Y)) * DL1**3 - 24.00 * DL1**2
+     3         - 724.1 * DL**2 * DL1 - 871.8 * DL * DL1**2 )
+*
+       RETURN
+       END
+* 
+* ---------------------------------------------------------------------
+*
+*
+* ..This is the 'local' gluon piece, which has no counterpart in WvN's
+*    program, as it does not exist in the exact expressions. Here it 
+*    is, however, relevant for achieving a high accuracy of the convo-
+*    lution, as are the adjustments of the constant in the non-singlet
+*    quark coefficient functions. The value is fixed from the lowest 
+*    even-integer moments. 
+*
+      FUNCTION C2G2C_MSTW (Y, NF)
+      IMPLICIT DOUBLE PRECISION (A-H, O-Z)
+
+       C2G2C_MSTW = - NF * 0.28  
+*
+       RETURN
+       END
+
 
 c Approx version of NNLO c2g in FFNS Q^2<M^2
       function c2gffns3(z,eps)
@@ -3201,7 +3201,7 @@ c$$$      term3 = (-224./9./z -10./9.*(log(1.-z))**3-316.15*z
 c$$$     x+200.0*z**2-27.24*log(1.-z)-14.52*log(z)
 c$$$     x-2.28*(log(1.-z))**2+13.21*(log(z))**2+96.77*z**3
 c$$$     x+217.06*log(z)*log(1.-z))
-      term3 = A2HGA(Z) ! G.W. 12/06/2008 Use A.Vogt's parameterisation.
+      term3 = A2HGA_MSTW(Z) ! G.W. 12/06/2008 Use A.Vogt's parameterisation.
 
       c2gvfsub=(term1+term2+term3)
 
@@ -3288,21 +3288,21 @@ cv Add protection against negative beta2 (VR, SG, GW 23.04.2012)
 ! =====================================================================
 !
 !
-cv! ..This is the regular piece.
-cv!
-cv      FUNCTION A2HGA (Y)
-cv      IMPLICIT REAL*8 (A-Z)
-cv
-cv      DL  = LOG (Y) 
-cv      DL1 = LOG (1.-Y)
-cv      
-cv      A2HGA = - 24.89d0 / Y - 187.8d0 + 249.6d0 * Y
-cv     &     - 146.8d0 * DL**2 * DL1
-cv     &     - 1.556d0 * DL**3  - 3.292d0 * DL**2  - 93.68d0 * DL
-cv     &     - 1.111d0 * DL1**3 - 0.400d0 * DL1**2 - 2.770d0 * DL1
-cv
-cv      RETURN 
-cv      END                                           
+! ..This is the regular piece.
+!
+      FUNCTION A2HGA_MSTW (Y)
+      IMPLICIT REAL*8 (A-Z)
+
+      DL  = LOG (Y) 
+      DL1 = LOG (1.-Y)
+      
+      A2HGA_MSTW = - 24.89d0 / Y - 187.8d0 + 249.6d0 * Y
+     &     - 146.8d0 * DL**2 * DL1
+     &     - 1.556d0 * DL**3  - 3.292d0 * DL**2  - 93.68d0 * DL
+     &     - 1.111d0 * DL1**3 - 0.400d0 * DL1**2 - 2.770d0 * DL1
+
+      RETURN 
+      END                                           
 cv!
 cv! ---------------------------------------------------------------------
 cv!

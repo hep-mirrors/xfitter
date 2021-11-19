@@ -75,7 +75,7 @@ C------------------------------------------------------
 *     ------------------------------------------------
 
 
-      nExtraParam = 0
+      !nExtraParam = 0
 
       ExtraPdfs = .false.
 
@@ -126,7 +126,7 @@ C PDF output options:
       mbt        = 4.75D0
       mtp        = 174.D0
 
-      OutDirName  = 'output'
+      !OutDirName  = 'output'
 
       Debug = .false.
 

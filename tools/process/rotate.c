@@ -57,7 +57,10 @@ int rotate(int argc,char* argv[]) {
         RotMatrix rot_matrix;
         load_rotation_matrix(&rot_matrix, mfile);
 
-        if(strcmp(rot_matrix.pdf_name,pdf_in_name)) {
+        // SZ 24.03.20 since one cannot easily access LHAPDF name from new profiler code (src/Profiler.cc), on put dummy name which should be ignored
+        // (see src/rediagonalize.f)
+        //printf("rot_matrix.pdf_name: %s\n", rot_matrix.pdf_name);
+        if(strcmp("DUMMY_XFITTER",rot_matrix.pdf_name) && strcmp(rot_matrix.pdf_name,pdf_in_name)) {
                 fprintf(stderr, "input PDF set and rotation matrix file are inconsistent:\n"
                         "\t\"%s\" in rotation matrix file, \"%s\" in input PDF set\n", rot_matrix.pdf_name, pdf_in_name);
                 return(EXIT_FAILURE);

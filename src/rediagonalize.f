@@ -71,8 +71,12 @@ c         print *,'ho',sqrt(theo_err2_loc(k))
 
       open (51,file=trim(OutDirName)//'/pdf_rotation.dat'
      $     ,status='unknown')
+! SZ 24.03.20 since one cannot easily access LHAPDF name from new profiler code (src/Profiler.cc), as temporary solution put dummy name
+! (tools/process/rotate.c adjuted accordingly)
+!      write (51,'(''LHAPDF set='',A32)') 
+!     $     trim(adjustl(LHAPDFSET))
       write (51,'(''LHAPDF set='',A32)') 
-     $     trim(adjustl(LHAPDFSET))
+     $     'DUMMY_XFITTER'
       
       write (51,'(i4)') NSyst
       do i=NSyst,1,-1

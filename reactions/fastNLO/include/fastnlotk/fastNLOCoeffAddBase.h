@@ -53,43 +53,43 @@ namespace fastNLO {
          }
       };
       WgtStat& operator+=(const WgtStat& other) { this->Add(other); return *this;}
-      
+
       void SetWgtUser( const fastNLO::v2d& wgtUser ) {
-	 //! Set user weights
-	 //! wgtUser[proc][obs]
-	 if ( wgtUser.size()!=WgtObsNumEv.size() ) {
-	    std::cerr<<"Error [fastNLO::WgtStat::SetWgtUser()] Array with wrong size (wrong number of subprocesses. Must be "
-		     <<WgtObsNumEv.size()<<", but is "<< wgtUser.size()<<std::endl;
-	    exit(8);
-	 }
-	 if ( wgtUser[0].size()!=WgtObsNumEv[0].size() ) {
-	    std::cerr<<"Error [fastNLO::WgtStat::SetWgtUser()] Array with wrong size (wrong number of obs bins. Must be "
-		     <<WgtObsNumEv[0].size()<<", but is "<< wgtUser[0].size()<<std::endl;
-	    exit(8);
-	 }
-	 SigObsSum = wgtUser;
-	 //SigObsUser = wgtUser;
+         //! Set user weights
+         //! wgtUser[proc][obs]
+         if ( wgtUser.size()!=WgtObsNumEv.size() ) {
+            std::cerr<<"Error [fastNLO::WgtStat::SetWgtUser()] Array with wrong size (wrong number of subprocesses. Must be "
+                     <<WgtObsNumEv.size()<<", but is "<< wgtUser.size()<<std::endl;
+            exit(8);
+         }
+         if ( wgtUser[0].size()!=WgtObsNumEv[0].size() ) {
+            std::cerr<<"Error [fastNLO::WgtStat::SetWgtUser()] Array with wrong size (wrong number of obs bins. Must be "
+                     <<WgtObsNumEv[0].size()<<", but is "<< wgtUser[0].size()<<std::endl;
+            exit(8);
+         }
+         SigObsSum = wgtUser;
+         //SigObsUser = wgtUser;
       };
 
       void SetWgtUser( double wgtUser ) {
-	 //! Set user weight valid for all entries
-	 SigSum = wgtUser;
-	 for ( auto& proc : SigObsSum ) {
-	    for ( auto& w : proc ) w=wgtUser;
-	 }
+         //! Set user weight valid for all entries
+         SigSum = wgtUser;
+         for ( auto& proc : SigObsSum ) {
+            for ( auto& w : proc ) w=wgtUser;
+         }
       };
-      
+
       void SetWgtUser( const std::vector<double>& wgtUserObs ) {
-	 //! Set user weights
-	 //! wgtUserObs[obs]
-	 if ( wgtUserObs.size()!=WgtObsNumEv[0].size() ) {
-	    std::cerr<<"Error [fastNLO::WgtStat::SetWgtUser()] Array with wrong size (wrong number of obs bins. Must be "
-		     <<WgtObsNumEv[0].size()<<", but is "<< wgtUserObs.size()<<std::endl;
-	    exit(8);
-	 }
-	 for ( std::vector<double>& proc : SigObsSum ) {
-	    proc = wgtUserObs;
-	 }
+         //! Set user weights
+         //! wgtUserObs[obs]
+         if ( wgtUserObs.size()!=WgtObsNumEv[0].size() ) {
+            std::cerr<<"Error [fastNLO::WgtStat::SetWgtUser()] Array with wrong size (wrong number of obs bins. Must be "
+                     <<WgtObsNumEv[0].size()<<", but is "<< wgtUserObs.size()<<std::endl;
+            exit(8);
+         }
+         for ( std::vector<double>& proc : SigObsSum ) {
+            proc = wgtUserObs;
+         }
       };
    };
 
@@ -164,10 +164,7 @@ public:
 
    const std::vector<std::vector<std::pair<int,int> > >& GetPDFCoeff() const { return fPDFCoeff;}
 
-   bool SubIsEnabled(int index) const { 
-      if ( index >= (int)sub_enabled.size() ) error["SubIsEnabled"]<<"index too large: "<<index<<"\tsub.size="<<sub_enabled.size();
-      return index < NSubproc && sub_enabled[index]; 
-   }  //!< Returns true if a single subcontribution is enabled in this contribution
+   bool SubIsEnabled(int index) const { return index < NSubproc && sub_enabled[index]; }  //!< Returns true if a single subcontribution is enabled in this contribution
    void SubEnable(int index, bool on = true) { if ( index < NSubproc ) sub_enabled[index] = on; } //!< Enables/Disables a single subcontribution
    void SubEnableAll( bool on = true ) { sub_enabled.assign(sub_enabled.size(), on); } //!< Enables/Disables all subcontributions
    bool SubSelect( std::vector< std::pair<int,int> > processes, bool on = true); //!< checks if the given subprocess list is compatible with the subcontribution list and enables/disables the corresponding subcontributions. Returns true on sucess and false on failure.

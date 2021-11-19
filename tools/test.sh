@@ -2,7 +2,7 @@
 
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
-omitTests=('ceresZMVFNSfastChi2')
+omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
 
 install_dir=$(pwd)
 # xfitter binary
@@ -98,7 +98,9 @@ runTest()
   
   # diff command: by defult use 'diff', but if available use 'numdiff' which tolerate small differences
   diff='diff'
-  if type "numdiff" > /dev/null; then
+  # we want this numdiff: https://www.nongnu.org/numdiff/
+  # check "numdiff -v" command: avoid using some other "numdiff" installed on some systems (like presently on naf-xfitter.desy.de) which does not recognize "-v"
+  if [ `numdiff -v >& /dev/null; echo $?` == "0" ]; then
     # we have numdiff and we wil use it with tolerance 1e-4 for either absolute or relative differneces between numbers
     diff='numdiff -a 1e-4 -r 1e-4'
   fi
@@ -298,4 +300,4 @@ else
   fi
 fi
 
-exit $flagBAD
+exit $testsFailed

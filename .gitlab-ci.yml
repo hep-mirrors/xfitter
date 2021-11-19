@@ -1,29 +1,48 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
-cache:
-  paths:
-    - deps
+#cache:
+#  paths:
+#    - deps
 
-stages:
-  - commit
-  - nightly
+#stages:
+#  - build-minimal
+#  - build-full
 
 before_script:
-  - yum -y install yum-plugin-ovl
-  - yum -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake
-  - . ./scripts/setup.sh
-  - ./scripts/install-deps.sh
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
 
-job:
-  stage: commit
-  script:
+job-install-minimal:
+#  stage: build-minimal
+  only: 
+    - merge_requests
+    - schedules
+  script: 
     - ./make.sh install
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
-  only:
-    - master
-  except:
-    - triggers
+
+job-install-full:
+#  stage: build-full
+  only: 
+    - merge_requests
+    - schedules
+#  cache: {}
+  timeout: 120m
+  script: 
+    - yum -y install gcc-gfortran git tar root libgfortran-static
+    - ./tools/install-xfitter deps
+    - . setup.sh
+    # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
+    - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl nCTEQ15FullNuc_1_1 nCTEQ15FullNuc_184_74 >& download-lhapdf.log
+    - cat *.log
+    - ./make.sh install
+    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+    - ./tools/test.sh
 
 #nightly_devel:
 #  stage: nightly

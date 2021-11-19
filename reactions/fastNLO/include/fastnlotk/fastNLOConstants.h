@@ -1,6 +1,9 @@
 #ifndef __fnloconstants__
 #define __fnloconstants__
 
+// NEVER EVER include a project's internal config.h in installable header files!
+// Use for conditional compilation only in .cc source code files.
+// Otherwise conflicts with other linked projects are to be expected.
 #include <string>
 #include <vector>
 #include <set>
@@ -8,24 +11,16 @@
 #ifndef FNLO_NAME
 #define FNLO_NAME       "fastNLO_toolkit"
 #define FNLO_SUBPROJECT "toolkit"
-#define FNLO_VERSION    "2.3.1pre"
-#define FNLO_SVNREV     "@SVNREV@"
+#define FNLO_VERSION    "2.3.1"
+#define FNLO_GITREV     "2657-66-gda2fd2f"
 #define FNLO_AUTHORS    "D. Britzger, T. Kluge, K. Rabbertz, F. Stober, G. Sieber, M. Wobisch"
 #define FNLO_WEBPAGE    "http://projects.hepforge.org/fastnlo"
 #define FNLO_AUTHORSv14 "T. Kluge, K. Rabbertz, M. Wobisch"
 #define FNLO_QUOTEv14   "hep-ph/0609285"
 #define FNLO_AUTHORSv2  "D. Britzger, T. Kluge, K. Rabbertz, F. Stober, M. Wobisch"
 #define FNLO_QUOTEv2    "arXiv:1109.1310"
-#define FNLO_YEARS      "2005-2018"
+#define FNLO_YEARS      "2005-2019"
 #endif
-
-// Define variables fixed by precompiler for optional parts.
-// Compilers like gcc usually drop unreachable statements
-// anyway such that unnecessary if-else-endif calls or
-// "unresolved symbol" errors are avoided.
-//#define FNLO_HOPPET     ""
-#define FNLO_QCDNUM     ""
-#define FNLO_ROOT       "@ROOT@"
 
 // KR: Replace by precompiler defines
 const double TWOPI    =  6.28318530717958647692528;

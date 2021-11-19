@@ -1,9 +1,9 @@
 Minimizer: MINUIT # CERES
 MINUIT:
   Commands: |
+    call fcn 1
     set str 2
     call fcn 3
-#    call fcn 1
 #    migrad
 #    hesse
 #    call fcn 3
@@ -89,9 +89,9 @@ DefaultEvolution: proton-QCDNUM
 #DefaultEvolution: proton-LHAPDF
 
 Evolutions:
-  proton-APFELff:
-    ? !include evolutions/APFEL.yaml
-    decomposition: proton
+  #proton-APFELff:
+    #? !include evolutions/APFEL.yaml
+    #decomposition: proton
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
@@ -148,6 +148,11 @@ byReaction:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
 
+#byDataset: #Here one can redefine some parameters for specific datasets
+#  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
+#  "HERA1+2 NCep 920":
+#    epolarity: 2
+
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
   defaultValue : 'RT_DISNC'        # global specification
@@ -174,9 +179,10 @@ Profiler:
   #  proton-LHAPDF:
   #    sets:    [CT10]
   #    members: [[0,1,end]]
-  Status: "Off"               # "Off" to turn off profiler
-  WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
-  getChi2: "Off"              # determine and report chi2 for each variation
+  Status: "Off"                 # "Off" to turn off profiler
+  WriteTheo: "Off"              # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "Off"                # determine and report chi2 for each variation
+  enableExternalProfiler: "Off" # enable creation of additional files, needed for xfitter draw
 
 OutputDirectory: "output" #Can be omitted, default is "output"
 

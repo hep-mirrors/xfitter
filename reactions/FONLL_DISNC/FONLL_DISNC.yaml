@@ -1,4 +1,2 @@
-#FONLL_DISNC:               # Reaction-specific settings
-  FONLLVariant : 'C'
-  MassScheme   : 'Pole'
-  Running      : 0
+#FONLL_DISNC:               # Reaction-specific settings, no parameters at the moment.
+  dummy: 0

@@ -461,8 +461,10 @@ namespace MNR
     }
   }
 
-  void MNR::CalcXS(Grid* grid, double xm)
+  void MNR::CalcXS(Grid* grid, double xm, double xm_mu0)
   {
+    if(xm_mu0 < 0.)
+      xm_mu0 = xm;
     // First call: precalculate variables
     if(bFirst) {
       this->Precalc(grid);
@@ -478,6 +480,7 @@ namespace MNR
 
     int ncontr = grid->GetNContr();
     double xm2 = xm * xm;
+    double xm2_mu0 = xm_mu0 * xm_mu0;
     int n_l = grid->NL();
     double* p_l = grid->LPtr();
     int n_y = grid->NY();
@@ -492,7 +495,8 @@ namespace MNR
       double pt2 = mt2 - xm2;
       double pt = TMath::Sqrt(pt2);
       // Factorisation scale
-      double mf2 = this->GetMf2(xm2, pt2);
+      //double mf2 = this->GetMf2(xm2, pt2);
+      double mf2 = this->GetMf2(xm2_mu0, pt2);
       if(mf2 < fSF_min_mf2 || mf2 > fSF_max_mf2)
       {
         grid->NonPhys(c_l);
@@ -501,7 +505,8 @@ namespace MNR
       // Precalculate PDFs at the calculated factorisation scale
       this->PrecalculatePDF(mf2);
       // Renormalisation scale
-      double mr2 = this->GetMr2(xm2, pt2);
+      //double mr2 = this->GetMr2(xm2, pt2);
+      double mr2 = this->GetMr2(xm2_mu0, pt2);
       double mr = TMath::Sqrt(mr2);
       if(mr2 <= 0.0)
       {

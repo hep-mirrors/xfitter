@@ -430,6 +430,12 @@
 */
 //______________________________________________________________________________
 
+// Precompiler variables for conditional compilation are generated and
+// stored automatically in config.h via AC_DEFINE statements in configure.ac.
+// To enable conditional compilation, e.g. using HAVE_LIBZ, this config file
+// MUST be the very first one to be included with
+// #include <config.h>
+
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
@@ -440,7 +446,7 @@
 #include "fastnlotk/fastNLOCoeffAddFix.h"
 #include "fastnlotk/fastNLOCoeffAddFlex.h"
 //#include "fastnlotk/fastNLOLHAPDF.h"
-#ifdef FNLO_HOPPET
+#ifdef WITH_HOPPET
 #include "fastnlotk/HoppetInterface.h"
 #endif
 
@@ -774,14 +780,14 @@ bool fastNLOReader::SetScaleVariation(int scalevar) {
       }
 
       if (lkthc) {
-         if (abs(fScaleFacMuR-fScaleFacMuF) > DBL_MIN) {
+         if (fabs(fScaleFacMuR-fScaleFacMuF) > DBL_MIN) {
             logger.error["SetScaleVariation."]<<"Threshold corrections only allow for symmetric variations of the renormalization and factorization scales,"<<endl;
             logger.error["SetScaleVariation."]<<"but fScaleFacMuR = "<<fScaleFacMuR<<" is different from fScaleFacMuF = "<<fScaleFacMuF<<", stopped!"<<endl;
             exit(1);
          }
          fastNLOCoeffAddFix* cThC = (fastNLOCoeffAddFix*)B_ThC();
          double fScaleFacMuF2 = cThC->GetScaleFactor(fScalevar);
-         if (abs(fScaleFacMuF2-fScaleFacMuF) > DBL_MIN) {
+         if (fabs(fScaleFacMuF2-fScaleFacMuF) > DBL_MIN) {
             logger.error["SetScaleVariation."]<<"Scale variations different for NLO and ThC contributions. This should never happen!"<<endl;
             logger.error["SetScaleVariation."]<<"Please do not use this method directly but only via SetScaleFactorsMuRMuF and check the return code!"<<endl;
             exit(1);
@@ -794,11 +800,11 @@ bool fastNLOReader::SetScaleVariation(int scalevar) {
 
 void fastNLOReader::UseHoppetScaleVariations(bool useHoppet) {
 
-#ifndef FNLO_HOPPET
+#ifndef WITH_HOPPET
       logger.error["UseHoppetScaleVariation."] << "Hoppet support was not compiled with fastNLO. "
             << "Therefore you can't use Hoppet to calculate the scale variations." <<endl;
       exit(1);
-#else 
+#else
       if (useHoppet) {
          if (GetIsFlexibleScaleTable()) {
             logger.info["UseHoppetScaleVariations"]<<"This is a 'flexible-scale' table, therefore you can already choose all desired scale variations without Hoppet."<<endl;
@@ -1078,7 +1084,7 @@ vector < double > fastNLOReader::GetNormCrossSection() {
 
    unsigned int nDim = GetNumDiffBin();
    // iDim ranges from 0 to nDim-1
-   unsigned int iDim = abs(INormFlag)-1;
+   unsigned int iDim = std::abs(INormFlag)-1;
    if (iDim > nDim-1) {
       logger.error["GetNormCrossSection"]<<"Normalization to slice in dimension " << iDim << " not possible, aborting!"<<endl;
       logger.error["GetNormCrossSection"]<<"INormFlag = "<<INormFlag<<", nDim = "<<nDim<<endl;
@@ -1116,7 +1122,7 @@ vector < double > fastNLOReader::GetNormCrossSection() {
             twidth += bwidth;
          }
       }
-      if (abs(xsnorm) > DBL_MIN) {
+      if (fabs(xsnorm) > DBL_MIN) {
          XSectionNorm[iobs] = XSectionNorm[iobs] / xsnorm;
       } else {
          logger.warn["GetNormCrossSection"]<<"Normalization divisor too small, normalized cross section set to -1!"<<endl;
@@ -1305,6 +1311,8 @@ void fastNLOReader::CalcCrossSection() {
    fXSection_vsX2.clear();
    fXSection_vsX1.resize(NObsBin);
    fXSection_vsX2.resize(NObsBin);
+   fXSection_vsQ2.clear();  //diffractive DIS
+   fXSection_vsQ2.resize(NObsBin); //diffractive DIS
    QScale.clear();
    QScale.resize(NObsBin);
 
@@ -1497,12 +1505,13 @@ void fastNLOReader::CalcCrossSectionv21(fastNLOCoeffAddFlex* c) {
       double unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
       int nxmax = c->GetNxmax(i);
       for (unsigned int jS1=0; jS1<c->GetNScaleNode1(i); jS1++) {
+         double Q2           = c->GetScaleNode1(i,jS1)*c->GetScaleNode1(i,jS1);
+         double lq2 = log(Q2);
          for (unsigned int kS2=0; kS2<c->GetNScaleNode2(i); kS2++) {
-            double Q2           = c->GetScaleNode1(i,jS1)*c->GetScaleNode1(i,jS1);
             double mur          = CalcMu(kMuR , c->GetScaleNode1(i,jS1) ,  c->GetScaleNode2(i,kS2) , fScaleFacMuR);
             double muf          = CalcMu(kMuF , c->GetScaleNode1(i,jS1) ,  c->GetScaleNode2(i,kS2) , fScaleFacMuF);
-            double mur2         = mur*mur;
-            double muf2         = muf*muf;
+            double lf2 = 2*log(muf);
+            double lr2 = 2*log(mur);
             for (int x=0; x<nxmax; x++) {
                for (int n=0; n<c->GetNSubproc(); n++) {
                   if (!c->SubIsEnabled(n)) continue;
@@ -1512,13 +1521,11 @@ void fastNLOReader::CalcCrossSectionv21(fastNLOCoeffAddFlex* c) {
                   double fac  = as * pdflc * unit;
                   double xsci = c->SigmaTildeMuIndep[i][x][jS1][kS2][n] * fac / c->GetNevt(i,n);
                   if (c->GetNScaleDep() >= 5) {
-                     double lf2 = log(muf2);
-                     double lr2 = log(mur2);
                      xsci             += c->SigmaTildeMuFDep [i][x][jS1][kS2][n] * lf2 * fac / c->GetNevt(i,n);
                      xsci             += c->SigmaTildeMuRDep [i][x][jS1][kS2][n] * lr2 * fac / c->GetNevt(i,n);
                      if (c->GetIPDFdef1() == 2 && c->fSTildeDISFormat==0) {     // DIS tables use log(mu/Q2) instead of log(mu) (but only for ln(mur), ln(muf))
-                        xsci -= c->SigmaTildeMuFDep [i][x][jS1][kS2][n] * log(Q2) * fac / c->GetNevt(i,n);
-                        xsci -= c->SigmaTildeMuRDep [i][x][jS1][kS2][n] * log(Q2) * fac / c->GetNevt(i,n);
+                        xsci -= c->SigmaTildeMuFDep [i][x][jS1][kS2][n] * lq2 * fac / c->GetNevt(i,n);
+                        xsci -= c->SigmaTildeMuRDep [i][x][jS1][kS2][n] * lq2 * fac / c->GetNevt(i,n);
                      }
                      if (c->GetNScaleDep() >= 6) {
                         xsci             += c->SigmaTildeMuRRDep [i][x][jS1][kS2][n] * lr2*lr2 * fac / c->GetNevt(i,n);
@@ -1534,6 +1541,7 @@ void fastNLOReader::CalcCrossSectionv21(fastNLOCoeffAddFlex* c) {
                   //double x1 = c->GetXNode1(i,x);
                   //double x2 = c->GetXNode2(i,x);
                   fXSection_vsX1[i][c->GetX1(i,x)] += xsci;
+                  fXSection_vsQ2[i][Q2] += xsci;
                   //fXSection_vsX2[i][x2] += xsci;
                }
             }
@@ -1562,7 +1570,7 @@ void fastNLOReader::CalcCrossSectionv20(fastNLOCoeffAddFix* c) {
    }
 
    /// Test that PDF cache is filled with non-zero values for this contribution
-   if (abs(c->PdfLc[0][0][0][0]) < DBL_MIN) {
+   if (fabs(c->PdfLc[0][0][0][0]) < DBL_MIN) {
       logger.debug["CalcCrossSectionv20"]<<"Need to refill PDF cache for this contribution. Normally, should not be necessary here, aborted!"<<endl;
       exit(1);
       //      FillPDFCache(0.,true);
@@ -1671,7 +1679,7 @@ void fastNLOReader::SetCalculateSingleSubprocessOnly(int iSub) {
    if (iSub < 0) {
       logger.info["SetCalculateSingleSubprocessOnly"]<<"Activating all contributions."<<endl;
       fSubprocActive = std::vector<bool>(169,true);
-   }   
+   }
    else if ( iSub < 169 ) {
       logger.info["SetCalculateSingleSubprocessOnly"]<<"Deactivating all contributions, but id="<<iSub<<endl;
       fSubprocActive = std::vector<bool>(169,false);
@@ -1697,7 +1705,7 @@ void fastNLOReader::SetCalculateSubprocesses( const std::vector<int>& iSub ){
    logger.info["SetCalculateSubprocesses"]<<"    ***  Use this function carefully ***"<<endl;
    logger.info["SetCalculateSubprocesses"]<<" Please inform yourself about the meaning of the subprocess id for the given file."<<endl;
    logger.info["SetCalculateSubprocesses"]<<" This may also change for the different contribution (LO,NLO,NNLO) of a calculation."<<endl;
-   
+
    fSubprocActive = std::vector<bool>(13*13,false);
    for ( int i = 0; i < iSub.size(); i++ )
       if ( iSub[i] < 13*13 )
@@ -1712,10 +1720,10 @@ void fastNLOReader::SelectProcesses( const std::vector< std::pair<int,int> >& pr
    //! Selects subprocesses given in proclist. proclist is a vector of pairs each identifying
    //! a single process by two PDGIDs. If the table is not compatible with the selected list,
    //! nothing is changed and a warning is printed.
-   
+
    vector< pair<int,int> >* old_list = fselected_processes;
    fselected_processes = new vector< pair<int,int> >(proclist);
-   
+
    if ( UpdateProcesses() ) {
       delete old_list;
       return;
@@ -1726,55 +1734,178 @@ void fastNLOReader::SelectProcesses( const std::vector< std::pair<int,int> >& pr
       logger.error["SelectProcesses"]<<"could not restore previous state after fail, this means something really messed up";
       exit(1);
    }
-   
+
    logger.warn["SelectProcesses"]<<"could not select requested subprocesses due to incompatible table, ignoring call"<<endl;
    return;
 }
 
 
 //_____________________________________________________________________________
-void fastNLOReader::SelectProcesses( const std::string& processes ) {
-   std::vector< std::pair<int,int> > tmp;
-   if ( processes == "all" ) {
+void fastNLOReader::SelectProcesses( const std::string& processes, bool symmetric ) {
+   //! Selects subprocesses given in processes. processes is a string describing the wanted subprocesses.
+   //! It should be formated like
+   //!  processes = ( [a](u|d|c|s|b) | g | q | none | all)( [a](u|d|c|s|b) | g | [(-|+)][(!|=)]q )
+   //! So it consists of two parts:
+   //!   part 1 is either
+   //!      - the optional modifier a and one of udcsbt selecting the specified (anti)quark
+   //!      - g selecting a gluon
+   //!      - q wildcard expansion for all quarks and antiquarks
+   //!      - none nothing is selected (part 2 is ignored in this case)
+   //       - all all combinatinos are selected (part 2 is ignored in this case)
+   //         note: this only selects all subprocesses contained in the table. If some subprocesses are not
+   //               contained in the table no warning is printed out.
+   //!   part 2 is either
+   //!      - the optional modifier a and one of udcsbt selecting the specified (anti)quark
+   //!      - g selecting a gluon
+   //!      - q selecting all quarks and antiquarks. There are several prefix modifiers to this wildcard:
+   //!        . - (anti) restricts selection to all antiquarks if a quark was selected in part 1
+   //!          and all quarks if a antiquark was selected in part 1
+   //!        . + (equal) restricts selection to all quarks if a quark was selected in part 1
+   //!          and all antiquarks if a antiquark was selected in part 1
+   //!        . ! (other) restricts selection to all quarks and antiquarks with different
+   //!          flavour as the one selected in part 1
+   //!        . = (same) restricts selection to all quarks and antiquarks with same flavour
+   //!          as the one selected in part 1
+   //!        note that (+|-) and (!|=) are mutually-exclusive.
+   //! there should be no space between part 1 and part 2 as spaces separate several part 1 - part 2 pairs.
+   //! If more than one such pairs are given. Each pair is parsed and the union of all selected processes is
+   //! selected.
+   //!
+   //! If the table is not compatible (or does not contain) with the selected subprocesses nothing is
+   //! changed and a warning is printed out.
+
+   bool select_all = false;
+   std::vector< std::pair<int,int> > selection;
+   selection.clear();
+
+   std::vector< std::string > substrings;
+   substrings.clear();
+   // split processes by delimiter ' '
+   int pos = 0, old_pos = 0;
+   do {
+      pos = processes.find(' ',old_pos);
+      substrings.push_back( processes.substr(old_pos,pos-old_pos));
+      old_pos=pos+1;
+   } while ( pos != -1 );
+
+   for ( unsigned int i = 0; i<substrings.size(); i++ ) {
+      if ( substrings[i].empty() )
+         continue;
+
+      // parse part 1
+      // treat select all special, as fselected_processes will be set to NULL
+      try {
+         if ( substrings[i].substr(0,3) == "all" ) {
+            select_all = true;
+            continue;
+         }
+
+         if ( substrings[i].substr(0,4) == "none" ) {
+            continue;
+         }
+
+         std::vector< int > part1_selection;
+         int anti = 1;
+         int n = 0;
+         if ( substrings[i].at(n) == 'a' ) {
+            anti = -1;
+            n++;
+         }
+         switch ( (char)substrings[i].at(n) ) {
+            case 'd': part1_selection.push_back( anti*1 ); break;
+            case 'u': part1_selection.push_back( anti*2 ); break;
+            case 's': part1_selection.push_back( anti*3 ); break;
+            case 'c': part1_selection.push_back( anti*4 ); break;
+            case 'b': part1_selection.push_back( anti*5 ); break;
+            case 'g': part1_selection.push_back( 0 ); break;
+            case 'q': for ( int p = 1; p <= 5; p++ ) {
+                         part1_selection.push_back( anti*p );
+                      }
+                      break;
+            default : throw std::logic_error("unkown char");
+         }
+         n++;
+
+         //parse part 2
+         int s_flav = 0;
+         anti = 1;
+         if ( substrings[i].at(n) == 'a' ) {
+            anti = -1;
+            n++;
+         }
+         if ( substrings[i].at(n) == '!' ) {
+            s_flav = -1;
+            n++;
+         } else if ( substrings[i].at(n) == '=' ) {
+            s_flav = 1;
+            n++;
+         }
+         if ( substrings[i].at(n) == 'a' && anti == 1 ) {
+            anti = -1;
+            n++;
+         }
+
+         // loop over first selected partons
+         for ( unsigned int j = 0; j<part1_selection.size(); j++ ) {
+            int parton1 = part1_selection[j];
+
+            switch ( (char)substrings[i].at(n) ) {
+               case 'd': selection.push_back( {parton1, anti*1} );
+                         if (symmetric) selection.push_back( {anti*1, parton1} );
+                         break;
+               case 'u': selection.push_back( {parton1, anti*2} );
+                         if (symmetric) selection.push_back( {anti*2, parton1} );
+                         break;
+               case 's': selection.push_back( {parton1, anti*3} );
+                         if (symmetric) selection.push_back( {anti*3, parton1} );
+                         break;
+               case 'c': selection.push_back( {parton1, anti*4} );
+                         if (symmetric) selection.push_back( {anti*4, parton1} );
+                         break;
+               case 'b': selection.push_back( {parton1, anti*5} );
+                         if (symmetric) selection.push_back( {anti*5, parton1} );
+                         break;
+               case 'g': selection.push_back( {parton1, anti*0} );
+                         if (symmetric) selection.push_back( {anti*0, parton1} );
+                         break;
+               case 'q': for ( int p = 1; p <= 5; p++ ) {
+                            if ( (s_flav == 1 && parton1*parton1 != p*p) || (s_flav == -1 && parton1*parton1 == p*p) )
+                               continue;
+                            selection.push_back( {parton1, anti*p} );
+                            if (symmetric) selection.push_back( {anti*p, parton1} );
+                         }
+                         break;
+               default : throw std::logic_error("unkown char");
+            }
+         }
+      } catch ( const std::logic_error& ex ) {
+         logger.warn["SelectProcess"] << "Failed to parse selection string \""<<substrings[i]<<"\", ignoring"<<endl;
+         continue;
+      }
+   }
+
+   // delete not unique processes from list
+   for ( unsigned int i = 0; i<selection.size(); i++ ) {
+      std::pair< int, int > p = selection[i];
+      for( unsigned int j = i+1; j<selection.size(); j++ ) {
+         if ( p == selection[j] ) {
+            selection.erase(selection.begin()+j);
+            j--;
+         }
+      }
+   }
+
+   logger.debug["SelectProcess"] << "Selected processes ";
+   for ( unsigned int i = 0; i<selection.size(); i++ )
+      logger.debug["SelectProcess"] << selection[i].first << " " << selection[i].second << " , ";
+   logger.debug["SelectProcess"] << endl;
+
+   if (select_all) {
       delete fselected_processes;
       fselected_processes = NULL;
       UpdateProcesses();
-   } else if ( processes == "none" ) {
-      tmp.clear();
-      SelectProcesses(tmp);
-   } else if ( processes == "gg" ) {
-      tmp = { {0,0} };
-      SelectProcesses(tmp);
-   } else if ( processes == "gq" ) {
-      tmp = { {0,-5},{0,-4},{0,-3},{0,-2},{0,-1},{0,1},{0,2},{0,3},{0,4},{0,5},
-              {-5,0},{-4,0},{-3,0},{-2,0},{-1,0},{1,0},{2,0},{3,0},{4,0},{5,0} };
-      SelectProcesses(tmp);
-   } else if ( processes == "qiqi" ) {
-      tmp = { {-5,-5},{-4,-4},{-3,-3},{-2,-2},{-1,-1},{1,1},{2,2},{3,3},{4,4},{5,5} };
-      SelectProcesses(tmp);
-   } else if ( processes == "qiai" ) {
-      tmp = { {-5,5},{-4,4},{-3,3},{-2,2},{-1,1},{1,-1},{2,-2},{3,-3},{4,-4},{5,-5} };
-      SelectProcesses(tmp);
-   } else if ( processes == "qiqj" ) {
-      tmp.clear();
-      for ( int i = 1; i<=5; i++ )
-         for ( int j = 1; j<=5; j++ )
-            if ( i != j ) {
-               tmp.push_back( {i,j} );
-               tmp.push_back( {-i,-j} );
-            }
-      SelectProcesses(tmp);
-   } else if ( processes == "qiaj" ) {
-      tmp.clear();
-      for ( int i = 1; i<=5; i++ )
-         for ( int j = 1; j<=5; j++ )
-            if ( i != j ) {
-               tmp.push_back( {i,-j} );
-               tmp.push_back( {-i,j} );
-            }
-      SelectProcesses(tmp);
    } else {
-      logger.warn["SelectProcesses"]<<"unrecognized selection \""<<processes<<"\" ignoring call"<<endl;
+      SelectProcesses(selection);
    }
 }
 
@@ -2041,10 +2172,10 @@ void fastNLOReader::FillPDFCache(double chksum, bool lForce) {
 
       // check (or not) if the pdf is somehow reasonable
       TestXFX();
-#ifdef FNLO_HOPPET
+#ifdef WITH_HOPPET
       if (fUseHoppet) {
-	 //Also refill Hoppet cache and assign new PDF
-	 HoppetInterface::InitHoppet(*this);
+         //Also refill Hoppet cache and assign new PDF
+         HoppetInterface::InitHoppet(*this);
       }
 #endif
 
@@ -2110,9 +2241,9 @@ void fastNLOReader::FillBlockBPDFLCsDISv20(fastNLOCoeffAddFix* c) {
                double muf    = scalefac * c->GetScaleNode(i,scalevar,j);
                xfx = GetXFXSqrtS(xp,muf);
 
-#ifdef FNLO_HOPPET
-	       if (fUseHoppet)
-		  xfxspl        = HoppetInterface::GetSpl(xp,muf);
+#ifdef WITH_HOPPET
+               if (fUseHoppet)
+                  xfxspl        = HoppetInterface::GetSpl(xp,muf);
 #endif
                c->PdfLc[i][j][k] = CalcPDFLinearCombination(c,xfx);
                if (fUseHoppet) {
@@ -2142,8 +2273,8 @@ void fastNLOReader::FillBlockBPDFLCsDISv21(fastNLOCoeffAddFlex* c, fastNLOCoeffA
 
    // we take the PDF coefficients from the first contributions if compatible
    // this avoids repetive access to LHAPDF
-   //   static const bool SpeedUp = false;
-   static const bool SpeedUp = BBlocksSMCalc[0][0] != NULL;
+   static const bool SpeedUp = false;
+   //static const bool SpeedUp = BBlocksSMCalc[0][0] != NULL;
    bool IsCompatible = false;
    if (SpeedUp) {
       if (c0 != NULL && c0 != c && fCoeff.size()>1) {
@@ -2169,14 +2300,14 @@ void fastNLOReader::FillBlockBPDFLCsDISv21(fastNLOCoeffAddFlex* c, fastNLOCoeffA
 
    for (unsigned int i=0; i<NObsBin; i++) {
       // speed up! if mu_f is only dependent on one variable, we can safe the loop over the other one
-      for (int x=0; x<c->GetNxmax(i); x++) {
-         //double xp = c->GetXNode1(i,x);
-         double xp = c->GetXNode1(i,x);
-         if (fMuFFunc != kScale1 &&  fMuFFunc != kScale2) {   // that't the standard case!
-            for (unsigned int jS1=0; jS1<c->GetNScaleNode1(i); jS1++) {
-               for (unsigned int kS2=0; kS2<c->GetNScaleNode2(i); kS2++) {
-                  double muf = CalcMu(kMuF , c->GetScaleNode1(i,jS1) ,  c->GetScaleNode2(i,kS2) , fScaleFacMuF);
-
+      if (fMuFFunc != kScale1 &&  fMuFFunc != kScale2) {   // that't the standard case!
+         for (unsigned int jS1=0; jS1<c->GetNScaleNode1(i); jS1++) {
+            for (unsigned int kS2=0; kS2<c->GetNScaleNode2(i); kS2++) {
+               double muf = CalcMu(kMuF , c->GetScaleNode1(i,jS1) ,  c->GetScaleNode2(i,kS2) , fScaleFacMuF);
+               for (int x=0; x<c->GetNxmax(i); x++) {
+                  //double xp = c->GetXNode1(i,x);
+                  double xp = c->GetXNode1(i,x);
+                  
                   if (SpeedUp) {
                      if (c == c0)
                         c->PdfXfx[i][x][jS1][kS2] = GetXFXSqrtS(xp,muf);
@@ -2192,18 +2323,24 @@ void fastNLOReader::FillBlockBPDFLCsDISv21(fastNLOCoeffAddFlex* c, fastNLOCoeffA
                   //c->PdfLcMuVar[i][x][jS1][kS2] = CalcPDFLinearCombDIS(GetXFXSqrtS(xp,muf) , c->GetNSubproc() );
                }
             }
-         } else if (fMuFFunc == kScale2) { // speed up
-            for (unsigned int kS2=0; kS2<c->GetNScaleNode2(i); kS2++) {
-               double muf = CalcMu(kMuF , 0 ,  c->GetScaleNode2(i,kS2) , fScaleFacMuF);
+         }
+      } else if (fMuFFunc == kScale2) { // speed up
+         for (unsigned int kS2=0; kS2<c->GetNScaleNode2(i); kS2++) {
+            double muf = CalcMu(kMuF , 0 ,  c->GetScaleNode2(i,kS2) , fScaleFacMuF);
+            for (int x=0; x<c->GetNxmax(i); x++) {
+               double xp = c->GetXNode1(i,x);
                //vector < double > buffer = CalcPDFLinearCombDIS(GetXFXSqrtS(xp,muf) , c->GetNSubproc() );
                vector<double > buffer = CalcPDFLinearCombination(c,GetXFXSqrtS(xp,muf));
                for (unsigned int jS1=0; jS1<c->GetNScaleNode1(i); jS1++) {
                   c->PdfLcMuVar[i][x][jS1][kS2] = buffer;
                }
             }
-         } else if (fMuFFunc == kScale1) { // speed up
-            for (unsigned int jS1=0; jS1<c->GetNScaleNode1(i); jS1++) {
-               double muf = CalcMu(kMuF , c->GetScaleNode1(i,jS1) , 0 , fScaleFacMuF);
+         }
+      } else if (fMuFFunc == kScale1) { // speed up
+         for (unsigned int jS1=0; jS1<c->GetNScaleNode1(i); jS1++) {
+            double muf = CalcMu(kMuF , c->GetScaleNode1(i,jS1) , 0 , fScaleFacMuF);
+            for (int x=0; x<c->GetNxmax(i); x++) {
+               double xp = c->GetXNode1(i,x);
                //vector < double > buffer = CalcPDFLinearCombDIS(GetXFXSqrtS(xp,muf) , c->GetNSubproc() );
                vector<double > buffer = CalcPDFLinearCombination(c,GetXFXSqrtS(xp,muf));
                for (unsigned int kS2=0; kS2<c->GetNScaleNode2(i); kS2++) {
@@ -2227,7 +2364,7 @@ void fastNLOReader::FillBlockBPDFLCsHHCv20(fastNLOCoeffAddFix* c) {
 
    bool IsPPBar;
    // ----- if ppbar ---- //
-   if (c->NPDFPDG[0] == -c->NPDFPDG[1] && abs(c->NPDFPDG[0]) == 2212) {
+   if (c->NPDFPDG[0] == -c->NPDFPDG[1] && std::abs(c->NPDFPDG[0]) == 2212) {
       IsPPBar = true;
    }
    // ----- if pp ---- //
@@ -2260,9 +2397,9 @@ void fastNLOReader::FillBlockBPDFLCsHHCv20(fastNLOCoeffAddFix* c) {
                double xp     = c->GetXNode1(i,k);
                double muf    = scalefac * c->GetScaleNode(i,scalevar,j);
                xfx[k]        = GetXFXSqrtS(xp,muf);
-#ifdef FNLO_HOPPET
-	       if (fUseHoppet)
-		  xfxspl[k]        = HoppetInterface::GetSpl(xp,muf);
+#ifdef WITH_HOPPET
+               if (fUseHoppet)
+                  xfxspl[k]        = HoppetInterface::GetSpl(xp,muf);
 #endif
             }
             int x1bin = 0;
@@ -2324,7 +2461,7 @@ void fastNLOReader::FillBlockBPDFLCsHHCv20(fastNLOCoeffAddFix* c) {
             for (int k=0; k<nxbins1; k++) {
                double xp     = c->GetXNode1(i,k);
                xfx1[k]        = GetXFXSqrtS(xp,muf);
-#ifdef FNLO_HOPPET
+#ifdef WITH_HOPPET
                   if (fUseHoppet)
                      xfxspl1[k]        = HoppetInterface::GetSpl(xp,muf);
 #endif
@@ -2333,7 +2470,7 @@ void fastNLOReader::FillBlockBPDFLCsHHCv20(fastNLOCoeffAddFix* c) {
             for (int k=0; k<nxbins2; k++) {
                double xp     = c->GetXNode2(i,k);
                xfx2[k]       = GetXFXSqrtS(xp,muf);
-#ifdef FNLO_HOPPET
+#ifdef WITH_HOPPET
                   if (fUseHoppet)
                      xfxspl2[k]        = HoppetInterface::GetSpl(xp,muf);
 #endif
@@ -2368,7 +2505,7 @@ void fastNLOReader::FillBlockBPDFLCsHHCv21(fastNLOCoeffAddFlex* c) {
 
    bool IsPPBar;
    // ----- if ppbar ---- //
-   if (c->NPDFPDG[0] == -c->NPDFPDG[1] && abs(c->NPDFPDG[0]) == 2212) {
+   if (c->NPDFPDG[0] == -c->NPDFPDG[1] && std::abs(c->NPDFPDG[0]) == 2212) {
       IsPPBar = true;
    }
    // ----- if pp ---- //
@@ -2580,6 +2717,7 @@ void fastNLOReader::SetExternalConstantForMuR(double MuR) {
    //! EScaleFunctionalForm == kConst
    fConst_MuR = MuR;
    logger.info << "Using constant value " << fConst_MuR << " for MuR" << endl;
+   if ( MuR<=2 ) logger.warn <<"Specified value for MuR is pretty small: MuR="<<MuR<<endl;
    SetFunctionalForm(kConst, kMuR);
 }
 
@@ -2590,6 +2728,7 @@ void fastNLOReader::SetExternalConstantForMuF(double MuF) {
    //! EScaleFunctionalForm == kConst
    fConst_MuF = MuF;
    logger.info << "Using constant value " << fConst_MuF << " for MuF" << endl;
+   if ( MuF<=2 ) logger.warn <<"Specified value for MuF is pretty small: MuF="<<MuF<<endl;
    SetFunctionalForm(kConst, kMuF);
 }
 
@@ -2666,8 +2805,9 @@ bool fastNLOReader::SetScaleFactorsMuRMuF(double xmur, double xmuf) {
    // The function aborts the whole program if non-sensical scale factors < 1.E-6 are requested.
    // The function returns true if the requested scale factors can be used with the available table:
    //
-   //   If it is NOT a flexibleScaleTable and there is no NLO scalevar table for xmuf,
-   //   xmur and xmuf are unchanged, a warning is printed and the function returns false!
+   //   If it is NOT a flexibleScaleTable and there is no NLO scalevar table for xmuf and
+   //   there is no HOPPET, then xmur and xmuf are unchanged, a warning is printed and
+   //   the function returns false!
    //   If threshold corrections are selected, then
    //   - only symmetric scale variations, i.e. xmur / xmuf = 1., are allowed,
    //   - the scale variations for xmuf must be stored in IDENTICAL order
@@ -2678,34 +2818,43 @@ bool fastNLOReader::SetScaleFactorsMuRMuF(double xmur, double xmuf) {
 
    // Check whether xmur and xmuf are positive and at least larger than 1.E-6
    if (xmur < 1.E-6 || xmuf < 1.E-6) {
-      logger.error<<"Selected scale factors too small ( < 1.E-6 )! Ignoring call."<<endl;
+      logger.error["SetScaleFactorsMuRMuF"]<<"Selected scale factors too small ( < 1.E-6 )! Ignoring call."<<endl;
       return false;
    }
 
-   // Check whether pQCD LO contributions or beyond exist and are activated
-   bool lklo = false;
-   bool lkho = false;
+   // Check which pQCD contributions exist and are activated
+   bool lOrder[] = { false, false, false }; // The maximum ESMorder is kNextToNextToLeading = 2
+   const int lOrdMax = 2;
    if (!BBlocksSMCalc[kFixedOrder].empty()) {
       for (unsigned int i = 0 ; i <BBlocksSMCalc[kFixedOrder].size() ; i++) {
          int kOrder = -1;
          if (BBlocksSMCalc[kFixedOrder][i]) {
             kOrder = BBlocksSMCalc[kFixedOrder][i]->GetIContrFlag2()-1;
+            if ( kOrder > lOrdMax ) {
+               logger.error["SetScaleFactorsMuRMuF"]<<"Order beyond NNLO found! Not yet implemented. Aborted."<<endl;
+               exit(1);
+            }
          }
          if ( BBlocksSMCalc[kFixedOrder][i] && BBlocksSMCalc[kFixedOrder][i]->IsEnabled() ) {
-            if (kOrder == 0) {
-               lklo = true;
-            } else if (kOrder > 0) {
-               lkho = true;
-            }
+            lOrder[kOrder] = true;
+            // if (kOrder == 0) {
+            //    lklo = true;
+            // } else if (kOrder > 0) {
+            //    lkho = true;
+            // }
          }
       }
    }
+   bool lklo = lOrder[0];
+   bool lkho = lOrder[1] || lOrder[2];
+   bool lllo = (lklo && !lkho) || (lklo && lkho && !lOrder[2]) || (lklo && lOrder[1] && lOrder[2]);
+   bool lflex = GetIsFlexibleScaleTable();
 
    // Check whether threshold corrections exist and are activated
    bool lkthc = false;
    if (!BBlocksSMCalc[kThresholdCorrection].empty()) {
       for (unsigned int i = 0 ; i <BBlocksSMCalc[kThresholdCorrection].size() ; i++) {
-	 cout<<"i="<<i<<"\tkThresholdCorrection="<<kThresholdCorrection<<endl;
+         //cout<<"i="<<i<<"\tkThresholdCorrection="<<kThresholdCorrection<<endl;
          if ( BBlocksSMCalc[kThresholdCorrection][i] && BBlocksSMCalc[kThresholdCorrection][i]->IsEnabled() ) {
             lkthc = true;
             break;
@@ -2713,14 +2862,20 @@ bool fastNLOReader::SetScaleFactorsMuRMuF(double xmur, double xmuf) {
       }
    }
 
-   // For fixed-order contributions scale factor variations are not possible without LO
-   if (!lklo && lkho && (fabs(xmur-1.) > DBL_MIN || fabs(xmuf-1.) > DBL_MIN)) {
+   // For fixed-scale tables mur scale factor variations are possible only with all lower orders included
+   // If not, only the prestored muf scale factors are possible with whatever mur scale factors were used at filling time
+   if (!lllo && !lflex && (fabs(xmur-xmuf) > DBL_MIN)) {
       logger.warn["SetScaleFactorsMuRMuF"]
-            <<"Without LO, scale factors different from unity for MuR and MuF are not allowed, nothing changed!\n";
+            <<"Changing the MuR scale factor different from MuF is not possible when lower orders are missing, nothing changed!\n";
       logger.warn["SetScaleFactorsMuRMuF"]
             <<"The method returns 'false', please check the return code and act appropriately.\n";
-      logger.man<<"Please do scale variations only, if all fixed-order contributions are present and switched on.\n";
+      logger.man<<"Please do MuR scale factors variations only, if all fixed-order contributions are present and switched on.\n";
       return false;
+   }
+   if (!lllo && !lflex && (fabs(xmuf-1.) > DBL_MIN)) {
+      logger.info["SetScaleFactorsMuRMuF"]
+            <<"Changing the MuF scale factor from unity is possible only for the prestored values. To be checked!\n";
+      logger.man<<"Please do MuF scale variations only, if either prestored values or HOPPET are available.\n";
    }
 
    // For threshold corrections xmur != xmuf is not allowed
@@ -2737,7 +2892,7 @@ bool fastNLOReader::SetScaleFactorsMuRMuF(double xmur, double xmuf) {
 
    // Deal with factorization scale first
    // Check whether corresponding xmuf variation exists in case of v2.0 table
-   if (!GetIsFlexibleScaleTable()) {
+   if (!lflex) {
 
       // Neither LO only, nor UseHoppet
       if ((lkho || lkthc) && !fUseHoppet) {
@@ -2782,7 +2937,7 @@ bool fastNLOReader::SetScaleFactorsMuRMuF(double xmur, double xmuf) {
             }
          }
          if (lkho && sfho == -1) {
-            logger.warn["SetScaleFactorsMuRMuF"]<<"Could not find NLO table with given mu_f scale factor of "<<xmuf<<", nothing changed!"<<endl;
+            logger.warn["SetScaleFactorsMuRMuF"]<<"Could not find HO table with given mu_f scale factor of "<<xmuf<<", nothing changed!"<<endl;
             logger.warn["SetScaleFactorsMuRMuF"]
                   <<"The method returns 'false', please check the return code and act appropriately.\n";
             return false;
@@ -2794,7 +2949,7 @@ bool fastNLOReader::SetScaleFactorsMuRMuF(double xmur, double xmuf) {
             return false;
          }
          if (lkthc && lkho && sfho != sfthc) {
-            logger.warn["SetScaleFactorsMuRMuF"]<<"Order of scale variation tables different in NLO and ThC tables, "<<sfho<<" != "<<sfthc<<" !"<<endl;
+            logger.warn["SetScaleFactorsMuRMuF"]<<"Order of scale variation tables different in HO and ThC tables, "<<sfho<<" != "<<sfthc<<" !"<<endl;
             logger.warn["SetScaleFactorsMuRMuF"]<<"This is currently not supported, nothing changed!"<<endl;
             logger.warn["SetScaleFactorsMuRMuF"]
                   <<"The method returns 'false', please check the return code and act appropriately.\n";
@@ -2809,7 +2964,7 @@ bool fastNLOReader::SetScaleFactorsMuRMuF(double xmur, double xmuf) {
          if (lkho) {
             bSetScales = SetScaleVariation(sfho);
             if (!bSetScales) {
-               logger.error["SetScaleFactorsMuRMuF"]<<"NLO scale variation table "<<sfho<<" could not be selected, stopped!"<<endl;
+               logger.error["SetScaleFactorsMuRMuF"]<<"HO scale variation table "<<sfho<<" could not be selected, stopped!"<<endl;
                exit(1);
             }
          }
@@ -3346,9 +3501,9 @@ XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eS
 
    //! Divide by cross section != 0 to give relative uncertainties
    for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
-      if (abs(XsUnc.xs[iobs]) > DBL_MIN) {
-         XsUnc.dxsu[iobs] = XsUnc.dxsu[iobs] / XsUnc.xs[iobs];
-         XsUnc.dxsl[iobs] = XsUnc.dxsl[iobs] / XsUnc.xs[iobs];
+      if (fabs(XsUnc.xs[iobs]) > DBL_MIN) {
+         XsUnc.dxsu[iobs] = +fabs(XsUnc.dxsu[iobs] / XsUnc.xs[iobs]);
+         XsUnc.dxsl[iobs] = -fabs(XsUnc.dxsl[iobs] / XsUnc.xs[iobs]);
       } else {
          XsUnc.dxsu[iobs] = 0.;
          XsUnc.dxsl[iobs] = 0.;

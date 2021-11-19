@@ -11,20 +11,20 @@
 0) Pre-requirements.
 ====================
 
--- QCDNUM version at least qcdnum-17-01/14, can be found at 
-   http://www.nikhef.nl/~h24/qcdnum/QcdnumDownload.html
+-- cmake version at least 2.8.12.2
 
 -- Link to recent Root libraries (e.g. version 5.34). This is optional, but recommended to enable drawing tools, APPLgrid.
-
--- xFitter has been tested on various 64bit platforms: 
-   SL6,CenOS7, Ubuntu 14.04,16.04 MacOSx
 
 -- libyaml (required for xfitter-process) and libyaml-cpp (required for xFitter itself). If not installed on the system,
    they can be installed using tools/install-yaml script
 
 -- libblas and liblapack. These libraries can be also compiled using tools/install-lapack, however central installation is recommended.
 
--- Optional: APPLgrid, LHAPDF, APFEL, APFELgrid, MELA
+-- Optional, but highly recommended:
+   QCDNUM version at least qcdnum-17-01/14, can be found at 
+   http://www.nikhef.nl/~h24/qcdnum/QcdnumDownload.html
+
+-- Optional: APPLgrid, LHAPDF, APFEL, APFELxx, Ceres, Hathor
 
 
 1) INSTALLATION (basic installation)
@@ -32,13 +32,9 @@
 
   a) Run:
 
-    (
-       when using master version, first run
-       autoreconf --install
-    )
-    ./configure (--prefix=/your/installation/path/)
-    make 
-    make install
+    ./make.sh install
+
+		cmake will try to locate libraries automatically.
 
   b) make sure that "/your/installation/path/bin" is in your PATH.
     --> you should get "xfitter" executable file installed.
@@ -56,111 +52,10 @@
 	- pulls.first/last.txt		(pulls at the start and end of the fit)
 	- pdfs_q2val_0i.txt			(user defined PDF sets at predefined Q2 values, as set in the steering.txt)	
 
-
   e) To get more data files, one can use xfitter-getdata.sh script 
   type: ./xfitter-getdata.sh -h for help. Alternatively, data files can be downloaded from the hepforge page:
 
       http://xfitter.hepforge.org/data.html
 
-1B) INSTALLATION (with APPLgrid)
-=================================
-
-  a) Install APPLgrid version 1.4.56 or later. Description can be found at
-     http://projects.hepforge.org/applgrid/
-
-  b) Run:
-
-    ./configure --enable-applgrid (--prefix=/your/installation/path/)
-    make 
-    make install
-
-  c) make sure that "/your/installation/path/bin" is in your PATH.
-    --> you should get "xfitter" executable file installed.
-
-  d) Run a check from the source folder:
-
-    xfitter
-
-1C) INSTALLATION (with Hathor)
-=================================
-
-  a) Download Hathor version 1.5 from http://www.physik.hu-berlin.de/pep/tools/hathor.html
-     and install it according to the instructions given there
-     (requires LHAPDF library)
-     NOTE: Hathor versions above 1.5 are not supported to work with xFitter 
-
-  b) Define a variable HATHOR_ROOT such that $HATHOR_ROOT points to the
-     directory of your Hathor installation
-
-  c) Install the xFitter as described above but configuring it
-     with the option "--enable-hathor" before building it
-
-    ./configure --enable-hathor (--prefix=/your/installation/path/)
-    make 
-    make install
-
-1D) INSTALLATION with LHAPDF (v5 or 6)
-============================================
-
-  a) include lhapdf-config in your PATH variable
-	(e.g. export PATH=/your/path/to/lhapdf/bin)
-  b) include libLHAPDF.so library in your LD_LIBRARY_PATH variable
-	(e.g. export LD_LIBRARY_PATH=/your/path/to/lhapdf/lib)
-  c) enable the lhapdf in the configure: ./configure --enable-lhapdf
-
-The lhapdf will be used if you change  PDFStyle = 'LHAPDF' in the steering card.
-
-    ./configure --enable-lhapdf (--prefix=/your/installation/path/)
-    make
-    make install
-
-1E) INSTALLATION with NNPDF reweighting tool
-============================================
-	- needs linking to LHAPDF 
-	README located in ./NNPDF directory
-
-    ./configure --enable-lhapdf --enable-nnpdf (--prefix=/your/installation/path/)
-    make 
-    make install
-
-NOTE: reweighting currently is working with LHAPDF6.1.1 or higher versions only
-
-1F) Modules such as 
- - DIPOLE
- - DiffDIS (Diffractive DIS)  
- - DY (LO)
- - ttbar with DiffTop
- - heavy flavour schemes RT, ACOT, ABM 
-
-can be ran with simple INSTALLATION procedure as described above.
-Their activation is possible through the input steerings in the 
-steering.txt (use appropriate cards stored in input_steering/!)
-
-
-1F) INSTALLATION for TMD(updf)
-============================================
-	- needs linking to CASCADE & PYTHIA 
-	- needs linking to LHAPDF 
-      
-  a) set environment variables:
-   
-    for example (with SYSNAME=x86_64-slc6-gcc46-opt or similar):
-    export PYTHIA_ROOT=/afs/cern.ch/sw/lcg/external/MCGenerators/pythia6/428.2/$SYSNAME
-    export CASCADE_ROOT=/afs/cern.ch/sw/lcg/external/MCGenerators/cascade/2.2.04/$SYSNAME
-    export LD_LIBRARY_PATH=$PYTHIA_ROOT/lib/:$LD_LIBRARY_PATH
-    export LD_LIBRARY_PATH=$CASCADE_ROOT/lib/:$LD_LIBRARY_PATH
-
-  b) Run:
-
-   ./configure --enable-updf --enable-lhapdf --enable-checkBounds (--prefix=/your/installation/path/)
-    make 
-    make install
-
-    --> you should get "xfitter" executable file installed
-
-  c) Run a check
-
-    xfitter
-
-============================================
-
+For more information, see the xfitter wiki on CERN gitlab:
+https://gitlab.cern.ch/fitters/xfitter/-/wikis/Installation

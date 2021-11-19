@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12.2)
+set(CMAKE_MACOSX_RPATH 1)
 
 project(xFitter CXX C Fortran)
 
@@ -25,8 +26,8 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 #TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
 find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
-find_package(QCDNUM REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(QCDNUM)
 find_package(LHAPDF)
 find_package(APPLgrid)
 find_package(APFEL)
@@ -34,7 +35,11 @@ find_package(APFELxx)
 find_package(Ceres QUIET)
 include(find_package_ROOT)
 find_package(Hathor)
+find_package(yaml)
 
+if(ROOT_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
+else()
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
   #workaround for older versions of cmake
@@ -43,9 +48,17 @@ else()
   set(CMAKE_CXX_STANDARD 11)
   set(CMAKE_CXX_STANDARD_REQUIRED YES)
 endif()
+endif()
 
 #Use c preprocessor with fortran
-set(CMAKE_Fortran_FLAGS "-cpp")
+
+if(UNIX AND NOT APPLE)
+  set(CMAKE_Fortran_FLAGS "-cpp -Wno-argument-mismatch")
+endif()
+
+if(APPLE)
+  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+endif()
 
 #For Fortran
 #set max line length to 132
@@ -55,6 +68,15 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132")
 else()
   message(FATAL_ERROR "Unknown Fortran compiler ${CMAKE_Fortran_COMPILER_ID}")
+endif()
+
+#For Debug builds, enable checks of array bounds and trap floating-point errors
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fbounds-check -ffpe-trap='invalid,overflow,zero'")
+  elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -check bounds -fpe0")
+  endif()
 endif()
 
 #When linking, set rpath to install directories
@@ -72,6 +94,8 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 #NEVER  to hide both
 set(CMAKE_INSTALL_MESSAGE NEVER)
 
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
 add_subdirectory(src)
 #ABM is a shared library used by the FFABM_DISNC and FFABM_DISCC reactions
 add_subdirectory(src/ABM)
@@ -84,6 +108,7 @@ add_subdirectory(minimizers/CERES)
 
 #Parameterisations
 add_subdirectory(pdfparams/HERAPDF)
+add_subdirectory(pdfparams/Normalized)
 add_subdirectory(pdfparams/Factor)
 add_subdirectory(pdfparams/NegativeGluon)
 add_subdirectory(pdfparams/ABMPgluon)
@@ -131,3 +156,5 @@ add_subdirectory(reactions/fastNLO)
 
 #Tools
 add_subdirectory(tools/draw/src)
+add_subdirectory(pdf2yaml)
+add_subdirectory(tools/process)

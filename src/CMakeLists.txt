@@ -1,3 +1,4 @@
+#Determine sources
 set(xfitter_SOURCES
   BaseMinimizer.cc
   BasePdfParam.cc
@@ -28,7 +29,6 @@ set(xfitter_SOURCES
   #offset_fns.f
   prep_corr.f
   Profiler.cc
-  QCDNUM_Manager.cc
   ReactionTheory.cc
   read_data.f
   read_steer.f
@@ -62,6 +62,10 @@ set(xfitter_SOURCES
   FTNFitPars.cc
   ../tools/draw/src/pdferrors.cc
 )
+#Conditionally compiled sources
+if(QCDNUM_FOUND)
+  list(APPEND xfitter_SOURCES QCDNUM_Manager.cc)
+endif()
 if(LHAPDF_FOUND)
   list(APPEND xfitter_SOURCES CheckForPDF.cxx)
 else()
@@ -75,26 +79,35 @@ target_include_directories(xfitter PUBLIC
   ${CMAKE_SOURCE_DIR}/tools/draw/include/
 )
 target_compile_definitions(xfitter PRIVATE
-  -DXFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}"
-  -DXFITTER_YAML_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_YAML}/"
-  -DPREFIX="${CMAKE_INSTALL_PREFIX}"
+  XFITTER_DEFAULT_MODULE_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_MODULE}"
+  XFITTER_YAML_PATH="${CMAKE_INSTALL_PREFIX}/${DEST_YAML}/"
+  PREFIX="${CMAKE_INSTALL_PREFIX}"
 )
 target_link_libraries(xfitter PRIVATE
   MINUIT
-  QCDNUM
   ${CMAKE_DL_LIBS} #for dlopen
   ${LAPACK_LIBRARIES}
 )
-if(LHAPDF_FOUND)
-  target_link_libraries(xfitter PRIVATE LHAPDF)
+target_link_libraries(xfitter PUBLIC yaml-cpp)
+
+#Optional libraries
+if(QCDNUM_FOUND)
+  target_link_libraries(xfitter PRIVATE QCDNUM)
+  target_compile_definitions(xfitter PUBLIC QCDNUM_FOUND="1")
 endif()
-target_link_libraries(xfitter PUBLIC
-  yaml-cpp
-)
 if(ROOT_FOUND)
   target_link_libraries(xfitter PUBLIC ROOT)
+  target_compile_definitions(xfitter PUBLIC ROOT_FOUND="1")
+endif()
+if(APPLgrid_FOUND)
+  target_compile_definitions(xfitter PUBLIC APPLgrid_FOUND="1")
+endif()
+if(LHAPDF_FOUND)
+  target_link_libraries(xfitter PRIVATE LHAPDF)
+  target_compile_definitions(xfitter PUBLIC LHAPDF_FOUND="1")
 endif()
 
+#Install location
 install(TARGETS xfitter DESTINATION ${DEST_LIB})
 
 #Executable

@@ -22,8 +22,9 @@
 #include "xfitter_pars.h"
 #include"dependent_pars.h"
 
-#include "BaseEvolution.h"
+#include "BasePdfParam.h"
 #include "BasePdfDecomposition.h"
+#include "BaseEvolution.h"
 #include "BaseMinimizer.h"
 
 using namespace std;
@@ -73,12 +74,10 @@ extern struct thexpr_cb {
   char terminfo  [NTERMMAX][TERMINFO_LEN];
   char termsource[NTERMMAX][TERMSOURCE_LEN];
   char theorexpr[THEOREXPR_LEN];
-  int ppbar_collisions;
   int normalised;
-  int murdef;
-  int mufdef;
-  int ninfo;  // dataset info as well
+  double normalisation;
   double datainfo[100];
+  int ninfo;  // dataset info as well
   char CInfo[100][80];
   char dsname[80];
   int  ds_index;
@@ -131,6 +130,7 @@ int set_theor_eval_(int *dsId){
   te->_dsId=*dsId;
   te->_dsIndex=theorexpr_.ds_index;
   te->SetNormalised(theorexpr_.normalised);
+  te->SetNormalisation(theorexpr_.normalisation);
 
   tTEmap::iterator it = gTEmap.find(*dsId);
   if (it == gTEmap.end() ) { gTEmap[*dsId] = te; }
@@ -239,6 +239,11 @@ void close_theor_eval_()
 
 void init_at_iteration_() {
   xfitter::updateDependentParameters();
+
+  for(const auto it:XFITTER_PARS::gParameterisations){
+    it.second->atIteration();
+  }
+
   for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
     pdfdecomposition.second->atIteration();//Among other things, sumrules are handled here
   }
@@ -266,6 +271,38 @@ void fcn3action_()
 
   for ( auto reaction : gNameReaction ) {
     reaction.second->atFCN3();
+  }
+
+  if (XFITTER_PARS::rootNode["ExtraActions"]["PrintPionMoments"].IsDefined()){
+    {
+    auto it = XFITTER_PARS::gParameters.find("Av");
+    if (it != XFITTER_PARS::gParameters.end() ) {
+      cout<<"  Av="<<*it->second<<endl;
+    }
+    it = XFITTER_PARS::gParameters.find("As");
+    if (it != XFITTER_PARS::gParameters.end() ) {
+      cout<<"  As="<<*it->second<<endl;
+    }
+    it = XFITTER_PARS::gParameters.find("Ag");
+    if (it != XFITTER_PARS::gParameters.end() ) {
+      cout<<"  Ag="<<*it->second<<endl;
+    }
+    }
+    {
+    auto it = XFITTER_PARS::gParameterisations.find("v");
+    if (it != XFITTER_PARS::gParameterisations.end() ) {
+      cout<<" <v>="<<it->second->moment(-1)<<endl;
+      cout<<"<xv>="<<it->second->moment(0)<<endl;
+    }
+    it = XFITTER_PARS::gParameterisations.find("S");
+    if (it != XFITTER_PARS::gParameterisations.end() ) {
+      cout<<"<xS>="<<it->second->moment(0)<<endl;
+    }
+    it = XFITTER_PARS::gParameterisations.find("g");
+    if (it != XFITTER_PARS::gParameterisations.end() ) {
+      cout<<"<xg>="<<it->second->moment(0)<<endl;
+    }
+    }
   }
 }
 

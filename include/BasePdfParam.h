@@ -43,6 +43,7 @@ public:
   //!Get name of the instance
   const std::string getName()const{return _name;}
   virtual void atStart();
+  virtual void atIteration();
 protected:
   //!Unique name of instance
   const std::string _name;
