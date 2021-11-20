@@ -70,9 +70,11 @@ void ReactionHathor::atStart()
 
 void ReactionHathor::initTerm(TermData *td)
 {
-  ReactionTheory::initTerm(td); //Stefano: What is this needed for?
+  //These two lines were added by Sasha Zenaiev but they are not needed
+  //ReactionTheory::initTerm(td);
+  //_tdDS[dataSetID] = td;
+
   int dataSetID = td->id;
-  _tdDS[dataSetID] = td;        //Stefano: this array is actually never used
 
   // check if dataset with provided ID already exists
   if(_mtopPerInstance.find(dataSetID) != _mtopPerInstance.end() && !chi2scan_.scan)

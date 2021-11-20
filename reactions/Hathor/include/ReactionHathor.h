@@ -50,7 +50,7 @@ protected:
   std::map<int, std::shared_ptr<double> > _mtopPerInstance;
   std::map<int, std::shared_ptr<double> > _mrPerInstance;
   std::map<int, std::shared_ptr<double> > _mfPerInstance;
-  // store term data for later access
-  map<unsigned, TermData*> _tdDS;
+  // store term data for later access (never used)
+  //map<unsigned, TermData*> _tdDS;
 };
 
