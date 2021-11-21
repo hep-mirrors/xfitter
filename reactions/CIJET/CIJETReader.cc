@@ -8,7 +8,7 @@ using namespace std;
 // Interface to xFitter FORTRAN routines
 extern "C"
 {
-    void cijetinit_(const char* fname, double* mufip, double* murip, int* od, double* norm);
+    void cijetinit_(const char* fname, double* mufip, double* murip, int* od, double* norm, int* estat);
     void cijetxsec_(const char* fname, double* lam, double* cl, int* npt, double* pres);
 }
 
@@ -19,7 +19,11 @@ void CIJETReader::setinit()
     //note the character length in Fortran is hardwired to 100
     char ff[101];
     strncpy(ff, filepds.c_str(), 100);
-    cijetinit_(ff, &muf, &mur, &Oqcd, &fut);
+    int estat = 0;  //Error status for checking amount of CI grids
+    cijetinit_(ff, &muf, &mur, &Oqcd, &fut, &estat);
+    if (estat == 21111801) {
+        hf_errlog(21111801,"F: cset in cijet.f exceeds mset in cijetInclude.h. Increase mset and recompile.");
+    }
 }
 
 vector<double> CIJETReader::calcxsec(void)

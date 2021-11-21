@@ -1,44 +1,27 @@
-c CIJET1.1 interface made for Xfitter, Jun Gao, 2018.09.10
+c CIJET1.1 interface made for xFitter, Jun Gao, 2018.09.10
+c Updated for 2021 xFitter release, Toni Makela, 2021.11.19
 
 c performing grid reading and initialization 
-      subroutine cijetinit(fname, mufip, murip, oqcd, fut)
+      subroutine cijetinit(fname, mufip, murip, oqcd, fut, estat)
 
 ! new line
       implicit none
-! maximum number of data sets and points per set
-      integer, parameter :: mset=4, mpint=200
-      integer, parameter :: xnd=40, qnd=15, nbk=42
 
-! input scale choices, CI shape choice, only color-singlet
+! maximum number of data sets and points per set
+      include 'cijetInclude.h'
+
+! input scale choices, CI shape choice and couplings, only color-singlet
       real(8) :: mufip, murip, fut
       real(8) :: cpl(3)=0.d0 ! color singlet couplings, LL, LR, RR
       real(8) :: ash(10) ! individual coupling combinations 
+
 ! input QCD order
       integer :: oqcd ! 0 for LO, 1 for NLO
-! grid name
-      character*100 :: fname
 
       integer, save :: befirst=1
-! storing total number of sets
-      integer :: cset
 
-! storing reference Lambda scale, no of points, fname per set
-      real(8) :: Nscale(mset) ! hardwired currently
-      integer :: pset(mset)
-      character*100 :: ffnm(mset)
-! storing pp or ppbar, and mur/muf
-      integer :: sig(mset)
-      real(8) :: srof(mset)
-
-! storing reference x-Q-mu scale per point
-      real(8) :: xgd(mset,mpint,xnd)
-      real(8) :: qgd(mset,mpint,qnd)
-      real(8) :: smu(mset,mpint)
-      integer :: nxgd(mset,mpint)
-      integer :: nqgd(mset,mpint)
-
-! storing grid weight per point
-      real(8) :: ciwgt(10,xnd,xnd*qnd,5,mset,mpint)
+! store non-zero error status identifying number if need be
+      integer :: estat
 
 ! beta function needed for scale evaluation
       real(8), parameter :: beta0=(11*3.d0-2*5.d0)/12.d0/3.1415926d0
@@ -120,6 +103,12 @@ c performing grid reading and initialization
  
 ! update record
       cset=cset+1
+      if((cset.gt.mset)) then
+      estat=21111801
+      print *, "F: cset in xfitter.f exceeds mset in xfitterInclude.h."
+      print *, "   Increase mset and recompile.",fname;
+      return
+      endif
       pset(cset)=(nt-1)/(3*nbk)
       ffnm(cset)=fname
       sig(cset)=1
@@ -304,9 +293,10 @@ c perform grid convolution and calculation of xsecs
 
 ! new line
       implicit none
+
 ! maximum number of data sets and points per set
-      integer, parameter :: mset=4, mpint=200
-      integer, parameter :: xnd=40, qnd=15, nbk=42
+      include 'cijetInclude.h'
+
 ! input 1/Lambda^2 [in TeV^-2]
       real(8) :: invlamsq, res(mpint), pres(mpint)
 ! sign (+ for destructive, -for con.)
@@ -314,29 +304,6 @@ c perform grid convolution and calculation of xsecs
       real(8) :: ash(10) ! individual coupling combinations 
 ! number of data points and additional multi-factor
       integer :: npt
-! grid name
-      character*100 :: fname
-
-! storing total number of sets
-      integer :: cset
-
-! storing reference Lambda scale, no of points, fname per set
-      real(8) :: Nscale(mset) ! hardwired currently
-      integer :: pset(mset)
-      character*100 :: ffnm(mset)
-! storing pp or ppbar, and mur/muf
-      integer :: sig(mset)
-      real(8) :: srof(mset)
-
-! storing reference x-Q-mu scale per point
-      real(8) :: xgd(mset,mpint,xnd)
-      real(8) :: qgd(mset,mpint,qnd)
-      real(8) :: smu(mset,mpint)
-      integer :: nxgd(mset,mpint)
-      integer :: nqgd(mset,mpint)
-
-! storing grid weight per point
-      real(8) :: ciwgt(10,xnd,xnd*qnd,5,mset,mpint)
 
 ! workspace
       real(8) :: XPDF(-6:6, xnd, qnd), xi(xnd), qi(qnd)
@@ -359,8 +326,6 @@ c perform grid convolution and calculation of xsecs
       if(pid==0) then
       print *, "CI grid not loaded!",fname; stop
       endif
-
-!test      print *, "gaojun1 !", invlamsq, cpl, cset, pid, pset(pid) 
 
 ! find the correct couplings
       ash(1) =cpl(1)+cpl(3)

@@ -8,7 +8,6 @@
 //#include <memory> 
 #include <map>
 #include <vector>
-#include "hf_errlog.h"
 
 /**
   @class' ReactionCIJET

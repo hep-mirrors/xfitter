@@ -12,6 +12,7 @@
 #include <fstream>
 #include <math.h>
 #include <cstdlib>
+#include "hf_errlog.h"
 #include "ReactionTheory.h"
 #include "TermData.h"
 
