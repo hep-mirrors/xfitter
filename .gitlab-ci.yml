@@ -45,9 +45,11 @@ job-install-full:
     - ./tools/test.sh
   artifacts:
     paths:
+      - temp/chi2scanMTOP/
+      - temp/HATHOR-cbt/
       - temp/HATHOR-cbt/test.log
       - temp/chi2scanMTOP/test.log
-#      - temp/*/test.log
+      - temp/**/test.log
     expire_in: 1 day
 
 #nightly_devel:
