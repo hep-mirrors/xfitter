@@ -43,6 +43,12 @@ job-install-full:
     - git reset --hard HEAD
     - cd -
     - ./tools/test.sh
+  artifacts:
+    paths:
+      - temp/HATHOR-cbt/test.log
+      - temp/chi2scanMTOP/test.log
+#      - temp/*/test.log
+    expire_in: 1 day
 
 #nightly_devel:
 #  stage: nightly
