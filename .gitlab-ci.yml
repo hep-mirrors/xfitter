@@ -43,6 +43,8 @@ job-install-full:
     - git reset --hard HEAD
     - cd -
     - ./tools/test.sh
+    - cat temp/HATHOR-cbt/test.log
+    - cat temp/chi2scanMTOP/test.log
   artifacts:
     paths:
       - temp/chi2scanMTOP/
