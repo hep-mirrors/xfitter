@@ -6,12 +6,12 @@
 lhapdfver=6.2.1
 hathorver=2.0
 hoppetver=1.2.0
-applgridver=1.5.34
-qcdnumver=17-01-14
-apfelver=3.0.4
+applgridver=1.6.22
+qcdnumver=17-01-15
+apfelver=3.0.5
 melaver=2.0.1
 apfelgridver=1.0.1
-apfelxxver=4.0.0
+apfelxxver=4.6.0
 
 # skip some packages depending on xfitter version
 skip_mela=0
@@ -181,22 +181,12 @@ then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
             gccv=4.9
+	    cmakev=3.20.0
             os=centos7
             arch=x86_64
             rootversion=6.06.08
             boostver=1.53.0
             pyth=2.7
-        elif [[ $SYS == Scientific* && $ver == 5.* ]]
-        then
-            echo "Detected SL5 Linux distribution"
-            MODE=cern
-            gccv=4.3
-            os=slc5
-            arch=x86_64
-            rootversion=5.34.00
-            boostver=1.48.0
-            python=2.6.5
-            pyth=2.6
         elif [[ $SYS == "Ubuntu" ]]
         then
             echo "Detected Ubuntu distribution"
@@ -216,7 +206,6 @@ then
 fi
 if [[ $MODE == "cern" ]]
     then
-#    if [[ ! -e /afs/cern.ch ]]
     if [[ ! -e /cvmfs/sft.cern.ch ]]
         then
         echo
@@ -232,17 +221,9 @@ fi
 if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
-#    . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
     . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
     . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-    if [[ $os == slc5 ]]
-    then
-        echo "LEGACY SL5 ! using afs"
-        PYTHONBIN=/afs/cern.ch/sw/lcg/external/Python/${python}/${arch}-${os}-${compiler}-opt/bin
-        PATH=$PYTHONBIN:$PATH
-        export BOOST=--with-boost=/afs/cern.ch/sw/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
-    fi
+    PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:${PATH}
     if [[ $os == slc6 ]]
     then
         export BOOST=--with-boost=/cvmfs/sft.cern.ch/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
@@ -678,10 +659,8 @@ echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
 if [[ $MODE == "cern" ]]
 then
-#    echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
     echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-#    echo cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root >> setup.sh
+    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
 
     echo "cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/" >> setup.sh
     echo ". /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh ">> setup.sh
