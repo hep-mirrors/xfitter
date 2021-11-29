@@ -41,7 +41,7 @@ private:
   static double GeVtofb_param, alphaEM_param, stheta2W_param, MZ_param, GammaZ_param;
   static double energy_param, eta_cut_param, pT_cut_param, y_min_param, y_max_param;
 
-  static double e_param, gsm_param, smangle_param;
+  static double e_param, gsm_param;
   static double photon_Vu, photon_Au, photon_Vd, photon_Ad, photon_Vl, photon_Al;
   static double Z_Vu, Z_Au, Z_Vd, Z_Ad, Z_Vl, Z_Al;
   static double even_photon_up, even_photon_down, even_interf_up, even_interf_down, even_Z_up, even_Z_down;

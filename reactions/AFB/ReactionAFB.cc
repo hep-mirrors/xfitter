@@ -19,7 +19,7 @@ double ReactionAFB::PI;
 double ReactionAFB::GeVtofb_param, ReactionAFB::alphaEM_param, ReactionAFB::stheta2W_param, ReactionAFB::MZ_param, ReactionAFB::GammaZ_param;
 double ReactionAFB::energy_param, ReactionAFB::eta_cut_param, ReactionAFB::pT_cut_param, ReactionAFB::y_min_param, ReactionAFB::y_max_param;
 
-double ReactionAFB::e_param, ReactionAFB::gsm_param, ReactionAFB::smangle_param;
+double ReactionAFB::e_param, ReactionAFB::gsm_param;
 double ReactionAFB::photon_Vu, ReactionAFB::photon_Au, ReactionAFB::photon_Vd, ReactionAFB::photon_Ad, ReactionAFB::photon_Vl, ReactionAFB::photon_Al;
 double ReactionAFB::Z_Vu, ReactionAFB::Z_Au, ReactionAFB::Z_Vd, ReactionAFB::Z_Ad, ReactionAFB::Z_Vl, ReactionAFB::Z_Al;
 double ReactionAFB::even_photon_up, ReactionAFB::even_photon_down, ReactionAFB::even_interf_up, ReactionAFB::even_interf_down, ReactionAFB::even_Z_up, ReactionAFB::even_Z_down;
@@ -50,6 +50,7 @@ double *ReactionAFB::propagators (double Minv)
 
 ////UUBAR EVEN FORWARD Matrix element
 double ReactionAFB::uubarEF_funct (double yreduced, void * params) {
+
   // Pass the invariant mass as parameter
   double Minv = ((integration_params*)params)-> Minv;
 
@@ -1625,7 +1626,6 @@ void ReactionAFB::initTerm(TermData *td)
   // Calculate fixed parameters
   e_param = sqrt(4*PI*alphaEM_param);
   gsm_param = (e_param/(sqrt(stheta2W_param)*sqrt(1-stheta2W_param)))*sqrt(1+pow(stheta2W_param,2));
-  smangle_param = atan(-stheta2W_param);
 
   // Foton couplings
   photon_Vu = e_param*(2.0/3.0);
@@ -1636,13 +1636,13 @@ void ReactionAFB::initTerm(TermData *td)
   photon_Al = 0;
 
   // Z-boson couplings
-  Z_Vu = (1.0/2.0)*gsm_param*(1.0/6.0)*(3*cos(smangle_param)+8*sin(smangle_param));
-  Z_Au = (1.0/2.0)*gsm_param*(cos(smangle_param)/2.0);
-  Z_Vd = (1.0/2.0)*gsm_param*(1.0/6.0)*(-3*cos(smangle_param)-4*sin(smangle_param));
-  Z_Ad = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
-  Z_Vl = (1.0/2.0)*gsm_param*((-cos(smangle_param)/2.0)+(-2*sin(smangle_param)));
-  Z_Al = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
-
+  Z_Vu = (1.0/2.0)*gsm_param/sqrt(1 - stheta2W_param)*(1.0/2.0 - 2*(2.0/3.0)*stheta2W_param);
+  Z_Au = (1.0/2.0)*gsm_param/sqrt(1 - stheta2W_param)*(1.0/2.0);
+  Z_Vd = (1.0/2.0)*gsm_param/sqrt(1 - stheta2W_param)*(-1.0/2.0 - 2*(-1.0/3.0)*stheta2W_param);
+  Z_Ad = (1.0/2.0)*gsm_param/sqrt(1 - stheta2W_param)*(-1.0/2.0);
+  Z_Vl = (1.0/2.0)*gsm_param/sqrt(1 - stheta2W_param)*(-1.0/2.0 - 2*(-1.0)*stheta2W_param);
+  Z_Al = (1.0/2.0)*gsm_param/sqrt(1 - stheta2W_param)*(-1.0/2.0);
+  
   // Even combination of couplings
   even_photon_up = (pow(photon_Vu,2)+pow(photon_Au,2))*(pow(photon_Vl,2)+pow(photon_Al,2));
   even_photon_down = (pow(photon_Vd,2)+pow(photon_Ad,2))*(pow(photon_Vl,2)+pow(photon_Al,2));
