@@ -9,7 +9,7 @@ image: "gitlab-registry.cern.ch/fitters/xfitter"
 #  - build-full
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3
 
 job-install-minimal:
 #  stage: build-minimal
@@ -31,6 +31,7 @@ job-install-full:
   script: 
     - yum -y install gcc-gfortran git tar root libgfortran-static
     - ./tools/install-xfitter deps
+    - tail -n 1000 install.log
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
     - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nnlo ABMP16_3_nlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian MMHT2014nnlo68cl nCTEQ15FullNuc_1_1 nCTEQ15FullNuc_184_74 >& download-lhapdf.log
