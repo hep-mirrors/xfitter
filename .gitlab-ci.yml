@@ -46,6 +46,7 @@ job-install-full:
     - cat temp/HATHOR-cbt/test.log
     - cat temp/chi2scanMTOP/test.log
   artifacts:
+    when: on_failure
     paths:
       - temp/chi2scanMTOP/
       - temp/HATHOR-cbt/
