@@ -45,6 +45,11 @@ job-install-full:
     - git reset --hard HEAD
     - cd -
     - ./tools/test.sh
+  artifacts:
+    when: on_failure
+    paths:
+      - temp/*/test.log
+    expire_in: 2 days
 
 #nightly_devel:
 #  stage: nightly
