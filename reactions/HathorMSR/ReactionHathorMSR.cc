@@ -363,17 +363,17 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
     //Anomalous dimensions for mass evolution.
     //  MSR 1704.01580 (converted to HATHOR conventions) by default, changed 
     //  later if need be
-    double gamR0 = d1dec;
-    double gamR1 = d2dec - beta0*d1dec/2.;
-    double gamR2 = d3dec - beta0*d2dec - beta1*d1dec/8.;
+    double gam0 = d1dec;
+    double gam1 = d2dec - beta0*d1dec/2.;
+    double gam2 = d3dec - beta0*d2dec - beta1*d1dec/8.;
 
     //Evolve m_MSR from mt_MSbar(mt_MSbar) to scale R (or mu_m if MSbar evo)
     double mDelta=0.;
     double mMatched = mt_in;
-    double asmt = XS.getAlphas(mt);
+    double asmt = hathor->getAlphas(mt);
     double (*integrand)(Hathor*,double,int);    //Ptr to integrand in m RGE sol.
     integrand = mScheme==1 ? &mEvoInt_MSbar : &mEvoInt_MSR;
-    double const Ncol=3., Ncol2=9., Ncol3=27., Ncol3=81.;  //SU(N=3) and powers
+    double const Ncol=3., Ncol2=9., Ncol3=27., Ncol4=81.;  //SU(N=3) and powers
     if (mScheme != 0) {
         if (mScheme==1) {  //Use MSbar anom. dim. hep-ph/9703278 Eq. (4)->
             gam0=(Ncol2 - 1.)*3./4./Ncol/2.;
@@ -386,22 +386,22 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
             //MSbar->MSRn needs 1704.01580 matching relation Eq. (5.8), MSRp not.
             //Here asmt must be alpha_s(mt_MSbar(mt_MSbar))
             mMatched *= (1. + pow(asmt/(4*pi),2)*1.65707
-                            + (order>0 ? 1. : 0.)*pow(asmt/(4*pi),3)
-                                                 *(110.05 + 1.424*nfl)
-                            + (order>1 ? 1. : 0.)*pow(asmt/(4*pi),4)
-                                                 *(344.-111.59*nfl+4.4*nfl*nfl) );      
+                            + (orderI>0 ? 1. : 0.)*pow(asmt/(4*pi),3)
+                                                  *(110.05 + 1.424*nfl)
+                            + (orderI>1 ? 1. : 0.)*pow(asmt/(4*pi),4)
+                                                  *(344.-111.59*nfl+4.4*nfl*nfl) );      
         }
-        mDelta = - gam0*evoInt(integrand,mMatched,R,0)   
-                 - gam1*evoInt(integrand,mMatched,R,1)   
-                 - gam2*evoInt(integrand,mMatched,R,2);
+        mDelta = - gam0*evoInt(integrand,mMatched,Rscale,0)   
+                 - gam1*evoInt(integrand,mMatched,Rscale,1)   
+                 - gam2*evoInt(integrand,mMatched,Rscale,2);
         if (mScheme == 1) mt *= exp(mDelta);      
         else              mt = mMatched + mDelta;
     }
     
     //Now that we have mt_MSbar(R) if need be, reset dec.coef. etc for MSbar evo
     if (mScheme == 1) {
-        LR = log(pow(R/mt,2));    //ln((mu_m/mt(mu_m))^2), mu_m=R
-        asmt = XS.getAlphas(mt);  //Update to as(mt_MSbar(R))
+        LR = log(pow(Rscale/mt,2));    //ln((mu_m/mt(mu_m))^2), mu_m=R
+        asmt = hathor->getAlphas(mt);  //Update to as(mt_MSbar(R))
         d1dec = d1func(LR);
         d2dec = d2func(LR);
         /* TODO d3dec LR dependency unavailable. However, MSbar d3dec is
@@ -453,7 +453,7 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
 
     //Combine terms to get cross-section
     double NLOder=0., NNLOder=0.;
-    double Rfac = mScheme==1 ? mt : R;                //Use mt_MSbar(R) or R?
+    double Rfac = mScheme==1 ? mt : Rscale;           //Use mt_MSbar(R) or R?
     csFULL = csLO*asLO                                //Common LO
                + (orderI > 0 ? csNLO *asNLO  : 0.)    //Common NLO
                + (orderI > 1 ? csNNLO*asNNLO : 0.);   //Common NNLO
@@ -488,7 +488,7 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
     out << setfill(' ') << setw(12) << mScheme;
     out << setfill(' ') << setw( 8) << mt;
     out << setfill(' ') << setw( 8) << Rscale;
-    out << setfill(' ') << setw(16) << XS.getAlphas(mt);
+    out << setfill(' ') << setw(16) << hathor->getAlphas(mt);
     out << setfill(' ') << setw(16) << csFULL;
     out << setfill(' ') << setw( 8) << muf;    
     out << setfill(' ') << setw( 8) << mur;
