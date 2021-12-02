@@ -127,10 +127,14 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   _hathor->setSqrtShad(sqrtS);
 
   // set mass
-  // here local value is preferred over global one (to allow calculations with several mass values, e.g. for translation into MSbar mass scheme)
-  _mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(*td->getParamD("mtp")));
+  double mtop = 0;
   if(td->hasParam("mtp"))
-    *_mtopPerInstance[dataSetID] = *td->getParamD("mtp");
+    mtop = *td->getParamD("mtp");
+  
+  // here local value is preferred over global one (to allow calculations with several mass values, e.g. for translation into MSbar mass scheme)
+  _mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(mtop));
+  if(td->hasParam("mtp"))
+    *_mtopPerInstance[dataSetID] = mtop;
 
   // set renorm. scale
   _mrPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
@@ -198,7 +202,7 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
       _hathor->PrintOptions();
     }
 
-  double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : *td->getParamD("mtp");
+  double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : mtop;
   double mr = *_mrPerInstance[dataSetID];
   double mf = *_mfPerInstance[dataSetID];
   _hathor->getXsection(mt, mr, mf);
