@@ -323,7 +323,7 @@ else
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC ${root_c_flags}' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC -std=c++11' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
