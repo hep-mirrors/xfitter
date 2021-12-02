@@ -391,9 +391,9 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
                             + (orderI>1 ? 1. : 0.)*pow(asmt/(4*pi),4)
                                                   *(344.-111.59*nfl+4.4*nfl*nfl) );      
         }
-        mDelta = - gam0*evoInt(integrand,mMatched,Rscale,0)   
-                 - gam1*evoInt(integrand,mMatched,Rscale,1)   
-                 - gam2*evoInt(integrand,mMatched,Rscale,2);
+        mDelta = - gam0*evoInt(hathor,integrand,mMatched,Rscale,0)   
+                 - gam1*evoInt(hathor,integrand,mMatched,Rscale,1)   
+                 - gam2*evoInt(hathor,integrand,mMatched,Rscale,2);
         if (mScheme == 1) mt *= exp(mDelta);      
         else              mt = mMatched + mDelta;
     }
