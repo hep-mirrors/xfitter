@@ -3,7 +3,7 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.2.1
+lhapdfver=6.4.0
 hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.6.22
@@ -139,14 +139,6 @@ then
     echo
     exit
 fi
-#if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
-#then
-#    echo
-#    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
-#    echo "$0 $version"
-#    echo
-#    exit
-#fi
 
 # skip some packages depending on xfitter version
 if [[ $version == "master" ]]; then
@@ -296,10 +288,8 @@ else
 
     if [[ $http == "curl" ]]
     then
-#       curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
         curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-#       wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
         wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     cat $CURRENTDIR/install.log
@@ -333,7 +323,7 @@ else
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC ${root_c_flags}' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -377,7 +367,6 @@ else
  #applgrid:
     echo "Installing APPLGRID $applgridver..."
     APPLGRID_URL=https://applgrid.hepforge.org/downloads/applgrid-"$applgridver".tgz
-#   APPLGRID_URL=https://www.hepforge.org/archive/applgrid/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
     then
         curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
@@ -469,10 +458,8 @@ else
       apfelgridver=1.0.5
       if [[ $http == "curl" ]]
       then
-  #       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
           curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
       else
-  #       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
           wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
       fi
       mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
@@ -569,8 +556,6 @@ else
     if [[ `echo $?` != "0" ]]; then
       numdiffver='5.9.0'
       echo "Installing numdiff $numdiffver..."
-      # 17 May 2020: this link to download numdiff seems to be dead
-      #numdiff_url=http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz
       numdiff_url=http://ftp.igh.cnrs.fr/pub/nongnu/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
@@ -611,23 +596,14 @@ then
     else
         if [[ $http == "curl" ]]
         then
-#           curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
-#           curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
-#            curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
             curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
-#           wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
-#           mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
-#           wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
-#            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
             wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
        # unpack nicely:
         rm -fr xfitter-${version}
         mkdir xfitter-${version} ; tar xfz xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
     fi
-#else
-#    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
 fi
 
 
@@ -727,11 +703,6 @@ then
     echo autoreconf --install                                 >> compile
     echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
     echo make -j 9 install                                    >> compile
-  elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
-    # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
-    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
-    echo make -j 9 install                                    >> compile
-    echo autoreconf --install                                 >> compile
   else
     # cmake compilation
     echo ./make.sh install >> compile
