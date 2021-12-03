@@ -211,7 +211,7 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
 
   HathorSgTopT* hathor = _hathorArray.at(dataSetID);
 
-  if(_scheme[dataSetID] & Hathor::MS_MASS){
+  if (_scheme[dataSetID] & Hathor::MS_MASS) {
 
     double dmtms;
     double Lrbar,nfl;
