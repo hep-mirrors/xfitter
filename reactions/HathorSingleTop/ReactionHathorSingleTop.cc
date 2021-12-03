@@ -75,9 +75,10 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
   // read precision level from provided dataset parameters
   // if not specified set to default 2 -> Hathor::MEDIUM
   int precisionLevel = Hathor::MEDIUM;
-  if(td->hasParam("precisionLevel"))
-    precisionLevel = td->getParamI("precisionLevel");
-  precisionLevel = std::pow(10, 2 + precisionLevel);
+  if(td->hasParam("precisionLevel")) {
+      precisionLevel = td->getParamI("precisionLevel");
+      precisionLevel = std::pow(10, 2 + precisionLevel);
+  }
   // check that this setting is allowed
   // see in AbstractHathor.h:
   //   enum ACCURACY { LOW=1000, MEDIUM=10000, HIGH=100000 };

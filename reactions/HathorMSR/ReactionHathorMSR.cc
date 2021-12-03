@@ -70,8 +70,8 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     int precisionLevel = Hathor::MEDIUM;
     if(td->hasParam("precisionLevel")) {
         precisionLevel = td->getParamI("precisionLevel");
+        precisionLevel = std::pow(10, 2 + precisionLevel);
 	}
-    precisionLevel = std::pow(10, 2 + precisionLevel);
     // check that this setting is allowed
     // see in AbstractHathor.h:
     //   enum ACCURACY { LOW=1000, MEDIUM=10000, HIGH=100000 };
@@ -104,16 +104,16 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     Hathor* hathor = new Hathor(*_pdf);
     hathor->sethc2(0.38937911e9);     //MCFM value
 
+    //Centre-of-mass energy
+    hathor->setSqrtShad(sqrtS);
+    std::cout << " ReactionHathorMSR: center of mass energy set to " << sqrtS
+              << std::endl;
+
     //Collider type
     if (ppbar) hathor->setColliderType(Hathor::PPBAR);
     else       hathor->setColliderType(Hathor::PP);
 
-    std::cout << "ReactionHathorMSR: PP/PPBAR parameter set to " << ppbar
-              << std::endl;
-
-    //Centre-of-mass energy
-    hathor->setSqrtShad(sqrtS);
-    std::cout << "ReactionHathorMSR: center of mass energy set to " << sqrtS
+    std::cout << " ReactionHathorMSR: PP/PPBAR parameter set to " << ppbar
               << std::endl;
 
     //#[active light flavours], in case nfl!=5 also implemented in the future
@@ -130,11 +130,11 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     mScheme = 0;    //Pole scheme by default
     Rscale_in = 0;  //Corresponds to pole scheme
     if(td->hasParam("MSCHEME")) mScheme = td->getParamI("MSCHEME");
-    else cout << "ReactionHathorMSR: Could not find MSCHEME" << endl;
+    else cout << " ReactionHathorMSR: Could not find MSCHEME" << endl;
     if(mScheme == 1) Rscale_in = _mtop[dataSetID];    //MSbar
     else if(mScheme > 1 && td->hasParam("MSRSCALE"))  //MSRn & MSRp
         Rscale_in = *td->getParamD("MSRSCALE");
-    else cout << "ReactionHathorMSR: Could not find MSRSCALE" << endl;
+    else cout << " ReactionHathorMSR: Could not find MSRSCALE" << endl;
     convertMass = false;  //Flipped if MSBAR -> MSR mass conversion requested
     int convTmp = 0;
     if(td->hasParam("MSBAR2MSR")) convTmp = td->getParamI("MSBAR2MSR");
@@ -148,7 +148,7 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     bar1   = beta1/pow(4.*pi,4);
   
   hathor->setScheme(_scheme[dataSetID]);                              //TODO REMOVE -- obsolete for MSR?
-  std::cout << "ReactionHathorMSR: Setting the scheme" << std::endl;  //TODO REMOVE -- obsolete for MSR?
+  std::cout << " ReactionHathorMSR: Setting the scheme" << std::endl;  //TODO REMOVE -- obsolete for MSR?
 
     //Precision level
     hathor->setPrecision(precisionLevel);
@@ -168,7 +168,7 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     std::cout << std::endl;
     if(mScheme == 0) std::cout << " Pole scheme chosen" << std::endl;
     if(mScheme == 1) std::cout << " MSbar scheme chosen" << std::endl;
-    if(mScheme > 1 ) std::cout << " MSRSCALE = " << Rscale << std::endl;
+    if(mScheme > 1 ) std::cout << " Input MSRSCALE = " << Rscale_in << std::endl;
     if(convertMass) {
         if(mScheme > 1) std::cout << " Converting MSbar mass to MSR" << std::endl;
         else {
