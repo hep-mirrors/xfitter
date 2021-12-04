@@ -2,7 +2,8 @@
 
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
-omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
+#omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
+omitTests=('ceresZMVFNSfastChi2')
 
 install_dir=$(pwd)
 # xfitter binary
@@ -102,7 +103,7 @@ runTest()
   # check "numdiff -v" command: avoid using some other "numdiff" installed on some systems (like presently on naf-xfitter.desy.de) which does not recognize "-v"
   if [ `numdiff -v >& /dev/null; echo $?` == "0" ]; then
     # we have numdiff and we wil use it with tolerance 1e-4 for either absolute or relative differneces between numbers
-    diff='numdiff -a 1e-4 -r 1e-4'
+    diff='numdiff -a 1e-3 -r 1e-3'
   fi
 
   echo "========================================"
@@ -139,6 +140,8 @@ runTest()
   cp ${INPUTDIR}/steering.txt $rundir
   cp ${INPUTDIR}/parameters.yaml $rundir
   cp ${INPUTDIR}/constants.yaml $rundir
+  # also copy any .dat files
+  cp ${INPUTDIR}/*.dat $rundir
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir

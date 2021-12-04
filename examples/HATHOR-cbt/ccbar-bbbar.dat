@@ -1,0 +1,31 @@
+&Data 
+  Name = "DUMMY ccbar bbbar" 
+  IndexDataset = 1
+
+  TermName = 'R1','R2','M1','M2'
+  TermSource = 'Hathor','Hathor','KFactor','KFactor'
+  TermInfo = 
+			 'SqrtS=13000:MS_MASS=1:mtp=1.275:evolution1=proton-LHAPDF-nnpdf31:evolution2=proton-LHAPDF-nnpdf31:muR=2.0:muF=2.0',
+			 'SqrtS=13000:MS_MASS=1:mtp=4.18:evolution1=proton-LHAPDF-nnpdf31:evolution2=proton-LHAPDF-nnpdf31:muR=2.0:muF=2.0',
+       'FileName=matrix.dat:FileColumn=1:FileLine=1:FileLineFinish=2',
+       'FileName=matrix.dat:FileColumn=2:FileLine=1:FileLineFinish=2',
+  TheorExpr = '(R1*M1+R2*M2)/1e9'
+  !TheorExpr = 'R1'
+  
+  NData =   2
+  NColumn =   3
+  ColumnType = 1*"Bin","Sigma", 1*"Error"
+  ColumnName = "Bin","Sigma", "stat"
+  Percent = 1*true
+&End 
+&PlotDesc
+   PlotN = 2
+   PlotDefColumn = 'Bin'
+   PlotDefValue = 0,1.5,3
+   PlotVarColumn = 'Bin'
+   PlotOptions(1)  = 'Experiment:Simulation@ExtraLabel:pp #rightarrow c#bar{c}@XTitle: @YTitle: #sigma [mb] @Title:'
+   PlotOptions(2)  = 'Experiment:Simulation@ExtraLabel:pp #rightarrow b#bar{b}@XTitle: @YTitle: #sigma [mb] @Title:'
+&End
+* Bin sigma stat
+    1 10.0  100.0
+    2  1.0  100.0
