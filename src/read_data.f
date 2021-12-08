@@ -393,7 +393,7 @@ C Reset scales to 1.0
       open(51,file=CFile,status='old',err=99)
 
 cc      if(DEBUG)then
-        print *,'Reading data file',trim(CFile)
+        print *,'Reading data file ',trim(CFile)
 cc      endif
       read(51,NML=Data,err=98)
 

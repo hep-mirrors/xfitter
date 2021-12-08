@@ -308,13 +308,33 @@ const double* TermData::getParamD(const string& parameter_name) {
     //Try constant: "10" or "2.0", then create a constant parameter specifically for this value
     //Name it "termID/NAME", with some ID and NAME
     const string full_name = "term" + to_string(id) + '/' + parameter_name;
+
+    /*
     //First check if this constant parameter has already been created
     const auto it = gParameters.find(full_name);
     if (it != gParameters.end()) return it->second;
+
     //Else try converting to double:
     char *endp;
     double value = strtod(definition.c_str(), &endp);
     if (endp == definition.c_str()) reportFailedConversion(parameter_name, type, scope, dataset_name, reaction_name, nullptr, &definition);
+    */
+
+    //First try converting to double:
+    char *endp;
+    double value = strtod(definition.c_str(), &endp);
+    if (endp == definition.c_str()) reportFailedConversion(parameter_name, type, scope, dataset_name, reaction_name, nullptr, &definition);
+
+    //Then check if this constant parameter has already been created
+    const auto it = gParameters.find(full_name);
+    if (it != gParameters.end())
+      {
+	//update the value
+	*(it->second) = value;
+	return it->second;
+      }
+    
+    //Else create a new constant parameter
     return createConstantParameter(full_name, value);
   }
   YAML::Node node;
