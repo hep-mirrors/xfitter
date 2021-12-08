@@ -104,14 +104,14 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     Hathor* hathor = new Hathor(*_pdf);
     hathor->sethc2(0.38937911e9);     //MCFM value
 
+    //Collider type -- (re)inits sqrtS to 8 TeV by default, change below
+    if (ppbar) hathor->setColliderType(Hathor::PPBAR);
+    else       hathor->setColliderType(Hathor::PP);
+
     //Centre-of-mass energy
     hathor->setSqrtShad(sqrtS);
     std::cout << " ReactionHathorMSR: center of mass energy set to " << sqrtS
               << std::endl;
-
-    //Collider type
-    if (ppbar) hathor->setColliderType(Hathor::PPBAR);
-    else       hathor->setColliderType(Hathor::PP);
 
     std::cout << " ReactionHathorMSR: PP/PPBAR parameter set to " << ppbar
               << std::endl;
@@ -122,34 +122,41 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     //Input top quark mass. May be recomputed in compute depending on scheme
     _mtop[dataSetID] = *td->getParamD("mtp");
 
-    // scheme (perturbative order and pole/running mass treatment)
+    // Perturbative order
     std::string orderS = td->getParamS("Order");
     orderI = 0;           //Default to LO
     if(orderS == "NLO" ) orderI = 1;
     if(orderS == "NNLO") orderI = 2;
-    mScheme = 0;    //Pole scheme by default
-    Rscale_in = 0;  //Corresponds to pole scheme
-    if(td->hasParam("MSCHEME")) mScheme = td->getParamI("MSCHEME");
-    else cout << " ReactionHathorMSR: Could not find MSCHEME" << endl;
-    if(mScheme == 1) Rscale_in = _mtop[dataSetID];    //MSbar
-    else if(mScheme > 1 && td->hasParam("MSRSCALE"))  //MSRn & MSRp
+    
+    // Pole/running mass treatment; requested scheme info is always stored in 
+    // mScheme_in and Rscale_in, but these may need to change mid-calculation.
+    // E.g. MSRn scheme evolution is valid only for R < mtMSBAR since 6th flavor
+    // is integrated out in the scheme -> replaced with MSbar evo for R>mtMSBAR.
+    // Hence separate mScheme and Rscale variables (set in compute function).
+    mScheme_in = 0;   mScheme = 0;  //Pole scheme in and out by default
+    Rscale_in  = 0.;  Rscale  = 0;  //Corresponds to pole scheme
+    if(td->hasParam("MSCHEME")) mScheme_in = td->getParamI("MSCHEME");
+    else  hf_errlog(17094502,"E: ReactionHathorMSR could not find MSCHEME");
+    if (mScheme_in == 1) Rscale_in = _mtop[dataSetID];    //Pure MSBAR, R=mt
+    else if (mScheme_in > 1 && td->hasParam("MSRSCALE")) { //MSRn & MSRp
         Rscale_in = *td->getParamD("MSRSCALE");
-    else cout << " ReactionHathorMSR: Could not find MSRSCALE" << endl;
-    convertMass = false;  //Flipped if MSBAR -> MSR mass conversion requested
+    } else if (mScheme_in > 1) hf_errlog(17094502,"E: ReactionHathorMSR could not find MSRSCALE");
+    convertMass = false;  //Flipped if input mt is MSBAR & MSR mt must be found
     int convTmp = 0;
-    if(td->hasParam("MSBAR2MSR")) convTmp = td->getParamI("MSBAR2MSR");
-    if (convTmp != 0) convertMass = true;
-
-    //Set alpha_S beta coef.s, needs orderI and nfl [#flavors]
+    if(td->hasParam("MSBAR2MSR")) {
+		convTmp = td->getParamI("MSBAR2MSR");
+        if (convTmp != 0) {
+            if (mScheme_in == 2) convertMass = true;
+            else hf_errlog(17094503,"W: ReactionHathorMSR: MSBAR->MSRN conversion requested but disabled (scheme not MSRN)");
+        }
+    }
+    //Set alpha_S beta coef.s, needs orderI and nfl (#active flavors)
     beta0  = 11. -  2.*nfl/3.;
     beta1 = orderI > 0 ? 102. - 38.*nfl/3. : 0.;
     beta2 = orderI > 1 ? 325./54.*nfl*nfl - 5033./18.*nfl + 2857./2. : 0.;
     bar0   = beta0/pow(4.*pi,2);
     bar1   = beta1/pow(4.*pi,4);
   
-  hathor->setScheme(_scheme[dataSetID]);                              //TODO REMOVE -- obsolete for MSR?
-  std::cout << " ReactionHathorMSR: Setting the scheme" << std::endl;  //TODO REMOVE -- obsolete for MSR?
-
     //Precision level
     hathor->setPrecision(precisionLevel);
 
@@ -166,15 +173,15 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     std::cout << " renorm. scale = " << _mr[dataSetID] << "[GeV] ";
     std::cout << " fact. scale = "   << _mf[dataSetID] << "[GeV]";
     std::cout << std::endl;
-    if(mScheme == 0) std::cout << " Pole scheme chosen" << std::endl;
-    if(mScheme == 1) std::cout << " MSbar scheme chosen" << std::endl;
-    if(mScheme > 1 ) std::cout << " Input MSRSCALE = " << Rscale_in << std::endl;
+    if(mScheme_in == 0) std::cout << " Pole scheme chosen" << std::endl;
+    if(mScheme_in == 1) std::cout << " MSbar scheme chosen" << std::endl;
+    if(mScheme_in > 1 ) std::cout << " Input MSRSCALE = " << Rscale_in << std::endl;
     if(convertMass) {
-        if(mScheme > 1) std::cout << " Converting MSbar mass to MSR" << std::endl;
+        if(mScheme_in > 1) std::cout << " Converting MSbar mass to MSR" << std::endl;
         else {
-  		  std::cout << "mScheme<2, no MSBAR->MSR conversion done" << std::endl;
+		  hf_errlog(17094503,"W: HathorMSR mScheme_in<2, no MSBAR->MSR conversion done although requested");
   		  convertMass = false;
-  	  }
+  	    }
     }
     std::cout << " #[active light flavors] = " << nfl << std::endl;
     std::cout << std::endl;
@@ -215,11 +222,21 @@ double ReactionHathorMSR::d2func(double Lmu) {
 // Compute coefficients for transforming to arbitrary alpha_s(mu) via the eq.
 //   as(m_MSbar)=as(mu)(1 +  as(mu_r)*(4*pi^2)*Lrbar*bar0
 //                        + as^2(mu_r)*(4*pi^2)^2*( Lrbar*bar1+Lrbar^2*bar0^2))
+//Output: a vector of correction factors for LO, NLO and NNLO terms in cs.
+//N.B. LO terms in cross-section have as power 2. This does not return N=1 ATM 
+//but if need be, they can be computed as:
+//  order > LO terms:
+//    asFactor = 1.
+//    asFactor += asNEW*4*pi*Lmu*bar0;
+//  order > NLO extra term:
+//    asFactor += pow((asNEW*4*pi),2)*( Lmu*bar1 + pow(Lmu*bar0,2) );
+//  Common factor for all orders:
+//    asFactor *= asNEW/asOLD;
 vector<double> ReactionHathorMSR::asFactors(Hathor* XS, 
                                             double muOLD, double muNEW)
 {
-    vector<double> ret;   //n:th component will be the factor for as^(n+1)
-    for (int n=0; n!=4; ++n) ret.push_back(1.);  //Init
+    vector<double> ret;   //n:th component will be the factor for as^(n+2)
+    for (int n=0; n!=3; ++n) ret.push_back(1.);  //Init
 
     if (mScheme == 0) return ret;  //No factors needed in pole scheme
 
@@ -227,18 +244,16 @@ vector<double> ReactionHathorMSR::asFactors(Hathor* XS,
     double asOLD = XS->getAlphas(muOLD);
     double asNEW = XS->getAlphas(muNEW);
     
-    ret[0] += asNEW*4*pi*Lmu*bar0;               //LO for c-s. is O(as^2)
     if (orderI != 0) {                           //O(as^3)
-        ret[0] += pow((asNEW*4*pi),2)*( Lmu*bar1 + pow(Lmu*bar0,2));
-        ret[1] += 8.*pi*asNEW*Lmu*bar0;
+        ret[0] += 8.*pi*asNEW*Lmu*bar0;
         if (orderI > 1) {                        //O(as^4)
-            ret[1] +=  16.*pow(pi*asNEW*Lmu*bar0,2)
+            ret[0] +=  16.*pow(pi*asNEW*Lmu*bar0,2)
                      + 32.*pow(pi*asNEW,2)*( Lmu*bar1 + pow(Lmu*bar0,2) );
-            ret[2]  = 1. + 12.*pi*asNEW*Lmu*bar0;
-            //All additions to as4res would be O(as^5)
+            ret[1]  = 1. + 12.*pi*asNEW*Lmu*bar0;
+            //All additions to ret[2] would be O(as^5)
         }
     }
-    for (unsigned int n=0; n!=ret.size(); ++n) ret[n] *= pow(asNEW/asOLD, n+1.);
+    for (unsigned int n=0; n!=ret.size(); ++n) ret[n] *= pow(asNEW/asOLD, n+2.);
     
     return ret;
 }
@@ -298,13 +313,14 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
     Hathor* hathor = _hathorArray.at(dataSetID);
 
     double mt_in = _mtop[dataSetID];     //Input mass
-    double mt    =  mt_in;               //Changed later if need be //TODO def here or in class?
-    double mur   = _mr[dataSetID];                                  //TODO def here or in class?
-    double muf   = _mf[dataSetID];                                  //TODO def here or in class?
+    double mt    =  mt_in;               //Changed later if need be
+    double mur   = _mr[dataSetID];                                 
+    double muf   = _mf[dataSetID];                                 
 
-    Rscale = Rscale_in;    //TODO make sure Rscale_in  read in init, not Rscale
-    mScheme = mScheme_in;  //TODO make sure mScheme_in read in init, not mScheme
+    Rscale = Rscale_in;
+    mScheme = mScheme_in;
     if      (mScheme == 0                 ) Rscale = 0.;  //Pole scheme
+    else if (mScheme == 1                 ) Rscale = mt;  //MSBAR
     else if (convertMass && Rscale > mt_in) mScheme = 1;  //Switch to MSBAR evo above MSBAR mt (if given)
 
     unsigned int scheme;
@@ -314,11 +330,10 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
     double   csLO=0.,  csLOp=0.,  csLOm=0.;
     double  csNLO=0., csNLOp=0., csNLOm=0.;
     double csNNLO=0.;
-    double csup=0.,csdown=0.,cstmp=0.; //For PDF uncertainty calculations
     double errMSR=0., chiMSR=0.;
   
     //Decoupling coefficients 
-    double LR = 0.;        //log(pow(mur/Rscale,2))=0 in general case
+    double LR = 0.;        //log(pow(mur/Rscale,2))=0 usual MSBAR case
     double d1dec=0., d2dec=0., d3dec=0.;
     switch (mScheme) {
         case 0:       //Pole -- no coefficients to set
@@ -339,26 +354,25 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
             d3dec = 188.671875 - 26.67734375*nfl + 0.652690625*nfl*nfl;
             break;
         case 3:       //MSRp -- 1&2 coef.s agree w/ MSbar w/ nfl=5 & nh=1. 3 not.
-          d1dec = d1func(LR);
-          d2dec = d2func(LR);
-          d3dec = 190.390625 - 26.65515625*nfl + 0.652690625*nfl*nfl;
-          break;
+            d1dec = d1func(LR);
+            d2dec = d2func(LR);
+            d3dec = 190.390625 - 26.65515625*nfl + 0.652690625*nfl*nfl;
+            break;
         default:
-            cout << "ERROR: Unknown mScheme. Cannot set d1dec, d2dec, d3dec."
-                 << endl;
+            hf_errlog(21111801,"F: ERROR: Unknown mScheme in ReactionHathorMSR.cc. Cannot set d1dec, d2dec, d3dec.");
             return;          
-    } 
+    }
 
     double aspi = hathor->getAlphas(mScheme==0 ? mur : Rscale)/pi;
     //Coefficients for generalizing cross-section to arbitrary alpha_s(mu_r)
     vector<double> asFac = asFactors(hathor, mScheme==0 ? mur : Rscale, mur);
-    if (asFac.size()<4) {      //TODO make asFac only 3 relevant entries?
-        cout << "ERROR in calculating as conversion factors" << endl;
+    if (asFac.size()!=3) {
+         hf_errlog(21111801,"F: ERROR in calculating as conversion factors in ReactionHathorMSR.cc");
         return;
     }
-    double asLO   = asFac[1];  //TODO make asFac only 3 relevant entries?
-    double asNLO  = asFac[2];  //TODO make asFac only 3 relevant entries?
-    double asNNLO = asFac[3];  //TODO make asFac only 3 relevant entries?
+    double asLO   = asFac[0];
+    double asNLO  = asFac[1];
+    double asNNLO = asFac[2];
   
     //Anomalous dimensions for mass evolution.
     //  MSR 1704.01580 (converted to HATHOR conventions) by default, changed 
@@ -399,7 +413,7 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
     }
     
     //Now that we have mt_MSbar(R) if need be, reset dec.coef. etc for MSbar evo
-    if (mScheme == 1) {
+    if (mScheme == 1 && convertMass) {
         LR = log(pow(Rscale/mt,2));    //ln((mu_m/mt(mu_m))^2), mu_m=R
         asmt = hathor->getAlphas(mt);  //Update to as(mt_MSbar(R))
         d1dec = d1func(LR);
@@ -420,20 +434,24 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
     // LO
     hathor->getXsection(mt, mScheme==0 ? mur : Rscale, muf);
     hathor->getResult(0,csLO,errMSR,chiMSR); 
-    // LO derivatives
-    if (mScheme!=0 && orderI > 0) {
-        hathor->getXsection(mt+dmt,Rscale,muf);    
-        hathor->getResult(0,csLOp,errMSR,chiMSR);
-        hathor->getXsection(mt-dmt,Rscale,muf);    
-        hathor->getResult(0,csLOm,errMSR,chiMSR);
-    }
 
-    // NLO
     if (orderI > 0) {
+        // LO derivatives
+        if (mScheme!=0 && orderI > 0) {
+            hathor->getXsection(mt+dmt,Rscale,muf);    
+            hathor->getResult(0,csLOp,errMSR,chiMSR);
+            hathor->getXsection(mt-dmt,Rscale,muf);    
+            hathor->getResult(0,csLOm,errMSR,chiMSR);
+        }
+
+        // NLO
         scheme = Hathor::NLO;    //NLO contrib only not LO+NLO
         hathor->setScheme(scheme);
         hathor->getXsection(mt, mScheme==0 ? mur : Rscale, muf);
         hathor->getResult(0,csNLO,errMSR,chiMSR);
+    }
+
+    if (orderI > 1) {
         // NLO derivatives
         if (mScheme!=0) {
             hathor->getXsection(mt+dmt,Rscale,muf);    
@@ -441,10 +459,8 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
             hathor->getXsection(mt-dmt,Rscale,muf);    
             hathor->getResult(0,csNLOm,errMSR,chiMSR);
         }
-    }
-
-    // NNLO
-    if (orderI > 1) {
+        
+        // NNLO
         scheme = Hathor::NNLO;    //NNLO contrib only
         hathor->setScheme(scheme);
         hathor->getXsection(mt, mScheme==0 ? mur : Rscale, muf);
@@ -453,10 +469,10 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
 
     //Combine terms to get cross-section
     double NLOder=0., NNLOder=0.;
-    double Rfac = mScheme==1 ? mt : Rscale;           //Use mt_MSbar(R) or R?
-    csFULL = csLO*asLO                                //Common LO
-               + (orderI > 0 ? csNLO *asNLO  : 0.)    //Common NLO
-               + (orderI > 1 ? csNNLO*asNNLO : 0.);   //Common NNLO
+    double Rfac = mScheme==1 ? mt : Rscale;       //Use mt_MSbar(R) or R?
+    csFULL =                  csLO*asLO           //Common LO
+            + (orderI > 0 ? csNLO *asNLO  : 0.)   //Common NLO
+            + (orderI > 1 ? csNNLO*asNNLO : 0.);  //Common NNLO
     if (mScheme!=0) {		   //Extra terms for running mass schemes
         if (orderI > 0) {
             NLOder = aspi*d1dec*Rfac/(2.*dmt)*(csLOp-csLOm);
@@ -473,27 +489,22 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
 
     val[0] = csFULL;  //"Return value"
 
-    //Write log file for Hathor results. TODO comment out when testing finished
-    ifstream in("ReactionHathorMSR.log");
-    string line;
-    int linesRead = 0;
-    while (getline(in, line)) ++linesRead;
-    in.close();
-    ofstream out("ReactionHathorMSR.log",ios::app);
-    if (linesRead == 0) { //Write data column header if file is empty
-        out << " Ord   outScheme      mt       R        alpS(mt)"
-            << "       csFULL[0]     muf     mur" << endl;    
-    }
+    //Write log file including e.g. MSR mass (+other useful quantities), so the
+    //user doesn't need to retranslate mt from MSBAR to MSR using a fitted R. 
+    string logname = "./output/ReactionHathorMSR.log";
+    ofstream out;
+    out.open(logname.c_str(), std::ios::out | std::ios::trunc);
+    out << " Ord  scheme      mt       R        alpS(mt)"
+        << "       csFULL        muf     mur" << endl;    
     out << setfill(' ') << setw( 4) << orderI;
-    out << setfill(' ') << setw(12) << mScheme;
+    out << setfill(' ') << setw( 8) << mScheme;
     out << setfill(' ') << setw( 8) << mt;
     out << setfill(' ') << setw( 8) << Rscale;
     out << setfill(' ') << setw(16) << hathor->getAlphas(mt);
-    out << setfill(' ') << setw(16) << csFULL;
+    out << setfill(' ') << setw(16) << val[0]; //csFULL;
     out << setfill(' ') << setw( 8) << muf;    
     out << setfill(' ') << setw( 8) << mur;
     out << endl;
-
     out.close();
   
 }
