@@ -54,7 +54,7 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     if(_hathorArray.find(dataSetID) != _hathorArray.end()) {
         char str[256];
         sprintf(str, "F: dataset with the id = %d already exists", dataSetID);
-        hf_errlog_(19060401, str, strlen(str));
+        hf_errlog(19060401, str);
     }
 
     //Read center-of-mass energy from dataset parameters (must be given)
@@ -63,7 +63,7 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     if(sqrtS == 0.0) {
         char str[256];
         sprintf(str, "F: no SqrtS for dataset with id = %d", dataSetID);
-        hf_errlog_(18081702, str, strlen(str));
+        hf_errlog(18081702, str);
     }
   
     //Read precision level. If unspecified, default to 2 -> Hathor::MEDIUM
@@ -84,7 +84,7 @@ void ReactionHathorMSR::initTerm(TermData *td) {
         char str[256];
         sprintf(str, "F: provided precision level = %d not supported by Hathor",
                 precisionLevel);
-        hf_errlog_(18081702, str, strlen(str));
+        hf_errlog(18081702,str);
     }
 
     // read ppbar from provided dataset parameters
@@ -96,7 +96,7 @@ void ReactionHathorMSR::initTerm(TermData *td) {
             char str[256];
             sprintf(str,"F: provided ppbar = %d not recognised (must be 0 or 1)", 
                     ppbar);
-            hf_errlog_(17081103, str, strlen(str));
+            hf_errlog(17081103,str);
         }
     }
 
