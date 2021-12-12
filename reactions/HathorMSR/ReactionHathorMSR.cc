@@ -136,18 +136,18 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     mScheme_in = 0;   mScheme = 0;  //Pole scheme in and out by default
     Rscale_in  = 0.;  Rscale  = 0;  //Corresponds to pole scheme
     if(td->hasParam("MSCHEME")) mScheme_in = td->getParamI("MSCHEME");
-    else  hf_errlog(17094502,"E: ReactionHathorMSR could not find MSCHEME");
+    else  hf_errlog(21120701,"E: ReactionHathorMSR could not find MSCHEME");
     if (mScheme_in == 1) Rscale_in = _mtop[dataSetID];    //Pure MSBAR, R=mt
     else if (mScheme_in > 1 && td->hasParam("MSRSCALE")) { //MSRn & MSRp
         Rscale_in = *td->getParamD("MSRSCALE");
-    } else if (mScheme_in > 1) hf_errlog(17094502,"E: ReactionHathorMSR could not find MSRSCALE");
+    } else if (mScheme_in > 1) hf_errlog(21120702,"E: ReactionHathorMSR could not find MSRSCALE");
     convertMass = false;  //Flipped if input mt is MSBAR & MSR mt must be found
     int convTmp = 0;
     if(td->hasParam("MSBAR2MSR")) {
 		convTmp = td->getParamI("MSBAR2MSR");
         if (convTmp != 0) {
             if (mScheme_in == 2) convertMass = true;
-            else hf_errlog(17094503,"W: ReactionHathorMSR: MSBAR->MSRN conversion requested but disabled (scheme not MSRN)");
+            else hf_errlog(21120703,"W: ReactionHathorMSR: MSBAR->MSRN conversion requested but disabled (scheme not MSRN)");
         }
     }
     //Set alpha_S beta coef.s, needs orderI and nfl (#active flavors)
@@ -179,7 +179,7 @@ void ReactionHathorMSR::initTerm(TermData *td) {
     if(convertMass) {
         if(mScheme_in > 1) std::cout << " Converting MSbar mass to MSR" << std::endl;
         else {
-		  hf_errlog(17094503,"W: HathorMSR mScheme_in<2, no MSBAR->MSR conversion done although requested");
+		  hf_errlog(21120704,"W: HathorMSR mScheme_in<2, no MSBAR->MSR conversion done although requested");
   		  convertMass = false;
   	    }
     }
@@ -359,7 +359,7 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
             d3dec = 190.390625 - 26.65515625*nfl + 0.652690625*nfl*nfl;
             break;
         default:
-            hf_errlog(21111801,"F: ERROR: Unknown mScheme in ReactionHathorMSR.cc. Cannot set d1dec, d2dec, d3dec.");
+            hf_errlog(21120705,"F: ERROR: Unknown mScheme in ReactionHathorMSR.cc. Cannot set d1dec, d2dec, d3dec.");
             return;          
     }
 
@@ -367,7 +367,7 @@ void ReactionHathorMSR::compute(TermData *td, valarray<double> &val, map<string,
     //Coefficients for generalizing cross-section to arbitrary alpha_s(mu_r)
     vector<double> asFac = asFactors(hathor, mScheme==0 ? mur : Rscale, mur);
     if (asFac.size()!=3) {
-         hf_errlog(21111801,"F: ERROR in calculating as conversion factors in ReactionHathorMSR.cc");
+         hf_errlog(21120706,"F: ERROR in calculating as conversion factors in ReactionHathorMSR.cc");
         return;
     }
     double asLO   = asFac[0];

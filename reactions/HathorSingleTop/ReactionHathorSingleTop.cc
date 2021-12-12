@@ -179,11 +179,11 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     if(td->hasParam("sSgTop") ) schannel  = td->getParamI("sSgTop");
     if(td->hasParam("WtSgTop")) Wtchannel = td->getParamI("WtSgTop");
     if (tchannel!=1 && schannel!=1 && Wtchannel!=1) {
-        hf_errlog(21111801,"F: ERROR all channels disabled in ReactionHathorSingleTop");
+        hf_errlog(21121001,"F: ERROR all channels disabled in ReactionHathorSingleTop");
 	} else {
-        if (tchannel ==0) hf_errlog(17086501,"I: Disabled t-channel processes in ReactionHathorSingleTop");
-        if (schannel ==0) hf_errlog(17086501,"I: Disabled s-channel processes in ReactionHathorSingleTop");
-        if (Wtchannel==0) hf_errlog(17086501,"I: Disabled W+t final state processes in ReactionHathorSingleTop");
+        if (tchannel ==0) hf_errlog(21121002,"I: Disabled t-channel processes in ReactionHathorSingleTop");
+        if (schannel ==0) hf_errlog(21121003,"I: Disabled s-channel processes in ReactionHathorSingleTop");
+        if (Wtchannel==0) hf_errlog(21121004,"I: Disabled W+t final state processes in ReactionHathorSingleTop");
 	}
     
     // instantiate Hathor objects for different processes
@@ -238,7 +238,7 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
             _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;  
             orderI = 1;                                             
         } else if (order == "NNLO") {
-            hf_errlog(17094510,"W: Standard Hathor-2.0 has no NNLO single top processes. ReactionHathorSingleTop reverts to NLO.");
+            hf_errlog(21121005,"W: Standard Hathor-2.0 has no NNLO single top processes. ReactionHathorSingleTop reverts to NLO.");
             _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;  
             orderI = 1;                                             
 			/* NNLO not implemented in Hathor-2.0. If updated, remove the above 3 
@@ -395,7 +395,7 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
             //Coefficients for generalizing cross-section to arbitrary alpha_s(mu_r)
             vector<double> asFac = asFactors(hathor,_mtop[dataSetID],_mr[dataSetID]);
             if (asFac.size()!=3) {
-                hf_errlog(21111801,"F: ERROR in calculating as conversion factors in ReactionHathorSingleTop.cc");
+                hf_errlog(21120901,"F: ERROR in calculating as conversion factors in ReactionHathorSingleTop.cc");
                 return;
             }
             double asLO   = asFac[0];
