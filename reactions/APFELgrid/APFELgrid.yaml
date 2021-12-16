@@ -1,0 +1,4 @@
+#APFELgrid:
+  muF: 1.0
+  muR: 1.0
+  Order : NLO   # APFELgrids are at max. NLO for now
