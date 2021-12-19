@@ -6,7 +6,7 @@ set(xfitter_SOURCES
   #c_interface.f
   dataset_tools.f
   dependent_pars.cc
-  dis_sigma_ht.f
+  #dis_sigma_ht.f
   error_bands_pumplin.f
   error_logging.f
   expression_utils.cc

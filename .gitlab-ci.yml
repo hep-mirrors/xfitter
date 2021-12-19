@@ -9,7 +9,7 @@ image: "gitlab-registry.cern.ch/fitters/xfitter"
 #  - build-full
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake automake libtool
 
 job-install-minimal:
 #  stage: build-minimal
