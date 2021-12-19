@@ -206,7 +206,6 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     
     bool init1 = true;  //Print most info only when initializing 1st channel
     for (auto hathor : hathorChannels) {
-        hathor->sethc2(0.38937911e9);  //MCFM value
     
         // set collision type
         if (ppbar) hathor->setColliderType(Hathor::PPBAR);
@@ -214,7 +213,45 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     
         if (init1) std::cout << " ReactionHathorSingleTop: PP/PPBAR parameter set to "
                              << ppbar << std::endl;
-    
+
+        // set conversion factor
+		double convFac_in = 0.38937911e9;  //MCFM value by default
+        if(td->hasParam("convFac")) convFac_in = *td->getParamD("convFac");
+        hathor->sethc2(convFac_in);
+		std::cout << " ReactionHathorSingleTop: hc2 set to "
+		          << convFac_in << std::endl;
+
+        // set EW parameters
+		double sin2thW_in = 0.2228972;  //HATHOR default value
+        if (td->hasParam("sin2thW")) {
+			sin2thW_in = *td->getParamD("sin2thW");
+			hathor->setSwq(sin2thW_in);
+			std::cout << " ReactionHathorSingleTop: Swq set to "
+			          << sin2thW_in << std::endl;
+		}
+		double alphaem_in = 1. / 132.2332298;  //HATHOR default value
+        if (td->hasParam("alphaem")) {
+			alphaem_in = *td->getParamD("alphaem");
+			hathor->setAlpha(alphaem_in);
+			std::cout << " ReactionHathorSingleTop: Alpha set to "
+			          << alphaem_in << std::endl;
+        }
+        
+        // set CKM matrix
+        double ckm[3][3];
+        hathor->getCkmMatrix(ckm);
+        if (td->hasParam("Vud")) ckm[0][0] = *td->getParamD("Vud");
+        if (td->hasParam("Vus")) ckm[0][1] = *td->getParamD("Vus");
+        if (td->hasParam("Vub")) ckm[0][2] = *td->getParamD("Vub");
+        if (td->hasParam("Vcd")) ckm[1][0] = *td->getParamD("Vcd");
+        if (td->hasParam("Vcs")) ckm[1][1] = *td->getParamD("Vcs");
+        if (td->hasParam("Vcb")) ckm[1][2] = *td->getParamD("Vcb");
+        if (td->hasParam("Vtd")) ckm[2][0] = *td->getParamD("Vtd");
+        if (td->hasParam("Vts")) ckm[2][1] = *td->getParamD("Vts");
+        if (td->hasParam("Vtb")) ckm[2][2] = *td->getParamD("Vtb");
+        hathor->setCkmMatrix(ckm);
+        hathor->PrintCkmMatrix();
+        
         // set centre-of-mass energy
         hathor->setSqrtShad(sqrtS);
         if (init1) std::cout << " ReactionHathorSingleTop: center of mass energy set to "

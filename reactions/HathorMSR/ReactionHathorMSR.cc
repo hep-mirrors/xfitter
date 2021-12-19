@@ -102,11 +102,17 @@ void ReactionHathorMSR::initTerm(TermData *td) {
 
     //New Hathor object
     Hathor* hathor = new Hathor(*_pdf);
-    hathor->sethc2(0.38937911e9);     //MCFM value
 
     //Collider type -- (re)inits sqrtS to 8 TeV by default, change below
     if (ppbar) hathor->setColliderType(Hathor::PPBAR);
     else       hathor->setColliderType(Hathor::PP);
+    
+    //Conversion factor
+    double convFac_in = 0.38937911e9;  //MCFM value by default
+    if(td->hasParam("convFac")) convFac_in = *td->getParamD("convFac");
+    hathor->sethc2(convFac_in);
+    std::cout << " ReactionHathorMSR: hc2 set to "
+              << convFac_in << std::endl;
 
     //Centre-of-mass energy
     hathor->setSqrtShad(sqrtS);
