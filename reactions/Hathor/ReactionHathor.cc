@@ -129,7 +129,7 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   // set conversion factor
   double convFac_in = 0.389379323e9;  //HATHOR default value
   if(td->hasParam("convFac")) convFac_in = *td->getParamD("convFac");
-  hathor->sethc2(convFac_in);
+  _hathor->sethc2(convFac_in);
   std::cout << " ReactionHathor: hc2 set to " << convFac_in << std::endl;
 
   // set mass
