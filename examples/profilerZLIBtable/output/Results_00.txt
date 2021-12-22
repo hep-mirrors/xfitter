@@ -1,0 +1,43 @@
+After minimisation     110.37    78     1.415
+
+  Partial chi2s 
+Dataset    1      0.00( -0.93)    22  CMS inclusive jets 13 TeV, |y| < 0.5            
+Dataset    2      0.00( -1.02)    21  CMS inclusive jets 13 TeV, 0.5 < |y| < 1.0      
+Dataset    3      0.00( -0.26)    19  CMS inclusive jets 13 TeV, 1.0 < |y| < 1.5      
+Dataset    4      0.00( +0.87)    16  CMS inclusive jets 13 TeV, 1.5 < |y| < 2.0      
+
+ Correlated Chi2    23.183977260498345     
+ Log penalty Chi2   -1.3369858760850062     
+ Systematic shifts           30
+  
+                                Name          Shift   +/-    Error          Type
+    1  lumi                                   0.6910   +/-   0.9134        :N:M:D
+    2  JER                                   -0.3358   +/-   0.4778        :N:M:D
+    3  PU                                    -0.8504   +/-   0.9668        :N:M:D
+    4  miss                                   0.2553   +/-   0.9918        :N:M:D
+    5  fake                                  -0.0146   +/-   0.9999        :N:M:D
+    6  AbsoluteScale                          0.3347   +/-   0.9477        :N:M:D
+    7  AbsoluteMPFBias                        0.6608   +/-   0.8644        :N:M:D
+    8  Fragmentation                          0.3593   +/-   0.9679        :N:M:D
+    9  SinglePionECAL                        -0.5777   +/-   0.9714        :N:M:D
+   10  SinglePionHCAL                         0.3925   +/-   0.9862        :N:M:D
+   11  FlavorQCD                             -1.2422   +/-   0.4302        :N:M:D
+   12  TimePtEta                              0.7044   +/-   0.5680        :N:M:D
+   13  RelativeJEREC1                        -0.4575   +/-   0.6416        :N:M:D
+   14  RelativeJEREC2                         0.0864   +/-   0.9982        :N:M:D
+   15  RelativePtBB                           1.6178   +/-   0.8678        :N:M:D
+   16  RelativePtEC1                         -0.2494   +/-   0.9956        :N:M:D
+   17  RelativePtEC2                         -0.0007   +/-   1.0000        :N:M:D
+   18  RelativeBal                           -0.3359   +/-   0.2813        :N:M:D
+   19  RelativeSample                         0.4765   +/-   0.1311        :N:M:D
+   20  RelativeFSR                           -0.5602   +/-   0.3171        :N:M:D
+   21  RelativeStatFSR                       -0.0566   +/-   0.9974        :N:M:D
+   22  RelativeStatEC                        -1.0341   +/-   0.6228        :N:M:D
+   23  PileUpDataMC                           1.3801   +/-   0.9410        :N:M:D
+   24  PileUpPtRef                            1.6837   +/-   0.9457        :N:M:D
+   25  PileUpPtBB                             1.3816   +/-   0.8117        :N:M:D
+   26  PileUpPtEC1                           -0.8556   +/-   0.8866        :N:M:D
+   27  PileUpPtEC2                            0.0031   +/-   1.0000        :N:M:D
+   28  model                                  1.9325   +/-   0.3050        :N:M:D
+   29  NP                                    -1.6805   +/-   0.6527        :N:M:D
+   30  kPDF                                  -0.1975   +/-   0.9749        :N:M:D

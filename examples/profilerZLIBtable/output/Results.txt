@@ -1,0 +1,71 @@
+After minimisation      83.69    78     1.073
+
+  Partial chi2s 
+Dataset    1      0.00( -0.93)    22  CMS inclusive jets 13 TeV, |y| < 0.5            
+Dataset    2      0.00( -1.02)    21  CMS inclusive jets 13 TeV, 0.5 < |y| < 1.0      
+Dataset    3      0.00( -0.26)    19  CMS inclusive jets 13 TeV, 1.0 < |y| < 1.5      
+Dataset    4      0.00( +0.87)    16  CMS inclusive jets 13 TeV, 1.5 < |y| < 2.0      
+
+ Correlated Chi2    17.585561653597900     
+ Log penalty Chi2   -1.3369858760850062     
+ Systematic shifts           58
+  
+                                Name          Shift   +/-    Error          Type
+    1  lumi                                  -0.2533   +/-   0.9600        :N:M:D
+    2  JER                                    1.2038   +/-   0.5740        :N:M:D
+    3  PU                                    -0.2159   +/-   0.9830        :N:M:D
+    4  miss                                   0.0175   +/-   0.9969        :N:M:D
+    5  fake                                  -0.0041   +/-   0.9999        :N:M:D
+    6  AbsoluteScale                         -0.1352   +/-   0.9682        :N:M:D
+    7  AbsoluteMPFBias                        0.1099   +/-   0.9155        :N:M:D
+    8  Fragmentation                          0.0133   +/-   0.9817        :N:M:D
+    9  SinglePionECAL                        -0.2055   +/-   0.9870        :N:M:D
+   10  SinglePionHCAL                         0.2344   +/-   0.9914        :N:M:D
+   11  FlavorQCD                              0.2151   +/-   0.6914        :N:M:D
+   12  TimePtEta                              1.5989   +/-   0.7272        :N:M:D
+   13  RelativeJEREC1                        -0.0683   +/-   0.7336        :N:M:D
+   14  RelativeJEREC2                         0.0237   +/-   0.9984        :N:M:D
+   15  RelativePtBB                           1.2929   +/-   0.9165        :N:M:D
+   16  RelativePtEC1                         -0.1804   +/-   0.9970        :N:M:D
+   17  RelativePtEC2                         -0.0012   +/-   1.0000        :N:M:D
+   18  RelativeBal                            0.1679   +/-   0.3233        :N:M:D
+   19  RelativeSample                         0.7263   +/-   0.1490        :N:M:D
+   20  RelativeFSR                           -1.0285   +/-   0.3357        :N:M:D
+   21  RelativeStatFSR                       -0.1147   +/-   0.9982        :N:M:D
+   22  RelativeStatEC                        -1.4416   +/-   0.6487        :N:M:D
+   23  PileUpDataMC                           0.3021   +/-   0.9725        :N:M:D
+   24  PileUpPtRef                            0.6564   +/-   0.9783        :N:M:D
+   25  PileUpPtBB                             0.9588   +/-   0.8564        :N:M:D
+   26  PileUpPtEC1                           -0.9623   +/-   0.9331        :N:M:D
+   27  PileUpPtEC2                            0.0009   +/-   1.0000        :N:M:D
+   28  model                                  1.5119   +/-   0.3943        :N:M:D
+   29  NP                                    -0.3557   +/-   0.7967        :N:M:D
+   30  kPDF                                  -0.1359   +/-   0.9816        :N:M:D
+   31  PDF_nuisance_param_1                  -0.1709   +/-   0.9775        :N:M:T
+   32  PDF_nuisance_param_2                   0.0363   +/-   0.9859        :N:M:T
+   33  PDF_nuisance_param_3                   0.3834   +/-   0.8391        :N:M:T
+   34  PDF_nuisance_param_4                  -0.0458   +/-   0.9183        :N:M:T
+   35  PDF_nuisance_param_5                  -0.5356   +/-   0.9459        :N:M:T
+   36  PDF_nuisance_param_6                  -0.0387   +/-   0.9897        :N:M:T
+   37  PDF_nuisance_param_7                  -0.6178   +/-   0.6444        :N:M:T
+   38  PDF_nuisance_param_8                   0.2005   +/-   0.9092        :N:M:T
+   39  PDF_nuisance_param_9                   0.1145   +/-   0.9454        :N:M:T
+   40  PDF_nuisance_param_10                 -0.5722   +/-   0.9110        :N:M:T
+   41  PDF_nuisance_param_11                  0.1799   +/-   0.9909        :N:M:T
+   42  PDF_nuisance_param_12                  0.1765   +/-   0.8928        :N:M:T
+   43  PDF_nuisance_param_13                 -0.4118   +/-   0.9461        :N:M:T
+   44  PDF_nuisance_param_14                  0.2275   +/-   0.9553        :N:M:T
+   45  PDF_nuisance_param_15                 -0.2725   +/-   0.9331        :N:M:T
+   46  PDF_nuisance_param_16                 -0.0976   +/-   0.9551        :N:M:T
+   47  PDF_nuisance_param_17                 -0.1626   +/-   0.9725        :N:M:T
+   48  PDF_nuisance_param_18                 -0.4223   +/-   0.9035        :N:M:T
+   49  PDF_nuisance_param_19                  0.4022   +/-   0.8972        :N:M:T
+   50  PDF_nuisance_param_20                 -0.0457   +/-   0.9827        :N:M:T
+   51  PDF_nuisance_param_21                  0.4129   +/-   0.9424        :N:M:T
+   52  PDF_nuisance_param_22                 -0.1046   +/-   0.6822        :N:M:T
+   53  PDF_nuisance_param_23                 -0.4206   +/-   0.8346        :N:M:T
+   54  PDF_nuisance_param_24                 -0.5929   +/-   0.8403        :N:M:T
+   55  PDF_nuisance_param_25                 -0.0902   +/-   0.9897        :N:M:T
+   56  PDF_nuisance_param_26                  0.1029   +/-   0.9946        :N:M:T
+   57  PDF_nuisance_param_27                 -0.6091   +/-   0.7490        :N:M:T
+   58  PDF_nuisance_param_28                 -0.1239   +/-   0.9740        :N:M:T
