@@ -2,7 +2,7 @@
 # Wilson coefficient c_1, using the left-handed CI model (CIcase = 1) and new
 # physics scale 10 TeV (LamoTeV = 10)
 
-NAME="CT10nlo_CI1L10"
+NAME="CT14nlo_CI1L10"
 
 #Need --scale68 for prodiling with CT PDFs
 PLOTOPTS="--therr --bands --q2all --relative-errors --scale68"

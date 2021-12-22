@@ -25,7 +25,7 @@ Evolutions:
     EvolutionCopy: "proton-LHAPDF"
   proton-LHAPDF:
     class: LHAPDF
-    set: "CT10nlo"
+    set: "CT14nlo"
     member: 0
 #  antiproton:
 #    class: FlipCharge
@@ -87,7 +87,7 @@ Profiler:
     CI1: [ 0.0, 0.01, -0.01 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
   Evolutions:
     proton-LHAPDF:
-      sets:    [CT10nlo]
+      sets:    [CT14nlo]
       members: [[0,1,end]] # skip last replica because difference between 0 and 100 is linear combination of differences between 0 and 1-99 members
   Status: "On"               # "Off" to turn off profiler
   WriteTheo: "Asymmetric"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
