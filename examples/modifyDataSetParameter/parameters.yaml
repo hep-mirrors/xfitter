@@ -1,4 +1,4 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
@@ -28,10 +28,6 @@ Parameters:
   Cdbar: # another example of providing value, step etc.
     value: 9.586246
     step: 1.2345
-    #min
-    #max
-    #pr_mean
-    #pr_sigma
   ZERO : [ 0. ]          # zero
   fs : [ 0.4, 0.0 ]
 
@@ -49,18 +45,11 @@ Parameterisations:
     class: HERAPDF
     parameters: [Adbar,Bdbar,Cdbar]
   par_s:
-    #class: HERAPDF
-    #parameters: [As,Bs,Cs]
-    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
     class: Expression
     expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
   par_g:
     class: NegativeGluon
     parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
-  # Another example for Expression parameterisation
-  #par_g:
-  #  class: Expression
-  #  expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
 DefaultDecomposition: proton
 Decompositions:
@@ -79,8 +68,6 @@ Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    # EvolutionCopy: "proton-LHAPDF"
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 

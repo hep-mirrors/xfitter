@@ -36,5 +36,7 @@ class ReactionFONLL_DISCC : public ReactionBaseDISCC
   map <unsigned,valarray<double>> _flfonll;
   map <unsigned,valarray<double>> _f3fonll;
   map <unsigned,TermData*> _dsIDs;
+  //! Allow for non-apfelff evolution:
+  bool _non_apfel_evol{false};  
 };
 

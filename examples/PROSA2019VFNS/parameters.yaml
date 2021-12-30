@@ -1,12 +1,8 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
     call fcn 3
-#    call fcn 1
-#    migrad
-#    hesse
-#  doErrors :  Hesse # None
 
 Parameters:
   Auv : [ 1.00000000, 0.00000000 ]
@@ -68,10 +64,8 @@ Decompositions:
     xs: par_s
     xg: par_g
 
-#DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
 DefaultEvolution: proton-APFELff
-#DefaultEvolution: proton-APFELxx
+
 Evolutions:
   proton-APFELff:
     ? !include evolutions/APFEL.yaml
@@ -119,19 +113,11 @@ fcharm: 0.
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-#  defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'BaseDISNC'       # global specification
   defaultValue : 'FONLL_DISNC'     # global specification
-#  defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
 
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
-#  defaultValue : 'BaseDISCC'       # global specification
   defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
 
 byReaction:
   # FONLL scheme settings:

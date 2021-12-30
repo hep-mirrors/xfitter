@@ -3,7 +3,7 @@
 # The PDF parameters are from the default HERAPDF2.0 fit using RT 
 # (i.e. they were not re-fitted with FONLL).
 
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
