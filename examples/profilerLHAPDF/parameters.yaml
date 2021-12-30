@@ -1,16 +1,9 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
-#    call fcn 3
-#    call fcn 1
-#    migrad
-#    hesse
-#    call fcn 3
-#  doErrors :  Hesse # None
 
 DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
 
 Evolutions:
   proton-QCDNUM:
@@ -33,41 +26,14 @@ byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
     ? !include reactions/RT_DISNC.yaml
-  # FONLL scheme settings:
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
-  # FF ABM scheme settings:
-  FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC.yaml
-  FFABM_DISCC:
-    ? !include reactions/FFABM_DISCC.yaml
-  # AFB settings:
-  AFB:
-    ? !include reactions/AFB.yaml
-  # APPLgrid settings:
-  APPLgrid:
-    ? !include reactions/APPLgrid.yaml
-  # (optional) Fractal module settings:
-  Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
   defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
-#  defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
 
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
   defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
 
 #
 # Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
