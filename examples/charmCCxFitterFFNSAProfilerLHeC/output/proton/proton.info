@@ -6,7 +6,7 @@ DataVersion: 1
 NumMembers: 1
 Flavors: [-3, -2, -1, 1, 2, 3, 21, ]
 OrderQCD: 1
-FlavorScheme: fixed
+FlavorScheme: variable
 ErrorType: symmhessian
 XMin: 1e-06
 XMax: 1

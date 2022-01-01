@@ -376,11 +376,13 @@ failed:
 
 const char* getFlavorScheme()
 {
-  int nf = XFITTER_PARS::getParamI("NFlavour");
-  //PLACEHOLDER: I am not sure right now how to get flavor scheme in the general case
-  //Maybe we should add BaseEvolution::getFlavorScheme ?
-  if (nf < 5) return "fixed";
-  else      return "variable";
+  int isFFNS = 0;
+  if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end())
+    isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
+  if (isFFNS > 0)
+    return "fixed";
+  else
+    return "variable";
 }
 
 size_t getNmembers()
