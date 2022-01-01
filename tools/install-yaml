@@ -1,4 +1,4 @@
-#
+#A
 # Helper script to install yaml for C and C++. 
 # Copies and installs files from the web-sources into $dir/yaml-c and 
 # $dir/yaml-cpp directories. Generates setup_yaml.sh file
@@ -7,8 +7,8 @@
 dir=deps-yaml
 
 # Package versions:
-yamlver=0.1.7
-yamlppver=0.6.1
+yamlver=0.2.5
+yamlppver=0.7.0
 
 #Check for dummies
 if [[ $0 == bash || $0 = csh ]]
@@ -30,7 +30,7 @@ echo "Get yaml++"
 mkdir -p $dir
 cd $dir
 
-wget https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-${yamlppver}.tar.gz > $CURRENTDIR/install_yam.log  2>&1
+wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-${yamlppver}.tar.gz > $CURRENTDIR/install_yam.log  2>&1
 tar xfz yaml-cpp-${yamlppver}.tar.gz
 cd yaml-cpp-yaml-cpp-${yamlppver}
 mkdir build
