@@ -1,6 +1,4 @@
-               ------------------------------------------------
-                  xFitter   --- PDF fit program from HERA.
-               ------------------------------------------------
+# xFitter   --- PDF fit program from HERA.
 
 xFitter is an open source QCD fit framework desinged to extract PDFs 
 and assess the impact of new data. The xFitter project is is a 
@@ -35,15 +33,14 @@ For support information, please visit https://wiki-zeuthen.desy.de/xFitter/xFitt
 
 For documentation of the code, please use https://gitlab.cern.ch/fitters/xfitter/-/wikis/home
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-1) Installation and Usage Instructions: please refer to the INSTALLATION file.
+# Installation  Instructions:
+Please refer to the [INSTALLATION](INSTALLATION) file.
 =====================
 
-2) BRIEF DESCRIPTION
+# Brief Introduction
 =====================
-  a) Steering cards
---------------------
+  ## Steering cards
     The software behaviour is controlled by two files with steering commands.
     These files have predefined names:
 
@@ -56,8 +53,8 @@ For documentation of the code, please use https://gitlab.cern.ch/fitters/xfitter
                          reaction interfaces. 
 
 
-  b) Inclusion of data files
--------------------------------
+  ## Inclusion of data files
+  
     Inclusion of the data files is controlled by &InFiles namelist in the 
     steering.txt file. For example, by default the following four HERA-I
     files are included:
@@ -123,4 +120,3 @@ another option would be:
   DataSystType = ':A', ':A'
 &End
 
-Further documentation can be found at https://gitlab.cern.ch/fitters/xfitter/-/wikis/home
