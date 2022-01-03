@@ -11,7 +11,7 @@ For further details please check the xfitter.org web page.
 The current package includes code to fit DIS inclusive cross section 
 data, Drell-Yan, jet and ttbar processes (using APPLGRID and FastNLO
 interfaces). The program is distributed under the GPL v3 license, see
-LICENCE file for more details. The program uses the QCD evolution 
+[LICENCE](LICENCE) file for more details. The program uses the QCD evolution 
 package QCDNUM developed by M. Botje and includes other parts of the code:
 - VFNS from R. Thorne, G. Watt (MSTW) @ LO, NLO, NNLO
 - VFNS from F. Olness (ACOT) @ LO, NLO and NNLO, NNNLO corrections for FL 
