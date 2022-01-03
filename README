@@ -8,9 +8,7 @@ common initiative by the H1 and ZEUS collaborations and extended
 to the LHC collaborations to provide precision QCD analyses. 
 xFitter has been used as one of the main software packages for the 
 determination of the HERA proton parton densities (PDFs), HERAPDFs. 
-xFitter has been used to produce the ATLAS-epWZ12 (NNLO, available 
-in LHAPDF5.9.1 and LHAPDFv6.1.X), LHeC (NLO) PDF sets. For further 
-details please check xfitter.org web page.
+For further details please check the xfitter.org web page.
 
 
 The current package includes code to fit DIS inclusive cross section 
@@ -22,15 +20,9 @@ package QCDNUM developed by M. Botje and includes other parts of the code:
 -- VFNS from F. Olness (ACOT) @ LO, NLO and NNLO, NNNLO corrections for FL 
 -- VFNS from APFEL (FONLL) @ LO, NLO and NNLO
 -- FFNS from S. Alekhin (ABM) @ NLO, NNLO (pole and running heavy quark masses)
--- DY LO+k-factor calculation from A. Sapronov
 -- PDF error estimation from J. Pumplin
--- DIS electroweak corrections from H. Spiesberger with Jegerlehner's 
-   hadronic parametric contribution (based on e+,e- data)
 -- Bayesian reweighting tool from A. Guffanti (a la NNPDF) and based on
    EIGENVECTORS from G. Watt (a la MSTW).
--- DIPOLE models (GBW, IIM, BGK) from A. Luszczak
--- TDM (uPDFs) as an alternative to DGLAP formalism (J. Jung)
--- Diffractive PDFs (W. Slominski)
 -- total ttbar production cross sections via HATHOR (S. Moch et al.)
 -- differential ttbar production cross sections with DiffTop (M. Guzzi, S. Moch et al.)
 -- MNR calculation for heavy quark production (Mangano, Nason and Ridolfi, 
