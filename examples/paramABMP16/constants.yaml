@@ -44,3 +44,4 @@ mtp : 173.0
 # QCD parameters
 Order: NNLO
 NFlavour: 3
+isFFNS: 1
