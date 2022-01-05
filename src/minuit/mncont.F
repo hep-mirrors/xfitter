@@ -136,13 +136,16 @@ C               ..................... save some values before fixing
       ABEST=AMIN
       MPAR=NPAR
       NFMXIN = NFCNMX
-      DO 125 I= 1, MPAR
-  125 XT(I) = X(I)
-      DO 130 J= 1, MPAR*(MPAR+1)/2
-  130 VTHMAT(J) = VHMAT(J)
-      DO 135 I= 1, MPAR
+      DO I= 1, MPAR
+         XT(I) = X(I)
+      END DO
+      DO  J= 1, MPAR*(MPAR+1)/2
+      VTHMAT(J) = VHMAT(J)
+      END DO
+      DO I= 1, MPAR
       GCC(I) = GLOBCC(I)
-  135 W(I) = WERR(I)
+      W(I) = WERR(I)
+      END DO
 C                           fix the two parameters in question
       KINTS = NIOFEX(KE1)
       CALL MNFIXP (KINTS,IERR)
@@ -244,12 +247,14 @@ C                                    . . contour finished. reset v
       ITAUR = 1
       CALL MNFREE(1)
       CALL MNFREE(1)
-      DO 1100 J= 1, MPAR*(MPAR+1)/2
- 1100 VHMAT(J) = VTHMAT(J)
-      DO 1120 I= 1, MPAR
+      DO  J= 1, MPAR*(MPAR+1)/2
+      VHMAT(J) = VTHMAT(J)
+      END DO
+      DO I= 1, MPAR
       GLOBCC(I) = GCC(I)
       WERR(I) = W(I)
- 1120 X(I) = XT(I)
+      X(I) = XT(I)
+      END DO
       CALL MNINEX (X)
       EDM = SIGSAV
       AMIN = ABEST

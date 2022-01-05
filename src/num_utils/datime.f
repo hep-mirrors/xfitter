@@ -15,9 +15,10 @@ C-    DUMMY FOR NON-ESSENTIAL ROUTINE STILL MISSING ON YOUR MACHINE
 
       COMMON /SLATE/ ISLATE(40)
 
-      DO 24 J=1,6
-   24 ISLATE(J) = 0
-
+      DO J=1,6
+         ISLATE(J) = 0
+      END DO
+      
       ID = 790929
       IT = 1200
       RETURN

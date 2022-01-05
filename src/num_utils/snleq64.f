@@ -39,13 +39,14 @@ C
        MOPT=MPT(N)
       ELSE
        H=0
-       DO 1 I = 49,N
-       TEMP=LOG(I+Z1)/(N+2*I+1)
-       IF(TEMP .LT. H) THEN
-        MOPT=I-1
-        GO TO 2
-       ENDIF
-    1  H=TEMP
+       DO I = 49,N
+          TEMP=LOG(I+Z1)/(N+2*I+1)
+          IF(TEMP .LT. H) THEN
+             MOPT=I-1
+             GO TO 2
+          ENDIF
+          H=TEMP
+       END DO
       ENDIF
 
     2 IFLAG=0
@@ -58,8 +59,9 @@ C
       FNORM=0
       DIFIT=0
       XNORM=0
-      DO 10 I = 1,N
-   10 XNORM=MAX(XNORM,ABS(X(I)))
+      DO I = 1,N
+         XNORM=MAX(XNORM,ABS(X(I)))
+      END DO
       DELTA=SCALE*XNORM
       IF(XNORM .EQ. 0) DELTA=SCALE
 
@@ -75,11 +77,13 @@ C     the K-th row of the Jacobian matrix
 C
       H=EPS*XNORM
       IF(H .EQ. 0) H=EPS
-      DO 40 J = 1,N
-      DO 30 I = 1,N
-   30 W(I,J+3)=0
-      W(J,J+3)=H
-   40 W(J,2)=X(J)
+      DO J = 1,N
+         DO I = 1,N
+            W(I,J+3)=0
+         END DO
+         W(J,J+3)=H
+         W(J,2)=X(J)
+      END DO
 C
 C     Enter a subiteration
 C
@@ -94,62 +98,73 @@ C
 C
 C     Compute the K-th row of the Jacobian matrix
 C
-      DO 60 J = K,N
-      DO 50 I = 1,N
-   50 W(I,3)=W(I,2)+W(I,J+3)
-      CALL SUB(N,W(1,3),F,IFLAG)
-      FKZ=F(K)
-      NFCALL=NFCALL+1
-      NUMF=NFCALL/N
-      IF(IFLAG .LT. 0) GO TO 230
-   60 W(J,1)=FKZ-FKY
+      DO J = K,N
+         DO I = 1,N
+            W(I,3)=W(I,2)+W(I,J+3)
+         END DO
+         CALL SUB(N,W(1,3),F,IFLAG)
+         FKZ=F(K)
+         NFCALL=NFCALL+1
+         NUMF=NFCALL/N
+         IF(IFLAG .LT. 0) GO TO 230
+         W(J,1)=FKZ-FKY
+      END DO
       F(K)=FKY
 C
 C     Compute the Householder transformation to reduce the K-th row
 C     of the Jacobian matrix to a multiple of the K-th unit vector
 C
       ETA=0
-      DO 70 I = K,N
-   70 ETA=MAX(ETA,ABS(W(I,1)))
+      DO I = K,N
+         ETA=MAX(ETA,ABS(W(I,1)))
+      END DO
       IF(ETA .EQ. 0) GO TO 150
       NSING=NSING-1
       SKNORM=0
-      DO 80 I = K,N
-      W(I,1)=W(I,1)/ETA
-   80 SKNORM=SKNORM+W(I,1)**2
+      DO I = K,N
+         W(I,1)=W(I,1)/ETA
+         SKNORM=SKNORM+W(I,1)**2
+      END DO
       SKNORM=SQRT(SKNORM)
       IF(W(K,1) .LT. 0) SKNORM=-SKNORM
       W(K,1)=W(K,1)+SKNORM
 C
 C     Apply the transformation
 C
-      DO 90 I = 1,N
-   90 W(I,3)=0
-      DO 100 J = K,N
-      DO 100 I = 1,N
-  100 W(I,3)=W(I,3)+W(J,1)*W(I,J+3)
-      DO 120 J = K,N
-      TEMP=W(J,1)/(SKNORM*W(K,1))
-      DO 120 I = 1,N
-  120 W(I,J+3)=W(I,J+3)-TEMP*W(I,3)
+      DO I = 1,N
+       W(I,3)=0
+      END DO
+      DO J = K,N
+         DO I = 1,N
+         W(I,3)=W(I,3)+W(J,1)*W(I,J+3)
+         END DO
+      END DO
+      DO J = K,N
+         TEMP=W(J,1)/(SKNORM*W(K,1))
+         DO I = 1,N
+            W(I,J+3)=W(I,J+3)-TEMP*W(I,3)
+         END DO
+      END DO
 C
 C     Compute the subiterate
 C
       W(K,1)=SKNORM*ETA
       TEMP=FKY/W(K,1)
       IF(H*ABS(TEMP) .GT. DELTA) TEMP=SIGN(DELTA/H,TEMP)
-      DO 140 I = 1,N
-  140 W(I,2)=W(I,2)+TEMP*W(I,K+3)
+      DO I = 1,N
+         W(I,2)=W(I,2)+TEMP*W(I,K+3)
+      END DO
   150 CONTINUE
 C
 C     Compute the norms of the iterate and correction vector
 C
       XNORM=0
       DIFIT=0
-      DO 160 I = 1,N
-      XNORM=MAX(XNORM,ABS(W(I,2)))
-      DIFIT=MAX(DIFIT,ABS(X(I)-W(I,2)))
-  160 X(I)=W(I,2)
+      DO I = 1,N
+         XNORM=MAX(XNORM,ABS(W(I,2)))
+         DIFIT=MAX(DIFIT,ABS(X(I)-W(I,2)))
+         X(I)=W(I,2)
+      END DO
 C
 C     Update the bound on the correction vector
 C
@@ -204,18 +219,20 @@ C
        GO TO 20
       ENDIF
       TEMP=FKY/W(K,1)
-      DO 180 I = 1,N
-  180 W(I,2)=W(I,2)+TEMP*W(I,K+3)
+      DO I = 1,N
+      W(I,2)=W(I,2)+TEMP*W(I,K+3)
+      END DO
   190 CONTINUE
 C
 C     Compute the norms of the iterate and correction vector
 C
       XNORM=0
       DIFIT=0
-      DO 200 I = 1,N
-      XNORM=MAX(XNORM,ABS(W(I,2)))
-      DIFIT=MAX(DIFIT,ABS(X(I)-W(I,2)))
-  200 X(I)=W(I,2)
+      DO I = 1,N
+         XNORM=MAX(XNORM,ABS(W(I,2)))
+         DIFIT=MAX(DIFIT,ABS(X(I)-W(I,2)))
+         X(I)=W(I,2)
+      END DO
 C
 C     Stopping criteria for iterative refinement
 C

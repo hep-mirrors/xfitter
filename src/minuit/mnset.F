@@ -161,9 +161,10 @@ C                                        . . . . . . . . . . set errdef
       ELSE
          UP = WORD7(1)
       ENDIF
-      DO 95 I= 1, NPAR
-      ERN(I) = 0.
-   95 ERP(I) = 0.
+      DO I= 1, NPAR
+         ERN(I) = 0.
+         ERP(I) = 0.
+      END DO
       CALL MNWERR
       GO TO 4000
 C                                        . . . . . . . . . . set input
@@ -237,8 +238,9 @@ C                                        . . . . . . . . . . set debug
           IF (ISET .EQ. 1)  IDBG(0) = 1
       ELSE
 C             SET DEBUG -1  sets all debug options
-          DO 285 ID= 0, NUMDBG
-  285     IDBG(ID) = ISET
+          DO  ID= 0, NUMDBG
+             IDBG(ID) = ISET
+          END DO
       ENDIF
       LREPOR = (IDBG(0) .GE. 1)
       CALL MNWARN('D','SHO','SHO')
@@ -391,10 +393,11 @@ C                                        . . . . . . show version
       GO TO 4000
 C                                        . . . . . . show nodebug, debug
  1270 CONTINUE
-      DO 1285 ID= 0, NUMDBG
-      COPT = 'OFF'
-      IF (IDBG(ID) .GE. 1)  COPT = 'ON '
- 1285 WRITE (ISYSWR,1286) ID, COPT, CDBOPT(ID)
+      DO ID= 0, NUMDBG
+         COPT = 'OFF'
+         IF (IDBG(ID) .GE. 1)  COPT = 'ON '
+         WRITE (ISYSWR,1286) ID, COPT, CDBOPT(ID)
+      END DO
  1286 FORMAT (10X,'DEBUG OPTION',I3,' IS ',A3,' :',A)
       IF (.NOT. LREPOR) CALL MNWARN('D','SHO','SHO')
       GO TO 4000

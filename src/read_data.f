@@ -267,7 +267,17 @@ C Extra info about k-factors, applegrid file(s):
 C Infomation for open more than 1 applgrid
 C     character*80 applgridNames(NapplgridMax)
       integer      NTheoryFiles
-      logical ForceAdditive ! force all errors to be treated as additive
+      logical ForceAdditive     ! force all errors to be treated as additive
+C Variables for plotting
+      integer PlotN
+      character *64 PlotDefColumn
+      double precision PlotDefValue(ncolumnMax)
+      character *64 PlotDefTitle(ncolumnMax)
+      character *64 PlotVarColumn
+
+      character *256 PlotOptions(ncolumnMax)
+      integer PlotDefColIdx, PreviousPlots
+      double precision tempD
 C Namelist definition:
       namelist/Data/Name,NData
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
@@ -324,17 +334,6 @@ C Temporary buffer to read the data (allows for comments starting with *)
       integer SystematicsExist,iLen
       integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)
       logical isPlus, isMinus
-
-C Variables for plotting
-      integer PlotN
-      character *64 PlotDefColumn
-      double precision PlotDefValue(ncolumnMax)
-      character *64 PlotDefTitle(ncolumnMax)
-      character *64 PlotVarColumn
-
-      character *256 PlotOptions(ncolumnMax)
-      integer PlotDefColIdx, PreviousPlots
-      double precision tempD
       
 C Functions
       logical FailSelectionCuts

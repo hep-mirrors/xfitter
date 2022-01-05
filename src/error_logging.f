@@ -187,8 +187,9 @@ C-----------------------------------------------------------------------
 
       NEN=AUX(3)
       ITOTAL=0
-      DO 10 I=1,NEN
-10    ITOTAL=ITOTAL+ICNT(I)
+      DO I=1,NEN
+         ITOTAL=ITOTAL+ICNT(I)
+      END DO
       IF(ITOTAL.EQ.0)RETURN
 
 * errlog printout to the requested output unit 
@@ -411,8 +412,9 @@ C Set color on
       ENDIF
 
 *     Clear aux array ...
-      DO 10 I=1,2*NDIM
-   10 AUX(I)=0
+      DO I=1,2*NDIM
+         AUX(I)=0
+      END DO
 *     ... and define first three words
       AUX(1)=NDIM
       AUX(2)=0
