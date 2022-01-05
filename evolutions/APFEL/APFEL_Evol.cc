@@ -10,14 +10,17 @@
 #include <algorithm>
 
 // Global var to hold current pdfDecomposition
-xfitter::BasePdfDecomposition *gPdfDecomp;
+xfitter::BasePdfDecomposition *gPdfDecomp = nullptr;
 
 // Global photon or not PDF
 bool gQCDevol;
 
 // wraper for APFEL PDF function:
-extern "C" void externalsetapfel1_(double &x, double &Q, double *xf)
+extern "C" void externalsetapfel_(double &x, double &Q, double *xf)
 {
+  if (gPdfDecomp == nullptr) {
+    hf_errlog(21122902,"F:APFELff PDF decomposition is not set, can not compute PDFs");
+  }
   // xf is from -6 to +6 (or +7),
   for (int i = 0; i <= 12; i++)
   {
@@ -248,7 +251,7 @@ void APFEL_Evol::atStart()
   // Initialize the APFEL DIS module
   APFEL::InitializeAPFEL_DIS();
 
-  APFEL::SetPDFSet("external1");
+  APFEL::SetPDFSet("external");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atStart();
 }
