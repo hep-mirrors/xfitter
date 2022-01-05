@@ -77,6 +77,9 @@ Evolutions:
     # The following allows QCDNUM to read PDFs from other evolutions:
     # EvolutionCopy: "proton-LHAPDF"
 
+# QCD parameters
+Order: NLO
+NFlavour: 5
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
 ? !include constants.yaml

@@ -12,6 +12,10 @@ Evolutions:
     set: "ABMP16_3_nlo"
     member: 0
 
+# QCD parameters
+Order: NLO
+NFlavour: 3
+isFFNS: 0
 ? !include constants.yaml
 
 byReaction:

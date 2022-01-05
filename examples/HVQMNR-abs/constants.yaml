@@ -41,7 +41,3 @@ mch : 1.709
 mbt : 4.673
 mtp : 173.0
 
-# QCD parameters
-Order: NLO
-NFlavour: 3
-isFFNS: 1

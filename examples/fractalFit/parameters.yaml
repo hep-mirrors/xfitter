@@ -7,7 +7,12 @@ MINUIT:
 Parameters:
   ? !include reactions/Fractal_DISNC.yaml
 
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+
 ? !include constants.yaml
 
 hf_scheme_DISNC :
   defaultValue : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+

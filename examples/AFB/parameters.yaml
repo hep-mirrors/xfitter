@@ -12,9 +12,15 @@ Evolutions:
     set: "NNPDF30_nlo_as_0118"
     member: 0
 
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+
 ? !include constants.yaml
 
 byReaction:
   # AFB settings:
   AFB:
     ? !include reactions/AFB.yaml
+

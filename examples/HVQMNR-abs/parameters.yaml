@@ -71,11 +71,14 @@ Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
 
+# QCD parameters
+Order: NLO
+NFlavour: 3
+isFFNS: 1
 Q0 : 1.183215957 # Initial scale =sqrt(1.4)
+alphas : 0.1059
 
 ? !include constants.yaml
-
-alphas : 0.1059
 
 byReaction:
   # FF ABM scheme settings:
