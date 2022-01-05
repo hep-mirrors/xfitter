@@ -24,6 +24,7 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 #Find packages
 #see cmake/FindXXX.cmake for find scripts
 #TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
+find_package(ZLIB REQUIRED)
 find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -38,17 +39,25 @@ include(find_package_ROOT)
 find_package(Hathor)
 find_package(yaml)
 
+
+if(ZLIB_FOUND)
+  set(HAVE_LIBZ 1)	
+endif()
+
+
+
+
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
 else()
 #Use c++11
-if(CMAKE_VERSION VERSION_LESS "3.1")
-  #workaround for older versions of cmake
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-else()
-  set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_STANDARD_REQUIRED YES)
-endif()
+  if(CMAKE_VERSION VERSION_LESS "3.1")
+    #workaround for older versions of cmake
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  else()
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED YES)
+  endif()
 endif()
 
 #Use c preprocessor with fortran
