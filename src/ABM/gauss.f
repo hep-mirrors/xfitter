@@ -26,22 +26,25 @@ C
       EPS=0.
       AU=A
       C=(B-A)/FLOAT(LAMBDA)
-      DO 1 I = 1,LAMBDA
-      FI=I
-      AO=A+FI*C
-      C1=0.5*(AU+AO)
-      C2=C1-AU
-      S8=0.
-      S16=0.
-      DO 2 J = 1,4
-      U=X(J)*C2
-    2 S8=S8+W(J)*(F(C1+U)+F(C1-U))
-      DO 3 J = 5,12
-      U=X(J)*C2
-    3 S16=S16+W(J)*(F(C1+U)+F(C1-U))
-      RESULT=RESULT+C2*S16
-      EPS=EPS+ABS(C2*(S16-S8))
-    1 AU=AO
+      DO I = 1,LAMBDA
+         FI=I
+         AO=A+FI*C
+         C1=0.5*(AU+AO)
+         C2=C1-AU
+         S8=0.
+         S16=0.
+         DO J = 1,4
+            U=X(J)*C2
+            S8=S8+W(J)*(F(C1+U)+F(C1-U))
+         END DO
+         DO J = 5,12
+            U=X(J)*C2
+            S16=S16+W(J)*(F(C1+U)+F(C1-U))
+         END DO
+         RESULT=RESULT+C2*S16
+         EPS=EPS+ABS(C2*(S16-S8))
+         AU=AO
+      END DO
       RETURN
       END
 c----------------
@@ -62,21 +65,24 @@ c----------------
       EPS=0.
       AU=A
       C=(B-A)/FLOAT(LAMBDA)
-      DO 1 I = 1,LAMBDA
-      FI=I
-      AO=A+FI*C
-      C1=0.5*(AU+AO)
-      C2=C1-AU
-      S8=0.
-      S16=0.
-      DO 2 J = 1,4
-      U=X(J)*C2
-    2 S8=S8+W(J)*(F(C1+U)+F(C1-U))
-      DO 3 J = 5,12
-      U=X(J)*C2
-    3 S16=S16+W(J)*(F(C1+U)+F(C1-U))
-      RESULT=RESULT+C2*S16
-      EPS=EPS+ABS(C2*(S16-S8))
-    1 AU=AO
+      DO I = 1,LAMBDA
+         FI=I
+         AO=A+FI*C
+         C1=0.5*(AU+AO)
+         C2=C1-AU
+         S8=0.
+         S16=0.
+         DO J = 1,4
+            U=X(J)*C2
+            S8=S8+W(J)*(F(C1+U)+F(C1-U))
+         END DO
+         DO J = 5,12
+            U=X(J)*C2
+            S16=S16+W(J)*(F(C1+U)+F(C1-U))
+         END DO
+         RESULT=RESULT+C2*S16
+         EPS=EPS+ABS(C2*(S16-S8))
+         AU=AO
+      END DO
       RETURN
       END

@@ -420,10 +420,11 @@ C                                      . . . . . . . . . . jump
       IF (STEP .LE. ZERO)  STEP = 2.
       RNO = 0.
       IZERO = 0
-      DO 2620 I= 1, NPAR
-        CALL MNRN15(RNO,IZERO)
-        RNO = 2.0*RNO - 1.0
- 2620   X(I) = X(I) + RNO*STEP*WERR(I)
+      DO I= 1, NPAR
+         CALL MNRN15(RNO,IZERO)
+         RNO = 2.0*RNO - 1.0
+         X(I) = X(I) + RNO*STEP*WERR(I)
+      END DO
       CALL MNINEX(X)
       CALL MNAMIN(FCN,FUTIL)
       CALL MNRSET(0)

@@ -38,13 +38,15 @@ C                         calculate external error if v exists
       ENDIF
 C                          global correlation coefficients
       IF (ISW(2) .GE. 1) THEN
-         DO 130 I= 1, NPAR
+         DO I= 1, NPAR
             GLOBCC(I) = 0.
             K1 = I*(I-1)/2
-            DO 130 J= 1, I
+            DO J= 1, I
                K = K1 + J
                P(I,J) = VHMAT(K)
-  130          P(J,I) = P(I,J)
+               P(J,I) = P(I,J)
+            END DO
+         END DO
          CALL MNVERT(P,MAXINT,MAXINT,NPAR,IERR)
          IF (IERR .EQ. 0)   THEN
             DO 150 IIN= 1, NPAR
