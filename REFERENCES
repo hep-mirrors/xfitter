@@ -1,4 +1,3 @@
-
 If you use the xFitter (former HERAFitter) package in a scientific publication, please 
 consider adding the following references. The main citations list contains the papers 
 which should be cited for any use of the xFitter program. In addition, some citations 
@@ -45,12 +44,6 @@ When using APFEL with NLO QED corrections (TheoryType = 'DGLAP_APFEL_QED') , ple
 "The photon PDF from high-mass Drell Yan data at the LHC"
 xFitter Developers' Team (F. Giuli et al.),
 e-Print: arXiv:1701.08553
-
-MELA ( N-space evolution code + structure functions, --enable-mela )
--------
-"Reference results for time-like evolution up to O(alpha_s^3)"
-V. Bertone, S. Carrazza and E. R. Nocera,
-e-Print: arXiv:1501.00494 [hep-ph].
 
 MINUIT  ( minimisation code, TheoryType = 'Fit' )
 -------
@@ -191,7 +184,7 @@ J. Pumplin, D.R. Stump, J. Huston, H.L. Lai, Pavel M. Nadolsky, W.K. Tung, MSU-H
 Jan 2002. 44pp. 
 e-Print: hep-ph/0201195
 
- APPLGRID (if APPLGRID tables or reading interface are used, --enable-applgrid)
+ APPLGRID (if APPLGRID tables or reading interface are used)
 --------------------------------------------------------------
 "A posteriori inclusion of parton density functions in NLO QCD final-state calculations at hadron colliders: The APPLGRID Project"
 Tancredi Carli, Dan Clements, Amanda Cooper-Sarkar, Claire Gwenlan, Gavin P. Salam, 
@@ -220,7 +213,7 @@ V. Bertone, S. Carrazza and N. P. Hartland,
 Published in Comput. Phys. Commun. 212 (2017) 205.
 e-Print: arXiv:1605.02070 
 
- HATHOR (if used --enable-hathor)
+ HATHOR (if used)
 ---------------------------------------------
 from http://www-zeuthen.desy.de/~moch/hathor/
 
@@ -260,29 +253,6 @@ JHEP 12 (2014) 100, arXiv:1402.6623 [hep-ph].
 "QCD analysis of W- and Z-boson production at Tevatron"
 XFitter developers, S. Camarda et al., QCD analysis of W- and Z-boson production at Tevatron,
 Eur. Phys. J. C 75 (2015) 458, arXiv:1503.05221 [hep-ph].
-
-
- kt-factorisation
----------------------------------------------
-
-Determination of transverse momentum dependent gluon density from HERA structure function measurements. 
-Hannes Jung, Francesco Hautmann. Jun 2012. 
-e-Print: arXiv:1206.1796 [hep-ph] PDF
-
-
-Small x phenomenology: Summary and status. 
-Small x Collaboration (Jeppe R. Andersen et al.). Dec 2003. 32 pp. 
-Published in Eur.Phys.J. C35 (2004) 67-98 
-DESY-03-220 
-DOI: 10.1140/epjc/s2004-01780-x 
-e-Print: hep-ph/0312333 [hep-ph] PDF
-
-
- DiffTop (if used)
----------------------------------------------
--"Top-quark pair production at hadron colliders: differential cross section and phenomenological applications with DiffTop"
-M. Guzzi, K. Lipka, S-O. Moch
-e-Print: arXiv:1406.0386 [hep-ph]
 
 
  MNR code (if used)
