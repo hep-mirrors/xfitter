@@ -1,4 +1,4 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
@@ -6,7 +6,6 @@ MINUIT:
     #migrad
     #hesse
     call fcn 3
-#  doErrors :  Hesse # None
 
 Parameters:
   Auv : [ 1.00000000, 0.00000000 ]
@@ -72,7 +71,7 @@ Decompositions:
     xg: par_g
 
 DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
+
 Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
@@ -88,10 +87,6 @@ Evolutions:
     Read_QCDNUM_Tables : 1
     SplineOrder : 2
     ICheck  :   0                # do or not check of the grid boundaries,
-  proton-LHAPDF:
-    class: LHAPDF
-    set: "CT10"
-    member: 0
 
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
@@ -139,16 +134,8 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-#  defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
   defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
 
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
-#  defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
   defaultValue : 'FFABM_DISCC'     # global specification

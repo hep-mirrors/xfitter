@@ -35,6 +35,10 @@ namespace xfitter
     par_xdbar=getParameterisation(node["xdbar"].as<string>());
     par_xs   =getParameterisation(node["xs"].as<string>());
     par_xg   =getParameterisation(node["xg"].as<string>());
+
+    //try optinal photon:
+    if ( node["xgamma"] ) 
+      par_xgamma = getParameterisation(node["xgamma"].as<string>());
   }
 
   void UvDvUbarDbarS::atIteration() {
@@ -50,6 +54,9 @@ namespace xfitter
     xsumq+=2*par_xubar->moment(0);
     xsumq+=2*par_xdbar->moment(0);
     xsumq+=2*par_xs   ->moment(0);
+    // maybe gamma
+    if (par_xgamma != nullptr) 
+      xsumq += par_xgamma -> moment(0);
     // gluon part
     par_xg->setMoment(0,1-xsumq);
   }
@@ -61,7 +68,7 @@ namespace xfitter
     double d=(*par_xdv)(x)+dbar;
     double s=(*par_xs)(x);
     double g=(*par_xg)(x);
-    return{
+    std::map<int,double> out = {
       {-6,0},
       {-5,0},
       {-4,0},
@@ -76,6 +83,10 @@ namespace xfitter
       { 6,0},
       {21,g}
     };
+    if (par_xgamma != nullptr) {
+      out[22] = (*par_xgamma)(x);
+    }
+    return out;
   }
 }
 
