@@ -58,13 +58,13 @@ C     preparation for elimination step1
       KP1=K+1
       KM1=K-1
       IF(KM1.lt.0) GO TO 100
-      IF(KM1=0) GO TO 50
+      IF(KM1.eq.0) GO TO 50
       DO J=1,KM1
          PP(J)=A(J,K)
          Q(J)=A(J,K)*Q(K)
          A(J,K)=0.0
       END DO
-   50 IF( (K-N) == 0  ) GO TO 60
+   50 IF( (K-N).eq.0  ) GO TO 60
       IF( (K-N).gt.0  ) GO TO 100
       DO J=KP1,N
          PP(J)=A(K,J)
