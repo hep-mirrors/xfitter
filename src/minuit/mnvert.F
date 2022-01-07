@@ -64,8 +64,9 @@ C     preparation for elimination step1
          Q(J)=A(J,K)*Q(K)
          A(J,K)=0.0
       END DO
-   50 IF(K-N)51,60,100
-   51 DO J=KP1,N
+   50 IF( (K-N) == 0  ) GO TO 60
+      IF( (K-N).gt.0  ) GO TO 100
+      DO J=KP1,N
          PP(J)=A(K,J)
          Q(J)=-A(K,J)*Q(K)
          A(K,J)=0.0
