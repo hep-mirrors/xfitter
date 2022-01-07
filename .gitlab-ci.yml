@@ -1,18 +1,10 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
-#cache:
-#  paths:
-#    - deps
-
-#stages:
-#  - build-minimal
-#  - build-full
-
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake automake libtool zlib-devel
-
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
+  - ln -s /usr/bin/cmake3 /usr/bin/cmake 
+  
 job-install-minimal:
-#  stage: build-minimal
   only: 
     - merge_requests
     - schedules
@@ -22,11 +14,9 @@ job-install-minimal:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
 job-install-full:
-#  stage: build-full
   only: 
     - merge_requests
     - schedules
-#  cache: {}
   timeout: 120m
   script: 
     - yum -y install gcc-gfortran git tar root libgfortran-static
@@ -52,11 +42,3 @@ job-install-full:
       - temp/**/xfitter.log
     expire_in: 1 day
 
-#nightly_devel:
-#  stage: nightly
-#  script:
-#    - ./scripts/test-build.sh
-#    - ./scripts/test-build.sh apfel applgrid lhapdf
-#  only:
-#    - devel
-#    - triggers

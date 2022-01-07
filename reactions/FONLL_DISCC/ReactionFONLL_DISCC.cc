@@ -33,9 +33,24 @@ void ReactionFONLL_DISCC::initTerm(TermData *td)
   // Check if APFEL evolution is used
   xfitter::BaseEvolution* pdf = td->getPDF();
   if (pdf->getClassName() != string("APFEL") ) {
-    std::cerr<<"[ERROR] Reaction "<<getReactionName()<<" only supports APFEL evolution; got evolution named \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<td->id<<std::endl;
-    hf_errlog(19051815,"F: Reaction "+getReactionName()+" can only work with APFEL evolution, see stderr");
+    hf_errlog(19051815,"I: Reaction "+getReactionName()+ " uses non-APFEL evolution. Make sure that APFEL evolution is included");
+    _non_apfel_evol = true;
+
+    // We want to check if apfelff was initialized:
+    bool foundApfel = false;
+    for ( auto const& entry : XFITTER_PARS::gEvolutions ) {
+      if (entry.second->getClassName() == string("APFEL")) {
+	foundApfel = true;
+	break;
+      }
+    }
+    if (not foundApfel) {
+      hf_errlog(21122901,"F: Include fortran APFEL evolution to Evolutions: list (even if it is not used) to initialize FONLL DIS modules");
+    }
   }
+  else {
+    _non_apfel_evol = false;
+  }    
 }
 
 // Compute all predictions in here and store them to be returned
@@ -53,6 +68,13 @@ void ReactionFONLL_DISCC::atIteration()
   {
     auto termID = tdpair.first;
     auto td = tdpair.second;
+
+    // Non-apfelFF evolution
+    if (_non_apfel_evol) {
+      td -> actualizeWrappers();
+      APFEL::SetPDFSet("external1");
+    }
+        
     auto rd = (BaseDISCC::ReactionData *)td->reactionData;
     // Charge of the projectile.
     const double charge = rd->_charge;

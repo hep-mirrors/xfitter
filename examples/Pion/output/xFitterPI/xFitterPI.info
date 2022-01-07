@@ -1,9 +1,9 @@
-SetDesc: Minimal parameterisation. NLO negative pion fitted to Drell-Yan data of experiments NA10 and E615 and prompt photon production data of experiment WA70. Nuclear PDF set nCTEQ15FullNuc_184_74 was used for tungsten target.
-Authors: xFitter Developers' team: Ivan Novikov, Hamed Abdolmaleki, Daniel Britzger, Amanda Cooper-Sarkar, Francesco Giuli, Alexander Glazov, Aleksander Kusina, Agnieszka Luszczak, Fred Olness, Pavel Starovoitov, Mark Sutton, Oleksandr Zenaiev
+SetDesc: "Minimal parameterisation. NLO negative pion fitted to Drell-Yan data of experiments NA10 and E615 and prompt photon production data of experiment WA70. Nuclear PDF set nCTEQ15FullNuc_184_74 was used for tungsten target."
+Authors: "xFitter Developers' team: Ivan Novikov, Hamed Abdolmaleki, Daniel Britzger, Amanda Cooper-Sarkar, Francesco Giuli, Alexander Glazov, Aleksander Kusina, Agnieszka Luszczak, Fred Olness, Pavel Starovoitov, Mark Sutton, Oleksandr Zenaiev"
 Format: lhagrid1
 DataVersion: 1
 NumMembers: 1
-Flavors: [-6, -5, -4, -3, -2, -1, 21, 1, 2, 3, 4, 5, 6]
+Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, ]
 OrderQCD: 1
 FlavorScheme: variable
 ErrorType: symmhessian

@@ -82,7 +82,7 @@ namespace xfitter
           QGrid[3].as<int>()});
   }
   std::map<int,double>EvolutionAPFELxx::xfxQmap(double x,double Q){
-    return _TabulatedPDFs->EvaluateMapxQ(x,Q);
+    return apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x,Q));
   }
   double EvolutionAPFELxx::xfxQ(int i,double x,double Q){
     return _TabulatedPDFs->EvaluatexQ(i,x,Q);

@@ -20,7 +20,7 @@ void CheckForPDF(char const*pdfname){
     for (const string& s : LHAPDF::availablePDFSets())
       cout << " " << s << endl;
 
-    cout << "You can try installing your chosen pdf with: 'lhapdf install " << spdfname << "'" << endl;
+    cout << "You can try installing your chosen pdf with: ./tools/download-lhapdf.sh " << spdfname  << endl;
 
     exit(0);
   } else {

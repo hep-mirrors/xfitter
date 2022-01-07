@@ -71,8 +71,9 @@ C                      =-1 for originally interactive temporarily batch
       ISW(6) = 0
       IF (INTRAC(DUMMY))  ISW(6) = 1
 C        DEBUG options set to default values
-      DO 10 IDB= 0, MAXDBG
-   10 IDBG(IDB) = 0
+      DO IDB= 0, MAXDBG
+         IDBG(IDB) = 0
+      END DO
       LREPOR = .FALSE.
       LWARN  = .TRUE.
       LIMSET = .FALSE.

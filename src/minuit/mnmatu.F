@@ -50,12 +50,13 @@ C     NCOEF is number of coeff. that fit on one line, not to exceed 20
       DO 200 I= 1, NPAR
          IX = NEXOFI(I)
          NDI = I*(I+1)/2
-           DO 170 J= 1, NPAR
+           DO J= 1, NPAR
            M = MAX(I,J)
            N = MIN(I,J)
            NDEX = M*(M-1)/2 + N
            NDJ = J*(J+1)/2
-  170      VLINE(J) = VHMAT(NDEX)/SQRT(ABS(VHMAT(NDI)*VHMAT(NDJ)))
+           VLINE(J) = VHMAT(NDEX)/SQRT(ABS(VHMAT(NDI)*VHMAT(NDJ)))
+        END DO
          NPARM = MIN(NPAR,NCOEF)
          WRITE (ISYSWR,171)   IX, GLOBCC(I), (VLINE(IT),IT=1,NPARM)
   171    FORMAT (6X,I3,2X,F7.5,1X,20F6.3)

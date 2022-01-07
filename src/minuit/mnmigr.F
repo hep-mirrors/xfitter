@@ -66,12 +66,12 @@ C                                come (back) here to restart completely
          ISW(4) = -1
          GO TO 230
          ENDIF
-C                                      . get full covariance and gradient
+C     . get full covariance and gradient
       CALL MNHESS(FCN,FUTIL)
       CALL MNWERR
       NPSDF = 0
       IF (ISW(2) .GE. 1)  GO TO 10
-C                                        . get gradient at start point
+C     . get gradient at start point
     2 CONTINUE
       CALL MNINEX(X)
       IF (ISW(3) .EQ. 1) THEN
@@ -80,12 +80,12 @@ C                                        . get gradient at start point
       ENDIF
       CALL MNDERI(FCN,FUTIL)
       IF (ISW(2) .GE. 1)  GO TO 10
-C                                   sometimes start with diagonal matrix
+C     sometimes start with diagonal matrix
       DO 3 I= 1, NPAR
          XXS(I) = X(I)
          STEP(I) = ZERO
     3 CONTINUE
-C                           do line search if second derivative negative
+C     do line search if second derivative negative
       LINED2 = LINED2 + 1
       IF (LINED2 .LT. (ISTRAT+1)*NPAR) THEN
       DO 5 I= 1, NPAR
@@ -101,12 +101,13 @@ C                           do line search if second derivative negative
          GO TO 2
     5 CONTINUE
       ENDIF
-C                           make diagonal error matrix
+C     make diagonal error matrix
       DO 8 I=1,NPAR
          NDEX = I*(I-1)/2
-           DO 7 J=1,I-1
-           NDEX = NDEX + 1
-    7      VHMAT(NDEX) = 0.
+         DO J=1,I-1
+            NDEX = NDEX + 1
+            VHMAT(NDEX) = 0.
+         END DO
          NDEX = NDEX + 1
          IF (G2(I) .LE. ZERO)  G2(I) = 1.
          VHMAT(NDEX) = 2./G2(I)
@@ -114,53 +115,57 @@ C                           make diagonal error matrix
       DCOVAR = 1.
       IF (LDEBUG) WRITE (ISYSWR,'(A,A/(1X,10G10.2))') ' DEBUG MNMIGR,',
      +  ' STARTING MATRIX DIAGONAL,  VHMAT=', (VHMAT(KK),KK=1,LENV)
-C                                         ready to start first iteration
+C     ready to start first iteration
    10 CONTINUE
       NRSTRT = NRSTRT + 1
       IF (NRSTRT .GT. ISTRAT+1)  THEN
          CSTATU= 'FAILED    '
          GO TO 230
-         ENDIF
+      ENDIF
       FS = AMIN
-C                                        . . . get EDM and set up loop
+C     . . . get EDM and set up loop
       EDM = 0.
-         DO 18 I= 1, NPAR
+      DO I= 1, NPAR
          GS(I) = GRD(I)
          XXS(I) = X(I)
          NDEX = I*(I-1)/2
-           DO 17 J= 1, I-1
-           NDEX = NDEX + 1
-   17      EDM = EDM + GS(I)*VHMAT(NDEX)*GS(J)
+         DO J= 1, I-1
+            NDEX = NDEX + 1
+            EDM = EDM + GS(I)*VHMAT(NDEX)*GS(J)
+         END DO
          NDEX = NDEX + 1
-   18    EDM = EDM + 0.5 * GS(I)**2 *VHMAT(NDEX)
+         EDM = EDM + 0.5 * GS(I)**2 *VHMAT(NDEX)
+      END DO
       EDM = EDM * 0.5 * (1.0+3.0*DCOVAR)
-        IF (EDM .LT. ZERO)  THEN
-        CALL MNWARN('W','MIGRAD','STARTING MATRIX NOT POS-DEFINITE.')
-        ISW(2) = 0
-        DCOVAR = 1.
-        GO TO 2
-        ENDIF
+      IF (EDM .LT. ZERO)  THEN
+         CALL MNWARN('W','MIGRAD','STARTING MATRIX NOT POS-DEFINITE.')
+         ISW(2) = 0
+         DCOVAR = 1.
+         GO TO 2
+      ENDIF
       IF (ISW(2) .EQ. 0)  EDM=BIGEDM
       ITER = 0
       CALL MNINEX(X)
       CALL MNWERR
       IF (ISWTR .GE. 1)  CALL MNPRIN(3,AMIN)
       IF (ISWTR .GE. 2)  CALL MNMATU(0)
-C                                        . . . . .  start main loop
+C     . . . . .  start main loop
    24 CONTINUE
       IF (NFCN-NPFN .GE. NFCNMX)  GO TO 190
       GDEL = 0.
       GSSQ = 0.
-         DO 30  I=1,NPAR
+      DO I=1,NPAR
          RI = 0.
          GSSQ = GSSQ + GS(I)**2
-           DO 25 J=1,NPAR
-           M = MAX(I,J)
-           N = MIN(I,J)
-           NDEX = M*(M-1)/2 + N
-   25      RI = RI + VHMAT(NDEX) *GS(J)
+         DO J=1,NPAR
+            M = MAX(I,J)
+            N = MIN(I,J)
+            NDEX = M*(M-1)/2 + N
+            RI = RI + VHMAT(NDEX) *GS(J)
+         END DO
          STEP(I) = -0.5*RI
-   30    GDEL = GDEL + STEP(I)*GS(I)
+         GDEL = GDEL + STEP(I)*GS(I)
+      END DO
       IF (GSSQ .EQ. ZERO)  THEN
           CALL MNWARN('D','MIGRAD',
      +             ' FIRST DERIVATIVES OF FCN ARE ALL ZERO')
@@ -193,21 +198,23 @@ C                                         . calculate new EDM
       GVG = 0.
       DELGAM = 0.
       GDGSSQ = 0.
-         DO 100 I= 1, NPAR
+      DO I= 1, NPAR
          RI = 0.
          VGI = 0.
-           DO 90 J= 1, NPAR
-           M = MAX(I,J)
-           N = MIN(I,J)
-           NDEX = M*(M-1)/2 + N
-           VGI = VGI + VHMAT(NDEX)*(GRD(J)-GS(J))
-   90      RI  =  RI + VHMAT(NDEX)* GRD(J)
-      VG(I) = VGI*0.5
-      GAMI = GRD(I) - GS(I)
-      GDGSSQ = GDGSSQ + GAMI**2
-      GVG = GVG + GAMI*VG(I)
-      DELGAM = DELGAM + DIRIN(I)*GAMI
-  100 EDM = EDM + GRD(I)*RI*0.5
+         DO J= 1, NPAR
+            M = MAX(I,J)
+            N = MIN(I,J)
+            NDEX = M*(M-1)/2 + N
+            VGI = VGI + VHMAT(NDEX)*(GRD(J)-GS(J))
+            RI  =  RI + VHMAT(NDEX)* GRD(J)
+         END DO
+         VG(I) = VGI*0.5
+         GAMI = GRD(I) - GS(I)
+         GDGSSQ = GDGSSQ + GAMI**2
+         GVG = GVG + GAMI*VG(I)
+         DELGAM = DELGAM + DIRIN(I)*GAMI
+         EDM = EDM + GRD(I)*RI*0.5
+      END DO
       EDM = EDM * 0.5 * (1.0 + 3.0*DCOVAR)
 C                          . if EDM negative,  not positive-definite
       IF (EDM .LT. ZERO .OR. GVG .LE. ZERO)  THEN
@@ -234,27 +241,31 @@ C                                        .  update covariance matrix
      +             (VHMAT(KK),KK=1,10)
       DSUM = 0.
       VSUM = 0.
-         DO  120  I=1, NPAR
-           DO  120  J=1, I
-           D = DIRIN(I)*DIRIN(J)/DELGAM - VG(I)*VG(J)/GVG
-           DSUM = DSUM + ABS(D)
-           NDEX = I*(I-1)/2 + J
-           VHMAT(NDEX) = VHMAT(NDEX) + 2.0*D
-           VSUM = VSUM + ABS(VHMAT(NDEX))
-  120      CONTINUE
-C                smooth local fluctuations by averaging DCOVAR
+      DO  I=1, NPAR
+         DO  J=1, I
+            D = DIRIN(I)*DIRIN(J)/DELGAM - VG(I)*VG(J)/GVG
+            DSUM = DSUM + ABS(D)
+            NDEX = I*(I-1)/2 + J
+            VHMAT(NDEX) = VHMAT(NDEX) + 2.0*D
+            VSUM = VSUM + ABS(VHMAT(NDEX))
+         END DO
+      END DO
+C     smooth local fluctuations by averaging DCOVAR
       DCOVAR = 0.5*(DCOVAR + DSUM/VSUM)
       IF (ISWTR.GE.3 .OR. LDEBUG) WRITE (ISYSWR,'(A,F5.1,A)')
      +      ' RELATIVE CHANGE IN COV. MATRIX=',DCOVAR*100.,'%'
       IF (LDEBUG) WRITE (ISYSWR,'(A,(1X,10G10.3))') ' VHMAT 2 =',
      +             (VHMAT(KK),KK=1,10)
       IF (DELGAM .LE. GVG)  GO TO 135
-      DO 125 I= 1, NPAR
-  125 FLNU(I) = DIRIN(I)/DELGAM - VG(I)/GVG
-      DO 130 I= 1, NPAR
-      DO 130 J= 1, I
-      NDEX = I*(I-1)/2 + J
-  130 VHMAT(NDEX) = VHMAT(NDEX) + 2.0*GVG*FLNU(I)*FLNU(J)
+      DO I= 1, NPAR
+         FLNU(I) = DIRIN(I)/DELGAM - VG(I)/GVG
+      END DO
+      DO I= 1, NPAR
+         DO J= 1, I
+            NDEX = I*(I-1)/2 + J
+            VHMAT(NDEX) = VHMAT(NDEX) + 2.0*GVG*FLNU(I)*FLNU(J)
+         END DO
+      END DO
   135 CONTINUE
 C                                              and see if converged
       IF (EDM .LT. 0.1*RHOTOL)  GO TO 300
@@ -278,8 +289,9 @@ C                                         . . call limit in MNMIGR
 C                                         . . fails to improve . .
   200 IF (ISWTR .GE. 1)  WRITE (ISYSWR,'(A)')
      +           ' MIGRAD FAILS TO FIND IMPROVEMENT'
-      DO 210 I= 1, NPAR
-  210 X(I) = XXS(I)
+      DO I= 1, NPAR
+         X(I) = XXS(I)
+      END DO
       IF (EDM .LT. RHOTOL)  GO TO 300
       IF (EDM .LT. ABS(EPSMA2*AMIN))  THEN
          IF (ISWTR .GE. 0)  WRITE (ISYSWR, '(A)')

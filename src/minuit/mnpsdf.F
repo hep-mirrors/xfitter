@@ -56,15 +56,17 @@ C                        Check if negative or zero on diagonal
          DG = ZERO
       ENDIF
 C                    Store VHMAT in P, make sure diagonal pos.
-      DO 213 I= 1, NPAR
-      NDEX = I*(I-1)/2
-      NDEXD = NDEX + I
-      VHMAT(NDEXD) = VHMAT(NDEXD) + DG
-      IF (VHMAT(NDEXD) .LE. ZERO)   VHMAT(NDEXD) = 1.0
-      S(I) = 1.0/SQRT(VHMAT(NDEXD))
-      DO 213 J= 1, I
-      NDEX =  NDEX + 1
-  213 P(I,J) = VHMAT(NDEX) * S(I)*S(J)
+      DO I= 1, NPAR
+         NDEX = I*(I-1)/2
+         NDEXD = NDEX + I
+         VHMAT(NDEXD) = VHMAT(NDEXD) + DG
+         IF (VHMAT(NDEXD) .LE. ZERO)   VHMAT(NDEXD) = 1.0
+         S(I) = 1.0/SQRT(VHMAT(NDEXD))
+         DO J= 1, I
+            NDEX =  NDEX + 1
+            P(I,J) = VHMAT(NDEX) * S(I)*S(J)
+         END DO
+      END DO
 C      call eigen (p,p,maxint,npar,pstar,-npar)
       CALL MNEIG(P,MAXINT,NPAR,MAXINT,PSTAR,EPSPDF,IFAULT)
       PMIN = PSTAR(1)
@@ -81,9 +83,10 @@ C      call eigen (p,p,maxint,npar,pstar,-npar)
       IF (PMIN .GT. EPSPDF*PMAX)  GO TO 217
       IF (ISW(2) .EQ. 3)  ISW(2)=2
       PADD = 1.0E-3*PMAX - PMIN
-      DO 216 IP= 1, NPAR
-      NDEX = IP*(IP+1)/2
-  216 VHMAT(NDEX) = VHMAT(NDEX) *(1.0 + PADD)
+      DO IP= 1, NPAR
+         NDEX = IP*(IP+1)/2
+         VHMAT(NDEX) = VHMAT(NDEX) *(1.0 + PADD)
+      END DO
       CSTATU= 'NOT POSDEF'
       WRITE (CHBUFF,'(G12.5)') PADD
       CALL MNWARN('W',CFROM,
