@@ -38,7 +38,7 @@ C
       IFAIL=0
       IF (N .LT. 1)  GO TO 100
       IF (N .GT. MAXINT)  GO TO 100
-C                   scale matrix by sqrt of diag elements
+C     scale matrix by sqrt of diag elements
       DO I=1,N
          SI = A(I,I)
          IF (SI .lt. 0) GOTO 100
@@ -47,7 +47,7 @@ C                   scale matrix by sqrt of diag elements
       DO 20 I= 1, N
       DO 20 J= 1, N
    20 A(I,J) = A(I,J) *S(I)*S(J)
-C                                        . . . start main loop . . . .
+C     . . . start main loop . . . .
       DO 65 I=1,N
       K = I
 C     preparation for elimination step1
@@ -58,15 +58,17 @@ C     preparation for elimination step1
       KP1=K+1
       KM1=K-1
       IF(KM1)100,50,40
-   40 DO 49 J=1,KM1
-      PP(J)=A(J,K)
-      Q(J)=A(J,K)*Q(K)
-   49 A(J,K)=0.
+ 40   DO J=1,KM1
+         PP(J)=A(J,K)
+         Q(J)=A(J,K)*Q(K)
+         A(J,K)=0.
+      END DO
    50 IF(K-N)51,60,100
-   51 DO 59 J=KP1,N
-      PP(J)=A(K,J)
-      Q(J)=-A(K,J)*Q(K)
-   59 A(K,J)=0.0
+   51 DO J=KP1,N
+         PP(J)=A(K,J)
+         Q(J)=-A(K,J)*Q(K)
+         A(K,J)=0.0
+      END DO
 C     elimination proper
    60 DO 65 J=1,N
       DO 65 K=J,N
