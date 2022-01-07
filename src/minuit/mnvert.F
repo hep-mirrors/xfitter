@@ -39,10 +39,11 @@ CC
       IF (N .LT. 1)  GO TO 100
       IF (N .GT. MAXINT)  GO TO 100
 C                   scale matrix by sqrt of diag elements
-      DO 8  I=1,N
-      SI = A(I,I)
-      IF (SI) 100,100,8
-    8 S(I) = 1.0/SQRT(SI)
+      DO I=1,N
+         SI = A(I,I)
+         IF (SI .lt. 0) GOTO 100
+         S(I) = 1.0/SQRT(SI)
+      END DO
       DO 20 I= 1, N
       DO 20 J= 1, N
    20 A(I,J) = A(I,J) *S(I)*S(J)
