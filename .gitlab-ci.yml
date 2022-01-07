@@ -41,7 +41,6 @@ job-install-full:
     - rm -rf temp-datafiles
     - cd datafiles
     - git reset --hard HEAD
-    - git lfs install
     - cd -
     - ./tools/test.sh
     - cat temp/HATHOR-cbt/test.log
