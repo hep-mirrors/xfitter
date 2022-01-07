@@ -32,9 +32,9 @@ double Chebyschev_PdfParam::operator()(double x)const{
   double power=(*pars[0])*pow(x,(*pars[1]))*pow((1-x),(*pars[2]));
 
   double poly = 1;
-  double x = 1-2*sqrt(x);
+  double xx = 1-2*sqrt(x);
   for (unsigned int i = 3; i<npar; i++) {
-    double Tch = boost::math::chebyshev_t(i, x);
+    double Tch = boost::math::chebyshev_t(i, xx);
     poly+=(*pars[i])*Tch;
   }
   
