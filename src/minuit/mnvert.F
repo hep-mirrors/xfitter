@@ -57,11 +57,12 @@ C     preparation for elimination step1
       A(K,K)=0.0
       KP1=K+1
       KM1=K-1
-      IF(KM1)100,50,40
- 40   DO J=1,KM1
+      IF(KM1.lt.0) GO TO 100
+      IF(KM1=0) GO TO 50
+      DO J=1,KM1
          PP(J)=A(J,K)
          Q(J)=A(J,K)*Q(K)
-         A(J,K)=0.
+         A(J,K)=0.0
       END DO
    50 IF(K-N)51,60,100
    51 DO J=KP1,N
