@@ -316,28 +316,33 @@ C   NOTE THAT WGPLG(1,1,X) IS DILOG(X) !!
        ALFA=H+H
        V(0)=SGN(0)
        V(1)=LOG(DCMPLX(-X,ZERO))
-       DO 33 L = 2,N+P
-   33  V(L)=V(1)*V(L-1)/L
+       DO  L = 2,N+P
+          V(L)=V(1)*V(L-1)/L
+       END DO
        SK=ZERO
-       DO 34 K = 0,P-1
-       P1=P-K
-       R=X1**P1/(FCT(P1)*FCT(N-1))
+       DO K = 0,P-1
+          P1=P-K
+          R=X1**P1/(FCT(P1)*FCT(N-1))
+          SM=ZERO
+          DO M = 0,K
+             N1=N+K-M
+             L=INDEX(10*N1+P1-10)
+             B1=ZERO
+             B2=ZERO
+             DO I = NC(L),0,-1
+                B0=A(I,L)+ALFA*B1-B2
+                B2=B1
+                B1=B0
+             END DO
+             Q=(FCT(N1-1)/FCT(K-M))*(B0-H*B2)*R/P1**N1
+             SM=SM+V(M)*Q
+          END DO
+          SK=SK+SGN(K)*SM
+       END DO
        SM=ZERO
-       DO 35 M = 0,K
-       N1=N+K-M
-       L=INDEX(10*N1+P1-10)
-       B1=ZERO
-       B2=ZERO
-       DO 31 I = NC(L),0,-1
-       B0=A(I,L)+ALFA*B1-B2
-       B2=B1
-   31  B1=B0
-       Q=(FCT(N1-1)/FCT(K-M))*(B0-H*B2)*R/P1**N1
-   35  SM=SM+V(M)*Q
-   34  SK=SK+SGN(K)*SM
-       SM=ZERO
-       DO 36 M = 0,N-1
-   36  SM=SM+V(M)*C(N-M,P)
+       DO M = 0,N-1
+          SM=SM+V(M)*C(N-M,P)
+       END DO
        WGPLG=SGN(N)*SK+SGN(P)*(SM+V(N+P))
        RETURN
       END IF 
@@ -350,27 +355,32 @@ C   NOTE THAT WGPLG(1,1,X) IS DILOG(X) !!
        U(0)=SGN(0)
        V(1)=LOG(DCMPLX(X1,ZERO))
        U(1)=LOG(X)
-       DO 23 L = 2,P
-   23  V(L)=V(1)*V(L-1)/L
-       DO 26 L = 2,N
-   26  U(L)=U(1)*U(L-1)/L
+       DO L = 2,P
+          V(L)=V(1)*V(L-1)/L
+       END DO
+       DO L = 2,N
+          U(L)=U(1)*U(L-1)/L
+       END DO
        SK=ZERO
-       DO 24 K = 0,N-1
-       P1=N-K
-       R=X1**P1/FCT(P1)
-       SM=ZERO
-       DO 25 M = 0,P-1
-       N1=P-M
-       L=INDEX(10*N1+P1-10)
-       B1=ZERO
-       B2=ZERO
-       DO 12 I = NC(L),0,-1
-       B0=A(I,L)+ALFA*B1-B2
-       B2=B1
-   12  B1=B0
-       Q=SGN(M)*(B0-H*B2)*R/P1**N1
-   25  SM=SM+V(M)*Q
-   24  SK=SK+U(K)*(S1(P1,P)-SM)
+       DO K = 0,N-1
+          P1=N-K
+          R=X1**P1/FCT(P1)
+          SM=ZERO
+          DO M = 0,P-1
+             N1=P-M
+             L=INDEX(10*N1+P1-10)
+             B1=ZERO
+             B2=ZERO
+             DO I = NC(L),0,-1
+                B0=A(I,L)+ALFA*B1-B2
+                B2=B1
+                B1=B0
+             END DO
+             Q=SGN(M)*(B0-H*B2)*R/P1**N1
+             SM=SM+V(M)*Q
+          END DO
+          SK=SK+U(K)*(S1(P1,P)-SM)
+       END DO
        WGPLG=SK+SGN(P)*U(N)*V(P)
        RETURN
       END IF
@@ -380,10 +390,11 @@ C   NOTE THAT WGPLG(1,1,X) IS DILOG(X) !!
       ALFA=H+H
       B1=ZERO
       B2=ZERO
-      DO 11 I = NC(L),0,-1
-      B0=A(I,L)+ALFA*B1-B2
-      B2=B1
-   11 B1=B0
+      DO I = NC(L),0,-1
+         B0=A(I,L)+ALFA*B1-B2
+         B2=B1
+         B1=B0
+      END DO
       WGPLG=(B0-H*B2)*X**P/(FCT(P)*P**N)
       RETURN
  1000 FORMAT(/' ***** CERN SUBROUTINE WGPLG ... ILLEGAL VALUES',

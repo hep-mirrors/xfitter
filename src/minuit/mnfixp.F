@@ -66,11 +66,12 @@ C                        shift values for other parameters to fill hole
       IF (ISW(2) .LE. 0)  GO TO 300
 C                    remove one row and one column from variance matrix
       IF (NPAR .LE. 0)  GO TO 300
-      DO 260 I= 1, NOLD
-      M = MAX(I,IINT)
-      N = MIN(I,IINT)
-      NDEX = M*(M-1)/2 + N
-  260 YY(I)=VHMAT(NDEX)
+      DO I= 1, NOLD
+         M = MAX(I,IINT)
+         N = MIN(I,IINT)
+         NDEX = M*(M-1)/2 + N
+         YY(I)=VHMAT(NDEX)
+      END DO
       YYOVER = 1.0/YY(IINT)
       KNEW = 0
       KOLD = 0

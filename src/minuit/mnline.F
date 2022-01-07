@@ -38,10 +38,10 @@ C   but cannot be smaller than SLAMBG.
       LOGICAL LDEBUG
       DATA CHARAL / 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' /
       LDEBUG = (IDBG(1).GE.1)
-C                  starting values for overall limits on total step SLAM
+C     starting values for overall limits on total step SLAM
       OVERAL = 1000.
       UNDRAL = -100.
-C                              debug check if start is ok
+C     debug check if start is ok
       IF (LDEBUG)  THEN
          CALL MNINEX(START)
          CALL FCN(NPARX,GIN,F1,U,4,FUTIL)
@@ -52,7 +52,7 @@ C                              debug check if start is ok
      +  (X(KK),KK=1,NPAR)
          ENDIF
       ENDIF
-C                                      . set up linear search along STEP
+C     . set up linear search along STEP
 
       FVMIN = FSTART
       XVMIN = ZERO
@@ -60,14 +60,15 @@ C                                      . set up linear search along STEP
       CHPQ(1) = CHARAL(1:1)
       XPQ(1) = 0.
       YPQ(1) = FSTART
-C               SLAMIN = smallest possible value of ABS(SLAM)
+C     SLAMIN = smallest possible value of ABS(SLAM)
       SLAMIN = ZERO
       DO 20 I= 1, NPAR
-      IF (STEP(I) .EQ. ZERO)  GO TO 20
-      RATIO = ABS(START(I)/STEP(I))
-      IF (SLAMIN .EQ. ZERO)     SLAMIN = RATIO
-      IF (RATIO .LT. SLAMIN)  SLAMIN = RATIO
-   20 X(I) = START(I) + STEP(I)
+         IF (STEP(I) .EQ. ZERO)  GO TO 20
+         RATIO = ABS(START(I)/STEP(I))
+         IF (SLAMIN .EQ. ZERO)     SLAMIN = RATIO
+         IF (RATIO .LT. SLAMIN)  SLAMIN = RATIO
+         X(I) = START(I) + STEP(I)
+ 20   END DO
       IF (SLAMIN .EQ. ZERO)  SLAMIN = EPSMAC
       SLAMIN = SLAMIN*EPSMA2
       NPARX = NPAR
@@ -83,12 +84,12 @@ C
          FVMIN = F1
          XVMIN = 1.0
       ENDIF
-C                         . quadr interp using slope GDEL and two points
+C     . quadr interp using slope GDEL and two points
       SLAM = 1.
       TOLER8 = TOLER
       SLAMAX = SLAMBG
       FLAST = F1
-C                         can iterate on two-points (cut) if no imprvmnt
+C     can iterate on two-points (cut) if no imprvmnt
    25 CONTINUE
       DENOM = 2.0*(FLAST-FSTART-SLOPE*SLAM)/SLAM**2
 C     IF (DENOM .EQ. ZERO)  DENOM = -0.1*SLOPE
@@ -101,8 +102,9 @@ C     IF (DENOM .EQ. ZERO)  DENOM = -0.1*SLOPE
       IF (ABS(SLAM-1.0).LT.TOLER8 .AND. F1.LT.FSTART)  GO TO 70
       IF (ABS(SLAM-1.0).LT.TOLER8) SLAM = 1.0+TOLER8
       IF (NXYPT .GE. MAXPT) GO TO 65
-      DO 30 I= 1, NPAR
-   30 X(I) = START(I) + SLAM*STEP(I)
+      DO I= 1, NPAR
+         X(I) = START(I) + SLAM*STEP(I)
+      END DO
       CALL MNINEX(X)
       CALL FCN(NPAR,GIN,F2,U,4,FUTIL)
       NFCN = NFCN + 1
@@ -121,15 +123,15 @@ C     IF (DENOM .EQ. ZERO)  DENOM = -0.1*SLOPE
          SLAMAX = OVERAL
          GO TO 25
       ENDIF
-C                                        . quadr interp using 3 points
+C     . quadr interp using 3 points
       XVALS(1) = XPQ(1)
       FVALS(1) = YPQ(1)
       XVALS(2) = XPQ(NXYPT-1)
       FVALS(2) = YPQ(NXYPT-1)
       XVALS(3) = XPQ(NXYPT)
       FVALS(3) = YPQ(NXYPT)
-C                             begin iteration, calculate desired step
-   50 CONTINUE
+C     begin iteration, calculate desired step
+ 50   CONTINUE
       SLAMAX = MAX(SLAMAX,ALPHA*ABS(XVMIN))
       CALL MNPFIT(XVALS,FVALS,3,COEFF,SDEV)
       IF (COEFF(3) .LE. ZERO)  THEN
@@ -149,16 +151,17 @@ C                             begin iteration, calculate desired step
       ELSE
           IF (SLAM .LT. UNDRAL) SLAM = UNDRAL
       ENDIF
-C               come here if step was cut below
-   52 CONTINUE
+C     come here if step was cut below
+ 52   CONTINUE
       TOLER9 = MAX(TOLER8,ABS(TOLER8*SLAM))
       DO 55 IPT= 1, 3
-      IF (ABS(SLAM-XVALS(IPT)) .LT. TOLER9)  GO TO 70
-   55 CONTINUE
-C                take the step
+         IF (ABS(SLAM-XVALS(IPT)) .LT. TOLER9)  GO TO 70
+ 55   CONTINUE
+C     take the step
       IF (NXYPT .GE. MAXPT) GO TO 65
-      DO 60 I= 1, NPAR
-   60 X(I) = START(I)+SLAM*STEP(I)
+      DO I= 1, NPAR
+         X(I) = START(I)+SLAM*STEP(I)
+      END DO
       CALL MNINEX(X)
       CALL FCN(NPARX,GIN,F3,U,4,FUTIL)
       NFCN = NFCN + 1
@@ -166,7 +169,7 @@ C                take the step
       CHPQ(NXYPT) = CHARAL(NXYPT:NXYPT)
       XPQ(NXYPT) = SLAM
       YPQ(NXYPT) = F3
-C             find worst previous point out of three
+C     find worst previous point out of three
       FVMAX = FVALS(1)
       NVMAX = 1
       IF (FVALS(2) .GT. FVMAX) THEN
@@ -177,7 +180,7 @@ C             find worst previous point out of three
          FVMAX = FVALS(3)
          NVMAX = 3
       ENDIF
-C              if latest point worse than all three previous, cut step
+C     if latest point worse than all three previous, cut step
       IF (F3 .GE. FVMAX)  THEN
           IF (NXYPT .GE. MAXPT) GO TO 65
           IF (SLAM .GT. XVMIN) OVERAL = MIN(OVERAL,SLAM-TOLER8)
@@ -185,7 +188,7 @@ C              if latest point worse than all three previous, cut step
           SLAM = 0.5*(SLAM+XVMIN)
           GO TO 52
       ENDIF
-C              prepare another iteration, replace worst previous point
+C     prepare another iteration, replace worst previous point
       XVALS(NVMAX) = SLAM
       FVALS(NVMAX) = F3
       IF (F3 .LT. FVMIN)  THEN
@@ -196,15 +199,15 @@ C              prepare another iteration, replace worst previous point
          IF (SLAM .LT. XVMIN) UNDRAL = MAX(UNDRAL,SLAM+TOLER8)
       ENDIF
       IF (NXYPT .LT. MAXPT)  GO TO 50
-C                                            . . end of iteration . . .
-C            stop because too many iterations
+C     . . end of iteration . . .
+C     stop because too many iterations
    65 CMESS = ' LINE SEARCH HAS EXHAUSTED THE LIMIT OF FUNCTION CALLS '
       IF (LDEBUG) THEN
         WRITE (ISYSWR,'(A/(2X,6G12.4))') ' MNLINE DEBUG: steps=',
      +    (STEP(KK),KK=1,NPAR)
       ENDIF
       GO TO 100
-C            stop because within tolerance
+C     stop because within tolerance
    70 CONTINUE
       CMESS = ' LINE SEARCH HAS ATTAINED TOLERANCE '
       GO TO 100
@@ -212,9 +215,10 @@ C            stop because within tolerance
       CMESS = ' STEP SIZE AT ARITHMETICALLY ALLOWED MINIMUM'
   100 CONTINUE
       AMIN = FVMIN
-      DO 120 I= 1, NPAR
-      DIRIN(I) = STEP(I)*XVMIN
-  120 X(I) = START(I) + DIRIN(I)
+      DO I= 1, NPAR
+         DIRIN(I) = STEP(I)*XVMIN
+         X(I) = START(I) + DIRIN(I)
+      END DO
       CALL MNINEX(X)
       IF (XVMIN .LT. 0.)      CALL MNWARN('D','MNLINE',
      +                   ' LINE MINIMUM IN BACKWARDS DIRECTION')

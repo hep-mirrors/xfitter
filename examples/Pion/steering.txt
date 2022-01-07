@@ -52,29 +52,6 @@
   'datafiles/fixedTarget/E615/thexp-17.dat',
 &End
 
-&InCorr
-    NCorrFiles = 0
-&End
-
-&ReduceSyst
-  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
-  tolerance = 0.0
-  useBlas = .false.
-&End
-
-&CovarToNuisance
-&End
-
-&QCDNUM
-  Read_QCDNUM_Tables = .true.
-&End 
-
-&OutDir
-  OutDirName = 'output'
-&End
-&Scales 
-&End
-
 &xFitter 
   CHI2SettingsName='StatScale','UncorSysScale','CorSysScale','UncorChi2Type','CorChi2Type'
   Chi2Settings    ='Poisson'  ,'Poisson'      ,'Linear'     ,'Diagonal'     ,'Hessian'
@@ -93,23 +70,4 @@
 &End
 
 &Cuts
-&End
-
-&MCErrors
-  ! Activate MC method for error estimation if lRand = True
-  lRAND    =False
-  ! Use data (true, default) or theory (false) for the central values of the MC replica
-  lRANDDATA=False
-  ISeedMC=123456 !0 !random seed
-  ! --- Choose distribution for the random number generator 
-  ! 0 no variation
-  ! 1 gauss
-  ! 2 uniform
-  ! 3 lognormal
-  ! 4 poisson (only for lRANDDATA = False !)
-  STATYPE=1
-  SYSTYPE=1
-&End
-
-&lhapdf
 &End

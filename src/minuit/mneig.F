@@ -29,8 +29,9 @@ C
 C
       IF(L .LT. 1) GO TO 25
 C
-      DO 20 K = 1,L
-   20 GL = GL+A(I,K)**2
+      DO K = 1,L
+         GL = GL+A(I,K)**2
+      END DO
    25 H = GL + F**2
 C
       IF(GL .GT. TOL) GO TO 30
@@ -51,42 +52,47 @@ C
       DO 50 J = 1,L
       A(J,I) = A(I,J)/H
       GL = ZERO
-      DO 40 K = 1,J
-   40 GL = GL+A(J,K)*A(I,K)
+      DO K = 1,J
+         GL = GL+A(J,K)*A(I,K)
+      END DO
 C
       IF(J .GE. L) GO TO 47
 C
       J1 = J+1
-      DO 45 K = J1,L
-   45 GL = GL+A(K,J)*A(I,K)
-   47 WORK(N+J) = GL/H
+      DO K = J1,L
+         GL = GL+A(K,J)*A(I,K)
+      END DO
+ 47   WORK(N+J) = GL/H
       F = F+GL*A(J,I)
-   50 CONTINUE
+ 50   CONTINUE
       HH = F/(H+H)
-      DO 60 J = 1,L
-      F = A(I,J)
-      GL = WORK(N+J)-HH*F
-      WORK(N+J) = GL
-      DO 60 K = 1,J
-      A(J,K) = A(J,K)-F*WORK(N+K)-GL*A(I,K)
-   60 CONTINUE
-      WORK(I) = H
-   65 I = I-1
-   70 CONTINUE
+      DO J = 1,L
+         F = A(I,J)
+         GL = WORK(N+J)-HH*F
+         WORK(N+J) = GL
+         DO K = 1,J
+            A(J,K) = A(J,K)-F*WORK(N+K)-GL*A(I,K)
+         END DO
+      END DO
+         WORK(I) = H
+ 65      I = I-1
+ 70   CONTINUE
       WORK(1) = ZERO
       WORK(N+1) = ZERO
       DO 110 I = 1,N
-      L = I-1
+         L = I-1
 C
       IF(WORK(I) .EQ. ZERO .OR. L .EQ. 0) GO TO 100
 C
-      DO 90 J = 1,L
-      GL = ZERO
-      DO 80 K = 1,L
-   80 GL = GL+A(I,K)*A(K,J)
-      DO 90 K = 1,L
-      A(K,J) = A(K,J)-GL*A(K,I)
-   90 CONTINUE
+      DO J = 1,L
+         GL = ZERO
+         DO K = 1,L
+            GL = GL+A(I,K)*A(K,J)
+         END DO
+         DO K = 1,L
+            A(K,J) = A(K,J)-GL*A(K,I)
+         END DO
+      END DO
   100 WORK(I) = A(I,I)
       A(I,I) = ONE
 C
@@ -100,9 +106,10 @@ C
 C
 C
       N1 = N-1
-      DO 130 I = 2,N
-      I0 = N+I-1
-  130 WORK(I0) = WORK(I0+1)
+      DO I = 2,N
+         I0 = N+I-1
+         WORK(I0) = WORK(I0+1)
+      END DO
       WORK(N+N) = ZERO
       B = ZERO
       F = ZERO
@@ -131,40 +138,42 @@ C
       IF(PT .LT. ZERO) PR=PT-R
 C
       H = WORK(L)-WORK(N+L)/PR
-      DO 170 I=L,N
-  170 WORK(I) = WORK(I)-H
+      DO I=L,N
+         WORK(I) = WORK(I)-H
+      END DO
       F = F+H
       PT = WORK(M)
       C = ONE
       S = ZERO
       M1 = M-1
       I = M
-      DO 200 I1 = L,M1
-      J = I
-      I = I-1
-      GL = C*WORK(N+I)
-      H = C*PT
-C
-      IF(ABS(PT) .GE. ABS(WORK(N+I))) GO TO 180
-C
-      C = PT/WORK(N+I)
-      R = SQRT(C*C+ONE)
-      WORK(N+J) = S*WORK(N+I)*R
-      S = ONE/R
-      C = C/R
-      GO TO 190
-  180 C = WORK(N+I)/PT
-      R = SQRT(C*C+ONE)
-      WORK(N+J) = S*PT*R
-      S = C/R
-      C = ONE/R
-  190 PT = C*WORK(I)-S*GL
-      WORK(J) = H+S*(C*GL+S*WORK(I))
-      DO 200 K = 1,N
-      H = A(K,J)
-      A(K,J) = S*A(K,I)+C*H
-      A(K,I) = C*A(K,I)-S*H
-  200 CONTINUE
+      DO I1 = L,M1
+         J = I
+         I = I-1
+         GL = C*WORK(N+I)
+         H = C*PT
+C     
+         IF(ABS(PT) .GE. ABS(WORK(N+I))) GO TO 180
+C     
+         C = PT/WORK(N+I)
+         R = SQRT(C*C+ONE)
+         WORK(N+J) = S*WORK(N+I)*R
+         S = ONE/R
+         C = C/R
+         GO TO 190
+ 180     C = WORK(N+I)/PT
+         R = SQRT(C*C+ONE)
+         WORK(N+J) = S*PT*R
+         S = C/R
+         C = ONE/R
+ 190     PT = C*WORK(I)-S*GL
+         WORK(J) = H+S*(C*GL+S*WORK(I))
+         DO K = 1,N
+            H = A(K,J)
+            A(K,J) = S*A(K,I)+C*H
+            A(K,I) = C*A(K,I)-S*H
+         END DO
+      END DO
       WORK(N+L) = S*PT
       WORK(L) = C*PT
 C

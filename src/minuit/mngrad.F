@@ -32,14 +32,16 @@ C
       NPARX = NPAR
       IF (WORD7(1) .GT. ZERO)  GO TO 2000
 C                  get user-calculated first derivatives from FCN
-      DO 30 I= 1, NU
-   30 GIN(I) = UNDEFI
+      DO I= 1, NU
+       GIN(I) = UNDEFI
+      END DO
       CALL MNINEX(X)
       CALL FCN(NPARX,GIN,FZERO,U,2,FUTIL)
       NFCN = NFCN + 1
       CALL MNDERI(FCN,FUTIL)
-      DO 40 I= 1, NPAR
-   40 GF(I) = GRD(I)
+      DO I= 1, NPAR
+         GF(I) = GRD(I)
+      END DO
 C                    get MINUIT-calculated first derivatives
       ISW(3) = 0
       ISTSAV = ISTRAT

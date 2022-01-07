@@ -231,6 +231,8 @@ namespace XFITTER_PARS {
       hf_errlog(18082930,s.str());
       name=getDefaultDecompositionName();
     }
+    if (name == "None")
+      return nullptr;
     return xfitter::get_pdfDecomposition(name);
   }
   YAML::Node getEvolutionNode(const std::string&name){

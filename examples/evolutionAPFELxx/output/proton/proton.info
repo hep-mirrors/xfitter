@@ -1,8 +1,8 @@
-SetDesc: Generated using xFitter
+SetDesc: "Generated using xFitter"
 Format: lhagrid1
 DataVersion: 1
 NumMembers: 1
-Flavors: [-6, -5, -4, -3, -2, -1, 21, 1, 2, 3, 4, 5, 6]
+Flavors: [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 21, ]
 OrderQCD: 2
 FlavorScheme: variable
 ErrorType: symmhessian

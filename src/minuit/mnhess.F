@@ -68,8 +68,9 @@ C         AIMSAG is the sagitta we are aiming for in second deriv calc.
       AIMSAG = SQRT(EPSMA2)*(ABS(AMIN)+UP)
 C         Zero the second derivative matrix
       NPAR2 = NPAR*(NPAR+1)/2
-      DO 10 I= 1,NPAR2
-   10 VHMAT(I) = 0.
+      DO I= 1,NPAR2
+         VHMAT(I) = 0.
+      END DO
 C
 C         Loop over variable parameters for second derivatives
       IDRV = 2
@@ -181,48 +182,52 @@ C                                        . . . .  off-diagonal elements
 C                  verify matrix positive-definite
       CALL MNPSDF
       DO 220 I= 1, NPAR
-      DO 219 J= 1, I
-      NDEX = I*(I-1)/2 + J
-      P(I,J) = VHMAT(NDEX)
-  219 P(J,I) = P(I,J)
+      DO J= 1, I
+         NDEX = I*(I-1)/2 + J
+         P(I,J) = VHMAT(NDEX)
+         P(J,I) = P(I,J)
+      END DO
   220 CONTINUE
       CALL MNVERT(P,MAXINT,MAXINT,NPAR,IFAIL)
       IF (IFAIL .GT. 0)  THEN
         CALL MNWARN('W','HESSE', 'Matrix inversion fails.')
         GO TO 390
       ENDIF
-C                                        . . . . . . .  calculate  e d m
+C     . . . . . . .  calculate  e d m
       EDM = 0.
-        DO 230 I= 1, NPAR
-C                              off-diagonal elements
-        NDEX = I*(I-1)/2
-          DO 225 J= 1, I-1
-          NDEX = NDEX + 1
-          ZTEMP = 2.0 * P(I,J)
-          EDM = EDM + GRD(I)*ZTEMP*GRD(J)
-  225     VHMAT(NDEX) = ZTEMP
-C                              diagonal elements
-        NDEX = NDEX + 1
-        VHMAT(NDEX) = 2.0 * P(I,I)
-        EDM = EDM  + P(I,I) * GRD(I)**2
-  230   CONTINUE
+      DO 230 I= 1, NPAR
+C     off-diagonal elements
+         NDEX = I*(I-1)/2
+         DO J= 1, I-1
+            NDEX = NDEX + 1
+            ZTEMP = 2.0 * P(I,J)
+            EDM = EDM + GRD(I)*ZTEMP*GRD(J)
+            VHMAT(NDEX) = ZTEMP
+         END DO
+C     diagonal elements
+         NDEX = NDEX + 1
+         VHMAT(NDEX) = 2.0 * P(I,I)
+         EDM = EDM  + P(I,I) * GRD(I)**2
+ 230  CONTINUE
       IF (ISW(5).GE.1 .AND. ISW(2).EQ.3 .AND. ITAUR.EQ.0)
-     + WRITE(ISYSWR,'(A)')' COVARIANCE MATRIX CALCULATED SUCCESSFULLY'
+     +     WRITE(ISYSWR,'(A)')' COVARIANCE MATRIX CALCULATED SUCCESSFULLY'
       GO TO 900
-C                              failure to invert 2nd deriv matrix
-  390 ISW(2) = 1
+C     failure to invert 2nd deriv matrix
+ 390  ISW(2) = 1
       DCOVAR = 1.
       CSTATU = 'FAILED    '
       IF (ISW(5) .GE. 0) WRITE (ISYSWR,'(A)')
      +        '  MNHESS FAILS AND WILL RETURN DIAGONAL MATRIX. '
-      DO 395 I= 1, NPAR
-      NDEX = I*(I-1)/2
-      DO 394 J= 1, I-1
-      NDEX = NDEX + 1
-  394 VHMAT(NDEX) = 0.0
-      NDEX = NDEX +1
-      G2I = G2(I)
-      IF (G2I .LE. ZERO)  G2I = 1.0
-  395 VHMAT(NDEX) = 2.0/G2I
+      DO I= 1, NPAR
+         NDEX = I*(I-1)/2
+         DO J= 1, I-1
+            NDEX = NDEX + 1
+            VHMAT(NDEX) = 0.0
+         END DO
+         NDEX = NDEX +1
+         G2I = G2(I)
+         IF (G2I .LE. ZERO)  G2I = 1.0
+         VHMAT(NDEX) = 2.0/G2I
+      END DO
   900 RETURN
       END

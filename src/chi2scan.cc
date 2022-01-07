@@ -726,11 +726,12 @@ void chi2_scan_()
                           pointsmap[i].th_par.push_back(c_theo_.theo[i]);
                       }
 
-                  if (iset != 0)
+                  if (iset != 0){
                     if (MonteCarloPDFErr || SymmHessPDFErr || ParPDFErr)
                       isys++;
                     else if ((iset%2) == 0) //set the same index for Up and Down variation of asymmetric PDF errors
                       isys++;
+		  }
                   cset++;
 
                 } //end loop on PDF members
@@ -845,7 +846,7 @@ void chi2_scan_()
                   pit->second.th_mc_mean = mean(xi);
                   pit->second.th_mc_var = rms(xi);
                 }
-              char num[10];
+              char num[20];
               sprintf (num, "%d", totmc);
               string msg = (string) "I: Found " + num + " Monte Carlo PDF uncertainties variations";
               hf_errlog_(25051401, msg.c_str(), msg.size());
@@ -882,7 +883,7 @@ void chi2_scan_()
 
 
               if ( ncorr + nsysloc > NSYSMAX_C ) {
-                char csys[6];
+                char csys[16];
                 sprintf( csys,"%i", ncorr + nsysloc) ;
                 string msg = (string) "S: Too many systematic sources, increase NSYSMAX_C to " + csys + " at least in  include/dimensions.h and recompile";
                 hf_errlog_(15111901,msg.c_str(), msg.size());
@@ -903,8 +904,8 @@ void chi2_scan_()
                     }
                   nsysloc += 1;
                 }
-              delete covmx;
-              delete beta_from_covmx;
+              delete[] covmx;
+              delete[] beta_from_covmx;
             }
 
           //Asymmetric PDF uncertainties, including hessian and model
@@ -1296,11 +1297,12 @@ void chi2_scan_()
               else
                 save_data_lhapdf6_(iset);
 
-              if (iset != 0)
+              if (iset != 0){
                 if (MonteCarloPDFErr || SymmHessPDFErr || ParPDFErr)
                   isys++;
                 else if ((iset%2) == 0) //set the same index for Up and Down variation of asymmetric PDF errors
                   isys++;
+	      }
               cset++;
             }
         }
