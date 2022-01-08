@@ -1,0 +1,134 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+    migrad
+    hesse
+
+#final
+
+#5 parval = -0.282348
+#6 parval = 0.811341
+#7 parval = 34.9015
+#8 parval = 5.71211
+#9 parval = 8.80068
+#10 parval = 10.2227
+#11 parval = 3.58095
+#12 parval = -3.68988
+#13 parval = -0.073466
+#14 parval = -0.153662
+#15 parval = 0.274076
+#16 parval = 1.71468
+#17 parval = -0.200323
+#18 parval = 0.609265
+#19 parval = 0.0150626
+
+Parameters:
+  Adbar: [ 0.407078, 0.01 ]
+  Adv  :  DEPENDENT    
+  Ag   :  DEPENDENT
+  Agp  : [ 0.0613051, 0.01 ]  # negative gluon ....
+  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
+  Auv  :  DEPENDENT
+  Bdbar: [ -0.0448621, 0.004  ]
+  Bdv  : [ 1.45598, 0.06 ]
+  Bg   : [ 0.0832083, 0.27 ]
+  Bgp  : [ -0.282348, 0.01 ]
+  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
+  Buv  : [ 0.811341, 0.016 ]
+  Cdbar: [ 34.9, 1.0]
+  Cdv  : [ 5.71211, 0.3 ]
+  Cg   : [ 8.80068,  0.32 ]
+  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  Cubar: [ 10.2227, 0.8 ]
+  Cuv  : [ 3.58095, 0.06 ]
+  Ddbar: [ -3.68988, 1.0]
+  Ddv  : [ -0.073466, 1.0 ]
+  Dubar: [ -0.153662, 1.0 ]
+  Duv  : [ 0.274076, 1.0 ]
+  Edbar: [ 1.71468, 1.0]
+  Edv  : [ -0.200323, 1.0 ]
+  Eubar: [ 0.609265, 1.0 ]
+  Euv  : [ 0.0, 1.0 ]
+#  Fuv  : [ 0.0, 1.0 ]
+#  Fubar: [ 0.0, 1.0 ]
+
+
+  ZERO : [ 0. ]          # zero
+  fs : [ 0.4, 0.0 ]
+
+Parameterisations:
+  par_uv:
+    class: Chebyschev
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: Chebyschev
+    parameters: [Adv,Bdv,Cdv,Ddv,Edv]
+  par_ubar:
+    class: Chebyschev
+    parameters: [Adbar,Bdbar,Cubar,Dubar,Eubar]
+  par_dbar:
+    class: Chebyschev
+    parameters: [Adbar,Bdbar,Cdbar,Ddbar,Edbar]
+  par_s:
+    #class: HERAPDF
+    #parameters: [As,Bs,Cs]
+    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
+    class: Expression
+    expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+? !include constants.yaml
+
+alphas : 0.118
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120
