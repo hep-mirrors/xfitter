@@ -15,6 +15,8 @@
 #include "glog/logging.h"
 #include "ceres/dynamic_numeric_diff_cost_function.h"
 
+#include<thread>
+
 // Fortran interface
 extern "C" {
   // FCN
@@ -119,6 +121,9 @@ void CERESMinimizer::doMinimization()
 
   ceres::Solver::Options myOptions;
   myOptions.minimizer_progress_to_stdout = true;
+
+  auto const processor_count = std::thread::hardware_concurrency();
+  if(processor_count)  myOptions.num_threads=6;
 
   myOptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
   ceres::Solver::Summary mySummary;
