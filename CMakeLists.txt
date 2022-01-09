@@ -65,7 +65,6 @@ if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10")
   set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
 endif()
 
-
 #For Fortran
 #set max line length to 132
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")

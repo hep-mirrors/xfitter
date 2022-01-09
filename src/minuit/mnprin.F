@@ -38,20 +38,21 @@ C
        WRITE (ISYSWR,'(A)') ' THERE ARE CURRENTLY NO PARAMETERS DEFINED'
        GO TO 700
       ENDIF
-C                  get value of IKODE based in INKODE, ISW(2)
+C     get value of IKODE based in INKODE, ISW(2)
       IKODE = INKODE
       IF (INKODE .EQ. 5) THEN
          IKODE = ISW(2)+1
          IF (IKODE .GT. 3)  IKODE=3
       ENDIF
-C                  set 'default' column headings
-      DO 5 K= 1, 6
-      COLHDU(K) = 'UNDEFINED'
-    5 COLHDL(K) = 'COLUMN HEAD'
-C              print title if Minos errors, and title exists.
+C     set 'default' column headings
+      DO K= 1, 6
+         COLHDU(K) = 'UNDEFINED'
+         COLHDL(K) = 'COLUMN HEAD'
+      END DO
+C     print title if Minos errors, and title exists.
       IF (IKODE.EQ.4 .AND. CTITL.NE.CUNDEF)
      +            WRITE (ISYSWR,'(/A,A)')  ' MINUIT TASK: ',CTITL
-C              report function value and status
+C     report function value and status
       IF (FVAL .EQ. UNDEFI) THEN
          CHEVAL = ' unknown       '
       ELSE
@@ -79,7 +80,7 @@ C              report function value and status
       ENDIF
 C
       IF (IKODE .EQ. 0)  GO TO 700
-C               find longest name (for Rene!)
+C     find longest name (for Rene!)
       NTRAIL = 10
       DO 20 I= 1, NU
          IF (NVARL(I) .LT. 0)  GO TO 20
@@ -140,7 +141,7 @@ C                                        . . . loop over parameters . .
       L = NIOFEX(I)
       CNAMBF = CBLANK(1:NADD)//CPNAM(I)
       IF (L .EQ. 0)  GO TO 55
-C              variable parameter.
+C     variable parameter.
       X1 = WERR(L)
       CX2 = CGETX
       CX3 = CGETX
@@ -175,13 +176,13 @@ C              variable parameter.
       IF (CX3.EQ.CGETX) WRITE (CX3,'(G14.5)') X3
       WRITE (ISYSWR,952)   I,CNAMBF,U(I),X1,CX2,CX3
   952 FORMAT (I4,1X,A11,2G14.5,2A)
-C               check if parameter is at limit
+C     check if parameter is at limit
       IF (NVARL(I) .LE. 1 .OR. IKODE .EQ. 3)  GO TO 200
       IF (ABS(COS(X(L))) .LT. 0.001)  WRITE (ISYSWR,1004)
  1004 FORMAT (1H ,32X,42HWARNING -   - ABOVE PARAMETER IS AT LIMIT.)
       GO TO 200
 C
-C                                print constant or fixed parameter.
+C     print constant or fixed parameter.
    55 CONTINUE
                           COLHDU(1) = '   constant   '
       IF (NVARL(I).GT.0)  COLHDU(1) = '     fixed    '

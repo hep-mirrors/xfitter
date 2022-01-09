@@ -145,8 +145,8 @@ int main(int argc, char **argv)
   vector <TCanvas*>::iterator it = pdfscanvaslist.begin();
   for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end();)
     {
-      char numb[15];
-      sprintf(numb, "%d", it - pdfscanvaslist.begin());
+      char numb[25];
+      sprintf(numb, "%ld", it - pdfscanvaslist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * opts.plotsperpage, opts.resolution * opts.plotsperpage);
       pagecnv->Divide(opts.plotsperpage, opts.plotsperpage);
       for (int i = 1; i <= opts.plotsperpage*opts.plotsperpage && it != pdfscanvaslist.end(); i++)
@@ -162,8 +162,8 @@ int main(int argc, char **argv)
     }
   for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
     {
-      char numb[15];
-      sprintf(numb, "ratio_%d", it - pdfscanvasratiolist.begin());
+      char numb[25];
+      sprintf(numb, "ratio_%ld", it - pdfscanvasratiolist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution *opts.plotsperpage, opts.resolution * opts.plotsperpage);
       pagecnv->Divide(opts.plotsperpage, opts.plotsperpage);
       for (int i = 1; i <= opts.plotsperpage*opts.plotsperpage && it != pdfscanvasratiolist.end(); i++)
@@ -184,8 +184,8 @@ int main(int argc, char **argv)
   it = datapullscanvaslist.begin();
   for (it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)
     {
-      char numb[15];
-      sprintf(numb, "data_%d", it - datapullscanvaslist.begin());
+      char numb[25];
+      sprintf(numb, "data_%ld", it - datapullscanvaslist.begin());
       TCanvas * pagecnv;
       if (opts.twopanels || opts.threepanels)
         {
@@ -220,8 +220,8 @@ int main(int argc, char **argv)
   it = shiftcanvaslist.begin();
   for (it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
     {
-      char numb[15];
-      sprintf(numb, "shift_%d", it - shiftcanvaslist.begin());
+      char numb[25];
+      sprintf(numb, "shift_%ld", it - shiftcanvaslist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2 * opts.resolution, (*it)->GetWindowHeight());
       (*it)->DrawClonePad();
       pgn++;
@@ -233,8 +233,8 @@ int main(int argc, char **argv)
   it = chi2scancanvaslist.begin();
   for (it = chi2scancanvaslist.begin(); it != chi2scancanvaslist.end();)
     {
-      char numb[15];
-      sprintf(numb, "chi2scan_%d", it - chi2scancanvaslist.begin());
+      char numb[25];
+      sprintf(numb, "chi2scan_%ld", it - chi2scancanvaslist.begin());
       TCanvas * pagecnv;
       pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
       pagecnv->Divide(2, 2);
@@ -254,8 +254,8 @@ int main(int argc, char **argv)
   it = chi2scangausscanvaslist.begin();
   for (it = chi2scangausscanvaslist.begin(); it != chi2scangausscanvaslist.end();)
     {
-      char numb[15];
-      sprintf(numb, "chi2scan_gauss_%d", it - chi2scangausscanvaslist.begin());
+      char numb[25];
+      sprintf(numb, "chi2scan_gauss_%ld", it - chi2scangausscanvaslist.begin());
       TCanvas * pagecnv;
       pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
       pagecnv->Divide(2, 2);

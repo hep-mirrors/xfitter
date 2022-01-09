@@ -415,17 +415,17 @@ c Print time, number of calls, chi2
 
       if (iflag.eq.3) then
 !          write(85,*),'NFCN3 ',nfcn3
-         write(85,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
+         write(85,'(''After minimisation '',F10.2,I6,F10.3)') chi2out,ndf,chi2out/ndf
 !          if (doOffset .and. iflag.eq.3)
          if (doOffset)
-     $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+     $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(85,*)
 
          write(6,*)
-         write(6,'(''After minimisation '',F10.2,I6,F10.3)'),chi2out,ndf,chi2out/ndf
+         write(6,'(''After minimisation '',F10.2,I6,F10.3)') chi2out,ndf,chi2out/ndf
 !          if (doOffset .and. iflag.eq.3)
          if (doOffset)
-     $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)'),chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+     $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          write(6,*)
 ! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
@@ -475,23 +475,23 @@ c     $           ,chi2_cont/NControlPoints
                   chi2_log = chi2_log + chi2_poi(h1iset)
                   write(6,'(''Dataset '',i4,F10.2,''('',SP,F6.2,SS,'')'',
      $                 i6,''  '',A48)')
-     $                 ,h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
+     $                  h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
      $                 ,datasetlabel(h1iset)
                   write(85,'(''Dataset '',i4,F10.2,
      $                 ''('',SP,F6.2,SS,'')'',
      $                 i6,''  '',A48)')
-     $                 ,h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
+     $                  h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
      $                 ,datasetlabel(h1iset)
                endif
             else
                if (npts(h1iset).gt.0) then
                   write(6,'(''Dataset '',i4,F10.2,
      $                 i6,''  '',A48)')
-     $                 ,h1iset,pchi2(h1iset)
+     $                  h1iset,pchi2(h1iset)
      $                 ,npts(h1iset)
      $                 ,datasetlabel(h1iset)
                   write(85,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
-     $                 ,h1iset,pchi2(h1iset),npts(h1iset)
+     $                  h1iset,pchi2(h1iset),npts(h1iset)
      $                 ,datasetlabel(h1iset)
                endif
             endif

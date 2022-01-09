@@ -47,25 +47,27 @@ CC
       NPARX = NPAR
       FLAST = AMIN
 C              set up step sizes, starting values
-      DO 10 IPAR =  1, NPAR
-      IEXT = NEXOFI(IPAR)
-      DIRIN(IPAR) = 2.0*ALPHA*WERR(IPAR)
-      IF (NVARL(IEXT) .GT. 1)  THEN
-C              parameter with limits
-         CALL MNDXDI(X(IPAR),IPAR,DXDI)
-         IF (DXDI .EQ. ZERO)  DXDI=1.
-         DIRIN(IPAR) = 2.0*ALPHA*WERR(IPAR)/DXDI
-         IF (ABS(DIRIN(IPAR)).GT.TWOPI)  DIRIN(IPAR)=TWOPI
+      DO IPAR =  1, NPAR
+         IEXT = NEXOFI(IPAR)
+         DIRIN(IPAR) = 2.0*ALPHA*WERR(IPAR)
+         IF (NVARL(IEXT) .GT. 1)  THEN
+C     parameter with limits
+            CALL MNDXDI(X(IPAR),IPAR,DXDI)
+            IF (DXDI .EQ. ZERO)  DXDI=1.
+            DIRIN(IPAR) = 2.0*ALPHA*WERR(IPAR)/DXDI
+            IF (ABS(DIRIN(IPAR)).GT.TWOPI)  DIRIN(IPAR)=TWOPI
          ENDIF
-      XMID(IPAR) = X(IPAR)
-   10 XBEST(IPAR) = X(IPAR)
-C                              search loop
+         XMID(IPAR) = X(IPAR)
+         XBEST(IPAR) = X(IPAR)
+      END DO
+C     search loop
       DO 500 ISTEP= 1, MXSTEP
       IF (IFAIL .GE. MXFAIL)  GO TO 600
-        DO 100 IPAR= 1, NPAR
-        CALL MNRN15(RNUM1,ISEED)
-        CALL MNRN15(RNUM2,ISEED)
-  100   X(IPAR) = XMID(IPAR) + 0.5*(RNUM1+RNUM2-1.)*DIRIN(IPAR)
+        DO IPAR= 1, NPAR
+           CALL MNRN15(RNUM1,ISEED)
+           CALL MNRN15(RNUM2,ISEED)
+           X(IPAR) = XMID(IPAR) + 0.5*(RNUM1+RNUM2-1.)*DIRIN(IPAR)
+        END DO
       CALL MNINEX(X)
       CALL FCN(NPARX,GIN,FTRY,U,4,FUTIL)
       NFCN = NFCN + 1
@@ -73,8 +75,9 @@ C                              search loop
          IF (FTRY .LT. AMIN)  THEN
             CSTATU = 'IMPROVEMNT'
             AMIN = FTRY
-            DO 200 IB= 1, NPAR
-  200       XBEST(IB) = X(IB)
+            DO IB= 1, NPAR
+               XBEST(IB) = X(IB)
+            END DO
             IFAIL = 0
             IF (ISW(5) .GE. 2) CALL MNPRIN(2,AMIN)
             ENDIF
@@ -97,8 +100,9 @@ C                               end search loop
   600 CONTINUE
       IF (ISW(5) .GT. 1) WRITE (ISYSWR,601) IFAIL
   601 FORMAT(' MNSEEK:',I5,' SUCCESSIVE UNSUCCESSFUL TRIALS.')
-      DO 700 IB= 1, NPAR
-  700 X(IB) = XBEST(IB)
+      DO IB= 1, NPAR
+         X(IB) = XBEST(IB)
+      END DO
       CALL MNINEX(X)
       IF (ISW(5) .GE. 1)  CALL MNPRIN(2,AMIN)
       IF (ISW(5) .EQ. 0)  CALL MNPRIN(0,AMIN)

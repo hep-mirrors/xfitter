@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #Wrapper script for cmake
 
 #./make.sh clean     - delete all build files

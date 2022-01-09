@@ -37,7 +37,7 @@ namespace xfitter
   void Profiler::storePdfFiles(int imember, int iPDF, std::string const& type) {
     string filename = _outputDir + "/pdfs_q2val_";
 
-    char tag[10];
+    char tag[20];
 
     if (imember>0) {
       if (type == "hessian") {
@@ -433,8 +433,8 @@ namespace xfitter
       }
       addSystematics("PDF_nuisance_param_"+std::to_string(++_ipdf)+":T", unc/uncertainties[0] );
     }
-    delete beta;
-    delete covar;
+    delete[] beta;
+    delete[] covar;
   }
   
 } //namespace xfitter

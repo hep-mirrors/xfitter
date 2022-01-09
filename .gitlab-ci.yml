@@ -40,5 +40,5 @@ job-install-full:
       - install.log
       - temp/**/test.log
       - temp/**/xfitter.log
-      - temp/**/output/
-    expire_in: 2 days
+    expire_in: 1 day
+
