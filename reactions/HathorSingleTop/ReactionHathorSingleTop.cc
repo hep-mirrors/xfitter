@@ -215,26 +215,26 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
                              << ppbar << std::endl;
 
         // set conversion factor
-		double convFac_in = 0.38937911e9;  //MCFM value by default
+        double convFac_in = 0.38937911e9;  //MCFM value by default
         if(td->hasParam("convFac")) convFac_in = *td->getParamD("convFac");
         hathor->sethc2(convFac_in);
-		std::cout << " ReactionHathorSingleTop: hc2 set to "
-		          << convFac_in << std::endl;
+        std::cout << " ReactionHathorSingleTop: hc2 set to "
+                  << convFac_in << std::endl;
 
         // set EW parameters
-		double sin2thW_in = 0.2228972;  //HATHOR default value
+        double sin2thW_in = 0.2228972;  //HATHOR default value
         if (td->hasParam("sin2thW")) {
-			sin2thW_in = *td->getParamD("sin2thW");
-			hathor->setSwq(sin2thW_in);
-			std::cout << " ReactionHathorSingleTop: Swq set to "
-			          << sin2thW_in << std::endl;
-		}
-		double alphaem_in = 1. / 132.2332298;  //HATHOR default value
+            sin2thW_in = *td->getParamD("sin2thW");
+            hathor->setSwq(sin2thW_in);
+            std::cout << " ReactionHathorSingleTop: Swq set to "
+                      << sin2thW_in << std::endl;
+        }
+        double alphaem_in = 1. / 132.2332298;  //HATHOR default value
         if (td->hasParam("alphaem")) {
-			alphaem_in = *td->getParamD("alphaem");
-			hathor->setAlpha(alphaem_in);
-			std::cout << " ReactionHathorSingleTop: Alpha set to "
-			          << alphaem_in << std::endl;
+            alphaem_in = *td->getParamD("alphaem");
+            hathor->setAlpha(alphaem_in);
+            std::cout << " ReactionHathorSingleTop: Alpha set to "
+                      << alphaem_in << std::endl;
         }
         
         // set CKM matrix
