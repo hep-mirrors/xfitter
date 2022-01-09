@@ -1,8 +1,9 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake
-
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
+  - ln -s /usr/bin/cmake3 /usr/bin/cmake 
+  
 job-install-minimal:
   only: 
     - merge_requests
@@ -40,12 +41,3 @@ job-install-full:
       - temp/**/test.log
       - temp/**/xfitter.log
     expire_in: 1 day
-
-#nightly_devel:
-#  stage: nightly
-#  script:
-#    - ./scripts/test-build.sh
-#    - ./scripts/test-build.sh apfel applgrid lhapdf
-#  only:
-#    - devel
-#    - triggers

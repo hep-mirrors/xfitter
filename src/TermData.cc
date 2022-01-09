@@ -22,6 +22,12 @@ extern "C"
   double alphas_wrapper_(const double &Q) {
     return wrappedPDFs[0]->getAlphaS(Q);
   }
+
+  // also for apfel:
+  void externalsetapfel1_(double &x, double &Q, double *xf)
+  {
+    pdf_xfxq_wrapper_(x,Q,xf);
+  }
 }
 
 //Note: there was some TermInfo-parsing logic in TheorEval and ftheor_eval code, but I did not like it and wrote my own. Now it can handle spaces!

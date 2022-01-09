@@ -103,7 +103,7 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       int nshifts = min(opts.spp, (int)shlist.size());
       
       //make canvas
-      char numb[15];
+      char numb[25];
       sprintf(numb, "shifts_%d", s);
 
       //fractional shift heigth

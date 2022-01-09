@@ -25,16 +25,19 @@ CC
       CALL MNINEX(PVEC)
       CALL FCN(NPARX,GIN,F,U,4,FUTIL)
       NFCN = NFCN + 1
-      DO 200 I= 1, NPAR
-      GRD(I) = 0.
-         DO 200 J= 1, NPAR
-         M = MAX(I,J)
-         N = MIN(I,J)
-         NDEX = M*(M-1)/2 + N
-  200    GRD(I) = GRD(I) + VTHMAT(NDEX) * (XT(J)-PVEC(J))
+      DO I= 1, NPAR
+         GRD(I) = 0.
+         DO J= 1, NPAR
+            M = MAX(I,J)
+            N = MIN(I,J)
+            NDEX = M*(M-1)/2 + N
+            GRD(I) = GRD(I) + VTHMAT(NDEX) * (XT(J)-PVEC(J))
+         END DO
+      END DO
       DENOM = 0.
-      DO 210 I= 1, NPAR
-  210 DENOM = DENOM + GRD(I) * (XT(I)-PVEC(I))
+      DO I= 1, NPAR
+         DENOM = DENOM + GRD(I) * (XT(I)-PVEC(I))
+      END DO
       IF (DENOM .LE. ZERO)  THEN
          DCOVAR = 1.
          ISW(2) = 0

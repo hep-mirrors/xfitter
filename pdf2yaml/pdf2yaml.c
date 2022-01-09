@@ -79,9 +79,9 @@ Info *info_add_node_str(Info *info, char* key, char *value) {
         Info_Node *node= malloc(sizeof(Info_Node));
         node->node_type=STRING;
         node->key=malloc(strlen(key)+1);
-        strncpy(node->key, key, strlen(key)+1);
+        strcpy(node->key, key);
         node->value.string=malloc(strlen(value)+1);
-        strncpy(node->value.string, value, strlen(value)+1);
+        strcpy(node->value.string, value);
         info=list_append(info, node);
         return info;
 }
@@ -90,7 +90,7 @@ Info *info_add_node_darray(Info *info, char* key, double *darray, int size) {
         Info_Node *node= malloc(sizeof(Info_Node));
         node->node_type=DARRAY;
         node->key=malloc(strlen(key)+1);
-        strncpy(node->key, key, strlen(key)+1);
+        strcpy(node->key, key);
         node->value.darray.vals=malloc(sizeof(double)*size);
         memcpy(node->value.darray.vals, darray, sizeof(double)*size);
         node->value.darray.size=size;

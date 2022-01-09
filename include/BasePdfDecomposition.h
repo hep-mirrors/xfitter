@@ -31,8 +31,8 @@ namespace xfitter
     virtual void atConfigurationChange(){}
     /// Returns PDFs in the flavor basis for given x
     /*Parton codes are LHAPDF convention:
-     *      i  -6 -5 -4 -3 -2 -1 21 1  2  3  4  5  6
-     * pdfs[i] tb bb cb sb ub db g  d  u  s  c  b  t
+     *      i  -6 -5 -4 -3 -2 -1 21 1  2  3  4  5  6  22 11 13 15 -11 -13 -15
+     * pdfs[i] tb bb cb sb ub db gl d  u  s  c  b  t  ga e  mu tau ae amu atau
      */
     virtual std::map<int,double>xfxMap(double x)const=0;
     /// Get class name. this is used to verify that the correct concrete class is being used

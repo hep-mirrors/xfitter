@@ -20,12 +20,14 @@ CC        estimated distance to minimum.
 CC
 #include "./d506cm.inc"
       DIMENSION PNEW(*), Y(*)
-      DO 10 I=1,NPAR
-   10 P(I,JH) = PNEW(I)
+      DO I=1,NPAR
+       P(I,JH) = PNEW(I)
+      END DO
       Y(JH)=YNEW
       IF(YNEW .LT. AMIN) THEN
-        DO 15 I=1,NPAR
-   15   X(I) = PNEW(I)
+         DO I=1,NPAR
+            X(I) = PNEW(I)
+         END DO
         CALL MNINEX(X)
         AMIN = YNEW
         CSTATU = 'PROGRESS  '

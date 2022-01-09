@@ -102,14 +102,16 @@ C         local minimum found in ith direction
       IF (AMING .LT. ABSMIN)  JL = I
       IF (AMING .LT. ABSMIN)  ABSMIN = AMING
       X(I) = BESTX
-      DO 9 K= 1, NPAR
-    9 P(K,I) = X(K)
-   10 CONTINUE
+      DO K= 1, NPAR
+         P(K,I) = X(K)
+      END DO
+ 10   CONTINUE
       JH = NPARP1
       AMIN=Y(JL)
       CALL MNRAZZ(YNPP1,PBAR,Y,JH,JL)
-      DO 20 I= 1, NPAR
-   20 X(I) = P(I,JL)
+      DO I= 1, NPAR
+       X(I) = P(I,JL)
+      END DO
       CALL MNINEX(X)
       IF (ISW(5) .GE. 1)  CALL MNPRIN(5,AMIN)
       EDM = BIGEDM
@@ -121,20 +123,23 @@ C                                        . . . . .  start main loop
       SIG2 = EDM
       IF ((NFCN-NPFN) .GT. NFCNMX)  GO TO 78
 C         calculate new point * by reflection
-      DO 60 I= 1, NPAR
-      PB = 0.
-      DO 59 J= 1, NPARP1
-   59 PB = PB + WG * P(I,J)
-      PBAR(I) = PB - WG * P(I,JH)
-   60 PSTAR(I)=(1.+ALPHA)*PBAR(I)-ALPHA*P(I,JH)
+      DO I= 1, NPAR
+         PB = 0.
+         DO J= 1, NPARP1
+            PB = PB + WG * P(I,J)
+         END DO
+         PBAR(I) = PB - WG * P(I,JH)
+         PSTAR(I)=(1.+ALPHA)*PBAR(I)-ALPHA*P(I,JH)
+      END DO
       CALL MNINEX(PSTAR)
       CALL FCN(NPARX,GIN,YSTAR,U,4,FUTIL)
       NFCN=NFCN+1
       IF(YSTAR.GE.AMIN) GO TO 70
 C         point * better than jl, calculate new point **
       CSTATU = 'PROGRESS  '
-      DO 61 I=1,NPAR
-   61 PSTST(I)=GAMMA*PSTAR(I)+(1.-GAMMA)*PBAR(I)
+      DO I=1,NPAR
+         PSTST(I)=GAMMA*PSTAR(I)+(1.-GAMMA)*PBAR(I)
+      END DO
       CALL MNINEX(PSTST)
       CALL FCN(NPARX,GIN,YSTST,U,4,FUTIL)
       NFCN=NFCN+1
@@ -144,8 +149,9 @@ C         try a parabola through ph, pstar, pstst.  min = prho
       RHO = 0.5 * (RHO2*Y1 -RHO1*Y2) / (Y1 -Y2)
       IF (RHO .LT. RHOMIN)  GO TO 66
       IF (RHO .GT. RHOMAX)  RHO = RHOMAX
-      DO 64 I= 1, NPAR
-   64 PRHO(I) = RHO*PBAR(I) + (1.0-RHO)*P(I,JH)
+      DO  I= 1, NPAR
+       PRHO(I) = RHO*PBAR(I) + (1.0-RHO)*P(I,JH)
+      END DO
       CALL MNINEX(PRHO)
       CALL FCN(NPARX,GIN,YRHO, U,4,FUTIL)
       NFCN = NFCN + 1
@@ -170,8 +176,9 @@ C         point * is not as good as jl
       CALL MNRAZZ(YSTAR,PSTAR,Y,JH,JL)
       IF (JHOLD .NE. JH)  GO TO 50
 C         calculate new point **
-   73 DO 74 I=1,NPAR
-   74 PSTST(I)=BETA*P(I,JH)+(1.-BETA)*PBAR(I)
+   73 DO I=1,NPAR
+         PSTST(I)=BETA*P(I,JH)+(1.-BETA)*PBAR(I)
+      END DO
       CALL MNINEX (PSTST)
       CALL FCN(NPARX,GIN,YSTST,U,4,FUTIL)
       NFCN=NFCN+1
@@ -191,11 +198,13 @@ C                                        . . . . . .  end main loop
       CSTATU= 'CALL LIMIT'
       ISW(4) = -1
       ISW(1) = 1
-   80 DO 82 I=1,NPAR
-      PB = 0.
-      DO 81 J=1,NPARP1
-   81 PB = PB + WG * P(I,J)
-   82 PBAR(I) = PB - WG * P(I,JH)
+   80 DO I=1,NPAR
+         PB = 0.
+         DO J=1,NPARP1
+            PB = PB + WG * P(I,J)
+         END DO
+         PBAR(I) = PB - WG * P(I,JH)
+      END DO
       CALL MNINEX(PBAR)
       CALL FCN(NPARX,GIN,YPBAR,U,4,FUTIL)
       NFCN=NFCN+1
