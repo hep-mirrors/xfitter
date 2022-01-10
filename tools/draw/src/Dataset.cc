@@ -384,7 +384,7 @@ void getTheoryShift (vector<pdfshift> pdfshifts, vector <vector <double> > cor_m
         }
       ahessdeltaasym(xi, errplus, errminus, cor_matrix);
     }
-  else if ( err = SymHess )
+  else if ( err == SymHess )
     {
       for ( int i = 0; i < pdfshifts.size(); i++ )
         {

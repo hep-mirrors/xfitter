@@ -43,10 +43,10 @@ class ReactionfastNLO : public ReactionTheory {
   public:
     ReactionfastNLO(){};
   public:
-    virtual string getReactionName() const { return  "fastNLO" ;};
+    virtual string getReactionName() const override { return  "fastNLO" ;};
     virtual void initTerm(TermData* td) override final;
     virtual void freeTerm(TermData* td) override final;
-    virtual void compute(TermData* td, valarray<double> &val, map<string, valarray<double> > &err);
+    virtual void compute(TermData* td, valarray<double> &val, map<string, valarray<double> > &err) override;
 };
 
 #endif

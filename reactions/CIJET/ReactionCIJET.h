@@ -33,10 +33,10 @@ public:
 
 
 public:
-    virtual string getReactionName() const { return  "CIJET" ;};
+    virtual string getReactionName() const override { return  "CIJET" ;};
     virtual void initTerm(TermData* td) override final;
-    virtual void atStart() {} //< nothing todo
-    virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err);
+    virtual void atStart() override {} //< nothing todo
+    virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override;
 protected:
     virtual int parseOptions(){ return 0;};
     // CIJET inherited functions 

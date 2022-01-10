@@ -26,7 +26,7 @@ public:
   //    Reactioncbdiff & operator =(const Reactioncbdiff &r){return *(new Reactioncbdiff(r));};
 
 public:
-  virtual string getReactionName() const { return  "cbdiff" ;};
+  virtual string getReactionName() const override { return  "cbdiff" ;};
   virtual void initTerm(TermData *td) override final;
   virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
 protected:
