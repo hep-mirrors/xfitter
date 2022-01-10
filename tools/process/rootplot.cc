@@ -40,7 +40,7 @@ void BinLogX(TH1*h)
     new_bins[i] = pow(10, from + i * width);
   }
   axis->Set(bins, new_bins);
-  delete new_bins;
+  delete[] new_bins;
 }
 
 void FillwHist(double * weights,  double * chi2,int ndata, double nrep_old, int method){

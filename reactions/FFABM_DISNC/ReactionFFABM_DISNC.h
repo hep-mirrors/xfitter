@@ -23,7 +23,7 @@ public:
   ReactionFFABM_DISNC(){};
 
 public:
-  virtual string getReactionName() const { return "FFABM_DISNC"; };
+  virtual string getReactionName() const override { return "FFABM_DISNC"; };
   void virtual atStart() override final;
   virtual void initTerm(TermData *td) override final;
   virtual void atIteration() override final;

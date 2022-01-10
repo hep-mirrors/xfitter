@@ -31,8 +31,8 @@ public:
   ~ReactionBaseHVQMNR();
 
 public:
-  virtual string getReactionName() const { return  "BaseHVQMNR" ;};
-  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) = 0;
+  virtual string getReactionName() const override { return  "BaseHVQMNR" ;};
+  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override = 0;
   virtual void initTerm(TermData *td) override;
 protected:
 

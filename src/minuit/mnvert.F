@@ -39,39 +39,47 @@ C
       IF (N .LT. 1)  GO TO 100
       IF (N .GT. MAXINT)  GO TO 100
 C     scale matrix by sqrt of diag elements
-      DO 8  I=1,N
-      SI = A(I,I)
-      IF (SI) 100,100,8
-    8 S(I) = 1.0/SQRT(SI)
+      DO I=1,N
+         SI = A(I,I)
+         IF (SI .lt. 0) GOTO 100
+         S(I) = 1.0/SQRT(SI)
+      END DO
       DO I= 1, N
          DO J= 1, N
             A(I,J) = A(I,J) *S(I)*S(J)
          END DO
       END DO
 C     . . . start main loop . . . .
-      DO 65 I=1,N
-      K = I
+      DO I=1,N
+         K = I
 C     preparation for elimination step1
-      IF (A(K,K) .EQ. ZERO)  GO TO 100
-      Q(K)=1./A(K,K)
-      PP(K) = 1.0
-      A(K,K)=0.0
-      KP1=K+1
-      KM1=K-1
-      IF(KM1)100,50,40
-   40 DO 49 J=1,KM1
-      PP(J)=A(J,K)
-      Q(J)=A(J,K)*Q(K)
-   49 A(J,K)=0.
-   50 IF(K-N)51,60,100
-   51 DO 59 J=KP1,N
-      PP(J)=A(K,J)
-      Q(J)=-A(K,J)*Q(K)
-   59 A(K,J)=0.0
+         IF (A(K,K) .EQ. ZERO)  GO TO 100
+         Q(K)=1./A(K,K)
+         PP(K) = 1.0
+         A(K,K)=0.0
+         KP1=K+1
+         KM1=K-1
+         IF(KM1.lt.0) GO TO 100
+         IF(KM1.eq.0) GO TO 50
+         DO J=1,KM1
+            PP(J)=A(J,K)
+            Q(J)=A(J,K)*Q(K)
+            A(J,K)=0.0
+         END DO
+ 50      IF( (K-N).eq.0  ) GO TO 60
+         IF( (K-N).gt.0  ) GO TO 100
+         DO J=KP1,N
+            PP(J)=A(K,J)
+            Q(J)=-A(K,J)*Q(K)
+            A(K,J)=0.0
+         END DO
 C     elimination proper
-   60 DO 65 J=1,N
-      DO 65 K=J,N
-   65 A(J,K)=A(J,K)+PP(J)*Q(K)
+ 60      DO J=1,N
+            DO K=J,N
+               A(J,K)=A(J,K)+PP(J)*Q(K)
+            END DO
+         END DO
+      END DO
 C     elements of left diagonal and unscaling
       DO J= 1, N
          DO K= 1, J
@@ -81,6 +89,6 @@ C     elements of left diagonal and unscaling
       END DO
       RETURN
 C     failure return
-  100 IFAIL=1
+ 100  IFAIL=1
       RETURN
       END
