@@ -10,7 +10,7 @@ stages:
 
 .build_template: &build_template
   stage: compile-minimal
-  image: $ARCH
+  image: langbuiltlinux/ubuntu
   only:
     - merge_requests
     - schedules
