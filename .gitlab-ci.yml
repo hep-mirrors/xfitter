@@ -87,7 +87,11 @@ build_deps_centos7:
     - cd datafiles
     - git reset --hard HEAD
     - cd -
-
+  artifacts:
+    when: always
+    paths:
+      - install.log
+    expire_in: 1 day
 
 
 job-tests:
