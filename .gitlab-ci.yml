@@ -5,6 +5,9 @@ variables:
 
 stages:
 - compile-minimal
+- compile-full
+- run-tests
+- run-draw
 
 .build_template: &build_template
   stage: compile-minimal
@@ -65,4 +68,57 @@ build_fedora:
     - dnf -y  install libyaml-devel blas-devel lapack-devel
   <<: *build_template
 
+
+build_deps_centos7:
+  stage: compile-full
+  needs: [build_centos7]
+  only: 
+    - merge_requests
+    - schedules
+  timeout: 60m
+  script: 
+    - yum install -y root gcc-gfortran git tar root libgfortran-static
+    - ./tools/install-xfitter deps
+    - . setup.sh
+    - ./make.sh install
+    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+
+
+
+job-tests:
+  stage: run-tests
+  needs: [compile-full]
+  only:
+    - merge_requests
+    - schedules
+  timeout: 60m
+  script:
+    # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
+    - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nnlo ABMP16_3_nlo ABMP16_5_nnlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian NNPDF31_nnlo_as_0118 MMHT2014nnlo68cl nCTEQ15FullNuc_1_1 nCTEQ15FullNuc_184_74 >& download-lhapdf.log
+    - ./tools/test.sh
+  artifacts:
+    when: on_failure
+    paths:
+      - temp/**/test.log
+      - temp/**/xfitter.log
+    expire_in: 1 day
+
+job-draw:
+  stage: run-draw
+  needs: [run-tests]
+  only:
+    - merge_requests
+    - schedules
+  timeout: 20m
+  script: ./bin/xfitter-draw temp/defaultNNLO/output
+  artifacts:
+    when: always
+    paths:
+      - temp/**/*.pdf
+    expire_in: 1 day
 
