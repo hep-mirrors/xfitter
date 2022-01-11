@@ -19,22 +19,25 @@ stages:
 build_centos7:
   image: centos:centos7
   before_script:
-    - yum -y install epel-release yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
+    - yum -q -y update
+    - yum -y install epel-release gcc gcc-c++ gcc-gfortran blas blas-devel lapack lapack-devel boost-devel
+    - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
     - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   <<: *build_template
 
 build_centos8:
   image: centos:centos8
   before_script:
-    - yum -y update
-    - yum -y install epel-release yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
-    - ln -s /usr/bin/cmake3 /usr/bin/cmake
+    - yum -q -y update
+    - yum -y install epel-release gcc gcc-c++ gcc-gfortran blas blas-devel lapack lapack-devel boost-devel
+    - yum -y install  yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake automake libtool
+#    - ln -s /usr/bin/cmake3 /usr/bin/cmake
   <<: *build_template
 
 build_ubuntu:
   image: ubuntu:20.04
   before_script:
-    - apt-get update -qq
+    - apt-get update -qq -y
     - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev
     - apt-get -y autoremove
     - apt-get -y autoclean
@@ -43,7 +46,7 @@ build_ubuntu:
 build_ubuntu_clang:
   image: clangbuiltlinux/ubuntu
   before_script:
-    - apt-get update -qq
+    - apt-get update -qq -y
     - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev
     - apt-get -y autoremove
     - apt-get -y autoclean
