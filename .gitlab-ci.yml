@@ -3,14 +3,11 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SSL_NO_VERIFY: "true"
 
-
-
 stages:
 - compile-minimal
 
 .build_template: &build_template
   stage: compile-minimal
-  image: langbuiltlinux/ubuntu
   only:
     - merge_requests
     - schedules
@@ -19,24 +16,24 @@ stages:
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE"
 
-build_centos:
-  variables:
-    ARCH: centos
+build_centos7:
+  image: centos:centos7
+  <<: *build_template
+
+build_centos8:
+  image: centos:centos8
   <<: *build_template
 
 build_ubuntu:
-  variables:
-    ARCH: ubuntu:20.04
+  image: ubuntu:20.04
   <<: *build_template
 
 build_ubuntu_clang:
-  variables:
-    ARCH: clangbuiltlinux/ubuntu
+  image: clangbuiltlinux/ubuntu
   <<: *build_template
 
 build_fedora:
-  variables:
-    ARCH: fedora:32
+  image: fedora:32
   <<: *build_template
 
 
