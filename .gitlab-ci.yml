@@ -46,6 +46,8 @@ build_ubuntu:
 
 build_ubuntu_clang:
   image: clangbuiltlinux/ubuntu
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE -DCMAKE_C_COMPILER=/usr/local/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
