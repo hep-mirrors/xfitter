@@ -16,7 +16,7 @@ Evolutions:
 # QCD parameters
 Order: NLO
 NFlavour: 5
-isFFNS: 0
+isFFNS: 1
 
 ? !include constants.yaml
 

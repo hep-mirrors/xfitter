@@ -23,7 +23,7 @@ public:
    ReactionBaseDISNC(){};
 
 public:
-   virtual string getReactionName() const { return "BaseDISNC"; };
+   virtual string getReactionName() const override { return "BaseDISNC"; };
    virtual void atStart() override;
    virtual void initTerm(TermData *td) override;
    virtual void reinitTerm(TermData *td) override; //! allow for polarisation update.

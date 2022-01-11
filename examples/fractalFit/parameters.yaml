@@ -10,6 +10,7 @@ Parameters:
 # QCD parameters
 Order: NNLO
 NFlavour: 5
+isFFNS: 0
 
 ? !include constants.yaml
 
