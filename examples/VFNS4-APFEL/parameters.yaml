@@ -72,11 +72,14 @@ Evolutions:
     ? !include evolutions/APFEL.yaml
     decomposition: proton
 
+# QCD parameters
+Order: NNLO
+NFlavour: 4
+isFFNS: 0 # 0 (default): VFNS with number of flavours changing from 3 to NFlavour, 1: FFNS with number of flavours = NFlavour at any scale
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
 
 ? !include constants.yaml
-
-alphas : 0.118
 
 byReaction:
   # FONLL scheme settings:

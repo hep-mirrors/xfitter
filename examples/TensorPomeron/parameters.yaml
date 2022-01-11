@@ -109,7 +109,10 @@ Parameters:
     value : 0.39
     step  : 0.01
 
-
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
 
 ? !include constants.yaml
 
