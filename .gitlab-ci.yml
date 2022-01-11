@@ -24,7 +24,7 @@ build_centos7:
   before_script:
     - yum -q -y update
     - yum -y install epel-release gcc gcc-c++ gcc-gfortran blas blas-devel lapack lapack-devel boost-devel
-    - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 autoconf make coreutils automake libtool zlib-devel
+    - yum -y install yum-plugin-ovl which yaml-cpp libyaml yaml-cpp-devel libyaml-devel gsl-devel cmake3 autoconf make coreutils automake libtool zlib-devel
     - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   <<: *build_template
 
