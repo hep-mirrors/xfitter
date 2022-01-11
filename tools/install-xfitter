@@ -701,11 +701,13 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   rm -f test-tmp.cc
   echo "#include <yaml.h>" >> test-tmp.cc
   echo "yaml_document_t doc;" >> test-tmp.cc
+  echo ${root_c_flags} $CPPFLAGS
   g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
   if [ `echo $?` -eq 0 ]; then
     echo "YAML yes" >> $CURRENTDIR/install.log
     HAVEYAML=1
   else
+    echo "yaml error" $?
     echo "YAML no" >> $CURRENTDIR/install.log
   fi
   HAVEYAMLCPP=0
@@ -723,7 +725,8 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   rm -f test-tmp.o
 
   if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
-    #echo "Installing YAML"
+    echo "Installing YAML", $CURRENTDIR
+    ls
     xfitter-${version}/tools/install-yaml
     echo source $CURRENTDIR/setup_yaml.sh >> compile
     echo source $CURRENTDIR/setup_yaml.sh >> setup.sh
