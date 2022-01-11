@@ -1,44 +1,30 @@
-image: "gitlab-registry.cern.ch/fitters/xfitter"
+stages:
+- compile-minimal
 
-before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
-  - ln -s /usr/bin/cmake3 /usr/bin/cmake 
-  
-job-install-minimal:
-  only: 
+.build_template: &build_template
+  stage: compile-minimal
+  image: $ARCH
+  only:
     - merge_requests
     - schedules
-  script: 
+  script:
     - ./make.sh install
   variables:
-    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE"
 
-job-install-full:
-  only: 
-    - merge_requests
-    - schedules
-  timeout: 120m
-  script: 
-    - yum -y install gcc-gfortran git tar root libgfortran-static
-    - ./tools/install-xfitter deps
-    - . setup.sh
-    # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
-    - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nnlo ABMP16_3_nlo ABMP16_5_nnlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian NNPDF31_nnlo_as_0118 MMHT2014nnlo68cl nCTEQ15FullNuc_1_1 nCTEQ15FullNuc_184_74 >& download-lhapdf.log
-    - cat *.log
-    - ./make.sh install
-    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
-    - mv temp-datafiles/.git datafiles/.git
-    - rm -rf temp-datafiles
-    - cd datafiles
-    - git reset --hard HEAD
-    - cd -
-    - ./tools/test.sh
-    - cat temp/HATHOR-cbt/test.log
-    - cat temp/chi2scanMTOP/test.log
-  artifacts:
-    when: on_failure
-    paths:
-      - temp/**/test.log
-      - temp/**/xfitter.log
-    expire_in: 1 day
+build_ubuntu:
+  variables:
+    ARCH: ubuntu
+  <<: *build_template
+
+build_ubuntu_clang:
+  variables:
+    ARCH: clangbuiltlinux/ubuntu
+  <<: *build_template
+
+build_fedora:
+  variables:
+    ARCH: fedora
+  <<: *build_template
+
 
