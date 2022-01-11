@@ -49,7 +49,8 @@ build_ubuntu_clang:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev  libgsl-dev libblas-dev liblapack-dev pkg-config
+    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev  libgsl-dev libblas-dev liblapack-dev pkg-config 
+    - apt-get install -y --install-suggests clang-9
     - apt-get -y autoremove
     - apt-get -y autoclean
   <<: *build_template
