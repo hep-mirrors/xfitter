@@ -71,7 +71,7 @@ build_fedora:
 
 build_deps_centos7:
   stage: compile-full
-  needs: [build_centos7]
+  needs: [build_fedora]
   only: 
     - merge_requests
     - schedules
