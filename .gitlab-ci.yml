@@ -18,22 +18,29 @@ stages:
 
 build_centos7:
   image: centos:centos7
+  before_script:
+	- yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
+  	- ln -s /usr/bin/cmake3 /usr/bin/cmake 
   <<: *build_template
 
-build_centos8:
-  image: centos:centos8
-  <<: *build_template
-
+#build_centos8:
+#  image: centos:centos8
+#  <<: *build_template
+#
 build_ubuntu:
   image: ubuntu:20.04
+  before_script:
+	- apt-get install -y cmake3 which yaml-cpp-devel libyaml-devel gsl-devel automake libtool
+	- apt-get -y autoremove
+	- apt-get -y autoclean
   <<: *build_template
 
-build_ubuntu_clang:
-  image: clangbuiltlinux/ubuntu
-  <<: *build_template
-
-build_fedora:
-  image: fedora:32
-  <<: *build_template
+#build_ubuntu_clang:
+#  image: clangbuiltlinux/ubuntu
+#  <<: *build_template
+#
+#build_fedora:
+#  image: fedora:32
+#  <<: *build_template
 
 
