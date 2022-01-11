@@ -30,7 +30,7 @@ build_centos8:
   before_script:
     - dnf -q -y update
     - dnf -y install epel-release gcc gcc-c++ gcc-gfortran blas lapack boost-devel
-    - dnf -y install  yum-plugin-ovl which yaml-cpp-devel  gsl-devel cmake automake libtool
+    - dnf -y install  dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake automake libtool
     - dnf -y --enablerepo=powertools install libyaml-devel
   <<: *build_template
 
@@ -39,7 +39,7 @@ build_ubuntu:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran gsl-bin
+    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev
     - apt-get -y autoremove
     - apt-get -y autoclean
   <<: *build_template
@@ -49,7 +49,7 @@ build_ubuntu_clang:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran gsl-bin
+    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev
     - apt-get -y autoremove
     - apt-get -y autoclean
   <<: *build_template
