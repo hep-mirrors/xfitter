@@ -43,7 +43,7 @@ build_ubuntu:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev pkg-config
+    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config
     - apt-get -y autoremove
     - apt-get -y autoclean
   <<: *build_template
@@ -53,7 +53,7 @@ build_ubuntu_clang:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev  libgsl-dev libblas-dev liblapack-dev pkg-config 
+    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev  libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config 
     - apt-get install -y  clang flang
     - apt-get purge -y gcc
     - apt-get -y autoremove
@@ -65,7 +65,7 @@ build_fedora:
   before_script:
     - dnf -q -y update
     - dnf -y install  gcc gcc-c++ gcc-gfortran blas lapack boost-devel
-    - dnf -y install  dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake libtool zlib-devel
+    - dnf -y install  dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake libtool zlib-devel ceres-solver
     - dnf -y  install libyaml-devel blas-devel lapack-devel
   <<: *build_template
 
