@@ -1,3 +1,10 @@
+variables:
+  GIT_STRATEGY: fetch
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SSL_NO_VERIFY: "true"
+
+
+
 stages:
 - compile-minimal
 
@@ -14,7 +21,7 @@ stages:
 
 build_ubuntu:
   variables:
-    ARCH: ubuntu
+    ARCH: ubuntu:20.04
   <<: *build_template
 
 build_ubuntu_clang:
@@ -24,7 +31,7 @@ build_ubuntu_clang:
 
 build_fedora:
   variables:
-    ARCH: fedora
+    ARCH: fedora:32
   <<: *build_template
 
 
