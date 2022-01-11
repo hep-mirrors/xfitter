@@ -13,6 +13,11 @@ Evolutions:
     set: "HERAPDF20_NLO_FF3B_EIG"
     member: 0
 
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 1
+
 ? !include constants.yaml
 
 byReaction:
