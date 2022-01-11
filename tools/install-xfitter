@@ -696,42 +696,42 @@ fi
 
 # check for YAML
 # xfitter 2.0.0 and 2.0.1 do not need YAML
-if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
-  HAVEYAML=0
-  rm -f test-tmp.cc
-  echo "#include <yaml.h>" >> test-tmp.cc
-  echo "yaml_document_t doc;" >> test-tmp.cc
-  echo ${root_c_flags} $CPPFLAGS
-  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
-  if [ `echo $?` -eq 0 ]; then
-    echo "YAML yes" >> $CURRENTDIR/install.log
-    HAVEYAML=1
-  else
-    echo "yaml error" $?
-    echo "YAML no" >> $CURRENTDIR/install.log
-  fi
-  HAVEYAMLCPP=0
-  rm -f test-tmp.cc
-  echo "#include <yaml-cpp/yaml.h>" >> test-tmp.cc
-  echo "YAML::Node node;" >> test-tmp.cc
-  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
-  if [ `echo $?` -eq 0 ]; then
-    echo "YAMLCPP yes" >> $CURRENTDIR/install.log
-    HAVEYAMLCPP=1
-  else
-    echo "YAMLCPP no" >> $CURRENTDIR/install.log
-  fi
-  rm -f test-tmp.cc
-  rm -f test-tmp.o
-
-  if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
-    echo "Installing YAML", $CURRENTDIR
-    ls
-    xfitter-${version}/tools/install-yaml
-    echo source $CURRENTDIR/setup_yaml.sh >> compile
-    echo source $CURRENTDIR/setup_yaml.sh >> setup.sh
-  fi
-fi
+#if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
+#  HAVEYAML=0
+#  rm -f test-tmp.cc
+#  echo "#include <yaml.h>" >> test-tmp.cc
+#  echo "yaml_document_t doc;" >> test-tmp.cc
+#  echo ${root_c_flags} $CPPFLAGS
+#  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
+#  if [ `echo $?` -eq 0 ]; then
+#    echo "YAML yes" >> $CURRENTDIR/install.log
+#    HAVEYAML=1
+#  else
+#    echo "yaml error" $?
+#    echo "YAML no" >> $CURRENTDIR/install.log
+#  fi
+#  HAVEYAMLCPP=0
+#  rm -f test-tmp.cc
+#  echo "#include <yaml-cpp/yaml.h>" >> test-tmp.cc
+#  echo "YAML::Node node;" >> test-tmp.cc
+#  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
+#  if [ `echo $?` -eq 0 ]; then
+#    echo "YAMLCPP yes" >> $CURRENTDIR/install.log
+#    HAVEYAMLCPP=1
+#  else
+#    echo "YAMLCPP no" >> $CURRENTDIR/install.log
+#  fi
+#  rm -f test-tmp.cc
+#  rm -f test-tmp.o
+#
+#  if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
+#    echo "Installing YAML", $CURRENTDIR
+#    ls
+#    xfitter-${version}/tools/install-yaml
+#    echo source $CURRENTDIR/setup_yaml.sh >> compile
+#    echo source $CURRENTDIR/setup_yaml.sh >> setup.sh
+#  fi
+#fi
 
 chmod +x compile
 
