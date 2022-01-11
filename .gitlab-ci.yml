@@ -77,7 +77,7 @@ build_deps_centos7:
     - schedules
   timeout: 60m
   script: 
-    - yum install -y root gcc-gfortran git tar root libgfortran-static
+    - yum install -y root gcc-gfortran  root libgfortran-static redhat-lsb-core 
     - ./tools/install-xfitter deps
     - . setup.sh
     - ./make.sh install
