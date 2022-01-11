@@ -92,7 +92,7 @@ build_deps_centos7:
 
 job-tests:
   stage: run-tests
-  needs: [compile-full]
+  needs: [build_deps_centos7]
   only:
     - merge_requests
     - schedules
@@ -110,7 +110,7 @@ job-tests:
 
 job-draw:
   stage: run-draw
-  needs: [run-tests]
+  needs: [job-tests]
   only:
     - merge_requests
     - schedules
