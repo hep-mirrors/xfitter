@@ -46,13 +46,12 @@ build_ubuntu:
 
 build_ubuntu_clang:
   image: clangbuiltlinux/ubuntu
-  variables:
-    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE -DCMAKE_C_COMPILER=/usr/local/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
     - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev  libgsl-dev libblas-dev liblapack-dev pkg-config 
     - apt-get install -y  clang flang
+    - sudo apt-get purge gcc
     - apt-get -y autoremove
     - apt-get -y autoclean
   <<: *build_template
