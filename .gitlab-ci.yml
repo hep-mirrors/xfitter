@@ -19,6 +19,11 @@ stages:
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE"
 
+build_centos:
+  variables:
+    ARCH: centos
+  <<: *build_template
+
 build_ubuntu:
   variables:
     ARCH: ubuntu:20.04
