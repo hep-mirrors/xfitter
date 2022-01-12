@@ -34,7 +34,7 @@ build_centos8:
   before_script:
     - dnf -q -y update
     - dnf -y install epel-release gcc gcc-c++ gcc-gfortran blas lapack boost-devel 
-    - dnf -y install --skip-broken dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake libtool zlib-devel ceres-solver
+    - dnf -y install --skip-broken dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake libtool zlib-devel ceres-solver-devel
     - dnf -y --enablerepo=powertools install libyaml-devel blas-devel lapack-devel
   <<: *build_template
 
