@@ -69,6 +69,31 @@ build_fedora:
     - dnf -y  install libyaml-devel blas-devel lapack-devel
   <<: *build_template
 
+build_deps_centos:
+  stage: compile-full
+  needs: [build_centos8]
+  only: 
+    - merge_requests
+    - schedules
+  timeout: 60m
+  script: 
+    - yum install -y root gcc-gfortran libgfortran-static redhat-lsb-core 
+    - ./tools/install-xfitter deps
+    - . setup.sh
+    - ./make.sh install
+    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+  artifacts:
+    when: always
+    paths:
+      - install.log
+    expire_in: 1 day
+
+
 
 build_deps_ubuntu:
   stage: compile-full
@@ -78,7 +103,7 @@ build_deps_ubuntu:
     - schedules
   timeout: 60m
   script: 
-    - yum install -y root gcc-gfortran  root libgfortran-static redhat-lsb-core 
+    - yum install -y  gcc-gfortran  libgfortran-static redhat-lsb-core 
     - ./tools/install-xfitter deps
     - . setup.sh
     - ./make.sh install
