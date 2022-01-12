@@ -55,6 +55,7 @@ Q0: 1.378404875209022 #=sqrt(1.9)
 alphas: 0.118
 Order: NLO
 NFlavour: 5
+isFFNS: 0
 muF: 1.0
 muR: 1.0
 

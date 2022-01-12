@@ -20,7 +20,7 @@ private:
   typedef ReactionBaseDISCC Super;
 public:
   ReactionFFABM_DISCC(){};
-  virtual string getReactionName() const { return  "FFABM_DISCC" ;};
+  virtual string getReactionName() const override { return  "FFABM_DISCC" ;};
   void virtual atStart() override final;
   virtual void initTerm(TermData *td) override final;
   virtual void atIteration() override final;

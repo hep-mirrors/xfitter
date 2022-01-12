@@ -33,11 +33,11 @@ job-install-full:
     - git reset --hard HEAD
     - cd -
     - ./tools/test.sh
-    - cat temp/HATHOR-cbt/test.log
-    - cat temp/chi2scanMTOP/test.log
   artifacts:
     when: on_failure
     paths:
       - temp/**/test.log
       - temp/**/xfitter.log
-    expire_in: 1 day
+      - temp/**/output
+    expire_in: 2 day
+

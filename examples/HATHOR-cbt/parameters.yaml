@@ -24,6 +24,11 @@ Evolutions:
     set: "MMHT2014nnlo68cl"
     member: 0
 
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+
 ? !include constants.yaml
 
 byReaction:

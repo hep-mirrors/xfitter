@@ -23,7 +23,7 @@ public:
    ReactionRT_DISNC(){};
 
 public:
-   virtual string getReactionName() const { return "RT_DISNC"; };
+   virtual string getReactionName() const override { return "RT_DISNC"; };
    virtual void atStart() override;
    // virtual void setDatasetParameters( int dataSetID, map<string,string> pars, map<string,double> parsDataset) override ;
    virtual void initTerm(TermData *td) override;

@@ -69,11 +69,16 @@ Evolutions:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
 
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
 
 ? !include constants.yaml
 
-alphas : 0.118
+
 
 byReaction:
   # RT DIS scheme settings:

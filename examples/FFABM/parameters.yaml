@@ -75,11 +75,16 @@ Evolutions:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton
 
+
+# QCD parameters
+Order: NLO
+NFlavour: 3
+isFFNS: 1
+
+alphas : 0.106
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
 ? !include constants.yaml
-
-alphas : 0.106
 
 byReaction:
   # FF ABM scheme settings:
@@ -97,3 +102,4 @@ hf_scheme_DISNC :
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
   defaultValue : 'FFABM_DISCC'     # global specification
+

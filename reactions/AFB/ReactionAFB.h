@@ -18,9 +18,9 @@
 class ReactionAFB : public ReactionTheory
 {
 public:
-  virtual string getReactionName() const { return  "AFB" ;};
+  virtual string getReactionName() const override { return  "AFB" ;};
   virtual void initTerm(TermData *td) override final;
-  virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err);
+  virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err) override;
 protected:
   virtual int parseOptions(){ return 0;};
 
