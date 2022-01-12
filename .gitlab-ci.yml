@@ -8,7 +8,7 @@ stages:
 - compile-full
 - run-tests
 - run-draw
-- codequality
+- quality
 
 .build_template: &build_template
   stage: compile-minimal
@@ -97,7 +97,7 @@ build_deps_centos7:
 
 job-tests:
   stage: run-tests
-  needs: [build_deps_centos7]
+  needs: [build_deps_ubuntu]
   only:
     - merge_requests
     - schedules
@@ -120,7 +120,9 @@ job-draw:
     - merge_requests
     - schedules
   timeout: 20m
-  script: ./bin/xfitter-draw temp/defaultNNLO/output
+  script: 
+    - ./bin/xfitter-draw temp/defaultNNLO/output
+    - xfitter-process profile  output/pdf_shifts.dat output/pdf_rotate.dat ../deps/lhapdf/share/LHAPDF/CT10 ../deps/lhapdf/share/LHAPDF/CT10_profile
   artifacts:
     when: always
     paths:
@@ -132,7 +134,7 @@ include:
   - template: Code-Quality.gitlab-ci.yml
 
 code_quality:
-  stage: codequality
+  stage: quality
 #  artifacts:
 #    reports:
 #      codequality: gl-code-quality-report.json
