@@ -70,9 +70,9 @@ build_fedora:
   <<: *build_template
 
 
-build_deps_centos7:
+build_deps_ubuntu:
   stage: compile-full
-  needs: [build_fedora]
+  needs: [build_ubuntu]
   only: 
     - merge_requests
     - schedules
