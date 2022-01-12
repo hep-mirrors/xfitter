@@ -16,7 +16,7 @@
 
 class ReactionFractal_DISNC:public ReactionTheory{
 public:
-  virtual string getReactionName()const{return"Fractal_DISNC";};
-  virtual void compute(TermData*,valarray<double>&,map<string,valarray<double> >&)override final;
+  virtual string getReactionName() const override {return"Fractal_DISNC";};
+  virtual void compute(TermData*,valarray<double>&,map<string,valarray<double> >&) override final;
 };
 

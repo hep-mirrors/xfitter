@@ -41,6 +41,3 @@ mst : 0.150
 #mbt : 4.049 # free parameter defined in parameters.yaml
 mtp : 173.0
 
-# QCD parameters
-Order: NLO
-NFlavour: 3

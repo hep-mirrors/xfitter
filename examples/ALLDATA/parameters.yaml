@@ -28,6 +28,12 @@ Evolutions:
 
 ? !include constants.yaml
 
+
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+
 # the two parameters below are not used: why one needs them with the present setup?
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9) 
 alphas : 0.118

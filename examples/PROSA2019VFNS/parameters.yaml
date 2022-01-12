@@ -94,10 +94,10 @@ Evolutions:
     #kmb : 10.0
     kmt : 1.0
 
+# QCD parameters
+Order: NLO
+NFlavour: 5
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
-
-? !include constants.yaml
-
 # AlphaS, incuding options to fit it:
 alphas: 0.118
 #  value: 0.118
@@ -106,6 +106,10 @@ alphas: 0.118
 #  priorUnc: 0.1
 #  min: 0.1
 #  max: 0.3
+
+? !include constants.yaml
+
+
 
 # Strange and charm fractions:
 fs: 0.4

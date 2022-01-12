@@ -17,9 +17,9 @@
 class ReactionKFactor : public ReactionTheory{
 public:
   ReactionKFactor(){};
-  virtual string getReactionName()const{return"KFactor";}
-  virtual void initTerm(TermData*)override final;
-  virtual void freeTerm(TermData*)override final;
-  virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors)override final;
+  virtual string getReactionName() const override {return"KFactor";}
+  virtual void initTerm(TermData*) override final;
+  virtual void freeTerm(TermData*) override final;
+  virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors) override final;
 };
 

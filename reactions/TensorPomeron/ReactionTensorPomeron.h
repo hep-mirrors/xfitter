@@ -20,7 +20,7 @@ class ReactionTensorPomeron : public ReactionTheory
  public:
   ReactionTensorPomeron(){};
  public:
-  virtual string getReactionName() const { return  "TensorPomeron" ;};
+  virtual string getReactionName() const override { return  "TensorPomeron" ;};
   virtual void atIteration() override; 
   virtual void compute(TermData* td, valarray<double> &val, map<string, valarray<double> > &err) override;
   virtual void initTerm(TermData* td) override;
