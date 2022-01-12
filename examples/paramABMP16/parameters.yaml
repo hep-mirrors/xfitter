@@ -88,11 +88,16 @@ Evolutions:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
 
+# QCD parameters
+Order: NNLO
+NFlavour: 3
+isFFNS: 1
 Q0 : 3.0 # Initial scale =sqrt(9)
+alphas : 0.106
 
 ? !include constants.yaml
 
-alphas : 0.106
+
 
 byReaction:
   # FF ABM scheme settings:

@@ -136,7 +136,8 @@ job-tests:
     paths:
       - temp/**/test.log
       - temp/**/xfitter.log
-    expire_in: 1 day
+      - temp/**/output
+    expire_in: 2 day
 
 job-draw:
   stage: run-draw

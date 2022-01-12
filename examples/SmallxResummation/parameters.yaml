@@ -76,11 +76,16 @@ Evolutions:
     kmc : 1.2 # ratio between charm quark threshold and mass
     nllxResummation : "On"
 
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
 Q0 : 1.6733200531 # Initial scale =sqrt(2.8)
+alphas : 0.118
 
 ? !include constants.yaml
 
-alphas : 0.118
+
 
 byReaction:
   # FONLL scheme settings:

@@ -169,6 +169,7 @@ then
             echo "Detected SL6 Linux distribution"
             MODE=cern
             gccv=4.9
+	    cmakev=3.20.0
             echo "Using gcc version = ${gccv}"
             os=slc6
             arch=x86_64
@@ -180,22 +181,12 @@ then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
             gccv=4.9
+	    cmakev=3.20.0
             os=centos7
             arch=x86_64
             rootversion=6.06.08
             boostver=1.53.0
             pyth=2.7
-        elif [[ $SYS == Scientific* && $ver == 5.* ]]
-        then
-            echo "Detected SL5 Linux distribution"
-            MODE=cern
-            gccv=4.3
-            os=slc5
-            arch=x86_64
-            rootversion=5.34.00
-            boostver=1.48.0
-            python=2.6.5
-            pyth=2.6
         elif [[ $SYS == "Ubuntu" ]]
         then
             echo "Detected Ubuntu distribution"
@@ -215,7 +206,6 @@ then
 fi
 if [[ $MODE == "cern" ]]
     then
-#    if [[ ! -e /afs/cern.ch ]]
     if [[ ! -e /cvmfs/sft.cern.ch ]]
         then
         echo
@@ -231,17 +221,9 @@ fi
 if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
-#    . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
     . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
     . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-    if [[ $os == slc5 ]]
-    then
-        echo "LEGACY SL5 ! using afs"
-        PYTHONBIN=/afs/cern.ch/sw/lcg/external/Python/${python}/${arch}-${os}-${compiler}-opt/bin
-        PATH=$PYTHONBIN:$PATH
-        export BOOST=--with-boost=/afs/cern.ch/sw/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
-    fi
+    PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:${PATH}
     if [[ $os == slc6 ]]
     then
         export BOOST=--with-boost=/cvmfs/sft.cern.ch/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
@@ -575,8 +557,6 @@ else
     if [[ `echo $?` != "0" ]]; then
       numdiffver='5.9.0'
       echo "Installing numdiff $numdiffver..."
-      # 17 May 2020: this link to download numdiff seems to be dead
-      #numdiff_url=http://gnu.mirrors.pair.com/savannah/savannah/numdiff/numdiff-${numdiffver}.tar.gz
       numdiff_url=http://ftp.igh.cnrs.fr/pub/nongnu/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
@@ -665,11 +645,9 @@ echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
 if [[ $MODE == "cern" ]]
 then
-#    echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
     echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-#    echo cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root >> setup.sh
 
+    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
     echo "cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/" >> setup.sh
     echo ". /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh ">> setup.sh
     echo "cd -" >>setup.sh

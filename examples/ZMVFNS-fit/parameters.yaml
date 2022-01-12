@@ -4,7 +4,6 @@ MINUIT:
     set str 2
     call fcn 1
     migrad
-    hesse
     call fcn 3
     
   doErrors :  Hesse # None
@@ -82,6 +81,10 @@ Evolutions:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
 
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
 ? !include constants.yaml
