@@ -11,7 +11,7 @@ qcdnumver=17-01-15
 apfelver=3.0.4
 melaver=2.0.1
 apfelgridver=1.0.5
-apfelxxver=4.0.0
+apfelxxver=4.6.0
 
 # skip some packages depending on xfitter version
 skip_mela=0
@@ -514,11 +514,11 @@ else
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz > ${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-        wget https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        wget https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
-    mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
+    mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
@@ -528,6 +528,7 @@ else
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
+
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
