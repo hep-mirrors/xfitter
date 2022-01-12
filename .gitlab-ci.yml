@@ -25,7 +25,7 @@ build_centos7:
   before_script:
     - yum -q -y update
     - yum -y install epel-release gcc gcc-c++ gcc-gfortran blas blas-devel lapack lapack-devel boost-devel
-    - yum -y install yum-plugin-ovl which yaml-cpp libyaml yaml-cpp-devel libyaml-devel gsl-devel cmake3 autoconf make coreutils automake libtool zlib-devel
+    - yum -y install yum-plugin-ovl which yaml-cpp libyaml yaml-cpp-devel libyaml-devel gsl-devel cmake3 autoconf ceres-solver-devel make coreutils automake libtool zlib-devel
     - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   <<: *build_template
 
@@ -34,7 +34,7 @@ build_centos8:
   before_script:
     - dnf -q -y update
     - dnf -y install epel-release gcc gcc-c++ gcc-gfortran blas lapack boost-devel 
-    - dnf -y install  dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake libtool zlib-devel
+    - dnf -y install  dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake libtool zlib-devel ceres-solver
     - dnf -y --enablerepo=powertools install libyaml-devel blas-devel lapack-devel
   <<: *build_template
 
