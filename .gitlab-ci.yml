@@ -36,7 +36,7 @@ job-install-full:
   artifacts:
     when: on_failure
     paths:
-      - temp/install.log
+      - install.log
       - temp/**/test.log
       - temp/**/xfitter.log
       - temp/**/output
