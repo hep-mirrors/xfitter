@@ -4,7 +4,6 @@ MINUIT:
     set str 2
     call fcn 1
     migrad
-    hesse
     call fcn 3
     
   doErrors :  Hesse # None
