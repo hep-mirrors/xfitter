@@ -9,12 +9,10 @@ hoppetver=1.2.0
 applgridver=1.5.34
 qcdnumver=17-01-15
 apfelver=3.0.4
-melaver=2.0.1
 apfelgridver=1.0.5
 apfelxxver=4.0.0
 
 # skip some packages depending on xfitter version
-skip_mela=0
 skip_apfelgrid=0
 
 ## Optional manual configurations
@@ -147,11 +145,6 @@ fi
 #    echo
 #    exit
 #fi
-
-# skip some packages depending on xfitter version
-if [[ $version == "master" ]]; then
-  skip_mela=1
-fi
 
 #automatically detect system:
 if [[ -z $MANUALCONF ]]
@@ -455,7 +448,7 @@ else
 
  #apfelgrid
     if [[ $skip_apfelgrid != 1 ]]; then
-        wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+        wget --no-check-certificate http://lhapdfsets.web.cern.ch/lhapdfsets/current/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
         tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
         mv NNPDF30_nlo_as_0118 lhapdf/share/LHAPDF >> $CURRENTDIR/install.log  2>&1
         rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
@@ -479,46 +472,16 @@ else
 	cd - >& /dev/null
     fi
     
- #mela
-    if [[ $skip_mela != 1 ]]; then
-      echo "Installing MELA $melaver..."
-
-      if [[ $http == "curl" ]]
-      then
-          curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
-      else
-          wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-      fi
-      mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
-      tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-      cd MELA-${melaver}
-      ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
-
-      if [[ $? != 0 ]]
-      then
-          echo "Error, check install.log for details"
-          exit
-      fi
-      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-      if [[ $? != 0 ]]
-      then
-          echo "Error, check install.log for details"
-          exit
-      fi
-      cd - >& /dev/null
-   # setup paths for mela:
-      export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
-    fi
     
  #apfel
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz > ${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-        wget https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        wget https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
-    mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
+    mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
@@ -528,6 +491,7 @@ else
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
+
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
@@ -601,15 +565,8 @@ then
     else
         if [[ $http == "curl" ]]
         then
-#           curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
-#           curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
-#            curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
             curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
-#           wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
-#           mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
-#           wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
-#            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
             wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
        # unpack nicely:
@@ -630,7 +587,6 @@ echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
@@ -642,7 +598,6 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
@@ -664,7 +619,6 @@ echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 
 
 if [[ $mode != "deps" ]]
@@ -715,11 +669,11 @@ if [[ $mode != "deps" ]]
 then
   if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
     echo autoreconf --install                                 >> compile
-    echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-apfelgrid --enable-process    >> compile
     echo make -j 9 install                                    >> compile
   elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
     # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
-    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-process    >> compile
     echo make -j 9 install                                    >> compile
     echo autoreconf --install                                 >> compile
   else
@@ -765,7 +719,6 @@ else
           xfitter-${version}/constants.yaml \
           run
       rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-      rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
   else
       echo "\"run\" directory already exists, I won't touch it"
       echo
