@@ -61,8 +61,11 @@ if(APPLE)
   set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
 endif()
 
-if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10")
-  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+
+if (CMAKE_MAJOR_VERSION VERSION_GREATER_EQUAL "3")
+  if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10")
+    set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+  endif()
 endif()
 
 #For Fortran
