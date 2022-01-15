@@ -56,7 +56,7 @@ build_ubuntu22:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake m4 libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config python-dev
+    - apt-get install -y wget cmake automake m4 libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config 
     - apt-get -y autoremove
     - apt-get -y autoclean
     - apt-get -y clean \
@@ -97,7 +97,8 @@ build_deps_centos:
     - yum install -y root gcc-gfortran libgfortran-static redhat-lsb-core 
     - ./tools/install-xfitter deps
     - ls -l
-    - source setup.sh
+    - cat setup.sh
+    - source setup.sh > setup.log
     - ./make.sh install
     - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
@@ -109,6 +110,7 @@ build_deps_centos:
     when: always
     paths:
       - install.log
+      - setup.log
     expire_in: 1 day
 
 
@@ -124,7 +126,8 @@ build_deps_ubuntu:
     - yum install -y  gcc-gfortran  libgfortran-static redhat-lsb-core 
     - ./tools/install-xfitter deps
     - ls -l
-    - source setup.sh
+    - cat setup.sh
+    - source setup.sh > setup.log
     - ./make.sh install
     - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
@@ -136,6 +139,7 @@ build_deps_ubuntu:
     when: always
     paths:
       - install.log
+      - setup.log
     expire_in: 1 day
 
 
