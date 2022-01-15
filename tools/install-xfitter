@@ -466,6 +466,7 @@ else
 	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
 	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	cd APFELgrid-${apfelgridver}
+    sed -i '/&& make check/c\make && make install' setup.sh
 	./setup.sh  >> $CURRENTDIR/install.log  2>&1
 	if [[ $? != 1 ]]
 	then
