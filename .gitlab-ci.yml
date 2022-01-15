@@ -26,6 +26,7 @@ build_centos7:
     - yum -q -y update
     - yum -y install epel-release gcc gcc-c++ gcc-gfortran blas blas-devel lapack lapack-devel boost-devel
     - yum -y install yum-plugin-ovl which yaml-cpp libyaml yaml-cpp-devel libyaml-devel gsl-devel cmake3 autoconf ceres-solver-devel make coreutils automake libtool zlib-devel
+    - yum -y clean all
     - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   <<: *build_template
 
@@ -46,6 +47,8 @@ build_ubuntu20:
     - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config
     - apt-get -y autoremove
     - apt-get -y autoclean
+    - apt-get -y clean \
+    - rm -rf /var/lib/apt/lists/* \
   <<: *build_template
 
 build_ubuntu22:
@@ -56,6 +59,8 @@ build_ubuntu22:
     - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config
     - apt-get -y autoremove
     - apt-get -y autoclean
+    - apt-get -y clean \
+    - rm -rf /var/lib/apt/lists/* \
   <<: *build_template
 
 build_ubuntu_clang:
@@ -68,6 +73,8 @@ build_ubuntu_clang:
     - apt-get purge -y gcc
     - apt-get -y autoremove
     - apt-get -y autoclean
+    - apt-get -y clean \
+    - rm -rf /var/lib/apt/lists/* \
   <<: *build_template
 
 build_fedora:
@@ -158,7 +165,7 @@ job-draw:
   timeout: 20m
   script: 
     - ./bin/xfitter-draw temp/defaultNNLO/output
-    - xfitter-process profile  output/pdf_shifts.dat output/pdf_rotate.dat ../deps/lhapdf/share/LHAPDF/CT10 ../deps/lhapdf/share/LHAPDF/CT10_profile
+    - ./bin/xfitter-process profile  temp/defaultNNLO/output/pdf_shifts.dat temp/defaultNNLO/output/pdf_rotate.dat deps/lhapdf/share/LHAPDF/CT10 deps/lhapdf/share/LHAPDF/CT10_profile
   artifacts:
     when: always
     paths:
