@@ -25,7 +25,7 @@ build_centos7:
   before_script:
     - yum -q -y update
     - yum -y install epel-release gcc gcc-c++ gcc-gfortran blas blas-devel lapack lapack-devel boost-devel
-    - yum -y install yum-plugin-ovl which yaml-cpp libyaml yaml-cpp-devel libyaml-devel gsl-devel cmake3 autoconf ceres-solver-devel make coreutils automake m4 libtool zlib-devel 
+    - yum -y install yum-plugin-ovl which yaml-cpp libyaml yaml-cpp-devel libyaml-devel gsl-devel cmake3 autoconf ceres-solver-devel make coreutils automake m4 libtool zlib-devel python-devel
     - yum -y clean all
     - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   <<: *build_template
@@ -35,7 +35,7 @@ build_centos8:
   before_script:
     - dnf -q -y update
     - dnf -y install epel-release gcc gcc-c++ gcc-gfortran blas lapack boost-devel 
-    - dnf -y install --skip-broken dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake m4libtool zlib-devel ceres-solver-devel
+    - dnf -y install --skip-broken dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake m4libtool zlib-devel ceres-solver-devel python-devel
     - dnf -y --enablerepo=powertools install libyaml-devel blas-devel lapack-devel
   <<: *build_template
 
@@ -44,7 +44,7 @@ build_ubuntu20:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake m4 libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config
+    - apt-get install -y wget cmake automake m4 libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config python-dev
     - apt-get -y autoremove
     - apt-get -y autoclean
     - apt-get -y clean \
@@ -56,7 +56,7 @@ build_ubuntu22:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake m4 libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config
+    - apt-get install -y wget cmake automake m4 libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config python-dev
     - apt-get -y autoremove
     - apt-get -y autoclean
     - apt-get -y clean \
@@ -68,7 +68,7 @@ build_ubuntu_clang:
   before_script:
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update -qq -y
-    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev  libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config 
+    - apt-get install -y wget cmake automake libtool libyaml-dev libyaml-cpp-dev  libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config python-dev
     - apt-get install -y  clang flang
     - apt-get purge -y gcc
     - apt-get -y autoremove
@@ -82,7 +82,7 @@ build_fedora:
   before_script:
     - dnf -q -y update
     - dnf -y install  gcc gcc-c++ gcc-gfortran blas lapack boost-devel
-    - dnf -y install  dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake m4 libtool zlib-devel ceres-solver
+    - dnf -y install  dnf-plugin-ovl which yaml-cpp-devel  gsl-devel cmake autoconf make automake m4 libtool zlib-devel ceres-solver python-devel
     - dnf -y  install libyaml-devel blas-devel lapack-devel
   <<: *build_template
 
