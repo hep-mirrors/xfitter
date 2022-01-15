@@ -151,6 +151,7 @@ job-tests:
   artifacts:
     when: on_failure
     paths:
+      - download-lhapdf.log
       - temp/**/test.log
       - temp/**/xfitter.log
       - temp/**/output
