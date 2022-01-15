@@ -123,6 +123,12 @@ build_deps_ubuntu:
     - schedules
   timeout: 60m
   script: 
+    - export DEBIAN_FRONTEND=noninteractive
+    - apt-get update -qq -y
+    - apt-get install -y wget cmake automake m4 libtool libyaml-dev libyaml-cpp-dev g++ gfortran libgsl-dev libblas-dev liblapack-dev libceres-dev pkg-config 
+    - apt-get -y autoremove
+    - apt-get -y autoclean
+    - apt-get -y clean \
     - yum install -y  gcc-gfortran  libgfortran-static redhat-lsb-core 
     - ./tools/install-xfitter deps
     - ls -l
