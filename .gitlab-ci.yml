@@ -98,7 +98,7 @@ build_deps_centos:
     - ./tools/install-xfitter deps
     - ls -l
     - cat setup.sh
-    - source setup.sh > setup.log
+#    - source setup.sh > setup.log
     - ./make.sh install
     - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
@@ -127,7 +127,7 @@ build_deps_ubuntu:
     - ./tools/install-xfitter deps
     - ls -l
     - cat setup.sh
-    - source setup.sh > setup.log
+#    - source setup.sh > setup.log
     - ./make.sh install
     - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
