@@ -97,7 +97,7 @@ build_deps_centos:
     - yum install -y root gcc-gfortran libgfortran-static redhat-lsb-core 
     - ./tools/install-xfitter deps
     - ls -l
-    - ./setup.sh
+    - source setup.sh
     - ./make.sh install
     - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
@@ -124,7 +124,7 @@ build_deps_ubuntu:
     - yum install -y  gcc-gfortran  libgfortran-static redhat-lsb-core 
     - ./tools/install-xfitter deps
     - ls -l
-    - ./setup.sh
+    - source setup.sh
     - ./make.sh install
     - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
