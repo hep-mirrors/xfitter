@@ -466,9 +466,7 @@ else
 	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
 	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	cd APFELgrid-${apfelgridver}
-    #do not use bootstrap script 
-    #	./setup.sh  >> $CURRENTDIR/install.log  2>&1    
-    ./configure --prefix=$CURRENTDIR/deps/apfelgrid && make && make install>> $CURRENTDIR/install.log  2>&1
+    ./setup.sh  >> $CURRENTDIR/install.log  2>&1    
 	if [[ $? != 1 ]]
 	then
             echo "Error, check install.log for details"
