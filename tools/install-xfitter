@@ -8,7 +8,7 @@ hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.34
 qcdnumver=17-01-15
-apfelver=3.0.4
+apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.2.0
 
@@ -128,7 +128,7 @@ if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]
     fi
 fi
 
-if [[ $mode != "deps" && -e xfitter-${version} &&  -e herafitter-${version} ]]
+if [[ $mode != "deps" && -e xfitter-${version} ]]
 then
     echo
     echo "xfitter-${version} already exists, remove it first"
@@ -137,14 +137,6 @@ then
     echo
     exit
 fi
-#if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
-#then
-#    echo
-#    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
-#    echo "$0 $version"
-#    echo
-#    exit
-#fi
 
 #automatically detect system:
 if [[ -z $MANUALCONF ]]
@@ -471,7 +463,6 @@ else
 	make install
 	cd - >& /dev/null
     fi
-    
     
  #apfel
     echo "Installing APFELxx $apfelxxver..."
