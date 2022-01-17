@@ -41,6 +41,7 @@ find_package(yaml)
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
 else()
+
 #Use c++11
 if(CMAKE_VERSION VERSION_LESS "3.1")
   #workaround for older versions of cmake
@@ -61,9 +62,13 @@ if(APPLE)
   set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
 endif()
 
-if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10")
+
+if (CMAKE_MAJOR_VERSION VERSION_GREATER_EQUAL "3")
+if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10")
   set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
 endif()
+endif()
+
 
 #For Fortran
 #set max line length to 132
