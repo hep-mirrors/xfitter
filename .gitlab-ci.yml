@@ -1,7 +1,7 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool ceres-solver-devel
   - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   
 job-install-minimal:
