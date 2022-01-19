@@ -450,11 +450,12 @@ else
 	then
             curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
 	else
-            wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+            wget --no-check-certificate https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	fi
 	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
 	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	cd APFELgrid-${apfelgridver}
+	sed -i 's|wget|wget --no-check-certificate|' setup.sh
 	./setup.sh  >> $CURRENTDIR/install.log  2>&1
 	if [[ $? != 1 ]]
 	then
