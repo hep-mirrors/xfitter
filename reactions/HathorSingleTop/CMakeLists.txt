@@ -4,8 +4,10 @@ if(NOT HATHOR_FOUND)
 endif()
 
 set(TARGET reactionHathorSingleTop)
-add_library(${TARGET} MODULE ReactionHathorSingleTop.cc HathorPdfxFitter.cc)
+add_library(${TARGET} MODULE 
+  ReactionHathorSingleTop.cc 
+  HathorPdfxFitter.cc
+)
 target_link_libraries(${TARGET} PRIVATE xfitter HATHOR)
-target_include_directories(${TARGET} PRIVATE include)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 install(FILES HathorSingleTop.yaml DESTINATION ${DEST_YAML}/reactions)

@@ -1,4 +1,4 @@
-After minimisation    5340.29  3024     1.766
+After minimisation    5345.85  3024     1.768
 
   Partial chi2s 
 Dataset    1    547.24   377  HERA1+2 NCep 920                                
@@ -82,12 +82,12 @@ Dataset   78     42.39    18  CMS inclusive jets 8 TeV, 2.5 < |y| < 3.0
 Dataset   79     11.05    15  CMS 8TeV ttbar [M(ttbar),y(ttbar)] cross section
 Dataset   80      0.20     1  CMS total ttbar 7TeV mt=173.3 GeV               
 Dataset   81     15.85     1  ATLAS total ttbar 7TeV mt=173.3 GeV             
-Dataset   82      0.48     1  ATLAS 7 TeV single top t-channel, top quark     
-Dataset   83      1.55     1  ATLAS 7 TeV single top t-channel, top antiquark 
-Dataset   84      0.02     1  CMS 8 TeV single top t-channel, top quark       
-Dataset   85      0.17     1  CMS 8 TeV single top t-channel, top antiquark   
+Dataset   82      0.84     1  ATLAS 7 TeV single top t-channel, top quark     
+Dataset   83      1.56     1  ATLAS 7 TeV single top t-channel, top antiquark 
+Dataset   84      2.08     1  CMS 8 TeV single top t-channel, top quark       
+Dataset   85      1.56     1  CMS 8 TeV single top t-channel, top antiquark   
 
- Correlated Chi2    798.17649047268810     
+ Correlated Chi2    799.90927525114205     
  Systematic shifts          909
   
                                 Name          Shift   +/-    Error          Type
@@ -998,5 +998,5 @@ Dataset   85      0.17     1  CMS 8 TeV single top t-channel, top antiquark
   905  cmstop14013_matchingThreshold_D       -0.0453   +/-   0.7779        :N:A:D
   906  cmstop14013_Hadronization              0.4267   +/-   0.4300        :N:A:D
   907  cmstop14013_hardScattering             1.1169   +/-   0.4359        :N:A:D
-  908  syst_a7                               -0.2675   +/-   0.1500        :N:M:D
-  909  syst_cms8                              0.8017   +/-   0.2269        :N:M:D
+  908  syst_a7                               -1.4738   +/-   0.1610        :N:M:D
+  909  syst_cms8                             -0.5245   +/-   0.2429        :N:M:D

@@ -126,6 +126,12 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
     hf_errlog(17080702, "F: no SqrtS for dataset with id = " + std::to_string(dataSetID));
   _hathor->setSqrtShad(sqrtS);
 
+  // set conversion factor
+  double convFac_in = 0.389379323e9;  //HATHOR default value
+  if(td->hasParam("convFac")) convFac_in = *td->getParamD("convFac");
+  _hathor->sethc2(convFac_in);
+  std::cout << " ReactionHathor: hc2 set to " << convFac_in << std::endl;
+
   // set mass
   double mtop = 0;
   if(td->hasParam("mtp"))

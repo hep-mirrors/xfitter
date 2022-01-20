@@ -8,13 +8,11 @@ hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.34
 qcdnumver=17-01-15
-apfelver=3.0.4
-melaver=2.0.1
+apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.6.0
 
 # skip some packages depending on xfitter version
-skip_mela=0
 skip_apfelgrid=0
 
 ## Optional manual configurations
@@ -130,7 +128,7 @@ if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]
     fi
 fi
 
-if [[ $mode != "deps" && -e xfitter-${version} &&  -e herafitter-${version} ]]
+if [[ $mode != "deps" && -e xfitter-${version} ]]
 then
     echo
     echo "xfitter-${version} already exists, remove it first"
@@ -138,19 +136,6 @@ then
     echo "$0 deps"
     echo
     exit
-fi
-#if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
-#then
-#    echo
-#    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
-#    echo "$0 $version"
-#    echo
-#    exit
-#fi
-
-# skip some packages depending on xfitter version
-if [[ $version == "master" ]]; then
-  skip_mela=1
 fi
 
 #automatically detect system:
@@ -465,11 +450,12 @@ else
 	then
             curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
 	else
-            wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+            wget --no-check-certificate https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	fi
 	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
 	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	cd APFELgrid-${apfelgridver}
+	sed -i 's|wget|wget --no-check-certificate|' setup.sh
 	./setup.sh  >> $CURRENTDIR/install.log  2>&1
 	if [[ $? != 1 ]]
 	then
@@ -477,37 +463,6 @@ else
 	fi
 	make install
 	cd - >& /dev/null
-    fi
-    
- #mela
-    if [[ $skip_mela != 1 ]]; then
-      echo "Installing MELA $melaver..."
-
-      if [[ $http == "curl" ]]
-      then
-          curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
-      else
-          wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-      fi
-      mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
-      tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-      cd MELA-${melaver}
-      ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
-
-      if [[ $? != 0 ]]
-      then
-          echo "Error, check install.log for details"
-          exit
-      fi
-      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-      if [[ $? != 0 ]]
-      then
-          echo "Error, check install.log for details"
-          exit
-      fi
-      cd - >& /dev/null
-   # setup paths for mela:
-      export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
     fi
     
  #apfel
