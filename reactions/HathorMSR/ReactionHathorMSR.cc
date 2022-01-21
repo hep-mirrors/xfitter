@@ -10,6 +10,7 @@
 #include "Hathor.h"
 #include "cstring"
 #include "xfitter_cpp.h"
+#include <fstream>
 
 // the class factories
 extern "C" ReactionHathorMSR* create() {
