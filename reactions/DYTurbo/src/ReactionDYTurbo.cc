@@ -25,7 +25,7 @@ void ReactionDYTurbo::atStart()
   //Attach PDFs and alphas
   opts.externalpdf = true;
   pdf::xfxq = pdf_xfxq_wrapper_;
-  pdf::alphas = alphas_wrapper_;
+  pdf::extalphas = alphas_wrapper_;
 }
 
 // Main function to compute results at an iteration
