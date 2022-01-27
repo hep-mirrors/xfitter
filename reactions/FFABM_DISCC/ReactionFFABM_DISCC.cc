@@ -44,6 +44,19 @@ struct COMMON_masses
   double rcharge[150];
 };
 extern COMMON_masses masses_;
+
+struct COMMON_gridset
+{
+  double delx1,delx2,delxp,dels1[8],dels2[8],xlog1,xlog2,x1,q2ini[8],q2min,q2max,xbmin,xbmax;
+  int nxmgrid,nxpgrid,nspgrid,nsmgrid,khalf;
+};
+extern COMMON_gridset gridset_;
+
+struct COMMON_constants_abkm
+{
+  double pi,alpha,alphady,rmpr,gfer2,sintc,sintw2,rmw,rmz,rgz,ckm[9],ckm2[9];
+};
+extern COMMON_constants_abkm constants_abkm_;
 }
 
 
@@ -75,6 +88,12 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
   int ordfl = 1;
   if(td->hasParam("ordfl"))
     ordfl = td->getParamI("ordfl");
+  
+  // control x range (certain PDF sets have limited x_min, x_max)
+  if(td->hasParam("xbmin"))
+    gridset_.xbmin = *td->getParamD("xbmin");
+  if(td->hasParam("xbmax"))
+    gridset_.xbmax = *td->getParamD("xbmax");
 
   initgridconst_();
 
@@ -86,6 +105,17 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
   masses_.rmass[7] = *_mcPtr;
   _mbPtr = td->getParamD("mbt");
   masses_.rmass[9] = *_mbPtr;
+  
+  // CKM matrix
+  constants_abkm_.ckm[0] = *td->getParamD("Vud");
+  constants_abkm_.ckm[1] = *td->getParamD("Vus");
+  constants_abkm_.ckm[2] = *td->getParamD("Vub");
+  constants_abkm_.ckm[3] = *td->getParamD("Vcd");
+  constants_abkm_.ckm[4] = *td->getParamD("Vcs");
+  constants_abkm_.ckm[5] = *td->getParamD("Vcb");
+  constants_abkm_.ckm[6] = *td->getParamD("Vtd");
+  constants_abkm_.ckm[7] = *td->getParamD("Vts");
+  constants_abkm_.ckm[8] = *td->getParamD("Vtb");
 
   printf("---------------------------------------------\n");
   printf("INFO from ABKM_init:\n");
@@ -104,6 +134,9 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
 
   unsigned termID = td->id;
   auto nBins = td->getNbins();
+  BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
+  if(rd->_integrated)
+    nBins = rd->_integrated->getBinValuesQ2()->size();
   _f2abm[termID].resize(nBins);
   _flabm[termID].resize(nBins);
   _f3abm[termID].resize(nBins);
@@ -152,7 +185,9 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
     auto q2 = *q2p, x = *xp;
 
     // Number of data points
-    const size_t Np = td->getNbins();
+    // SZ getNbins does not work for integrated cross sections (returning number of bins)
+    //const size_t Np = td->getNbins();
+    const size_t Np = xp->size();
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     double cos2thw = 1.0 - *_sin2thwPtr;

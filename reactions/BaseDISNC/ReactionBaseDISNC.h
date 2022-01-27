@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ReactionTheory.h"
+#include <IntegrateDIS.h>
 
 /**
   @class' ReactionBaseDISNC
@@ -16,15 +17,13 @@
 // Define standard parameters used by SF and x-sections:
 #define BASE_PARS (TermData * td, valarray<double> & val, map<string, valarray<double>> & err)
 
-class IntegrateDIS;
-
 class ReactionBaseDISNC : public ReactionTheory
 {
 public:
    ReactionBaseDISNC(){};
 
 public:
-   virtual string getReactionName() const { return "BaseDISNC"; };
+   virtual string getReactionName() const override { return "BaseDISNC"; };
    virtual void atStart() override;
    virtual void initTerm(TermData *td) override;
    virtual void reinitTerm(TermData *td) override; //! allow for polarisation update.

@@ -54,7 +54,6 @@ extern "C" ReactionBaseDISNC *create()
 // Initialize at the start of the computation
 void ReactionBaseDISNC::atStart()
 {
-  _convfac = *XFITTER_PARS::getParamD("convFac");
 }
 
 // Main function to compute results at an iteration
@@ -111,6 +110,7 @@ void ReactionBaseDISNC::atIteration()
   // Make sure to call the parent class initialization:
   super::atIteration();
 
+  _convfac = *XFITTER_PARS::getParamD("convFac");
   _alphaem = *XFITTER_PARS::getParamD("alphaem");
   _Mz = *XFITTER_PARS::getParamD("Mz");
   _Mw = *XFITTER_PARS::getParamD("Mw");
@@ -244,7 +244,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   auto *xminp = td->getBinColumnOrNull("xmin");
   auto *xmaxp = td->getBinColumnOrNull("xmax");
 
-  if (q2minp && q2maxp && yminp && ymaxp)
+  if (q2minp && q2maxp)
   {
     // integrated cross section
     if (s < 0)
@@ -280,7 +280,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
 
     if (q2p == nullptr || xp == nullptr || yp == nullptr)
     {
-      string msg = "F: Q2, x or Y bins are missing for NC DIS reaction for dataset " + std::to_string(termID);
+      string msg = "F: Q2, x or y bins are missing for NC DIS reaction for dataset " + std::to_string(termID);
       hf_errlog(17040801, msg);
     }
     _npoints[termID] = (*q2p).size();

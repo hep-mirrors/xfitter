@@ -17,9 +17,9 @@
 class ReactionKMatrix:public ReactionTheory{
 public:
   ReactionKMatrix(){};
-  virtual string getReactionName()const{return"KMatrix";}
-  virtual void initTerm(TermData*)override final;
-  virtual void freeTerm(TermData*)override final;
-  virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors)override final;
+  virtual string getReactionName() const override {return"KMatrix";}
+  virtual void initTerm(TermData*) override final;
+  virtual void freeTerm(TermData*) override final;
+  virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors) override final;
 };
 

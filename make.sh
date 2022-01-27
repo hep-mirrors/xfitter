@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #Wrapper script for cmake
 
 #./make.sh clean     - delete all build files
@@ -20,7 +22,7 @@ CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Release"
 #CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_APFELxx=TRUE"
 #CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_Ceres=TRUE"
 
-SOURCE_DIR=$(dirname $(readlink -e $0)) #absolute path to directory of this script
+SOURCE_DIR=`pwd` #absolute path to directory of this script
 BUILD_DIR=$SOURCE_DIR/build
 INSTALL_DIR=$SOURCE_DIR
 
@@ -34,7 +36,7 @@ if [ "$cmd" == "clean" ];then
   #Delete the build directory
   if [ -d $BUILD_DIR ];then
 		rm -r $BUILD_DIR
-		rmdir --ignore-fail-on-non-empty $INSTALL_DIR
+		rmdir $INSTALL_DIR
 	fi
 elif [ "$cmd" == "uninstall" ];then
   #Delete the installed exeuctable and libraries

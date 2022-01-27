@@ -1,0 +1,10 @@
+After minimisation       0.00   114     0.000
+
+  Partial chi2s 
+Dataset    1      0.00( +0.00)   114  str100 CC e-p                                   
+
+ Correlated Chi2    0.0000000000000000     
+ Log penalty Chi2    1.5543122344752192E-015
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

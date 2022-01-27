@@ -1,4 +1,3 @@
-
       subroutine Error_Bands_Pumplin
 
       implicit none
@@ -55,6 +54,10 @@ C SG: x-dependent fs:
       double precision shift
       double precision GetUmat !function
       ! double precision DecorVarShift
+
+C for uncertainty bands with increased tolerance
+      double precision fmin, fedm, errdef
+      integer npari, nparx, istat
 
 C for theory errors:
       double precision, allocatable :: TheoVars(:,:,:)
@@ -141,7 +144,8 @@ C
                   if(doOffset) then
                     shift = shift_dir * DecorVarShift(iint, j)
                   else
-                    shift = shift_dir * GetUmat(iint,j)
+                    call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)   !> MW&FG for scaling with DeltaChi2>1.0                                           
+                    shift = shift_dir * GetUmat(iint,j)*SQRT(errdef)       !> MW&FG for scaling with DeltaChi2>1.0                                      
                   endif
                   a(i) = a(i) + shift
                endif

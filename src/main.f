@@ -19,6 +19,7 @@ C-------------------------------------------------------
 #include "covar.inc"
 #include "theorexpr.inc"
 #include "chi2scan.inc"
+#include "extrapars.inc"
 #include "alphasscan.inc"
 
       integer icond
@@ -49,6 +50,12 @@ C      call hfbanner
          endif
       endif
 
+*
+*  Read parameters:
+*
+      nExtraParam = 0
+      call parse_params() !read parameters.yaml
+
 *     ------------------------------------------------
 *     Read the steering file steering.txt
 *     ------------------------------------------------ 
@@ -59,15 +66,6 @@ C      call hfbanner
 
 * Init random numbers 
       call init_rnd_seeds()
-
-*
-*  Read parameters:
-*
-      call parse_params() !read parameters.yaml
-
-*This makes sure that the default evolution exists and is acessible from
-*fortran using hf_get_pdfs(x,Q,pdfs) etc
-      call init_evolution()
 
 *     ------------------------------------------------
 *     Read the measured data points

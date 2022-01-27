@@ -15,7 +15,7 @@ void FlipChargeEvol::atConfigurationChange(){
   }catch(const YAML::BadConversion&ex){
     if(!node){
       //If no input is provided, use default evolution
-      input=defaultEvolution;
+      input=defaultEvolutionInstance();
       cerr<<"[INFO] Evolution \""<<_name<<"\" of class "<<getClassName()<<": \"input\" not provided; using default evolution \""<<input->_name<<"\""<<endl;
     }else{
       cerr<<"[ERROR] In evolution "<<_name<<" of class "<<getClassName()<<": failed to convert input to string, YAML node:"<<node<<endl;

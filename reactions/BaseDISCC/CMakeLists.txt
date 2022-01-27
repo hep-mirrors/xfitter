@@ -1,3 +1,8 @@
+if(NOT QCDNUM_FOUND)
+  message(STATUS "Skipping optional reaction BaseDISCC because QCDNUM library was not found")
+  return()
+endif()
+
 set(TARGET reactionBaseDISCC)
 add_library(${TARGET} SHARED ReactionBaseDISCC.cc)
 target_link_libraries(${TARGET} PRIVATE xfitter evolutionQCDNUM)

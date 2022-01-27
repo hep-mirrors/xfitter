@@ -267,7 +267,17 @@ C Extra info about k-factors, applegrid file(s):
 C Infomation for open more than 1 applgrid
 C     character*80 applgridNames(NapplgridMax)
       integer      NTheoryFiles
-      logical ForceAdditive ! force all errors to be treated as additive
+      logical ForceAdditive     ! force all errors to be treated as additive
+C Variables for plotting
+      integer PlotN
+      character *64 PlotDefColumn
+      double precision PlotDefValue(ncolumnMax)
+      character *64 PlotDefTitle(ncolumnMax)
+      character *64 PlotVarColumn
+
+      character *256 PlotOptions(ncolumnMax)
+      integer PlotDefColIdx, PreviousPlots
+      double precision tempD
 C Namelist definition:
       namelist/Data/Name,NData
      $     ,NInfo,datainfo,CInfo,Reaction,Percent
@@ -319,22 +329,11 @@ c     bin-by-bin dynamic scale in applgrid prediction
       logical LReadKFactor
 
 C Temporary buffer to read the data (allows for comments starting with *)
-      character *4096 CTmp
+      character *14096 CTmp
 
       integer SystematicsExist,iLen
       integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)
       logical isPlus, isMinus
-
-C Variables for plotting
-      integer PlotN
-      character *64 PlotDefColumn
-      double precision PlotDefValue(ncolumnMax)
-      character *64 PlotDefTitle(ncolumnMax)
-      character *64 PlotVarColumn
-
-      character *256 PlotOptions(ncolumnMax)
-      integer PlotDefColIdx, PreviousPlots
-      double precision tempD
       
 C Functions
       logical FailSelectionCuts
@@ -393,7 +392,7 @@ C Reset scales to 1.0
       open(51,file=CFile,status='old',err=99)
 
 cc      if(DEBUG)then
-        print *,'Reading data file',trim(CFile)
+        print *,'Reading data file ',trim(CFile)
 cc      endif
       read(51,NML=Data,err=98)
 
@@ -642,21 +641,12 @@ C     ---> copy the names in a new variable
 	endif
         DATASETTheoryType(NDATASETS) = TheoryType(1)
         idxReaction = GetInfoIndex(NDATASETS,'ppbar')
-        ppbar_collisions = 0    ! defaults to LHC
-        if ( idxReaction .ne. 0 ) then
-           ppbar_reaction = DATASETInfo(idxReaction, NDATASETS)
-           if ( ppbar_reaction .eq. 1 ) ppbar_collisions = 1
-
-           write (Msg,'(''I: Use proton anti-proton PDF convolution dataset: '',A20,'' '')')
-     $        Name
-           call HF_errlog(14012301,trim(Msg))
-        endif
 
         idxReaction = GetInfoIndex(NDATASETS,'Normalised')
         normalised = 0    ! defaults to absolute cross section
         if ( idxReaction .ne. 0 ) then
-           theory_normalised = DATASETInfo(idxReaction, NDATASETS)
-           if ( theory_normalised .eq. 1 ) normalised = 1
+           normalisation = DATASETInfo(idxReaction, NDATASETS)
+           if ( normalisation .ge. 0 ) normalised = 1
 
        write (Msg,'(''I: Normalise APPLGRID prediction dataset: '',A20,'' '')')
      $        Name
@@ -672,29 +662,6 @@ C     ---> copy the names in a new variable
      $        Name
            call HF_errlog(14042001,trim(Msg))
         endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'MurDef')
-        murdef = -1    ! defaults: scale1 for pp/ppbar
-        if ( idxReaction .ne. 0 ) then
-           murdef = DATASETInfo(idxReaction, NDATASETS)
-           if ( murdef .ne. -1 ) then
-              write (Msg,'(''I: Use mur defintion '',i1,'' for fastNLO dataset: '',A20,'' '')')
-     $             murdef,Name
-              call HF_errlog(15102301,trim(Msg))
-           endif
-        endif
-
-        idxReaction = GetInfoIndex(NDATASETS,'MufDef')
-        mufdef = -1    ! defaults: scale1 for pp/ppbar
-        if ( idxReaction .ne. 0 ) then
-           mufdef = DATASETInfo(idxReaction, NDATASETS)
-           if ( murdef .ne. -1 ) then
-              write (Msg,'(''I: Use muf defintion '',i1,'' for fastNLO dataset: '',A20,'' '')')
-     $             murdef, Name
-              call HF_errlog(15102302,trim(Msg))
-           endif
-        endif
-
 
         call set_theor_eval(NDATASETS)
       endif

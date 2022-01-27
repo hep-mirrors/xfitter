@@ -86,7 +86,10 @@ int load_rotation_matrix(RotMatrix *rot_matrix, char *file_path) {
                 fputs("cant open rotation matrix file!", stderr);
                 return(EXIT_FAILURE);
         }
-        sscanf(line, "LHAPDF set=%ms", &rot_matrix->pdf_name);
+        if(sscanf(line, "LHAPDF set=%ms", &rot_matrix->pdf_name) != 1){
+                fputs("Bad LHAPDF set", stderr);
+                exit(EXIT_FAILURE);
+        }
 
 //        int n_matrix;
         i_tmp=fscanf(fp, "%d", &rot_matrix->n );

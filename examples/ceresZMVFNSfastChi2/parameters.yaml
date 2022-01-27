@@ -1,14 +1,4 @@
 Minimizer: CERES
-MINUIT:
-  Commands: |
-    set str 2
-    call fcn 3
-#    call fcn 1
-#    migrad
-#    hesse
-#    call fcn 3
-    
-#  doErrors :  Hesse # None
 
 Parameters:
   Ag   :  DEPENDENT
@@ -62,16 +52,6 @@ Parameterisations:
   par_g:
     class: NegativeGluon
     parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
-  #par_s:
-    #class: HERAPDF
-    #parameters: [As,Bs,Cs]
-  #par_s:
-    #class: Expression
-    #expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
-  # Another example for Expression parameterisation
-  #par_g:
-    #class: Expression
-    #expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
 DefaultDecomposition: proton
 Decompositions:
@@ -84,99 +64,29 @@ Decompositions:
     xs: par_s
     xg: par_g
 
-#DefaultEvolution: proton-APFELff
 DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
 
 Evolutions:
-  proton-APFELff:
-    ? !include evolutions/APFEL.yaml
-    decomposition: proton
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     decomposition: proton #this could be omitted, as the default decomposition is set
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    #EvolutionCopy: "proton-LHAPDF"
-  proton-LHAPDF:
-    class: LHAPDF
-    set: "NNPDF30_nlo_as_0118"
-    #set: "CT10nlo"
-    member: 0
-#  proton-APFEL:
-#    ? !include yaml/evolutions/APFELxx.yaml
-#    decomposition: proton
-  antiproton:
-    class: FlipCharge
-    #input: proton-QCDNUM
-    input: proton-LHAPDF
-#  neutron:
-#    class: FlipUD
-#    input: proton-QCDNUM
 
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
 
 ? !include constants.yaml
 
-alphas : 0.118
-
-byReaction:
-  # RT DIS scheme settings:
-  RT_DISNC:
-    ? !include reactions/RT_DISNC.yaml
-    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-    #evolution: proton-QCDNUM
-  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-  #BaseDISCC:
-  #  evolution: proton-QCDNUM
-  # FONLL scheme settings:
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
-  # FF ABM scheme settings:
-  FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC.yaml
-  FFABM_DISCC:
-    ? !include reactions/FFABM_DISCC.yaml
-  # AFB settings:
-  AFB:
-    ? !include reactions/AFB.yaml
-  # APPLgrid settings:
-  APPLgrid:
-    ? !include reactions/APPLgrid.yaml
-  # (optional) Fractal module settings:
-  Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC.yaml
-
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-#  defaultValue : 'RT_DISNC'        # global specification
   defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
-#  defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
 
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
   defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
-
-#
-# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
-#
-Profiler:
-  Parameters:
-    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
-  #Evolutions:
-  #  proton-LHAPDF:
-  #    sets:    [CT10]
-  #    members: [[0,1,end]]
-  Status: "Off"               # "Off" to turn off profiler
-  WriteTheo: "Off"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
-  getChi2: "Off"              # determine and report chi2 for each variation
 
 WriteLHAPDF6:
   name: "proton"

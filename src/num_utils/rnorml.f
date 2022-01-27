@@ -27,7 +27,7 @@ C   since the pair (0.0, 0.5) provokes a floating point exception.
       DATA  S, T, A, B / 0.449871, -0.386595, 0.19600, 0.25472/
       DATA  R1, R2/ 0.27597, 0.27846/
 C         generate pair of uniform deviates
-      DO 200 IDEV = 1, NDEV
+      DO IDEV = 1, NDEV
    50 CALL RANMAR(U,2)
       V = 1.7156 * (U(2) - 0.5)
       X = U(1) - S
@@ -41,6 +41,7 @@ C           reject P if outside acceptance region
       IF (V**2 .GT. -4.0 *ALOG(U(1)) *U(1)**2)  GO TO 50
 C           ratio of P's coordinates is normal deviate
   100 DEVIAT = V/U(1)
-  200 DEVIAS(IDEV) = DEVIAT
+      DEVIAS(IDEV) = DEVIAT
+      END DO
       RETURN
       END

@@ -63,19 +63,3 @@
   21    Guv        0.47000E-01   0.40000E-02
   22    ZERO        0.0000       constant   
   23    fs         0.40000       constant   
- **********
- **    3 **#CALL FCN    1.000    
- **********
-           UNKNOWN COMMAND IGNORED:#CALL FCN 
- **********
- **    4 **#MIGRAD 
- **********
-           UNKNOWN COMMAND IGNORED:#MIGRAD 
- **********
- **    5 **#HESSE 
- **********
-           UNKNOWN COMMAND IGNORED:#HESSE 
- **********
- **    6 **#CALL FCN    3.000    
- **********
-           UNKNOWN COMMAND IGNORED:#CALL FCN 

@@ -1,0 +1,11 @@
+ First iteration    104782603.12642950              993   105521.25188965710     
+After minimisation **********   993105521.252
+
+  Partial chi2s 
+Dataset    1**********(******)   993  charm CC e-p                                    
+
+ Correlated Chi2    0.0000000000000000     
+ Log penalty Chi2   -1436.0894623962517     
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

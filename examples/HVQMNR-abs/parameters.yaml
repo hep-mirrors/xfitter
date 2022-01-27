@@ -1,14 +1,8 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
     call fcn 3
-#    call fcn 1
-#    migrad
-#    hesse
-#    call fcn 3
-    
-#  doErrors :  Hesse # None
 
 Parameters:
   Ag   :  DEPENDENT
@@ -34,10 +28,6 @@ Parameters:
   Cdbar: # another example of providing value, step etc.
     value: 10.437257
     step: 1.2345
-    #min
-    #max
-    #pr_mean
-    #pr_sigma
   ZERO : [ 0. ]          # zero
   fs : [ 0.31, 0.0 ]
 
@@ -63,10 +53,6 @@ Parameterisations:
   par_g:
     class: NegativeGluon
     parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
-  # Another example for Expression parameterisation
-  #par_g:
-  #  class: Expression
-  #  expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
 DefaultDecomposition: proton
 Decompositions:
@@ -85,21 +71,16 @@ Evolutions:
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
 
+# QCD parameters
+Order: NLO
+NFlavour: 3
+isFFNS: 1
 Q0 : 1.183215957 # Initial scale =sqrt(1.4)
+alphas : 0.1059
 
 ? !include constants.yaml
 
-alphas : 0.1059
-
 byReaction:
-  # RT DIS scheme settings:
-  RT_DISNC:
-    ? !include reactions/RT_DISNC.yaml
-  # FONLL scheme settings:
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
   # FF ABM scheme settings:
   FFABM_DISNC:
     ? !include reactions/FFABM_DISNC.yaml
@@ -107,15 +88,6 @@ byReaction:
   FFABM_DISCC:
     ? !include reactions/FFABM_DISCC.yaml
     runm: 0
-  # AFB settings:
-  AFB:
-    ? !include reactions/AFB.yaml
-  # APPLgrid settings:
-  APPLgrid:
-    ? !include reactions/APPLgrid.yaml
-  # (optional) Fractal module settings:
-  Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC.yaml
   # specific settings
   HVQMNR_LHCb_7TeV_charm:
     MNRmr_AB_c: 0.1968
@@ -126,16 +98,8 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-#  defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
   defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
 
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
-#  defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
   defaultValue : 'FFABM_DISCC'     # global specification

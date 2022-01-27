@@ -1,0 +1,36 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+
+DefaultEvolution: proton-LHAPDF-nnpdf31
+
+Evolutions:
+  proton-LHAPDF-nnpdf31:
+    class: LHAPDF
+    set: "NNPDF31_nnlo_as_0118"
+    member: 0
+  proton-LHAPDF-abmp16:
+    class: LHAPDF
+    set: "ABMP16_5_nnlo"
+    member: 0
+  proton-LHAPDF-ct14:
+    class: LHAPDF
+    set: "CT14nnlo"
+    member: 0
+  proton-LHAPDF-mmht2014:
+    class: LHAPDF
+    set: "MMHT2014nnlo68cl"
+    member: 0
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+
+? !include constants.yaml
+
+byReaction:
+  Hathor:
+    ? !include reactions/Hathor.yaml

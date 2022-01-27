@@ -5,12 +5,12 @@ endif()
 
 set(TARGET reactionBaseHVQMNR)
 add_library(${TARGET} SHARED
-  src/hvqcrsx.f
-  src/MNR.cc
-  src/MNRFrag.cc
-  src/MNRGrid.cc
-  src/ReactionBaseHVQMNR.cc
+  hvqcrsx.f
+  MNR.cc
+  MNRFrag.cc
+  MNRGrid.cc
+  ReactionBaseHVQMNR.cc
 )
 target_link_libraries(${TARGET} PUBLIC xfitter ROOT)
-target_include_directories(${TARGET} PUBLIC include)
+target_include_directories(${TARGET} PUBLIC .)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})

@@ -1,0 +1,152 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    migrad
+    call fcn 3
+#    set str 2
+    
+#  doErrors :  Pumplin
+
+Parameters:
+  s0bv0 :
+    value : -11.6
+    step  : 0.01
+  s0bv1 :
+    value : -6.11
+    step  : 0.01
+  s0bv2 :
+    value : -4.67
+    step  : 0.01
+  s0bv3 :
+    value : -5.07
+    step  : 0.01
+  s0bv4 :
+    value : -6.324
+    step  : 0.01
+  s0bv5 :
+    value : -6.954
+    step  : 0.01
+
+# spline b1:
+
+  s1bv0 : 
+    value : -0.945
+    step  :  0.01
+  s1bv1 : 
+    value : -0.91
+    step  :  0.01
+  s1bv2 : 
+    value : -1.378
+    step  :  0.01
+  s1bv3 : 
+    value : -2.603
+    step  :  0.01
+  s1bv4 : 
+    value : -4.597
+    step  :  0.01
+  s1bv5 : 
+    value : -7.62
+    step  :  0.01
+
+### Fix splines for r0 and r1
+
+# spline r0:
+  s0rv0 : 
+    value : -1.12 
+    step  : 0.0
+  s0rv1 : 
+    value : -1.226
+    step  : 0.0
+  s0rv2 : 
+    value : -2.30 
+    step  : 0.0
+
+# spline r1:
+  s1rv0 : 
+    value : -3.42 
+    step  : 0.0
+  s1rv1 : 
+    value : -1.86
+    step  : 0.0
+  s1rv2 : 
+    value : -6.1
+    step  : 0.0
+
+# exp. param for r0, r1:
+  r0 :
+    value : 6.4
+    step  : 0.01
+  r1:
+    value : 0.58
+    step  : 0.01  
+
+  delta0 :
+    value : -0.86
+    step :  0.01
+  delta1 :
+    value : -1.8
+    step :  0.01
+
+# pomeron slopes:
+
+  epsilon0 : 
+    value : 0.310
+    step  : 0.01
+
+  epsilon1 : 
+    value : 0.079
+    step  : 0.01
+
+# reggeon param:
+  c0ir :
+    value : -0.14
+    step  :  0.01
+  c1ir :
+    value :  0.28
+    step  :  0.01
+
+  alphaIR :
+    value : 0.39
+    step  : 0.01
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+
+? !include constants.yaml
+
+# matched to first non-zero knots:
+s0bn : [0., 0.3,  1.0, 3.0, 25.0, 50. ]
+s1bn : [0., 0.03, 0.3, 1.5, 10.0, 50. ]
+# used only if SplineForR is non-zero:
+s0rn : [1.2,  8.5,  45.0 ]
+s1rn : [0.25,  1.2,  8.5]
+
+byReaction:
+  TensorPomeron:
+    m02     : 0.3
+    m12     : 0.03
+  # Spline for R or not
+    SplineForR : 0
+  # non-spline R params:
+    mr : 1.0
+    mP      : 0.938272
+    alphaEM : 0.0072973525664
+    alphaP  : 0.25
+    beta    : 1.87
+
+  # Region:
+    alphaR   : 0.9
+    betaR    : 3.68
+
+# conversion factor:
+    ubarnFromGeV  : 389.4
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'TensorPomeron'
+
+
+OutputDirectory: "output" #Can be omitted, default is "output"
+

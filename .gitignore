@@ -13,6 +13,14 @@ include/xfitter
 SACOT/src/mdispac.mod
 doc/html/
 build/
+datafiles/*
+!datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042
+!datafiles/README
+*cmake*
+CMakeFiles
+*so
+*dylib
+src/xfitter
 
 #Automake generated files
 *.o

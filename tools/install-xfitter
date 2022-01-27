@@ -6,12 +6,14 @@
 lhapdfver=6.2.1
 hathorver=2.0
 hoppetver=1.2.0
-applgridver=1.5.34
-qcdnumver=17-01-14
-apfelver=3.0.4
-melaver=2.0.1
-apfelgridver=1.0.1
+applgridver=1.5.46
+qcdnumver=17-01-15
+apfelver=3.0.6
+apfelgridver=1.0.5
 apfelxxver=4.0.0
+
+# skip some packages depending on xfitter version
+skip_apfelgrid=0
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -69,15 +71,19 @@ if [[ $mode != "deps" ]]
 else
     if [[ ! -e version ]]
         then
-        echo
-        echo "could not find file \"version\""
-        echo "cannot determine current version"
-        echo "run first:"
-        echo "$0 <version>"
-        echo
-        exit
+        # assume it is master (e.g. for gitlab CI)
+        version="master"
+        #
+        #echo
+        #echo "could not find file \"version\""
+        #echo "cannot determine current version"
+        #echo "run first:"
+        #echo "$0 <version>"
+        #echo
+        #exit
+    else
+        version=`cat version`
     fi
-    version=`cat version`
     echo "reinstalling dependencies for xFitter version $version"
 fi
 # strip the xfitter version
@@ -122,20 +128,12 @@ if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]
     fi
 fi
 
-if [[ $mode != "deps" && -e xfitter-${version} &&  -e herafitter-${version} ]]
+if [[ $mode != "deps" && -e xfitter-${version} ]]
 then
     echo
     echo "xfitter-${version} already exists, remove it first"
     echo "To reinstall only dependences, run:"
     echo "$0 deps"
-    echo
-    exit
-fi
-if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
-then
-    echo
-    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
-    echo "$0 $version"
     echo
     exit
 fi
@@ -156,6 +154,7 @@ then
             echo "Detected SL6 Linux distribution"
             MODE=cern
             gccv=4.9
+	    cmakev=3.20.0
             echo "Using gcc version = ${gccv}"
             os=slc6
             arch=x86_64
@@ -167,22 +166,12 @@ then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
             gccv=4.9
+	    cmakev=3.20.0
             os=centos7
             arch=x86_64
             rootversion=6.06.08
             boostver=1.53.0
             pyth=2.7
-        elif [[ $SYS == Scientific* && $ver == 5.* ]]
-        then
-            echo "Detected SL5 Linux distribution"
-            MODE=cern
-            gccv=4.3
-            os=slc5
-            arch=x86_64
-            rootversion=5.34.00
-            boostver=1.48.0
-            python=2.6.5
-            pyth=2.6
         elif [[ $SYS == "Ubuntu" ]]
         then
             echo "Detected Ubuntu distribution"
@@ -202,7 +191,6 @@ then
 fi
 if [[ $MODE == "cern" ]]
     then
-#    if [[ ! -e /afs/cern.ch ]]
     if [[ ! -e /cvmfs/sft.cern.ch ]]
         then
         echo
@@ -218,17 +206,9 @@ fi
 if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
-#    . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
     . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
     . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-    if [[ $os == slc5 ]]
-    then
-        echo "LEGACY SL5 ! using afs"
-        PYTHONBIN=/afs/cern.ch/sw/lcg/external/Python/${python}/${arch}-${os}-${compiler}-opt/bin
-        PATH=$PYTHONBIN:$PATH
-        export BOOST=--with-boost=/afs/cern.ch/sw/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
-    fi
+    PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:${PATH}
     if [[ $os == slc6 ]]
     then
         export BOOST=--with-boost=/cvmfs/sft.cern.ch/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
@@ -249,6 +229,10 @@ then
     echo "Error, root not found"
     exit
 fi
+
+# Get root c flags:
+root_c_flags=`root-config --cflags`
+echo "Compiling with flags ${root_c_flags}" >> $CURRENTDIR/install.log
 
 which wget >& /dev/null
 if [[ $? == 0 ]]
@@ -298,15 +282,15 @@ else
 
     if [[ $http == "curl" ]]
     then
-#       curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
         curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-#       wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-        wget https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
+    cat $CURRENTDIR/install.log
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    cat $CURRENTDIR/install.log 
     cd ${lhapdf}-${lhapdfver}
-    ./configure --prefix=$CURRENTDIR/deps/lhapdf  >> $CURRENTDIR/install.log  2>&1
+    ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -325,15 +309,14 @@ else
     hathor="Hathor"
     if [[ $http == "curl" ]]
     then
-        # alternative link https://www-zeuthen.desy.de/~moch/hathor/Hathor-2.0.tar.gz
         curl https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC' -j9 >> $CURRENTDIR/install.log  2>&1
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -347,7 +330,7 @@ else
     then
         curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
     else
-        wget http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
     cd hoppet-${hoppetver}
@@ -368,7 +351,7 @@ else
  # setup paths for applgrid:
     export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
     export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
-    export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib
+    export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}
     export LD_LIBRARY_PATH=$CURRENTDIR/deps/lhapdf/lib/:$LD_LIBRARY_PATH
     echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
     export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a`
@@ -382,12 +365,12 @@ else
     then
         curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
     else
-        wget $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
-    # need to supply c++11 flag explicitly
-    ./configure CXXFLAGS='--std=c++11' --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
+    # need to supply c++1X flag from root explicitly
+    ./configure CXXFLAGS="${root_c_flags}" --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -415,7 +398,7 @@ else
     then
         curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-        wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
     tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
@@ -444,8 +427,8 @@ else
       curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz > HELLx.v3.0.tgz 2 >> $CURRENTDIR/install.log
       curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz > HELLx-data.v3.tgz 2 >> $CURRENTDIR/install.log
     else
-      wget https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
-      wget https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
+      wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
+      wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
     fi
 
     tar xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
@@ -454,73 +437,39 @@ else
     cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
 
  #apfelgrid
-    if [ -d /cvmfs ]
-    then
-                lhapdf get NNPDF30_nlo_as_0118  >> $CURRENTDIR/install.log  2>&1
-        else
-                wget http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-                tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
-                mv NNPDF30_nlo_as_0118 `lhapdf-config --datadir` >> $CURRENTDIR/install.log  2>&1
-                rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-        fi
+    if [[ $skip_apfelgrid != 1 ]]; then
+        wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+        tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
+        mv NNPDF30_nlo_as_0118 lhapdf/share/LHAPDF >> $CURRENTDIR/install.log  2>&1
+        rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
         echo "Installing APFELgrid $apfelgridver..."
-    # tmp solution is to use fork @zenaiev
-    apfelgridver=1.0.5
-    if [[ $http == "curl" ]]
-    then
-#       curl https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
-        curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
-    else
-#       wget https://github.com/nhartland/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-        wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+      # tmp solution is to use fork @zenaiev
+	if [[ $http == "curl" ]]
+	then
+            curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+	else
+            wget --no-check-certificate https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+	fi
+	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
+	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+	cd APFELgrid-${apfelgridver}
+	sed -i 's|wget|wget --no-check-certificate|' setup.sh
+	./setup.sh  >> $CURRENTDIR/install.log  2>&1
+	if [[ $? != 1 ]]
+	then
+            echo "Error, check install.log for details"
+	fi
+	make install
+	cd - >& /dev/null
     fi
-    mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
-    tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    cd APFELgrid-${apfelgridver}
-    ./setup.sh  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 1 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
-
- #mela
-    echo "Installing MELA $melaver..."
-
-    if [[ $http == "curl" ]]
-    then
-        curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
-    else
-        wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    fi
-    mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
-    tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    cd MELA-${melaver}
-    ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
-
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
- # setup paths for mela:
-    export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
-
+    
  #apfel
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
         curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-        wget https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
     mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
@@ -531,6 +480,7 @@ else
     make install >> $CURRENTDIR/install.log  2>&1
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
+    cd - >& /dev/null
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
@@ -558,9 +508,38 @@ else
         exit
     fi
     cd - >& /dev/null
+
+  # numdiff
+    numdiff -v >& /dev/null
+    if [[ `echo $?` != "0" ]]; then
+      numdiffver='5.9.0'
+      echo "Installing numdiff $numdiffver..."
+      numdiff_url=http://ftp.igh.cnrs.fr/pub/nongnu/numdiff/numdiff-${numdiffver}.tar.gz
+      if [[ $http == "curl" ]]
+      then
+          curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+      else
+          wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
+      fi
+      tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+      cd numdiff-${numdiffver}
+      ./configure  --prefix=$CURRENTDIR/deps/numdiff  >> $CURRENTDIR/install.log  2>&1
+      echo export PATH=$CURRENTDIR/deps/numdiff/bin/:\$PATH >> $CURRENTDIR/setup.sh
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+      if [[ $? != 0 ]]
+      then
+          echo "Error, check install.log for details"
+          exit
+      fi
+      cd - >& /dev/null
+    fi
 fi
 cd $CURRENTDIR
-
 
  #xfitter
 if [[ $mode != "deps" ]]
@@ -575,29 +554,22 @@ then
     else
         if [[ $http == "curl" ]]
         then
-#           curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
-#           curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
-#            curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
             curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
-#           wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
-#           mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
-#           wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
-#            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
             wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
        # unpack nicely:
         rm -fr xfitter-${version}
         mkdir xfitter-${version} ; tar xfz xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
     fi
-else
-    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
+#else
+#    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
 fi
 
 
 #make a setup run enviroment script
 echo $version > version
-echo "export CURRENTDIR=`pwd`" > setup.sh
+echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
 echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
@@ -613,7 +585,7 @@ rm /tmp/xf_py1234_a
 
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
-echo export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib       >> setup.sh
+echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
@@ -623,11 +595,9 @@ echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
 if [[ $MODE == "cern" ]]
 then
-#    echo . /afs/cern.ch/sw/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
     echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-#    . /afs/cern.ch/sw/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-#    echo cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root >> setup.sh
 
+    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
     echo "cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/" >> setup.sh
     echo ". /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh ">> setup.sh
     echo "cd -" >>setup.sh
@@ -637,14 +607,16 @@ fi
 echo source ./setup.sh > compile
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
-echo export HATHOR_ROOT=$CURRENTDIR/deps/Hathor-${hathorver}/lib       >> compile
+echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
 
 
-echo cd xfitter-\$version                                        >> compile
-echo autoreconf --install                                 >> compile
+if [[ $mode != "deps" ]]
+then
+  echo cd xfitter-\$version                                        >> compile
+fi
 
 # check for YAML
 # xfitter 2.0.0 and 2.0.1 do not need YAML
@@ -653,7 +625,7 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   rm -f test-tmp.cc
   echo "#include <yaml.h>" >> test-tmp.cc
   echo "yaml_document_t doc;" >> test-tmp.cc
-  g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
+  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
   if [ `echo $?` -eq 0 ]; then
     echo "YAML yes" >> $CURRENTDIR/install.log
     HAVEYAML=1
@@ -664,14 +636,14 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   rm -f test-tmp.cc
   echo "#include <yaml-cpp/yaml.h>" >> test-tmp.cc
   echo "YAML::Node node;" >> test-tmp.cc
-  g++ -c -std=c++11 $CPPFLAGS test-tmp.cc >& /dev/null
+  g++ -c ${root_c_flags} $CPPFLAGS test-tmp.cc >& /dev/null
   if [ `echo $?` -eq 0 ]; then
     echo "YAMLCPP yes" >> $CURRENTDIR/install.log
     HAVEYAMLCPP=1
   else
     echo "YAMLCPP no" >> $CURRENTDIR/install.log
   fi
-  #rm -f test-tmp.cc
+  rm -f test-tmp.cc
   rm -f test-tmp.o
 
   if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
@@ -682,18 +654,26 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   fi
 fi
 
-# configure
-if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
-  # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
-  echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
-else
-  echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
-fi
-
-echo make -j 9 install                                    >> compile
-
 chmod +x compile
-echo "Compiling xFitter $version..."
+
+# configure
+if [[ $mode != "deps" ]]
+then
+  if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
+    echo autoreconf --install                                 >> compile
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
+    echo make -j 9 install                                    >> compile
+  elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
+    # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
+    echo make -j 9 install                                    >> compile
+    echo autoreconf --install                                 >> compile
+  else
+    # cmake compilation
+    echo ./make.sh install >> compile
+  fi
+  echo "Compiling xFitter $version..."
+fi
 
 ./compile >> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
@@ -702,59 +682,62 @@ then
     exit
 fi
 
-# run test
 source ./setup.sh
-cd xfitter-${version}
 
-bin/xfitter >> $CURRENTDIR/install.log  2>&1
-
-
-
-if [[ $? != 0 ]]
+if [[ $mode == "deps" ]]
 then
-    echo "Error in testing xfitter executable, check install.log for details"
-    exit
-fi
-cd - >& /dev/null
-echo "xFitter installation successful!"
-echo "Check install.log file for details"
-echo
-# setup a run dir
-if [[ ! -e run ]]
-then
-    mkdir -p run
-    cp  xfitter-${version}/steering.txt \
-        xfitter-${version}/minuit.in.txt \
-        xfitter-${version}/ewparam.txt \
-        xfitter-${version}/parameters.yaml \
-        run
-    rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-    rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
+  echo "Installing xfitter dependencies is complete"
+  echo "Check install.log file for details"
 else
-    echo "\"run\" directory already exists, I won't touch it"
-    echo
-fi
+  # run test
+  cd xfitter-${version}
+  bin/xfitter >> $CURRENTDIR/install.log  2>&1
 
-#quick start guide
-if [[ ! -e quickstart-readme.txt ]]
-then
-    echo "for a quick start do:" >> quickstart-readme.txt
-    echo >> quickstart-readme.txt
-    echo "source setup.sh #setup environment" >> quickstart-readme.txt
-    echo "cd run          #enter your run directory" >> quickstart-readme.txt
-    echo "xfitter          #run your fit" >> quickstart-readme.txt
-    echo >> quickstart-readme.txt
-    echo "The fit options are controlled by the 3 files steering.txt, minuit.in.txt, and ewparam.txt (parameters.yaml)" >> quickstart-readme.txt
-    echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
-    echo >> quickstart-readme.txt
-    echo "After the fit, display you results with:" >> quickstart-readme.txt
-    echo "xfitter-draw output/" >> quickstart-readme.txt
-    echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
-    echo "You can find further documentation in xfitter-$version/README and xfitter-$version/doc/tex/manual/" >> quickstart-readme.txt
-    echo "-----------------------------------------------------------"
-    cat quickstart-readme.txt
-    echo "-----------------------------------------------------------"
-    echo
-    echo "To read again these instructions, see quickstart-readme.txt"
-    echo "Have fun!"
+  if [[ $? != 0 ]]
+  then
+      echo "Error in testing xfitter executable, check install.log for details"
+      exit
+  fi
+  cd - >& /dev/null
+  echo "xFitter installation successful!"
+  echo "Check install.log file for details"
+  echo
+  # setup a run dir
+  if [[ ! -e run ]]
+  then
+      mkdir -p run
+      cp  xfitter-${version}/steering.txt \
+          xfitter-${version}/parameters.yaml \
+          xfitter-${version}/constants.yaml \
+          run
+      rsync -a --exclude=".*" xfitter-${version}/datafiles run/
+      rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
+  else
+      echo "\"run\" directory already exists, I won't touch it"
+      echo
+  fi
+
+  #quick start guide
+  if [[ ! -e quickstart-readme.txt ]]
+  then
+      echo "for a quick start do:" >> quickstart-readme.txt
+      echo >> quickstart-readme.txt
+      echo "source setup.sh #setup environment" >> quickstart-readme.txt
+      echo "cd run          #enter your run directory" >> quickstart-readme.txt
+      echo "xfitter          #run your fit" >> quickstart-readme.txt
+      echo >> quickstart-readme.txt
+      echo "The fit options are controlled by the 3 files steering.txt, parameters.yaml, and constants.yaml" >> quickstart-readme.txt
+      echo "Data and theory files are in datafiles directory" >> quickstart-readme.txt
+      echo >> quickstart-readme.txt
+      echo "After the fit, display you results with:" >> quickstart-readme.txt
+      echo "xfitter-draw output/" >> quickstart-readme.txt
+      echo "A file output/plots.pdf will be created" >> quickstart-readme.txt
+      echo "You can find further documentation in xfitter-$version/README and xfitter-$version/doc/tex/manual/" >> quickstart-readme.txt
+      echo "-----------------------------------------------------------"
+      cat quickstart-readme.txt
+      echo "-----------------------------------------------------------"
+      echo
+      echo "To read again these instructions, see quickstart-readme.txt"
+      echo "Have fun!"
+  fi
 fi

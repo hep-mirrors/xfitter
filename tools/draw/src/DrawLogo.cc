@@ -70,17 +70,19 @@ TPad * DrawLogo(string pos)
 	  cout << "Warning, cannot find font: " << font << "; xFitter version cannot be drawn on logo "<<endl;
 	  opts.version = false;
 	}
-      else 
-	// first see if there is an escale character [ to indicate color. If yes, that is a sign of the release name. Draw it separately
-	if ( ver.find("[") !=std::string::npos ) {
-	  string release = ver.substr(ver.find("m ")+2,ver.find("0m")-ver.find("m ")-4);
+      else
+	{
+	  // first see if there is an escale character [ to indicate color. If yes, that is a sign of the release name. Draw it separately
+	  if ( ver.find("[") !=std::string::npos ) {
+	    string release = ver.substr(ver.find("m ")+2,ver.find("0m")-ver.find("m ")-4);
 	  ver = ver.substr(0,ver.find("[")-1);
 	  // std::cout << release << " " << ver << std::endl;
 	  logo->DrawText(310, 80, release.c_str(), 80, 0, 
-		       font, TImage::kEmbossed);	  
-	};
-	logo->DrawText(170, 510, ver.c_str(), 80, 0, 
-		       font, TImage::kShadeBelow);
+			 font, TImage::kEmbossed);	  
+	  };
+	}
+      logo->DrawText(170, 510, ver.c_str(), 80, 0, 
+		     font, TImage::kShadeBelow);
     }
 
   float dx = 0.0768 * 1.5;
@@ -168,10 +170,13 @@ void DrawLabels(string pos)
   laby = 1-tmarg;
   if (pos.find("ur") != string::npos)
     if (opts.atlas)
+      {
       labx = 1. - rmarg - 0.19 - 0.25;
+      }
     else
-      labx = 1. - rmarg - 0.19 - 0.20 - 0.25;
-
+      {
+	labx = 1. - rmarg - 0.19 - 0.20 - 0.25;
+      }
   if (pos.find("bc") != string::npos)
     {
       labx = lmarg + 0.3;

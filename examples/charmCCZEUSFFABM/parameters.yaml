@@ -1,0 +1,30 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+
+DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "ABMP16_3_nlo"
+    member: 0
+
+# QCD parameters
+Order: NLO
+NFlavour: 3
+isFFNS: 1
+? !include constants.yaml
+
+byReaction:
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+    runm: 1
+    ordfl: 1
+    scalea1: 1.0
+    scaleb1: 0.0
+
+hf_scheme_DISCC :
+  defaultValue : 'FFABM_DISCC'

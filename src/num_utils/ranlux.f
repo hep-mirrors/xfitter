@@ -162,9 +162,10 @@ C           Entry to input and float integer seeds from previous run
       ENTRY RLUXIN(ISDEXT)
          NOTYET = .FALSE.
          TWOM24 = 1.
-         DO 195 I= 1, 24
-         NEXT(I) = I-1
-  195    TWOM24 = TWOM24 * 0.5
+         DO I= 1, 24
+            NEXT(I) = I-1
+            TWOM24 = TWOM24 * 0.5
+         END DO
          NEXT(1) = 24
          TWOM12 = TWOM24 * 4096.
       WRITE(6,'(A)') ' FULL INITIALIZATION OF RANLUX WITH 25 INTEGERS:'

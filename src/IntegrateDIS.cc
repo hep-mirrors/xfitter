@@ -25,7 +25,8 @@ int IntegrateDIS::init(const double s,
   {
     const double q2min = (*q2minp)[i];
     const double q2max = (*q2maxp)[i];
-    double ymin = (*yminp)[i];
+    // if ymin is not provided, assume there is no lower boundary on y
+    double ymin = (yminp) ? (*yminp)[i] : (q2min / s);
     const double ymax = (*ymaxp)[i];
 
     // just copy previous entry, if binning is the same
@@ -33,7 +34,7 @@ int IntegrateDIS::init(const double s,
     if(i > 0
       && q2min == (*q2minp)[i - 1]
       && q2max == (*q2maxp)[i - 1]
-      && ymin == (*yminp)[i - 1]
+      && (!yminp || ymin == (*yminp)[i - 1])
       && ymax == (*ymaxp)[i - 1]
       //Check that xmin and xmax are the same as in previous bin
       //But only if xmin and xmax columns exist
@@ -142,7 +143,7 @@ std::valarray<double> IntegrateDIS::compute(const std::valarray<double>& val)
           continue;
         double dxsec = val[i] * _deltaq2[i] * _deltax[i];
         xsec += dxsec;
-        //printf("%f %f: %f += %f [ %f * %f * %f ]\n", _q2[i], _x[i],
+        //printf("%f %f %f: %f += %f [ %f * %f * %f ]\n", _q2[i], _x[i], _y[i],
         //       xsec, dxsec, val[i], _deltaq2[i], _deltax[i]);
       }
       valIntegrated[nBins] = xsec;

@@ -17,7 +17,7 @@ Dataset   13     64.82(-19.87)    95  LHCb 7TeV Bzero pT-y cross section
 Dataset   14     76.83(-16.89)    75  LHCb 7TeV Bs pT-y cross section                 
 
  Correlated Chi2    71.129538729771525     
- Log penalty Chi2   -122.13031619279792     
+ Log penalty Chi2   -122.13059892336813     
  Systematic shifts          120
   
                                 Name          Shift   +/-    Error          Type

@@ -28,6 +28,12 @@ Evolutions:
 
 ? !include constants.yaml
 
+
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+
 # the two parameters below are not used: why one needs them with the present setup?
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9) 
 alphas : 0.118
@@ -60,6 +66,14 @@ byReaction:
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
+  HathorSingleTop:
+    MS_MASS: 0        #0 pole; 1 MSbar
+    muR: 1.
+    muF: 1.
+    precisionLevel: 2 #1 low; 2 medium (default); 3 High
+    tSgTop:  1      #Include t-channel process
+    sSgTop:  0      #Include s-channel process
+    WtSgTop: 0      #Include W+t final state processes
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :

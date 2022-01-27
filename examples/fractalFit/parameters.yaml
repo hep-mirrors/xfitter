@@ -1,0 +1,19 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    migrad
+    call fcn 3
+    
+Parameters:
+  ? !include reactions/Fractal_DISNC.yaml
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+
+? !include constants.yaml
+
+hf_scheme_DISNC :
+  defaultValue : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+

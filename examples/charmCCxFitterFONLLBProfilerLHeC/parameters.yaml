@@ -1,0 +1,45 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "NNPDF31_nlo_as_0118_hessian"
+    member: 0
+  proton-APFELff:
+    ? !include evolutions/APFEL.yaml
+    decomposition: None
+    FONLLVariant : "B"
+    heavyQuarkMassScheme : "MSBar"
+    heavyQuarkMassRunning : "On"
+    EvolutionCopy: "proton-LHAPDF"
+
+? !include constants.yaml
+
+alphas : 0.118
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+DefaultEvolution: proton-LHAPDF
+
+byReaction:
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC.yaml
+    FONLLVariant : 'B'
+    muRoverQ : 1.0
+    muFoverQ : 1.0
+    evolution : proton-LHAPDF
+
+hf_scheme_DISCC :
+  defaultValue : 'FONLL_DISCC'
+
+Profiler:
+  Evolutions:
+    proton-LHAPDF:
+      sets:    [NNPDF31_nlo_as_0118_hessian]
+      members: [[0,1,end]]
+  Status: "On"               # "Off" to turn off profiler
+  WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "On"              # determine and report chi2 for each variation
