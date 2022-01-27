@@ -2,7 +2,7 @@ After minimisation     961.85   996     0.966
 
   Partial chi2s 
 Dataset    1     27.09( -2.02)    34  CC cross section HERA-I H1-ZEUS combined e-p.   
-Dataset    2     41.46( -1.30)    34  CC cross section HERA-I H1-ZEUS combined e+p.   
+Dataset    2     41.46( -1.31)    34  CC cross section HERA-I H1-ZEUS combined e+p.   
 Dataset    3    105.83( +1.54)   145  NC cross section HERA-I H1-ZEUS combined e-p.   
 Dataset    4    423.03( +1.32)   379  NC cross section HERA-I H1-ZEUS combined e+p.   
 Dataset    5     47.31( +1.78)    52  Charm cross section H1-ZEUS combined            
@@ -16,8 +16,8 @@ Dataset   12     81.55(+12.65)   108  LHCb 7TeV Bch pT-y cross section normalise
 Dataset   13     34.79( +9.78)    76  LHCb 7TeV Bzero pT-y cross section normalised in
 Dataset   14     22.98(+14.02)    60  LHCb 7TeV Bs pT-y cross section normalised in y 
 
- Correlated Chi2    48.795459107400120     
- Log penalty Chi2    48.550362167233274     
+ Correlated Chi2    48.795459107400099     
+ Log penalty Chi2    48.550081041288962     
  Systematic shifts          152
   
                                 Name          Shift   +/-    Error          Type

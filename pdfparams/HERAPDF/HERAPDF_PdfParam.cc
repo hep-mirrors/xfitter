@@ -43,7 +43,7 @@ double HERAPDF_PdfParam::moment(int n)const{
   //Let A:=P[0], B:=P[1]+n+1, C:=P[2]+1, then
   //moment=int_0^1 A*x^(B-1)*(1-x)^(C-1)*(1+sum_{i=3}^N{P[i]*x^(i-2)})
   //=A*(beta(B,C)+sum_{i=3}^N{P[i]*beta(B+i-2,C)})
-  //beta(B+1,C)=B/(B+C)
+  //beta(B+1,C)=B/(B+C)*beta(B,C)
   //=> beta(B+n,C)=beta(B,C)*product_{k=0}^{n-1}{(B+k)/(B+C+k)}
   //=> beta(B+i-2,C)=beta(B,C)*product_{k=0}^{i-3}{(B+k)/(B+C+k)}
   //=> moment=A*beta(B,C)*(1+sum_{i=3}^N{P[i]*product_{k=0}^{i-3}{(B+k)/(B+C+k)}})=

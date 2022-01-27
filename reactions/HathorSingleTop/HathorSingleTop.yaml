@@ -1,0 +1,8 @@
+# HathorSingleTop:
+  MS_MASS: 1        #0 pole; 1 MSbar
+  muR: 1.
+  muF: 1.
+  precisionLevel: 3 #1 low; 2 medium (default); 3 High
+  tSgTop:  1      #Include t-channel process
+  sSgTop:  1      #Include s-channel process
+  WtSgTop: 1      #Include W+t final state processes

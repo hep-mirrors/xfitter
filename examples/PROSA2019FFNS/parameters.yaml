@@ -1,0 +1,144 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 1
+    #migrad
+    #hesse
+    call fcn 3
+
+Parameters:
+  Auv : [ 1.00000000, 0.00000000 ]
+  Buv : [ 0.64424500, 0.02809139 ]
+  Cuv : [ 4.86220438, 0.07418798 ]
+  Duv : [ 0.00000000, 0.00000000 ]
+  Euv : [ 15.82669501, 2.02739185 ]
+  Adv : [ 1.00000000, 0.00000000 ]
+  Bdv : [ 0.87286351, 0.07368133 ]
+  Cdv : [ 4.60656260, 0.34621441 ]
+  Ddv : [ 0.00000000, 0.00000000 ]
+  Edv : [ 0.00000000, 0.00000000 ]
+  Cubar : [ 7.35523544, 0.76639137 ]
+  Dubar : [ 10.11484950, 2.41593734 ]
+  Eubar : [ 0.00000000, 0.00000000 ]
+  Adbar : [ 0.10625879, 0.00576647 ]
+  Bdbar : [ -0.16587746, 0.00616487 ]
+  Cdbar : [ 12.70692890, 2.98098745 ]
+  Ddbar : [ 0.00000000, 0.00000000 ]
+  Edbar : [ 0.00000000, 0.00000000 ]
+  As : [ 0.07214400, 0.00000000 ]
+  ZERO : [ 0.00000000, 0.00000000 ]
+  BG_g_A : [ 1.00000000, 0.00000000 ]
+  BG_g_B : [ 0.00704737, 0.05567115 ]
+  BG_g_C : [ 6.26137349, 0.28876373 ]
+  BG_g_F : [ 0.06620265, 0.02617624 ]
+  BG_g_G : [ 0.00000000, 0.00000000 ]
+  BG_g_H : [ 0.00000000, 0.00000000 ]
+  mch : [ 1.23234263, 0.03121315, 1.00000000, 2.00000000 ]
+  mbt : [ 3.97814400, 0.09746271, 3.00000000, 9.00000000 ]
+
+
+
+Parameterisations:
+  par_s:
+    class: Expression
+    expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
+  par_g:
+    class: Expression
+    expression: "BG_g_A * x^BG_g_B * (1 - x)^BG_g_C * (1 + BG_g_F * ln(x) + BG_g_G * ln(x)^2 + BG_g_H * ln(x)^3)"
+  par_uv:
+    class: Expression
+    expression: "Auv*(x^Buv*(1-x)^Cuv)*(1+Duv*x+Euv*x^2)"
+  par_dv:
+    class: Expression
+    expression: "Adv*(x^Bdv*(1-x)^Cdv)*(1+Ddv*x+Edv*x^2)"
+  par_ubar:
+    class: Expression
+    expression: "Adbar*(x^Bdbar*(1-x)^Cubar)*(1+Dubar*x+Eubar*x^2)"
+  par_dbar:
+    class: Expression
+    expression: "Adbar*(x^Bdbar*(1-x)^Cdbar)*(1+Ddbar*x+Edbar*x^2)"
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+    class: QCDNUM
+    #xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
+    xGrid   :   [9.9e-9, 0.01, 0.1, 0.4, 0.7]
+    xGridW  :   [1,       2,     4,   8,  16]
+    Q2Grid  :   [1.,  2.05e8 ]
+    Q2GridW :   [1.,     1.]
+    NQ2bins :   120
+    NXbins  :   200
+    Read_QCDNUM_Tables : 1
+    SplineOrder : 2
+    ICheck  :   0                # do or not check of the grid boundaries,
+
+# QCD parameters
+Order: NLO
+NFlavour: 3
+isFFNS: 1
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+# AlphaS, incuding options to fit it:
+alphas: 0.106
+#  value: 0.118
+#  step:  0.01
+#  prior: 0.118
+#  priorUnc: 0.1
+#  min: 0.1
+#  max: 0.3
+
+? !include constants.yaml
+
+# Strange and charm fractions:
+fs: 0.4
+fcharm: 0.
+
+byReaction:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC.yaml
+    runm: 1
+    ordfl: 0
+    scalea1: 1.0
+    scaleb1: 1.0
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+    runm: 1
+    ordfl: 0
+    scalea1: 1.0
+    scaleb1: 1.0
+  # cbdiff (HVQMNR) settings
+  cbdiff:
+    #? !include reactions/cbdiff.yaml
+    #debug: 1
+    MS_MASS: 1
+    precision: 0.65
+    FragPar: 4.4 # charm
+    hadronMass: 1.5 # charm
+    mf_A: 1.0
+    mf_B: 4.0
+    mr_A: 1.0
+    mr_B: 4.0
+    steer_nf: 3
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'FFABM_DISNC'
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'FFABM_DISCC'     # global specification

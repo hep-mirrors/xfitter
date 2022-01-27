@@ -4,3 +4,5 @@
   ordfl: 1
   scalea1: 1.0
   scaleb1: 1.0
+  xbmin: 5e-6
+  xbmax: 0.999

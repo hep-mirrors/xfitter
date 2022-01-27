@@ -23,7 +23,9 @@ cat <<END > head.LHgrid
 END
 
 echo "Parse..."
-bin/tolhapdf
+gfortran -o /tmp/tolhapdf.exe tools/MakeLHAPDF/tolhapdf.f
+/tmp/tolhapdf.exe
+rm -f /tmp/tolhapdf.exe
 cat head.LHgrid lhapdf_tail.dat > PDFs.LHgrid
 echo "'End:'" >> PDFs.LHgrid
 

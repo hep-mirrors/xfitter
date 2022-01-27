@@ -14,6 +14,7 @@
 #include "APFEL/APFEL.h"
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
+#include <cstring>
 
 // The class factory
 extern "C" ReactionFONLL_DISNC *create()
@@ -27,8 +28,23 @@ void ReactionFONLL_DISNC::initTerm(TermData* td)
   // Check if APFEL evolution is used
   xfitter::BaseEvolution* pdf = td->getPDF();
   if (pdf->getClassName() != string("APFEL") ) {
-    std::cerr<<"[ERROR] Reaction "<<getReactionName()<<" only supports APFEL evolution; got evolution named \""<<pdf->_name<<"\" of class \""<<pdf->getClassName()<<"\" for termID="<<td->id<<std::endl;
-    hf_errlog(19051815,"F: Reaction " + getReactionName() + " can only work with APFEL evolution, see stderr");
+    hf_errlog(19051815,"I: Reaction " + getReactionName() + " uses non-APFEL evolution. Make sure that APFEL evolution is included");
+    _non_apfel_evol = true;
+
+    // We want to check if apfelff was initialized:
+    bool foundApfel = false;
+    for ( auto const& entry : XFITTER_PARS::gEvolutions ) {
+      if (strcmp(entry.second->getClassName(),"APFEL")==0) {
+	foundApfel = true;
+	break;
+      }
+    }
+    if (not foundApfel) {
+      hf_errlog(21122901,"F: Include fortran APFEL evolution to Evolutions: list (even if it is not used) to initialize FONLL DIS modules");
+    }
+  }
+  else {
+    _non_apfel_evol = false;
   }
 }
 
@@ -37,9 +53,6 @@ void ReactionFONLL_DISNC::initTerm(TermData* td)
 void ReactionFONLL_DISNC::atIteration()
 {
   ReactionBaseDISNC::atIteration();
-  // VB: With the following command, APFEL will be calling the "ExternalSetAPFEL1"
-  // routine in FONLL/src/FONLL_wrap.f. This is not optimal but until that routine is
-  // there, I cannot find a way to override it.
 
   APFEL::SetProcessDIS("NC");
 
@@ -50,6 +63,12 @@ void ReactionFONLL_DISNC::atIteration()
   for (auto termID : _dsIDs)
   {
     TermData *td = GetTermData(termID);
+
+    // Non-apfelFF evolution
+    if (_non_apfel_evol) {
+      td -> actualizeWrappers();
+      APFEL::SetPDFSet("external1");
+    }
 
     // Charge of the projectile.
     // This does not have any impact because the difference between

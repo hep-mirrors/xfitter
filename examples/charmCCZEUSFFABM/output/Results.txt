@@ -1,0 +1,11 @@
+After minimisation       5.12     4     1.279
+
+  Partial chi2s 
+Dataset    1      3.59( +0.00)     2  charm CC e-p                                    
+Dataset    2      2.14( -0.61)     2  charm CC e+p                                    
+
+ Correlated Chi2    0.0000000000000000     
+ Log penalty Chi2  -0.61183359356631539     
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

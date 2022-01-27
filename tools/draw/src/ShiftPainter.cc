@@ -103,7 +103,7 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       int nshifts = min(opts.spp, (int)shlist.size());
       
       //make canvas
-      char numb[15];
+      char numb[25];
       sprintf(numb, "shifts_%d", s);
 
       //fractional shift heigth
@@ -219,7 +219,7 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
               {
                 TLine *hgrid = new TLine(-3, s*opts.spp+h+0.5, 7, s*opts.spp+h+0.5);
                 hgrid->SetLineStyle(3);
-                hgrid->SetLineWidth(0.5);
+                hgrid->SetLineWidth((Width_t) 0.5);
                 hgrid->Draw();
             }
 

@@ -72,4 +72,5 @@ void BasePdfParam::atStart(){
     }
   }
 }
+void BasePdfParam::atIteration(){}
 }

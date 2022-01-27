@@ -42,25 +42,26 @@ void SU3_PionPdfDecomposition::atStart(){
 void SU3_PionPdfDecomposition::atIteration() {
   //Enforce sum rules
   //Valence sum
-  par_v->setMoment(-1,1);
+  par_v->setMoment(-1,2);
   //Momentum sum
-  par_g->setMoment(0,1-6*par_S->moment(0)-2*par_v->moment(0));
+  par_g->setMoment(0,1-par_S->moment(0)-par_v->moment(0));
 }
-map<int,double>SU3_PionPdfDecomposition::xfxMap(double x)const{
-  double v=(*par_v)(x);
-  double S=(*par_S)(x);
-  double g=(*par_g)(x);
-  double d=S+v;
+map<int,double>SU3_PionPdfDecomposition::xfxMap(const double x)const{
+  const double v=(*par_v)(x);
+  const double S=(*par_S)(x);
+  const double g=(*par_g)(x);
+  const double u=S * (1./6.);
+  const double d=v * 0.5 + u;
   return{
     {-6,0},
     {-5,0},
     {-4,0},
-    {-3,S},//sbar
+    {-3,u},//sbar
     {-2,d},//ubar
-    {-1,S},//dbar
+    {-1,u},//dbar
     { 1,d},//d
-    { 2,S},//u
-    { 3,S},//s
+    { 2,u},//u
+    { 3,u},//s
     { 4,0},
     { 5,0},
     { 6,0},

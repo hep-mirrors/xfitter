@@ -1,0 +1,228 @@
+#!/bin/bash
+
+############ DESCRIPTION ###############
+# Script to submit a condor job
+# Usage: cs [options] <command>
+# options could be (argument should be provided after option without space, see example below):
+#   -t for max. time (in seconds)
+#   -m for max. memory (in MB)
+#   -p (takes no argument) to prepare submission files but do not submit the job, just print the command (pretend, or dry run)
+#   -n for job name
+#   -o for output file names
+#   -g for group ('MyProject')
+#   -a for array of jobs in the format -amin:max (example: -a1:3 submits 3 jobs with arguments 1,2,3)
+#   -i for input files (multiple files should be separated by ',', i.e. -i file1.txt,file2.txt)
+#   -b for output files (b for back) (multiple files should be separated by ',', i.e. -b file1.txt,file2.txt)
+#   key=value for any other option to pass to condor_q -append
+# Example to submit job with name 'xfit-MyJob' for maximum 1 hour executing command "./xfitter":
+# cs -nxfit-MyJob -t3600 ./xfitter
+# By default max. time and memory are 3h and 2GB
+# Files used for submission as well as job output files are stored in directory 'condor' wich is automatically created in currecnt directory
+############ END OF DESCRIPTION ###############
+
+#echo 0
+# split arguments into two parts (2nd part starts with first argument which does not begin with '-' and does not contain '='): 
+# (1) options for submission script 
+# (2) command to run on the cluster
+ArgsSub=''
+ArgsExe=''
+for a do
+  #echo $a
+  if [[ ! -z "${ArgsExe// }" ]]; then
+    break
+    #true
+    #ArgsExe+=' '$a
+    #printf -v ArgsExe "%s %s" $ArgsExe $a
+    #ArgsExe=`echo $ArgsExe $a`
+    #echo $ArgsExe
+  elif [[ ${a:0:1} != '-' ]] && [[ *"$a"* != *"="* ]]; then
+    break
+    #true
+    #ArgsExe+=' '$a
+    #printf -v ArgsExe "%s %s" $ArgsExe $a
+    #ArgsExe=`echo $ArgsExe $a`
+    #echo $ArgsExe
+  else
+    ArgsSub=${ArgsSub}' '$a
+  fi
+done
+ArgsExe=$@
+ArgsExe=${ArgsExe:${#ArgsSub}}
+#echo "ArgsSub: $ArgsSub"
+#echo "ArgsExe: $ArgsExe"
+
+#echo 1
+# check command
+# check if the command to run on the cluster was provided
+ArgsExe1=`echo $ArgsExe | awk '{print $1}'`
+if [[ -z "${ArgsExe1}" ]]; then
+  echo "Error: command to run is not provided"
+  echo "Usage: cs [options] <command>"
+  exit 1
+fi
+#echo 2
+
+# check whether command to run is valid
+which ${ArgsExe1} >& /dev/null
+if [ $? -ne 0 ]; then
+  echo "Error: command to run is not valid, see below:"
+  which ${ArgsExe1}
+  exit 1
+fi
+#echo 3
+
+# check arguments
+FlagPtetend=0
+#JobName=`echo $ArgsExe | sed -e 's/ /-/g' | sed -e 's/\.\///g'`
+#JobName=`echo $ArgsExe | sed -e 's/\.\///g' | awk '{print $1}'`
+ArgsExe1=`echo "$ArgsExe" | awk '{print $1}'`
+JobName=`basename "$ArgsExe1"`
+JobMem='1999'
+JobTime='10799'
+JobGroup=''
+#ExtraOptions=()
+ExtraOptions=('-append periodic_release=((JobStatus==5)&&(CurrentTime-EnteredCurrentStatus)>10)')
+FlagOuputNameFileExplicit=0
+JobArray=0
+JobArrayMin=JobArrayMin=''
+FlagTransferInput=0
+TransferInput=""
+FlagTransferOutput=0
+TransferOutput=""
+
+# directory for intermediate scripts and output
+NameCondorDir='condor'
+
+for arg in ${ArgsSub}; do
+  # check for pretend
+  if [ ${arg} == "--pretend" ] || [ ${arg} == "-p" ]; then
+    FlagPtetend=1
+  # check for job name
+  elif [[ "${arg}"* == "-n"* ]]; then
+    JobName=${arg:2}
+  # check for requested memory
+  elif [[ "${arg}"* == "-m"* ]]; then
+    JobMem=${arg:2}
+  # check for requested run time
+  elif [[ "${arg}"* == "-t"* ]]; then
+    JobTime=${arg:2}
+  # check for output file pattern
+  elif [[ "${arg}"* == "-o"* ]]; then
+    NameOutPattern=${arg:2}
+    NameFileOutLog=${NameCondorDir}'/'${NameOutPattern}'.log'
+    NameFileOutTxt=${NameCondorDir}'/'${NameOutPattern}'.txt'
+    NameFileOutErr=${NameCondorDir}'/'${NameOutPattern}'.err'
+    FlagOuputNameFileExplicit=1
+  elif [[ *"${arg}"* == *"="* ]]; then
+    ExtraOptions+=('-append '${arg})
+  # check for group name (MyProject)
+  elif [[ "${arg}"* == "-g"* ]]; then
+    JobGroup=${arg:2}
+  # check if this is a job array (with an array of arguments)
+  elif [[ "${arg}"* == "-a"* ]]; then
+    JobArray=1
+    JobArrayMin=`echo ${arg:2} | awk -F: '{print $1}'`
+    JobArrayMax=`echo ${arg:2} | awk -F: '{print $2}'`
+  # check for input files
+  elif [[ "${arg}"* == "-i"* ]]; then
+    FlagTransferInput=1
+    TransferInput=${arg:2}
+  elif [[ "${arg}"* == "-u"* ]]; then
+    FlagTransferOutput=1
+    TransferOutput=${arg:2}
+  else
+    echo "Warning: ignoring unknown argument ${arg}"
+  fi
+done
+
+# create directory for intermediate scripts and output
+mkdir -p ${NameCondorDir}
+
+if [ $FlagOuputNameFileExplicit -eq 0 ]; then
+  NameFileOutLog=${NameCondorDir}'/'${JobName}'.log'
+  NameFileOutTxt=${NameCondorDir}'/'${JobName}'.txt'
+  NameFileOutErr=${NameCondorDir}'/'${JobName}'.err'
+fi
+
+# for array of jobs, modified command to run and output file names by extending them with the job number
+if [ ${JobArray} -eq 1 ]; then
+  ArgsExe="${ArgsExe} \$1"
+  NameFileOutLog=${NameFileOutLog::${#NameFileOutLog}-4}'-$(Item).log'
+  NameFileOutTxt=${NameFileOutTxt::${#NameFileOutTxt}-4}'-$(Item).txt'
+  NameFileOutErr=${NameFileOutErr::${#NameFileOutErr}-4}'-$(Item).err'
+fi
+
+# trick for condor: store LD_LIBRARY_PATH
+export LD_LIBRARY_PATH_STORED=$LD_LIBRARY_PATH
+
+# create script to run on  cluster side
+NameScriptFile=${NameCondorDir}'/condor-run-'${JobName}'.sh'
+rm -f ${NameScriptFile}
+
+echo '#!/bin/bash' >> ${NameScriptFile}
+echo '' >> ${NameScriptFile}
+echo 'if [ ! -z $LD_LIBRARY_PATH_STORED ]; then' >> ${NameScriptFile}
+echo '  echo "Using LD_LIBRARY_PATH_STORED"' >> ${NameScriptFile}
+echo '  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_STORED:$LD_LIBRARY_PATH' >> ${NameScriptFile}
+echo 'fi' >> ${NameScriptFile}
+echo '' >> ${NameScriptFile}
+echo 'echo "PATH=$PATH"' >> ${NameScriptFile}
+echo 'echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"' >> ${NameScriptFile}
+echo 'echo "command to run: '${ArgsExe}'"' >> ${NameScriptFile}
+echo '' >> ${NameScriptFile}
+echo ${ArgsExe} >> ${NameScriptFile}
+chmod +x ${NameScriptFile}
+
+# create configureation submit file to submit job to the cluster
+NameSubmitFile='condor/condor-submit-'${JobName}
+rm -f ${NameSubmitFile}
+
+echo 'Executable = '`pwd`'/'${NameScriptFile} >> ${NameSubmitFile}
+echo 'log = '${NameFileOutLog} >> ${NameSubmitFile}
+echo 'output = '${NameFileOutTxt} >> ${NameSubmitFile}
+echo 'error = '${NameFileOutErr} >> ${NameSubmitFile}
+echo 'Universe = vanilla' >> ${NameSubmitFile}
+echo 'notification = Error' >> ${NameSubmitFile}
+echo 'Initialdir = '`pwd` >> ${NameSubmitFile}
+echo 'getenv=True' >> ${NameSubmitFile}
+echo '+RequestRuntime = '${JobTime} >> ${NameSubmitFile}
+echo 'RequestMemory = '${JobMem} >> ${NameSubmitFile}
+
+#echo 'Requirements = ( OpSysAndVer == "CentOS7" || OpSysAndVer == "SL6")' >> ${NameSubmitFile}
+if [ $HOSTNAME == "naf-xfitter.desy.de" ]; then
+  echo 'Requirements = (OpSysAndVer == "CentOS7")' >> ${NameSubmitFile}
+else
+  echo 'Requirements = (OpSysAndVer == "SL6")' >> ${NameSubmitFile}
+fi
+
+if [ ! -z ${JobGroup} ]; then
+  echo '+MyProject = '\"${JobGroup}\" >> ${NameSubmitFile}
+fi
+#echo '+MyProject = "herafitter"' >> ${NameSubmitFile}
+#echo '+MyProject = "zeus"' >> ${NameSubmitFile}
+
+if [ ${FlagTransferInput} -eq 1 ]; then
+  echo 'should_transfer_files = YES' >> ${NameSubmitFile}
+  echo 'transfer_input_files = '${TransferInput} >> ${NameSubmitFile}
+fi
+if [ ${FlagTransferOutput} -eq 1 ]; then
+  echo 'should_transfer_files = YES' >> ${NameSubmitFile}
+  echo 'when_to_transfer_output = ON_EXIT' >> ${NameSubmitFile}
+  echo 'transfer_output_files = '${TransferOutput} >> ${NameSubmitFile}
+fi
+
+if [ ${JobArray} -eq 0 ]; then
+  echo 'queue 1' >> ${NameSubmitFile}
+else
+  echo 'arguments = $(Item)' >> ${NameSubmitFile}
+  echo "queue from seq ${JobArrayMin} ${JobArrayMax} |" >> ${NameSubmitFile}
+fi
+
+# submit job (or print corresponding command)
+com="condor_submit -batch-name ${JobName} ${ExtraOptions} ${NameSubmitFile}"
+if [ ${FlagPtetend} -eq 1 ]; then
+  com='echo '${com}
+fi
+${com}
+
+exit $?

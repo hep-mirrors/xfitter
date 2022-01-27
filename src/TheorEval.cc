@@ -552,7 +552,7 @@ void TheorEval::Evaluate(valarray<double> &vte )
             integral += (_dsBins[1][bin] - _dsBins[0][bin]) * vte[bin];
         if (integral != 0)
           for (int bin = 0; bin < _binFlags.size(); bin++)
-            vte[bin] /= integral;
+            vte[bin] *= _normalisation/integral;
       }
   }
 }

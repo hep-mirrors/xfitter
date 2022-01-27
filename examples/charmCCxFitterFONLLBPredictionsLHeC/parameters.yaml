@@ -1,0 +1,35 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 1
+    call fcn 3
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "NNPDF31_nlo_as_0118_hessian"
+    member: 0
+  proton-APFELff:
+    ? !include evolutions/APFEL.yaml
+    decomposition: None
+    FONLLVariant : "B"
+    heavyQuarkMassScheme : "MSBar"
+    heavyQuarkMassRunning : "On"
+
+? !include constants.yaml
+
+alphas : 0.118
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+DefaultEvolution: proton-LHAPDF
+
+byReaction:
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC.yaml
+    FONLLVariant : 'B'
+    muRoverQ : 1.0
+    muFoverQ : 1.0
+
+hf_scheme_DISCC :
+  defaultValue : 'FONLL_DISCC'

@@ -1,3 +1,8 @@
+if(NOT QCDNUM_FOUND)
+  message(STATUS "Skipping optional evolution QCDNUM because QCDNUM library was not found")
+  return()
+endif()
+
 set(TARGET evolutionQCDNUM)
 add_library(${TARGET} SHARED EvolutionQCDNUM.cc)
 target_link_libraries(${TARGET} PRIVATE xfitter)

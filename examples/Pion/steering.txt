@@ -1,0 +1,73 @@
+&InFiles
+  !NInputFiles=2
+  InputFileNames =
+  'datafiles/fixedTarget/NA10/thexp-0.dat',
+  'datafiles/fixedTarget/NA10/thexp-1.dat',
+  'datafiles/fixedTarget/NA10/thexp-2.dat',
+  'datafiles/fixedTarget/NA10/thexp-3.dat',
+  'datafiles/fixedTarget/NA10/thexp-4.dat',
+  'datafiles/fixedTarget/NA10/thexp-5.dat',
+  'datafiles/fixedTarget/NA10/thexp-6.dat',
+  'datafiles/fixedTarget/NA10/thexp-7.dat',
+  'datafiles/fixedTarget/NA10/thexp-8.dat',
+  'datafiles/fixedTarget/WA70/thexp-0.dat',
+  'datafiles/fixedTarget/WA70/thexp-1.dat',
+  'datafiles/fixedTarget/WA70/thexp-2.dat',
+  'datafiles/fixedTarget/WA70/thexp-3.dat',
+  'datafiles/fixedTarget/WA70/thexp-4.dat',
+  'datafiles/fixedTarget/WA70/thexp-5.dat',
+  'datafiles/fixedTarget/WA70/thexp-6.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-0.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-1.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-2.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-3.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-4.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-5.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-6.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-0.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-1.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-2.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-3.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-4.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-5.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-6.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-7.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-8.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-9.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-10.dat',
+  'datafiles/fixedTarget/E615/thexp-0.dat',
+  'datafiles/fixedTarget/E615/thexp-1.dat',
+  'datafiles/fixedTarget/E615/thexp-2.dat',
+  'datafiles/fixedTarget/E615/thexp-3.dat',
+  'datafiles/fixedTarget/E615/thexp-4.dat',
+  'datafiles/fixedTarget/E615/thexp-5.dat',
+  'datafiles/fixedTarget/E615/thexp-6.dat',
+  'datafiles/fixedTarget/E615/thexp-7.dat',
+  'datafiles/fixedTarget/E615/thexp-8.dat',
+  'datafiles/fixedTarget/E615/thexp-9.dat',
+  'datafiles/fixedTarget/E615/thexp-13.dat',
+  'datafiles/fixedTarget/E615/thexp-14.dat',
+  'datafiles/fixedTarget/E615/thexp-15.dat',
+  'datafiles/fixedTarget/E615/thexp-16.dat',
+  'datafiles/fixedTarget/E615/thexp-17.dat',
+&End
+
+&xFitter 
+  CHI2SettingsName='StatScale','UncorSysScale','CorSysScale','UncorChi2Type','CorChi2Type'
+  Chi2Settings    ='Poisson'  ,'Poisson'      ,'Linear'     ,'Diagonal'     ,'Hessian'
+  Chi2ExtraParam  ='ExtraSystRescale'
+  LDEBUG=False
+&End
+
+&Output 
+  ! -- Q2 values at which the pdfs & errors are done (up to 20)
+  Q2VAL=1.9, 3.0, 5., 10., 20.
+  ! How many x points to write (standard = 101)
+  OUTNX=200
+  ! x-range of output (standard = 1E-4 1.0)
+  OUTXRANGE = 1E-3, 1.0
+  WriteLHAPDF5=false
+&End
+
+&Cuts
+&End

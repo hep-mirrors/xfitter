@@ -36,24 +36,24 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
           pdfgraphs.push_back(pdfmap[*itl].Central[q2].GetPdf(ipdf));
           labels.push_back(*itl);
 
-          sprintf(pdfname, "dir%d_q2_%s_pdf_%s", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          sprintf(pdfname, "dir%ld_q2_%s_pdf_%s", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
           pdfgraphs.back()->SetName(pdfname);
         } else {
           pdfgraphs.push_back(pdfmap[*itl].Central[q2].GetPdfCen(ipdf));
           labels.push_back(*itl);
-          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_cen", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          sprintf(pdfname, "dir%ld_q2_%s_pdf_%s_cen", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
           pdfgraphs.back()->SetName(pdfname);
 
           pdfempunc[itl - opts.labels.begin()][0] = pdfmap[*itl].Central[q2].GetPdfParam(ipdf);
-          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_param", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          sprintf(pdfname, "dir%ld_q2_%s_pdf_%s_param", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
           pdfempunc[itl - opts.labels.begin()][0]->SetName(pdfname);
 
           pdfempunc[itl - opts.labels.begin()][1] = pdfmap[*itl].Central[q2].GetPdfModel(ipdf);
-          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_model", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          sprintf(pdfname, "dir%ld_q2_%s_pdf_%s_model", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
           pdfempunc[itl - opts.labels.begin()][1]->SetName(pdfname);
 
           pdfempunc[itl - opts.labels.begin()][2] = pdfmap[*itl].Central[q2].GetPdfExp(ipdf);
-          sprintf(pdfname, "dir%d_q2_%s_pdf_%s_exp", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
+          sprintf(pdfname, "dir%ld_q2_%s_pdf_%s_exp", (itl-opts.labels.begin()+1), q2str, pdffiles[ipdf].c_str());
           pdfempunc[itl - opts.labels.begin()][2]->SetName(pdfname);
         }
       }
@@ -67,7 +67,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
       exit(1);
     }
 
-  char cnvname[30];
+  char cnvname[60];
   sprintf(cnvname, "q2_%s_pdf_%s",  q2str, pdffiles[ipdf].c_str());
 
   if(opts.xmin==-1&&opts.xmax==-1){

@@ -1,0 +1,86 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'Adbar     '   0.10626      0.57665E-02     no limits
+     2 'Adv       '    1.0000      constant
+     3 'As        '   0.72144E-01  constant
+     4 'Auv       '    1.0000      constant
+     5 'BG_g_A    '    1.0000      constant
+     6 'BG_g_B    '   0.70474E-02  0.55671E-01     no limits
+     7 'BG_g_C    '    6.2614      0.28876         no limits
+     8 'BG_g_F    '   0.66203E-01  0.26176E-01     no limits
+     9 'BG_g_G    '    0.0000      constant
+    10 'BG_g_H    '    0.0000      constant
+    11 'Bdbar     '  -0.16588      0.61649E-02     no limits
+    12 'Bdv       '   0.87286      0.73681E-01     no limits
+    13 'Buv       '   0.64424      0.28091E-01     no limits
+    14 'Cdbar     '    12.707       2.9810         no limits
+    15 'Cdv       '    4.6066      0.34621         no limits
+    16 'Cubar     '    7.3552      0.76639         no limits
+    17 'Cuv       '    4.8622      0.74188E-01     no limits
+    18 'Ddbar     '    0.0000      constant
+    19 'Ddv       '    0.0000      constant
+    20 'Dubar     '    10.115       2.4159         no limits
+    21 'Duv       '    0.0000      constant
+    22 'Edbar     '    0.0000      constant
+    23 'Edv       '    0.0000      constant
+    24 'Eubar     '    0.0000      constant
+    25 'Euv       '    15.827       2.0274         no limits
+    26 'ZERO      '    0.0000      constant
+    27 'mbt       '    3.9781      0.97463E-01     3.0000       9.0000    
+    28 'mch       '    1.2323      0.31213E-01     1.0000       2.0000    
+ **********
+ **    1 **SET STR    2.000    
+ **********
+
+ NOW USING STRATEGY  2: MAKE SURE MINIMUM TRUE, ERRORS CORRECT  
+
+ **********
+ **    2 **CALL FCN    1.000    
+ **********
+
+ FCN=   2400.733     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 2      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1    Adbar      0.10626       0.57665E-02
+   2    Adv         1.0000       constant   
+   3    As         0.72144E-01   constant   
+   4    Auv         1.0000       constant   
+   5    BG_g_A      1.0000       constant   
+   6    BG_g_B     0.70474E-02   0.55671E-01
+   7    BG_g_C      6.2614       0.28876    
+   8    BG_g_F     0.66203E-01   0.26176E-01
+   9    BG_g_G      0.0000       constant   
+  10    BG_g_H      0.0000       constant   
+  11    Bdbar     -0.16588       0.61649E-02
+  12    Bdv        0.87286       0.73681E-01
+  13    Buv        0.64424       0.28091E-01
+  14    Cdbar       12.707        2.9810    
+  15    Cdv         4.6066       0.34621    
+  16    Cubar       7.3552       0.76639    
+  17    Cuv         4.8622       0.74188E-01
+  18    Ddbar       0.0000       constant   
+  19    Ddv         0.0000       constant   
+  20    Dubar       10.115        2.4159    
+  21    Duv         0.0000       constant   
+  22    Edbar       0.0000       constant   
+  23    Edv         0.0000       constant   
+  24    Eubar       0.0000       constant   
+  25    Euv         15.827        2.0274    
+  26    ZERO        0.0000       constant   
+  27    mbt         3.9781       0.97463E-01    3.0000        9.0000    
+  28    mch         1.2323       0.31213E-01    1.0000        2.0000    
+ **********
+ **    3 **#MIGRAD 
+ **********
+           UNKNOWN COMMAND IGNORED:#MIGRAD 
+ **********
+ **    4 **#HESSE 
+ **********
+           UNKNOWN COMMAND IGNORED:#HESSE 
+ **********
+ **    5 **CALL FCN    3.000    
+ **********

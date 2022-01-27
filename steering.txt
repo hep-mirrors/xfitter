@@ -15,17 +15,6 @@
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
-
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem.dat',
-    ! 'Z0_applgrid_nnlo_reaction.dat', 'D0_Wel_pt25_asymmetry.dat'
-    ! 'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo.dat',
-
 &End
 
 &InCorr
@@ -60,17 +49,6 @@
   DataSystType = ':A', ':A'
 &End
 
-*
-* (Optional) Modify renormalisation/factorisation scales, dataset
-* dependently. The numbering follows sequential numbering of input files
-* Does this still work? --Ivan
-&Scales 
-    DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
-    DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
- !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
- !   DataSetMaxNF(2) = 4    ! Enable the H-VFNS (requires APFEL)
- !   DataSetMaxNF = 9*5
-&End
 
 *
 * (Optional) List systematic sources, modify their scaling properties:
@@ -134,9 +112,8 @@
 
   ! x-range of output (standard = 1E-4 1.0)
   OUTXRANGE = 1E-4, 0.9999
-
   ! Write out LHAPDF5 output
-  ! WriteLHAPDF5 = false
+  ! WriteLHAPDF5 = true
 &End
 
 
@@ -245,34 +222,10 @@
   ! STATYPE (SYS_TYPE)  =   2  uniform
   ! STATYPE (SYS_TYPE)  =   3  lognormal
   ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  !
+  ! STATYPE = SYS_TYPE = 0 with lRANDDATA = False and lRAND   = True yeilds in substitution of data by theory (useful for sensitivity tests)
+  !
   STATYPE =  1
   SYSTYPE =  1
 &End
 
-*
-* (Optional) pure polynomial parameterisation for valence quarks
-*
-&Poly
-  ! Set to > zero to activate
-  NPolyVal = 0 
-  IZPOPOLY = 1  ! ( times (1-x) for 0 and (1-x)^2 for 1) 
-  IPOLYSQR = 0  ! ( ensure positivity of PDFs by squaring them )
-&End
-
-*
-* (Optional) choose the factorisation scale for HQs
-* tuned via parameters:    mu_f^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2
-* Available for 'FF', 'FF ABM' options (heavy quarks scale)
-* Also defines scale for 'ZMVFNS'.'ACOT Full' and 'ACOT Chi' options ( for these options scale is being set for heavy quarks and light quarks).  
-&HQScale
-   scalea1    =  1. 
-   scaleb1    =  0.  
-   MassHQ = 'mc' ! (available: mc, mb), relevant for 'FF', 'ZMVFNS', 'ACOT Full' and  'ACOT chi'
-&End
-
-*
-* (Optional) LHAPDF sttering card
-*
-&lhapdf
-  ! DataToTheo = True                  ! reset data to predictions corresponding to member 0, for sensitivity studies
-&End

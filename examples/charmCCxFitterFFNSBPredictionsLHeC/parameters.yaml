@@ -1,0 +1,33 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 1
+    call fcn 3
+
+DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "HERAPDF20_NLO_FF3B_EIG"
+    member: 0
+
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 1
+
+? !include constants.yaml
+
+byReaction:
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+    runm: 1
+    ordfl: 1
+    scalea1: 1.00
+    scaleb1: 0.0
+    xbmax: 0.99 # HERAPDF20_NLO_FF3B_EIG grid is limited to x=0.99
+
+hf_scheme_DISCC :
+  defaultValue : 'FFABM_DISCC'

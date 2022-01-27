@@ -1,6 +1,6 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
-#include"TermData.h"
+#include "TermData.h"
 
 /**
   @class ReactionTheory

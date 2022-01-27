@@ -24,9 +24,9 @@ public:
   ReactionHVQMNR_LHCb_7TeV_charm(){};
 
 public:
-  virtual string getReactionName() const { return  "HVQMNR_LHCb_7TeV_charm" ;};
+  virtual string getReactionName() const override{ return  "HVQMNR_LHCb_7TeV_charm" ;};
   virtual void initTerm(TermData *td) override final;
-  virtual void atIteration();        //called in the beginning of each chi2 evaluation
+  virtual void atIteration() override;        //called in the beginning of each chi2 evaluation
   virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors) override final;
 protected:
   virtual int parseOptions(){ return 0;};

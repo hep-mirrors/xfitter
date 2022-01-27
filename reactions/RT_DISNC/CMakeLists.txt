@@ -1,3 +1,8 @@
+if(NOT QCDNUM_FOUND)
+  message(STATUS "Skipping optional reaction RT_DISNC because QCDNUM library was not found")
+  return()
+endif()
+
 set(TARGET reactionRT_DISNC)
 add_library(${TARGET} MODULE ReactionRT_DISNC.cc ext_pdfs.cc mstw2008.f mstw2008_wrap.f)
 target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISNC)

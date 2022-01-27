@@ -1,0 +1,56 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 1
+    call fcn 3
+
+DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "ABMP16_3_nlo"
+    member: 0
+
+# QCD parameters
+Order: NLO
+NFlavour: 3
+isFFNS: 1
+
+? !include constants.yaml
+
+byReaction:
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+    runm: 1
+    ordfl: 1
+    scalea1: 1.00
+    scaleb1: 0.0
+
+hf_scheme_DISCC :
+  defaultValue : 'FFABM_DISCC'
+
+Profiler:
+  Evolutions:
+    proton-LHAPDF:
+      sets:    [ABMP16_3_nlo]
+      members: [[0,1,end]]
+  Status: "On"               # "Off" to turn off profiler
+  WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "On"              # determine and report chi2 for each variation
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120

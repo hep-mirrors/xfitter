@@ -1,0 +1,94 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+
+Parameters:
+  Ag   :  DEPENDENT
+  Bg   : [ -0.198201, 0.27 ]
+  Cg   : [  8.142429,  0.32 ]
+  Agp  : [ 0.495745, 0.01 ]  # negative gluon ....
+  Bgp  : [ -0.273, 0.01 ]
+  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  Auv  :  DEPENDENT
+  Buv  : [ 0.678261, 0.016 ]
+  Cuv  : [ 4.872811, 0.06 ]
+  Duv  : [    0     ]
+  Euv  : [ 14.650936, 0.8 ]
+  Adv  :  DEPENDENT
+  Bdv  : [ 0.820427, 0.06 ]
+  Cdv  : [ 4.266412, 0.3 ]
+  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
+  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
+  Cubar: [ 8.268980, 0.8 ]
+  Dubar: [ 13.944063, 1.0 ]
+  Adbar: [ 0.1016922, 0.01 ]
+  Bdbar: [ -0.172385, 0.004  ]
+  Cdbar: # another example of providing value, step etc.
+    value: 5.825632
+    step: 1.2345
+  ZERO : 0
+  fs : [ 0.4, 0.0 ]
+
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv]
+  par_ubar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cubar,Dubar]
+  par_dbar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s:
+    class: Expression
+    expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+Evolutions:
+  proton-APFELff:
+    ? !include evolutions/APFEL.yaml
+    FONLLVariant : 'B'
+    decomposition: proton
+DefaultEvolution: proton-APFELff
+
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.106
+
+? !include constants.yaml
+
+
+
+byReaction:
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC.yaml
+    FONLLVariant : 'B'
+    MassScheme   : 'MSbar'
+    Running      : 1
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'FONLL_DISCC'

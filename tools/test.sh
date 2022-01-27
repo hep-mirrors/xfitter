@@ -2,7 +2,8 @@
 
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
-omitTests=('ceresZMVFNSfastChi2')
+#omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
+omitTests=('profilerCIJET') 
 
 install_dir=$(pwd)
 # xfitter binary
@@ -47,7 +48,7 @@ function tolerateDiff()
     return 1;
   fi
   # calculate which fraction of lines is different
-  nldiff=`diff $1 $2 | grep "^>" | wc -l`
+  nldiff=`$diff $1 $2 | grep "^>" | wc -l`
   fractionDiff=`echo $nldiff/$nl1 | bc -l`
   #echo "tolerateDiff $1 $fractionDiff"
   status=`echo "$fractionDiff>$maxFractionDiff" | bc -l` # will be 1 if difference is too large and test not passed
@@ -57,19 +58,19 @@ function tolerateDiff()
 # function to check if $1 and $2 are identical
 checkFile()
 {
-  printf "diff $1 $2 ... "
-  diff $1 $2 > /dev/null
+  printf "$diff $1 $2 ... "
+  $diff $1 $2 > /dev/null
   exitcode=$?
   
-  if [ $exitcode = 1 ]; then
-    # check if we can tolerate small differences in some tests
-    # allow not more than 2% of different lines in some output files of ZMVFNS-fit test
-    # (see tolerateDiff for details which files could be different)
-    if [[ $1 = *"ZMVFNS-fit"* ]]; then
-      tolerateDiff $1 $2 0.02
-      exitcode=$?
-    fi
-  fi
+  #if [ $exitcode = 1 ]; then
+  #  # check if we can tolerate small differences in some tests
+  #  # allow not more than 2% of different lines in some output files of ZMVFNS-fit test
+  #  # (see tolerateDiff for details which files could be different)
+  #  if [[ $1 = *"ZMVFNS-fit"* ]]; then
+  #    tolerateDiff $1 $2 0.02
+  #    exitcode=$?
+  #  fi
+  #fi
   
   if [ $exitcode = 0 ]; then
     echo "PASSED"
@@ -95,6 +96,15 @@ runTest()
   COPYRESULTS=$3
   #rm -rf $rundir
   #mkdir -p $rundir
+  
+  # diff command: by defult use 'diff', but if available use 'numdiff' which tolerate small differences
+  diff='diff'
+  # we want this numdiff: https://www.nongnu.org/numdiff/
+  # check "numdiff -v" command: avoid using some other "numdiff" installed on some systems (like presently on naf-xfitter.desy.de) which does not recognize "-v"
+  if [ `numdiff -v >& /dev/null; echo $?` == "0" ]; then
+    # we have numdiff and we wil use it with tolerance 1e-4 for either absolute or relative differneces between numbers
+    diff='numdiff -a 1e-3 -r 1e-3'
+  fi
 
   echo "========================================"
   echo "Running check: $TESTNAME"
@@ -130,6 +140,8 @@ runTest()
   cp ${INPUTDIR}/steering.txt $rundir
   cp ${INPUTDIR}/parameters.yaml $rundir
   cp ${INPUTDIR}/constants.yaml $rundir
+  # also copy any .dat files
+  cp ${INPUTDIR}/*.dat $rundir
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
@@ -146,7 +158,7 @@ runTest()
       exitcode=$?
       if [ $exitcode = 0 ]; then
         cat temp/out.txt
-        diff temp/out.txt temp/def.txt 
+        $diff temp/out.txt temp/def.txt 
         exitcode=$?
         if [ $exitcode = 0 ]; then
           echo "========================================"
@@ -289,4 +301,4 @@ else
   fi
 fi
 
-exit $flagBAD
+exit $testsFailed

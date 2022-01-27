@@ -34,5 +34,7 @@ class ReactionFONLL_DISNC : public ReactionBaseDISNC
   map <int,valarray<double>> _f2fonll;
   map <int,valarray<double>> _flfonll;
   map <int,valarray<double>> _f3fonll;
+  //! Allow for non-apfelff evolution:
+  bool _non_apfel_evol{false};
 };
 
