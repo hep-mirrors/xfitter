@@ -3695,7 +3695,7 @@ Plot4@Experiment:#sqrt{s} = 8 TeV t#bar{t} @ExtraLabel:pp #rightarrow t#bar{t} @
  CMS total ttbar 7TeV mt=173.3 GeV                                               
 Plot1@Experiment:CMS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
  ptlow       pthigh      m_t            data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.40000E+03 0.17330E+03 0.16090E+03 0.65636E+01 0.66774E+01 0.15796E+03 0.15796E+03 0.00000E+00 0.00000E+00 0.44827E+00  207   1/0.17330E+03
+ 0.00000E+00 0.40000E+03 0.17330E+03 0.16090E+03 0.65637E+01 0.66774E+01 0.15796E+03 0.15796E+03 0.00000E+00 0.00000E+00 0.44825E+00  207   1/0.17330E+03
          209
  ATLAS total ttbar 7TeV mt=173.3 GeV                                             
 Plot1@Experiment:ATLAS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
@@ -3705,19 +3705,19 @@ Plot1@Experiment:ATLAS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
  ATLAS 7 TeV single top t-channel, top quark                                     
 Plot1@Experiment:ATLAS@ExtraLabel:single top(t-ch,t) 7 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
  a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.46000E+02 0.97578E+00 0.60828E+01 0.43799E+02 0.45327E+02 0.00000E+00 0.00000E+00 0.69001E+00  251   1/0.20000E+03
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.46000E+02 0.90752E+00 0.60828E+01 0.37886E+02 0.45168E+02 0.00000E+00 0.00000E+00 0.91645E+00  251   1/0.20000E+03
          250
  ATLAS 7 TeV single top t-channel, top antiquark                                 
 Plot1@Experiment:ATLAS@ExtraLabel:single top(t-ch, t-bar) 7 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
  a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.23000E+02 0.10095E+01 0.31623E+01 0.23440E+02 0.24257E+02 0.00000E+00 0.00000E+00 -.12456E+01  250   1/0.20000E+03
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.23000E+02 0.93889E+00 0.31623E+01 0.20275E+02 0.24172E+02 0.00000E+00 0.00000E+00 -.12484E+01  250   1/0.20000E+03
          252
  CMS 8 TeV single top t-channel, top quark                                       
 Plot1@Experiment:CMS@ExtraLabel:single top(t-ch,t) 8 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
  a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.53800E+02 0.15485E+01 0.46487E+01 0.57336E+02 0.53577E+02 0.00000E+00 0.00000E+00 0.14423E+00  252   1/0.20000E+03
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.53800E+02 0.14402E+01 0.46487E+01 0.49595E+02 0.51723E+02 0.00000E+00 0.00000E+00 0.14423E+01  252   1/0.20000E+03
          253
  CMS 8 TeV single top t-channel, top antiquark                                   
 Plot1@Experiment:CMS@ExtraLabel:single top(t-ch, t-bar) 8 TeV @XTitle:P_{T} @YTitle:#sigma (pb)
  a           b           c              data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.20000E+03 0.10000E+04 0.27600E+02 0.13901E+01 0.39217E+01 0.31557E+02 0.28166E+02 0.00000E+00 0.00000E+00 -.40695E+00  253   1/0.20000E+03
+ 0.00000E+00 0.20000E+03 0.10000E+04 0.27600E+02 0.12928E+01 0.39217E+01 0.27296E+02 0.29216E+02 0.00000E+00 0.00000E+00 -.12498E+01  253   1/0.20000E+03

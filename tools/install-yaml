@@ -64,8 +64,8 @@ fi
 
 cd $CURRENTDIR
 
-libspp=`pkg-config --libs $dir/yaml-cpp/lib/pkgconfig/yaml-cpp.pc`
-incspp=`pkg-config --cflags $dir/yaml-cpp/lib/pkgconfig/yaml-cpp.pc`
+libspp=`pkg-config --libs $dir/yaml-cpp/share/pkgconfig/yaml-cpp.pc`
+incspp=`pkg-config --cflags $dir/yaml-cpp/share/pkgconfig/yaml-cpp.pc`
 
 
 echo "Make setup_yaml.sh file"

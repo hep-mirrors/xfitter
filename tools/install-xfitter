@@ -8,13 +8,11 @@ hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.46
 qcdnumver=17-01-15
-apfelver=3.0.4
-melaver=2.0.1
+apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
 
 # skip some packages depending on xfitter version
-skip_mela=0
 skip_apfelgrid=0
 
 ## Optional manual configurations
@@ -130,7 +128,7 @@ if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]
     fi
 fi
 
-if [[ $mode != "deps" && -e xfitter-${version} &&  -e herafitter-${version} ]]
+if [[ $mode != "deps" && -e xfitter-${version} ]]
 then
     echo
     echo "xfitter-${version} already exists, remove it first"
@@ -138,19 +136,6 @@ then
     echo "$0 deps"
     echo
     exit
-fi
-#if [[ $mode == "deps" && ! -e xfitter-${version}  && ! -e herafitter-${version}  ]]
-#then
-#    echo
-#    echo "xfitter-${version} or herafitter-${version}   does not exist, install it first with:"
-#    echo "$0 $version"
-#    echo
-#    exit
-#fi
-
-# skip some packages depending on xfitter version
-if [[ $version == "master" ]]; then
-  skip_mela=1
 fi
 
 #automatically detect system:
@@ -247,6 +232,7 @@ fi
 
 # Get root c flags:
 root_c_flags=`root-config --cflags`
+echo "Compiling with flags ${root_c_flags}" >> $CURRENTDIR/install.log
 
 which wget >& /dev/null
 if [[ $? == 0 ]]
@@ -296,10 +282,8 @@ else
 
     if [[ $http == "curl" ]]
     then
-#       curl https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
         curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-#       wget https://www.hepforge.org/archive/lhapdf/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
         wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     cat $CURRENTDIR/install.log
@@ -325,10 +309,9 @@ else
     hathor="Hathor"
     if [[ $http == "curl" ]]
     then
-        # alternative link https://www-zeuthen.desy.de/~moch/hathor/Hathor-2.0.tar.gz
         curl https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
@@ -347,7 +330,7 @@ else
     then
         curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
     else
-        wget  --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
     cd hoppet-${hoppetver}
@@ -415,7 +398,7 @@ else
     then
         curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-        wget https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
     tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
@@ -444,8 +427,8 @@ else
       curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz > HELLx.v3.0.tgz 2 >> $CURRENTDIR/install.log
       curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz > HELLx-data.v3.tgz 2 >> $CURRENTDIR/install.log
     else
-      wget https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
-      wget https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
+      wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
+      wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
     fi
 
     tar xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
@@ -461,7 +444,7 @@ else
 	then
             curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
 	else
-            wget https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+            wget --no-check-certificate https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	fi
 	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
 	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
@@ -475,44 +458,13 @@ else
 	cd - >& /dev/null
     fi
     
- #mela
-    if [[ $skip_mela != 1 ]]; then
-      echo "Installing MELA $melaver..."
-
-      if [[ $http == "curl" ]]
-      then
-          curl https://github.com/vbertone/MELA/archive/${melaver}.tar.gz > ${melaver}.tar.gz 2 >> $CURRENTDIR/install.log
-      else
-          wget https://github.com/vbertone/MELA/archive/${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-      fi
-      mv ${melaver}.tar.gz MELA-${melaver}.tar.gz
-      tar xfvz MELA-${melaver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-      cd MELA-${melaver}
-      ./configure --prefix=$CURRENTDIR/deps/mela  >> $CURRENTDIR/install.log  2>&1
-
-      if [[ $? != 0 ]]
-      then
-          echo "Error, check install.log for details"
-          exit
-      fi
-      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
-      if [[ $? != 0 ]]
-      then
-          echo "Error, check install.log for details"
-          exit
-      fi
-      cd - >& /dev/null
-   # setup paths for mela:
-      export PATH=$CURRENTDIR/deps/mela/bin/:$PATH
-    fi
-    
  #apfel
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
         curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-        wget https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
     mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
@@ -562,7 +514,7 @@ else
       then
           curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
       else
-          wget ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
+          wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       fi
       tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
       cd numdiff-${numdiffver}
@@ -597,15 +549,8 @@ then
     else
         if [[ $http == "curl" ]]
         then
-#           curl  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version > xfitter-$version.tar.gz
-#           curl https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
-#            curl https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz > xfitter-$version.tar.gz
             curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
-#           wget  https://gitlab.cern.ch/fitters/xfitter/repository/archive.tar.gz\?ref=$version >> $CURRENTDIR/install.log 2>&1
-#           mv archive.tar.gz\?ref=$version xfitter-$version.tar.gz
-#           wget https://www.hepforge.org/archive/xfitter/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
-#            wget https://xfitter.hepforge.org/downloads/tar_files/xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
             wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
        # unpack nicely:
