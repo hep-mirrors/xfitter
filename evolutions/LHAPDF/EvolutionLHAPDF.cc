@@ -122,4 +122,10 @@ namespace xfitter {
     return std::stoi(sVal);
   }
 
+  /// Get property
+  double EvolutionLHAPDF::getPropertyD(std::string const& propertyName) const {
+    std::string sVal = getPropertyS(propertyName);
+    return std::stod(sVal);
+  }
+  
 }

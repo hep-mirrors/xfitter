@@ -7,6 +7,8 @@
 */
 
 #include "ReactionDYTurbo.h"
+#include "BaseEvolution.h"
+#include "xfitter_steer.h"
 #include "dyturbo/dyturbo.h"
 #include "dyturbo/settings.h"
 #include "dyturbo/pdf.h"
@@ -36,15 +38,60 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   
   //read settings from input file
   string filename = "";
-  if(td->hasParam("FileName"))
+  if (td->hasParam("FileName"))
     filename = td->getParamS("FileName");
   opts.readfromfile(filename);
   bins.readfromfile(filename);
   //cout << "binning read from file : qt " << bins.qtbins.size() << "  m " << bins.mbins.size() << " y " << bins.ybins.size() << endl;
+
+  //Fill PDF infos
+  pdf::order = xfitter::get_evolution()->getPropertyI("OrderQCD");
+  pdf::xmin = xfitter::get_evolution()->getPropertyD("XMin");
+  pdf::qmin = xfitter::get_evolution()->getPropertyD("QMin");
+
+  pdf::mc = xfitter::get_evolution()->getPropertyD("MCharm");
+  pdf::mb = xfitter::get_evolution()->getPropertyD("MBottom");
+  pdf::mt = xfitter::get_evolution()->getPropertyD("MTop");
+
+  //cout << "order " << pdf::order << endl;
+  //cout << "xmin " << pdf::xmin << endl;
+  //cout << "qmin " << pdf::qmin << endl;
+  //cout << "mc " << pdf::mc << endl;
+  //cout << "mb " << pdf::mb << endl;
+  //cout << "mt " << pdf::mt << endl;
+  
+  opts.silent      = true;
+  opts.makehistos  = false;
   
   //check settings
   opts.check_consistency();
 
+  if (td->hasParam("g1"))
+    opts.g1 = *(td->getParamD("g1"));
+
+  if (td->hasParam("g2"))
+    opts.g2 = *(td->getParamD("g2"));
+
+  if (td->hasParam("g3"))
+    opts.g3 = *(td->getParamD("g3"));
+
+  if (td->hasParam("Q0"))
+    opts.Q0 = *(td->getParamD("Q0"));
+
+  if (td->hasParam("order"))
+    opts.order = td->getParamI("order");
+  
+  if (td->hasParam("muR"))
+    opts.kmuren = *(td->getParamD("muR"));
+
+  if (td->hasParam("muF"))
+    opts.kmufac = *(td->getParamD("muF"));
+
+  if (td->hasParam("muRes"))
+    opts.kmures = *(td->getParamD("muRes"));
+
+  //cout << opts.kmuren << "  " << opts.kmufac << "  " << opts.kmures << endl;
+  
   //Init physics parameters
   DYTurbo::init_params();
 
@@ -53,8 +100,8 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   vector <double> errs;
   DYTurbo::compute(vals, errs);
 
-  //  for (uint i = 0; i < vals.size(); i++)
-  //     cout << i << "  " << vals.size() << "  " << vals[i] << "  " << errs[i] << endl;
+  //for (uint i = 0; i < vals.size(); i++)
+  //cout << i << "  " << vals.size() << "  " << vals[i] << "  " << errs[i] << endl;
 
   //TODO: check bins size
   
