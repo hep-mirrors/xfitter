@@ -3,7 +3,7 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.2.1
+lhapdfver=6.4.0
 hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.46
@@ -232,7 +232,8 @@ fi
 
 # Get root c flags:
 root_c_flags=`root-config --cflags`
-echo "Compiling with flags ${root_c_flags}" >> $CURRENTDIR/install.log
+echo "Compiling with c++ flags " 
+echo ${root_c_flags}
 
 which wget >& /dev/null
 if [[ $? == 0 ]]
@@ -316,7 +317,7 @@ else
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1 
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -360,7 +361,6 @@ else
  #applgrid:
     echo "Installing APPLGRID $applgridver..."
     APPLGRID_URL=https://applgrid.hepforge.org/downloads/applgrid-"$applgridver".tgz
-#   APPLGRID_URL=https://www.hepforge.org/archive/applgrid/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
     then
         curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
@@ -711,7 +711,6 @@ else
           xfitter-${version}/constants.yaml \
           run
       rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-      rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
   else
       echo "\"run\" directory already exists, I won't touch it"
       echo
