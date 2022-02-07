@@ -249,7 +249,6 @@
    Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
    !Chi2ExtraParam = 'PoissonCorr'
 
- ! Flag to define if native APPLgrid CKM values should be kept.
 
  ! Debug flag
   LDEBUG     = False
