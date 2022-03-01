@@ -12,14 +12,11 @@
       logical lDEBUG           !> Debug flag
       logical lRAND            !> MC method activation flag 
       logical lrandData        !>  MC method using data (true) or prediction (false)
-      logical H1QCDFUNC        !> flag to store functions for grids in h1pdfs  		
       logical WriteLHAPDF5     
 
       real*4 outxrange(2),     !> x-range for PDF text output 
      $     Q2VAL(NBANDS)       !> Q2 values for PDF printout
       integer  outnx           !> number of x points for PDF text output
-
-      logical LFitDY           !> k-factor fit to DY data
 
 c WS: optionally use previous fit results present in the output dir.
        !    0 - never use (default) 
@@ -28,20 +25,6 @@ c WS: optionally use previous fit results present in the output dir.
       integer UsePrevFit       !> optionally use previous fit results
 
 C-------------------------------------------------
-
-C Flag for PDF length, chebyshev param. for gluon      
-      integer ILENPDF
-      real WMNLEN,WMXLEN   ! W range used for pdf length calculation
-!Chebyshev parameterisation broken since 2.2.0
-!C Number of checbyshev parameters for gluon and sea (0 - standard param.)
-!      integer nchebGLU,nchebSEA,IOFFSETCHEBSEA
-!C Type of cheb. parameterization:
-!C 0 - default
-!C 1 - (1-x) suppression.
-!C
-!      integer ichebtypeGlu, ichebtypeSea
-!
-!      real chebxmin        !> low X-range to map with Cheb. polynoms
 
 C Random number seed for lRand = true
       integer iSeeDmc
@@ -75,10 +58,6 @@ C
       character*32 StatScale, UncorSysScale, CorSysScale,UncorChi2Type,CorChi2Type
       logical Chi2PoissonCorr, Chi2FirstIterationRescale, Chi2ExtraSystRescale
 
-      integer nordAcot
-      common /Iacot/  nordAcot  !*** pass nordAcot to ACOT module     
-
-
       integer AsymErrorsIterations !> Number of iterations for asymmetric errors. 0 -- off 
 
       integer steering_check
@@ -86,20 +65,15 @@ C
      &     Q2VAL,
      $     Chi2MaxError,
      $     lDEBUG,
-     $     h1qcdfunc,
      $     I_FIT_ORDER,
      $     lRAND,
      $     STATYPE,
      $     SYSTYPE,
      $     outxrange,
      $     outnx,
-     $     ILENPDF,
-     $     wmnlen,
-     $     wmxlen,
      $     iSeedMc,
      $     useapplg,
      $     napplgrids,
-     $     lfitdy,
      $     Lranddata,
      $     iDH_MOD,
      $     IPDFSET,
