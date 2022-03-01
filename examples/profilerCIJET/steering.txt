@@ -280,31 +280,6 @@
   SYSTYPE =  1
 &End
 
-*
-* (Optional) Chebyshev study namelist
-*
-&Cheb
-  ! Set following > 0 to turn on:
-   NCHEBGLU = 0   ! number of parameters for the gluon (max 15)
-   NCHEBSEA = 0   ! number of parameters for the sea   (max 15)
-
-  ! Cheb. polynomial type: multiply by (1-x) (1) or not (0)  
-   ichebtypeGlu = 1 
-   ichebtypeSea = 1 
-
-  ! Starting point in x:
-   chebxmin = 1.E-5
-
-   ILENPDF  = 0   ! use pdf length constraint
-
-  ! PDF length constraint strength for different PDFs:
-   PDFLenWeight = 1., 1., 1., 1., 1.     
-
-  ! Range in W where length constraint is applied:
-   WMNLen =  20.
-   WMXLen = 320.
-
-&End
 
 *
 * (Optional) pure polynomial parameterisation for valence quarks

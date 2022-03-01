@@ -81,12 +81,8 @@ C------------------------------------------------------
 
       iDH_MOD = 0  ! no Dieter Heidt modifications to stat. errros.
 
-      H1QCDFUNC= .False.
 C=================================================
 
-
-C  PDF length on/off:
-      ILENPDF = 0
 
 C PDF length weight factor:
       do i=1,5
@@ -101,9 +97,6 @@ C     Initialise LHAPDF parameters
       IPDFSET = 1
       vIPDFSET = IPDFSET
 
-C  Key for W range
-      WMNlen =  20.
-      WMXlen = 320.
 ! Do not split the data into fit and control sub-samples:
       ControlFitSplit = .false.
 *
@@ -167,7 +160,7 @@ C-----------------------------------------------
 C Main steering parameters namelist
       namelist/xFitter/
      $     LDebug,
-     $     Chi2MaxError, iDH_MOD, H1qcdfunc,
+     $     Chi2MaxError, iDH_MOD, 
      $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
      $     AsymErrorsIterations, pdfRotate
