@@ -1,4 +1,3 @@
-
       subroutine init_theory_modules
 *     ------------------------------------------------
 
@@ -165,7 +164,14 @@ C Q2 grid weights
       WGT_q2(2) = 1.d0
 C Basic Q2 grid:
       QARR(1) = 1.
-      QARR(2) = 2.05D8 ! needed for lhapdf grid  
+      QARR(2) = 2.05D8 ! needed for lhapdf grid
+C Reduce the Q2 interval if small-x resummation through APFEL is included.
+      if(HFSCHEME.eq.3005.or.
+     1   HFSCHEME.eq.3055.or.
+     2   HFSCHEME.eq.3555)then
+         QARR(1) = starting_scale
+         QARR(2) = 2.025D7      ! needed for lhapdf grid  
+      endif
 c      QARR(2) =  64000000.      ! enough for 8 TeV LHC.
 
 C Default sizes
@@ -1428,7 +1434,7 @@ c#include "steering.inc"
       double precision Q_ref,Alphas_ref
       character*7 Scheme
       character*5 MassScheme
-      logical runm
+      logical runm,Smallx
 *
       MCharm  = mch
       MBottom = mbt
@@ -1444,6 +1450,7 @@ c#include "steering.inc"
 *
       MassScheme = "Pole"
       runm       = .false.
+      Smallx     = .false.
       if (I_FIT_order.eq.1) then
          write(6,*) 'You have selected the FONLL scheme at LO'
          write(6,*) '*****************************************'
@@ -1466,6 +1473,11 @@ c#include "steering.inc"
             Scheme     = "FONLL-A"
             MassScheme = "MSbar"
             runm       = .true.
+         elseif(HFSCHEME.eq.3005)then
+            write(6,*) "You have selected the FONLL-A scheme",
+     1                 " with small-x resummation at NLL"
+            Scheme     = "FONLL-A"
+            Smallx     = .true.
          elseif(HFSCHEME.eq.55)then
             write(6,*) "You have selected the FONLL-B scheme",
      1                 " with poles masses"
@@ -1481,6 +1493,11 @@ c#include "steering.inc"
             Scheme     = "FONLL-B"
             MassScheme = "MSbar"
             runm       = .true.
+         elseif(HFSCHEME.eq.3055)then
+            write(6,*) "You have selected the FONLL-B scheme",
+     1                 " with small-x resummation at NLL"
+            Scheme     = "FONLL-B"
+            Smallx     = .true.
          else
             call HF_errlog(310320151, 'F: '//
      1                    'At NLO only the FONLL-A and FONLL-B '//
@@ -1502,6 +1519,11 @@ c#include "steering.inc"
             Scheme     = "FONLL-C"
             MassScheme = "MSbar"
             runm       = .true.
+         elseif(HFSCHEME.eq.3555)then
+            write(6,*) "You have selected the FONLL-C scheme",
+     1                 " with small-x resummation at NLL"
+            Scheme     = "FONLL-C"
+            Smallx     = .true.
          else
             call HF_errlog(310320152, 'F: '//
      1                    'At NNLO only the FONLL-C scheme '//
@@ -1522,8 +1544,22 @@ c#include "steering.inc"
          endif
       endif
 *
+*     If the small-x resummation is included check that APFEL is used also
+*     for the evolution.
+*
+      if(Smallx)then
+         if(iTheory.ne.10.and.iTheory.ne.35)then
+            call HF_errlog(20102017, 'F: '//
+     1                'When using the FONLL scheme with small-x '//
+     2                'resummation, APFEL must be used for the '//
+     3                'evolution. '//
+     4                'Please set TheoryType = "DGLAP_APFEL" in the '//
+     5                'steering.txt card.')
+         endif
+      endif
+*
       call FONLL_Set_Input(MassScheme,runm,Mcharm,MBottom,MTop,
-     1                     Q_ref,Alphas_ref,PtOrder,Scheme)
+     1                     Q_ref,Alphas_ref,PtOrder,Scheme,Smallx)
 *
       return
       end

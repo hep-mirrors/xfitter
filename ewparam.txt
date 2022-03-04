@@ -9,10 +9,10 @@
   ! Choice of EW scheme: 0 - alpha(0), 1 - G_mu, 2 - running alpha_EM
   ! EWSchemeFlag		= 0
 
-  ! 1/137.035999074(44) = 7.29735d-3
-  alphaem		= 7.29735d-3
+  ! 1/137.035999074(44) = 7.29735d-3	
+  alphaem	      	= 7.29735d-3
   gf			= 1.16638d-5
-  sin2thw		= 0.23127d0
+  sin2thw               = 0.23127d0
   ! alphas		= 0.1176d0
   convfac		= 0.389379338d9
 
@@ -53,13 +53,13 @@
   mta			= 1.77682d0
 
  ! Light quark masses:
-  mup			= 0.06983d0
-  mdn			= 0.06983d0
-  mst			= 0.150d0
+  mup		= 0.06983d0
+  mdn		= 0.06983d0
+  mst		= 0.150d0
 
  ! Heavy quark masses:
-  mch			= 1.43d0    ! Synchronize with QCDNUM,RT
-  mtp			= 173d0    ! Synchronize with QCDNUM
-  mbt			= 4.5d0   ! Synchronize with QCDNUM,RT
+  mch		= 1.46d0    ! Synchronize with QCDNUM,RT
+  mtp		= 173d0     ! Synchronize with QCDNUM
+  mbt		= 4.5d0     ! Synchronize with QCDNUM,RT
    
 &end
