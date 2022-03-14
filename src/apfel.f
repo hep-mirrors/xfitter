@@ -57,6 +57,12 @@
          call SetSmallxResummation(.true.,"NLL")
          call SetQLimits(1.6d0,4550d0)
       endif
+      *                                                                                                                                                          
+*     Implemneting 5FNS                                                                                                                                    
+*                                                                                                                                                          
+      call SetMaxFlavourAlpha(5)
+      call SetMaxFlavourPDFs(5)
+
 *
 *     Initialize APFEL
 *
