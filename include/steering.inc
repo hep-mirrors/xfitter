@@ -60,6 +60,8 @@ C
 
       integer AsymErrorsIterations !> Number of iterations for asymmetric errors. 0 -- off 
 
+      logical UseDataSetIndex !> use index from the file
+
       integer steering_check
       common/STEERING/
      &     Q2VAL,
@@ -89,7 +91,7 @@ C
       common/chi2Options/Chi2PoissonCorr, Chi2FirstIterationRescale
      $     , Chi2ExtraSystRescale
 
-      common/STEERING2/FLAGRW,DORWONLY
+      common/STEERING2/FLAGRW,DORWONLY, UseDataSetIndex
 
 c     parameters for QCDNUM x grid (unified with lower x values in applgrid)
       integer NMXGRID           !> Total number of X-grid sub-ranges
