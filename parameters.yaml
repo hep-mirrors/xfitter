@@ -120,6 +120,9 @@ Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 alphas : 0.118
 
 byReaction:
+  # ACOT scheme settings:
+  ACOT:
+    ? !include reactions/ACOT.yaml
   # RT DIS scheme settings:
   RT_DISNC:
     ? !include reactions/RT_DISNC.yaml
@@ -158,7 +161,8 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-  defaultValue : 'RT_DISNC'        # global specification
+  defaultValue : 'ACOT'        # global specification
+#  defaultValue : 'RT_DISNC'        # global specification
 #  defaultValue : 'BaseDISNC'       # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'

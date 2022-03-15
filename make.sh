@@ -15,7 +15,8 @@
 #main library             goes to ./lib
 #dynamically loaded modules go to ./lib/xfitter
 
-CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Release"
+#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Release"
+CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Debug"
 
 #Uncommect to disable some some of the optional packages
 #CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_APFEL=TRUE"
@@ -36,7 +37,7 @@ if [ "$cmd" == "clean" ];then
   #Delete the build directory
   if [ -d $BUILD_DIR ];then
 		rm -r $BUILD_DIR
-		rmdir $INSTALL_DIR
+		rmdir --ignore-fail-on-non-empty $INSTALL_DIR
 	fi
 elif [ "$cmd" == "uninstall" ];then
   #Delete the installed exeuctable and libraries
@@ -56,15 +57,15 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
     rm CMakeCache.txt
   fi
   if [ ! -f Makefile ] || [ ! -f CMakeCache.txt ];then
-    cmake $CMAKE_FLAGS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
+    cmake $CMAKE_FLAGS -g $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
   fi
   if [ "$cmd" == "reconfigure" ];then
     exit 0
   fi
   if [ "$cmd" == "install" ] || [ "$cmd" == "run" ];then
-    make -j$(nproc) install || exit
+    make VERBOSE=yes -j$(nproc) install || exit
   else
-    make -j$(nproc) || exit
+    make VERBOSE=yes -j$(nproc) || exit
   fi
   if [ "$cmd" == "run" ];then
     cd $SOURCE_DIR #cd to where steering files are
