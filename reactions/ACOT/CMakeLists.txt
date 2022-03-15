@@ -1,0 +1,10 @@
+if(NOT QCDNUM_FOUND)
+  message(STATUS "Skipping optional reaction ACOT because QCDNUM library was not found")
+  return()
+endif()
+
+set(TARGET reactionACOT)
+add_library(${TARGET} MODULE ReactionACOT.cc ext_pdfs.cc mstw2008.f mstw2008_wrap.f)
+target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISNC)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES ACOT.yaml DESTINATION ${DEST_YAML}/reactions)
