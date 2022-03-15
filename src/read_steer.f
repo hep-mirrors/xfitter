@@ -163,11 +163,12 @@ C Main steering parameters namelist
      $     Chi2MaxError, iDH_MOD, 
      $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate
+     $     AsymErrorsIterations, pdfRotate, UseDataSetIndex
 
 C--------------------------------------------------------------
 
-C Some defaults
+C     Some defaults
+      UseDataSetIndex = .false.
       Chi2SettingsName(1) = 'undefined' ! triggering the old style chi2 settings
       do i=1, 8
          Chi2ExtraParam(i) = 'undefined'

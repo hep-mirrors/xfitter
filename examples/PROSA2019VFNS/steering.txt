@@ -74,6 +74,8 @@
  ! Debug flag
   LDEBUG     = False
 
+ ! Enable cuts using dataset index:
+  UseDataSetIndex = True
 
  ! Quadratic approximation for asymmetric uncertainties
  ! AsymErrorsIterations = 10
