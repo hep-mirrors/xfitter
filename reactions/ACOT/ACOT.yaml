@@ -2,6 +2,11 @@
   varin0 : 0.0
   varin1 : 1.0
   varin2 : -0.666666666667
-  varin3 : 1.0        # recommended RT OPT settings
+  varin3 : 1.0        # recommended RT OPT settings  
+
+  intvarin0 : 3   # NORD for calcululation: = [0,1,2,3]
+  intvarin1 : 0   #  unused
+  intvarin2 : 0   #  unused
+  intvarin3 : 0   #  unused
 
 #  varin : [0.0, 0.0, 0.0, 0.0]                        # old "RT" mode

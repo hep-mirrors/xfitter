@@ -25,30 +25,47 @@ C
       parameter (NKfactMax=10000)
       double precision akfactF2(NKFACTMAX),akfactFL(NKFACTMAX)
 C-------------------------------------------------------------------------
-     
+      double precision polar,f123L(4),f123Lc(4),f123Lb(4)
+      integer icharge,hfscheme
+C-------------------------------------------------------------------------
+c     ipn: 1=proton; 2=neutron
+c     Fred: for UseKFactors=.true.
+      UseKFactors=.true.  !*** Fred force
+
+      
       q=dsqrt(q2)
 
-      if (iflag.eq.1 .or. .not. UseKFactors) then
+      x=0.1  !*** PATCH
+      q=10.  !*** PATCH
 
+C-------------------------------------------------------------------------
          call mstwnca(x,q,ipn,f2,f2c,f2b,fl,flc,flb)
+C-------------------------------------------------------------------------
+cccccccccccccccccccccccccccccccccccccccccccc
+         if(ipn.ne.1) stop      !*** FIO: only wired for proton at present  31mar2022
 
-C Store k-factors:
-         if (UseKFactors) then
-            if (index.gt.NKfactMax) then
-               print *,'Error in sfun_wrap'
-               print *,'Increase NKfactMax from '
-     $              ,NKfactMax,' to at least ',Index
-               stop
-            endif
-            akfactF2(index) = f2/F2QCDNUM
-            akfactFL(index) = fl/FlQCDNUM         
-         endif
-      else
-C Use k-factor:
-         f2 = F2QCDNUM*akfactF2(index)
-         fl = FLQCDNUM*akfactFL(index) 
-      endif
+         hfscheme=111           !*** S-ACOT(Chi) [preferred]  111 -> 9 [need to trace later]
+         icharge=4  !*** NC w/ Gamma+Z terms
+         iflag=0  !*** not used
+         polar=0  !*** only unpolarized 
+         index=0  !*** =0 skip k-factors
+         index=1
+         UseKFactors=.false.
+         UseKFactors=.true.  !*** Fred force
+         
+      call SF_ACOT_wrap(
+     $     x,q2,
+     $     f123L,
+     $     f123Lc,
+     $     f123Lb,
+     $     hfscheme,
+     $     icharge   ,
+     $     iflag, index, UseKFactors, polar   )
+cccccccccccccccccccccccccccccccccccccccccccc         
+C-------------------------------------------------------------------------
       end
+C-------------------------------------------------------------------------
+C-------------------------------------------------------------------------
 
 
       Subroutine ACOT_SetAlphaS(alphaSzero)

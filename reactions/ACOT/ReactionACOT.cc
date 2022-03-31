@@ -24,12 +24,18 @@ extern "C"
                     const int &iflag, const int &index, const double &f2QCDNUM, const double &flQCDNUM,
                     const int &usekfactors = 0);
   void acot_setalphas_(const double &alphaSzero);
-  void acot_set_input_(const double *varin, const double &mCharmin, const double &mBottomin, const double &alphaSQ0in,
-                     const double &alphaSMZin, const int &alphaSorderin, const double &alphaSnfmaxin, const int &iordin);
+  //
+  // ******************** FIO: added "const int *intvarin"
+  void acot_set_input_(const double *varin, 
+		       const double &mCharmin, const double &mBottomin, const double &alphaSQ0in,
+                     const double &alphaSMZin, const int &alphaSorderin, const double &alphaSnfmaxin,
+		       const int &iordin
+//		       , const int *intvarin
+		       );
   void wate96a_();
 }
 
-// Initialize at the staacot of the computation
+// Initialize at the start of the computation
 void ReactionACOT::atStart()
 {
   Super::atStart();
@@ -63,6 +69,9 @@ void ReactionACOT::compute(TermData *td, valarray<double> &val, map<string, vala
   // First init, then call base class:
   td->actualizeWrappers();
   vector<double> varin = {*td->getParamD("varin0"), *td->getParamD("varin1"), *td->getParamD("varin2"), *td->getParamD("varin3")}; // {0.0, 1.0, -2./3., 1.0};
+  //
+  // ******************** FIO: added "const int *intvarin"
+  //vector<int> intvarin = {*td->getParamI("intvarin0"), *td->getParamI("intvarin1"), *td->getParamI("intvarin2"), *td->getParamI("intvarin3")}; // {NORD, dum, dum, dum};
   const double mc = *td->getParamD("mch");
   const double mb = *td->getParamD("mbt");
   const double mZ = *td->getParamD("Mz");
@@ -79,7 +88,7 @@ void ReactionACOT::compute(TermData *td, valarray<double> &val, map<string, vala
   // set PDFs, alphaS functions:
   acot_set_pdfs_alphaS(pdf_xfxq_wrapper_, alphas_wrapper_);
 
-  acot_set_input_(&varin[0], mc, mb, as_q0, as_MZ, asOrederIn, alphaSnfmaxin, iord);
+  acot_set_input_(&varin[0], mc, mb, as_q0, as_MZ, asOrederIn, alphaSnfmaxin, iord ); //, &intvarin[0]);
   wate96a_();
 
   Super::compute(td, val, err);
