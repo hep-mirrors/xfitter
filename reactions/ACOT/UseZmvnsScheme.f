@@ -7,7 +7,8 @@ C> \param[in] polarity of the lepton beam
 C> \param[in] charge of the lepton beam
 C> \param[in] XSecType DIS process type
 C
-C  Created by Krzysztof Nowak, 31/01/2012
+C     Created by Krzysztof Nowak, 31/01/2012
+c     modified by Fred Olness: 31 march 2022
 C---------------------------------------------------------------
       subroutine UseZmvnsScheme(f2, fl, xf3, f2gamma, flgamma,
      $     q2, x, npts, polarity, charge, XSecType, local_hfscheme)
@@ -29,12 +30,14 @@ c      character*(*), intent(in) :: XSecType
 C Output: 
       double precision F2(NPMaxDIS), FL(NPMaxDIS), xF3(NPMaxDIS)
       double precision F2gamma(NPMaxDIS), FLgamma(NPMaxDIS)
-      double precision F2c(NPMaxDIS),FLc(NPMaxDIS)
-      double precision F2b(NPMaxDIS),FLb(NPMaxDIS)
+      double precision F2c(NPMaxDIS),FLc(NPMaxDIS), xF3c(NPMaxDIS)
+      double precision F2b(NPMaxDIS),FLb(NPMaxDIS), xF3b(NPMaxDIS)
 
 C--------------------------------------------------------
 C Temporary variables:
       double precision F2m(NPMaxDIS),xF3m(NPMaxDIS),FLm(NPMaxDIS)
+      double precision F2Mc(NPMaxDIS),FLMc(NPMaxDIS), xF3Mc(NPMaxDIS)
+      double precision F2Mb(NPMaxDIS),FLMb(NPMaxDIS), xF3Mb(NPMaxDIS)
       integer i
       double precision ve,ae,au,ad,vu,vd,A_u,A_d,B_u,B_d,pz
 
@@ -49,8 +52,25 @@ c     Fred tweaks: March 2022
       logical first
       data first /.true./
       save first
+
+      
+      double precision cnep2fC(-6:6),cnep2fB(-6:6)
+      double precision cnem2fC(-6:6),cnem2fB(-6:6)
+      double precision cnep3fC(-6:6),cnep3fB(-6:6)
+      double precision cnem3fC(-6:6),cnem3fB(-6:6)
+c                  tb bb  cb  sb  ub  db  g  d  u  s  c  b  t
+      DATA CNEP2Fc/0., 0., 1., 0., 0., 0.,0.,0.,0.,0.,1.,0.,0./
+      DATA CNEP2Fb/0., 0., 0., 0., 0., 0.,0.,0.,0.,0.,0.,0.,0./ !*** zero
+      DATA CNEM2Fc/0., 0., 0., 0., 0., 0.,0.,0.,0.,0.,0.,0.,0./ !*** zero
+      DATA CNEM2Fb/0., 1., 0., 0., 0., 0.,0.,0.,0.,0.,0.,1.,0./
+      DATA CNEP3Fc/0., 0.,-1., 0.,-0., 0.,0.,0.,0.,0.,1.,0.,0./
+      DATA CNEP3Fb/0., 0.,-0., 0.,-0., 0.,0.,0.,0.,0.,0.,0.,0./ !*** zero
+      DATA CNEM3Fc/0.,-0., 0.,-0., 0.,-0.,0.,0.,0.,0.,0.,0.,0./ !*** zero
+      DATA CNEM3Fb/0.,-1., 0.,-0., 0.,-0.,0.,0.,0.,0.,0.,1.,0./
+
+      
 C--------------------------------------------------------
-      EWFIT=0
+c      EWFIT=0
 
 C QCDNUM ZMVFNS, caclulate FL, F2 and xF3 for d- and u- type quarks all bins:
 
@@ -72,10 +92,27 @@ C     u-type ( u+c ) contributions
          CALL ZMSTFUN(2,CNEP2F,X,Q2,F2,npts,0)
          CALL ZMSTFUN(3,CNEP3F,X,Q2,XF3,npts,0)    
          
+         CALL ZMSTFUN(1,CNEP2Fc,X,Q2,FLc,npts,0)
+         CALL ZMSTFUN(2,CNEP2Fc,X,Q2,F2c,npts,0)
+         CALL ZMSTFUN(3,CNEP3Fc,X,Q2,XF3c,npts,0)    
+         
+         CALL ZMSTFUN(1,CNEP2Fb,X,Q2,FLb,npts,0)
+         CALL ZMSTFUN(2,CNEP2Fb,X,Q2,F2b,npts,0)
+         CALL ZMSTFUN(3,CNEP3Fb,X,Q2,XF3b,npts,0)    
+         
 C     d-type (d + s + b) contributions
          CALL ZMSTFUN(1,CNEM2F,X,Q2,FLm,npts,0)
          CALL ZMSTFUN(2,CNEM2F,X,Q2,F2m,npts,0)
          CALL ZMSTFUN(3,CNEM3F,X,Q2,XF3m,npts,0) 
+
+         CALL ZMSTFUN(1,CNEM2Fc,X,Q2,FLmC,npts,0)
+         CALL ZMSTFUN(2,CNEM2Fc,X,Q2,F2mC,npts,0)
+         CALL ZMSTFUN(3,CNEM3Fc,X,Q2,XF3mC,npts,0) 
+
+         CALL ZMSTFUN(1,CNEM2Fb,X,Q2,FLmB,npts,0)
+         CALL ZMSTFUN(2,CNEM2Fb,X,Q2,F2mB,npts,0)
+         CALL ZMSTFUN(3,CNEM3Fb,X,Q2,XF3mB,npts,0) 
+         
       else
          print *, 'UseZmvnsScheme, XSecType',XSecType,
      $        'not supported'
@@ -93,7 +130,7 @@ c ============================================================
          do i=1, npts
 
 c     ============================================================
-            if(EWFIT==0) then
+c            if(EWFIT==0) then
 C     
 C EW couplings of the electron
 C
@@ -112,81 +149,15 @@ C
                
                PZ = 4.d0 * sin2thw * cos2thw * (1.+Mz**2/Q2(i))
 c ============================================================
-            else 
-
-               if(first) then
-                  write(6,*) " error: wrap_ew()  not implemented "
-c                 first=.false.
-               endif
-c               stop 
-c               call wrap_ew(q2(i),sweff,deltar,cau,cad,cvu,cvd,polarity,charge)
-               sin2thw2 = 1.d0 - MW**2/MZ**2
-               sin2th_eff = sweff
-               xkappa = sin2th_eff/sin2thw2
-               epsilon = xkappa -1.0
-               ve = -0.5d0 + 2.*sin2th_eff
-               ae = -0.5d0
-               
-               vu = cvu - (4.d0/3.d0)*epsilon*sin2thw2
-               vd = cvd + (2.d0/3.d0)*epsilon*sin2thw2
-               au = cau
-               ad = cad
-*     
-*     Feed the EW parameters to APFEL 
-*
-               if (mod(local_hfscheme,10).eq.5) then
-                  write(6,*) " *** NOT IMPLEMENTED "
-                  STOP
-               ENDIF               
-c$$$               if (mod(local_hfscheme,10).eq.5) then
-c$$$                  call SetSin2ThetaW(sin2th_eff)
-c$$$                  call SetPropagatorCorrection(deltar)
-c$$$                  call SetEWCouplings(vd,vu,ad,au)
-c$$$               endif
-               
-C     Propagator factor PZ
-               PZ = 4.d0*sin2thw2*(1.d0 - sin2thw2)*(1.+Mz**2/Q2(i))
-               PZ = PZ*(1.d0 - Deltar)
-            endif               
-c ============================================================
 c ============================================================
             PZ = 1./Pz
 C     EW couplings of u-type and d-type quarks at the scale Q2
                
-            if (charge.gt.0) then
-               A_u = e2u        ! gamma
-     $              + (-ve-polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $              + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-               
-               A_d = e2d 
-     $              + (-ve-polarity*ae)*PZ*2.*edq*vd 
-     $              + (ve**2 + ae**2+2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-               
-               B_u = (ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $              + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-               B_d = (ae+polarity*ve)*PZ*2.*edq*ad 
-     $              + (-2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-            else
-               A_u = e2u        ! gamma
-     $              + (-ve+polarity*ae)*PZ*2.*euq*vu !gamma-Z
-     $              + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vu**2+au**2) !Z
-               
-               A_d = e2d 
-     $              + (-ve+polarity*ae)*PZ*2.*edq*vd 
-     $              + (ve**2 + ae**2-2*polarity*ve*ae)*PZ**2*(vd**2+ad**2)
-               
-               B_u = (-ae+polarity*ve)*PZ*2.*euq*au !gamma-Z
-     $              + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vu*au !Z
-               B_d = (-ae+polarity*ve)*PZ*2.*edq*ad 
-     $              + (2.*ve*ae-polarity*(ve**2+ae**2))*(PZ**2)*2.*vd*ad
-               
-            endif
-            
-cv for polarised case should reduce to:
-cv         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
-cv         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
-cv         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
-cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
+cv for UNpolarised case should reduce to:
+         A_u = e2u - ve*PZ*2.*euq*vu +(ve**2 + ae**2)*PZ**2*(vu**2+au**2)
+         A_d = e2d - ve*PZ*2.*edq*vd +(ve**2 + ae**2)*PZ**2*(vd**2+ad**2)
+         B_u = -ae*PZ*2.*euq*au + 2.*ve*ae*(PZ**2)*2.*vu*au
+         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
 
             
             F2Gamma(i) = 4.D0/9.D0 * F2(i)  + 1.D0/9.D0 * F2m(i)
@@ -194,6 +165,14 @@ cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
             XF3(i)  = B_U*XF3(i)  + B_D*XF3m(i)
             F2(i)   = A_U*F2(i)   + A_D*F2m(i)
             FL(i)   = A_U*FL(i)   + A_D*FLm(i)
+            
+            XF3c(i)  = B_U*XF3c(i)  + B_D*XF3mc(i)
+            F2c(i)   = A_U*F2c(i)   + A_D*F2mc(i)
+            FLc(i)   = A_U*FLc(i)   + A_D*FLmc(i)
+            
+            XF3b(i)  = B_U*XF3b(i)  + B_D*XF3mb(i)
+            F2b(i)   = A_U*F2b(i)   + A_D*F2mb(i)
+            FLb(i)   = A_U*FLb(i)   + A_D*FLmb(i)
             
          enddo
       elseif(XSecType.eq.'CCDIS') then
@@ -208,3 +187,28 @@ cv         B_d = -ae*PZ*2.*edq*ad + 2.*ve*ae*(PZ**2)*2.*vd*ad
       endif
       
       end
+
+
+c$$$c     =====================================================
+c$$$      
+c$$$C QCDNUM:
+c$$$      double precision cnep2f(-6:6)
+c$$$      double precision cnem2f(-6:6)
+c$$$      double precision cnep3f(-6:6)
+c$$$      double precision cnem3f(-6:6)
+c$$$      DATA CNEP2F/0.,0.,1.,0.,1.,0.,0.,0.,1.,0.,1.,0.,0./
+c$$$      DATA CNEM2F/0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0.,1.,0./
+c$$$      DATA CNEP3F/0.,0.,-1.,0.,-1.,0.,0.,0.,1.,0.,1.,0.,0./
+c$$$      DATA CNEM3F/0.,-1.,0.,-1.,0.,-1.,0.,1.,0.,1.,0.,1.,0./
+c$$$
+c$$$      double precision ccep2f(-6:6)
+c$$$      double precision ccem2f(-6:6)
+c$$$      double precision ccep3f(-6:6)
+c$$$      double precision ccem3f(-6:6)
+c$$$      DATA CCEP2F/0.,0.,1.,0.,1.,0.,0.,1.,0.,1.,0.,0.,0./
+c$$$      DATA CCEM2F/0.,0.,0.,1.,0.,1.,0.,0.,1.,0.,1.,0.,0./
+c$$$      DATA CCEP3F/ 0.,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0.,0./
+c$$$      DATA CCEM3F/0.,0. ,0.,-1.,0.,-1.,0.,0.,1.,0.,1.,0.,0./
+c$$$
+c$$$      integer NPmaxDIS
+c$$$      parameter (NPmaxDIS =  2000)
