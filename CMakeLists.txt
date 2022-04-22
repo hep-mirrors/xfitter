@@ -38,6 +38,7 @@ include(find_package_ROOT)
 find_package(Hathor)
 find_package(DYTurbo)
 find_package(yaml)
+find_package(ZLIB)
 
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")

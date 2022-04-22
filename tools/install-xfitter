@@ -3,11 +3,11 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.2.1
+lhapdfver=6.4.0
 hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.46
-qcdnumver=17-01-15
+qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
@@ -154,7 +154,7 @@ then
             echo "Detected SL6 Linux distribution"
             MODE=cern
             gccv=4.9
-	    cmakev=3.20.0
+	        cmakev=3.20.0
             echo "Using gcc version = ${gccv}"
             os=slc6
             arch=x86_64
@@ -166,7 +166,7 @@ then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
             gccv=4.9
-	    cmakev=3.20.0
+	        cmakev=3.20.0
             os=centos7
             arch=x86_64
             rootversion=6.06.08
@@ -232,7 +232,8 @@ fi
 
 # Get root c flags:
 root_c_flags=`root-config --cflags`
-echo "Compiling with flags ${root_c_flags}" >> $CURRENTDIR/install.log
+echo "Compiling with c++ flags " 
+echo ${root_c_flags}
 
 which wget >& /dev/null
 if [[ $? == 0 ]]
@@ -316,7 +317,7 @@ else
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS='-O2 -Wall -fPIC' FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1 
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -360,7 +361,6 @@ else
  #applgrid:
     echo "Installing APPLGRID $applgridver..."
     APPLGRID_URL=https://applgrid.hepforge.org/downloads/applgrid-"$applgridver".tgz
-#   APPLGRID_URL=https://www.hepforge.org/archive/applgrid/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
     then
         curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
@@ -475,7 +475,7 @@ else
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
-    cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
+    cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
     make >> $CURRENTDIR/install.log  2>&1
     make install >> $CURRENTDIR/install.log  2>&1
     
@@ -485,10 +485,10 @@ else
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
     if [[ $http == "curl" ]]
-    then
-        curl http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+    then 
+        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
@@ -514,7 +514,7 @@ else
     if [[ `echo $?` != "0" ]]; then
       numdiffver='5.9.0'
       echo "Installing numdiff $numdiffver..."
-      numdiff_url=http://ftp.igh.cnrs.fr/pub/nongnu/numdiff/numdiff-${numdiffver}.tar.gz
+      numdiff_url=http://nongnu.askapache.com/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
           curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
@@ -711,7 +711,6 @@ else
           xfitter-${version}/constants.yaml \
           run
       rsync -a --exclude=".*" xfitter-${version}/datafiles run/
-      rsync -a --exclude=".*" xfitter-${version}/theoryfiles run/
   else
       echo "\"run\" directory already exists, I won't touch it"
       echo
