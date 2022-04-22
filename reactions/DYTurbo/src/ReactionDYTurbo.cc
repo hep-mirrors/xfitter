@@ -27,7 +27,7 @@ void ReactionDYTurbo::atStart()
   //Attach PDFs and alphas
   opts.externalpdf = true;
   pdf::xfxq = pdf_xfxq_wrapper_;
-  pdf::alphas = alphas_wrapper_;
+  pdf::extalphas = alphas_wrapper_;
 }
 
 // Main function to compute results at an iteration
@@ -63,9 +63,6 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   opts.silent      = true;
   opts.makehistos  = false;
   
-  //check settings
-  opts.check_consistency();
-
   if (td->hasParam("g1"))
     opts.g1 = *(td->getParamD("g1"));
 
@@ -89,6 +86,9 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
 
   if (td->hasParam("muRes"))
     opts.kmures = *(td->getParamD("muRes"));
+
+  //check settings
+  opts.check_consistency();
 
   //cout << opts.kmuren << "  " << opts.kmufac << "  " << opts.kmures << endl;
   
