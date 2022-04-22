@@ -216,6 +216,8 @@ then
     fi
 fi
 
+. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
+
 #check some basic dependendencies before starting the installation
 which git >& /dev/null
 if [[ $? != 0 ]]
@@ -521,7 +523,8 @@ else
     tar xfz dyturbo-${dyturbover}beta.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd dyturbo-${dyturbover}
 
-    ./configure ./configure CXXFLAGS="${CXXFLAGS} -std=c++0x" --enable-Ofast  >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+    #export CXXFLAGS="${CXXFLAGS} -std=c++0x"
+    ./configure --enable-Ofast  >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/dyturbo/bin/:$PATH
 
     if [[ $? != 0 ]]
