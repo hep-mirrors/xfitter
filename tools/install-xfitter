@@ -521,7 +521,7 @@ else
     tar xfz dyturbo-${dyturbover}beta.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd dyturbo-${dyturbover}
 
-    ./configure --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+    ./configure ./configure CXXFLAGS="${CXXFLAGS} -std=c++0x" --enable-Ofast  >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/dyturbo/bin/:$PATH
 
     if [[ $? != 0 ]]
