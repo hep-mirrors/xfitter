@@ -216,7 +216,8 @@ then
     fi
 fi
 
-. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
+#. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
+. /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7
 
 #check some basic dependendencies before starting the installation
 which git >& /dev/null
@@ -523,7 +524,7 @@ else
     tar xfz dyturbo-${dyturbover}beta.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd dyturbo-${dyturbover}
 
-    #export CXXFLAGS="${CXXFLAGS} -std=c++0x"
+    export CXXFLAGS="${CXXFLAGS} -std=c++0x"
     ./configure --enable-Ofast  >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/dyturbo/bin/:$PATH
 
@@ -635,7 +636,8 @@ then
     echo "cd -" >>setup.sh
 fi
 
-echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
+#echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
+echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7 >> setup.sh
 
 #make a compilation script
 echo source ./setup.sh > compile
