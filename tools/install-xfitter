@@ -217,7 +217,7 @@ then
 fi
 
 #. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
-. /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7
+. /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7/setup.sh
 
 #check some basic dependendencies before starting the installation
 which git >& /dev/null
@@ -637,7 +637,7 @@ then
 fi
 
 #echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
-echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7 >> setup.sh
+echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
 
 #make a compilation script
 echo source ./setup.sh > compile
