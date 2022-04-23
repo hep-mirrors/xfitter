@@ -177,6 +177,17 @@ then
         then
             echo "Detected Ubuntu distribution"
             MODE=local
+#        elif [[ -e /cvmfs/sft.cern.ch ]]
+#	then
+#            echo "System not recognized, but cvmfs is mounted"
+#            MODE=cern
+#	    gccv=10.3.0
+#	    arch=x86_64
+#	    os=centos7
+#	    cmakev=3.20.0
+#            rootversion=6.06.08
+#            boostver=1.53.0
+#            pyth=2.7
         else
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
@@ -525,8 +536,8 @@ else
     cd dyturbo-${dyturbover}
 
     export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-    ./configure --prefix=$CURRENTDIR/deps/dyturbo --enable-Ofast --disable-tlsopt  >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
-    export PATH=$CURRENTDIR/deps/dyturbo/bin/:$PATH
+    ./configure --enable-Ofast --disable-tlsopt  >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+    export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
 
     if [[ $? != 0 ]]
     then
@@ -611,7 +622,7 @@ echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/dyturbo/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
@@ -624,7 +635,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >>
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
 
@@ -649,7 +660,7 @@ echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/dyturbo/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:\$PATH     >> compile
 
 
 if [[ $mode != "deps" ]]
