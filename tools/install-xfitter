@@ -321,7 +321,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -341,7 +341,7 @@ else
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1 
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j 8 >> $CURRENTDIR/install.log  2>&1 
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -365,7 +365,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -400,13 +400,13 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make   >> $CURRENTDIR/install.log  2>&1
+    make -j 8  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -434,7 +434,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -483,7 +483,7 @@ else
 	then
             echo "Error, check install.log for details"
 	fi
-	make install
+	make -j 8 install
 	cd - >& /dev/null
     fi
     
@@ -500,8 +500,8 @@ else
 
     cd apfelxx-${apfelxxver}
     cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
-    make >> $CURRENTDIR/install.log  2>&1
-    make install >> $CURRENTDIR/install.log  2>&1
+    make -j 8 >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install >> $CURRENTDIR/install.log  2>&1
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
@@ -525,7 +525,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -553,7 +553,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -583,7 +583,7 @@ else
           echo "Error, check install.log for details"
           exit
       fi
-      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+      make -j 8 install  >> $CURRENTDIR/install.log  2>&1
       if [[ $? != 0 ]]
       then
           echo "Error, check install.log for details"
@@ -721,11 +721,11 @@ then
   if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
     echo autoreconf --install                                 >> compile
     echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
-    echo make -j 9 install                                    >> compile
+    echo make -j 8 install                                    >> compile
   elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
     # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
     echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
-    echo make -j 9 install                                    >> compile
+    echo make -j 8 install                                    >> compile
     echo autoreconf --install                                 >> compile
   else
     # cmake compilation
