@@ -1,4 +1,4 @@
-After minimisation    1706.52  1186     1.439
+After minimisation    1413.19  1186     1.192
 
   Partial chi2s 
 Dataset    1    442.52( +7.94)   377  HERA1+2 NCep 920                                
@@ -8,10 +8,10 @@ Dataset    4    217.70( -0.88)   204  HERA1+2 NCep 460
 Dataset    5    219.32( -0.22)   159  HERA1+2 NCem                                    
 Dataset    6     44.90( +0.38)    39  HERA1+2 CCep                                    
 Dataset    7     55.98( -2.14)    42  HERA1+2 CCem                                    
-Dataset    8    341.30( +1.15)    55  CDF ZPT 1.96 TEV                                
+Dataset    8     48.24( +1.24)    55  CDF ZPT 1.96 TEV                                
 
- Correlated Chi2    92.224214153517167     
- Log penalty Chi2    7.3056413176759634     
+ Correlated Chi2    91.864616248250584     
+ Log penalty Chi2    7.3900214445053605     
  Systematic shifts          171
   
                                 Name          Shift   +/-    Error          Type
@@ -184,5 +184,5 @@ Dataset    8    341.30( +1.15)    55  CDF ZPT 1.96 TEV
   167  proc_tb24                             -0.6218   +/-   0.4098        :N:M:D
   168  proc_gp                               -0.0373   +/-   0.4548        :N:M:D
   169  proc_had                               0.0225   +/-   0.5386        :N:M:D
-  170  eff                                   -0.5054   +/-   0.9843        :N:M:D
-  171  lumi                                   0.6495   +/-   0.1907        :N:M:D
+  170  eff                                    0.0279   +/-   0.9843        :N:M:D
+  171  lumi                                   0.5629   +/-   0.1909        :N:M:D
