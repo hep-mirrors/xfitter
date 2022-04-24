@@ -128,4 +128,9 @@ namespace xfitter {
     return std::stod(sVal);
   }
   
+  /// Get property with default value
+  double EvolutionLHAPDF::getPropertyD(std::string const& propertyName, double defval) const {
+      double val = _pdf->info().get_entry_as<double>(propertyName, -1);
+      return val;
+  }
 }
