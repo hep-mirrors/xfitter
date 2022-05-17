@@ -58,6 +58,9 @@ namespace xfitter
     /// compute chi2 for each variation
     bool _getChi2{false};
 
+    /// Scale factor for PDF eigenvectors
+    float _scalePdfs{1.0};
+
     /// keep info of the number of input syst. sources
     int _nSourcesOrig{0};
 

@@ -7,7 +7,7 @@ lhapdfver=6.4.0
 hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.5.46
-qcdnumver=17-01-15
+qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.6.0
@@ -154,7 +154,7 @@ then
             echo "Detected SL6 Linux distribution"
             MODE=cern
             gccv=4.9
-	    cmakev=3.20.0
+	        cmakev=3.20.0
             echo "Using gcc version = ${gccv}"
             os=slc6
             arch=x86_64
@@ -166,7 +166,7 @@ then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
             gccv=4.9
-	    cmakev=3.20.0
+	        cmakev=3.20.0
             os=centos7
             arch=x86_64
             rootversion=6.06.08
@@ -475,7 +475,7 @@ else
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
-    cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
+    cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
     make >> $CURRENTDIR/install.log  2>&1
     make install >> $CURRENTDIR/install.log  2>&1
     
@@ -486,10 +486,10 @@ else
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
     if [[ $http == "curl" ]]
-    then
-        curl http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+    then 
+        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget http://www.nikhef.nl/user/h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
