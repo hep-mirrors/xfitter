@@ -3,11 +3,13 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 7
- 
-  ! Input files:
-
+    NInputFiles = 3
      InputFileNames = 
+  ! Input files:
+            'datafiles/TASSO/inclusive/TASSO_12_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_14_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_22_inclusive_pi.dat',
+
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
