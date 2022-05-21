@@ -7,77 +7,106 @@ MINUIT:
     call fcn 3
 
 Parameters:
-  Ag   :  DEPENDENT
-  Bg   : [ -0.014834, 0.27 ]
-  Cg   : [  9.106839,  0.32 ]
-  Agp  : [ 0.240458, 0.01 ]  # negative gluon
-  Bgp  : [ -0.166400, 0.01 ]
-  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
-  Auv  :  DEPENDENT
-  Buv  : [ 0.713453, 0.016 ]
-  Cuv  : [ 4.840721, 0.06 ]
-  Duv  : [    0     ]
-  Euv  : [ 13.405266, 0.8 ]
-  Adv  :  DEPENDENT
-  Bdv  : [ 0.805766, 0.06 ]
-  Cdv  : [ 4.079602, 0.3 ]
-  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
-  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
-  Cubar: [ 8.055252, 0.8 ]
-  Dubar: [ 11.900269, 1.0 ]
-  Adbar: [ 0.10537, 0.01 ]
-  Bdbar: [ -0.172358, 0.004  ]
-  Cdbar: # another example of providing value, step etc.
-    value: 4.885482
-    step: 1.2345
+  Ag   : [0.57764, 0.30153E-01 ]
+  Bg   : [0.75832, 0.33033 ]
+  Cg   : [18.201, 3.4406 ]
+#  Agp  : [ 0.07311, 0.01 ]  # negative gluon ....
+#  Bgp  : [ -0.383100, 0.01 ]
+#  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  Aup  :  [1.1129, 0.24817E-01]
+  Bup  : [ -0.61516, 0.65898E-01 ]
+  Cup  : [1.7440, 0.50931E-01 ]
+  Dup  : [  8.3739, 1.4510    ]
+  Eup  : [5.4802, 0.36971 ]
+  Adp  :  [1.011, 0.36971 ] #DEPENDENT
+  ASp  :  [0.32190, 0.65982E-01]
+  BSp  :  [1.2649, 0.56029]
+  CSp  :  [9.8777, 0.96283]
+  ACp  :  [0.74251, 0.15467E-01]
+  BCp  :  [-0.85582, 0.43079E-01]
+  CCp  :  [4.8765, 0.21439]
+  ABp  :  [0.70023, 0.15502E-01]
+  BBp  :  [-0.43202, 0.50529E-01]
+  CBp  :  [4.0749, 0.25233]
+  DBp  :  [12.069, 1.9937]
+  EBp  :  [8.1823, 0.45166]
   ZERO : [ 0. ]          # zero
-  fs : [ 0.4, 0.0 ]
 
 Parameterisations:
-  par_uv:
-    class: HERAPDF
-    parameters: [Auv,Buv,Cuv,Duv,Euv]
-  par_dv:
-    class: HERAPDF
-    parameters: [Adv,Bdv,Cdv]
-  par_ubar:
-    class: HERAPDF
-    parameters: [Adbar,Bdbar,Cubar,Dubar]
-  par_dbar:
-    class: HERAPDF
-    parameters: [Adbar,Bdbar,Cdbar]
-  par_s:
+  par_up:
+    class: Pion_FF
+    parameters: [Aup,Bup,Cup,Dup,Eup]
+#  par_dp:
+#    class: Pion_FF
+#    parameters: [Adv,Bdv,Cdv]
+  par_cp:
+    class: Pion_FF
+    parameters: [ACp,BCp,CCp]
+  par_bp:
+    class: Pion_FF
+    parameters: [ABp,BBp,CBp, DBp, EBp]
+  par_sp: # s=fs/(1-fs) * Dbar
+    class: Pion_FF
+    parameters: [ASp,BSp,CSp]
+  par_g:
+    class: Pion_FF
+    parameters: [Ag,Bg,Cg]
+  #par_s:
     #class: HERAPDF
     #parameters: [As,Bs,Cs]
-    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
-    class: Expression
-    expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
-  par_g:
-    class: NegativeGluon
-    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+  #par_s:
+    #class: Expression
+    #expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
+  # Another example for Expression parameterisation
+  #par_g:
+    #class: Expression
+    #expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
-DefaultDecomposition: proton
+DefaultDecomposition: Pion_FF_B_C
 Decompositions:
-  proton:
-    class: UvDvUbarDbarS
-    xuv: par_uv
-    xdv: par_dv
-    xubar: par_ubar
-    xdbar: par_dbar
-    xs: par_s
+  Pion_FF_B_C: #proton:
+    class: Pion_FF_BC
+    xup: par_up
+#    xdp: par_dp
+    xcp: par_cp
+    xbp: par_bp
+    xsp: par_sp
     xg: par_g
 
-
-DefaultEvolution: proton
+DefaultEvolution: proton-APFELff
+#DefaultEvolution: proton-APFELff
+#DefaultEvolution: proton-QCDNUM
+#DefaultEvolution: proton-LHAPDF
 
 Evolutions:
-  proton:
-    ? !include evolutions/QCDNUM.yaml
-    decomposition: proton
-  antiproton:
-    class: FlipCharge
-  neutron:
-    class: FlipUD
+  #APFELxx:
+  #  ? !include evolutions/APFELxx.yaml
+  #  decomposition: Pion_FF_B_C
+  proton-APFELff:
+    ? !include evolutions/APFEL.yaml
+    decomposition: Pion_FF_B_C
+  #proton-QCDNUM:
+   # ? !include evolutions/QCDNUM.yaml
+   # decomposition: proton #this could be omitted, as the default decomposition is set
+    # The following allows QCDNUM to read PDFs from other evolutions:
+    #EvolutionCopy: "proton-LHAPDF"
+ # proton-LHAPDF:
+  #  class: LHAPDF
+ #   set: "NNPDF30_nlo_as_0118"
+    #set: "CT10nlo"
+ #   member: 0
+#  proton-APFEL:
+#    ? !include evolutions/APFELxx.yaml
+#    decomposition: proton
+ # antiproton:
+  #  class: FlipCharge
+    #input: proton-QCDNUM
+ #   input: proton-LHAPDF
+#  neutron:
+#    class: FlipUD
+#    input: proton-QCDNUM
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
 ? !include constants.yaml
 
@@ -118,30 +147,13 @@ byReaction:
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
-  HathorSingleTop:
-    MS_MASS: 0        #0 pole; 1 MSbar
-    muR: 1.
-    muF: 1.
-    precisionLevel: 2 #1 low; 2 medium (default); 3 High
-    tSgTop:  1      #Include t-channel process
-    sSgTop:  0      #Include s-channel process
-    WtSgTop: 0      #Include W+t final state processes
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-  defaultValue : 'RT_DISNC'        # global specification
-#  defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
-#  defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+  defaultValue : 'NC_SIA'   
 
-# Specify HF scheme used for DIS CC processes:
-hf_scheme_DISCC :
-  defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
+
+OutputDirectory: "output" #Can be omitted, default is "output"
 
 WriteLHAPDF6:
   name: "proton"
