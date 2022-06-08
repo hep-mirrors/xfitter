@@ -395,13 +395,13 @@ else
  #apfel
     echo "Installing APFEL $apfelver..."
     if [[ $http == "curl" ]]
-    then
-        curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
+    then 
+        curl https://github.com/vbertone/apfel/archive/refs/heads/resummation-scales.zip > ${apfelver}.zip 2 >> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/vbertone/apfel/archive/refs/heads/resummation-scales.zip >> $CURRENTDIR/install.log 2>&1
     fi
-    mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
-    tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    mv ${apfelver}.zip apfel-${apfelver}.zip
+    unzip apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfel-${apfelver}
     ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
 
