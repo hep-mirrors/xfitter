@@ -6,9 +6,27 @@
     NInputFiles = 3
      InputFileNames = 
   ! Input files:
+!    Inclusive
+            'datafiles/ALEPH/inclusive/ALEPH_inclusive_pi_h.dat',
+            'datafiles/DELPHI/inclusive/DELPHI_inclusive_pi.dat',
+            'datafiles/OPAL/inclusive/OPAL_inclusive_pi.dat',
+            'datafiles/SLD/inclusive/SLD_inclusive_pi.dat',
             'datafiles/TASSO/inclusive/TASSO_12_inclusive_pi.dat',
             'datafiles/TASSO/inclusive/TASSO_14_inclusive_pi.dat',
             'datafiles/TASSO/inclusive/TASSO_22_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_34_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_44_inclusive_pi.dat',
+            'datafiles/TPC/TPC_inclusive_pi.dat',
+
+!   b tag
+            'datafiles/DELPHI/b_tag/DELPHI_b_tag_pi.dat',
+            'datafiles/SLD/b_tag/SLD_b_tag_pi.dat',
+!   c tag
+            'datafiles/SLD/c_tag/SLD_c_tag_pi.dat',
+!   light tag 
+            'datafiles/DELPHI/light_tag/DELPHI_light_tag_pi_o.dat',
+            'datafiles/SLD/light_tag/SLD_light_tag_pi.dat',
+
 
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
