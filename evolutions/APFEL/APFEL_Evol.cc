@@ -247,10 +247,10 @@ void APFEL_Evol::atStart()
   APFEL::SetRenQRatio(muRoverQ);
   APFEL::SetFacQRatio(muFoverQ);
 
-  // set ratio between renormalization and factorization scales in the PDF and AlphaS evolution.
-  double ratio = _yAPFEL["ratio"].as<double>();
-  APFEL::SetRenFacRatioPDF(ratio);
-  APFEL::SetRenFacRatioAlpha(ratio);
+  // set the ratio muR /muF (default 1) in the PDF and AlphaS evolution (Phys.Rev.D 105 (2022) 9, 096003).
+  double muRovermuF = _yAPFEL["muRovermuF"].as<double>();
+  APFEL::SetRenFacRatioPDF(muRovermuF);
+  APFEL::SetRenFacRatioAlpha(muRovermuF);
 
 
 
