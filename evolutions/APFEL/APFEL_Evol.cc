@@ -247,6 +247,13 @@ void APFEL_Evol::atStart()
   APFEL::SetRenQRatio(muRoverQ);
   APFEL::SetFacQRatio(muFoverQ);
 
+  // set ratio between renormalization and factorization scales in the PDF and AlphaS evolution.
+  double ratio = _yAPFEL["ratio"].as<double>();
+  APFEL::SetRenFacRatioPDF(ratio);
+  APFEL::SetRenFacRatioAlpha(ratio);
+
+
+
   // APFEL::InitializeAPFEL();
   // Initialize the APFEL DIS module
   APFEL::InitializeAPFEL_DIS();
