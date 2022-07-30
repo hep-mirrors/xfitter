@@ -66,6 +66,7 @@ namespace xfitter
   //  double d=(*par_xdv)(x)+dbar;
     double s=0.5*(*par_xsp)(x);
     double g=(*par_xg)(x);
+  //  cout<<"test PDF_decom x="<< x << "####bbar=" << bbar<< " cbar= " << cbar << " ubar=  " << ubar <<"***\n"; 
     return{
       {-6,0},
       {-5,bbar},

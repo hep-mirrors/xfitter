@@ -26,11 +26,11 @@ class Pion_FF_PdfParam:public BasePdfParam{
  public:
   Pion_FF_PdfParam(const std::string&inName):BasePdfParam(inName){}
   virtual double operator()(double x)const override final;
-  virtual double moment(int nMoment=-1)const override final;
+  //virtual double moment(int nMoment=-1)const override final;
   virtual void atStart()override final;
   virtual void atIteration()override final;
- private:
-  double norm;//normalization factor=A/beta(B+1,C+1)
-  void updateNormalization();
+ //private:
+ // double norm;//normalization factor=A/beta(B+1,C+1)
+  ///void updateNormalization();
 };
 }

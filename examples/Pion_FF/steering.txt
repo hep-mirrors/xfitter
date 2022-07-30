@@ -3,11 +3,36 @@
 
 &InFiles
   ! Number of intput files
-    NInputFiles = 7
- 
-  ! Input files:
-
+    NInputFiles = 17
      InputFileNames = 
+  ! Input files:
+!   4 active flavour
+            'datafiles/BABAR/inclusive/BABAR_inclusive_pi.dat',
+   !         'datafiles/BELLE/inclusive/BELLE20_inclusive_pi_s_1_re.dat',
+             'datafiles/BELLE20/BELLE20_inclusive_pi_3.dat'
+!    Inclusive
+            'datafiles/ALEPH/inclusive/ALEPH_inclusive_pi_h.dat',
+            'datafiles/DELPHI/inclusive/DELPHI_inclusive_pi.dat',
+            'datafiles/OPAL/inclusive/OPAL_inclusive_pi.dat',
+            'datafiles/SLD/inclusive/SLD_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_12_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_14_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_22_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_34_inclusive_pi.dat',
+            'datafiles/TASSO/inclusive/TASSO_44_inclusive_pi.dat',
+            'datafiles/TPC/TPC_inclusive_pi.dat',
+
+!   b tag
+            'datafiles/DELPHI/b_tag/DELPHI_b_tag_pi.dat',
+            'datafiles/SLD/b_tag/SLD_b_tag_pi.dat',
+!   c tag
+            'datafiles/SLD/c_tag/SLD_c_tag_pi.dat',
+!   light tag 
+         !   'datafiles/DELPHI/light_tag/DELPHI_light_tag_pi_o.dat',
+            'datafiles/DELPHI/light_tag/DELPHI_light_tag_pi.dat',
+            'datafiles/SLD/light_tag/SLD_light_tag_pi.dat',
+
+
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
@@ -33,13 +58,39 @@
     ! depending on blas library, toggling the following flag may improve chi2 computation speed:
   useBlas = .false.
 &End
+&Scales 
+ !   DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
+  !  DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
+ !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
+    DataSetMaxNF(1) = 4    ! Enable the H-VFNS (requires APFEL)
+    DataSetMaxNF(2) = 4
+   ! DataSetMaxNF(1) = 5    ! Enable the H-VFNS (requires APFEL)
+   ! DataSetMaxNF(2) = 5
+    DataSetMaxNF(3) = 5
+    DataSetMaxNF(4) = 5
+    DataSetMaxNF(5) = 5
+    DataSetMaxNF(6) = 5
+    DataSetMaxNF(7) = 5
+    DataSetMaxNF(8) = 5
+    DataSetMaxNF(9) = 5
+    DataSetMaxNF(10) = 5
+    DataSetMaxNF(11) = 5
+    DataSetMaxNF(12) = 5
+    DataSetMaxNF(13) = 5
+    DataSetMaxNF(14) = 5
+    DataSetMaxNF(15) = 5 
+    DataSetMaxNF(16) = 5
+    DataSetMaxNF(17) = 5
+
+ !   DataSetMaxNF = 15*5
+&End
 
 &CovarToNuisance
    ! Global switch for using nuisance param representation for covariance mat.
   LConvertCovToNui = .False.
 
    ! Tolerance -- zero means exact transformation
-  Tolerance = 0.0
+  Tolerance = 20.0
 
    ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
   LSubtractStat = .false.
@@ -104,14 +155,14 @@
 *
 &Output 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
+  Q2VAL = 25., 100., 6464, 8317 
 !  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
 
   ! How many x points to write (standard = 101)
   OUTNX = 101
 
   ! x-range of output (standard = 1E-4 1.0)
-  OUTXRANGE = 1E-4, 0.9999
+  OUTXRANGE = 1E-2, 0.9999
   ! Write out LHAPDF5 output
   ! WriteLHAPDF5 = true
 &End
@@ -123,71 +174,61 @@
 *
 &Cuts
 
-  !--------------------- NC ep  --------------------------
+!--------------------- FF inclusive pion NF4 --------------------------
 
   ! Rule #1: Q2 cuts
-   ProcessName(1)     = 'NC e+-p'
-   Variable(1)        = 'Q2'
-   CutValueMin(1)     = 3.5
-   CutValueMax(1)     = 1000000.0
+   ProcessName(1)     = 'NC SIA NF4'
+   Variable(1)        = 'x'
+   CutValueMin(1)     = 0.2
+   CutValueMax(1)     = 0.9
 
-  ! Rule #2: x cuts
-   ProcessName(2)     = 'NC e+-p'
+!--------------------- FF inclusive pion --------------------------
+  ! Rule #1: Q2 cuts
+   ProcessName(2)     = 'NC SIA'
    Variable(2)        = 'x'
-   CutValueMin(2)     = 0.000001 
-   CutValueMax(2)     = 1.0
+   CutValueMin(2)     = 0.075
+   CutValueMax(2)     = 0.9
 
-  !---------------------  CC ep  ------------------
+!--------------------- FF inclusive pion norm --------------------------
 
-   ProcessName(3)     = 'CC e+-p'
-   Variable(3)        = 'Q2'
-   CutValueMin(3)     = 3.5
-   CutValueMax(3)     = 1000000.0
+  ! Rule #1: Q2 cuts
+   ProcessName(3)     = 'NC SIA Norm'
+   Variable(3)        = 'x'
+   CutValueMin(3)     = 0.02
+   CutValueMax(3)     = 0.9
 
-   ProcessName(4)     = 'CC e+-p'
+
+!--------------------- FF light pion  --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(4)     = 'NC SIA light'
    Variable(4)        = 'x'
-   CutValueMin(4)     = 0.000001 
-   CutValueMax(4)     = 1.0
+   CutValueMin(4)     = 0.02
+   CutValueMax(4)     = 0.9
 
-  !-------------------- DY pp  ----------------------
+!--------------------- FF btagged pion  --------------------------
 
-   ProcessName(5)     = 'CC pp'
-   Variable(5)        = 'eta1'
-   CutValueMin(5)     = -1.
-   CutValueMax(5)     = 100.
+  ! Rule #1: Q2 cuts
+   ProcessName(5)     = 'NC SIA bt'
+   Variable(5)        = 'x'
+   CutValueMin(5)     = 0.02
+   CutValueMax(5)     = 0.9
 
-  !------------------- Jets ---------------------------
-   
-   ProcessName(6)     = 'pp jets APPLGRID'
-   Variable(6)        = 'pt1'
-   CutValueMin(6)     = 20.
-   CutValueMax(6)     = 1000000.
+!--------------------- FF ctagged pion  --------------------------
 
-  !--------------------- Fixed target --------------------------
+  ! Rule #1: Q2 cuts
+   ProcessName(6)     = 'NC SIA ct'
+   Variable(6)        = 'x'
+   CutValueMin(6)     = 0.02
+   CutValueMax(6)     = 0.9
 
-  ! Rule #7: Whad2 cut
-   ProcessName(7)     = 'muon p'
-   Variable(7)        = 'Whad2'
-   CutValueMin(7)     = 15.   
 
-  !--------------------- Fastnlo jets ----------------------
 
-   ProcessName(8)     = 'FastNLO ep jets'
-   Variable(8)        = 'kfac'
-   CutValueMin(8)     = 0.0
-   CutValueMax(8)     = 2.5
 
-  !--------------------- NC ep charm ----------------
-
-   ProcessName(9)     = 'NC e+-p charm'
-   Variable(9)        = 'Q2'
-   CutValueMin(9)     = 3.5 
-   CutValueMax(9)     = 10000.0
-
-   ProcessName(10)     = 'NC e+-p charm'
-   Variable(10)        = 'x'
-   CutValueMin(10)     = 0.000001 
-   CutValueMax(10)     = 1.0
+   ProcessName(7)     = 'NC SIA NF4 Norm'
+   Variable(7)        = 'x'
+   CutValueMin(7)     = 0.1
+   CutValueMax(7)     = 0.9
 
   !--------------------- by Dataset index ----------------
 

@@ -1,0 +1,74 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'ABp       '   0.78833      0.16229E-01     no limits
+     2 'ACp       '   0.85642      0.17945E-01     no limits
+     3 'ASp       '   0.28582      0.97314E-01     no limits
+     4 'Ag        '   0.44841      0.38367E-01     no limits
+     5 'Aup       '    1.1276      0.50424E-01     no limits
+     6 'BBp       '  -0.69055      0.46378E-01     no limits
+     7 'BCp       '   -1.1390      0.47321E-01     no limits
+     8 'BSp       '    1.3989      0.58457         no limits
+     9 'Bg        '  -0.10434      0.39172         no limits
+    10 'Bup       '   -1.0184      0.46996E-01     no limits
+    11 'CBp       '    3.9383      0.22848         no limits
+    12 'CCp       '    4.3248      0.16586         no limits
+    13 'CSp       '    9.6670       1.0667         no limits
+    14 'Cg        '    9.5522       3.4079         no limits
+    15 'Cup       '    1.6370      0.29057E-01     no limits
+    16 'DBp       '    9.1286       1.2986         no limits
+    17 'DCp       '    0.0000      constant
+    18 'DSp       '    0.0000      constant
+    19 'Dg        '    0.0000      constant
+    20 'Dup       '    4.3742      0.60214         no limits
+    21 'EBp       '    8.4613      0.72039         no limits
+    22 'ECp       '    0.0000      constant
+    23 'ESp       '    0.0000      constant
+    24 'Eg        '    0.0000      constant
+    25 'Eup       '    4.5815      0.31688         no limits
+    26 'ZERO      '    0.0000      constant
+ **********
+ **    1 **CALL FCN    1.000    
+ **********
+
+ FCN=   8627.586     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1     ABp       0.78833       0.16229E-01
+   2     ACp       0.85642       0.17945E-01
+   3     ASp       0.28582       0.97314E-01
+   4     Ag        0.44841       0.38367E-01
+   5     Aup        1.1276       0.50424E-01
+   6     BBp      -0.69055       0.46378E-01
+   7     BCp       -1.1390       0.47321E-01
+   8     BSp        1.3989       0.58457    
+   9     Bg       -0.10434       0.39172    
+  10     Bup       -1.0184       0.46996E-01
+  11     CBp        3.9383       0.22848    
+  12     CCp        4.3248       0.16586    
+  13     CSp        9.6670        1.0667    
+  14     Cg         9.5522        3.4079    
+  15     Cup        1.6370       0.29057E-01
+  16     DBp        9.1286        1.2986    
+  17     DCp        0.0000       constant   
+  18     DSp        0.0000       constant   
+  19     Dg         0.0000       constant   
+  20     Dup        4.3742       0.60214    
+  21     EBp        8.4613       0.72039    
+  22     ECp        0.0000       constant   
+  23     ESp        0.0000       constant   
+  24     Eg         0.0000       constant   
+  25     Eup        4.5815       0.31688    
+  26     ZERO       0.0000       constant   
+ **********
+ **    2 **SET STR    2.000    
+ **********
+
+ NOW USING STRATEGY  2: MAKE SURE MINIMUM TRUE, ERRORS CORRECT  
+
+ **********
+ **    3 **CALL FCN    3.000    
+ **********
