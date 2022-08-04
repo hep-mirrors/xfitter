@@ -11,7 +11,7 @@ qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
-dyturbover=1.2.1
+dyturbover=1.2
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
@@ -180,7 +180,7 @@ then
         elif [[ -e /cvmfs/sft.cern.ch ]]
 	then
             echo "System not recognized, but cvmfs is mounted"
-            #MODE=cern
+            MODE=cvmfs
 	    #gccv=10.3.0
 	    #arch=x86_64
 	    #os=centos7
@@ -197,7 +197,7 @@ then
 	    #. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
 
 	    #setup older gcc
-	    #. /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+	    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
 	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
             echo "Using gcc version = 4.9.3"
         else
@@ -545,7 +545,7 @@ else
     cd dyturbo-${dyturbover}
 
     export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-    ./configure --enable-Ofast --disable-tlsopt --disable-openmp >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+    ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
 
     if [[ $? != 0 ]]
@@ -658,8 +658,11 @@ then
     echo "cd -" >>setup.sh
 fi
 
-#echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
-#echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
+if [[ $MODE == "cvmfs" ]]
+then
+    #echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
+    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
+fi
 
 #make a compilation script
 echo source ./setup.sh > compile
