@@ -197,7 +197,7 @@ then
 	    #. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
 
 	    #setup older gcc
-	    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+	    #. /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
 	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
             echo "Using gcc version = 4.9.3"
         else
@@ -537,15 +537,15 @@ else
     echo "Installing DYTurbo ${dyturbover}..."
     if [[ $http == "curl" ]]
     then
-	curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}beta.tar.gz > dyturbo-${dyturbover}beta.tar.gz 2>> $CURRENTDIR/install.log
+	curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
     else
-	wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}beta.tar.gz >> $CURRENTDIR/install.log 2>&1
+	wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz dyturbo-${dyturbover}beta.tar.gz  >> $CURRENTDIR/install.log  2>&1
+    tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd dyturbo-${dyturbover}
 
     export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-    ./configure --enable-Ofast --disable-tlsopt  >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+    ./configure --enable-Ofast --disable-tlsopt --disable-openmp >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
 
     if [[ $? != 0 ]]
@@ -659,7 +659,7 @@ then
 fi
 
 #echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
-echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
+#echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
 
 #make a compilation script
 echo source ./setup.sh > compile
