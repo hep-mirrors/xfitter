@@ -40,6 +40,12 @@ namespace xfitter {
     /// Get property
     virtual int  getPropertyI(std::string const& propertyName) const override final;
 
+  /// Get property
+    virtual double getPropertyD(std::string const& propertyName) const override final;
+
+  /// Get property with default value
+    virtual double getPropertyD(std::string const& propertyName, double defval) const override final;
+    
   private:
     std::string _set_name{""};
     int _member{0};
