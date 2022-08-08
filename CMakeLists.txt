@@ -36,6 +36,7 @@ find_package(APFELxx)
 find_package(Ceres)
 include(find_package_ROOT)
 find_package(Hathor)
+find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
 
@@ -166,6 +167,7 @@ add_subdirectory(reactions/HathorMSR)
 add_subdirectory(reactions/HathorSingleTop)
 add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
+add_subdirectory(reactions/DYTurbo)
 
 #Tools
 add_subdirectory(tools/draw/src)

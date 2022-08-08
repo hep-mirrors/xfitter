@@ -150,6 +150,8 @@ byReaction:
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
+  DYTurbo:
+    ? !include reactions/DYTurbo.yaml
 
 #byDataset: #Here one can redefine some parameters for specific datasets
 #  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
