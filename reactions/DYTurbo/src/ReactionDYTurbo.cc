@@ -63,9 +63,6 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   opts.silent      = true;
   opts.makehistos  = false;
   
-  //check settings
-  opts.check_consistency();
-
   if (td->hasParam("g1"))
     opts.g1 = *(td->getParamD("g1"));
 
@@ -74,6 +71,17 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
 
   if (td->hasParam("g3"))
     opts.g3 = *(td->getParamD("g3"));
+
+  //read g from LHAPDF
+  pdf::g1 = xfitter::get_evolution()->getPropertyD("g", -1.);
+  pdf::g1 = xfitter::get_evolution()->getPropertyD("g1", -1.);
+  pdf::g2 = xfitter::get_evolution()->getPropertyD("g2", -1.);
+
+  //read e from LHAPDF
+  pdf::e = xfitter::get_evolution()->getPropertyD("e", -1.);
+
+  //read g0 from LHAPDF
+  pdf::g0 = xfitter::get_evolution()->getPropertyD("g0", -1.);
 
   if (td->hasParam("Q0"))
     opts.Q0 = *(td->getParamD("Q0"));
@@ -90,11 +98,17 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   if (td->hasParam("muRes"))
     opts.kmures = *(td->getParamD("muRes"));
 
+  //check settings
+  opts.check_consistency();
+
   //cout << opts.kmuren << "  " << opts.kmufac << "  " << opts.kmures << endl;
   
   //Init physics parameters
   DYTurbo::init_params();
 
+  //opts.dumpAll();  
+  //DYTurbo::PrintTable::Settings();
+  
   //Compute predictions
   vector <double> vals;
   vector <double> errs;
