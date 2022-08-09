@@ -98,29 +98,38 @@ namespace asscan
 
     //2nd order fit
     TF1 *cf = new TF1("ParFit", "pol2");
-    chi2graph->Fit(cf, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
+    chi2graph->Fit(cf, "WQG", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     double a = cf->GetParameter(2);
     double b = cf->GetParameter(1);
     double c = cf->GetParameter(0);
     double xc = 0;
     double sigma = 1;
+    double mn = 0;
     if (a > 0)
       {
 	xc = -b / (2*a);
 	sigma = 1. / sqrt(a);
+	mn = a*xc*xc+b*xc+c;
       }
+    /*
+    cout << "parabolic " << endl;
     TF1 *parfit = new TF1("ParFit", "[0]+(x-[2])**2/[1]**2");
-    parfit->SetParameter(0,c);
+    parfit->SetParameter(0,mn);
     parfit->SetParameter(1,sigma);
     parfit->SetParameter(2,xc);
-    chi2graph->Fit(parfit, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
+    chi2graph->Fit(parfit, "W", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     double min2 = parfit->GetParameter(2);
     double delta2 = parfit->GetParameter(1);
     double chi2min2 = parfit->GetParameter(0);
-
+    */
+    
+    double min2 = xc;
+    double delta2 = sigma;
+    double chi2min2 = mn;
+    
     //3rd order fit
     TF1 *parfit3 = new TF1("ParFit3", "pol3");
-    chi2graph->Fit(parfit3, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
+    chi2graph->Fit(parfit3, "WQG", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     parfit3->SetParameter(3,0);
     parfit3->SetParameter(2,a);
     parfit3->SetParameter(1,b);
@@ -145,7 +154,7 @@ namespace asscan
     parfit4->SetParameter(2,b3);
     parfit4->SetParameter(1,c3);
     parfit4->SetParameter(0,d3);
-    chi2graph->Fit(parfit4, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
+    chi2graph->Fit(parfit4, "WQG", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     double a4 = parfit4->GetParameter(4);
     double b4 = parfit4->GetParameter(3);
     double c4 = parfit4->GetParameter(2);
@@ -164,7 +173,7 @@ namespace asscan
 
     //5th order fit
     TF1 *parfit5 = new TF1("ParFit5", "pol5");
-    chi2graph->Fit(parfit5, "WQ", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
+    chi2graph->Fit(parfit5, "WQG", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     double min5 = parfit5->GetMinimumX(chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     double chi2min5 = parfit5->Eval(min5);
     TF1 *fs5 = new TF1("fs5", "abs([5]*pow(x,5) + [4]*x**4 + [3]*x**3 +[2]*x**2 + [1]*x + [0])");
@@ -229,7 +238,7 @@ namespace asscan
     //clean up memory
     delete chi2graph;
     delete cf;
-    delete parfit;
+    //delete parfit;
     delete parfit3;
     delete parfit4;
     delete parfit5;
@@ -840,7 +849,8 @@ void alphas_scan_()
 	    {
 	      sysmeas_.syst_meas_idx[nsysloc][i] = i + 1;
 
-	      systema_.beta[i][nsysloc] = (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
+	      //account for the sign flip due to applying a theory variation as a shift to the data
+	      systema_.beta[i][nsysloc] = -(pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
 	      systasym_.omega[i][nsysloc] = 0;
 
 	      systasym_.lasymsyst[nsysloc] = false;
@@ -999,7 +1009,6 @@ void alphas_scan_()
       gNode["member"] = 0;
       evol->atConfigurationChange();
       c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
-
       for (int i = systema_.nsys; i < nsysloc; i++)
 	{
 	  sysmeas_.n_syst_meas[i] = npoints; //PDF systematic uncertainties apply to all points
@@ -1097,7 +1106,7 @@ void alphas_scan_()
 
       //double chi2tot = chi2data_theory_(2);
       char vl[10];
-      sprintf(vl, "%.3f", *vit);
+      sprintf(vl, "%.4f", *vit);
       string fname = outdir + "/Results_" + vl + ".txt";
       fopen_(85, fname.c_str(), fname.size());
       double chi2tot = chi2data_theory_(3);
@@ -1131,7 +1140,7 @@ void alphas_scan_()
       closestval = *vit;
 
   char vl[10];
-  sprintf(vl, "%.3f", closestval);
+  sprintf(vl, "%.4f", closestval);
   bool cp = system(((string)"cp " + outdir + "/fittedresults_" + vl + ".txt "
 		    + outdir + "/fittedresults.txt").c_str());
   cp = system(((string)"cp " + outdir + "/Results_" + vl + ".txt "
@@ -1141,6 +1150,11 @@ void alphas_scan_()
   //Store PDF members for plots
   if (lhapdfprofile)
     {
+      gNode["set"] = lhapdfset;
+      gNode["member"] = 0;
+      evol->atConfigurationChange();
+      c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
+    
       int totset = 0; //total number of PDF members
       int sets = 1;
       if (lhapdfvarset != "")
