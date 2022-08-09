@@ -169,10 +169,6 @@ void ReactionAPPLgrid::compute(TermData*td,valarray<double>&val,map<string,valar
     // insert values from this grid into output array
     copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
     pos += grid->Nobs();
-
-    //    for (uint i = 0; i < val.size(); i++)
-    //      cout << i << "  " << val.size() << "  " << val[i] << endl;
-    
   }
   // SZ 27.03.2019 val.size()!=pos should be allowed for bin manipulations
   //if(val.size()!=pos){//TODO: number of data points actually doesn't have to match grid size in some cases, so this check should be replaced by something else

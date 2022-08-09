@@ -87,7 +87,7 @@ target_compile_definitions(xfitter PRIVATE
 target_link_libraries(xfitter PRIVATE
   MINUIT
   ${CMAKE_DL_LIBS} #for dlopen
-  ${LAPACK_LIBRARIES}
+  ${LAPACK_LIBRARIES} ZLIB::ZLIB z
 )
 target_link_libraries(xfitter PUBLIC yaml-cpp)
 
@@ -114,7 +114,7 @@ install(TARGETS xfitter DESTINATION ${DEST_LIB})
 #Executable
 add_executable(xfitter-bin main.cc)
 set_target_properties(xfitter-bin PROPERTIES OUTPUT_NAME xfitter)
-target_link_libraries(xfitter-bin xfitter)
+target_link_libraries(xfitter-bin xfitter ZLIB::ZLIB z)
 install(TARGETS xfitter-bin DESTINATION ${DEST_BIN})
 
 add_subdirectory(minuit)

@@ -339,6 +339,8 @@ C Temporary buffer to read the data (allows for comments starting with *)
 C Functions
       logical FailSelectionCuts
       integer GetBinIndex
+      integer fileCheckSum
+      integer checksum
       
 C-------------------------------------------------------      
 
@@ -390,6 +392,7 @@ C Reset scales to 1.0
          ColumnName(i) = ' '
       enddo
 
+
       open(51,file=CFile,status='old',err=99)
 
 cc      if(DEBUG)then
@@ -422,9 +425,18 @@ C
 C Store 
 C
       NDATASETS = NDATASETS + 1
+
+C     IndexDataSet = fileCheckSum(CFile)   ! can use file content
+      if (IndexDataSet>=0 .and. .not. UseDataSetIndex) then
+         IndexDataSet = checksum(CFile) ! use file name
+         IndexDataSet = mod(abs(IndexDataset),10000000)
+      else
+         IndexDataSet = abs(IndexDataSet)
+      endif
+      print *,'Dataset index set to = ',IndexDataSet
       DATASETNUMBER(NDATASETS)   = 10000+NDATASETS
       DATASETLABEL(NDATASETS)    = Name
-      DATASETNUMBER(NDATASETS)   = IndexDataset   !!!  
+      DATASETNUMBER(NDATASETS)   = IndexDataset
 
 C Reaction info:
       DATASETREACTION(NDATASETS) = Reaction

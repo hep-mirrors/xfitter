@@ -84,10 +84,9 @@ extern struct thexpr_cb {
 } theorexpr_;
 
 extern struct ord_scales {
-   double datasetmur[NSET_C];
-   double datasetmuf[NSET_C];
-   double datasetmures[NSET_C];
-   int datasetiorder[NSET_C];
+   double datasetmur[150];
+   double datasetmuf[150];
+   int datasetiorder[150];
 } cscales_;
 
 inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")

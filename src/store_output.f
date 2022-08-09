@@ -366,7 +366,7 @@ c set pull to zero if no unc error
                PullVar = 0d0
             endif
 
-            write(90,'(1X,11(e11.5,1X),i4,i4,A1,E11.5)')
+            write(90,'(1X,11(e11.5,1X),i12,i4,A1,E11.5)')
      $              AbstractBins(1,index),
      $              AbstractBins(2,index),AbstractBins(3,index),
      &           DATEN(index),ALPHA_MOD(index),
