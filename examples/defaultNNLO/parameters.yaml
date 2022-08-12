@@ -3,7 +3,6 @@ MINUIT:
   Commands: |
     set str 2
     call fcn 3
-    migrad 10000
 
 Parameters:
   Ag   :  DEPENDENT
