@@ -45,6 +45,8 @@ job-install-full:
 
 job-nnlo-fit:
   script: 
+    - ./tools/install-qcdnum
+    - . setup.sh
     - ./make.sh install
     - ./tools/test.sh defaultNNLO-fit
   variables:
