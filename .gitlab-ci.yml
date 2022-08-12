@@ -49,3 +49,11 @@ job-nnlo-fit:
     - ./tools/test.sh defaultNNLO-fit
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
