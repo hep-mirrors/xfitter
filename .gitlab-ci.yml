@@ -43,3 +43,9 @@ job-install-full:
       - temp/**/output
     expire_in: 2 day
 
+job-nnlo-fit:
+  script: 
+    - ./make.sh install
+    - ./tools/test.sh defaultNNLO-fit
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
