@@ -59,6 +59,22 @@ job-nnlo-fit:
       - temp/**/output
     expire_in: 2 day
 
+job-nnlo-fix:
+  script: 
+    - ./tools/install-qcdnum
+    - . setup.sh
+    - ./make.sh install
+    - ./tools/test.sh defaultNNLO-fix
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
+
 job-checkmin:
   script: 
     - ./tools/install-qcdnum
