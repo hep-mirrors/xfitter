@@ -31,8 +31,8 @@ public:
    virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &err) override;
 
 protected:
-   virtual void F2 BASE_PARS override;
-   virtual void FL BASE_PARS override;
+   //virtual void F2 BASE_PARS override;
+   //virtual void FL BASE_PARS override;
 
    virtual void F2gamma_RT BASE_PARS;
    virtual void FLgamma_RT BASE_PARS;
