@@ -83,10 +83,8 @@ void ReactionRT_DISNC::compute(TermData *td, valarray<double> &val, map<string, 
   wate96_();
 
   Super::compute(td, val, err);
-  //for (int i = 0; i < val.size(); i++)
-  //std::cout << " val " << i << "  " << val[i] << std::endl;
 }
-/*
+
 //
 void ReactionRT_DISNC::F2 BASE_PARS
 {
@@ -133,7 +131,7 @@ void ReactionRT_DISNC::FL BASE_PARS
   else
     val = flgamma_RT;
 }
-*/
+
 void ReactionRT_DISNC::F2gamma_RT BASE_PARS
 {
   auto termID = td->id;
