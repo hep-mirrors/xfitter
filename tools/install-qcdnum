@@ -1,13 +1,8 @@
 #!/bin/bash
-#####################################################################
-## Configuration ####################################################
 
-## Programs versions
+# Program version
 qcdnumver=18-00-00
 
-
-## End of Configuration ####################################################
-#####################################################################
 #Check for dummies
 if [[ $0 == bash || $0 = csh ]]
 then
@@ -37,9 +32,7 @@ fi
 #directory:
 CURRENTDIR=`pwd`
 
-#Make all dependencies
-rm -rf deps >& /dev/null
-mkdir deps
+mkdir -p deps
 cd deps
 
 #qcdnum
