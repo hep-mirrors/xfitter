@@ -4,6 +4,7 @@ MINUIT:
     set str 2
     call fcn 3
     migrad 10000
+    hesse
 
 Parameters:
   Ag   :  DEPENDENT
