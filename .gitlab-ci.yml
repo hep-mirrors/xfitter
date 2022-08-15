@@ -49,7 +49,7 @@ job-checkmin-default:
     - schedules
   script: 
     - ./tools/install-qcdnum
-    - ./tools/numdiff
+    - ./tools/install-numdiff
     - . setup.sh
     - ./make.sh install
     - ./tools/test.sh checkmin-default
@@ -69,7 +69,7 @@ job-checkmin-additive:
     - schedules
   script: 
     - ./tools/install-qcdnum
-    - ./tools/numdiff
+    - ./tools/install-numdiff
     - . setup.sh
     - ./make.sh install
     - ./tools/test.sh checkmin-additive
