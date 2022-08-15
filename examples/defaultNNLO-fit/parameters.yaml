@@ -91,7 +91,12 @@ alphas : 0.118
 byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
-    ? !include reactions/RT_DISNC.yaml
+    #? !include reactions/RT_DISNC.yaml
+    varin0 : 0.0
+    varin1 : 1.0
+    varin2 : -0.666666666667
+    varin3 : 1.0        # recommended RT OPT settings
+    additive: 1
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
