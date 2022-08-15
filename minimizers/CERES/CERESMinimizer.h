@@ -2,6 +2,7 @@
 #pragma once
 
 #include "BaseMinimizer.h"
+#include "ceres/ceres.h"
 
 /**
   @class CERESMinimizer
@@ -23,6 +24,10 @@ namespace xfitter {
 
     /// Default constructor. Name is the PDF name
     CERESMinimizer (const std::string& inName);
+
+    //Output functions
+    void writePars(const double* covmat);
+    void writeOutput(ceres::Solver::Summary mySummary, const double* covmat);
 
     /// Optional initialization at the first call
     virtual void atStart() override final;
