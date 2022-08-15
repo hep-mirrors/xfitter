@@ -219,7 +219,7 @@ void CERESMinimizer::doMinimization()
   cout << endl;
   cout << "Fitted parameters" << endl;
   for (int i = 0; i < npars; i++)
-    std::cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  parVals[i] << "+/-" << setw(15) << sqrt(covmat[i*npars+i]) << std::endl;
+    std::cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  parVals[i] << " +/- " << sqrt(covmat[i*npars+i]) << std::endl;
   
   return;
 }
