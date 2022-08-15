@@ -128,17 +128,13 @@ void CERESMinimizer::doMinimization()
   int npars =  getNpars() ;
   std::cout << nData << " " << nSyst << " " << npars << "\n";
 
-  double parVals[npars];
   double**pars = getPars();
-  for (int i =0; i<npars; i++) {
-    parVals[i] = *pars[i];
-    //std::cout << " par " <<  parVals[i] << std::endl;
-  }
+  
+  //double parVals[npars];
+  double parVals[14];
 
-  constexpr int np = 14;
-  double parvals[np];
   for (int i =0; i< npars; i++)
-    parvals[i] = *pars[i];
+    parVals[i] = *pars[i];
 
   double covmat[npars * npars];
   fill(covmat,covmat+npars*npars, 0.);
@@ -174,7 +170,7 @@ void CERESMinimizer::doMinimization()
       ceres::Covariance covariance(options);
 
       vector<pair<const double*, const double*> > covariance_blocks;
-      covariance_blocks.push_back(make_pair(parvals, parvals));
+      covariance_blocks.push_back(make_pair(parVals, parVals));
 
       CHECK(covariance.Compute(covariance_blocks, &myProblem));
 
@@ -211,7 +207,7 @@ void CERESMinimizer::doMinimization()
       options.minimizer_progress_to_stdout = true;
       options.function_tolerance = 1.e-5;
       ceres::GradientProblemSolver::Summary Summary;
-      ceres::Solve(options, problem, parvals, &Summary);
+      ceres::Solve(options, problem, parVals, &Summary);
 
       std::cout << Summary.FullReport() << "\n";
     }
