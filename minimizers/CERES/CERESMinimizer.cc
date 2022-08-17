@@ -17,6 +17,7 @@
 #include "ceres/covariance.h"
 
 #include <iomanip>
+#include <fstream>
 
 // Fortran interface
 extern "C" {
