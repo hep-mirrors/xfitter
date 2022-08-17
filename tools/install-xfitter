@@ -545,7 +545,7 @@ else
     cd dyturbo-${dyturbover}
 
     export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-    ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+    ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
 
     if [[ $? != 0 ]]
