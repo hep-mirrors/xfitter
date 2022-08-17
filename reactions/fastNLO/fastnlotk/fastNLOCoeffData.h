@@ -15,7 +15,7 @@ public:
    explicit fastNLOCoeffData(const fastNLOCoeffBase&);
    virtual ~fastNLOCoeffData(){;};
    virtual fastNLOCoeffData* Clone() const;                                     //!< returns 'new' copy of this instance.
-   virtual void Read(std::istream& table);
+   virtual void Read(std::istream& table, int ITabVersionRead);
    virtual void Write(std::ostream& table, int ITabVersionWrite);
    virtual void Print(int iprint) const;
    static bool CheckCoeffConstants(const fastNLOCoeffBase* c, bool quiet = false);
@@ -38,7 +38,7 @@ public:
 
 protected:
    void ReadCoeffData(std::istream& table);
-   void ReadRest(std::istream& table);
+   void ReadRest(std::istream& table, int ITabVersionRead);
 
    int Nuncorrel;
    std::vector<std::string > UncDescr;

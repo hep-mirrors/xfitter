@@ -17,6 +17,7 @@
 #include "ceres/covariance.h"
 
 #include <iomanip>
+#include <fstream>
 
 //make this a yaml setting
 const int strategy = 0;
