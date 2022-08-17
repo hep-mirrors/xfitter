@@ -1543,6 +1543,7 @@ C-------------------------------------------------------------------------
          if (FitSample(i)) then
             if ( alpha(i).gt.0 ) then
                dchi2=-log(alpha(i)*alpha(i)*ScaledErrors(i))
+               chi2_poi_data(i) = dchi2
                chi2_log = chi2_log + dchi2
                chi2_poi(JSET(i)) = chi2_poi(JSET(i)) + dchi2
             endif

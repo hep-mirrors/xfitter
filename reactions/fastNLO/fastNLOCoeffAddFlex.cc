@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 
+#include "fastnlotk/fastNLOTable.h"
 #include "fastnlotk/fastNLOTools.h"
 #include "fastnlotk/fastNLOCoeffAddFlex.h"
 
@@ -46,23 +47,29 @@ fastNLOCoeffAddFlex* fastNLOCoeffAddFlex::Clone() const {
 
 
 ///________________________________________________________________________________________________________________ //
-void fastNLOCoeffAddFlex::Read(istream& table){
-   fastNLOCoeffBase::ReadBase(table);
-   ReadRest(table);
+void fastNLOCoeffAddFlex::Read(istream& table, int ITabVersionRead){
+   debug["ReadCoeffAddFlex::Read"]<<"Start reading coefficient table version "<<ITabVersionRead<<endl;
+   fastNLOCoeffBase::ReadBase(table, ITabVersionRead);
+   ReadRest(table, ITabVersionRead);
+   debug["ReadCoeffAddFlex::Read"]<<"Finished reading coefficient table version "<<ITabVersionRead<<endl;
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffAddFlex::ReadRest(istream& table){
+void fastNLOCoeffAddFlex::ReadRest(istream& table, int ITabVersionRead){
+   debug["ReadCoeffAddFlex::ReadRest"]<<"Start reading rest of coefficient table version "<<ITabVersionRead<<endl;
    CheckCoeffConstants(this);
-   fastNLOCoeffAddBase::ReadCoeffAddBase(table);
-   ReadCoeffAddFlex(table);
-   EndReadCoeff(table);
+   fastNLOCoeffAddBase::ReadCoeffAddBase(table, ITabVersionRead);
+   ReadCoeffAddFlex(table, ITabVersionRead);
+   fastNLOCoeffBase::ReadCoeffInfoBlocks(table, ITabVersionRead);
+   EndReadCoeff(table, ITabVersionRead);
+   debug["ReadCoeffAddFlex::ReadRest"]<<"Finished reading rest of coefficient table version "<<ITabVersionRead<<endl;
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffAddFlex::ReadCoeffAddFlex(istream& table){
+void fastNLOCoeffAddFlex::ReadCoeffAddFlex(istream& table, int ITabVersionRead){
+   debug["ReadCoeffAddFlex::ReadCoeffAddFlex"]<<"Start reading coefficients for table version "<<ITabVersionRead<<endl;
    CheckCoeffConstants(this);
 
    //  ---- order of reading... ---- //
@@ -119,6 +126,7 @@ void fastNLOCoeffAddFlex::ReadCoeffAddFlex(istream& table){
          AlphasTwoPi[i][j].resize(ScaleNode2[i].size());
       }
    }
+   debug["ReadCoeffAddFlex::ReadCoeffAddFlex"]<<"Finished reading coefficients for table version "<<ITabVersionRead<<endl;
 }
 
 
@@ -195,6 +203,10 @@ void fastNLOCoeffAddFlex::Write(ostream& table, int itabversion) {
    */
    //printf("  *  fastNLOCoeffAddFlex::Write(). Wrote %d lines of v2.1 Tables.\n",nn3);
    debug["Write"]<<"Wrote "<<nn3<<" lines of v2.1 Tables."<<endl;
+
+   if ( itabversion >= 25000 ) {
+      fastNLOCoeffBase::WriteCoeffInfoBlocks(table, itabversion);
+   }
 }
 
 
@@ -506,7 +518,7 @@ void fastNLOCoeffAddFlex::Print(int iprint) const {
 //________________________________________________________________________________________________________________ //
 
 // Erase observable bin
-void fastNLOCoeffAddFlex::EraseBin(unsigned int iObsIdx) {
+void fastNLOCoeffAddFlex::EraseBin(unsigned int iObsIdx, int ITabVersionRead) {
    debug["fastNLOCoeffAddFlex::EraseBin"]<<"Erasing table entries in CoeffAddFlex for bin index " << iObsIdx << endl;
    if ( ScaleNode1.size() == 0 ) {
       say::error["EraseBin"]<<"All bins deleted already. Aborted!" << endl;
@@ -520,11 +532,11 @@ void fastNLOCoeffAddFlex::EraseBin(unsigned int iObsIdx) {
    if ( SigmaTildeMuRRDep.size() != 0 ) SigmaTildeMuRRDep.erase(SigmaTildeMuRRDep.begin()+iObsIdx);
    if ( SigmaTildeMuFFDep.size() != 0 ) SigmaTildeMuFFDep.erase(SigmaTildeMuFFDep.begin()+iObsIdx);
    if ( SigmaTildeMuRFDep.size() != 0 ) SigmaTildeMuRFDep.erase(SigmaTildeMuRFDep.begin()+iObsIdx);
-   fastNLOCoeffAddBase::EraseBin(iObsIdx);
+   fastNLOCoeffAddBase::EraseBin(iObsIdx,ITabVersionRead);
 }
 
 // Catenate observable bin
-void fastNLOCoeffAddFlex::CatBin(const fastNLOCoeffAddFlex& other, unsigned int iObsIdx) {
+void fastNLOCoeffAddFlex::CatBin(const fastNLOCoeffAddFlex& other, unsigned int iObsIdx, int ITabVersionRead) {
    debug["fastNLOCoeffAddFlex::CatBin"]<<"Catenating observable bin in CoeffAddFlex corresponding to bin index " << iObsIdx << endl;
    if ( ScaleNode1.size() == 0 ) {
       say::error["CatBin"]<<"Initial flex-scale table is empty. Aborted!" << endl;
@@ -563,5 +575,5 @@ void fastNLOCoeffAddFlex::CatBin(const fastNLOCoeffAddFlex& other, unsigned int 
       SigmaTildeMuRFDep.resize(nold+1);
       SigmaTildeMuRFDep[nold] = other.SigmaTildeMuRFDep[iObsIdx];
    }
-   fastNLOCoeffAddBase::CatBin(other, iObsIdx);
+   fastNLOCoeffAddBase::CatBin(other, iObsIdx, ITabVersionRead);
 }

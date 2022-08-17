@@ -276,6 +276,12 @@ extern"C" {
   extern struct {
     double residuals_[NTOT_C];
   } c_resid_;
+
+  extern struct {
+    double chi2_poi_tot_;
+    double chi2_poi_[NSET_C];
+    double chi2_poi_data_[NTOT_C];
+  } cdatapoi_;
 }
 
 
