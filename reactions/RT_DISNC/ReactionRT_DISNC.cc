@@ -103,7 +103,10 @@ void ReactionRT_DISNC::F2 BASE_PARS
     Super::F2(td, f2base, err);
 
     // Re-scale F2:
-    val = f2base * f2gamma_RT / f2gamma_base;
+    if (td->getParamI("additive") == 1)
+      val = f2gamma_RT + f2base - f2gamma_base;
+    else
+      val = f2base * f2gamma_RT / f2gamma_base;
   }
   else
     val = f2gamma_RT;
@@ -125,8 +128,11 @@ void ReactionRT_DISNC::FL BASE_PARS
     Super::FLgamma(td, flgamma_base, err);
     Super::FL(td, flbase, err);
 
-    // Re-scale F2:
-    val = flbase * flgamma_RT / flgamma_base;
+    // Re-scale FL:
+    if (td->getParamI("additive") == 1)
+      val = flgamma_RT + flbase - flgamma_base;
+    else
+      val = flbase * flgamma_RT / flgamma_base;
   }
   else
     val = flgamma_RT;
