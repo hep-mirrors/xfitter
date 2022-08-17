@@ -1,39 +1,71 @@
- First iteration    8627.5861066680391              341   25.300839022486919     
-After minimisation    8627.59   341    25.301
+ First iteration    3011.2132310492548              341   8.8305373344552933     
+After minimisation    3011.21   341     8.831
 
   Partial chi2s 
-Dataset    1     48.38( -5.72)    37  BABAR                                           
-Dataset    2   4496.58( -5.20)    28  BELLE2020                                       
-Dataset    3     67.44( -2.29)    23  ALEPH_{TOT}                                     
-Dataset    4    211.07( -4.23)    21  DELPHI_{TOT}                                    
-Dataset    5    129.56( -0.61)    24  OPAL_{TOT}                                      
-Dataset    6     44.98( -2.26)    34  SLD_{TOT}                                       
-Dataset    7      1.08( +0.94)     4  TASSO_{12}                                      
-Dataset    8     10.35( +0.32)     9  TASSO_{14}                                      
-Dataset    9      4.97( +1.61)     8  TASSO_{22}                                      
-Dataset   10     10.91( +0.01)     9  TASSO_{34}                                      
-Dataset   11     20.54( -0.15)     6  TASSO_{44}                                      
-Dataset   12     49.64( -1.15)    13  TPC_{TOT}                                       
-Dataset   13     19.39( -2.09)    21  DELPHI b_{tag}                                  
-Dataset   14     23.71( -0.01)    34  SLD b_{tag}                                     
-Dataset   15     31.89( +0.32)    34  SLD c_{tagged}                                  
-Dataset   16   2274.92( -9.30)    21  DELPHI light_{tag}                              
-Dataset   17    770.42( -2.79)    34  SLD light_{tag}                                 
+Dataset    1    412.53( +2.25)    37  BABAR                                           
+Dataset    2    962.48( +2.46)    28  BELLE2020                                       
+Dataset    3     41.11( +1.07)    23  ALEPH_{TOT}                                     
+Dataset    4     98.49( -1.80)    21  DELPHI_{TOT}                                    
+Dataset    5     98.17( +2.62)    24  OPAL_{TOT}                                      
+Dataset    6    658.25( +2.43)    34  SLD_{TOT}                                       
+Dataset    7      1.90( +1.04)     4  TASSO_{12}                                      
+Dataset    8     14.70( +0.98)     9  TASSO_{14}                                      
+Dataset    9      6.73( +2.32)     8  TASSO_{22}                                      
+Dataset   10      6.09( +0.94)     9  TASSO_{34}                                      
+Dataset   11     12.77( +0.46)     6  TASSO_{44}                                      
+Dataset   12     12.21( +0.48)    13  TPC_{TOT}                                       
+Dataset   13    129.83( -2.05)    21  DELPHI b_{tag}                                  
+Dataset   14    140.45( +0.38)    34  SLD b_{tag}                                     
+Dataset   15     52.35( +0.04)    34  SLD c_{tagged}                                  
+Dataset   16    103.23( -0.81)    21  DELPHI light_{tag}                              
+Dataset   17    218.14( +1.99)    34  SLD light_{tag}                                 
 
- Correlated Chi2    444.34559476268612     
- Log penalty Chi2   -32.595966816371529     
- Systematic shifts           12
+ Correlated Chi2    26.961320290040366     
+ Log penalty Chi2    14.805974765289852     
+ Systematic shifts            9
   
                                 Name          Shift   +/-    Error          Type
-    1  sys_ovr                               -7.3697   +/-   0.2953        :N:M:D
-    2  sys_BE20_cor                          -5.8580   +/-   0.0141        :N:A:D
-    3  sys_over                              -5.2871   +/-   0.1965        :N:M:D
-    4  TASSO12_sys_{overall}                  0.4925   +/-   0.4607        :N:M:D
-    5  TASSO14_sys_{overall}                  0.0738   +/-   0.2732        :N:M:D
-    6  TASSO22_sys_{overall}                  1.5920   +/-   0.5508        :N:M:D
-    7  TASSO34_sys_{overall}                  0.4829   +/-   0.3617        :N:M:D
-    8  TASSO44_sys_{overall}                  0.2371   +/-   0.6240        :N:M:D
-    9  sys_DELPH_b                           -1.6415   +/-   0.1879        :N:M:D
-   10  sys_{SLD_B_ov}                        -0.7987   +/-   0.3488        :N:M:D
-   11  sys_{SLD_C_ov}                        -0.4508   +/-   0.6034        :N:M:D
-   12  sys                                  -17.9208   +/-   0.2080        :N:M:D
+    1  sys_over                              -2.5537   +/-   0.1957        :N:M:D
+    2  TASSO12_sys_{overall}                  0.4617   +/-   0.4623        :N:M:D
+    3  TASSO14_sys_{overall}                  0.3618   +/-   0.2699        :N:M:D
+    4  TASSO22_sys_{overall}                  2.1022   +/-   0.5408        :N:M:D
+    5  TASSO34_sys_{overall}                  1.6201   +/-   0.3488        :N:M:D
+    6  TASSO44_sys_{overall}                  1.1573   +/-   0.6063        :N:M:D
+    7  sys_DELPH_b                           -2.1402   +/-   0.1880        :N:M:D
+    8  sys_{SLD_B_ov}                        -2.4660   +/-   0.3517        :N:M:D
+    9  sys_{SLD_C_ov}                        -1.0248   +/-   0.6051        :N:M:D
+After minimisation     410.68   341     1.204
+
+  Partial chi2s 
+Dataset    1     33.04( +0.20)    37  BABAR                                           
+Dataset    2     16.25( -0.11)    28  BELLE2020                                       
+Dataset    3     10.84( +0.30)    23  ALEPH_{TOT}                                     
+Dataset    4     43.90( -1.96)    21  DELPHI_{TOT}                                    
+Dataset    5     39.27( +2.00)    24  OPAL_{TOT}                                      
+Dataset    6     44.30( +1.39)    34  SLD_{TOT}                                       
+Dataset    7      1.07( +1.22)     4  TASSO_{12}                                      
+Dataset    8      9.79( +0.96)     9  TASSO_{14}                                      
+Dataset    9      5.78( +2.18)     8  TASSO_{22}                                      
+Dataset   10      8.58( +0.65)     9  TASSO_{34}                                      
+Dataset   11     17.89( +0.28)     6  TASSO_{44}                                      
+Dataset   12      9.70( -0.16)    13  TPC_{TOT}                                       
+Dataset   13     19.24( -2.08)    21  DELPHI b_{tag}                                  
+Dataset   14     23.73( +0.00)    34  SLD b_{tag}                                     
+Dataset   15     32.24( +0.53)    34  SLD c_{tagged}                                  
+Dataset   16     30.54( -0.95)    21  DELPHI light_{tag}                              
+Dataset   17     46.30( +1.20)    34  SLD light_{tag}                                 
+
+ Correlated Chi2    12.577988183528905     
+ Log penalty Chi2    5.6448751327377726     
+ Systematic shifts            9
+  
+                                Name          Shift   +/-    Error          Type
+    1  sys_over                              -0.1145   +/-   0.1954        :N:M:D
+    2  TASSO12_sys_{overall}                  0.7419   +/-   0.4478        :N:M:D
+    3  TASSO14_sys_{overall}                  0.8028   +/-   0.2646        :N:M:D
+    4  TASSO22_sys_{overall}                  2.2428   +/-   0.5381        :N:M:D
+    5  TASSO34_sys_{overall}                  1.4027   +/-   0.3513        :N:M:D
+    6  TASSO44_sys_{overall}                  0.8991   +/-   0.6113        :N:M:D
+    7  sys_DELPH_b                           -1.6431   +/-   0.1879        :N:M:D
+    8  sys_{SLD_B_ov}                        -0.8136   +/-   0.3488        :N:M:D
+    9  sys_{SLD_C_ov}                        -0.4496   +/-   0.6034        :N:M:D
