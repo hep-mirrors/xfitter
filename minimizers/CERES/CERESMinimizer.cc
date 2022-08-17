@@ -18,6 +18,9 @@
 
 #include <iomanip>
 
+//make this a yaml setting
+const int strategy = 0;
+
 // Fortran interface
 extern "C" {
   // FCN
@@ -63,18 +66,22 @@ struct CostFunctiorData
      cout << std::endl;
      double chi2;
      myFCN(chi2,parameters[0],2);
-     chi2 = 0;
-     for (int i = 0; i< cndatapoints_.npoints  + systema_.nsys; i++) {
-       //residuals[i] = c_resid_.residuals_[i];
-       if (i < cndatapoints_.npoints)
-	 {
-	   //std::cout << " res " << i << " " << c_resid_.residuals_[i] << " logchi2 " << cdatapoi_.chi2_poi_data_[i] << " sum2 " << pow(c_resid_.residuals_[i],2)+cdatapoi_.chi2_poi_data_[i] << std::endl;
-	   residuals[i] = sqrt(max(0.,pow(c_resid_.residuals_[i],2)+cdatapoi_.chi2_poi_data_[i]));
-	 }
-       else
-	 residuals[i] = c_resid_.residuals_[i];
-       chi2 += residuals[i]*residuals[i];
-     }
+     if (strategy == 0)
+       {
+	 chi2 = 0;
+	 for (int i = 0; i< cndatapoints_.npoints  + systema_.nsys; i++)
+	   {
+	     if (i < cndatapoints_.npoints)
+	       //std::cout << " res " << i << " " << c_resid_.residuals_[i] << " logchi2 " << cdatapoi_.chi2_poi_data_[i] << " sum2 " << pow(c_resid_.residuals_[i],2)+cdatapoi_.chi2_poi_data_[i] << std::endl;
+	       residuals[i] = sqrt(max(0.,pow(c_resid_.residuals_[i],2)+cdatapoi_.chi2_poi_data_[i]));
+	     else
+	       residuals[i] = c_resid_.residuals_[i];
+	     chi2 += residuals[i]*residuals[i];
+	   }
+       }
+     else if (strategy == 1)
+       residuals[0] = sqrt(chi2);
+	 
      //residuals[cndatapoints_.npoints  + systema_.nsys] = cdatapoi_.chi2_poi_tot_;
      //chi2 += residuals[cndatapoints_.npoints  + systema_.nsys]*residuals[cndatapoints_.npoints  + systema_.nsys];
      std::cout << " CERES residuals squared: " <<  chi2 << std::endl;
@@ -139,9 +146,8 @@ void CERESMinimizer::doMinimization()
   double covmat[npars * npars];
   fill(covmat,covmat+npars*npars, 0.);
   
-  int strategy = 0;
   //Least squares
-  if (strategy == 0)
+  if (strategy == 0 || strategy == 1)
     {
       ceres::Solver::Options myOptions;
       ceres::Solver::Summary mySummary;
@@ -152,7 +158,8 @@ void CERESMinimizer::doMinimization()
 
       dynamic_cost_function->AddParameterBlock(npars);
 
-      dynamic_cost_function->SetNumResiduals(nData+nSyst);
+      int nres = strategy == 0 ? nData+nSyst : 1;
+      dynamic_cost_function->SetNumResiduals(nres);
 
       ceres::Problem myProblem;
       myProblem.AddResidualBlock(dynamic_cost_function, NULL, parVals);
@@ -161,12 +168,15 @@ void CERESMinimizer::doMinimization()
 
       myOptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
 
+      //myOptions.num_threads = 4;
+      
       ceres::Solve(myOptions, &myProblem, &mySummary);
 
       //covariance
       ceres::Covariance::Options options;
       //options.algorithm_type = ceres::SPARSE_QR;
       //options.algorithm_type = ceres::DENSE_SVD;
+      //options.num_threads = 4;
       ceres::Covariance covariance(options);
 
       vector<pair<const double*, const double*> > covariance_blocks;
@@ -199,7 +209,7 @@ void CERESMinimizer::doMinimization()
     }
 
   //General Unconstrained Minimization (to be used with PoissonCorr option)
-  else if (strategy == 1)
+  else if (strategy == 2)
     {
       ceres::GradientProblem problem(GUM::Create(npars));
 
