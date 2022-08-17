@@ -168,19 +168,19 @@ c        open(82,file=h1name)
 !            str = (pdf(-3)+pdf(3))/2.d0
 !            strbar = pdf(-3)
             strpos = pdf(-3)+pdf(3)   ! hamed FFs 2020 S+sbar
-               chmpos = pdf(-4) + pdf(4)
-               botpos=pdf(-5) + pdf(5)
+  !             chmpos = pdf(-4) + pdf(4)
+  !             botpos=pdf(-5) + pdf(5)
 !            print'("test pdf store 2=",7F11.6,/)',x, pdf(-4),pdf(4), chmpos, pdf(-5),pdf(5), botpos
             chm = 0.0d0
             if (q2.gt.qc) then
                chm=pdf(-4)
-               !chmpos = pdf(-4)+pdf(4)
+               chmpos = pdf(-4)+pdf(4)
             endif
 
             bot = 0.d0
             if (q2.gt.qb) then
                bot=pdf(-5)
-               !botpos=pdf(-5)+pdf(5)
+               botpos=pdf(-5)+pdf(5)
             endif
 
             photon = pdf(7)

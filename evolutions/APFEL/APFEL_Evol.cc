@@ -8,10 +8,6 @@
 #include <math.h>
 #include "BasePdfDecomposition.h"
 #include <algorithm>
-//hamed
-#include <iostream>
-using namespace std;
-//#include <vector>
 // Global var to hold current pdfDecomposition
 xfitter::BasePdfDecomposition *gPdfDecomp = nullptr;
 // Global photon or not PDF
@@ -36,18 +32,11 @@ extern "C" void externalsetapfel_(double &x, double &Q, double *xf)
   for (auto &i : ip)
   {
     xf[i.first + 6] = gPdfDecomp->xfxMap(x)[i.second]; 
-    // cout << "####hello hamed APFEL-EVOLV### x="<< x<< " first "<< i.first << " xf " << xf[i.first + 6]<< " second "  << i.second << " "<< gPdfDecomp->xfxMap(x)[i.second]<<" ***\n"; 
-    // cout << i.first << " " << i.second << endl; 
-     //cout << i << ' ';
-    //cout<<"########hello hamed APFEL-EVOLV#######gpdfdecom "<< gPdfDecomp << " ***\n"; 
-    //cout<<"########hello hamed APFEL-EVOLV#######gpdfdecom 2 i=" << i << " ***\n"; 
   }
   if (!gQCDevol)
   {
     xf[13] = gPdfDecomp->xfxMap(x)[22];
   }
-  //cout << "####hello hamed APFEL-EVOLV### x="<< x<< " q "<< Q << " xfg " << xf[0] << " " << gPdfDecomp->xfxMap(x)[21]<<" ***\n"; 
-  //cout << "####hello hamed APFEL-EVOLV### x="<< x<< " q "<< Q << " xf " << xf[-5] + xf[5] <<" " << xf[-4] + xf[4] <<" "<< xf[-3] + xf[3] <<" " << xf[-2] + xf[2] <<" "<< xf[-1] +xf[1] <<" "<< xf[0] <<" ***\n"; 
 }
 
 namespace xfitter
@@ -101,6 +90,7 @@ void APFEL_Evol::atStart()
   const double *Vtb = XFITTER_PARS::getParamD("Vtb");
   const double *gf = XFITTER_PARS::getParamD("gf");
   const double *Mw = XFITTER_PARS::getParamD("Mw");
+  const string fragmen = XFITTER_PARS::getParamS("Frag");  // hamed FF
 
   // Read yaml steering
   _yAPFEL = XFITTER_PARS::getEvolutionNode(_name);
@@ -121,9 +111,6 @@ void APFEL_Evol::atStart()
   const string heavyQuarkMassRunning = _yAPFEL["heavyQuarkMassRunning"].as<string>();
   const string theoryType = _yAPFEL["theoryType"].as<string>();
   const string nllxResummation = _yAPFEL["nllxResummation"].as<string>();
-  const string fragmen = _yAPFEL["fragmentation"].as<string>();  // hamed FF
-
-  //cout << "test initialAPfel ApfelEvol" << " frag  "<< fragmen << " PtOrder "<< PtOrder<<" ***\n";
 
   if (theoryType == "QCD")
   {
@@ -138,22 +125,11 @@ void APFEL_Evol::atStart()
     hf_errlog(2019050601, "S: Unknown APFEL evolution theoryType, QCD or QUniD exected got " + theoryType);
   }
 
-  
-    //cout<<"TesT SCHEME APFEL_EVOL "<< scheme <<"#######\n";
-   //string scheme = "FONLL-" + _yAPFEL["FONLLVariant"].as<string>();
-  string scheme = "ZM-VFNS";
-  //string scheme1 = "ZM-VFNS";
-  // FONLL-specific settings
+  string scheme = "FONLL-" + _yAPFEL["FONLLVariant"].as<string>();
   if (fragmen == "On")
-   scheme.replace(0,6,"ZM-VFNS",7);
- // { 
-    //scheme.replace(0,6,"ZM-VFNS",7);   //const string scheme = "ZM-VFNS";
- // }
-  //if (fragmen == "On")
-  // {
-  //   cout<<"TesT SCHEME APFEL_EVOL1 "<< scheme <<"#######\n";
- //  }
-   cout<<"TesT SCHEME APFEL_EVOL "<< scheme << " " << theoryType <<"#######\n";
+  {
+   scheme.replace(0,7,"ZM-VFNS",8);
+   }
 
 
   if (PtOrder == 1)
@@ -176,7 +152,6 @@ void APFEL_Evol::atStart()
     APFEL::SetMassScheme(scheme);
   }
 
-   cout<<"TesT SCHEME APFEL_EVOL2 "<< scheme << " " << theoryType <<"#######\n";
 
   APFEL::SetTheory(theoryType);
   // following 3 lines are copied from the fortran steering:
@@ -211,13 +186,12 @@ void APFEL_Evol::atStart()
   }
 
 
-  cout << "test initialAPfel ApfelEvol frag  "<< fragmen << " PtOrder "<< PtOrder<<" ***\n";
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
-  //if (fragmen == "On")
- // {
+  if (fragmen == "On")
+  {
     APFEL::SetTimeLikeEvolution(true);
-  //}
+  }
   // Set Parameters
   APFEL::SetZMass(*Mz);                 // make fittable at some point
   APFEL::SetWMass(*Mw);
@@ -277,29 +251,6 @@ void APFEL_Evol::atStart()
   APFEL::EnableDynamicalScaleVariations(true); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
   APFEL::SetRenQRatio(muRoverQ);
   APFEL::SetFacQRatio(muFoverQ);
-  //Hamed FF
-
-  
-
-  // end
-
-  // APFEL::InitializeAPFEL();
-  // Initialize the APFEL DIS module
- // APFEL::InitializeAPFEL_DIS();  // hamed FF
-  //APFEL::InitializeAPFEL();
-  cout << "test initialAPfel ApfelEvol frag  "<< fragmen << " PtOrder "<< PtOrder<<" ***\n";
-
-  if (fragmen == "On")
-  {
-    //APFEL::SetMassScheme("ZM_VFNS");
-    //APFEL::SetVFNS();
-    //APFEL::SetPerturbativeOrder(PtOrder - 1);
-    //APFEL::SetAlphaQCDRef(*alphas, *Mz);
-    //APFEL::SetTimeLikeEvolution(true);
-    //APFEL::SetQLimits(0.5,20000);
-    //APFEL::SetMassMatchingScales(kmc, kmb, kmt);
-   // APFEL::InitializeAPFEL();
-  }
   APFEL::InitializeAPFEL_DIS();  // hamed FF
   APFEL::SetPDFSet("external");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);

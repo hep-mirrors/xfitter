@@ -1,6 +1,6 @@
 /*
-   @file ReactionFONLL_DISCC.cc
-   @date 2017-11-29
+   @file ReactionNC_SIA.cc
+   @date 2022-5-10
    @author  AddReaction.py
    Created by  AddReaction.py on 2017-11-29
 */
@@ -54,8 +54,6 @@ void ReactionNC_SIA::initTerm(TermData *td)
 
     _non_apfel_evol = false;
   }
-  //!u/unsigned termID = td->id;
-  // dataObs hamed
   _dsIDs.push_back(termID);
   _tdDS[termID] = td;
   _dataObs[termID] = dataObs::incl;
@@ -112,18 +110,14 @@ void ReactionNC_SIA::initTerm(TermData *td)
   _npoints[termID] = (*q2p).size();
   _obs[termID].resize(_npoints[termID]);
 
-  // Get PDF id
 }
-//start hamed
 void ReactionNC_SIA::compute(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal)
 {
 
   unsigned termID = td->id;
   valarray<double> val;
   map<string, valarray<double>> err;
-  //const double factor = 1.0;
-  //val *= factor;
-  val = OBS(td);//, val, err);
+  val = OBS(td);
   valExternal = val;
   errExternal = err;
 }
@@ -136,7 +130,6 @@ void ReactionNC_SIA::atIteration()
     (_obs[ds])[0] = -100.;
   }
 
-  //ReactionBaseDISNC::atIteration();
   APFEL::SetProcessDIS("NC");
   // Starting scale ...
   double Q0 = *XFITTER_PARS::getParamD("Q0");
@@ -145,18 +138,12 @@ void ReactionNC_SIA::atIteration()
   for (auto termID : _dsIDs)
   {
     TermData *td = GetTermData(termID);
-   // auto td = tdpair.second;
-   // auto rd = (BaseDISCC::ReactionData *)td->reactionData;
     // Non-apfelFF evolution
     if (_non_apfel_evol) {
       td -> actualizeWrappers();
       APFEL::SetPDFSet("external1");
     }
-    // Charge of the projectile.
-    // This does not have any impact because the difference between
-    // "electron" and "positron" for a NC cross section is relevant
-    // only when constructing the reduced cross section. But we keep
-    // it here for clarity.
+    
     const double charge = GetCharge(termID);    // Charge of the projectile.
 //    const double charge = rd->_charge;
     if (charge < 0)
@@ -198,8 +185,6 @@ void ReactionNC_SIA::atIteration()
           break;
     }
 
-    //auto *q2p = GetBinValues(td, "Q2");
-    //auto *xp = GetBinValues(td, "x");
     auto *q2p = td->getBinColumnOrNull("Q2");
     auto *xp = td->getBinColumnOrNull("x");
     auto q2 = *q2p;
@@ -209,7 +194,6 @@ void ReactionNC_SIA::atIteration()
     // Resize arrays.
     _obs[termID].resize(Np);
     double Q2save = 0;
-    //APFEL::SetFKObservable("SIA_NORM_XSEC");
 
     for (size_t i = 0; i < Np; i++)
     {
@@ -217,27 +201,13 @@ void ReactionNC_SIA::atIteration()
       if (q2[i] < 1)
         continue;
 
-      // Recompute structure functions only if the value of Q2
-      // changes.
-      //if (q2[i] != Q2save)
-      //{
         const double Q = sqrt(q2[i]);
         APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
-       // APFEL::FKObservables(x[i],Q,0.01);
-      //}
-
-      // Compute structure functions by interpolation in x for the
-      // appropriate component (total, charm, or bottom).
-       // APFEL::SetFKObservable("SIA_NORM_XSEC");
-
-        //const double Q = sqrt(q2[i]);
         _obs[termID][i] = APFEL::FKObservables(x[i],Q,0.01);
-         //cout<<"##hello hamed Reaction 3## "<< x[i]<<" ## "<< Q0 << " ## "<<Q<<"##"<<APFEL::FKObservables(x[i],Q,0.01)<<"***\n";
       Q2save = q2[i];
     }
   }
 }
-//end hamed
 
 
 // Compute all predictions in here and store them to be returned
@@ -248,5 +218,4 @@ void ReactionNC_SIA::atIteration()
 valarray<double> ReactionNC_SIA::OBS(TermData *td)
 {
   return _obs[td->id];
-  cout<<"##hello hamed Reaction 4##***\n";
 }

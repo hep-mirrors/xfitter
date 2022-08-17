@@ -33,7 +33,6 @@ namespace xfitter
     virtual std::map<int,double>xfxMap(double x)const override final;
   private:
     BasePdfParam*par_xup{nullptr},
-               // *par_xdp{nullptr},
                 *par_xcp{nullptr},
                 *par_xbp{nullptr},
                 *par_xsp{nullptr},
