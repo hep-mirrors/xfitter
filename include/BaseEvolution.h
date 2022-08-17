@@ -103,7 +103,7 @@ namespace xfitter
     virtual double  getPropertyD(std::string const& propertyName ) const { return 0.; }
 
     /// Get generic property of the evolution with default value and no error
-    virtual double  getPropertyD(std::string const& propertyName, double defval ) const { return 0.; }
+    virtual double  getPropertyD(std::string const& propertyName, double defval ) const { return -1.; }
 
     /// Get class name, can be used to verify that the correct concrete class is being used
     virtual const char*getClassName()const=0;
