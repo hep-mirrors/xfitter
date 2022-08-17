@@ -297,17 +297,6 @@
               vector < double > xs = fnlo.GetCrossSection();
               double* cs = &xs[0];
 
-        Further you can access the "k-factor", which is calculated with all
-        'contributions' that are switched on (e.g. non-perturbative corrections)
-        against the LO fixed-order contribution.
-        Remark:
-             - the proverbial k-factor is NLO vs. LO
-             - 1-loop threshold corrections are vs. LO
-             - 2-loop threshold corrections are vs. NLO
-             - non-perturbative corrections usually are vs. NLO
-
-              vector < double > kFactors = fnlo.GetKFactors();
-
 
     11.
     ---- Printing ---- //
@@ -434,7 +423,7 @@
 // stored automatically in config.h via AC_DEFINE statements in configure.ac.
 // To enable conditional compilation, e.g. using HAVE_LIBZ, this config file
 // MUST be the very first one to be included with
-// #include <config.h>
+//#include <config.h>
 
 #include <algorithm>
 #include <cfloat>
@@ -515,13 +504,9 @@ fastNLOReader::fastNLOReader(const fastNLOReader& other) :
    ffilename(other.ffilename), fScalevar(other.fScalevar), fScaleFacMuR(other.fScaleFacMuR),
    fUnits(other.fUnits), fPDFSuccess(other.fPDFSuccess), fPDFCached(other.fPDFCached),
    fAlphasCached(other.fAlphasCached), Fct_MuR(other.Fct_MuR), Fct_MuF(other.Fct_MuF),
-   XSection(other.XSection), QScale(other.QScale), XSectionRef(other.XSectionRef),
-   XSectionRefMixed(other.XSectionRefMixed), XSectionRef_s1(other.XSectionRef_s1),
-   XSectionRef_s2(other.XSectionRef_s2)
-   // XSection_LO(other.XSection_LO), XSection(other.XSection), kFactor(other.kFactor),
-   // QScale_LO(other.QScale_LO), QScale(other.QScale), XSectionRef(other.XSectionRef),
-   // XSectionRefMixed(other.XSectionRefMixed), XSectionRef_s1(other.XSectionRef_s1),
-   // XSectionRef_s2(other.XSectionRef_s2)
+   XSection(other.XSection), dXSection(other.dXSection), QScale(other.QScale),
+   XSectionRef(other.XSectionRef), XSectionRefMixed(other.XSectionRefMixed),
+   XSectionRef_s1(other.XSectionRef_s1), XSectionRef_s2(other.XSectionRef_s2)
 {
    //! Copy constructor
    OrderCoefficients(); // initialize pointers to fCoeff's
@@ -908,7 +893,6 @@ bool fastNLOReader::SetContributionON(ESMCalculation eCalc , unsigned int Id , b
       }
    }
 
-   //   if (!SetOld && SetOn && !fastNLOTools::IsEmptyVector(XSection_LO) ) {
    if (!SetOld && SetOn) {
       if (!c->GetIAddMultFlag()) { // if 'new' additive contribution, then refill PDF and alpha_s cache.
          // Fill alpha_s cache
@@ -1027,13 +1011,6 @@ vector < vector < pair < int,int > > > fastNLOReader::GetSubprocIndices( const E
 }
 
 //______________________________________________________________________________
-vector < double > fastNLOReader::GetCrossSection() {
-   // Get fast calculated cross section
-   if (XSection.empty()) CalcCrossSection();
-   return XSection;
-}
-
-//______________________________________________________________________________
 vector < double > fastNLOReader::GetCrossSection(bool lNorm) {
    // Get fast calculated cross section
    if (XSection.empty()) CalcCrossSection();
@@ -1046,21 +1023,15 @@ vector < double > fastNLOReader::GetCrossSection(bool lNorm) {
 }
 
 //______________________________________________________________________________
-std::vector < std::map< double, double > > fastNLOReader::GetCrossSection_vs_x1() {
-   // Get fast calculated cross section
-   logger.warn<<"Function 'GetCrossSection_vs_x1' does _NOT_ return dSigma/dx but only the cross section contribution at the different x-nodes."<<endl;
-   logger.warn<<"In order to obtain dSigma/dx, the retured values must be divided by the step-size of the interpolation."<<endl;
-   if (XSection.empty()) CalcCrossSection();
-   return fXSection_vsX1;
-}
-
-//______________________________________________________________________________
-std::vector < std::map< double, double > > fastNLOReader::GetCrossSection_vs_x2() {
-   // Get fast calculated cross section
-   logger.warn<<"Function 'GetCrossSection_vs_x1' does _NOT_ return dSigma/dx but only the cross section contribution at the different x-nodes."<<endl;
-   logger.warn<<"In order to obtain dSigma/dx, the retured values must be divided by the step-size of the interpolation."<<endl;
-   if (XSection.empty()) CalcCrossSection();
-   return fXSection_vsX2;
+vector < double > fastNLOReader::GetUncertainty(bool lNorm) {
+   // Get uncertainty of fast calculated cross section stored in additional CoeffInfoBlocks
+   if (dXSection.empty()) CalcCrossSection();
+   if (lNorm) {
+      logger.error["GetUncertainty"]<<"Additional uncertainty for normalised x sections not yet implemented; aborted!"<<endl;
+      exit(1);
+   } else {
+      return dXSection;
+   }
 }
 
 //______________________________________________________________________________
@@ -1134,6 +1105,24 @@ vector < double > fastNLOReader::GetNormCrossSection() {
 }
 
 //______________________________________________________________________________
+std::vector < std::map< double, double > > fastNLOReader::GetCrossSection_vs_x1() {
+   // Get fast calculated cross section
+   logger.warn<<"Function 'GetCrossSection_vs_x1' does _NOT_ return dSigma/dx but only the cross section contribution at the different x-nodes."<<endl;
+   logger.warn<<"In order to obtain dSigma/dx, the retured values must be divided by the step-size of the interpolation."<<endl;
+   if (XSection.empty()) CalcCrossSection();
+   return fXSection_vsX1;
+}
+
+//______________________________________________________________________________
+std::vector < std::map< double, double > > fastNLOReader::GetCrossSection_vs_x2() {
+   // Get fast calculated cross section
+   logger.warn<<"Function 'GetCrossSection_vs_x1' does _NOT_ return dSigma/dx but only the cross section contribution at the different x-nodes."<<endl;
+   logger.warn<<"In order to obtain dSigma/dx, the retured values must be divided by the step-size of the interpolation."<<endl;
+   if (XSection.empty()) CalcCrossSection();
+   return fXSection_vsX2;
+}
+
+//______________________________________________________________________________
 vector< vector < double > > fastNLOReader::GetCrossSection2Dim() {
    //! Get cross section as 2-dimensional vector according to defined binning
    if (GetNumDiffBin() != 2)
@@ -1151,17 +1140,6 @@ vector< vector < double > > fastNLOReader::GetCrossSection2Dim() {
       }
    }
    return XSection2Dim;
-}
-
-
-//_DEPRECATED___________________________________________________________________
-vector < double > fastNLOReader::GetKFactors() {
-   // Get ratio of fast calculated NLO to LO cross section
-   // if (XSection.empty()) CalcCrossSection();
-   logger.error["GetKFactors"]<<"This function is ambiguous and therefore deprecated, aborted!"<<endl;
-   logger.error["GetKFactors"]<<"Please derive K factors as ratios of the desired cross sections."<<endl;
-   exit(1);
-   return kFactor;
 }
 
 
@@ -1307,6 +1285,8 @@ void fastNLOReader::CalcCrossSection() {
 
    XSection.clear();
    XSection.resize(NObsBin);
+   dXSection.clear();
+   dXSection.resize(NObsBin);
    fXSection_vsX1.clear();
    fXSection_vsX2.clear();
    fXSection_vsX1.resize(NObsBin);
@@ -1397,6 +1377,13 @@ void fastNLOReader::CalcCrossSection() {
    for (unsigned int i=0; i<NObsBin; i++) {
       QScale[i] = QScale[i]/XSection[i];
    }
+
+   // ---- Square root for summed statistical/numerical uncertainty ---- //
+   logger.debug["CalcCrossSection"]<<"Calculate statistical/numerical uncertainty from sqrt of summed contributions: sqrt(dXSection)"<<endl;
+   for (unsigned int i=0; i<NObsBin; i++) {
+      dXSection[i] = sqrt(dXSection[i]);
+   }
+
    logger.debug["CalcCrossSection"]<<"... leaving CalcCrossSection."<<endl;
 }
 
@@ -1493,17 +1480,35 @@ void fastNLOReader::CalcCrossSectionv21(fastNLOCoeffAddFlex* c) {
    // Test that c ist not a NULL pointer, i.e. an unfilled contribution, else return
    if (!c) return;
 
-   vector<double>* XS = &XSection;
-   vector<double>* QS = &QScale;
+   // Set up pointers to stored vectors
+   vector<double>* XS   = &XSection;
+   vector<double>* dXS  = &dXSection;
+   vector<double>* QS   = &QScale;
+
    // KR: Having different IXsectUnits in different contributions only works when
    //     everything always scaled to Ipublunits (unique per table)
    // Get x section units of each contribution
    int xUnits = c->GetIXsectUnits();
    logger.debug["CalcCrossSectionv21"]<<"Ipublunits = " << Ipublunits << ", xUnits = " << xUnits << endl;
 
+   // Check whether CoeffInfoBlock for statistical/numerical uncertainties (0,x) exists
+   logger.debug["CalcCrossSectionv21"]<<"Checking on presence of statistical/numerical uncertainties  ..."<<endl;
+   int iCIBIndex = -1;
+   int iCIBFlag2 = -1;
+   std::vector < double > dCIBCont;
+   if ( c->HasCoeffInfoBlock(0) ) {
+      iCIBIndex = c->GetCoeffInfoBlockIndex(0);
+      logger.debug["CalcCrossSectionv21"]<<"Found CoeffInfoBlock "<<iCIBIndex<<" with statistical/numerical uncertainties."<<endl;
+      iCIBFlag2 = c->GetCoeffInfoBlockFlag2(iCIBIndex);
+      dCIBCont  = c->GetCoeffInfoContent(iCIBIndex);
+   } else {
+      logger.debug["CalcCrossSectionv21"]<<"No CoeffInfoBlock found; uncertainties are initialised to zero."<<endl;
+   }
+
    for (unsigned int i=0; i<NObsBin; i++) {
       double unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
       int nxmax = c->GetNxmax(i);
+      double XStmp = 0.;
       for (unsigned int jS1=0; jS1<c->GetNScaleNode1(i); jS1++) {
          double Q2           = c->GetScaleNode1(i,jS1)*c->GetScaleNode1(i,jS1);
          double lq2 = log(Q2);
@@ -1536,6 +1541,7 @@ void fastNLOReader::CalcCrossSectionv21(fastNLOCoeffAddFlex* c) {
                      }
                   }
                   XS->at(i)   += xsci;
+                  XStmp       += xsci;
                   QS->at(i)   += xsci*mur;
                   // cross section as 'functions' of x
                   //double x1 = c->GetXNode1(i,x);
@@ -1545,6 +1551,20 @@ void fastNLOReader::CalcCrossSectionv21(fastNLOCoeffAddFlex* c) {
                   //fXSection_vsX2[i][x2] += xsci;
                }
             }
+         }
+      }
+      if ( dCIBCont.empty() ) {
+         dXS->at(i) += 0.;
+      } else {
+         if ( iCIBFlag2 == 0 ) {
+            // Linear addition of absolute uncertainties; square is stored
+            dXS->at(i)  = pow( (sqrt(dXS->at(i)) + fabs(XStmp)*dCIBCont[i]), 2 );
+         } else if ( iCIBFlag2 == 1 ) {
+            // Quadratical addition of absolute uncertainties; square is stored
+            dXS->at(i) += XStmp*XStmp*dCIBCont[i]*dCIBCont[i];
+         } else {
+            logger.error["CalcCrossSectionv21"]<<"Found illegal ICoeffInfoBlockFlag2 "<<iCIBFlag2<<", aborted!"<<endl;
+            exit(135);
          }
       }
    }
@@ -1576,18 +1596,36 @@ void fastNLOReader::CalcCrossSectionv20(fastNLOCoeffAddFix* c) {
       //      FillPDFCache(0.,true);
    }
 
-   int scaleVar       = c->GetNpow() == ILOord ? 0 : fScalevar;
-   vector<double>* XS = &XSection;
-   vector<double>* QS = &QScale;
+   // Set up pointers to stored vectors
+   vector<double>* XS   = &XSection;
+   vector<double>* dXS  = &dXSection;
+   vector<double>* QS   = &QScale;
+
    // KR: Having different IXsectUnits in different contributions only works when
    //     everything always scaled to Ipublunits (unique per table)
    // Get x section units of each contribution
    int xUnits = c->GetIXsectUnits();
    logger.debug["CalcCrossSectionv20"]<<"Ipublunits = " << Ipublunits << ", xUnits = " << xUnits << endl;
 
+   // Check whether CoeffInfoBlock for statistical/numerical uncertainties (0,x) exists
+   logger.debug["CalcCrossSectionv20"]<<"Checking on presence of statistical/numerical uncertainties  ..."<<endl;
+   int iCIBIndex = -1;
+   int iCIBFlag2 = -1;
+   std::vector < double > dCIBCont;
+   if ( c->HasCoeffInfoBlock(0) ) {
+      iCIBIndex = c->GetCoeffInfoBlockIndex(0);
+      logger.debug["CalcCrossSectionv20"]<<"Found CoeffInfoBlock "<<iCIBIndex<<" with statistical/numerical uncertainties."<<endl;
+      iCIBFlag2 = c->GetCoeffInfoBlockFlag2(iCIBIndex);
+      dCIBCont  = c->GetCoeffInfoContent(iCIBIndex);
+   } else {
+      logger.debug["CalcCrossSectionv20"]<<"No CoeffInfoBlock found; uncertainties are initialised to zero."<<endl;
+   }
+
+   int scaleVar = c->GetNpow() == ILOord ? 0 : fScalevar;
    for (unsigned int i=0; i<NObsBin; i++) {
       double unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
       int nxmax = c->GetNxmax(i);
+      double XStmp = 0.;
       for (int j=0; j<c->GetTotalScalenodes(); j++) {
          double scalefac = fScaleFacMuR/c->GetScaleFactor(scaleVar);
          double mur      = scalefac * c->GetScaleNode(i,scaleVar,j);
@@ -1595,13 +1633,28 @@ void fastNLOReader::CalcCrossSectionv20(fastNLOCoeffAddFix* c) {
             for (int l=0; l<c->GetNSubproc(); l++) {
                if (!c->SubIsEnabled(l)) continue;
                double xsci     = c->GetSigmaTilde(i,scaleVar,j,k,l) *  c->AlphasTwoPi_v20[i][j]  * c->PdfLc[i][j][k][l] * unit / c->GetNevt(i,l);
-               XS->at(i)      +=  xsci;
-               QS->at(i)      +=  xsci*mur;
+               XS->at(i)      += xsci;
+               XStmp          += xsci;
+               QS->at(i)      += xsci*mur;
                //double x1 = c->GetXNode1(i,k);
                //double x2 = c->GetXNode2(i,k);
                fXSection_vsX1[i][c->GetX1(i,k)] += xsci;
                //fXSection_vsX2[i][x2] += xsci;
             }
+         }
+      }
+      if ( dCIBCont.empty() ) {
+         dXS->at(i) += 0.;
+      } else {
+         if ( iCIBFlag2 == 0 ) {
+            // Linear addition of absolute uncertainties
+            dXS->at(i)  = pow( (sqrt(dXS->at(i)) + fabs(XStmp)*dCIBCont[i]), 2 );
+         } else if ( iCIBFlag2 == 1 ) {
+            // Quadratical addition of absolute uncertainties
+            dXS->at(i) += XStmp*XStmp*dCIBCont[i]*dCIBCont[i];
+         } else {
+            logger.error["CalcCrossSectionv20"]<<"Found illegal ICoeffInfoBlockFlag2 "<<iCIBFlag2<<", aborted!"<<endl;
+            exit(135);
          }
       }
    }
@@ -1660,60 +1713,6 @@ void fastNLOReader::SetNewSqrtS(double newSqrtS, double SqrtStable) {
 
 }
 
-
-//______________________________________________________________________________
-void fastNLOReader::SetCalculateSingleSubprocessOnly(int iSub) {
-   //! Calculate only a single subprocess with id=iSub
-   //! Please inform yourself before on the ordering of the subprocesses,
-   //! and if these are ordered identically for all contributions (LO,NLO,NNLO).
-   //!
-   //!  iSub=-1 resets the calculation to all subprocesses
-
-   /*
-   fSubprocActive.resize(13*13);
-   logger.info["SetCalculateSingleSubprocessOnly"]<<endl;
-   logger.info["SetCalculateSingleSubprocessOnly"]<<"    ***  Use this function carefully ***"<<endl;
-   logger.info["SetCalculateSingleSubprocessOnly"]<<" Please inform yourself about the meaning of the subprocess id for the given file."<<endl;
-   logger.info["SetCalculateSingleSubprocessOnly"]<<" This may also change for the different contribution (LO,NLO,NNLO) of a calculation."<<endl;
-
-   if (iSub < 0) {
-      logger.info["SetCalculateSingleSubprocessOnly"]<<"Activating all contributions."<<endl;
-      fSubprocActive = std::vector<bool>(169,true);
-   }
-   else if ( iSub < 169 ) {
-      logger.info["SetCalculateSingleSubprocessOnly"]<<"Deactivating all contributions, but id="<<iSub<<endl;
-      fSubprocActive = std::vector<bool>(169,false);
-      fSubprocActive[iSub]=true;
-   }
-   */
-   logger.warn["SetCalculateSingleSubprocessOnly"]<<endl<<"deprecated function, ignoring call"<<endl;
-}
-
-//______________________________________________________________________________
-void fastNLOReader::SetCalculateSubprocesses( const std::vector<int>& iSub ){
-   //! Calculate crosssection with several but not all Subprocesses included.
-   //! Information on the subprocesses available in the table can be retrieved
-   //! by calls to GetNSubproc and GetSubprocIndices. Also note, that subprocesses
-   //! cannot be split into single processes that were already merged at creation time
-   //! of the table.
-   //!
-   //! Use SetCalculateSingleSubprocessOnly( iSub=-1 ) to reset the calculation to use all processes.
-
-   /*
-   fSubprocActive.resize(13*13); //this could probably dropped to the number returned byGetNSubproc
-   logger.info["SetCalculateSubprocesses"]<<endl;
-   logger.info["SetCalculateSubprocesses"]<<"    ***  Use this function carefully ***"<<endl;
-   logger.info["SetCalculateSubprocesses"]<<" Please inform yourself about the meaning of the subprocess id for the given file."<<endl;
-   logger.info["SetCalculateSubprocesses"]<<" This may also change for the different contribution (LO,NLO,NNLO) of a calculation."<<endl;
-
-   fSubprocActive = std::vector<bool>(13*13,false);
-   for ( int i = 0; i < iSub.size(); i++ )
-      if ( iSub[i] < 13*13 )
-         fSubprocActive[iSub[i]] = true;
-   */
-   logger.warn["SetCalculateSubprocesses"]<<endl<<"deprecated function, ignoring call"<<endl;
-
-}
 
 //______________________________________________________________________________
 void fastNLOReader::SelectProcesses( const std::vector< std::pair<int,int> >& proclist ) {
@@ -2273,8 +2272,8 @@ void fastNLOReader::FillBlockBPDFLCsDISv21(fastNLOCoeffAddFlex* c, fastNLOCoeffA
 
    // we take the PDF coefficients from the first contributions if compatible
    // this avoids repetive access to LHAPDF
-   static const bool SpeedUp = false;
-   //static const bool SpeedUp = BBlocksSMCalc[0][0] != NULL;
+   //   static const bool SpeedUp = false;
+   static const bool SpeedUp = BBlocksSMCalc[0][0] != NULL;
    bool IsCompatible = false;
    if (SpeedUp) {
       if (c0 != NULL && c0 != c && fCoeff.size()>1) {
@@ -2307,7 +2306,7 @@ void fastNLOReader::FillBlockBPDFLCsDISv21(fastNLOCoeffAddFlex* c, fastNLOCoeffA
                for (int x=0; x<c->GetNxmax(i); x++) {
                   //double xp = c->GetXNode1(i,x);
                   double xp = c->GetXNode1(i,x);
-                  
+
                   if (SpeedUp) {
                      if (c == c0)
                         c->PdfXfx[i][x][jS1][kS2] = GetXFXSqrtS(xp,muf);
@@ -3236,20 +3235,6 @@ int fastNLOReader::ContrId(const ESMCalculation eCalc, const ESMOrder eOrder) co
 //______________________________________________________________________________
 
 
-//_DEPRECATED___________________________________________________________________
-void fastNLOReader::PrintTableInfo(const int iprint) const {
-   logger.warn["PrintTableInfo"]<<"This function is deprecated!"<<endl;
-   logger.warn["PrintTableInfo"]<<"Please use PrintContributionSummary instead."<<endl;
-}
-
-
-//_DEPRECATED___________________________________________________________________
-void fastNLOReader::PrintFastNLOTableConstants(const int iprint) const {
-   logger.warn["PrintTableInfo"]<<"This function is deprecated!"<<endl;
-   logger.warn["PrintTableInfo"]<<"Please use Print instead."<<endl;
-}
-
-
 //______________________________________________________________________________
 void fastNLOReader::PrintContributionSummary(int iprint) const {
    //! this function is inherited from fastNLOTable.
@@ -3301,7 +3286,6 @@ void fastNLOReader::PrintCrossSections() const {
             printf(" #                  ---->  from %9.3f to %9.3f in %s  <----\n",GetObsBinLoBound(i,0),GetObsBinUpBound(i,0),GetDimLabel(0).c_str());
             lobindim2 = GetObsBinLoBound(i,0);
          }
-         //         printf(" #   %4.0f   | %9.3f - %9.3f       % 9.4e           % 5.2f      |\n",i*1.,GetObsBinLoBound(i,1),GetObsBinUpBound(i,1),xs[i],kFactor[i]);
          printf(" #   %4.0f   | %9.3f - %9.3f       % 9.4e                 |\n",i*1.,GetObsBinLoBound(i,1),GetObsBinUpBound(i,1),xs[i]);
       }
    }
@@ -3384,8 +3368,6 @@ void fastNLOReader::PrintCrossSectionsWithReference() {
             printf(" #                    ---->  from %9.3f to %9.3f in %s  <----\n",GetObsBinLoBound(i,0),GetObsBinUpBound(i,0),GetDimLabel(0).c_str());
             lobindim2 = GetObsBinLoBound(i,0);
          }
-         // printf(" #   %4.0f   | %9.3f - %9.3f      % 9.4e           % 5.3f      |     % 9.4e            % 5.4f\n",
-         //        i*1.,GetObsBinLoBound(i,1),GetObsBinUpBound(i,1),xs[i],kFactor[i],xsref[i],(xs[i]-xsref[i])/xsref[i]*100.);
          printf(" #   %4.0f   | %9.3f - %9.3f      % 9.4e                 |     % 9.4e            % 5.4f\n",
                 i*1.,GetObsBinLoBound(i,1),GetObsBinUpBound(i,1),xs[i],xsref[i],(xs[i]-xsref[i])/xsref[i]*100.);
       }
@@ -3399,31 +3381,6 @@ void fastNLOReader::PrintCrossSectionsWithReference() {
       }
    }
    printf(" #  ------------------------------------------------------------------------------------------------------------\n");
-}
-
-
-//_DEPRECATED___________________________________________________________________
-void fastNLOReader::PrintCrossSectionsData() const {
-   logger.warn["PrintCrossSectionsData"]<<"This function is deprecated!"<<endl;
-   logger.warn["PrintCrossSectionsData"]<<"Please check fnlo-tk-cppread.cc for default print out."<<endl;
-   return;
-}
-
-
-//_DEPRECATED___________________________________________________________________
-void fastNLOReader::PrintCrossSectionsDefault(const vector <double> kthc) const {
-   logger.warn["PrintCrossSectionsDefault"]<<"This function is deprecated!"<<endl;
-   logger.warn["PrintCrossSectionsDefault"]<<"Please check fnlo-tk-cppread.cc for default print out."<<endl;
-   exit(1);
-   return;
-}
-
-
-//_DEPRECATED___________________________________________________________________
-void fastNLOReader::RunFastNLODemo() {
-   logger.warn["RunFastNLODemo"]<<"This function is deprecated!"<<endl;
-   logger.warn["RunFastNLODemo"]<<"Please check fnlo-tk-examples.cc for examples."<<endl;
-   return;
 }
 
 
@@ -3443,13 +3400,6 @@ double fastNLOReader::RescaleCrossSectionUnits(double binsize, int xunits) {
       unit /= pow(10.,xunits-Ipublunits);
    }
    return unit;
-}
-
-
-//______________________________________________________________________________
-XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eScaleUnc) {
-   XsUncertainty XsUnc = GetScaleUncertainty(eScaleUnc, false);
-   return XsUnc;
 }
 
 
@@ -3508,7 +3458,7 @@ XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eS
          XsUnc.dxsu[iobs] = 0.;
          XsUnc.dxsl[iobs] = 0.;
       }
-      logger.debug["GetScaleUncertainty"]<<"iobs = " << iobs << "dxsl = " << XsUnc.dxsl[iobs] << ", dxsu = " << XsUnc.dxsu[iobs] <<endl;
+      logger.debug["GetScaleUncertainty"]<<"iobs = " << iobs << ", dxsl = " << XsUnc.dxsl[iobs] << ", dxsu = " << XsUnc.dxsu[iobs] <<endl;
    }
 
    logger.info["GetScaleUncertainty"]<<"Setting scale factors back to default of unity."<<endl;
@@ -3519,6 +3469,68 @@ XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eS
 
 std::vector< std::vector<double> > fastNLOReader::GetScaleUncertaintyVec(const EScaleUncertaintyStyle eScaleUnc) {
    XsUncertainty xsUnc = fastNLOReader::GetScaleUncertainty(eScaleUnc);
+   std::vector<std::vector<double> > xsUncVec;
+   xsUncVec.resize(3);
+   xsUncVec[0] = xsUnc.xs;
+   xsUncVec[1] = xsUnc.dxsu;
+   xsUncVec[2] = xsUnc.dxsl;
+   return xsUncVec;
+}
+
+
+// Added to include CoeffInfoBlocks
+//
+//______________________________________________________________________________
+XsUncertainty fastNLOReader::GetAddUncertainty(const EAddUncertaintyStyle eAddUnc, bool lNorm) {
+   //
+   XsUncertainty XsUnc;
+   vector < double > MyXSection;
+   vector < double > MydXSection;
+   unsigned int NObsBin = GetNObsBin();
+
+   //! Cross section and absolute uncertainties
+   CalcCrossSection();
+   MyXSection  = GetCrossSection(lNorm);
+   MydXSection = GetUncertainty(lNorm);
+
+   //! Fill return struct
+   if (eAddUnc == kAddNone) {
+      logger.info["GetAddUncertainty"]<<"No additional uncertainty selected, uncertainties will be zero."<<endl;
+      for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
+         XsUnc.xs.push_back(MyXSection[iobs]);
+         XsUnc.dxsu.push_back(0);
+         XsUnc.dxsl.push_back(0);
+      }
+   } else if (eAddUnc == kAddStat) {
+      logger.info["GetAddUncertainty"]<<"Statistical/numerical uncertainties selected."<<endl;
+      for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
+         XsUnc.xs.push_back(MyXSection[iobs]);
+         XsUnc.dxsu.push_back(MydXSection[iobs]);
+         XsUnc.dxsl.push_back(-MydXSection[iobs]);
+      }
+   } else {
+      logger.error["GetAddUncertainty"]<<"ERROR! No valid additional uncertainty style selected, exiting."<<endl;
+      logger.error["GetAddUncertainty"]<<"Style enum = "<<eAddUnc<<endl;
+      exit(1);
+   }
+
+   //! Divide by cross section != 0 to give relative uncertainties
+   for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
+      if (fabs(XsUnc.xs[iobs]) > DBL_MIN) {
+         XsUnc.dxsu[iobs] = +fabs(XsUnc.dxsu[iobs] / XsUnc.xs[iobs]);
+         XsUnc.dxsl[iobs] = -fabs(XsUnc.dxsl[iobs] / XsUnc.xs[iobs]);
+      } else {
+         XsUnc.dxsu[iobs] = 0.;
+         XsUnc.dxsl[iobs] = 0.;
+      }
+      logger.debug["GetAddUncertainty"]<<"iobs = " << iobs << ", dxsl = " << XsUnc.dxsl[iobs] << ", dxsu = " << XsUnc.dxsu[iobs] <<endl;
+   }
+
+   return XsUnc;
+}
+
+std::vector< std::vector<double> > fastNLOReader::GetAddUncertaintyVec(const EAddUncertaintyStyle eAddUnc) {
+   XsUncertainty xsUnc = fastNLOReader::GetAddUncertainty(eAddUnc);
    std::vector<std::vector<double> > xsUncVec;
    xsUncVec.resize(3);
    xsUncVec[0] = xsUnc.xs;
