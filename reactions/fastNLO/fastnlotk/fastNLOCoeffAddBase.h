@@ -107,7 +107,7 @@ public:
    virtual ~fastNLOCoeffAddBase() {}
    virtual fastNLOCoeffAddBase* Clone() const;                                     //!< returns 'new' copy of this instance.
    static bool CheckCoeffConstants(const fastNLOCoeffBase* c, bool quiet = false);
-   void Read(std::istream& table);
+   void Read(std::istream& table, int ITabVersionRead);
    virtual void Write(std::ostream& table, int ITabVersionWrite);
    virtual void Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge moption=fastNLO::kMerge);
    virtual void Print(int iprint) const;
@@ -119,8 +119,8 @@ public:
    virtual void MultiplyCoefficientsByConstant(double fact) {};//!< Multiply all coefficients of all bins by a constant factor
    virtual void MultiplyBin(unsigned int iObsIdx, double fact) {};  //!< Multiply coefficients of one observable bin a factor
    virtual void MultiplyBinProc(unsigned int iObsIdx, unsigned int iProc, double fact) {}; //!< Multiply coefficients of one observable bin a factor (idx starting from 0)
-   virtual void EraseBin(unsigned int iObsIdx);//!< Erase observable bin from table
-   virtual void CatBin(const fastNLOCoeffAddBase& other, unsigned int iObsIdx); //!< Catenate observable to table
+   virtual void EraseBin(unsigned int iObsIdx, int ITabVersionRead);//!< Erase observable bin from table
+   virtual void CatBin(const fastNLOCoeffAddBase& other, unsigned int iObsIdx, int ITabVersionRead); //!< Catenate observable to table
 
    int GetIRef() const {return IRef;}
    void SetIRef(int iref=1) {IRef=iref;}
@@ -174,7 +174,7 @@ public:
    double GetMergeWeight(fastNLO::EMerge moption, int proc, int bin) const ; //!< Get merge weight for a given bin and subprocess
 
 protected:
-   void ReadCoeffAddBase(std::istream& table);
+   void ReadCoeffAddBase(std::istream& table, int ITabVersionRead);
    int GetScaledimfromvar(int scalevar) const;
 
    int IRef = 0;

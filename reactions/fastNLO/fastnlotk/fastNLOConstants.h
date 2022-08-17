@@ -11,15 +11,15 @@
 #ifndef FNLO_NAME
 #define FNLO_NAME       "fastNLO_toolkit"
 #define FNLO_SUBPROJECT "toolkit"
-#define FNLO_VERSION    "2.3.1"
-#define FNLO_GITREV     "2657-66-gda2fd2f"
+#define FNLO_VERSION    "2.5.0"
+#define FNLO_GITREV     "2826"
 #define FNLO_AUTHORS    "D. Britzger, T. Kluge, K. Rabbertz, F. Stober, G. Sieber, M. Wobisch"
 #define FNLO_WEBPAGE    "http://projects.hepforge.org/fastnlo"
 #define FNLO_AUTHORSv14 "T. Kluge, K. Rabbertz, M. Wobisch"
-#define FNLO_QUOTEv14   "hep-ph/0609285"
-#define FNLO_AUTHORSv2  "D. Britzger, T. Kluge, K. Rabbertz, F. Stober, M. Wobisch"
-#define FNLO_QUOTEv2    "arXiv:1109.1310"
-#define FNLO_YEARS      "2005-2019"
+#define FNLO_QUOTEv14   "Proc. DIS 2006, 483 (2006), hep-ph/0609285."
+#define FNLO_AUTHORSv2  "D. Britzger, K. Rabbertz, F. Stober, M. Wobisch"
+#define FNLO_QUOTEv2    "Proc. DIS 2012, 217 (2012), arXiv:1208.3641."
+#define FNLO_YEARS      "2005-2021"
 #endif
 
 // KR: Replace by precompiler defines
@@ -50,7 +50,7 @@ namespace fastNLO {
    typedef std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > > v7d;
 
    // ---- constants ---- //
-   static const std::set<int> CompatibleVersions{20000,21000,22000,23000,23500,23600,24000};
+   static const std::set<int> CompatibleVersions{20000,21000,22000,23000,23500,23600,25000};
    const int tabversion   = 23600;
    const int tablemagicno = 1234567890;
    // separating character between entries in table
@@ -110,6 +110,11 @@ namespace fastNLO {
                                         // (1/2,1), (1,1/2), (1,2), (2,1)
    };
 
+   enum EAddUncertaintyStyle {
+      kAddNone                  = 0,    // no additional uncertainty
+      kAddStat                  = 1     // statistical/numerical uncertainty
+   };
+
    enum EPDFUncertaintyStyle {
       kPDFNone                  = 0,    // No PDF uncertainty, only averaged cross section result evaluated (Correct for NNPDF, wrong otherwise!)
       kLHAPDF6                  = 1,    // LHAPDF6 uncertainties (recommended if LHAPDF6 is available)
@@ -162,27 +167,35 @@ namespace fastNLO {
    const std::string _CSEP20("####################");
    const std::string _DSEP20("====================");
    const std::string _SSEP20("--------------------");
+   const std::string _TSEP20(" - - - - - - - - - -");
    const std::string _CSEP20C(" ######################");
    const std::string _DSEP20C(" #=====================");
    const std::string _SSEP20C(" #---------------------");
+   const std::string _TSEP20C(" #- - - - - - - - - - -");
    const std::string _CSEP40  = _CSEP20  + _CSEP20;
    const std::string _DSEP40  = _DSEP20  + _DSEP20;
    const std::string _SSEP40  = _SSEP20  + _SSEP20;
+   const std::string _TSEP40  = _TSEP20  + _TSEP20;
    const std::string _CSEP40C = _CSEP20C + _CSEP20;
    const std::string _DSEP40C = _DSEP20C + _DSEP20;
    const std::string _SSEP40C = _SSEP20C + _SSEP20;
+   const std::string _TSEP40C = _TSEP20C + _TSEP20;
    const std::string _CSEPS  = _CSEP40  + _CSEP40;
    const std::string _DSEPS  = _DSEP40  + _DSEP40;
    const std::string _SSEPS  = _SSEP40  + _SSEP40;
+   const std::string _TSEPS  = _TSEP40  + _TSEP40;
    const std::string _CSEPSC = _CSEP40C + _CSEP40;
    const std::string _DSEPSC = _DSEP40C + _DSEP40;
    const std::string _SSEPSC = _SSEP40C + _SSEP40;
+   const std::string _TSEPSC = _TSEP40C + _TSEP40;
    const std::string _CSEPL  = _CSEPS  + _CSEPS ;
    const std::string _DSEPL  = _DSEPS  + _DSEPS ;
    const std::string _SSEPL  = _SSEPS  + _SSEPS ;
+   const std::string _TSEPL  = _TSEPS  + _TSEPS ;
    const std::string _CSEPLC = _CSEPSC + _CSEPS ;
    const std::string _DSEPLC = _DSEPSC + _DSEPS ;
    const std::string _SSEPLC = _SSEPSC + _SSEPS ;
+   const std::string _TSEPLC = _TSEPSC + _TSEPS ;
 #endif
 }
 

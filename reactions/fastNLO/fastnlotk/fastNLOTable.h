@@ -43,8 +43,12 @@ class fastNLOTable {
    std::string GetFilename() const {return ffilename;}
    void   SetFilename(std::string name){ffilename=name;}
 
-   int  GetItabversion() const {return Itabversion;}
-   void SetItabversion(int version){Itabversion = version;}
+   //   int  GetItabversion() const {return Itabversion;}
+   //   void SetItabversion(int version){Itabversion = version;}
+   int  GetITabVersionRead() const {return ITabVersionRead;}
+   int  GetITabVersionWrite() const {return ITabVersionWrite;}
+   void SetITabVersionRead(int version){ITabVersionRead = version;}
+   void SetITabVersionWrite(int version){ITabVersionWrite = version;}
 
    std::string GetScenName() const {return ScenName;}
    void   SetScenName(std::string name){ScenName = name;}
@@ -154,7 +158,7 @@ class fastNLOTable {
    /// ___________________________________________________________________________________________________
 
    /// get/set scenario description
-   std::vector <std::string> GetScDescr() const;
+   std::vector <std::string> GetScDescr() const { return ScDescript; }
    void SetScDescr(std::vector <std::string> ScDescr);
 
    /// get/set cross section units of published results (pb = 12, fb = 15, ...)
@@ -230,19 +234,17 @@ class fastNLOTable {
 
    /// Handle coefficient tables
    //int WriteCoeffTable(int no);
-   //int WriteCoeffTable(int no,ofstream* outstream );
+   //int WriteCoeffTable(int no, ofstream* outstream);
    //int WriteCoeffTableDividebyN(int no);
    void DeleteAllCoeffTable();
    //int CreateCoeffBase(int no);
-   int CreateCoeffTable(int no,fastNLOCoeffBase *newcoeff);
+   int CreateCoeffTable(int no, fastNLOCoeffBase *newcoeff);
    void CatenateTable(const fastNLOTable& other);
    fastNLOCoeffBase* GetCoeffTable(int no) const;
    /// Returns pointer to data table if available, else returns NULL pointer
    fastNLOCoeffData* GetDataTable() const;
    /// Returns pointer to reference table if available, else returns NULL pointer
    fastNLOCoeffAddBase* GetReferenceTable(fastNLO::ESMOrder eOrder) const;
-
-
 
 private:
    bool cmp(const double x1, const double x2) const;
@@ -264,7 +266,9 @@ protected:
 
    std::string ffilename;
    int fPrecision;
-   int Itabversion;
+   //   int Itabversion;
+   int ITabVersionRead;
+   int ITabVersionWrite = fastNLO::tabversion;
    std::string ScenName;
 
    PrimalScream logger;
@@ -275,7 +279,7 @@ protected:
    void WriteScenario(std::ostream& table);
    void ReadScenario(std::istream& table);
    void ReadCoeffTables(std::istream& table, int nCoeff);
-   fastNLOCoeffBase* ReadRestOfCoeffTable(const fastNLOCoeffBase& cB, std::istream& table);
+   fastNLOCoeffBase* ReadRestOfCoeffTable(const fastNLOCoeffBase& cB, std::istream& table, int ITabVersionRead);
 
    std::vector < fastNLOCoeffBase* > fCoeff;
    //fastNLOCoeffData* fData;
