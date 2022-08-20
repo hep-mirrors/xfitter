@@ -1,0 +1,32 @@
+ !*  File produced by Maryam					
+ !*  Created on 20201010					
+ !*  HEPData-ins153656-v1
+&Data 
+  Name = "TASSO_{12}" 
+  Reaction = "NC SIA"
+  NData =    5
+  NColumn =  5
+  ColumnType = 2*"Bin","Sigma", 2*"Error"
+  ColumnName = "x", "Q2","Sigma", "stat","TASSO12_sys_{overall}"
+  NInfo =  1
+  CInfo = "sqrt(S)"
+  DataInfo =     0.12E+02
+  IndexDataset =   108
+  Percent = false
+!*  FKObservable = "SIA_XSEC"
+&End 
+
+&PlotDesc
+   PlotN = 1
+   PlotDefColumn = 'Q2'
+   PlotVarColumn = 'x'
+   PlotDefValue = 120,200
+   PlotOptions(1)  = 'Experiment:TASSO@ExtraLabel:e^+e^- #rightarrow  #gamma/Z #rightarrow #pi^{#pm}*X @XTitle: Z @YTitle: 1/#sigma d#sigma/dz @Title:Q^{2} = 144 '
+ 
+&End
+*z=Eh/Eb	Q2	dsig/dz	error+	error-	sys Overall normalization error +	sys Overall normalization error -
+0.062826923	144.00	117.6119994	20.03281308	23.52239988
+0.078545811	144.00	102.4237377	18.22262818	20.48474754
+0.094589757	144.00	85.44034822	15.47832395	17.088069644
+0.135359603	144.00	42.63827506	10.96412787	8.527655012
+0.217919455	144.00	10.86244668	5.431223341	2.172489336

@@ -10,14 +10,12 @@ C--------------------------------------------------------------
       implicit none
 
 #include "steering.inc"
-!#include "pdfparam.inc"
 
       integer i,ix,idx,iq2,iflag
       double precision q2,x,gval,sing,umin,dmin
 *new jf
       double precision QPDFXQ,cplus,splus,bplus,uplus,dplus,U,D,sea,DbmUb
-      double precision d_Ubar,d_Dbar,u_sea,d_sea,str,chm,bot, photon
-      double precision strpos,chmpos,botpos,upos,dpos     !hamed FFs 2020
+      double precision d_Ubar,d_Dbar,u_sea,d_sea,str,strbar,chm,bot,photon
       double precision totstr,totDbar,totcha,totUbar,afs,afc,xbelow,delx
       double precision totusea,totdsea,afs_ud
 
@@ -35,7 +33,7 @@ C--------------------------------------------------------------
       double precision xnu, xrho, Qsimple
       double precision F123(3)
 
-      character*50 name
+      character*48 name
       character*48 h1name
       character*(*) base
       character*25 fsfc
@@ -67,7 +65,7 @@ C--------------------------------------------------------------
 
   ! Store how many PDFs are written out:
       integer NPdfs
-      parameter (NPdfs = 14)
+      parameter (NPdfs = 15)
 
 C---------------------------------------------------------------
 
@@ -88,19 +86,17 @@ C---------------------------------------------------------------
             name =base//tag(iq2)//'.txt'
             h1name = base//tag(iq2)//'.txt'
          endif
-         open(81,file=name, STATUS = 'REPLACE' )
+         open(81,file=name)
 c        open(82,file=h1name)
          ! Write basic info on the table:
          write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2)
 
          ! Write the names of PDFs
-!         write (81,'(16(2x,A12))')
-!     $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
-         write (81,'(15(2x,A12))')
-     $        ' x ',' g    ',' U    ',' D    ',' u^+    ', ' d^+    ',
+         write (81,'(16(2x,A12))')
+     $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
      $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
-     $        ' d_sea    ', ' s^+  ',' c^+    ',' b^+    ', '  ph '
-!     $        'strbar'
+     $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph ',
+     $        'strbar'
 
          totstr=  0.d0
          totDbar= 0.d0
@@ -125,7 +121,7 @@ c        open(82,file=h1name)
                delx = x - xbelow
             endif
             call  hf_get_pdfs(x,q2,pdf)
-!          print'("test pdf store =",14F11.6,/)',x,(pdf(i),i=-6,6)
+
 
             gval=pdf(0)
 
@@ -142,11 +138,7 @@ c        open(82,file=h1name)
             endif
 
             umin=pdf(2)-pdf(-2)
-            upos=pdf(2)+pdf(-2)
             dmin=pdf(1)-pdf(-1)
-            dpos=pdf(1)+pdf(-1)   ! hamed FFs 2020
-!         print'("test upos =",6F10.6,/)',x,pdf(2),pdf(-2), upos,pdf(2)+pdf(-2)
-!         print'("test dpos =",6F10.6,/)',x,pdf(1),pdf(-1), dpos,pdf(1)+pdf(-1)
 
             if (q2.gt.qc) then
                d_Ubar=pdf(-2)+pdf(-4)
@@ -165,22 +157,18 @@ c        open(82,file=h1name)
 *      DbmUb=d_Dbar-d_Ubar
             u_sea=pdf(-2)
             d_sea=pdf(-1)
-!            str = (pdf(-3)+pdf(3))/2.d0
-!            strbar = pdf(-3)
-            strpos = pdf(-3)+pdf(3)   ! hamed FFs 2020 S+sbar
-  !             chmpos = pdf(-4) + pdf(4)
-  !             botpos=pdf(-5) + pdf(5)
-!            print'("test pdf store 2=",7F11.6,/)',x, pdf(-4),pdf(4), chmpos, pdf(-5),pdf(5), botpos
+            str = (pdf(-3)+pdf(3))/2.d0
+            strbar = pdf(-3)
+
+
             chm = 0.0d0
             if (q2.gt.qc) then
                chm=pdf(-4)
-               chmpos = pdf(-4)+pdf(4)
             endif
 
             bot = 0.d0
             if (q2.gt.qb) then
                bot=pdf(-5)
-               botpos=pdf(-5)+pdf(5)
             endif
 
             photon = pdf(7)
@@ -194,11 +182,9 @@ c        open(82,file=h1name)
             totdsea = totdsea + d_sea*delx
 
             write(81,810)
-     +           x,gval,U,D,upos,dpos,umin,dmin,sea,u_sea,d_sea,
-     $           strpos,chmpos,botpos,photon
- 810        format(15(2x,G12.6))
-            write(90,810)x,q2,gval,upos,dpos,strpos,
-     $           chmpos,botpos,pdf(-5),pdf(5),pdf(-5)+pdf(5)
+     +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,
+     $           chm,bot,photon,strbar
+ 810        format(16(2x,G12.6))
  811        format(I3,2x,23(2x,G12.6))
 
 

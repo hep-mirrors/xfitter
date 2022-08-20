@@ -1,0 +1,39 @@
+ !*  File produced by Maryam						
+ !*  Created on 2020_9_18						
+ !*  hepdata.1500.v1							
+&Data 
+  Name = "TASSO_{44}" 
+  Reaction = "NC SIA Norm"
+  NData =    12
+  NColumn =  5
+  ColumnType = 2*"Bin","Sigma", 2*"Error"
+  ColumnName = "x", "Q2","Sigma", "stat","TASSO44_sys_{overall}"
+  NInfo =  1
+  CInfo = "sqrt(S)"
+  DataInfo =     0.44E+02
+  IndexDataset =   104
+  Percent = false
+!*  FKObservable = "SIA_Norm_XSEC"
+&End 
+
+&PlotDesc
+   PlotN = 1
+   PlotDefColumn = 'Q2'
+   PlotVarColumn = 'x'
+   PlotDefValue = 1500,2500
+   PlotOptions(1)  = 'Experiment:TASSO@ExtraLabel:e^+e^- #rightarrow  #gamma/Z #rightarrow #pi^{#pm}*X @XTitle: Z @YTitle: 1/#sigma d#sigma/dz @Title:Q^{2} = 1936 '
+ 
+&End
+*z=Eh/Eb	Q2	dsig/dz	error+	error-	sys Overall normalization error +	sys Overall normalization error -
+0.017126175	1936.00	217.5778199	4.308471681	13.054669194
+0.021464992	1936.00	196.8496798	8.376582119	11.810980788
+0.025797207	1936.00	171.2934517	4.127553054	10.277607102
+0.030178566	1936.00	146.2893217	6.138013498	8.777359302
+0.044952707	1936.00	97.78476492	11.51597438	5.8670858952
+0.063022106	1936.00	56.79025517	6.23185101	3.4074153102
+0.081149898	1936.00	34.00471602	5.115753737	2.0402829612
+0.103196395	1936.00	25.54862198	4.007626977	1.5329173188
+0.152133152	1936.00	12.91130038	2.001751997	0.7746780228
+0.21609372	1936.00	6.402776892	0.500216945	0.38416661352
+0.345058685	1936.00	2.100357211	0.20003402	0.12602143266
+0.682029688	1936.00	0.200008706	0.040001741	0.01200052236
