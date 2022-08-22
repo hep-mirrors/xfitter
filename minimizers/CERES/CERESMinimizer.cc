@@ -346,7 +346,7 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* c
   for (int i = 0; i < npars; i++)
     f << std::setw(14) << _allParameterNames[i];
   f << std::endl;
-  f << setprecision(8);
+  f << setprecision(4);
   for (int i = 0; i < npars; i++)
     {
       f << std::setw(14) << _allParameterNames[i];;
