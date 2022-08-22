@@ -16,11 +16,13 @@
 #include "ceres/dynamic_numeric_diff_cost_function.h"
 #include "ceres/covariance.h"
 
+#include <Eigen/Dense>
+
 #include <iomanip>
 #include <fstream>
 
 //make this a yaml setting
-const int strategy = 0;
+const double glboff = 2.;
 
 // Fortran interface
 extern "C" {
@@ -46,7 +48,7 @@ extern "C" CERESMinimizer* create() {
 
     int npar = mini->getNpars();
 
-    double pp[200];  // 200 is needed for fcn ...
+    double pp[200];  // 200 is needed for fcn ... //--> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize with MNE from endmini.inc
     for (int i=0; i<npar; i++) {
       pp[i] = par[i];
     }
@@ -67,44 +69,44 @@ struct CostFunctiorData
      cout << std::endl;
      double chi2;
      myFCN(chi2,parameters[0],2);
-     if (strategy == 0)
+     chi2 = 0;
+     double totoff = 0.;
+     int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
+     for (int i = 0; i < nres; i++)
        {
-	 chi2 = 0;
-	 for (int i = 0; i< cndatapoints_.npoints  + systema_.nsys; i++)
+	 if (i < cndatapoints_.npoints + systema_.nsys)
+	   residuals[i] = sqrt(2.)*c_resid_.residuals_[i];
+	 else
+	   //Log penalty terms
 	   {
-	     if (i < cndatapoints_.npoints)
-	       //std::cout << " res " << i << " " << c_resid_.residuals_[i] << " logchi2 " << cdatapoi_.chi2_poi_data_[i] << " sum2 " << pow(c_resid_.residuals_[i],2)+cdatapoi_.chi2_poi_data_[i] << std::endl;
-	       residuals[i] = sqrt(max(0.,pow(c_resid_.residuals_[i],2)+cdatapoi_.chi2_poi_data_[i]));
-	     else
-	       residuals[i] = c_resid_.residuals_[i];
-	     chi2 += residuals[i]*residuals[i];
+	     //Add a positive offset to each squared residual to enforce a positive cost function also when the log penalty term is included
+	     totoff += glboff;
+	     int j = i-systema_.nsys-cndatapoints_.npoints;
+	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+glboff));
+	     if (cdatapoi_.chi2_poi_data[j]+glboff < 0)
+	       {
+		 cout << "Warning: negative squared residual for i " << j << " offset " << glboff << " res^2 " << cdatapoi_.chi2_poi_data[j]+glboff << endl;
+		 string message = "W: Negative squared residual in CERES minimisation, consider raising the chi-square offset";
+		 hf_errlog_(22082101, message.c_str(), message.size());
+	       }
 	   }
+	 chi2 += residuals[i]*residuals[i]/2.;
        }
-     else if (strategy == 1)
-       residuals[0] = sqrt(chi2);
-	 
-     //residuals[cndatapoints_.npoints  + systema_.nsys] = cdatapoi_.chi2_poi_tot_;
-     //chi2 += residuals[cndatapoints_.npoints  + systema_.nsys]*residuals[cndatapoints_.npoints  + systema_.nsys];
-     std::cout << " CERES residuals squared: " <<  chi2 << std::endl;
+     std::cout << " CERES residuals squared: " <<  chi2 - totoff << std::endl;
      return true;
    }
 };
 
-
-struct GUM {
-  bool operator()(const double* parameters, double* cost) const {
-     double chi2;
-     myFCN(chi2,parameters,2);
-     cost[0] = chi2;
-     std::cout << " cost function: " <<  chi2 << std::endl;
-     return true;
-  }
-  static ceres::FirstOrderFunction* Create(int npars) {
-    const int kNumParameters = 14;
-    return new ceres::NumericDiffFirstOrderFunction<GUM,
-                                                    ceres::CENTRAL,
-                                                    kNumParameters>(
-        new GUM);
+class PenaltyLog final: public ceres::LossFunction
+{
+public:
+  void Evaluate(double s, double out[3]) const override
+  {
+    out[0] = s;
+    if (chi2options_.chi2poissoncorr)
+      out[0] += -2.*glboff*cndatapoints_.npoints;
+    out[1] = 1.;
+    out[2] = 0.;
   }
 };
 
@@ -134,95 +136,112 @@ void CERESMinimizer::doMinimization()
   int nData = cndatapoints_.npoints;
   int nSyst = systema_.nsys;
   int npars =  getNpars() ;
-  std::cout << nData << " " << nSyst << " " << npars << "\n";
+  cout << endl;
+  cout << "CERES minimisation" << endl;
+  cout << "Data points: " << nData << "; Systematic uncertainties nuisance parameters: " << nSyst << "; Free parameters: " << npars;
+  if (chi2options_.chi2poissoncorr)
+    cout << "; Penalty log terms: " << nData;
+  cout << endl;
 
   double**pars = getPars();
   
-  //double parVals[npars];
-  double parVals[14];
+  double parVals[200]; // 200 --> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize NEXTRAPARAMMAX_C with MNE from endmini.inc
 
-  for (int i =0; i< npars; i++)
+  for (int i = 0; i < npars; i++)
     parVals[i] = *pars[i];
 
   double covmat[npars * npars];
   fill(covmat,covmat+npars*npars, 0.);
   
-  //Least squares
-  if (strategy == 0 || strategy == 1)
-    {
-      ceres::Solver::Options myOptions;
-      ceres::Solver::Summary mySummary;
+  // Least squares minimisation
+  ceres::Solver::Options soloptions;
+  ceres::Solver::Summary summary;
   
-      // Cost function:
-      ceres::DynamicNumericDiffCostFunction<CostFunctiorData>* dynamic_cost_function =
-	new ceres::DynamicNumericDiffCostFunction<CostFunctiorData>(new CostFunctiorData);
+  // Cost function:
+  ceres::DynamicNumericDiffCostFunction<CostFunctiorData>* dynamic_cost_function =
+    new ceres::DynamicNumericDiffCostFunction<CostFunctiorData>(new CostFunctiorData);
 
-      dynamic_cost_function->AddParameterBlock(npars);
+  dynamic_cost_function->AddParameterBlock(npars);
 
-      int nres = strategy == 0 ? nData+nSyst : 1;
-      dynamic_cost_function->SetNumResiduals(nres);
+  int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
 
-      ceres::Problem myProblem;
-      myProblem.AddResidualBlock(dynamic_cost_function, NULL, parVals);
+  dynamic_cost_function->SetNumResiduals(nres);
 
-      myOptions.minimizer_progress_to_stdout = true;
+  // Loss function
+  ceres::LossFunction* loss_function(new PenaltyLog);
 
-      myOptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
+  ceres::Problem problem;
+  problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
 
-      //myOptions.num_threads = 4;
+  soloptions.minimizer_progress_to_stdout = true;
+
+  soloptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
+  // --> Allow setting options from yaml
+  /*
+  soloptions.logging_type = ceres::SILENT;
+  
+  //multithreading
+  //soloptions.num_threads = 4;
+
+  //Ceres options
+  soloptions.max_num_iterations = 100000;
+
+  soloptions.minimizer_type = ceres::TRUST_REGION; //ceres::LINE_SEARCH;
+  soloptions.linear_solver_type = ceres::DENSE_QR; //ceres::SPARSE_NORMAL_CHOLESKY;
+  soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT; //ceres::DOGLEG;
+  //soloptions.dogleg_type = ceres::SUBSPACE_DOGLEG;
+  //soloptions.use_nonmonotonic_steps = true;
+  
+  //soloptions.max_num_consecutive_invalid_steps = 10;
+
+  soloptions.dense_linear_algebra_library_type = ceres::EIGEN; //ceres::LAPACK
+  */
+  
+  ceres::Solve(soloptions, &problem, &summary);
+
+  cout << std::endl;
+  cout << "CERES minimisation has converged" << std::endl;
+  //if (covariance matrix is required)
+  cout << std::endl;
+  cout << "CERES Start calculation of covariance matrix" << std::endl;
       
-      ceres::Solve(myOptions, &myProblem, &mySummary);
+  //covariance
+  ceres::Covariance::Options covoptions;
 
-      //covariance
-      ceres::Covariance::Options options;
-      //options.algorithm_type = ceres::SPARSE_QR;
-      //options.algorithm_type = ceres::DENSE_SVD;
-      //options.num_threads = 4;
-      ceres::Covariance covariance(options);
+  //covoptions.algorithm_type = ceres::SPARSE_QR;
+  //covoptions.algorithm_type = ceres::DENSE_SVD;
 
-      vector<pair<const double*, const double*> > covariance_blocks;
-      covariance_blocks.push_back(make_pair(parVals, parVals));
+  //multithreading
+  //covoptions.num_threads = 4;
+  ceres::Covariance covariance(covoptions);
 
-      CHECK(covariance.Compute(covariance_blocks, &myProblem));
+  vector<pair<const double*, const double*> > covariance_blocks;
+  covariance_blocks.push_back(make_pair(parVals, parVals));
 
-      covmat[npars * npars];
-      covariance.GetCovarianceBlock(parVals, parVals, covmat);
+  CHECK(covariance.Compute(covariance_blocks, &problem));
 
-      std::cout << mySummary.FullReport() << "\n";
+  covariance.GetCovarianceBlock(parVals, parVals, covmat);
 
-      //remember convergence status to report later
-      switch(mySummary.termination_type){
-      case ceres::CONVERGENCE:
-	convergence_status=ConvergenceStatus::SUCCESS;
-	break;
-      case ceres::NO_CONVERGENCE:
-	convergence_status=ConvergenceStatus::NO_CONVERGENCE;
-	break;
-      case ceres::USER_SUCCESS:
-	convergence_status=ConvergenceStatus::SUCCESS;
-	break;
-      default:
-	convergence_status=ConvergenceStatus::ERROR;
-      }
+  std::cout << summary.FullReport() << "\n";
 
-      writePars(covmat);
-      writeOutput(mySummary, covmat);
-    }
+  //remember convergence status to report later
+  switch(summary.termination_type){
+  case ceres::CONVERGENCE:
+    convergence_status=ConvergenceStatus::SUCCESS;
+    break;
+  case ceres::NO_CONVERGENCE:
+    convergence_status=ConvergenceStatus::NO_CONVERGENCE;
+    break;
+  case ceres::USER_SUCCESS:
+    convergence_status=ConvergenceStatus::SUCCESS;
+    break;
+  default:
+    convergence_status=ConvergenceStatus::ERROR;
+  }
 
-  //General Unconstrained Minimization (to be used with PoissonCorr option)
-  else if (strategy == 2)
-    {
-      ceres::GradientProblem problem(GUM::Create(npars));
+  writePars(covmat);
+  writeOutput(summary, covmat);
 
-      ceres::GradientProblemSolver::Options options;
-      options.minimizer_progress_to_stdout = true;
-      options.function_tolerance = 1.e-5;
-      ceres::GradientProblemSolver::Summary Summary;
-      ceres::Solve(options, problem, parVals, &Summary);
-
-      std::cout << Summary.FullReport() << "\n";
-    }
-  
   // after mini actions
   double chi2;
   myFCN(chi2, parVals, 3);
@@ -231,6 +250,36 @@ void CERESMinimizer::doMinimization()
   cout << "Fitted parameters" << endl;
   for (int i = 0; i < npars; i++)
     std::cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  parVals[i] << " +/- " << sqrt(covmat[i*npars+i]) << std::endl;
+
+  cout << endl;
+  cout << std::endl << "Correlation matrix " << std::endl;
+  cout << std::setw(14) << " ";
+  for (int i = 0; i < npars; i++)
+    cout << std::setw(14) << _allParameterNames[i];
+  cout << std::endl;
+  cout << setprecision(4);
+  for (int i = 0; i < npars; i++)
+    {
+      cout << std::setw(14) << _allParameterNames[i];;
+      for (int j =0; j<npars; j++)
+	cout << std::setw(14) << covmat[i*npars+j]/sqrt(covmat[i*npars+i])/sqrt(covmat[j*npars+j]);
+      cout << std::endl;
+    }
+  
+  Eigen::MatrixXd cov(npars,npars);
+  for (int i = 0; i < npars; i++)
+    for (int j = 0; j < npars; j++)
+      cov(i,j) = covmat[i+npars*j];
+  
+  Eigen::MatrixXd inv = cov.inverse();
+  double rhok[npars];
+  for (int i = 0; i < npars; i++)
+    rhok[i] = sqrt(1. - 1./(cov(i,i)*inv(i,i)));
+
+  cout << endl;
+  cout << "Global correlation coefficient" << endl;
+  for (int i = 0; i< npars; i++)
+    cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
   
   return;
 }
@@ -278,7 +327,7 @@ void CERESMinimizer::writePars(const double* covmat)
   
 }
 
-void CERESMinimizer::writeOutput(ceres::Solver::Summary mySummary, const double* covmat)
+void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* covmat)
 {
   std::ofstream f;
   f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/ceres.out.txt");
@@ -287,7 +336,7 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary mySummary, const double*
     return;
   }
     
-  f << mySummary.FullReport() << "\n";
+  f << summary.FullReport() << "\n";
 
   int npars =  getNpars() ;
 
@@ -320,7 +369,20 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary mySummary, const double*
 	f << std::setw(14) << covmat[i*npars+j]/sqrt(covmat[i*npars+i])/sqrt(covmat[j*npars+j]);
       f << std::endl;
     }
-    
+
+  Eigen::MatrixXd cov(npars,npars);
+  for (int i = 0; i < npars; i++)
+    for (int j = 0; j < npars; j++)
+      cov(i,j) = covmat[i+npars*j];
+  
+  Eigen::MatrixXd inv = cov.inverse();
+  double rhok[npars];
+  for (int i = 0; i < npars; i++)
+    rhok[i] = sqrt(1. - 1./(cov(i,i)*inv(i,i)));
+
+  f << "GLOBAL CORRELATION COEFFICIENT" << endl;
+  for (int i = 0; i< npars; i++)
+    f << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
 }
 
 }
