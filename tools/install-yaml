@@ -35,7 +35,7 @@ tar xfz yaml-cpp-${yamlppver}.tar.gz
 cd yaml-cpp-yaml-cpp-${yamlppver}
 mkdir build
 cd build
-cmake  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
+cmake3  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
 make -j 12 install >> $CURRENTDIR/install_yam.log 2>&1 
 
 if [[ $? != 0 ]]
@@ -70,7 +70,7 @@ incspp=`pkg-config --cflags $dir/yaml-cpp/share/pkgconfig/yaml-cpp.pc`
 
 echo "Make setup_yaml.sh file"
 echo "export CURRENTDIR=`pwd`" > setup_yaml.sh
-echo export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CURRENTDIR/$dir/yaml/lib/:\$CURRENTDIR/$dir/yaml-cpp/lib >> setup_yaml.sh
+echo export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CURRENTDIR/$dir/yaml/lib/:\$CURRENTDIR/$dir/yaml-cpp/lib64:\$CURRENTDIR/$dir/yaml-cpp/lib >> setup_yaml.sh
 echo export CFLAGS=\"\$CFLAGS -I\$CURRENTDIR/$dir/yaml/include\" >> setup_yaml.sh
 echo export CPPFLAGS=\"\$CPPGLAGS -I\$CURRENTDIR/$dir/yaml/include $incspp\" >> setup_yaml.sh
 echo export CXXFLAGS=\"\$CXXFLAGS -I\$CURRENTDIR/$dir/yaml/include $incspp\" >> setup_yaml.sh

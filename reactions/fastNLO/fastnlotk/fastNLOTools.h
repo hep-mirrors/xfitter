@@ -80,6 +80,13 @@ namespace fastNLOTools {
    bool ReadMagicNo(std::istream& table);                                       //!< Read and check magic number from table.
    void PutBackMagicNo(std::istream& table);                                    //!< Reset magic number, such that it can be recognized by other reading routines
 
+   //! Parse filename for uncertainties
+   //! - fnlo-tk-statunc:  'log' file extension; column numbers not needed, rel. stat. uncertainty = col #4
+   //! - NNLOJET dat file: 'dat' file extension; column numbers not needed, rel. stat. uncertainty = (col #5 / col #4)
+   //! - Generic txt file: 'txt' file extension; only icola --> rel. stat. uncertainty = col #icola
+   //! -                                         icol a & b --> rel. stat. uncertainty = col #icolb / #icola
+   std::vector <double> ReadUncertaintyFromFile(std::string filename, unsigned int icola = 0, unsigned int icolb = 0);
+
 };
 
 

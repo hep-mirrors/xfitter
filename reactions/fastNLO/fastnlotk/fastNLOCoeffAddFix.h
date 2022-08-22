@@ -18,8 +18,8 @@ public:
    virtual ~fastNLOCoeffAddFix(){;}
    virtual fastNLOCoeffAddFix* Clone() const;                                     //!< returns 'new' copy of this instance.
    static bool CheckCoeffConstants(const fastNLOCoeffBase* c, bool quiet = false);
-   virtual void Read(std::istream&table);
-   void ReadRest(std::istream& table);
+   virtual void Read(std::istream&table, int ITabVersionRead);
+   void ReadRest(std::istream& table, int ITabVersionRead);
    virtual void Write(std::ostream& table, int ITabVersionWrite);
    virtual void Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge moption = fastNLO::kMerge);
    virtual void Print(int iprint) const;
@@ -32,9 +32,9 @@ public:
    virtual void MultiplyBin(unsigned int iObsIdx, double fact); //!< Multiply coefficients of one bin a factor
    virtual void MultiplyBinProc(unsigned int iObsIdx, unsigned int iProc, double fact); //!< Multiply coefficients of one bin and subprocess by a factor
    // Erase observable bin from table
-   virtual void EraseBin(unsigned int iObsIdx);
+   virtual void EraseBin(unsigned int iObsIdx, int ITabVersionRead);
    // Catenate observable to table
-   virtual void CatBin(const fastNLOCoeffAddFix& other, unsigned int iObsIdx);
+   virtual void CatBin(const fastNLOCoeffAddFix& other, unsigned int iObsIdx, int ITabVersionRead);
 
    int GetTotalScalevars() const ;
    int GetTotalScalenodes() const ;
@@ -58,7 +58,7 @@ public:
    bool IsCatenable(const fastNLOCoeffAddFix& other) const;        //!< Check for compatibility of two contributions for merging/adding
 
 protected:
-   void ReadCoeffAddFix(std::istream& table);
+   void ReadCoeffAddFix(std::istream& table, int ITabVersionRead);
 
    std::vector < int > Nscalevar;
    //std::vector < int > Nscalenode;

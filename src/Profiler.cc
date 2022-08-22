@@ -117,6 +117,13 @@ namespace xfitter
       _getChi2 = node["getChi2"].as<string>() == "On";
     }
 
+
+    //rescaling  PDF eigenvectors
+    if (node["scalePdfs"]) {
+      _scalePdfs = node["scalePdfs"].as<float>();
+      cerr << "[INFO] Rescaling PDF eigenvectors by factor: " <<node["scalePdfs"].as<float>()<<endl;
+    }
+    
     // extra info for xfitter-draw and xfitter-profile:
     if (node["enableExternalProfiler"]) {
       if (node["enableExternalProfiler"].as<string>() != "Off") {
@@ -351,18 +358,20 @@ namespace xfitter
 	  gNode["member"]=oMember;
 	  evol->atConfigurationChange();
 	}
-	
+
+
+
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
           for (int imember = first; imember<=last; imember++) {
-            addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T",(preds[imember-first+1]-preds[0])/preds[0]);
+            addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T",(preds[imember-first+1]-preds[0])/preds[0]/_scalePdfs);
           }
         }
         else if ( errorType == "hessian") {
           for (int imember = first; imember<=last; imember += 2) {
             addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T"
-                           ,(preds[imember-first+1]-preds[0])/preds[0]
-                           ,(preds[imember+1-first+1]-preds[0])/preds[0]);
+                           ,(preds[imember-first+1]-preds[0])/preds[0]/_scalePdfs
+                           ,(preds[imember+1-first+1]-preds[0])/preds[0]/_scalePdfs);
           }
         }
         else if ( errorType == "replicas") {
