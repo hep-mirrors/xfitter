@@ -1,45 +1,4 @@
 
-Solver Summary (v 2.1.0-eigen-(3.4.0)-no_lapack-eigensparse-openmp)
-
-                                     Original                  Reduced
-Parameter blocks                            1                        1
-Parameters                                 14                       14
-Residual blocks                             1                        1
-Residuals                                2459                     2459
-
-Minimizer                        TRUST_REGION
-
-Sparse linear algebra library    EIGEN_SPARSE
-Trust region strategy     LEVENBERG_MARQUARDT
-
-                                        Given                     Used
-Linear solver          SPARSE_NORMAL_CHOLESKY   SPARSE_NORMAL_CHOLESKY
-Threads                                     1                        1
-Linear solver ordering              AUTOMATIC                        1
-
-Cost:
-Initial                          1.363336e+03
-Final                            1.363336e+03
-Change                           0.000000e+00
-
-Minimizer iterations                        1
-Successful steps                            1
-Unsuccessful steps                          0
-
-Time (in seconds):
-Preprocessor                         0.000437
-
-  Residual only evaluation           7.775121 (1)
-  Jacobian & residual evaluation   256.597908 (1)
-  Linear solver                      0.002516 (1)
-Minimizer                          264.376170
-
-Postprocessor                        0.001445
-Total                              264.378052
-
-Termination:                      CONVERGENCE (Function tolerance reached. |cost_change|/cost: 5.825960e-06 <= 1.000000e-05)
-
-
 COVARIANCE MATRIX 
                        Adbar           Agp         Bdbar           Bdv            Bg           Bgp           Buv         Cdbar           Cdv            Cg         Cubar           Cuv         Dubar           Euv
          Adbar 2.8575385e-05 0.00072047473 2.2385835e-05 0.00011469147-0.00073971609 0.00046769901 4.7413856e-05  0.0025171139 0.00047945044 -0.0033534141 0.00033712457-6.5429285e-05 -0.0017993561 -0.0022917209
