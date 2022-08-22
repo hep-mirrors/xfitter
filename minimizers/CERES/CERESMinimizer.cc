@@ -336,7 +336,7 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* c
     return;
   }
     
-  f << summary.FullReport() << "\n";
+  //f << summary.FullReport() << "\n";
 
   int npars =  getNpars() ;
 
