@@ -16,6 +16,7 @@ C---------------------------------------------------------
 #include "steering.inc"
 #include "systematics.inc"
 #include "indata.inc"
+#include "datasets.inc"
 
       integer n0_in, flag_in
       double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
@@ -219,6 +220,11 @@ C !> Add log term
          call chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
          fchi2_in = fchi2_in + chi2_log
          if (lDebug) print '(''Log term contribution='',F6.2)',chi2_log
+      else
+         do i=1,NDATASETS
+            chi2_poi(i) = 0.D0
+         enddo
+         chi2_poi_tot = 0.D0
       endif
        ! print*,'fchi2_in=',fchi2_in
 
@@ -1549,6 +1555,7 @@ C-------------------------------------------------------------------------
             endif
          endif
       enddo
+      chi2_poi_tot = chi2_log
 
       end
 
