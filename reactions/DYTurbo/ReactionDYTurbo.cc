@@ -81,10 +81,10 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //cout << "mb " << pdf::mb << endl;
   //cout << "mt " << pdf::mt << endl;
 
-  //int debug = int(*(td->getParamD("debug")));
-  //opts.silent      = (debug>0) ? false : true;
+  int debug = td->getParamI("debug");
+  opts.silent      = (debug>0) ? false : true;
 
-  opts.silent      = td->getParamI("debug");
+  //opts.silent      = td->getParamI("debug");
   opts.makehistos  = false;
   
   if (td->hasParam("g1"))
@@ -102,12 +102,6 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   if (td->hasParam("gb"))
     opts.g1b = *(td->getParamD("gb"));
 
-  if (td->hasParam("ga"))
-    cout << "ga " << *(td->getParamD("ga")) << endl;
-
-  if (td->hasParam("gb"))
-    cout << "gb " << *(td->getParamD("gb")) << endl;
-  
   //read g from LHAPDF
   if (string(xfitter::get_evolution()->getClassName()) == "LHAPDF")
     {
@@ -153,7 +147,7 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //Init physics parameters
   DYTurbo::init_params();
 
-  if (debug)
+  if (td->getParamI("debug"))
     {
       opts.dumpAll();  
       DYTurbo::PrintTable::Settings();
