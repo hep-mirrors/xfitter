@@ -278,11 +278,16 @@ extern"C" {
   } c_resid_;
 
   extern struct {
-    double chi2_poi_tot_;
-    double chi2_poi_[NSET_C];
-    double chi2_poi_data_[NTOT_C];
+    double chi2_poi_tot;
+    double chi2_poi[NSET_C];
+    double chi2_poi_data[NTOT_C];
   } cdatapoi_;
-}
 
+  extern struct {
+    int chi2poissoncorr;
+    int chi2firstiterationrescale;
+    int chi2extrasystrescale;
+  } chi2options_;
+}
 
 #endif

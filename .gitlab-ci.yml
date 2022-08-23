@@ -1,7 +1,8 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+  #eigen3-devel gflags-devel glog-devel
   - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   
 job-install-minimal:
@@ -47,7 +48,7 @@ job-nnlo-minuit:
   script: 
     - ./tools/install-qcdnum
     - ./tools/install-numdiff
-    - ./tools/install-ceres
+    #- ./tools/install-ceres
     - . setup.sh
     - ./make.sh install
     - ./tools/test.sh defaultNNLO-fit
@@ -56,6 +57,7 @@ job-nnlo-minuit:
   artifacts:
     when: on_failure
     paths:
+      - install.log
       - temp/**/test.log
       - temp/**/xfitter.log
       - temp/**/output
@@ -65,7 +67,7 @@ job-nnlo-ceres:
   script: 
     - ./tools/install-qcdnum
     - ./tools/install-numdiff
-    - ./tools/install-ceres
+    #- ./tools/install-ceres
     - . setup.sh
     - ./make.sh install
     - ./tools/test.sh defaultNNLO-ceres
@@ -74,6 +76,7 @@ job-nnlo-ceres:
   artifacts:
     when: on_failure
     paths:
+      - install.log
       - temp/**/test.log
       - temp/**/xfitter.log
       - temp/**/output
