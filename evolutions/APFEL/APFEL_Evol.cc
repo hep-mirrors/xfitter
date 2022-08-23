@@ -90,7 +90,6 @@ void APFEL_Evol::atStart()
   const double *Vtb = XFITTER_PARS::getParamD("Vtb");
   const double *gf = XFITTER_PARS::getParamD("gf");
   const double *Mw = XFITTER_PARS::getParamD("Mw");
-  const string fragmen = XFITTER_PARS::getParamS("Frag");  // hamed FF
 
   // Read yaml steering
   _yAPFEL = XFITTER_PARS::getEvolutionNode(_name);
@@ -111,6 +110,7 @@ void APFEL_Evol::atStart()
   const string heavyQuarkMassRunning = _yAPFEL["heavyQuarkMassRunning"].as<string>();
   const string theoryType = _yAPFEL["theoryType"].as<string>();
   const string nllxResummation = _yAPFEL["nllxResummation"].as<string>();
+  const string fragmen = _yAPFEL["fragmentation"].as<string>();
 
   if (theoryType == "QCD")
   {
