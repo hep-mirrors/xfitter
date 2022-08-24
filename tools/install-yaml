@@ -1,4 +1,4 @@
-#
+#A
 # Helper script to install yaml for C and C++. 
 # Copies and installs files from the web-sources into $dir/yaml-c and 
 # $dir/yaml-cpp directories. Generates setup_yaml.sh file

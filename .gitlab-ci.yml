@@ -3,6 +3,7 @@ image: "gitlab-registry.cern.ch/fitters/xfitter"
 before_script:
   - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool ceres-solver-devel zlib zlib-devel zlib-static
   - ln -s /usr/bin/cmake3 /usr/bin/cmake 
+
   
 job-install-minimal:
   only: 
@@ -22,6 +23,7 @@ job-install-full:
     #- yum -y install gcc-gfortran git tar root libgfortran-static
     - yum -y install git tar root
     - ./tools/install-xfitter deps
+    - tail -n 1000 install.log
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
     - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT10 CT10nlo CT14nlo CT14nnlo ABMP16_3_nlo ABMP16_5_nnlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian NNPDF31_nnlo_as_0118 MMHT2014nnlo68cl nCTEQ15FullNuc_1_1 nCTEQ15FullNuc_184_74 >& download-lhapdf.log
@@ -40,6 +42,10 @@ job-install-full:
       - install.log
       - temp/**/test.log
       - temp/**/xfitter.log
+<<<<<<< HEAD
       - temp/**/output
     expire_in: 2 day
+=======
+    expire_in: 2 days
+>>>>>>> 485dcf77449b4353c62435390015b5bf7c0b7ad4
 
