@@ -152,6 +152,10 @@ void CERESMinimizer::doMinimization()
 
   double covmat[npars * npars];
   fill(covmat,covmat+npars*npars, 0.);
+
+  //First call to FCN for initialisation
+  double chi2;
+  myFCN(chi2,parVals,3);
   
   // Least squares minimisation
   ceres::Solver::Options soloptions;
@@ -176,6 +180,7 @@ void CERESMinimizer::doMinimization()
   soloptions.minimizer_progress_to_stdout = true;
 
   soloptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
+
   // --> Allow setting options from yaml
   /*
   soloptions.logging_type = ceres::SILENT;
@@ -243,7 +248,6 @@ void CERESMinimizer::doMinimization()
   writeOutput(summary, covmat);
 
   // after mini actions
-  double chi2;
   myFCN(chi2, parVals, 3);
 
   cout << endl;
@@ -251,6 +255,17 @@ void CERESMinimizer::doMinimization()
   for (int i = 0; i < npars; i++)
     std::cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  parVals[i] << " +/- " << sqrt(covmat[i*npars+i]) << std::endl;
 
+  cout << endl;
+  cout << "  Parameters (copy paste version):" << endl;
+  for (int i = 0; i < npars; i++)
+    {
+      char val[10];
+      char err[10];
+      printf(val, "%.4f", parVals[i]);
+      printf(err, "%.4f", sqrt(covmat[i*npars+i]));
+      cout << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << endl;
+    }
+  
   cout << endl;
   cout << std::endl << "Correlation matrix " << std::endl;
   cout << std::setw(14) << " ";
