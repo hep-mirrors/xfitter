@@ -217,7 +217,7 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
     }
       
   //fork wait parallelisation
-  pid_t pid[P];
+  pid_t pid[threads];
   int fd[2];
   int stpip = pipe(fd);
 
