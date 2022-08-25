@@ -267,6 +267,11 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	continue;
       stf fs;
       int nbytes = read(fd[0], &fs, sizeof fs);
+      if(!(nbytes > 0))
+	{
+	  string message = "E: Error in fork/wait: nothing on the pipe.";
+	  hf_errlog_(22082501, message.c_str(), message.size());
+	}
 	
       switch (GetDataFlav(termID))
 	{
