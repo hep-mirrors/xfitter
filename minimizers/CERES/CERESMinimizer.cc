@@ -256,16 +256,17 @@ void CERESMinimizer::doMinimization()
     std::cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  parVals[i] << " +/- " << sqrt(covmat[i*npars+i]) << std::endl;
 
   cout << endl;
-  cout << "  Parameters (copy paste version):" << endl;
+  cout << "----- Parameters in YAML format (can copy-paste into parameters.yaml):" << endl;
+  cout << "  Parameters:" << endl;
   for (int i = 0; i < npars; i++)
     {
-      char val[10];
-      char err[10];
-      printf(val, "%.4f", parVals[i]);
-      printf(err, "%.4f", sqrt(covmat[i*npars+i]));
-      cout << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << endl;
+      char val[15];
+      char err[15];
+      sprintf(val, "%.4f", parVals[i]);
+      sprintf(err, "%.4f", sqrt(covmat[i*npars+i]));
+      std::cout << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << std::endl;
     }
-  
+  cout << " ----- End of parameters in YAML format" << endl; 
   cout << endl;
   cout << std::endl << "Correlation matrix " << std::endl;
   cout << std::setw(14) << " ";
