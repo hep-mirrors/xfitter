@@ -54,17 +54,17 @@ fastNLOCoeffMult* fastNLOCoeffMult::Clone() const {
 
 
 ///________________________________________________________________________________________________________________ //
-void fastNLOCoeffMult::Read(istream& table){
-   fastNLOCoeffBase::ReadBase(table);
-   ReadRest(table);
+void fastNLOCoeffMult::Read(istream& table, int ITabVersionRead){
+   fastNLOCoeffBase::ReadBase(table, ITabVersionRead);
+   ReadRest(table, ITabVersionRead);
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffMult::ReadRest(istream& table){
+void fastNLOCoeffMult::ReadRest(istream& table, int ITabVersionRead){
    CheckCoeffConstants(this);
    ReadCoeffMult(table);
-   EndReadCoeff(table);
+   EndReadCoeff(table, ITabVersionRead);
 }
 
 
