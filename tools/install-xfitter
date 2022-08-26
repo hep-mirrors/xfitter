@@ -3,30 +3,19 @@
 ## Configuration ####################################################
 
 ## Programs versions
-<<<<<<< HEAD
-lhapdfver=6.5.1
-hathorver=2.0
-hoppetver=1.2.0
-applgridver=1.5.46
-=======
+
 lhapdfver=6.5.2
 hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.6.31
->>>>>>> 485dcf77449b4353c62435390015b5bf7c0b7ad4
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
 dyturbover=1.2
 
-<<<<<<< HEAD
-# skip some packages depending on xfitter version
-skip_apfelgrid=0
-=======
 skip_apfelgrid=1
 skip_dyturbo=1
->>>>>>> 485dcf77449b4353c62435390015b5bf7c0b7ad4
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -546,35 +535,6 @@ else
     cd - >& /dev/null
 
  #dyturbo
-<<<<<<< HEAD
-    echo "Installing DYTurbo ${dyturbover}..."
-    if [[ $http == "curl" ]]
-    then
-	curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
-    else
-	wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    fi
-    tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
-    cd dyturbo-${dyturbover}
-
-    export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-    ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
-    export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
-
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
-    
-=======
     if [[ $skip_dyturbo != 1 ]]; then
         echo "Installing DYTurbo ${dyturbover}..."
         if [[ $http == "curl" ]]
@@ -603,7 +563,6 @@ else
         fi
         cd - >& /dev/null
     fi
->>>>>>> 485dcf77449b4353c62435390015b5bf7c0b7ad4
     
   # numdiff
     numdiff -v >& /dev/null
@@ -664,40 +623,15 @@ fi
 
 
 #make a setup run enviroment script
-<<<<<<< HEAD
-echo $version > version
-echo "export CURRENTDIR=`pwd`" >> setup.sh
-echo "export version=\`cat version\`" >> setup.sh
-echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
-=======
 echo "export XFITTER_INSTALL_DIR=`pwd`" >> setup.sh
 echo "export XFITTER_VERSION=$version" >> setup.sh
 
 echo "export HATHOR_DIR=$XFITTER_INSTALL_DIR/deps/Hathor-${hathorver}"       >> setup.sh
->>>>>>> 485dcf77449b4353c62435390015b5bf7c0b7ad4
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
 rm /tmp/xf_py1234_a
 
-<<<<<<< HEAD
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
-echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
-=======
 echo "export PATH=\$XFITTER_INSTALL_DIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=\$XFITTER_INSTALL_DIR/deps/numdiff/bin/:\$PATH" >> $CURRENTDIR/setup.sh
 echo "export PATH=\$XFITTER_INSTALL_DIR/deps/hoppet/bin:\$PATH" >> setup.sh
@@ -735,20 +669,11 @@ fi
 
 #make a compilation script
 echo source ./setup.sh > compile
-<<<<<<< HEAD
-echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
-echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
-echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
-echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
-=======
 echo export HATHOR_DIR=\$XFITTER_INSTALL_DIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$XFITTER_INSTALL_DIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$XFITTER_INSTALL_DIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export PATH=\$XFITTER_INSTALL_DIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$XFITTER_INSTALL_DIR/deps/apfel/bin/:\$PATH     >> compile
->>>>>>> 485dcf77449b4353c62435390015b5bf7c0b7ad4
 echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:\$PATH     >> compile
 
 
