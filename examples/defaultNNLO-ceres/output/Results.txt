@@ -1,3 +1,4 @@
+ First iteration    1363.3363385674268             1131   1.2054255867086001     
 After minimisation    1363.34  1131     1.205
 
   Partial chi2s 

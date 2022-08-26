@@ -55,7 +55,7 @@ extern "C" CERESMinimizer* create() {
 
 
     fcn_(npar, 0, chi2, pp, iflag, 0);
-    std::cout << " Iteration " << counter << " FCN chi2=" << chi2;
+    std::cout << " Iteration " << counter << " FCN chi2=" << chi2 << std::endl;
     return;
 }
 
@@ -152,6 +152,10 @@ void CERESMinimizer::doMinimization()
 
   double covmat[npars * npars];
   fill(covmat,covmat+npars*npars, 0.);
+
+  //First call to FCN for initialisation
+  double chi2;
+  myFCN(chi2,parVals,1);
   
   // Least squares minimisation
   ceres::Solver::Options soloptions;
@@ -176,6 +180,7 @@ void CERESMinimizer::doMinimization()
   soloptions.minimizer_progress_to_stdout = true;
 
   soloptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
+
   // --> Allow setting options from yaml
   /*
   soloptions.logging_type = ceres::SILENT;
@@ -243,7 +248,6 @@ void CERESMinimizer::doMinimization()
   writeOutput(summary, covmat);
 
   // after mini actions
-  double chi2;
   myFCN(chi2, parVals, 3);
 
   cout << endl;
@@ -251,6 +255,18 @@ void CERESMinimizer::doMinimization()
   for (int i = 0; i < npars; i++)
     std::cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  parVals[i] << " +/- " << sqrt(covmat[i*npars+i]) << std::endl;
 
+  cout << endl;
+  cout << "----- Parameters in YAML format (can copy-paste into parameters.yaml):" << endl;
+  cout << "  Parameters:" << endl;
+  for (int i = 0; i < npars; i++)
+    {
+      char val[15];
+      char err[15];
+      sprintf(val, "%.4f", parVals[i]);
+      sprintf(err, "%.4f", sqrt(covmat[i*npars+i]));
+      std::cout << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << std::endl;
+    }
+  cout << " ----- End of parameters in YAML format" << endl; 
   cout << endl;
   cout << std::endl << "Correlation matrix " << std::endl;
   cout << std::setw(14) << " ";

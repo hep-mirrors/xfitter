@@ -83,7 +83,7 @@ c will take them from
       endif
       call MntShowVValues(chi2out)
 #endif
-
+      call flush
       return
       end
 C------------------------------------------------------
@@ -402,6 +402,7 @@ c Print time, number of calls, chi2
          write(6,'(A20,i6,F12.2,i6,F12.2)') '
      $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out,
      $        ndf, chi2out/ndf
+      call flush
 ! ----------------  RESULTS OUTPUT ---------------------------------
 ! Reopen "Results.txt" file if it is not open
 ! It does not get opened by this point when using CERES
