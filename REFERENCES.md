@@ -1,41 +1,37 @@
-
-If you use the xFitter (former HERAFitter) package in a scientific publication, please 
-consider adding the following references. The main citations list contains the papers 
+If you use the xFitter package in a scientific publication, please 
+consider adding the following references.  The main citations list contains the papers 
 which should be cited for any use of the xFitter program. In addition, some citations 
 are required depending on the modules, data and theory tables used in the program.
 
-==================
-  Main citations
-==================
 
-xFitter   
----------
+#  Main citation
+
 1) "HERAFitter, Open Source QCD Fit Project"
 By S. Alekhin at al., DESY Report 14-188, 7 Nov 2014, Published in EPJC (2015), 75: 304,
 e-Print: arXiv:1410.4412 [hep-ex]
 
-Also add a reference to the xFitter web portal:  xfitter.org
+Also add a reference to the xFitter web portal:  [xfitter.org](xfitter.org)
 
-==================================
- Citations depending on the usage
-==================================
 
-QCDNUM  ( main evolution code, almost always needs to be cited, unless very specific study, e.g. using OPENQCDRAD or PDFSTYLE='LHAPDFNATIVE' or RunningMode ='PDF Rotate' )
----------
+# Citations depending on the usage
+
+
+## QCDNUM  
+
 "Fast QCD Evolution and Convolution", M. Botje,
 NIKHEF-10-002, May 2010. 74pp. 
 Published in Comput.Phys.Commun.182:490-532,2011. 
 e-Print: arXiv:1005.1481 [hep-ph]
 
 
-LHAPDF6 ( RunningMode = 'LHAPDF Analysis', PDFStyle = 'LHAPDF', and similar )
------------
+## LHAPDF6 
+
 'LHAPDF6: parton density access in the LHC precision era'
 A. Buckley et. al,
 Published in Eur.Phys.J. C75 (2015) 3, 132, http://arxiv.org/abs/1412.7420
 
-APFEL  ( x-space evolution code + structure functions, --enable-apfel, TheoryType = 'DGLAP_APFEL' )
-----------
+## APFEL  
+
 "APFEL: A PDF Evolution Library with QED corrections"
 V. Bertone, S. Carrazza and J. Rojo,
 Published in Comput. Phys. Commun.  185 (2014) 1647,
@@ -46,21 +42,16 @@ When using APFEL with NLO QED corrections (TheoryType = 'DGLAP_APFEL_QED') , ple
 xFitter Developers' Team (F. Giuli et al.),
 e-Print: arXiv:1701.08553
 
-MELA ( N-space evolution code + structure functions, --enable-mela )
--------
-"Reference results for time-like evolution up to O(alpha_s^3)"
-V. Bertone, S. Carrazza and E. R. Nocera,
-e-Print: arXiv:1501.00494 [hep-ph].
 
-MINUIT  ( minimisation code, TheoryType = 'Fit' )
--------
+## MINUIT  
+
 F. James, M. Roos (CERN). Jul 1975. 38 pp. 
 Published in Comput.Phys.Commun. 10 (1975) 343-367 
 CERN-DD-75-20 
 DOI: 10.1016/0010-4655(75)90039-9
 
-HERA data and HERAPDFs ( PDFSTYLE = 'HERAPDF' )
-------------------
+## HERA data and HERAPDFs 
+
 "Combination of measurements of inclusive deep inelastic e±p scattering cross sections and QCD analysis of HERA data."
 By H1 and ZEUS Collaborations (H. Abramowicz et al.). DESY-15-039, Jun 19, 2015. 160 pp. 
 Published in EPJC (2015) 75: 12.
@@ -75,8 +66,8 @@ By H1 Collaboration (F.D. Aaron et al.) DESY-12-107
 e-Print: arXiv:1206.7007 [hep-ex] 
 
 
-RT- variable flavour number scheme (for HF_SCHEME =  'RT' or 'RT FAST')
----------------------------------------------------------------------------------
+## RT- variable flavour number scheme (for HF_SCHEME =  'RT' or 'RT FAST')
+
 "An Ordered analysis of heavy flavor production in deep inelastic scattering"
 R.S. Thorne, R.G. Roberts. RAL-TR-97-049, Sep 1997. 48pp. 
 Published in Phys.Rev.D57:6871-6898,1998. 
@@ -95,8 +86,7 @@ R.S. Thorne.  Jan 2012.  14pp.
 Published in Phys.Rev. D86 (2012) 074017
 e-Print: arXiv:1201.6180 [hep-ph]
 
- ACOT-variable flavour number scheme ( for HF_SCHEME = 'ACOT Full' or 'ACOT Chi')  
-------------------------------------------------------------------------------------
+## ACOT-variable flavour number scheme ( for HF_SCHEME = 'ACOT Full' or 'ACOT Chi')  
 
 "Leptoproduction of Heavy Quarks II -- A Unified QCD Formulation of 
 Charged and Neutral Current Processes from Fixed-target to Collider Energies"
@@ -106,13 +96,12 @@ DOI:    10.1103/PhysRevD.50.3102
 Cite as:        arXiv:hep-ph/9312319v2
 
 
- ABM-fixed flavour number scheme ( for HF_SCHEME = 'ABM') from 
+## ABM-fixed flavour number scheme 
 ---------------------------------------------------------------------------
 	
      http://www-zeuthen.desy.de/~alekhin/OPENQCDRAD/ 
 
- FONLL general-mass variable-flavor-number scheme: (for HF_SCHEME = 'FONLL-A', 'FONLL-B', 'FONLL-C') from APFEL
---------------------------------------------------------------------------------------------------------------------
+## FONLL general-mass variable-flavor-number scheme from APFEL
 
 "APFEL: A PDF Evolution Library with QED corrections"
 V. Bertone, S. Carrazza and J. Rojo,
@@ -124,8 +113,8 @@ S. Forte, E. Laenen, P. Nason and J. Rojo,
 Published in Nucl. Phys. B 834 (2010) 116,
 e-Print: arXiv:1001.2312 [hep-ph].
 
-  Chi2 definitions 
------------------------------------------
+##  Chi2 definitions 
+
 'H12000':
  CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
  Chi2Settings     = 'NoRescale'  , 'NoRescale', 'Linear'     , 'Diagonal'     , 'Hessian'
@@ -165,22 +154,9 @@ By H1 Collaboration (F.D. Aaron et al.)	DESY-12-107
 e-Print: arXiv:1206.7007 [hep-ex]
 
 
- PDFStyle  (PDFStyle = 'XXXX')
-----------------------------------
-'CHEB':
-"Parton Distribution Uncertainties using Smoothness Prior"
-Alexander Glazov, Sven Moch, Voica Radescu. DESY-10-164, Sep 2010. 8pp. 
-Published in Phys.Lett.B695:238-241,2011. 
-e-Print: arXiv:1009.6170 [hep-ph]
 
-'BiLog':
-In addition to the main references, add:
-"A Bi-Log-Normal PDF Parameterisation"
-A. Schoening, Internal Note
+## PDF Uncertainties 
 
-
- PDF Uncertainties ( Bands = True )
--------------------------------------------------------------
 "Multivariate fitting and the error matrix in global analysis of data"
 J. Pumplin, D.R. Stump, W.K. Tung. MSU-HEP-07100, CERN-TH-2000-249, Aug 2000. 14pp. 
 Published in Phys.Rev.D65:014011,2001. 
@@ -191,16 +167,16 @@ J. Pumplin, D.R. Stump, J. Huston, H.L. Lai, Pavel M. Nadolsky, W.K. Tung, MSU-H
 Jan 2002. 44pp. 
 e-Print: hep-ph/0201195
 
- APPLGRID (if APPLGRID tables or reading interface are used, --enable-applgrid)
---------------------------------------------------------------
+## APPLGRID 
+
 "A posteriori inclusion of parton density functions in NLO QCD final-state calculations at hadron colliders: The APPLGRID Project"
 Tancredi Carli, Dan Clements, Amanda Cooper-Sarkar, Claire Gwenlan, Gavin P. Salam, 
 Frank Siegert, Pavel Starovoitov,  Mark Sutton. 2010. 33pp. 
 Published in Eur.Phys.J.C66:503-524,2010. 
 e-Print: arXiv:0911.2985 [hep-ph]
 
- FastNLO (if FastNLO tables or reader are used)
----------------------------------------------
+## FastNLO 
+
 "FastNLO: Fast pQCD calculations for PDF fits"
 T. Kluge, K. Rabbertz, M. Wobisch. DESY-06-186, FERMILAB-CONF-06-352-E, Sep 2006. 8pp. 
 Presented at 14th International Workshop on Deep Inelastic Scattering (DIS 2006), Tsukuba, Japan, 20-24 Apr 2006. 
@@ -214,18 +190,19 @@ DESY 11-150, FERMILAB-PUB-11-418-PPD, Sep 2011. arXiv:1109.1310v1 [hep-ph]
 D. Britzger, K. Rabbertz, F. Stober, M. Wobisch, "New features in version 2 of the fastNLO project",
 in the proceedings of the XX International Workshop on Deep Inelastic Scattering (DIS12), 26-30th March 2012 hep-ph/1208.3641.
 
- APFELgrid (if APFELgrid tables are used  --enable-apfelgrid)
+## APFELgrid 
+
 "APFELgrid: a high performance tool for parton density determinations"
 V. Bertone, S. Carrazza and N. P. Hartland,
 Published in Comput. Phys. Commun. 212 (2017) 205.
 e-Print: arXiv:1605.02070 
 
- HATHOR (if used --enable-hathor)
----------------------------------------------
+## HATHOR 
+
 from http://www-zeuthen.desy.de/~moch/hathor/
 
- PDF Reweighting (if used) 
----------------------------------------------
+## PDF Reweighting (if used) 
+
 Description of NNPDF method to create NNPDF PDF sets:	
 
 - "A first unbiased global NLO determination of parton distributions and their uncertainties"
@@ -251,8 +228,8 @@ G. Watt, R.S. Thorne
 e-Print: arXiv:1205.4024 [hep-ph]
 
 
-  PDF profiling  ( if used, xfitter-process profile,  xfitter-draw profile: )
----------------------------------------------
+##  PDF profiling  
+
 "PDF reweighting in the Hessian matrix approach"
 H. Paukkunen and P. Zurita, PDF reweighting in the Hessian matrix approach,
 JHEP 12 (2014) 100, arXiv:1402.6623 [hep-ph].
@@ -262,39 +239,15 @@ XFitter developers, S. Camarda et al., QCD analysis of W- and Z-boson production
 Eur. Phys. J. C 75 (2015) 458, arXiv:1503.05221 [hep-ph].
 
 
- kt-factorisation
----------------------------------------------
+## MNR code 
 
-Determination of transverse momentum dependent gluon density from HERA structure function measurements. 
-Hannes Jung, Francesco Hautmann. Jun 2012. 
-e-Print: arXiv:1206.1796 [hep-ph] PDF
-
-
-Small x phenomenology: Summary and status. 
-Small x Collaboration (Jeppe R. Andersen et al.). Dec 2003. 32 pp. 
-Published in Eur.Phys.J. C35 (2004) 67-98 
-DESY-03-220 
-DOI: 10.1140/epjc/s2004-01780-x 
-e-Print: hep-ph/0312333 [hep-ph] PDF
-
-
- DiffTop (if used)
----------------------------------------------
--"Top-quark pair production at hadron colliders: differential cross section and phenomenological applications with DiffTop"
-M. Guzzi, K. Lipka, S-O. Moch
-e-Print: arXiv:1406.0386 [hep-ph]
-
-
- MNR code (if used)
----------------------------------------------
 M. Mangano, P. Nason and G. Ridolfi
 Published in Nucl. Phys. B 373 (1992) 295
 from http://www.ge.infn.it/~ridolfi/hvqlibx.tgz
 
 
-=============================
- Citations for data tables 
-=============================
+
+## Citations for data tables 
 
 Please use the citations as given in headers of the files which are used in the fit.
 

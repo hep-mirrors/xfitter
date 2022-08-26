@@ -1,0 +1,9 @@
+# DYTurbo:
+order: 2    # Perturbative order in QCD: 0 for LL, 1 for NLL+NLO, 2 for NNLL+NNLO, 3 for NNNLL+NNLO
+muR: 1.     # Renormalization scale
+muF: 1.     # Factorization scale
+muRes: 1.   # Resummation scale
+g1: 1       # Universal Gaussian non-perturbative form factor
+g2: 0       # Q-dependent Gaussian non-perturbative form factor
+g3: 0       # x-dependent Gaussian non-perturbative form factor
+Q0: 1       # Reference scale at which the g2 contribution is zero
