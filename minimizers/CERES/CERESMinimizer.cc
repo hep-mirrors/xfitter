@@ -55,7 +55,7 @@ extern "C" CERESMinimizer* create() {
 
 
     fcn_(npar, 0, chi2, pp, iflag, 0);
-    std::cout << " Iteration " << counter << " FCN chi2=" << chi2;
+    std::cout << " Iteration " << counter << " FCN chi2=" << chi2 << std::endl;
     return;
 }
 
@@ -155,7 +155,7 @@ void CERESMinimizer::doMinimization()
 
   //First call to FCN for initialisation
   double chi2;
-  myFCN(chi2,parVals,3);
+  myFCN(chi2,parVals,1);
   
   // Least squares minimisation
   ceres::Solver::Options soloptions;
