@@ -148,7 +148,7 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-  defaultValue : 'NC_SIA' #'RT_DISNC'        # global specification
+  defaultValue :  'RT_DISNC'        # global specification
 #  defaultValue : 'BaseDISNC'       # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'

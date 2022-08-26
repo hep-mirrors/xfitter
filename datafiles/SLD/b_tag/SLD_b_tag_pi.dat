@@ -6,7 +6,7 @@
   Reaction = "NC SIA bt"
 
   TermName = 'R'
-  TermSource = 'use:hf_scheme_DISNC'
+  TermSource = 'NC_SIA'
   TermInfo = 'flavObs=inclBT:echarge=1:epolarity=0'
   TheorExpr = 'R'
 
