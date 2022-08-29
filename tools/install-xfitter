@@ -3,10 +3,10 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.5.2
+lhapdfver=6.5.1
 hathorver=2.0
 hoppetver=1.2.0
-applgridver=1.5.46
+applgridver=1.6.32
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
@@ -15,6 +15,7 @@ dyturbover=1.2
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
+skip_dyturbo=1
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -534,33 +535,34 @@ else
     cd - >& /dev/null
 
  #dyturbo
-    echo "Installing DYTurbo ${dyturbover}..."
-    if [[ $http == "curl" ]]
-    then
-	curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
-    else
-	wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    fi
-    tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
-    cd dyturbo-${dyturbover}
+    if [[ $skip_dyturbo != 1 ]]; then
+        echo "Installing DYTurbo ${dyturbover}..."
+        if [[ $http == "curl" ]]
+        then
+	    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
+        else
+	    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        fi
+        tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+        cd dyturbo-${dyturbover}
 
-    export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-    ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
-    export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
+        export CXXFLAGS="${CXXFLAGS} -std=c++0x"
+        ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+        export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
 
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        cd - >& /dev/null
     fi
-    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    cd - >& /dev/null
-    
     
   # numdiff
     numdiff -v >& /dev/null
