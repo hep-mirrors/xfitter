@@ -56,6 +56,12 @@ job-ceres-fit:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
   artifacts:
     when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
 
 job-scanmin:
   only: 
