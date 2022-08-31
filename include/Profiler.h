@@ -31,7 +31,7 @@ namespace xfitter
 
   private:
     /// calculate predictions
-    std::valarray<double> evaluatePredictions();
+    std::pair <std::valarray<double>,double> evaluatePredictions();
 
     /// add symmetric systematic uncertainty with the name and corresponding variations
     void addSystematics( std::string const& name, std::valarray<double> uncertainties );
@@ -52,6 +52,9 @@ namespace xfitter
     /// convert MC replicas  to eigenvectors
     void addReplicas(std::string const& pdfName,  std::vector< std::valarray<double> > const& uncertainties);
 
+    /// write out extra files to do MC reweighting
+    void addMCweightsFiles(std::string const& pdfName, std::vector<double>& chi2vals, int ndata, int nrep);
+    
     /// continuous nuisance parameter number for PDFs (if several are used)
     int _ipdf{0};
 
@@ -69,6 +72,7 @@ namespace xfitter
 
     /// output directory name
     string _outputDir{"output"};
+
   };
   
 } //namespace xfitter
