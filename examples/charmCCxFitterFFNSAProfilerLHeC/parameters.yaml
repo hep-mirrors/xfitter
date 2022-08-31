@@ -54,5 +54,3 @@ WriteLHAPDF6:
   #Qrange: [1,1000]
   #Xnpoints: 200
   #Qnpoints: 120
-
-MaxErrAllowed: 2

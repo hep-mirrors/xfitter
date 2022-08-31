@@ -112,5 +112,3 @@ WriteLHAPDF6:
   description: "..."
   authors: "..."
   reference: "..."
-
-MaxErrAllowed: 2

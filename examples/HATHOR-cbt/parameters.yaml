@@ -34,5 +34,3 @@ isFFNS: 0
 byReaction:
   Hathor:
     ? !include reactions/Hathor.yaml
-
-MaxErrAllowed: 2

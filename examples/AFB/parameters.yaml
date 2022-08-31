@@ -23,6 +23,3 @@ byReaction:
   # AFB settings:
   AFB:
     ? !include reactions/AFB.yaml
-
-
-MaxErrAllowed: 2

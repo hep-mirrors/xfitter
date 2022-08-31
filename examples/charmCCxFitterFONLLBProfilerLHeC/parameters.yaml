@@ -43,5 +43,3 @@ Profiler:
   Status: "On"               # "Off" to turn off profiler
   WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
   getChi2: "On"              # determine and report chi2 for each variation
-
-MaxErrAllowed: 2

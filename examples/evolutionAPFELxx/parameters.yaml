@@ -90,5 +90,3 @@ Profiler:
 WriteLHAPDF6:
   name: "proton"
   preferInternalGrid:
-
-MaxErrAllowed: 2

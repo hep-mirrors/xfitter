@@ -74,5 +74,3 @@ WriteLHAPDF6:
 
 ExtraActions:
   PrintPionMoments:
-
-MaxErrAllowed: 2

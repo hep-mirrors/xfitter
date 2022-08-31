@@ -107,5 +107,3 @@ WriteLHAPDF6:
   evolution: proton-APFELff
   Xrange: [1e-4, 1]
   Qrange: [1.6,1000]
-
-MaxErrAllowed: 2

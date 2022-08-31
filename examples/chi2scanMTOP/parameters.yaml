@@ -31,5 +31,3 @@ byReaction:
      RATIO: 0
 
 OutputDirectory: "output" #Can be omitted, default is "output"
-
-MaxErrAllowed: 2

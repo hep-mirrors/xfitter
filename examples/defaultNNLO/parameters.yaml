@@ -115,4 +115,4 @@ WriteLHAPDF6:
   #Xnpoints: 200
   #Qnpoints: 120
 
-MaxErrAllowed: 2
+MaxErrAllowed: 3
