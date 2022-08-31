@@ -121,8 +121,10 @@ C-----------------------------------------------------------------------
         FIRST=.FALSE.
         CALL DTLU(MAXERR,0,TAB,AUX)
 *       default max severity level for which continuation is still allowed
-!     MAX_ERR_ALLOWED = 2
         MAX_ERR_ALLOWED = getparami("MaxErrAllowed")
+        IF (MAX_ERR_ALLOWED.EQ.0) THEN
+           MAX_ERR_ALLOWED = 2
+        ENDIF
       ENDIF
 
       LTEXT = MAX(MIN(1,LEN(TEXT)), LENB(TEXT))
