@@ -930,6 +930,7 @@ c      print *,A(1,1),A(nsys,nsys)
 
       call cpu_time(time2)
       print *,'CPU LOOP=',time2-time1
+      call flush
 C
 C Under diagonal:
 C
