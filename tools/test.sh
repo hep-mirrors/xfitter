@@ -3,7 +3,7 @@
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
 #omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
-omitTests=('profilerCIJET' 'checkmin-default' 'checkmin-additive') 
+omitTests=('profilerCIJET' 'ZPT' 'ZMVFNS-fit' 'checkmin-default' 'checkmin-additive') 
 
 install_dir=$(pwd)
 # xfitter binary
