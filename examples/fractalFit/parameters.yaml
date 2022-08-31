@@ -16,4 +16,3 @@ isFFNS: 0
 
 hf_scheme_DISNC :
   defaultValue : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
-
