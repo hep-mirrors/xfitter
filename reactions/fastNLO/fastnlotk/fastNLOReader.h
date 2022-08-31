@@ -7,7 +7,7 @@
 // ---- Getters for results---- //
 struct XsUncertainty {
    //! Struct for returning vectors with cross section and relative uncertainty
-   // keep definition of this class outside of fastNLOReader, beacause of python wrapper
+   // keep definition of this class outside of fastNLOReader, because of python wrapper
    std::vector < double > xs;
    std::vector < double > dxsl;
    std::vector < double > dxsu;
@@ -18,7 +18,7 @@ class fastNLOReader : public fastNLOTable , public fastNLOPDFLinearCombinations 
    //!
    //! fastNLOReader.
    //! Abstract base class for evaluation of fastNLO tables.
-   //! Instantiatians must implement functions for PDF and alpha_s access.
+   //! Instantiations must implement functions for PDF and alpha_s access.
    //!
 
 public:
@@ -51,8 +51,6 @@ public:
    void SelectProcesses( const std::string& processes, bool symmetric = true );                      //!< tries to select the specified subprocesses for calculation. Prints a warning on failure.
 
    // ---- setters for specific options ---- //
-   void SetCalculateSingleSubprocessOnly(int iSub);                                     //!< only use one subprocess for calculation
-   void SetCalculateSubprocesses( const std::vector< int >& iSub );                     //!< use several but not all subprocesses in calculation
    void SetNewSqrtS(double NewSqrtS, double OldSqrtS=0 );
 
    // ---- setters for scales of MuVar tables ---- //
@@ -86,23 +84,23 @@ public:
    void CalcCrossSection();
    double RescaleCrossSectionUnits(double binsize, int xunits);                         // Rescale according to kAbsoluteUnits and Ipublunits settings
 
-   std::vector < double > GetCrossSection();                //!< Return vector with all cross section values
-   std::vector < double > GetCrossSection(bool lNorm);      //!< Return vector with all cross section values, normalize on request
-   std::vector < double > GetNormCrossSection();            //!< Return vector with all normalized cross section values
+   std::vector < double > GetCrossSection(bool lNorm = false);      //!< Return vector with all cross section values, normalize on request
+   std::vector < double > GetUncertainty(bool lNorm = false);       //!< Return vector with additional uncertainty of cross section values, normalise on request (NOT YET IMPLEMENTED)
+   std::vector < double > GetNormCrossSection();                    //!< Return vector with all normalized cross section values
    std::vector < std::map< double, double > > GetCrossSection_vs_x1(); //! Cross section vs. x1 ( XSection_vsX1[bin][<x,xs>] )
    std::vector < std::map< double, double > > GetCrossSection_vs_x2(); //! Cross section vs. x2 ( XSection_vsX1[bin][<x,xs>] )
 
    std::vector < double > GetReferenceCrossSection();
-   std::vector < double > GetKFactors();  ///< DEPRECATED
    std::vector < double > GetQScales();   //!< Order (power of alpha_s) rel. to LO: 0 --> LO, 1 --> NLO
    std::vector < std::vector < double > > GetCrossSection2Dim();
 
 
-   //! Return struct with vectors containing the cross section values and the selected scale uncertainty
-   XsUncertainty GetScaleUncertainty( const fastNLO::EScaleUncertaintyStyle eScaleUnc );
-   XsUncertainty GetScaleUncertainty( const fastNLO::EScaleUncertaintyStyle eScaleUnc, bool lNorm );
+   //! Return struct with vectors containing the cross section values and the selected uncertainty
+   XsUncertainty GetScaleUncertainty( const fastNLO::EScaleUncertaintyStyle eScaleUnc, bool lNorm = false);
+   XsUncertainty GetAddUncertainty( const fastNLO::EAddUncertaintyStyle eAddUnc, bool lNorm = false);
    //! Function for use with pyext (TODO: Clean this up)
    std::vector< std::vector<double> > GetScaleUncertaintyVec( const fastNLO::EScaleUncertaintyStyle eScaleUnc );
+   std::vector< std::vector<double> > GetAddUncertaintyVec( const fastNLO::EAddUncertaintyStyle eAddUnc );
 
    // ---- Getters for fastNLOReader member variables ---- //
    fastNLO::EScaleFunctionalForm GetMuRFunctionalForm() const { return fMuRFunc; };
@@ -130,13 +128,6 @@ public:
    void PrintContributionSummary(int iprint) const;
    void PrintCrossSections() const; //!<  Print cross sections (optimized for double-differential tables)
    void PrintCrossSectionsWithReference();
-
-   // DEPRECATED
-   void PrintTableInfo(const int iprint = 0) const; // DEPRECATED, use PrintContributionSummary instead
-   void PrintFastNLOTableConstants(const int iprint = 2) const; // DEPRECATED, use Print instead
-   void PrintCrossSectionsData() const; ///< DEPRECATED
-   void PrintCrossSectionsDefault(std::vector<double> kthc = std::vector<double>()) const; ///< DEPRECATED
-   void RunFastNLODemo(); ///< DEPRECATED
 
    // ---- Test virtual functions for reasonable values. ---- //
    bool TestXFX();                                                                      //!< Test if XFX reasonable values
@@ -250,7 +241,8 @@ protected:
    // ---- Cross sections ---- //
    std::vector < double > XSection_LO;
    std::vector < double > XSection;
-   std::vector < double > kFactor;
+   std::vector < double > dXSection;  // uncertainty sum of x section
+   std::vector < double > dX2Section; // squared uncertainty sum of x section
    std::vector < double > QScale_LO;
    std::vector < double > QScale;
    std::vector < std::map< double, double > > fXSection_vsX1; //! Cross section vs. x ( XSection_vsX1[bin][<x,xs>] )

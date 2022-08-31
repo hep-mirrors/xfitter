@@ -42,17 +42,17 @@ fastNLOCoeffData* fastNLOCoeffData::Clone() const {
 
 
 ///________________________________________________________________________________________________________________ //
-void fastNLOCoeffData::Read(istream& table){
-   fastNLOCoeffBase::ReadBase(table);
-   ReadRest(table);
+void fastNLOCoeffData::Read(istream& table, int ITabVersionRead){
+   fastNLOCoeffBase::ReadBase(table, ITabVersionRead);
+   ReadRest(table, ITabVersionRead);
 }
 
 
 //________________________________________________________________________________________________________________ //
-void fastNLOCoeffData::ReadRest(istream& table){
+void fastNLOCoeffData::ReadRest(istream& table, int ITabVersionRead){
    CheckCoeffConstants(this);
    ReadCoeffData(table);
-   EndReadCoeff(table);
+   EndReadCoeff(table, ITabVersionRead);
 }
 
 

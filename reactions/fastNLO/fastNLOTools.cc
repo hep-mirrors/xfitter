@@ -1,7 +1,10 @@
+#include <cfloat>
 #include <cstdlib>
-#include <string>
+#include <fstream>
 #include <iostream>
 #include <cmath>
+#include <sstream>
+#include <string>
 #include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
@@ -388,5 +391,111 @@ namespace fastNLOTools {
       return true;
    }
 
+   //______________________________________________________________________________
+   std::vector <double> ReadUncertaintyFromFile(std::string filename, unsigned int icola, unsigned int icolb) {
+      std::string extension = "";
+      std::ifstream infile;
+      std::string line;
+      std::vector <double> Uncertainty;
+
+      //! Determine extension to differentiate for parsing
+      //! - fnlo-tk-statunc:  'log' file extension; column numbers not needed, rel. stat. uncertainty = col #4
+      //! - NNLOJET dat file: 'dat' file extension; column numbers not needed, rel. stat. uncertainty = (col #5 / col #4)
+      //! - Generic txt file: 'txt' file extension; only icola --> rel. stat. uncertainty = col #icola
+      //! -                                         icol a & b --> rel. stat. uncertainty = col #icolb / #icola
+      if ( filename.find_last_of(".") != std::string::npos ) {
+         extension = filename.substr(filename.find_last_of(".")+1);
+      }
+      if ( extension != "dat" && extension != "log" && extension != "txt" ) {
+         error["ReadUncertaintyFromFile"]<<"Unknown filename extension, aborted! filename = " << filename <<endl;
+         exit(34);
+      } else if ( extension == "txt" && icola == 0) {
+         error["ReadUncertaintyFromFile"]<<"'txt' file found, but column specification is missing, aborted! icola " << icola <<endl;
+         exit(35);
+      } else if ( extension == "txt" && (icola > 10 || icolb > 10) ) {
+         error["ReadUncertaintyFromFile"]<<"'txt' file found, but column specification is too large, aborted! icola, icolb = " << icola << ", " << icolb <<endl;
+         exit(35);
+      } else {
+         info["ReadUncertaintyFromFile"]<<"Reading additional uncertainty content from file: " << filename <<endl;
+      }
+
+      infile.open(filename);
+      if (infile.is_open()) {
+         int  iline = 0;
+         bool lline = false;
+         // Read line-by-line
+         while(std::getline(infile, line)) {
+            // Put line into stringstream and read word-by-word
+            std::istringstream iss(line);
+            std::string word, word1, word2;
+            iss >> word;
+            // For 'dat' extension assume NNLOJET dat file format:
+            // - Skip all lines starting with comment symbol '#'
+            // - Read cross section and absolute statistical uncertainty from 4th and 5th columns
+            if ( extension == "dat" ) {
+               if ( word.at(0) != '#' ) {
+                  // Skip first three words of each line
+                  iss >> word;
+                  iss >> word;
+                  double xs, dxs;
+                  iss >> xs;
+                  iss >> dxs;
+                  if ( fabs(xs) > DBL_MIN ) {
+                     // Is negative, if NLO_only or NNLO_only x section at production was < 0; keep this as additional information.
+                     Uncertainty.push_back(dxs/xs);
+                     // Only allow positive numbers with maximum value of 1, i.e. = 100% uncertainty maximum
+                     //                     Uncertainty.push_back(std::min(fabs(dxs/xs),1.0));
+                  } else {
+                     Uncertainty.push_back(0.);
+                  }
+                  iline += 1;
+               }
+            }
+            // For 'log' extension assume fnlo-tk-stat v2.5 log file format:
+            // (New v2.5 separator lines starting with #- - - - - - -)
+            // - Start at first line with "#-" as 1st word and
+            // - stop again at next line starting with "#-" in 1st word
+            else if ( extension == "log" ) {
+               if ( word == "#-" ) {
+                  lline = ! lline;
+               } else if ( lline ) {
+                  // Skip second & third word of each uncertainty line (x section; lower uncertainty)
+                  iss >> word;
+                  iss >> word;
+                  double dxsrel;
+                  iss >> dxsrel;
+                  Uncertainty.push_back(dxsrel);
+                  iline += 1;
+               }
+            }
+            // For 'txt' extension either read column #icola or divide column #icolb / #icola; max col = 10
+            else if ( extension == "txt" ) {
+               double a = 0;
+               double b = 0;
+               for ( unsigned int ic = 1; ic<11; ic++ ) {
+                  if ( ic == icola ) a = std::stod(word);
+                  if ( ic == icolb ) b = std::stod(word);
+                  iss >> word;
+               }
+               if ( icolb == 0 ) {
+                  Uncertainty.push_back(a);
+               } else {
+                  if ( fabs(a) > DBL_MIN ) {
+                     Uncertainty.push_back(b/a);
+                  } else {
+                     Uncertainty.push_back(0);
+                  }
+               }
+            } else {
+               error["ReadUncertaintyFromFile"]<<"Unknown filename extension, aborted! filename = " << filename <<endl;
+               exit(34);
+            }
+         }
+      } else {
+         error["ReadUncertaintyFromFile"]<<"Cannot read from file, aborted! filename is: " << filename <<endl;
+         exit(33);
+      }
+      return Uncertainty;
+   }
 
 } // end namespace fastNLO
