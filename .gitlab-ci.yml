@@ -45,6 +45,9 @@ job-install-full:
     expire_in: 2 day
 
 job-ceres-fit:
+  only: 
+    - merge_requests
+    - schedules
   script: 
     - ./tools/install-qcdnum
     - ./tools/install-numdiff
