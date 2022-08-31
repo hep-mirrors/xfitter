@@ -44,7 +44,7 @@ job-install-full:
       - temp/**/output
     expire_in: 2 day
 
-job-nnlo-ceres:
+job-ceres-fit:
   script: 
     - ./tools/install-qcdnum
     - ./tools/install-numdiff
