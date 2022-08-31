@@ -917,7 +917,16 @@ double getparamd_(const char* name,int len){
 }
 
 int getparami_(const char* name,int len){
-  return XFITTER_PARS::getParamI(name);
+  char buff[128];
+  memcpy( buff, &name[0], len);
+  buff[len] = '\0';
+  std::string key(buff);
+  if (XFITTER_PARS::gParametersI.find(key) != XFITTER_PARS::gParametersI.end()) {
+    return XFITTER_PARS::gParametersI[key];
+  }
+  else {
+    return 0;
+  }
 }
 
 void update_pars_fortran_() {
