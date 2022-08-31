@@ -65,6 +65,7 @@
 !> The level is coded in the first two characters of the TEXT message:
 !>       - I: - informational message,
 !>       - W: - warning       (continue execution by default)
+!>       - E: - error         (terminate program by default, but continue execution if errors are treated as warnings)
 !>       - S: - serious error (terminate program by default)
 !>       - F: - fatal error   (terminate program always)
 C-----------------------------------------------------------------------    
@@ -84,16 +85,19 @@ C-----------------------------------------------------------------------
       CHARACTER*(MAXTXT) ERRTXT
       CHARACTER*12  MOD_NAME(NMODS)
       CHARACTER*80 ERRLIN
-      CHARACTER*2  TSEV(4), ERM_TYPE
-      CHARACTER*23 FULLTX(4)
+      CHARACTER*2  TSEV(5), ERM_TYPE
+      CHARACTER*23 FULLTX(5)
       INTEGER      NLOST,ITOP,ISEVER,MAX_ERR_ALLOWED,IMESS,I,J
       INTEGER      ID,NEN,IND,LTEXT,NCHAR,ITOTAL, LL,LUN, I_MOD_NAM
       INTEGER      LENB, ITLU, JTLU
-
-      DATA TSEV/'I:','W:','S:','F:'/
+      INTEGER getparami
+      external getparami
+      
+      DATA TSEV/'I:','W:','E;','S:','F:'/
       DATA FULLTX/
      +   'Informational messages:',
      +   'Warning messages:',
+     +   'Error messages:',
      +   'Serious messages:',
      +   'Fatal messages:'/
 
@@ -117,7 +121,8 @@ C-----------------------------------------------------------------------
         FIRST=.FALSE.
         CALL DTLU(MAXERR,0,TAB,AUX)
 *       default max severity level for which continuation is still allowed
-        MAX_ERR_ALLOWED = 2
+!     MAX_ERR_ALLOWED = 2
+        MAX_ERR_ALLOWED = getparami("MaxErrAllowed")
       ENDIF
 
       LTEXT = MAX(MIN(1,LEN(TEXT)), LENB(TEXT))
@@ -163,7 +168,7 @@ C-----------------------------------------------------------------------
         I=INDEX(TEXT(1:MIN(5,LTEXT)),':')
         IF(I.GT.0) THEN
           ERM_TYPE=TEXT(I-1:I)
-          DO J=1,4
+          DO J=1,5
             IF(ERM_TYPE.EQ.TSEV(J)) THEN
               IF(J.GT.MAX_ERR_ALLOWED) THEN
                 WRITE(6,*)' ==> HF_ERRLOG - terminate due to error =',ID
@@ -211,7 +216,7 @@ C-----------------------------------------------------------------------
 *  loop over all errors, collect messages for same module and print
 *  in order of severness: I,W,S,F,unknown
 
-      DO 100 ISEVER=1,4
+      DO 100 ISEVER=1,5
 
 * for each severity level loop over all messages and
          if (ISEVER.eq.2) then
