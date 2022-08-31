@@ -43,7 +43,7 @@ job-install-full:
       - temp/**/output
     expire_in: 2 day
 
-job-checkmin-default:
+job-scanmin:
   only: 
     - merge_requests
     - schedules
@@ -52,27 +52,7 @@ job-checkmin-default:
     - ./tools/install-numdiff
     - . setup.sh
     - ./make.sh install
-    - ./tools/test.sh checkmin-default
-  variables:
-    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
-  artifacts:
-    when: always
-    paths:
-      - temp/**/test.log
-      - temp/**/xfitter.log
-      - temp/**/output
-    expire_in: 2 day
-
-job-checkmin-additive:
-  only: 
-    - merge_requests
-    - schedules
-  script: 
-    - ./tools/install-qcdnum
-    - ./tools/install-numdiff
-    - . setup.sh
-    - ./make.sh install
-    - ./tools/test.sh checkmin-additive
+    - ./tools/test.sh scanmin
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
   artifacts:
