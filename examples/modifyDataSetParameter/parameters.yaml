@@ -101,3 +101,5 @@ byDataset: #Here one can redefine some parameters for specific datasets
   "HERA1+2 CCep":
      echarge: -1           # fictional flip of the charge from +1 to -1 
 
+
+MaxErrAllowed: 2

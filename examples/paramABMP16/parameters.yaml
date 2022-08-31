@@ -113,3 +113,5 @@ hf_scheme_DISNC :
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
   defaultValue : 'FFABM_DISCC'     # global specification
+
+MaxErrAllowed: 2

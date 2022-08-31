@@ -24,3 +24,5 @@ byReaction:
   AFB:
     ? !include reactions/AFB.yaml
 
+
+MaxErrAllowed: 2

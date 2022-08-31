@@ -31,3 +31,5 @@ byReaction:
 
 hf_scheme_DISCC :
   defaultValue : 'FFABM_DISCC'
+
+MaxErrAllowed: 2

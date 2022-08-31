@@ -54,3 +54,5 @@ Profiler:
   WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
   getChi2: "Off"              # determine and report chi2 for each variation
   enableExternalProfiler: "On" # enable creation of additional files, needed for xfitter draw
+
+MaxErrAllowed: 2

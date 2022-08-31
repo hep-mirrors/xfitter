@@ -140,3 +140,5 @@ byReaction:
     mr_A: 1.0
     mr_B: 4.0
     steer_nf: 4 # nf = 3 in charm data because of pT cut
+
+MaxErrAllowed: 2

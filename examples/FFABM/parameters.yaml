@@ -103,3 +103,5 @@ hf_scheme_DISNC :
 hf_scheme_DISCC :
   defaultValue : 'FFABM_DISCC'     # global specification
 
+
+MaxErrAllowed: 2
