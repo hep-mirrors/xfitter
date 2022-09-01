@@ -349,7 +349,7 @@ QX_Grid makeQX_Grid(LHAPDF6_Options options)
     ret.Q = options.pdf->getQgrid();
   }
   if (ret.X.empty()) ret.X = makeXgrid(options.xmin, options.xmax, options.Nx);
-  if (ret.Q.empty()) ret.Q = makeQgrid(options.qmin, options.qmax, options.Nq);
+  if (ret.Q.empty() || ret.Q.size()<=2) ret.Q = makeQgrid(options.qmin, options.qmax, options.Nq);
   ret.subgrids = makeQ_Subgrids(ret.Q);
   return ret;
 }
