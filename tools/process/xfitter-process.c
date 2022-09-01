@@ -10,6 +10,7 @@ extern int custom(int argc, char* argv[]);
 extern void interpolation(double x, double Q2, double* values, char* pdfset_path, char* pdfset_number);
 extern int combine(int argc,char* argv[]);
 extern int reweight(int argc, char* argv[]);
+extern int scale90to68(int argc, char* argv[]);
 static int help(int argc, char* argv[]);
 
 static const struct command options[]={
@@ -17,6 +18,7 @@ static const struct command options[]={
         {"rotate",rotate},
         {"profile",profile},
         {"reweight",reweight},
+        {"scale90to68",scale90to68},
         {"custom",custom},
 #ifdef LHAPDF_ENABLED
 		{"combine", combine},

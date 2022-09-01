@@ -21,9 +21,6 @@
 #include <iomanip>
 #include <fstream>
 
-//make this a yaml setting
-const double glboff = 2.;
-
 // Fortran interface
 extern "C" {
   // FCN
@@ -32,6 +29,10 @@ extern "C" {
 }
 
 namespace xfitter {
+
+double CERESMinimizer::glboff;
+double *CERESMinimizer::offset;
+double CERESMinimizer::totoffset;
 
 /// the class factories, for dynamic loading
 extern "C" CERESMinimizer* create() {
@@ -70,8 +71,11 @@ struct CostFunctiorData
      double chi2;
      myFCN(chi2,parameters[0],2);
      chi2 = 0;
-     double totoff = 0.;
      int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
+     bool calctotoff = true;
+     if (CERESMinimizer::totoffset > 0.)
+       calctotoff = false;
+       
      for (int i = 0; i < nres; i++)
        {
 	 if (i < cndatapoints_.npoints + systema_.nsys)
@@ -79,20 +83,29 @@ struct CostFunctiorData
 	 else
 	   //Log penalty terms
 	   {
-	     //Add a positive offset to each squared residual to enforce a positive cost function also when the log penalty term is included
-	     totoff += glboff;
 	     int j = i-systema_.nsys-cndatapoints_.npoints;
-	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+glboff));
-	     if (cdatapoi_.chi2_poi_data[j]+glboff < 0)
+
+	     //Add a positive offset to each squared residual to enforce a positive cost function also when the log penalty term is included
+	     if (calctotoff)
 	       {
-		 cout << "Warning: negative squared residual for i " << j << " offset " << glboff << " res^2 " << cdatapoi_.chi2_poi_data[j]+glboff << endl;
+		 if (CERESMinimizer::glboff > 0.)
+		   CERESMinimizer::offset[j] = CERESMinimizer::glboff;
+		 else
+		   CERESMinimizer::offset[j] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
+		 CERESMinimizer::totoffset += CERESMinimizer::offset[j];
+	       }
+	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j]));
+	     if (cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] < 0)
+	       {
+		 cout << "Warning: negative squared residual for i " << j << " offset " << CERESMinimizer::offset[j] << " res^2 " << cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] << endl;
 		 string message = "W: Negative squared residual in CERES minimisation, consider raising the chi-square offset";
 		 hf_errlog_(22082101, message.c_str(), message.size());
 	       }
-	   }
+    	   }
 	 chi2 += residuals[i]*residuals[i]/2.;
        }
-     std::cout << " CERES residuals squared: " <<  chi2 - totoff << std::endl;
+     //std::cout << " CERES total offset in Cost function: " <<  CERESMinimizer::totoffset << std::endl;
+     std::cout << " CERES residuals squared: " <<  chi2 - CERESMinimizer::totoffset << std::endl;
      return true;
    }
 };
@@ -104,9 +117,13 @@ public:
   {
     out[0] = s;
     if (chi2options_.chi2poissoncorr)
-      out[0] += -2.*glboff*cndatapoints_.npoints;
+      //out[0] += -2.*glboff*cndatapoints_.npoints;
+      out[0] += -2.*CERESMinimizer::totoffset;
     out[1] = 1.;
     out[2] = 0.;
+    //std::cout << " CERES total offset in Loss function: " <<  CERESMinimizer::totoffset << std::endl;
+    std::cout << " CERES Cost function: " <<  out[0]/2. << std::endl;
+    CERESMinimizer::totoffset = 0.;
   }
 };
 
@@ -143,6 +160,14 @@ void CERESMinimizer::doMinimization()
     cout << "; Penalty log terms: " << nData;
   cout << endl;
 
+  YAML::Node ceresNode = XFITTER_PARS::rootNode["CERES"];
+  glboff = ceresNode["offset"].as<double>();
+
+  std::cout << " CERES global offset per bin: " <<  glboff << std::endl;
+
+  if (chi2options_.chi2poissoncorr)
+    offset = new double[nData];
+  
   double**pars = getPars();
   
   double parVals[200]; // 200 --> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize NEXTRAPARAMMAX_C with MNE from endmini.inc
@@ -171,61 +196,79 @@ void CERESMinimizer::doMinimization()
 
   dynamic_cost_function->SetNumResiduals(nres);
 
-  // Loss function
+  // Loss function to compensate offset for the log penalty terms
   ceres::LossFunction* loss_function(new PenaltyLog);
 
   ceres::Problem problem;
   problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
 
+  // Set CERES options
   soloptions.minimizer_progress_to_stdout = true;
 
-  soloptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
+  soloptions.function_tolerance = ceresNode["tolerance"].as<double>(); // typical chi2 is ~1000
 
-  // --> Allow setting options from yaml
-  /*
-  soloptions.logging_type = ceres::SILENT;
+  int strategy_type = ceresNode["strategy"].as<int>();
+  switch (strategy_type)
+    {
+    case 0:
+      soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+      break;
+    case 1:
+      soloptions.trust_region_strategy_type = ceres::DOGLEG;
+      soloptions.dogleg_type = ceres::SUBSPACE_DOGLEG;
+      break;
+    default:
+      soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+    }
+
+  // Additional options (to be checked if any of this is actually usable/usefull)
+  //soloptions.logging_type = ceres::SILENT;
   
   //multithreading
   //soloptions.num_threads = 4;
 
   //Ceres options
-  soloptions.max_num_iterations = 100000;
+  //soloptions.max_num_iterations = 100000;
 
-  soloptions.minimizer_type = ceres::TRUST_REGION; //ceres::LINE_SEARCH;
-  soloptions.linear_solver_type = ceres::DENSE_QR; //ceres::SPARSE_NORMAL_CHOLESKY;
-  soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT; //ceres::DOGLEG;
+  //soloptions.minimizer_type = ceres::TRUST_REGION; //ceres::LINE_SEARCH;
+  //soloptions.linear_solver_type = ceres::DENSE_QR; //ceres::SPARSE_NORMAL_CHOLESKY;
+  //soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT; //ceres::DOGLEG;
   //soloptions.dogleg_type = ceres::SUBSPACE_DOGLEG;
+  //soloptions.use_inner_iterations = true;
   //soloptions.use_nonmonotonic_steps = true;
   
   //soloptions.max_num_consecutive_invalid_steps = 10;
 
-  soloptions.dense_linear_algebra_library_type = ceres::EIGEN; //ceres::LAPACK
-  */
+  //soloptions.dense_linear_algebra_library_type = ceres::EIGEN; //ceres::LAPACK
   
   ceres::Solve(soloptions, &problem, &summary);
 
   cout << std::endl;
   cout << "CERES minimisation has converged" << std::endl;
-  //if (covariance matrix is required)
-  cout << std::endl;
-  cout << "CERES Start calculation of covariance matrix" << std::endl;
+
+  int docov = ceresNode["covariance"].as<int>();
+  if (docov)
+    {
+      cout << std::endl;
+      cout << "CERES Start calculation of covariance matrix" << std::endl;
       
-  //covariance
-  ceres::Covariance::Options covoptions;
+      //covariance
+      ceres::Covariance::Options covoptions;
 
-  //covoptions.algorithm_type = ceres::SPARSE_QR;
-  //covoptions.algorithm_type = ceres::DENSE_SVD;
+      //covoptions.algorithm_type = ceres::SPARSE_QR;
+      //covoptions.algorithm_type = ceres::DENSE_SVD;
 
-  //multithreading
-  //covoptions.num_threads = 4;
-  ceres::Covariance covariance(covoptions);
+      //multithreading
+      //covoptions.num_threads = 4;
+      ceres::Covariance covariance(covoptions);
 
-  vector<pair<const double*, const double*> > covariance_blocks;
-  covariance_blocks.push_back(make_pair(parVals, parVals));
+      vector<pair<const double*, const double*> > covariance_blocks;
+      covariance_blocks.push_back(make_pair(parVals, parVals));
 
-  CHECK(covariance.Compute(covariance_blocks, &problem));
+      CHECK(covariance.Compute(covariance_blocks, &problem));
 
-  covariance.GetCovarianceBlock(parVals, parVals, covmat);
+      covariance.GetCovarianceBlock(parVals, parVals, covmat);
+    }
 
   std::cout << summary.FullReport() << "\n";
 
@@ -296,7 +339,10 @@ void CERESMinimizer::doMinimization()
   cout << "Global correlation coefficient" << endl;
   for (int i = 0; i< npars; i++)
     cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
-  
+
+  if (chi2options_.chi2poissoncorr)
+    delete[] offset;
+
   return;
 }
 

@@ -412,6 +412,7 @@ c Print time, number of calls, chi2
       endif
       if (iflag.eq.1) then
          write(85,*) 'First iteration ',chi2out,ndf,chi2out/ndf
+         call flush
       endif
 
       if (iflag.eq.3) then

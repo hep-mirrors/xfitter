@@ -44,6 +44,12 @@ namespace xfitter {
     virtual ConvergenceStatus convergenceStatus()override final;
     /// Parameter transfer
     virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr , double  const* priors  = nullptr ) override final;
+
+    static double glboff;
+    static double *offset;
+    static double totoffset;
+    //the variables offset and totoffset are not thread safe
+
   private:
     ConvergenceStatus convergence_status=ConvergenceStatus::NORUN;
   };
