@@ -1,4 +1,4 @@
- First iteration    2100.1742829177783             1131   1.8569180220316341     
+ First iteration    2100.1742829175873             1131   1.8569180220314654     
 After minimisation    1611.70  1131     1.425
 
   Partial chi2s 
@@ -10,13 +10,13 @@ Dataset    5    225.29( -1.79)   159  HERA1+2 NCem
 Dataset    6     47.95( -0.34)    39  HERA1+2 CCep                                    
 Dataset    7     56.95( -1.94)    42  HERA1+2 CCem                                    
 
- Correlated Chi2    140.73046749076886     
- Log penalty Chi2    4.9749760265792027     
+ Correlated Chi2    140.73045780504893     
+ Log penalty Chi2    4.9750018879848330     
  Systematic shifts          169
   
                                 Name          Shift   +/-    Error          Type
     1  reduced_001                            1.0501   +/-   0.1608        :N:M:D
-    2  reduced_002                            0.5326   +/-   0.2191        :N:M:D
+    2  reduced_002                           -0.5326   +/-   0.2191        :N:M:D
     3  reduced_003                           -1.8384   +/-   0.3095        :N:M:D
     4  reduced_004                           -0.2949   +/-   0.5412        :N:M:D
     5  reduced_005                            2.5880   +/-   0.4721        :N:M:D
