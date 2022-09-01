@@ -66,7 +66,7 @@ C     preparation for elimination step1
             Q(J)=A(J,K)*Q(K)
             A(J,K)=0.0
          END DO
- 50      IF( (K-N).eq.0  ) GO TO 60
+ 50            IF( (K-N).eq.0  ) GO TO 60
          IF( (K-N).gt.0  ) GO TO 100
          DO J=KP1,N
             PP(J)=A(K,J)
@@ -74,7 +74,7 @@ C     preparation for elimination step1
             A(K,J)=0.0
          END DO
 C     elimination proper
- 60      DO J=1,N
+ 60            DO J=1,N
             DO K=J,N
                A(J,K)=A(J,K)+PP(J)*Q(K)
             END DO
@@ -89,6 +89,6 @@ C     elements of left diagonal and unscaling
       END DO
       RETURN
 C     failure return
- 100  IFAIL=1
+ 100    IFAIL=1
       RETURN
       END
