@@ -48,7 +48,7 @@ namespace xfitter {
     static double glboff;
     static double *offset;
     static double totoffset;
-#pragma omp threadprivate(totoffset,offset)
+    //the variables offset and totoffset are not thread safe
 
   private:
     ConvergenceStatus convergence_status=ConvergenceStatus::NORUN;
