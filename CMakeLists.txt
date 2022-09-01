@@ -134,7 +134,10 @@ add_subdirectory(pdfparams/ABMPsea)
 add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
-add_subdirectory(pdfparams/Chebyschev)
+if(Boost_FOUND)
+    add_subdirectory(pdfparams/Chebyschev)
+endif()
+
 
 #Decompositions
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
