@@ -12,6 +12,9 @@ MINUIT:
 
 CERES:
   offset: 2
+  tolerance: 1e-5
+  strategy: 0
+  covariance: 1
 
 Parameters:
   Ag   :  DEPENDENT
