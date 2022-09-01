@@ -22,7 +22,7 @@
 #include <fstream>
 
 //make this a yaml setting
-const double glboff = 2.;
+//const double glboff = 2.;
 
 // Fortran interface
 extern "C" {
@@ -32,6 +32,10 @@ extern "C" {
 }
 
 namespace xfitter {
+
+double CERESMinimizer::glboff;
+double *CERESMinimizer::offset;
+double CERESMinimizer::totoffset;
 
 /// the class factories, for dynamic loading
 extern "C" CERESMinimizer* create() {
@@ -70,8 +74,11 @@ struct CostFunctiorData
      double chi2;
      myFCN(chi2,parameters[0],2);
      chi2 = 0;
-     double totoff = 0.;
      int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
+     bool calctotoff = true;
+     if (CERESMinimizer::totoffset > 0.)
+       calctotoff = false;
+       
      for (int i = 0; i < nres; i++)
        {
 	 if (i < cndatapoints_.npoints + systema_.nsys)
@@ -79,20 +86,29 @@ struct CostFunctiorData
 	 else
 	   //Log penalty terms
 	   {
-	     //Add a positive offset to each squared residual to enforce a positive cost function also when the log penalty term is included
-	     totoff += glboff;
 	     int j = i-systema_.nsys-cndatapoints_.npoints;
-	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+glboff));
-	     if (cdatapoi_.chi2_poi_data[j]+glboff < 0)
+
+	     //Add a positive offset to each squared residual to enforce a positive cost function also when the log penalty term is included
+	     if (calctotoff)
 	       {
-		 cout << "Warning: negative squared residual for i " << j << " offset " << glboff << " res^2 " << cdatapoi_.chi2_poi_data[j]+glboff << endl;
+		 if (CERESMinimizer::glboff > 0.)
+		   CERESMinimizer::offset[i] = CERESMinimizer::glboff;
+		 else
+		   CERESMinimizer::offset[i] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
+		 CERESMinimizer::totoffset += CERESMinimizer::offset[i];
+	       }
+	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[i]));
+	     if (cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[i] < 0)
+	       {
+		 cout << "Warning: negative squared residual for i " << j << " offset " << CERESMinimizer::offset[i] << " res^2 " << cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[i] << endl;
 		 string message = "W: Negative squared residual in CERES minimisation, consider raising the chi-square offset";
 		 hf_errlog_(22082101, message.c_str(), message.size());
 	       }
-	   }
+    	   }
 	 chi2 += residuals[i]*residuals[i]/2.;
        }
-     std::cout << " CERES residuals squared: " <<  chi2 - totoff << std::endl;
+     std::cout << " CERES total offset in Cost function: " <<  CERESMinimizer::totoffset << std::endl;
+     std::cout << " CERES residuals squared: " <<  chi2 - CERESMinimizer::totoffset << std::endl;
      return true;
    }
 };
@@ -104,9 +120,13 @@ public:
   {
     out[0] = s;
     if (chi2options_.chi2poissoncorr)
-      out[0] += -2.*glboff*cndatapoints_.npoints;
+      //out[0] += -2.*glboff*cndatapoints_.npoints;
+      out[0] += -2.*CERESMinimizer::totoffset;
     out[1] = 1.;
     out[2] = 0.;
+    std::cout << " CERES total offset in Loss function: " <<  CERESMinimizer::totoffset << std::endl;
+    std::cout << " CERES Loss*Cost function: " <<  out[0]/2. << std::endl;
+    CERESMinimizer::totoffset = 0.;
   }
 };
 
@@ -143,6 +163,14 @@ void CERESMinimizer::doMinimization()
     cout << "; Penalty log terms: " << nData;
   cout << endl;
 
+  YAML::Node ceresNode = XFITTER_PARS::rootNode["CERES"];
+  glboff = ceresNode["offset"].as<double>();
+
+  std::cout << " CERES global offset per bin: " <<  glboff << std::endl;
+
+  if (chi2options_.chi2poissoncorr)
+    offset = new double[nData];
+  
   double**pars = getPars();
   
   double parVals[200]; // 200 --> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize NEXTRAPARAMMAX_C with MNE from endmini.inc
@@ -296,7 +324,10 @@ void CERESMinimizer::doMinimization()
   cout << "Global correlation coefficient" << endl;
   for (int i = 0; i< npars; i++)
     cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
-  
+
+  if (chi2options_.chi2poissoncorr)
+    delete offset;
+
   return;
 }
 
