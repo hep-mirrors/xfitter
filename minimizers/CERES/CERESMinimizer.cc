@@ -21,9 +21,6 @@
 #include <iomanip>
 #include <fstream>
 
-//make this a yaml setting
-//const double glboff = 2.;
-
 // Fortran interface
 extern "C" {
   // FCN
@@ -92,22 +89,22 @@ struct CostFunctiorData
 	     if (calctotoff)
 	       {
 		 if (CERESMinimizer::glboff > 0.)
-		   CERESMinimizer::offset[i] = CERESMinimizer::glboff;
+		   CERESMinimizer::offset[j] = CERESMinimizer::glboff;
 		 else
-		   CERESMinimizer::offset[i] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
-		 CERESMinimizer::totoffset += CERESMinimizer::offset[i];
+		   CERESMinimizer::offset[j] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
+		 CERESMinimizer::totoffset += CERESMinimizer::offset[j];
 	       }
-	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[i]));
-	     if (cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[i] < 0)
+	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j]));
+	     if (cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] < 0)
 	       {
-		 cout << "Warning: negative squared residual for i " << j << " offset " << CERESMinimizer::offset[i] << " res^2 " << cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[i] << endl;
+		 cout << "Warning: negative squared residual for i " << j << " offset " << CERESMinimizer::offset[j] << " res^2 " << cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] << endl;
 		 string message = "W: Negative squared residual in CERES minimisation, consider raising the chi-square offset";
 		 hf_errlog_(22082101, message.c_str(), message.size());
 	       }
     	   }
 	 chi2 += residuals[i]*residuals[i]/2.;
        }
-     std::cout << " CERES total offset in Cost function: " <<  CERESMinimizer::totoffset << std::endl;
+     //std::cout << " CERES total offset in Cost function: " <<  CERESMinimizer::totoffset << std::endl;
      std::cout << " CERES residuals squared: " <<  chi2 - CERESMinimizer::totoffset << std::endl;
      return true;
    }
@@ -124,8 +121,8 @@ public:
       out[0] += -2.*CERESMinimizer::totoffset;
     out[1] = 1.;
     out[2] = 0.;
-    std::cout << " CERES total offset in Loss function: " <<  CERESMinimizer::totoffset << std::endl;
-    std::cout << " CERES Loss*Cost function: " <<  out[0]/2. << std::endl;
+    //std::cout << " CERES total offset in Loss function: " <<  CERESMinimizer::totoffset << std::endl;
+    std::cout << " CERES Cost function: " <<  out[0]/2. << std::endl;
     CERESMinimizer::totoffset = 0.;
   }
 };
