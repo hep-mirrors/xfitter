@@ -326,7 +326,7 @@ void CERESMinimizer::doMinimization()
     cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
 
   if (chi2options_.chi2poissoncorr)
-    delete offset;
+    delete[] offset;
 
   return;
 }
