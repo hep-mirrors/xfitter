@@ -198,6 +198,8 @@ void APFEL_Evol::atStart()
   APFEL::EnableDynamicalScaleVariations(true);
 
   APFEL::SetQLimits(qLimits[0], qLimits[1]);
+  _Qmin = qLimits[0];
+  _Qmax = qLimits[1];
   // Setup x sub-grids:
   APFEL::SetNumberOfGrids(iNxGrids);
   for (size_t igrid = 0; igrid < iNxGrids; igrid++)
@@ -238,6 +240,9 @@ void APFEL_Evol::atStart()
   {
     APFEL::SetSmallxResummation(true, "NLL");
     APFEL::SetQLimits(1.6, 4550.0); // Hardwire for now.
+    _Qmin = 1.6;
+    _Qmax = 4550.0;
+    hf_errlog(1908202201,"I: Setting APFEL grid range to 1.6 < Q < 4550 to match resummation grids.");
   }
 
   // set the ratio muR / Q (default 1), muF / Q (default 1)
@@ -329,6 +334,14 @@ vector<double> APFEL_Evol::getXgrid() {
   xGrid.resize(Nx);
   for (int i=0; i<Nx; ++i) xGrid[i] = APFEL::xGrid(i);
   return xGrid;
+}
+
+std::vector<double> APFEL_Evol::getQgrid() {
+  vector<double> qGrid;
+  qGrid.resize(2);
+  qGrid[0] = _Qmin;
+  qGrid[1] = _Qmax;
+  return qGrid;
 }
 
 } // namespace xfitter
