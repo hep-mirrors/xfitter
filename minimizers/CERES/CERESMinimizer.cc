@@ -196,61 +196,79 @@ void CERESMinimizer::doMinimization()
 
   dynamic_cost_function->SetNumResiduals(nres);
 
-  // Loss function
+  // Loss function to compensate offset for the log penalty terms
   ceres::LossFunction* loss_function(new PenaltyLog);
 
   ceres::Problem problem;
   problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
 
+  // Set CERES options
   soloptions.minimizer_progress_to_stdout = true;
 
-  soloptions.function_tolerance = 1.e-5; // typical chi2 is ~1000
+  soloptions.function_tolerance = ceresNode["tolerance"].as<double>(); // typical chi2 is ~1000
 
-  // --> Allow setting options from yaml
-  /*
-  soloptions.logging_type = ceres::SILENT;
+  int strategy_type = ceresNode["strategy"].as<int>();
+  switch (strategy_type)
+    {
+    case 0:
+      soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+      break;
+    case 1:
+      soloptions.trust_region_strategy_type = ceres::DOGLEG;
+      soloptions.dogleg_type = ceres::SUBSPACE_DOGLEG;
+      break;
+    default:
+      soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+    }
+
+  // Additional options (to be checked if any of this is actually usable/usefull)
+  //soloptions.logging_type = ceres::SILENT;
   
   //multithreading
   //soloptions.num_threads = 4;
 
   //Ceres options
-  soloptions.max_num_iterations = 100000;
+  //soloptions.max_num_iterations = 100000;
 
-  soloptions.minimizer_type = ceres::TRUST_REGION; //ceres::LINE_SEARCH;
-  soloptions.linear_solver_type = ceres::DENSE_QR; //ceres::SPARSE_NORMAL_CHOLESKY;
-  soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT; //ceres::DOGLEG;
+  //soloptions.minimizer_type = ceres::TRUST_REGION; //ceres::LINE_SEARCH;
+  //soloptions.linear_solver_type = ceres::DENSE_QR; //ceres::SPARSE_NORMAL_CHOLESKY;
+  //soloptions.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT; //ceres::DOGLEG;
   //soloptions.dogleg_type = ceres::SUBSPACE_DOGLEG;
+  //soloptions.use_inner_iterations = true;
   //soloptions.use_nonmonotonic_steps = true;
   
   //soloptions.max_num_consecutive_invalid_steps = 10;
 
-  soloptions.dense_linear_algebra_library_type = ceres::EIGEN; //ceres::LAPACK
-  */
+  //soloptions.dense_linear_algebra_library_type = ceres::EIGEN; //ceres::LAPACK
   
   ceres::Solve(soloptions, &problem, &summary);
 
   cout << std::endl;
   cout << "CERES minimisation has converged" << std::endl;
-  //if (covariance matrix is required)
-  cout << std::endl;
-  cout << "CERES Start calculation of covariance matrix" << std::endl;
+
+  int docov = ceresNode["covariance"].as<int>();
+  if (docov)
+    {
+      cout << std::endl;
+      cout << "CERES Start calculation of covariance matrix" << std::endl;
       
-  //covariance
-  ceres::Covariance::Options covoptions;
+      //covariance
+      ceres::Covariance::Options covoptions;
 
-  //covoptions.algorithm_type = ceres::SPARSE_QR;
-  //covoptions.algorithm_type = ceres::DENSE_SVD;
+      //covoptions.algorithm_type = ceres::SPARSE_QR;
+      //covoptions.algorithm_type = ceres::DENSE_SVD;
 
-  //multithreading
-  //covoptions.num_threads = 4;
-  ceres::Covariance covariance(covoptions);
+      //multithreading
+      //covoptions.num_threads = 4;
+      ceres::Covariance covariance(covoptions);
 
-  vector<pair<const double*, const double*> > covariance_blocks;
-  covariance_blocks.push_back(make_pair(parVals, parVals));
+      vector<pair<const double*, const double*> > covariance_blocks;
+      covariance_blocks.push_back(make_pair(parVals, parVals));
 
-  CHECK(covariance.Compute(covariance_blocks, &problem));
+      CHECK(covariance.Compute(covariance_blocks, &problem));
 
-  covariance.GetCovarianceBlock(parVals, parVals, covmat);
+      covariance.GetCovarianceBlock(parVals, parVals, covmat);
+    }
 
   std::cout << summary.FullReport() << "\n";
 
