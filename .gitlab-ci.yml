@@ -43,3 +43,22 @@ job-install-full:
       - temp/**/output
     expire_in: 2 day
 
+job-scanmin:
+  only: 
+    - merge_requests
+    - schedules
+  script: 
+    - ./tools/install-qcdnum
+    - ./tools/install-numdiff
+    - . setup.sh
+    - ./make.sh install
+    - ./tools/test.sh scanmin
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: always
+    paths:
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
