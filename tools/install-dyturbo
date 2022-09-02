@@ -47,15 +47,15 @@ cd deps
 echo "Installing DYTurbo ${dyturbover}..."
 if [[ $http == "curl" ]]
 then
-    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
+    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz #2>> $CURRENTDIR/install.log
 else
-    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz #>> $CURRENTDIR/install.log 2>&1
 fi
-tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+tar xfz dyturbo-${dyturbover}.tar.gz  #>> $CURRENTDIR/install.log  2>&1
 cd dyturbo-${dyturbover}
 
 export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1
+./configure --enable-Ofast --disable-tlsopt #>> $CURRENTDIR/install.log  2>&1
 export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
 
 if [[ $? != 0 ]]
@@ -63,7 +63,7 @@ then
     echo "Error, check install.log for details"
     exit
 fi
-make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+make -j 8 install  #>> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
 then
     echo "Error, check install.log for details"
