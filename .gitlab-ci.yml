@@ -112,6 +112,7 @@ job-scanmin:
 job-dyturbo:
   script: 
     - ./tools/install-qcdnum
+    - ./tools/install-lhapdf
     - ./tools/install-dyturbo
     - ./tools/install-numdiff
     - . setup.sh

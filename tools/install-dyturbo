@@ -41,6 +41,8 @@ fi
 #directory:
 CURRENTDIR=`pwd`
 
+source ./setup.sh
+
 mkdir -p deps
 cd deps
 
