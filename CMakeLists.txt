@@ -40,6 +40,18 @@ find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3")
+#set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ggdb")
+#set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fopenmp")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
 else()
