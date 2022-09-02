@@ -1,6 +1,7 @@
 #include "Profiler.h"
 #include "xfitter_cpp_base.h"
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <vector>
 #include "xfitter_cpp.h"
@@ -9,6 +10,7 @@
 #include "xfitter_cpp.h"
 #include <algorithm>
 #include <string.h>
+#include <numeric>
 
 extern "C" {
   void update_theory_iteration_();
@@ -19,11 +21,44 @@ extern "C" {
   
 namespace xfitter
 {
-  std::valarray<double> Profiler::evaluatePredictions() {
+  vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
+  {
+    vector<double> w;
+    const int nrep = chi2.size();
+  
+    vector<double> logw;  // Calculate Ln(wnn) (nn - not normalised) -> use repnums as index for unweighted PDFs
+    for (vector <double>::const_iterator c = chi2.begin(); c != chi2.end(); c++) {
+      if ( (GK_method) == false) {
+	logw.push_back( - (*c)/(2.0) +( (((double) ndata)-1.0)/2.)*log(*c)); //Bayesian
+      }
+      if ( (GK_method) == true)  logw.push_back(- (*c)/(2.0)); //Giele-Keller
+    }
+    // Get maximum value of log(w)
+    double exp_avg = *(max_element(logw.begin(), logw.end()));
+    //exp_avg =0;//only needed to normalise
+    // Calculate weights
+    for (size_t i=0 ;i<nrep; i++) {
+      w.push_back(exp(logw[i] - exp_avg ));
+    }
+    //Drop any weights smaller than 1e-12
+    double wtot = std::accumulate(w.begin(),w.end(),0.0); 
+    for (size_t i=0; i<w.size(); i++) {
+      if ((w[i]*(nrep/wtot)) < 1e-12)
+	w[i]=0;
+    }
+    wtot=std::accumulate(w.begin(),w.end(),0.0);  // Normalise weights so Sum(weights)=N
+    for (size_t i=0;i<w.size();i++){
+      w[i]*=(nrep/wtot); 
+    }
+    return w;
+  }
+  
+  std::pair < std::valarray<double>, double> Profiler::evaluatePredictions() {
+    double chi2 = NAN;
     if (_getChi2) {
       int save_nsys = systema_.nsys;
       systema_.nsys = _nSourcesOrig; // reset to the original sources
-      double chi2 = chi2data_theory_(2);
+      chi2 = chi2data_theory_(2);
       systema_.nsys = save_nsys;
       std::cout << std::fixed << std::setprecision(2) << "Chi2 = " << chi2 << std::endl;
     }else{
@@ -31,7 +66,7 @@ namespace xfitter
     }
 
     //Return theory predictions
-    return valarray<double>(c_theo_.theo, cndatapoints_.npoints);
+    return std::pair<valarray<double>,double> ( valarray<double>(c_theo_.theo, cndatapoints_.npoints), chi2);
   }
 
   void Profiler::storePdfFiles(int imember, int iPDF, std::string const& type) {
@@ -172,7 +207,7 @@ namespace xfitter
     // Store theo file:
     if (node["WriteTheo"]) {
       if (node["WriteTheo"].as<string>() != "Off") {
-        auto cent = evaluatePredictions();
+        auto cent = evaluatePredictions().first;
         int ntot = systema_.nsys;
         systema_.nsys = nsysloc;
         writetheoryfiles_(ntot-nsysloc, &cent[0], node["WriteTheo"].as<string>() != "Asymmetric");
@@ -210,7 +245,8 @@ namespace xfitter
     for ( size_t i=0; i<len; i++) {
       *ppar = node[i].as<double>();
       updateAtConfigurationChange();
-      preds.push_back( evaluatePredictions() );
+      auto pred = evaluatePredictions();
+      preds.push_back( pred.first );
     }
     *ppar = save;
 
@@ -312,9 +348,14 @@ namespace xfitter
 
         // all predictions
         std::vector< std::valarray<double> > preds;
+	std::vector< double > chi2vals;
+	
+        auto pred = evaluatePredictions();
+        preds.push_back(pred.first );
 
-        preds.push_back(evaluatePredictions() );
-
+	/// DO NOT store the central chi2:
+	/// chi2vals.push_back(pred.second);
+	
 	if (_storePdfs) {
 	  storePdfFiles(0,i);
 	}
@@ -341,7 +382,9 @@ namespace xfitter
         for (int imember = first; imember<=last; imember++) {
           gNode["member"] = imember;
           evol->atConfigurationChange();
-          preds.push_back( evaluatePredictions() );
+	  auto pred = evaluatePredictions();
+          preds.push_back( pred.first );
+	  chi2vals.push_back( pred.second );
           //              for ( double th : preds[imember] ) {
           //std::cout << th << std::endl;
           //}
@@ -391,6 +434,9 @@ namespace xfitter
 
           // convert to eigenvectors, add to list of systematics
           addReplicas(pName,preds);
+
+	  // Write out aux files for reweighting method.
+	  addMCweightsFiles(pName,chi2vals,preds[0].size(),preds.size()-1);
         }
         else {
           hf_errlog(2018082441,"S: Profiler Unsupported PDF error type : "+errorType);
@@ -444,6 +490,35 @@ namespace xfitter
     }
     delete[] beta;
     delete[] covar;
+  }
+
+  void Profiler::addMCweightsFiles(std::string const& pdfName, std::vector<double>& chi2vals, int ndata, int nrep) {
+    vector <double> weights = mcweights(chi2vals, ndata, false);
+    std::ofstream chi2wf((_outputDir + "/pdf_BAYweights.dat").c_str());
+    vector <double>::iterator ic = chi2vals.begin();
+    vector <double>::iterator iw = weights.begin();
+    string lhapdfsetname=pdfName;
+    
+    if (lhapdfsetname.find(".LHgrid")!=string::npos)   lhapdfsetname.erase(lhapdfsetname.find(".LHgrid"));
+    chi2wf << "LHAPDF set=   " << lhapdfsetname<<endl;
+    chi2wf << "Reweight method=   BAYESIAN"<<endl;
+    chi2wf << "ndata=   " << ndata <<endl;
+    chi2wf << nrep << endl;
+    for (; ic != chi2vals.end(); ic++, iw++)
+      chi2wf << (ic - chi2vals.begin()) << "\t" << *ic << "\t" << *iw << endl;
+    chi2wf.close();
+    
+    vector <double> weights_GK = mcweights(chi2vals, ndata, true);
+    std::ofstream chi2wf2((_outputDir + "/pdf_GKweights.dat").c_str());
+    ic = chi2vals.begin();
+    iw = weights_GK.begin();
+    chi2wf2 << "LHAPDF set=   " << lhapdfsetname<<endl;
+    chi2wf2 << "Reweight method=   GIELE-KELLER"<<endl;
+    chi2wf2 << "ndata=   " << ndata <<endl;
+    chi2wf2 << nrep << endl;
+    for (; ic != chi2vals.end(); ic++, iw++)
+      chi2wf2 << (ic - chi2vals.begin()) << "\t" << *ic << "\t" << *iw << endl;
+    chi2wf2.close();
   }
   
 } //namespace xfitter

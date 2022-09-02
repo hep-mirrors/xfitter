@@ -17,7 +17,7 @@ public:
    virtual ~fastNLOCoeffMult(){;};
    virtual fastNLOCoeffMult* Clone() const;                                     //!< returns 'new' copy of this instance.
    static bool CheckCoeffConstants(const fastNLOCoeffBase* c, bool quiet = false);
-   virtual void Read(std::istream& table);
+   virtual void Read(std::istream& table, int ITabVersionRead);
    virtual void Write(std::ostream& table, int ITabVersionWrite);
    virtual void Print(int iprint) const;
 
@@ -25,8 +25,8 @@ public:
    std::vector<double > GetMultFactor() const { return fact; }
    std::vector<std::string> GetUncDescription() const { return UncDescr; }
    std::vector<std::string> GetCorDescription() const { return CorDescr; }
-   fastNLO::v2d GetUncorLo() const { return UncorHi; };
-   fastNLO::v2d GetUncorHi() const { return UncorLo; };
+   fastNLO::v2d GetUncorLo() const { return UncorLo; };
+   fastNLO::v2d GetUncorHi() const { return UncorHi; };
    fastNLO::v2d GetCorrLo()  const { return CorrLo; };
    fastNLO::v2d GetCorrHi()  const { return CorrHi; };
 
@@ -46,7 +46,7 @@ public:
 
 protected:
    void ReadCoeffMult(std::istream& table);
-   void ReadRest(std::istream& table);
+   void ReadRest(std::istream& table, int ITabVersionRead);
 
    int Nuncorrel;
    std::vector < std::string > UncDescr;
