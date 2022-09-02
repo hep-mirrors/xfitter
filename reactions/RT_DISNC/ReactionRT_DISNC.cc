@@ -217,16 +217,19 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
     }
       
   //fork wait parallelisation
-  pid_t pid[threads];
   int fd[2];
-  int stpip = pipe(fd);
+  if (pipe(fd) < 0)
+    {
+      cout << "Error in fork/wait: could not create pipe" << endl;
+      exit(-1);
+    }
 
   size_t Npr = Np/threads+1;
   //std::cout << " Np " << Np << " Npr " << Npr << std::endl;
   for (int P = 0; P < threads; P++)
     {
-      pid[P] = fork();
-      if (pid[P] == 0)
+      pid_t id = fork();
+      if (id == 0)
 	{
 	  close(fd[0]);
 	  for (size_t i = P*Npr; i < std::min(Np,(P+1)*Npr); i++)
@@ -252,10 +255,22 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	    }
 	  exit(0);
 	}
+      else if (id < 0)
+	{
+	  cout << "Error: failed to fork" << endl;
+	  exit (-1);
+	}
+      
     }
   //wait for all children to finish
+  int status;
   pid_t wpid;
-  while ((wpid = wait(NULL)) > 0);
+  while ((wpid = wait(&status)) > 0)
+    if (status < 0)
+      {
+	cout << "Process " << wpid << " terminated with status " << status << endl;
+	exit(-1);
+      }
   
   //Read out buffer
   close(fd[1]);
@@ -287,4 +302,5 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	  break;
 	}
     }
+  close(fd[0]);
 }
