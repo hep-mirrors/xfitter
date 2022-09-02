@@ -8,6 +8,7 @@ qLimits : [1.0, 10000.0]
 heavyQuarkMassScheme : "Pole" # or "MSBar"
 heavyQuarkMassRunning : "Off" # or "On"
 nllxResummation : "Off" # or "On"
+fragmentation : "off"
 FONLLVariant : "C"
 muRoverQ : 1.0 # ratio of renormalisation scale over Q
 muFoverQ : 1.0 # ratio of factorisation scale over Q
