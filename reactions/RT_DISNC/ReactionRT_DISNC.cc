@@ -254,10 +254,8 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	}
     }
   //wait for all children to finish
-  //pid_t wpid;
-  //while ((wpid = wait(NULL)) > 0);
-  for (int P = 0; P < threads; P++)
-    wait(NULL);
+  pid_t wpid;
+  while ((wpid = wait(NULL)) > 0);
   
   //Read out buffer
   close(fd[1]);
