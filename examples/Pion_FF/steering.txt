@@ -7,31 +7,31 @@
      InputFileNames = 
   ! Input files:
 !   4 active flavour
-            'datafiles/BABAR/inclusive/BABAR_inclusive_pi_o.dat',
-             'datafiles/BELLE20/BELLE20_inclusive_pi_1.dat'
+            'datafiles/NC_SIA/BABAR/inclusive/BABAR_inclusive_pi_o.dat',
+            'datafiles/NC_SIA/BELLE20/BELLE20_inclusive_pi_1.dat'
 
 
 
 !    Inclusive
-            'datafiles/ALEPH/inclusive/ALEPH_inclusive_pi_h.dat',
-            'datafiles/DELPHI/inclusive/DELPHI_inclusive_pi.dat',
-            'datafiles/OPAL/inclusive/OPAL_inclusive_pi.dat',
-            'datafiles/SLD/inclusive/SLD_inclusive_pi.dat',
-            'datafiles/TASSO/inclusive/TASSO_12_inclusive_pi.dat',
-            'datafiles/TASSO/inclusive/TASSO_14_inclusive_pi.dat',
-            'datafiles/TASSO/inclusive/TASSO_22_inclusive_pi.dat',
-            'datafiles/TASSO/inclusive/TASSO_34_inclusive_pi.dat',
-            'datafiles/TASSO/inclusive/TASSO_44_inclusive_pi.dat',
-            'datafiles/TPC/TPC_inclusive_pi.dat',
+            'datafiles/NC_SIA/ALEPH/inclusive/ALEPH_inclusive_pi_h.dat',
+            'datafiles/NC_SIA/DELPHI/inclusive/DELPHI_inclusive_pi.dat',
+            'datafiles/NC_SIA/OPAL/inclusive/OPAL_inclusive_pi.dat',
+            'datafiles/NC_SIA/SLD/inclusive/SLD_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_12_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_14_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_22_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_34_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_44_inclusive_pi.dat',
+            'datafiles/NC_SIA/TPC/TPC_inclusive_pi.dat',
 
 !   b tag
-            'datafiles/DELPHI/b_tag/DELPHI_b_tag_pi.dat',
-            'datafiles/SLD/b_tag/SLD_b_tag_pi.dat',
+            'datafiles/NC_SIA/DELPHI/b_tag/DELPHI_b_tag_pi.dat',
+            'datafiles/NC_SIA/SLD/b_tag/SLD_b_tag_pi.dat',
 !   c tag
-            'datafiles/SLD/c_tag/SLD_c_tag_pi.dat',
+            'datafiles/NC_SIA/SLD/c_tag/SLD_c_tag_pi.dat',
 !   light tag 
-            'datafiles/DELPHI/light_tag/DELPHI_light_tag_pi_o.dat',
-            'datafiles/SLD/light_tag/SLD_light_tag_pi.dat',
+            'datafiles/NC_SIA/DELPHI/light_tag/DELPHI_light_tag_pi_o.dat',
+            'datafiles/NC_SIA/SLD/light_tag/SLD_light_tag_pi.dat',
 
 &End
 
