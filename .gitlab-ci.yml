@@ -111,6 +111,7 @@ job-scanmin:
 
 job-dyturbo:
   script: 
+    - yum -y install git tar
     - ./tools/install-qcdnum
     - ./tools/install-lhapdf
     - ./tools/install-dyturbo
