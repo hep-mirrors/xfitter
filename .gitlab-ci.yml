@@ -116,6 +116,12 @@ job-dyturbo:
     - ./tools/install-numdiff
     - . setup.sh
     - ./make.sh install
+    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
     - ./tools/test.sh ZPT
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
