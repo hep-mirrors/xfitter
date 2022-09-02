@@ -8,6 +8,8 @@
 
 #include "ReactionDYTurbo.h"
 #include "BaseEvolution.h"
+#include "xfitter_pars.h"
+#include "xfitter_cpp_base.h"
 #include "xfitter_steer.h"
 #include "dyturbo/dyturbo.h"
 #include "dyturbo/settings.h"
@@ -45,22 +47,44 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //cout << "binning read from file : qt " << bins.qtbins.size() << "  m " << bins.mbins.size() << " y " << bins.ybins.size() << endl;
 
   //Fill PDF infos
-  pdf::order = xfitter::get_evolution()->getPropertyI("OrderQCD");
-  pdf::xmin = xfitter::get_evolution()->getPropertyD("XMin");
-  pdf::qmin = xfitter::get_evolution()->getPropertyD("QMin");
+  if (string(xfitter::get_evolution()->getClassName()) == "LHAPDF")
+    {
+      pdf::order = xfitter::get_evolution()->getPropertyI("OrderQCD");
+      pdf::xmin = xfitter::get_evolution()->getPropertyD("XMin");
+      pdf::qmin = xfitter::get_evolution()->getPropertyD("QMin");
+      
+      pdf::mc = xfitter::get_evolution()->getPropertyD("MCharm");
+      pdf::mb = xfitter::get_evolution()->getPropertyD("MBottom");
+      pdf::mt = xfitter::get_evolution()->getPropertyD("MTop");
+    }
+  else
+    {
+      pdf::order = OrderMap(XFITTER_PARS::getParamS("Order"))-1;
+      pdf::qmin = *(XFITTER_PARS::getParamD("Q0"));
+      pdf::xmin = xfitter::get_evolution()->getXgrid()[0];
+      
+      pdf::mc = *(XFITTER_PARS::getParamD("mch"));
+      pdf::mb = *(XFITTER_PARS::getParamD("mbt"));
+      pdf::mt = *(XFITTER_PARS::getParamD("mtp"));
+    }
 
-  pdf::mc = xfitter::get_evolution()->getPropertyD("MCharm");
-  pdf::mb = xfitter::get_evolution()->getPropertyD("MBottom");
-  pdf::mt = xfitter::get_evolution()->getPropertyD("MTop");
-
+  //if (xfitter::get_evolution()->getClassName() == "QCDNUM")
+  // {
+  //   vector<double> xGrid   = xfitter::get_evolution()->getXgrid();
+  //   pdf::xmin = xGrid[0];
+  // }
+  
   //cout << "order " << pdf::order << endl;
   //cout << "xmin " << pdf::xmin << endl;
   //cout << "qmin " << pdf::qmin << endl;
   //cout << "mc " << pdf::mc << endl;
   //cout << "mb " << pdf::mb << endl;
   //cout << "mt " << pdf::mt << endl;
-  
-  opts.silent      = true;
+
+  int debug = td->getParamI("debug");
+  opts.silent      = (debug>0) ? false : true;
+
+  //opts.silent      = td->getParamI("debug");
   opts.makehistos  = false;
   
   if (td->hasParam("g1"))
@@ -72,16 +96,33 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   if (td->hasParam("g3"))
     opts.g3 = *(td->getParamD("g3"));
 
+  if (td->hasParam("ga"))
+    opts.g1a = *(td->getParamD("ga"));
+
+  if (td->hasParam("gb"))
+    opts.g1b = *(td->getParamD("gb"));
+
   //read g from LHAPDF
-  pdf::g1 = xfitter::get_evolution()->getPropertyD("g", -1.);
-  pdf::g1 = xfitter::get_evolution()->getPropertyD("g1", -1.);
-  pdf::g2 = xfitter::get_evolution()->getPropertyD("g2", -1.);
+  if (string(xfitter::get_evolution()->getClassName()) == "LHAPDF")
+    {
+      pdf::g1 = xfitter::get_evolution()->getPropertyD("g", -1.);
+      pdf::g1 = xfitter::get_evolution()->getPropertyD("g1", -1.);
+      pdf::g2 = xfitter::get_evolution()->getPropertyD("g2", -1.);
 
-  //read e from LHAPDF
-  pdf::e = xfitter::get_evolution()->getPropertyD("e", -1.);
-
-  //read g0 from LHAPDF
-  pdf::g0 = xfitter::get_evolution()->getPropertyD("g0", -1.);
+      //read e from LHAPDF
+      pdf::e = xfitter::get_evolution()->getPropertyD("e", -1.);
+      
+      //read g0 from LHAPDF
+      pdf::g0 = xfitter::get_evolution()->getPropertyD("g0", -1.);
+    }
+  else
+    {
+      pdf::g1 = -1.;
+      pdf::g1 = -1.;
+      pdf::g2 = -1.;
+      pdf::e  = -1.;
+      pdf::g0 = -1.;
+    }
 
   if (td->hasParam("Q0"))
     opts.Q0 = *(td->getParamD("Q0"));
@@ -106,8 +147,11 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //Init physics parameters
   DYTurbo::init_params();
 
-  //opts.dumpAll();  
-  //DYTurbo::PrintTable::Settings();
+  if (td->getParamI("debug"))
+    {
+      opts.dumpAll();  
+      DYTurbo::PrintTable::Settings();
+    }
   
   //Compute predictions
   vector <double> vals;

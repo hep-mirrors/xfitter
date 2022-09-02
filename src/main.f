@@ -20,6 +20,7 @@ C-------------------------------------------------------
 #include "theorexpr.inc"
 #include "chi2scan.inc"
 #include "extrapars.inc"
+#include "alphasscan.inc"
 
       integer icond
       integer nOffset
@@ -73,11 +74,21 @@ C      call hfbanner
       call hf_errlog(12020502,
      +     'I: data tables have been read successfully') 
 
+      if (LHAPDFERRORS) then
+         call get_lhapdferrors
+         goto 36
+      endif
+      
       if (SCAN) then            ! chi2 scan
          call chi2_scan
          goto 36
       endif
 
+      if (ASSCAN) then  ! alphas scan
+         call alphas_scan
+         goto 36
+      endif
+      
 *     ------------------------------------------------
 *     Do the fit
 *     ------------------------------------------------

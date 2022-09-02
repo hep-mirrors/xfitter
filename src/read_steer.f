@@ -33,6 +33,7 @@ C Special branch for rotation
 
       call read_lhapdfnml    ! read lhapdf
       call read_chi2scan        ! read chi2scan
+      call read_alphasscan      ! read alphasscan
 
       call read_mcerrorsnml  ! MC uncertainties
       call read_hqscalesnml  ! read HQ scales
@@ -305,7 +306,7 @@ C----------------------------------------
 C------------------------------------
 C (Optional) LHAPDF steering card
       namelist/lhapdf/
-     $     LHAPDFErrors,Scale68,LHAPDFVARSET,NPARVAR,
+     $   LHAPDFErrors,Scale68,LHAPDFSET,LHAPDFVARSET,ILHAPDFSET,NPARVAR,
      $     DataToTheo,nremovepriors,
      $     lhapdfprofile,lhascaleprofile
 
@@ -313,7 +314,7 @@ C (Optional) LHAPDF steering card
 
 C LHAPDFErrors default
 
-      lhapdferrors_save = lhapdferrors ! may be set by running mode.
+!      lhapdferrors_save = lhapdferrors ! may be set by running mode.
 
       lhapdfprofile = .true.
       lhascaleprofile = .false.
@@ -332,9 +333,9 @@ C
  68   continue
       close (51)
 
-      if ( RunningMode .ne. ' ' ) then
-         lhapdferrors = lhapdferrors_save
-      endif
+!      if ( RunningMode .ne. ' ' ) then
+!         lhapdferrors = lhapdferrors_save
+!      endif
 
       if (LDebug) then
 C Print the namelist:
@@ -400,6 +401,53 @@ C---
       call HF_stop
 
       end
+
+      subroutine read_alphasscan
+
+      implicit none
+#include "steering.inc"
+#include "ntot.inc"
+#include "theorexpr.inc"
+#include "alphasscan.inc"
+C------------------------------------
+C (Optional) Chi2Scan steering card
+      namelist/alphasscan/asscan,
+     $     aspdfprofile,asscaleprofile,
+     $	   alphaslhapdf,
+     $     aslhapdfset,aslhapdfvarset,asnparvar,
+     $     aslhapdfref
+
+C Chi2Scan default
+      asscan = .false.
+      aspdfprofile = .false.
+      asscaleprofile = .false.
+      alphaslhapdf = ''
+      aslhapdfset = ''
+      aslhapdfvarset = ''
+      asnparvar = 0
+      aslhapdfref = ''
+
+C
+C  Read the chi2scan namelist:
+C
+      open (51,file='steering.txt',status='old')
+      read (51,NML=alphasscan,ERR=70,end=69)
+ 69   continue
+      close (51)
+
+      if (LDebug) then
+C Print the namelist:
+         print alphasscan
+      endif
+
+      return
+C---
+ 70   continue
+      print '(''Error reading namelist &alphasscan, STOP'')'
+      call HF_stop
+
+      end
+      
 C
 !> Read MC errors namelist
 C-------------------------------------------------------

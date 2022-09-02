@@ -11,6 +11,7 @@ using namespace std;
 
 extern"C" {
   void chi2_scan_();
+  void alphas_scan_();
 
   void mc_method_();
 
@@ -240,6 +241,17 @@ extern"C" {
 
   } chi2scan_;
 
+  extern struct {
+    int alphasscan_;
+    int aspdfprofile_;
+    int asscaleprofile_;
+    char alphaslhapdf_[128];
+    char aslhapdfset_[128];
+    char aslhapdfvarset_[128];
+    int asnparvar_;
+    char aslhapdfref_[128];
+  } alphasscan_;
+  
   extern struct {
     int isysttype[NSYSMAX_C];
   } csysttype_;

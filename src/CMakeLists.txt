@@ -3,6 +3,7 @@ set(xfitter_SOURCES
   BaseMinimizer.cc
   BasePdfParam.cc
   chi2scan.cc
+  alphasscan.cc
   #c_interface.f
   dataset_tools.f
   dependent_pars.cc
@@ -22,7 +23,7 @@ set(xfitter_SOURCES
   init_theory.f
   IntegrateDIS.cc
   lhapdf6_output.cc
-  #lhapdferrors.cc
+  lhapdferrors.cc
   main.f
   mc_errors.f
   minuit_ini.f
