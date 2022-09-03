@@ -1,0 +1,9 @@
+# runm: 0 for pole mass (default); 1 for MSbar running mass
+# ordfl: 1 for O(alpha_S) in F_L = O(alpha_S) + 1 in F_2 (default); 0 for O(alpha_S) in F_L = O(alpha_S) in F_2
+# renormalisation and factorisation scale for HQs set via parameters:  mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
+#FFABM_DISNC:
+  runm: 0
+  scalea1: 1.0
+  scaleb1: 1.0
+  xbmin: 1e-2
+  xbmax: 0.999
