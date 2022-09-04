@@ -239,9 +239,9 @@ void APFEL_Evol::atStart()
   if (nllxResummation == "On")
   {
     APFEL::SetSmallxResummation(true, "NLL");
-    APFEL::SetQLimits(1.6, 4550.0); // Hardwire for now.
-    _Qmin = 1.6;
-    _Qmax = 4550.0;
+    //APFEL::SetQLimits(1.6, 4550.0); // Hardwire for now.
+    //_Qmin = 1.6;
+    //_Qmax = 4550.0;
     hf_errlog(1908202201,"I: Setting APFEL grid range to 1.6 < Q < 4550 to match resummation grids.");
   }
 
