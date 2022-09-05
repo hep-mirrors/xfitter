@@ -109,7 +109,7 @@ void report_convergence_status_(){
       hf_errlog(16042802,"I: Fit converged");
       break;
     case ConvergenceStatus::NO_CONVERGENCE:
-      hf_errlog(16042805,"S: No convergence");
+      hf_errlog(16042805,"E: No convergence");
       break;
     case ConvergenceStatus::ERROR:
       hf_errlog(16042806,"F: Minimizer error");
