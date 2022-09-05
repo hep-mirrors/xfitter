@@ -309,7 +309,7 @@ void CERESMinimizer::doMinimization()
       sprintf(err, "%.4f", sqrt(covmat[i*npars+i]));
       std::cout << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << std::endl;
     }
-  cout << " ----- End of parameters in YAML format" << endl; 
+  cout << "----- End of parameters in YAML format" << endl; 
   cout << endl;
   cout << std::endl << "Correlation matrix " << std::endl;
   cout << std::setw(14) << " ";
@@ -386,6 +386,20 @@ void CERESMinimizer::writePars(const double* covmat)
 
   for (int i =0; i<npars; i++)
     f << setw(5) << i << "   '" << _allParameterNames[i] << "'    " <<  parVals[i] << "    " << sqrt(covmat[i*npars+i]) << std::endl;
+
+  f.close();
+
+  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/pars.yaml");
+  cout << "Parameters:" << endl;
+  for (int i = 0; i < npars; i++)
+    {
+      char val[15];
+      char err[15];
+      sprintf(val, "%.4f", parVals[i]);
+      sprintf(err, "%.4f", sqrt(covmat[i*npars+i]));
+      std::cout << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << std::endl;
+    }
+  f.close();
   
 }
 
@@ -445,6 +459,8 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* c
   f << "GLOBAL CORRELATION COEFFICIENT" << endl;
   for (int i = 0; i< npars; i++)
     f << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
+
+  f.close();
 }
 
 }
