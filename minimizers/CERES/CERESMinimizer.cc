@@ -305,8 +305,8 @@ void CERESMinimizer::doMinimization()
     {
       char val[15];
       char err[15];
-      sprintf(val, "%.4f", parVals[i]);
-      sprintf(err, "%.4f", sqrt(covmat[i*npars+i]));
+      sprintf(val, "%.6f", parVals[i]);
+      sprintf(err, "%.6f", sqrt(covmat[i*npars+i]));
       std::cout << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << std::endl;
     }
   cout << "----- End of parameters in YAML format" << endl; 
@@ -395,8 +395,8 @@ void CERESMinimizer::writePars(const double* covmat)
     {
       char val[15];
       char err[15];
-      sprintf(val, "%.4f", parVals[i]);
-      sprintf(err, "%.4f", sqrt(covmat[i*npars+i]));
+      sprintf(val, "%.6f", parVals[i]);
+      sprintf(err, "%.6f", sqrt(covmat[i*npars+i]));
       f << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << endl;
     }
   f.close();
