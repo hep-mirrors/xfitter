@@ -110,6 +110,9 @@ job-scanmin:
     expire_in: 2 day
 
 job-dyturbo:
+  only: 
+    - merge_requests
+    - schedules
   script: 
     - yum -y install git tar gdb
     - ./tools/install-qcdnum
