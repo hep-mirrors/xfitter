@@ -96,12 +96,21 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   if (td->hasParam("g3"))
     opts.g3 = *(td->getParamD("g3"));
 
+  if (td->hasParam("gx"))
+    opts.g1x = *(td->getParamD("gx"));
+
   if (td->hasParam("ga"))
     opts.g1a = *(td->getParamD("ga"));
 
   if (td->hasParam("gb"))
     opts.g1b = *(td->getParamD("gb"));
 
+  if (td->hasParam("a2"))
+    opts.a2 = *(td->getParamD("a2"));
+
+  if (td->hasParam("ap"))
+    opts.a2p = *(td->getParamD("ap"));
+  
   //read g from LHAPDF
   if (string(xfitter::get_evolution()->getClassName()) == "LHAPDF")
     {

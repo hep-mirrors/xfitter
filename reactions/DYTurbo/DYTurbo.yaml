@@ -5,7 +5,12 @@ muF: 1.     # Factorization scale
 muRes: 1.   # Resummation scale
 g1: 1       # Universal Gaussian non-perturbative form factor
 g2: 0       # Q-dependent Gaussian non-perturbative form factor
-g3: 0       # x-dependent Gaussian non-perturbative form factor
+g3: 0       # tau-dependent Gaussian non-perturbative form factor
+gx: 0       # x-dependent Gaussian non-perturbative form factor
+ga: 0       # x-dependent Gaussian non-perturbative form factor
+gb: 0       # x-dependent Gaussian non-perturbative form factor
+a2: 0.06    # DMW non-perturbative form factor
+ap: 0.06    # DMW non-perturbative form factor
 Q0: 1       # Reference scale at which the g2 contribution is zero
 g1a: 0       # x-dependent Gaussian non-perturbative form factor
 g1b: 0       # x-dependent Gaussian non-perturbative form factor
