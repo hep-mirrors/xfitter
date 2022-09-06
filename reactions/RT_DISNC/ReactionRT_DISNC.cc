@@ -220,7 +220,7 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
   int fd[2];
   if (pipe(fd) < 0)
     {
-      cout << "Error in fork/wait: could not create pipe" << endl;
+      std::cout << "Error in fork/wait: could not create pipe" << std::endl;
       exit(-1);
     }
 
@@ -257,7 +257,7 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	}
       else if (id < 0)
 	{
-	  cout << "Error: failed to fork" << endl;
+	  std::cout << "Error: failed to fork" << std::endl;
 	  exit (-1);
 	}
       
@@ -268,7 +268,7 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
   while ((wpid = wait(&status)) > 0)
     if (status < 0)
       {
-	cout << "Process " << wpid << " terminated with status " << status << endl;
+	std::cout << "Process " << wpid << " terminated with status " << status << std::endl;
 	exit(-1);
       }
   
