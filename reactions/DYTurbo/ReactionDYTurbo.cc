@@ -114,20 +114,23 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   if (td->hasParam("lambda"))
     opts.lambda = *(td->getParamD("lambda"));
 
+  if (td->hasParam("gA"))
+    opts.g2A = *(td->getParamD("gA"));
+
   if (td->hasParam("gB"))
     opts.g2B = *(td->getParamD("gB"));
 
-  if (td->hasParam("N1"))
-    opts.N1 = *(td->getParamD("N1"));
+  if (td->hasParam("NA"))
+    opts.NA = *(td->getParamD("NA"));
 
-  if (td->hasParam("sigma"))
-    opts.sigma = *(td->getParamD("sigma"));
+  if (td->hasParam("sigmaA"))
+    opts.sigmaA = *(td->getParamD("sigmaA"));
 
-  if (td->hasParam("alpha"))
-    opts.alpha = *(td->getParamD("alpha"));
+  if (td->hasParam("alphaA"))
+    opts.alphaA = *(td->getParamD("alphaA"));
 
   if (td->hasParam("NB"))
-    opts.N1B = *(td->getParamD("NB"));
+    opts.NB = *(td->getParamD("NB"));
 
   if (td->hasParam("sigmaB"))
     opts.sigmaB = *(td->getParamD("sigmaB"));
