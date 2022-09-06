@@ -14,4 +14,12 @@ ap: 0.06    # DMW non-perturbative form factor
 Q0: 1       # Reference scale at which the g2 contribution is zero
 g1a: 0       # x-dependent Gaussian non-perturbative form factor
 g1b: 0       # x-dependent Gaussian non-perturbative form factor
+lambda: 1
+gB: 0
+N1: 0
+sigma: 1
+alpha: 1
+NB: 0
+sigmaB: 1
+alphaB: 1
 debug: 0

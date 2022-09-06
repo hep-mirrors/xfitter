@@ -110,6 +110,30 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
 
   if (td->hasParam("ap"))
     opts.a2p = *(td->getParamD("ap"));
+
+  if (td->hasParam("lambda"))
+    opts.lambda = *(td->getParamD("lambda"));
+
+  if (td->hasParam("gB"))
+    opts.g2B = *(td->getParamD("gB"));
+
+  if (td->hasParam("N1"))
+    opts.N1 = *(td->getParamD("N1"));
+
+  if (td->hasParam("sigma"))
+    opts.sigma = *(td->getParamD("sigma"));
+
+  if (td->hasParam("alpha"))
+    opts.alpha = *(td->getParamD("alpha"));
+
+  if (td->hasParam("NB"))
+    opts.N1B = *(td->getParamD("NB"));
+
+  if (td->hasParam("sigmaB"))
+    opts.sigmaB = *(td->getParamD("sigmaB"));
+
+  if (td->hasParam("alphaB"))
+    opts.alphaB = *(td->getParamD("alphaB"));
   
   //read g from LHAPDF
   if (string(xfitter::get_evolution()->getClassName()) == "LHAPDF")
