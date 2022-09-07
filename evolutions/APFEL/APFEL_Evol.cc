@@ -254,7 +254,9 @@ void APFEL_Evol::atStart()
 
   // APFEL::InitializeAPFEL();
   // Initialize the APFEL DIS module
+  APFEL::SetAlphaQCDRef(0.118, *Mz);
   APFEL::InitializeAPFEL_DIS();
+  APFEL::SetAlphaQCDRef(*alphas, *Mz);
 
   APFEL::SetPDFSet("external");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
