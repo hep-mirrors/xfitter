@@ -87,6 +87,9 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //opts.silent      = td->getParamI("debug");
   opts.makehistos  = false;
   
+  if (td->hasParam("blim"))
+    opts.blim = *(td->getParamD("blim"));
+
   if (td->hasParam("g1"))
     opts.g1 = *(td->getParamD("g1"));
 
@@ -172,9 +175,6 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
       pdf::q  = -1.;
       pdf::blim = -1.;
     }
-
-  if (td->hasParam("blim"))
-    opts.blim = *(td->getParamD("blim"));
 
   if (td->hasParam("Q0"))
     opts.Q0 = *(td->getParamD("Q0"));
