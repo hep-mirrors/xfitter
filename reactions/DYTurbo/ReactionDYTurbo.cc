@@ -96,6 +96,12 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   if (td->hasParam("g3"))
     opts.g3 = *(td->getParamD("g3"));
 
+  if (td->hasParam("q"))
+    opts.q = *(td->getParamD("q"));
+
+  if (td->hasParam("g0"))
+    opts.g0 = *(td->getParamD("g0"));
+
   if (td->hasParam("gx"))
     opts.g1x = *(td->getParamD("gx"));
 
@@ -150,6 +156,11 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
       
       //read g0 from LHAPDF
       pdf::g0 = xfitter::get_evolution()->getPropertyD("g0", -1.);
+
+      //read q from LHAPDF
+      pdf::q = xfitter::get_evolution()->getPropertyD("q", -1.);
+
+      pdf::blim = xfitter::get_evolution()->getPropertyD("blim", -1.);
     }
   else
     {
@@ -158,7 +169,12 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
       pdf::g2 = -1.;
       pdf::e  = -1.;
       pdf::g0 = -1.;
+      pdf::q  = -1.;
+      pdf::blim = -1.;
     }
+
+  if (td->hasParam("blim"))
+    opts.blim = *(td->getParamD("blim"));
 
   if (td->hasParam("Q0"))
     opts.Q0 = *(td->getParamD("Q0"));
@@ -183,11 +199,10 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //Init physics parameters
   DYTurbo::init_params();
 
-  if (td->getParamI("debug"))
-    {
-      opts.dumpAll();  
-      DYTurbo::PrintTable::Settings();
-    }
+  if (debug >= 3)
+    opts.dumpAll();  
+  if (debug >= 2)
+    DYTurbo::PrintTable::Settings();
   
   //Compute predictions
   vector <double> vals;

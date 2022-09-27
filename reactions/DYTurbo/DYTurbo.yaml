@@ -3,6 +3,7 @@ order: 2    # Perturbative order in QCD: 0 for LL, 1 for NLL+NLO, 2 for NNLL+NNL
 muR: 1.     # Renormalization scale
 muF: 1.     # Factorization scale
 muRes: 1.   # Resummation scale
+blim: 1.5   # bmax value for the bstar prescription
 g1: 1       # Universal Gaussian non-perturbative form factor
 g2: 0       # Q-dependent Gaussian non-perturbative form factor
 g3: 0       # tau-dependent Gaussian non-perturbative form factor
@@ -23,4 +24,5 @@ alphaA: 1
 NB: 0
 sigmaB: 1
 alphaB: 1
+q: 0     # quartic term
 debug: 0
