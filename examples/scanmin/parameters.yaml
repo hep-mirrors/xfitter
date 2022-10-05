@@ -97,7 +97,7 @@ byReaction:
     varin2 : -0.666666666667
     varin3 : 1.0        # recommended RT OPT settings
     additive: 1
-    threads: 4
+    threads: 0
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :

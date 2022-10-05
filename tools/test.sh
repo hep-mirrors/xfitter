@@ -145,7 +145,7 @@ runTest()
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
-  ${xfitter} | tee ${xflogfile}
+  ${xfitter} >& ${xflogfile}
   cd - > /dev/null
 
   # check chi2 in Results.txt ("After minimisation ...")
@@ -264,7 +264,7 @@ for arg in `echo $listOfTests`; do
   log=$dir/$testlogfile
   printf "Testing $arg ... "
   rm -rf 
-  runTest $arg $dir $COPY | tee $log
+  runTest $arg $dir $COPY >& $log
   exitcode=$?
   if [ $COPY -eq 1 ]; then
     if [ $exitcode == 0 ]; then

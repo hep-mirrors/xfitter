@@ -1,0 +1,36 @@
+ First iteration    498.17739397351386              341   1.4609307741158764     
+After minimisation     498.18   341     1.461
+
+  Partial chi2s 
+Dataset    1     19.14( +0.11)    37  BABAR                                           
+Dataset    2     23.34( -0.21)    28  BELLE2020                                       
+Dataset    3     26.87( +0.59)    23  ALEPH_{TOT}                                     
+Dataset    4     30.03( -1.57)    21  DELPHI_{TOT}                                    
+Dataset    5     44.96( +2.38)    24  OPAL_{TOT}                                      
+Dataset    6     77.05( +2.22)    34  SLD_{TOT}                                       
+Dataset    7      1.18( +1.12)     4  TASSO_{12}                                      
+Dataset    8     10.25( +0.83)     9  TASSO_{14}                                      
+Dataset    9      5.97( +2.15)     8  TASSO_{22}                                      
+Dataset   10      6.58( +0.71)     9  TASSO_{34}                                      
+Dataset   11     12.87( +0.30)     6  TASSO_{44}                                      
+Dataset   12      6.31( +0.09)    13  TPC_{TOT}                                       
+Dataset   13     23.37( -2.15)    21  DELPHI b_{tag}                                  
+Dataset   14     27.03( -0.17)    34  SLD b_{tag}                                     
+Dataset   15     41.32( +0.66)    34  SLD c_{tagged}                                  
+Dataset   16     19.76( -0.72)    21  DELPHI light_{tag}                              
+Dataset   17    102.37( +1.78)    34  SLD light_{tag}                                 
+
+ Correlated Chi2    11.660807156613719     
+ Log penalty Chi2    8.1112477516378618     
+ Systematic shifts            9
+  
+                                Name          Shift   +/-    Error          Type
+    1  sys_over                               0.0861   +/-   0.1954        :N:M:D
+    2  TASSO12_sys_{overall}                  0.6363   +/-   0.4533        :N:M:D
+    3  TASSO14_sys_{overall}                  0.5260   +/-   0.2679        :N:M:D
+    4  TASSO22_sys_{overall}                  2.0293   +/-   0.5423        :N:M:D
+    5  TASSO34_sys_{overall}                  1.3619   +/-   0.3517        :N:M:D
+    6  TASSO44_sys_{overall}                  0.9643   +/-   0.6100        :N:M:D
+    7  sys_DELPH_b                           -1.7587   +/-   0.1882        :N:M:D
+    8  sys_{SLD_B_ov}                        -0.9811   +/-   0.3491        :N:M:D
+    9  sys_{SLD_C_ov}                         0.1165   +/-   0.6017        :N:M:D
