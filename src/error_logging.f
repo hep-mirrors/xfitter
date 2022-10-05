@@ -93,7 +93,7 @@ C-----------------------------------------------------------------------
       INTEGER getparami
       external getparami
       
-      DATA TSEV/'I:','W:','E;','S:','F:'/
+      DATA TSEV/'I:','W:','E:','S:','F:'/
       DATA FULLTX/
      +   'Informational messages:',
      +   'Warning messages:',
@@ -121,12 +121,17 @@ C-----------------------------------------------------------------------
         FIRST=.FALSE.
         CALL DTLU(MAXERR,0,TAB,AUX)
 *       default max severity level for which continuation is still allowed
-        MAX_ERR_ALLOWED = getparami("MaxErrAllowed")
-        IF (MAX_ERR_ALLOWED.EQ.0) THEN
-           MAX_ERR_ALLOWED = 2
-        ENDIF
+        MAX_ERR_ALLOWED = 2
       ENDIF
 
+      MAX_ERR_ALLOWED = getparami("MaxErrAllowed")
+      IF (MAX_ERR_ALLOWED.LT.1) THEN
+         MAX_ERR_ALLOWED = 2
+      ENDIF
+      IF (MAX_ERR_ALLOWED.GT.3) THEN
+         MAX_ERR_ALLOWED = 3
+      ENDIF
+      
       LTEXT = MAX(MIN(1,LEN(TEXT)), LENB(TEXT))
 
 * print error message if in debug mode
@@ -226,7 +231,12 @@ C Set color on
             write (LL,'(A10)',advance='no') achar(27)//'[34m'
          endif
 
-         if (ISEVER.ge.3) then
+         if (ISEVER.eq.3) then
+C Set color on
+            write (LL,'(A10)',advance='no') achar(27)//'[33m'
+         endif
+
+         if (ISEVER.ge.4) then
 C Set color on
             write (LL,'(A10)',advance='no') achar(27)//'[31m'
          endif
