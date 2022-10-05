@@ -66,6 +66,28 @@ job-ceres-fit:
       - temp/**/output
     expire_in: 2 day
 
+job-ceres-parallel:
+  only: 
+    - merge_requests
+    - schedules
+  script: 
+    - ./tools/install-qcdnum
+    - ./tools/install-numdiff
+    #- ./tools/install-ceres
+    - . setup.sh
+    - ./make.sh install
+    - ./tools/test.sh CERES-parallel
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
+
 job-scanmin:
   only: 
     - merge_requests
