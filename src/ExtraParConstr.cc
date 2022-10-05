@@ -104,6 +104,7 @@ extern "C" {
       }
       printf("----- End of parameters in YAML format\n");
     }
+    fflush(stdout);
 	}
 }
 

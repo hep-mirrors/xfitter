@@ -119,6 +119,7 @@ add_subdirectory(minimizers/MINUIT)
 add_subdirectory(minimizers/CERES)
 
 #Parameterisations
+add_subdirectory(pdfparams/Pion_FF)
 add_subdirectory(pdfparams/HERAPDF)
 add_subdirectory(pdfparams/Normalized)
 add_subdirectory(pdfparams/Factor)
@@ -130,6 +131,7 @@ add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
 
 #Decompositions
+add_subdirectory(pdfdecomps/Pion_FF_B_C)
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
 add_subdirectory(pdfdecomps/LHAPDF)
 add_subdirectory(pdfdecomps/SU3_Pion)
@@ -144,6 +146,7 @@ add_subdirectory(evolutions/FlipUD)
 add_subdirectory(evolutions/LHAPDF)
 
 #Reactions
+add_subdirectory(reactions/NC_SIA)
 add_subdirectory(reactions/BaseDISNC)
 add_subdirectory(reactions/BaseDISCC)
 add_subdirectory(reactions/FFABM_DISNC)
