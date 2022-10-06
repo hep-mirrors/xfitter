@@ -16,6 +16,7 @@ C---------------------------------------------------------
 #include "steering.inc"
 #include "systematics.inc"
 #include "indata.inc"
+#include "datasets.inc"
 
       integer n0_in, flag_in
       double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
@@ -219,6 +220,11 @@ C !> Add log term
          call chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
          fchi2_in = fchi2_in + chi2_log
          if (lDebug) print '(''Log term contribution='',F6.2)',chi2_log
+      else
+         do i=1,NDATASETS
+            chi2_poi(i) = 0.D0
+         enddo
+         chi2_poi_tot = 0.D0
       endif
        ! print*,'fchi2_in=',fchi2_in
 
@@ -924,6 +930,7 @@ c      print *,A(1,1),A(nsys,nsys)
 
       call cpu_time(time2)
       print *,'CPU LOOP=',time2-time1
+      call flush
 C
 C Under diagonal:
 C
@@ -1543,11 +1550,13 @@ C-------------------------------------------------------------------------
          if (FitSample(i)) then
             if ( alpha(i).gt.0 ) then
                dchi2=-log(alpha(i)*alpha(i)*ScaledErrors(i))
+               chi2_poi_data(i) = dchi2
                chi2_log = chi2_log + dchi2
                chi2_poi(JSET(i)) = chi2_poi(JSET(i)) + dchi2
             endif
          endif
       enddo
+      chi2_poi_tot = chi2_log
 
       end
 

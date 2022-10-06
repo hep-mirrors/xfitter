@@ -10,11 +10,26 @@
 #include "xfitter_cpp_base.h"
 #include "ext_pdfs.h"
 
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
 // the class factories
 extern "C" ReactionRT_DISNC *create()
 {
   return new ReactionRT_DISNC();
 }
+
+struct stf
+{
+  int idx;
+  double f2;
+  double fl;
+  double f2c;
+  double flc;
+  double f2b;
+  double flb;
+};
 
 // RT wrappers from RT/src/mstw2008_wrap.f:
 extern "C"
@@ -103,7 +118,10 @@ void ReactionRT_DISNC::F2 BASE_PARS
     Super::F2(td, f2base, err);
 
     // Re-scale F2:
-    val = f2base * f2gamma_RT / f2gamma_base;
+    if (td->getParamI("additive") == 1)
+      val = f2gamma_RT + f2base - f2gamma_base;
+    else
+      val = f2base * f2gamma_RT / f2gamma_base;
   }
   else
     val = f2gamma_RT;
@@ -125,8 +143,11 @@ void ReactionRT_DISNC::FL BASE_PARS
     Super::FLgamma(td, flgamma_base, err);
     Super::FL(td, flbase, err);
 
-    // Re-scale F2:
-    val = flbase * flgamma_RT / flgamma_base;
+    // Re-scale FL:
+    if (td->getParamI("additive") == 1)
+      val = flgamma_RT + flbase - flgamma_base;
+    else
+      val = flbase * flgamma_RT / flgamma_base;
   }
   else
     val = flgamma_RT;
@@ -150,42 +171,136 @@ void ReactionRT_DISNC::FLgamma_RT BASE_PARS
 void ReactionRT_DISNC::calcF2FL(TermData *td)
 {
   unsigned termID = td->id;
-  if ((_f2rt[termID][0] < -99.))
-  { // compute
-    // Get x,Q2 arrays:
-    auto *q2p = GetBinValues(td, "Q2"), *xp = GetBinValues(td, "x");
-    auto q2 = *q2p, x = *xp;
+  if (!(_f2rt[termID][0] < -99.))
+    return;
+  
+  // compute
+  // Get x,Q2 arrays:
+  auto *q2p = GetBinValues(td, "Q2"), *xp = GetBinValues(td, "x");
+  auto q2 = *q2p, x = *xp;
 
-    const size_t Np = GetNpoint(termID);
-    int iflag = 1;
+  const size_t Np = GetNpoint(termID);
+  int iflag = 1;
 
-    double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
+  double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
 
-    for (size_t i = 0; i < Np; i++)
+  int threads = td->getParamI("threads");
+  if (threads == 0)
     {
-      if (q2[i] > 1.0)
-      {
+      for (size_t i = 0; i < Np; i++)
+	{
+	  if (q2[i] > 1.0)
+	    {
 
-        mstwnc_wrap_(x[i], q2[i], 1,
-                     f2, f2c, f2b, fl, flc, flb,
-                     iflag, i + 1, 1., 0.1, 0);
-      }
+	      mstwnc_wrap_(x[i], q2[i], 1,
+			   f2, f2c, f2b, fl, flc, flb,
+			   iflag, i + 1, 1., 0.1, 0);
+	    }
 
-      switch (GetDataFlav(termID))
-      {
-      case dataFlav::incl:
-        _f2rt[termID][i] = f2;
-        _flrt[termID][i] = fl;
-        break;
-      case dataFlav::c:
-        _f2rt[termID][i] = f2c;
-        _flrt[termID][i] = flc;
-        break;
-      case dataFlav::b:
-        _f2rt[termID][i] = f2b;
-        _flrt[termID][i] = flb;
-        break;
-      }
+	  switch (GetDataFlav(termID))
+	    {
+	    case dataFlav::incl:
+	      _f2rt[termID][i] = f2;
+	      _flrt[termID][i] = fl;
+	      break;
+	    case dataFlav::c:
+	      _f2rt[termID][i] = f2c;
+	      _flrt[termID][i] = flc;
+	      break;
+	    case dataFlav::b:
+	      _f2rt[termID][i] = f2b;
+	      _flrt[termID][i] = flb;
+	      break;
+	    }
+	}
+      return;
     }
-  }
+      
+  //fork wait parallelisation
+  int fd[2];
+  if (pipe(fd) < 0)
+    {
+      std::cout << "Error in fork/wait: could not create pipe" << std::endl;
+      exit(-1);
+    }
+
+  size_t Npr = Np/threads+1;
+  //std::cout << " Np " << Np << " Npr " << Npr << std::endl;
+  for (int P = 0; P < threads; P++)
+    {
+      pid_t id = fork();
+      if (id == 0)
+	{
+	  close(fd[0]);
+	  for (size_t i = P*Npr; i < std::min(Np,(P+1)*Npr); i++)
+	    {
+	      if (!(q2[i] > 1.0))
+		continue;
+	      stf fs;
+
+	      //std::cout << P << "  " << i << std::endl;
+	      mstwnc_wrap_(x[i], q2[i], 1,
+			   f2, f2c, f2b, fl, flc, flb,
+			   iflag, i + 1, 1., 0.1, 0);
+	      fs.f2 = f2;
+	      fs.fl = fl;
+	      fs.f2c = f2c;
+	      fs.flc = flc;
+	      fs.f2b = f2b;
+	      fs.flb = flb;
+	      fs.idx = i;
+	  
+	      int status;
+	      status = write(fd[1], &fs, sizeof fs);
+	    }
+	  exit(0);
+	}
+      else if (id < 0)
+	{
+	  std::cout << "Error: failed to fork" << std::endl;
+	  exit (-1);
+	}
+      
+    }
+  //wait for all children to finish
+  int status;
+  pid_t wpid;
+  while ((wpid = wait(&status)) > 0)
+    if (status < 0)
+      {
+	std::cout << "Process " << wpid << " terminated with status " << status << std::endl;
+	exit(-1);
+      }
+  
+  //Read out buffer
+  close(fd[1]);
+  for (size_t i = 0; i < Np; i++)
+    {
+      if (!(q2[i] > 1.0))
+	continue;
+      stf fs;
+      int nbytes = read(fd[0], &fs, sizeof fs);
+      if(!(nbytes > 0))
+	{
+	  string message = "E: Error in fork/wait: nothing on the pipe.";
+	  hf_errlog_(22082501, message.c_str(), message.size());
+	}
+	
+      switch (GetDataFlav(termID))
+	{
+	case dataFlav::incl:
+	  _f2rt[termID][fs.idx] = fs.f2;
+	  _flrt[termID][fs.idx] = fs.fl;
+	  break;
+	case dataFlav::c:
+	  _f2rt[termID][fs.idx] = fs.f2c;
+	  _flrt[termID][fs.idx] = fs.flc;
+	  break;
+	case dataFlav::b:
+	  _f2rt[termID][fs.idx] = fs.f2b;
+	  _flrt[termID][fs.idx] = fs.flb;
+	  break;
+	}
+    }
+  close(fd[0]);
 }
