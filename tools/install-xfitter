@@ -3,7 +3,7 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.5.1
+lhapdfver=6.5.3
 hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.6.32
