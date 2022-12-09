@@ -195,7 +195,7 @@ void APFEL_Evol::atStart()
   APFEL::SetCKM(*Vud, *Vus, *Vub,
                 *Vcd, *Vcs, *Vcb,
                 *Vtd, *Vts, *Vtb);
-  APFEL::EnableDynamicalScaleVariations(true);
+  //APFEL::EnableDynamicalScaleVariations(true);
 
   APFEL::SetQLimits(qLimits[0], qLimits[1]);
   // Setup x sub-grids:
@@ -243,16 +243,15 @@ void APFEL_Evol::atStart()
   // set the ratio muR / Q (default 1), muF / Q (default 1)
   double muRoverQ = _yAPFEL["muRoverQ"].as<double>();
   double muFoverQ = _yAPFEL["muFoverQ"].as<double>();
-  APFEL::EnableDynamicalScaleVariations(false); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
+  //APFEL::EnableDynamicalScaleVariations(false); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
   APFEL::SetRenQRatio(muRoverQ);
   APFEL::SetFacQRatio(muFoverQ);
 
   // set the ratio muR /muF (default 1) in the PDF and AlphaS evolution (Phys.Rev.D 105 (2022) 9, 096003).
   double muRovermuF = _yAPFEL["muRovermuF"].as<double>();
+  APFEL::SetScaleVariationProcedure(2);
   APFEL::SetRenFacRatioPDF(muRovermuF);
   APFEL::SetRenFacRatioAlpha(muRovermuF);
-
-
 
   // APFEL::InitializeAPFEL();
   // Initialize the APFEL DIS module
