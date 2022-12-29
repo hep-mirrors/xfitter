@@ -109,7 +109,9 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     for (pineappl_grid* grid : data.grids) {
         vector<double> gridVals;
         if (grid) {//real, non-dummy grid
-            gridVals.resize(pineappl_grid_bin_count(grid));
+			int Nbins = pineappl_grid_bin_count(grid);
+            gridVals.resize(Nbins);
+            hf_errlog(22122901, "I: reading PineAPPL grid with "+to_string(Nbins)+" bins");
             td->actualizeWrappers();
             //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
             pineappl_grid_convolute_with_one(grid, data.pdg_id, 
