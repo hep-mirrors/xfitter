@@ -13,13 +13,16 @@ apfelgridver=1.0.5
 apfelxxver=4.0.0
 dyturbover=1.2
 pineapplver=0.5.8
-rustver=1.65.0
+rustver=1.66.0
+cargocver=0.9.14
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
 skip_dyturbo=1
 skip_rust=0
 skip_pineappl=0
+# fetch precompiled files for pineappl if possible, avoiding heavy rust deps
+pineappl_lite=1
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -608,7 +611,7 @@ else
     fi
     
  # rust:
-    if [[ $skip_rust != 1 ]]; then
+    if [[ $skip_rust != 1 ]] && [[ $pineappl_lite != 1 ]]; then
         echo "Installing Rust $rustver..."
         rust_url=https://static.rust-lang.org/dist/rust-${rustver}-${arch}-${rusttag}.tar.gz
         if [[ $http == "curl" ]]
@@ -625,7 +628,7 @@ else
         
         # cargo-c needed for pineappl c-interface
         echo "Installing cargo-c..."
-        cargo install cargo-c
+        cargo install --version ${cargocver} cargo-c
         if [[ $? != 0 ]]
         then
             echo "Error, check install.log for details"
@@ -639,23 +642,50 @@ else
 # pineappl:
     if [[ $skip_pineappl != 1 ]]; then
         echo "Installing PineAPPL $pineapplver..."
-          
-        PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
-        git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
-        cd pineappl/pineappl_capi
-        cargo cinstall --release --prefix=$CURRENTDIR/deps/pineappl
-        if [[ $? != 0 ]]
-        then
-            echo "Error, check install.log for details"
-            exit
-        fi
+
+            if [[ $pineappl_lite == 1 ]]; then
+                pineapplurl=https://gitlab.cern.ch/fitters/xfitter/-/archive/${version}/xfitter-${version}.tar.gz?path=tools/pineappl
+                wget --no-check-certificate ${pineapplurl} -O pineappl_lite.tar.gz >> $CURRENTDIR/install.log 2>&1
+                tar xzf pineappl_lite.tar.gz >> $CURRENTDIR/install.log  2>&1
+                mv xfitter-${version}-tools-pineappl/tools/pineappl/ pineappl
+                rmdir xfitter-${version}-tools-pineappl/tools/
+                rmdir xfitter-${version}-tools-pineappl
+                cd pineappl/lib
+                ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so
+                ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so.0
+                mkdir pkgconfig
+                cd pkgconfig
+                echo "prefix=$CURRENTDIR/deps/pineappl"                          >> pineappl_capi.pc
+                echo "exec_prefix=\${prefix}"                                    >> pineappl_capi.pc
+                echo "libdir=\${exec_prefix}/lib"                                >> pineappl_capi.pc
+                echo "includedir=\${prefix}/include"                             >> pineappl_capi.pc
+                echo ""                                                          >> pineappl_capi.pc
+                echo "Name: pineappl_capi"                                       >> pineappl_capi.pc
+                echo "Description: C language interface to PineAPPL"             >> pineappl_capi.pc
+                echo "Version: 0.5.8"                                            >> pineappl_capi.pc
+                echo "Libs: -L\${libdir} -lpineappl_capi"                        >> pineappl_capi.pc
+                echo "Cflags: -I\${includedir}/pineappl_capi"                    >> pineappl_capi.pc
+                echo "Libs.private:  -lgcc_s -lutil -lrt -lpthread -lm -ldl -lc" >> pineappl_capi.pc
+            else
+                PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
+                git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
+                cd pineappl/pineappl_capi
+                cargo cinstall --release --prefix=$CURRENTDIR/deps/pineappl
+                if [[ $? != 0 ]]
+                then
+                    echo "Error, check install.log for details"
+                    exit
+                fi
+            fi
+
         cd - >& /dev/null
+
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/lhapdf/lib/pkgconfig
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
         export LD_LIBRARY_PATH=$CURRENTDIR/deps/pineappl/lib:$LD_LIBRARY_PATH
     fi
 
-    fi
+fi
 cd $CURRENTDIR
 
 
