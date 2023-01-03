@@ -230,6 +230,12 @@ then
         fi
     fi
 fi
+
+#Require full PineAPPL installation if precompiled files not available
+if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu"]]; then
+    pineappl_lite=0
+fi
+
 if [[ $MODE == "cern" ]]
     then
     if [[ ! -e /cvmfs/sft.cern.ch ]]
@@ -723,7 +729,12 @@ fi
 echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
-echo export CARGODIR=\$HOME/.cargo                                  >> setup.sh
+if [[ $skip_rust != 1 ]] && [[ $pineappl_lite != 1 ]]; then
+    echo export CARGODIR=\$HOME/.cargo                                        >> setup.sh
+    echo export PATH=\$CURRENTDIR/deps/rust/bin:\$PATH                        >> setup.sh
+    echo export PATH=$CARGODIR/bin:$PATH                                      >> setup.sh
+    echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/rust/lib/:\$LD_LIBRARY_PATH >> setup.sh
+fi
 echo export PATH=\$CURRENTDIR/xfitter-$version/bin:\$PATH           >> setup.sh
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin:\$PATH                >> setup.sh
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin:\$PATH              >> setup.sh
@@ -732,7 +743,6 @@ echo export PATH=\$CURRENTDIR/deps/apfel/bin:\$PATH                 >> setup.sh
 echo export PATH=\$CURRENTDIR/deps/mela/bin:\$PATH                  >> setup.sh
 echo export PATH=\$CURRENTDIR/deps/apfelxx/bin:\$PATH               >> setup.sh
 echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/rust/bin:\$PATH                  >> setup.sh
 echo export PATH=\$CARGODIR/bin:\$PATH                              >> setup.sh 
 echo export PATH=\$CURRENTDIR/deps/qcdnum/bin:\$PATH                >> setup.sh
 
@@ -752,7 +762,6 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH      
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH                  >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH                >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/rust/lib/:\$LD_LIBRARY_PATH                  >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH               >> setup.sh
 
 if [[ $MODE == "cern" ]]
