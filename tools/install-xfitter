@@ -151,19 +151,7 @@ then
     else
         SYS=$(echo `lsb_release -i |cut -d: -f2`)
         ver=$(echo `lsb_release -r |cut -d: -f2`)
-        if [[ $SYS == Scientific* && $ver == 6.* ]]
-        then
-            echo "Detected SL6 Linux distribution"
-            MODE=cern
-            gccv=4.9
-	        cmakev=3.20.0
-            echo "Using gcc version = ${gccv}"
-            os=slc6
-            arch=x86_64
-            rootversion=5.34.36
-            boostver=1.53.0
-            pyth=2.7
-        elif [[ $SYS == CentOS* && $ver == 7.* ]]
+        if [[ $SYS == CentOS* && $ver == 7.* ]]
         then
             echo "Detected CentOS7 Linux distribution"
             MODE=cern
@@ -182,25 +170,8 @@ then
 	then
             echo "System not recognized, but cvmfs is mounted"
             MODE=cvmfs
-	    #gccv=10.3.0
-	    #arch=x86_64
-	    #os=centos7
-	    #cmakev=3.20.0
-	    #rootversion=6.06.08
-	    #boostver=1.53.0
-	    #pyth=2.7
-
-	    #. /cvmfs/sft.cern.ch/lcg/releases/gcc/10.3.0-f5826/x86_64-centos7/setup.sh
-	    #. /cvmfs/sft.cern.ch/lcg/releases/ROOT/6.24.06-3455f/x86_64-centos7-gcc10-opt/bin/thisroot.sh
-            #echo "Using gcc version = 10.3.0"
-
-	    #setup entire view (fails on cmake for ceres)
-	    #. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
-
-	    #setup older gcc
-	    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
-	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
-            echo "Using gcc version = 4.9.3"
+	    #setup entire view
+	    . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
         else
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
@@ -231,8 +202,7 @@ fi
 if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
-    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-    . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
+    . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
     PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:${PATH}
     if [[ $os == slc6 ]]
     then
@@ -625,18 +595,30 @@ fi
 #make a setup run enviroment script
 echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
+
+if [[ $MODE == "cern" ]]
+then
+    echo ". /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh" >> setup.sh
+    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
+fi
+
+if [[ $MODE == "cvmfs" ]]
+then
+    echo ". /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh" >> setup.sh
+fi
+
 echo "export version=\`cat version\`" >> setup.sh
 echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
-echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
+echo "# export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
 rm /tmp/xf_py1234_a
 
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
@@ -644,27 +626,9 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
-
-if [[ $MODE == "cern" ]]
-then
-    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-
-    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
-    echo "cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/" >> setup.sh
-    echo ". /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh ">> setup.sh
-    echo "cd -" >>setup.sh
-fi
-
-if [[ $MODE == "cvmfs" ]]
-then
-    #echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
-    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
-fi
 
 #make a compilation script
 echo source ./setup.sh > compile
@@ -713,6 +677,10 @@ if [[ $version != "2.0.0" ]] && [[ $version != "2.0.1" ]]; then
   if [ $HAVEYAML -eq 0 ] || [ $HAVEYAMLCPP -eq 0 ]; then
     #echo "Installing YAML"
     xfitter-${version}/tools/install-yaml
+    # try other location if not found:
+    if [ $? -ne 0 ]; then
+	./tools/install-yaml
+    fi
     echo source $CURRENTDIR/setup_yaml.sh >> compile
     echo source $CURRENTDIR/setup_yaml.sh >> setup.sh
   fi
@@ -723,20 +691,9 @@ chmod +x compile
 # configure
 if [[ $mode != "deps" ]]
 then
-  if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
-    echo autoreconf --install                                 >> compile
-    echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
-    echo make -j 8 install                                    >> compile
-  elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
-    # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
-    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
-    echo make -j 8 install                                    >> compile
-    echo autoreconf --install                                 >> compile
-  else
     # cmake compilation
     echo ./make.sh install >> compile
-  fi
-  echo "Compiling xFitter $version..."
+    echo "Compiling xFitter $version..."
 fi
 
 ./compile >> $CURRENTDIR/install.log  2>&1
