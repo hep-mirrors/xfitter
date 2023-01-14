@@ -1,0 +1,263 @@
+*  Namelist to control input data
+*
+
+&InFiles
+  ! Number of intput files
+    NInputFiles = 17
+     InputFileNames = 
+  ! Input files:
+!   4 active flavour
+            'datafiles/NC_SIA/BABAR/inclusive/BABAR_inclusive_pi_o.dat',
+            'datafiles/NC_SIA/BELLE20/BELLE20_inclusive_pi_1.dat'
+
+
+
+!    Inclusive
+            'datafiles/NC_SIA/ALEPH/inclusive/ALEPH_inclusive_pi_h.dat',
+            'datafiles/NC_SIA/DELPHI/inclusive/DELPHI_inclusive_pi.dat',
+            'datafiles/NC_SIA/OPAL/inclusive/OPAL_inclusive_pi.dat',
+            'datafiles/NC_SIA/SLD/inclusive/SLD_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_12_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_14_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_22_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_34_inclusive_pi.dat',
+            'datafiles/NC_SIA/TASSO/inclusive/TASSO_44_inclusive_pi.dat',
+            'datafiles/NC_SIA/TPC/TPC_inclusive_pi.dat',
+
+!   b tag
+            'datafiles/NC_SIA/DELPHI/b_tag/DELPHI_b_tag_pi.dat',
+            'datafiles/NC_SIA/SLD/b_tag/SLD_b_tag_pi.dat',
+!   c tag
+            'datafiles/NC_SIA/SLD/c_tag/SLD_c_tag_pi.dat',
+!   light tag 
+            'datafiles/NC_SIA/DELPHI/light_tag/DELPHI_light_tag_pi_o.dat',
+            'datafiles/NC_SIA/SLD/light_tag/SLD_light_tag_pi.dat',
+
+&End
+
+&InCorr
+  ! Number of correlation (statistical, systematical or full) files
+    NCorrFiles = 0
+ 
+  ! Correlation files:
+  !  CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+&End
+
+&ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
+  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
+  tolerance = 0.0
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
+  useBlas = .false.
+&End
+&Scales 
+ !   DataSetMuR  = 7*1.0     ! Set muR scale to 1 for all 4 datasets
+  !  DataSetMuF  = 7*1.0     ! Set muF scale to 1 for all 4 datasets
+ !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
+    DataSetMaxNF(1) = 4    ! Enable the H-VFNS (requires APFEL)
+    DataSetMaxNF(2) = 4
+    DataSetMaxNF(3) = 5
+    DataSetMaxNF(4) = 5
+    DataSetMaxNF(5) = 5
+    DataSetMaxNF(6) = 5
+    DataSetMaxNF(7) = 5
+    DataSetMaxNF(8) = 5
+    DataSetMaxNF(9) = 5
+    DataSetMaxNF(10) = 5
+    DataSetMaxNF(11) = 5
+    DataSetMaxNF(12) = 5
+    DataSetMaxNF(13) = 5
+    DataSetMaxNF(14) = 5
+    DataSetMaxNF(15) = 5 
+    DataSetMaxNF(16) = 5
+    DataSetMaxNF(17) = 5
+
+ !   DataSetMaxNF = 15*5
+&End
+
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .False.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 20.0
+
+   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
+  LSubtractStat = .false.
+
+   ! The following lines allow to adjust error scaling properties (default: :M)
+  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
+  DataSystType = ':A', ':A'
+&End
+
+
+*
+* (Optional) List systematic sources, modify their scaling properties:
+*
+&Systematics
+ !C      List sources, Results.txt file would list them first. Use the usual :A, :P, 
+ !C      qualifiers to change the scalling properties
+ !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
+ !C      Modify the prior in chi2 definition (1.0 is default):
+ !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
+ !  PriorScaleFactor = 0.0, 0.0 
+&End
+
+
+*
+* Main steering cards
+*
+&xFitter 
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
+
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2ExtraParam = 'PoissonCorr'
+
+ ! Debug flag
+  LDEBUG     = False
+
+
+ ! Quadratic approximation for asymmetric uncertainties
+ ! AsymErrorsIterations = 10
+&End
+
+
+*
+* Output steering cards
+*
+&Output 
+  ! -- Q2 values at which the pdfs & errors are done (up to 20)
+  Q2VAL = 25., 100., 6464, 8317 
+!  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
+
+  ! How many x points to write (standard = 101)
+  OUTNX = 101
+
+  ! x-range of output (standard = 1E-4 1.0)
+  OUTXRANGE = 1E-2, 0.9999
+  ! Write out LHAPDF5 output
+  ! WriteLHAPDF5 = true
+&End
+
+
+
+*
+* Process dependent cuts
+*
+&Cuts
+
+!--------------------- FF inclusive pion NF4 --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC SIA NF4'
+   Variable(1)        = 'x'
+   CutValueMin(1)     = 0.2
+   CutValueMax(1)     = 0.9
+
+!--------------------- FF inclusive pion --------------------------
+  ! Rule #1: Q2 cuts
+   ProcessName(2)     = 'NC SIA'
+   Variable(2)        = 'x'
+   CutValueMin(2)     = 0.075
+   CutValueMax(2)     = 0.9
+
+!--------------------- FF inclusive pion norm --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(3)     = 'NC SIA Norm'
+   Variable(3)        = 'x'
+   CutValueMin(3)     = 0.02
+   CutValueMax(3)     = 0.9
+
+
+!--------------------- FF light pion  --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(4)     = 'NC SIA light'
+   Variable(4)        = 'x'
+   CutValueMin(4)     = 0.02
+   CutValueMax(4)     = 0.9
+
+!--------------------- FF btagged pion  --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(5)     = 'NC SIA bt'
+   Variable(5)        = 'x'
+   CutValueMin(5)     = 0.02
+   CutValueMax(5)     = 0.9
+
+!--------------------- FF ctagged pion  --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(6)     = 'NC SIA ct'
+   Variable(6)        = 'x'
+   CutValueMin(6)     = 0.02
+   CutValueMax(6)     = 0.9
+
+
+
+
+   ProcessName(7)     = 'NC SIA NF4 Norm'
+   Variable(7)        = 'x'
+   CutValueMin(7)     = 0.1
+   CutValueMax(7)     = 0.9
+
+  !--------------------- by Dataset index ----------------
+
+   ! applied to any (including unspecified) reaction by Dataset indices
+   ! e.g. cut pTmax < 15.0 will be applied to datasets 996 and 996
+   ! ProcessName must be 'DUMMY'
+   !
+   !ProcessName(11)     = 'DUMMY'
+   !Dataset( 1,11)      = 995
+   !Dataset( 1,11)      = 996
+   !Variable(11)        = 'pTmax'
+   !CutValueMin(11)     = 0.0
+   !CutValueMax(11)     = 15.0
+   
+&End
+
+*
+* (Optional) MC errors steering cards
+*
+&MCErrors
+  ! Activate MC method for error estimation if lRand = True
+  lRAND   = False
+  
+  ! Use data (true, default) or theory (false) for the central values of the MC replica
+  lRANDDATA = True
+
+  ! MC method Seed
+  ISeedMC = 123456 
+
+  ! --- Choose what distribution for the random number generator 
+  ! STATYPE (SYS_TYPE)  =   1  gauss
+  ! STATYPE (SYS_TYPE)  =   2  uniform
+  ! STATYPE (SYS_TYPE)  =   3  lognormal
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  !
+  ! STATYPE = SYS_TYPE = 0 with lRANDDATA = False and lRAND   = True yeilds in substitution of data by theory (useful for sensitivity tests)
+  !
+  STATYPE =  1
+  SYSTYPE =  1
+&End
+
