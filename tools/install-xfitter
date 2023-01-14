@@ -9,6 +9,7 @@ hoppetver=1.2.0
 applgridver=1.6.32
 qcdnumver=18-00-00
 apfelver=3.0.6
+fiatluxver=0.1.1
 apfelgridver=1.0.5
 apfelxxver=4.0.0
 dyturbover=1.2
@@ -461,6 +462,23 @@ else
 
     cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
 
+#fiatlux
+   echo "Installing FIATLUX $fiatluxver ..."
+    if [[ $http == "curl" ]]
+    then
+        curl https://github.com/scarrazza/fiatlux/archive/refs/tags/${fiatluxver}.tar.gz > ${fiatluxver}.tar.gz 2 >> $CURRENTDIR/install.log
+    else
+        wget --no-check-certificate https://github.com/scarrazza/fiatlux/archive/refs/tags/${fiatluxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
+    mv ${fiatluxver}.tar.gz fiatlux-${fiatluxver}.tar.gz
+    tar xfvz fiatlux-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    cd fiatluxver-${apfelver}
+    mkdir build
+    cd build
+    cmake ..
+    make -j 8 install
+
+
  #apfelgrid
     if [[ $skip_apfelgrid != 1 ]]; then
         wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
@@ -631,7 +649,7 @@ echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/fiatlux/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
 
@@ -644,7 +662,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/fiatlux/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
@@ -673,7 +691,7 @@ echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/fiatlux/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:\$PATH     >> compile
 
 
