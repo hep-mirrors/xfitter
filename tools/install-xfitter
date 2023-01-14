@@ -475,7 +475,7 @@ else
     cd fiatluxver-${apfelver}
     mkdir build
     cd build
-    cmake ..
+    cmake -DENABLE_EXAMPLES=off -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/fiatlux/ ..
     make -j 8 install
 
 
