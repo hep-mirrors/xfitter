@@ -500,7 +500,8 @@ else
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
-    cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
+    mkdir build && cd build
+    cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx .. >> $CURRENTDIR/install.log  2>&1
     make -j 8 >> $CURRENTDIR/install.log  2>&1
     make -j 8 install >> $CURRENTDIR/install.log  2>&1
     
