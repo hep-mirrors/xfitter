@@ -1,7 +1,7 @@
-image: "rootproject/root:6.26.10-fedora36"
+image: "rootproject/root:6.24.06-centos7"
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel blas
   #eigen3-devel gflags-devel glog-devel
   - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   
