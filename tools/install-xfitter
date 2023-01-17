@@ -298,24 +298,16 @@ else
     cd deps
 #lhapdf:
     echo "Installing LHAPDF $lhapdfver..."
-    if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
-    then
-        lhapdf="LHAPDF"
-        withboost=$BOOST
-    else
-        lhapdf="lhapdf"
-    fi
-
     if [[ $http == "curl" ]]
     then
-        curl https://gitlab.com/hepcedar/lhapdf/-/archive/lhapdf-6.5.3/lhapdf-${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl http://www.hepforge.org/archive/lhapdf/LHAPDF-${VERSION}.tar.gz > LHAPDF-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate https://gitlab.com/hepcedar/lhapdf/-/archive/lhapdf-6.5.3/lhapdf-${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${VERSION}.tar.gz >& pdfinstall.log >> $CURRENTDIR/install.log 2>&1
     fi
     cat $CURRENTDIR/install.log
-    tar xfz lhapdf-${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    tar xzvf LHAPDF-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cat $CURRENTDIR/install.log 
-    cd lhapdf-${lhapdf}-${lhapdfver}
+    cd LHAPDF-${lhapdfver}
     ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
