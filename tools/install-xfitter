@@ -308,9 +308,9 @@ else
 
     if [[ $http == "curl" ]]
     then
-        curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl https://gitlab.com/hepcedar/lhapdf/-/archive/lhapdf-6.5.3/lhapdf-${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://gitlab.com/hepcedar/lhapdf/-/archive/lhapdf-6.5.3/lhapdf-${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     cat $CURRENTDIR/install.log
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
