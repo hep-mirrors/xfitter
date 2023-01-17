@@ -300,13 +300,11 @@ else
     echo "Installing LHAPDF $lhapdfver..."
     if [[ $http == "curl" ]]
     then
-        curl http://www.hepforge.org/archive/lhapdf/LHAPDF-${VERSION}.tar.gz > LHAPDF-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz > LHAPDF-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${VERSION}.tar.gz >& pdfinstall.log >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >& pdfinstall.log >> $CURRENTDIR/install.log 2>&1
     fi
-    cat $CURRENTDIR/install.log
-    tar xzvf LHAPDF-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-    cat $CURRENTDIR/install.log 
+    tar -xzf LHAPDF-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd LHAPDF-${lhapdfver}
     ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
@@ -331,7 +329,7 @@ else
     else
         wget --no-check-certificate https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    tar -xzf Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
     make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j 8 >> $CURRENTDIR/install.log  2>&1 
@@ -350,7 +348,7 @@ else
     else
         wget --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
+    tar -xzf hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
     cd hoppet-${hoppetver}
     ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
@@ -384,7 +382,7 @@ else
     else
         wget --no-check-certificate $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
+    tar -xzf applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
     # need to supply c++1X flag from root explicitly
     ./configure CXXFLAGS="${root_c_flags}" --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
@@ -418,7 +416,7 @@ else
         wget --no-check-certificate https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
-    tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    tar -xzf apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfel-${apfelver}
     ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
 
@@ -448,15 +446,15 @@ else
       wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
     fi
 
-    tar xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
-    tar xzf HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
+    tar -xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
+    tar -xzf HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
 
     cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
 
  #apfelgrid
     if [[ $skip_apfelgrid != 1 ]]; then
         wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-        tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
+        tar -xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
         mv NNPDF30_nlo_as_0118 lhapdf/share/LHAPDF >> $CURRENTDIR/install.log  2>&1
         rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
         echo "Installing APFELgrid $apfelgridver..."
@@ -468,7 +466,7 @@ else
             wget --no-check-certificate https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	fi
 	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
-	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+	tar -xzf APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	cd APFELgrid-${apfelgridver}
 	sed -i 's|wget|wget --no-check-certificate|' setup.sh
 	./setup.sh  >> $CURRENTDIR/install.log  2>&1
@@ -489,7 +487,7 @@ else
         wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
     mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
-    tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    tar -xzf apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
     cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
@@ -507,7 +505,7 @@ else
     else
         wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+    tar -xzf qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
 
     ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
@@ -535,7 +533,7 @@ else
         else
 	    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
         fi
-        tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+        tar -xzf dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
         cd dyturbo-${dyturbover}
 
         export CXXFLAGS="${CXXFLAGS} -std=c++0x"
@@ -568,7 +566,7 @@ else
       else
           wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       fi
-      tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+      tar -xzf numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
       cd numdiff-${numdiffver}
       ./configure  --prefix=$CURRENTDIR/deps/numdiff  >> $CURRENTDIR/install.log  2>&1
       echo export PATH=$CURRENTDIR/deps/numdiff/bin/:\$PATH >> $CURRENTDIR/setup.sh
@@ -607,7 +605,7 @@ then
         fi
        # unpack nicely:
         rm -fr xfitter-${version}
-        mkdir xfitter-${version} ; tar xfz xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
+        mkdir xfitter-${version} ; tar -xzf xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
     fi
 #else
 #    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
