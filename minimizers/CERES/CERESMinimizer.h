@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "BaseMinimizer.h"
@@ -39,9 +38,9 @@ namespace xfitter {
     virtual void actionAtFCN3() override final;
 
     /// Error analysis
-    virtual void errorAnalysis() override final;
+    virtual void errorAnalysis(ceres::Solver::Summary mySummary, const double* covmat) override final;
 
-    virtual ConvergenceStatus convergenceStatus()override final;
+    virtual ConvergenceStatus convergenceStatus() override final;
     /// Parameter transfer
     virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr , double  const* priors  = nullptr ) override final;
 
