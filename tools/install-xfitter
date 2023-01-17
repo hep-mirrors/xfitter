@@ -315,7 +315,7 @@ else
     cat $CURRENTDIR/install.log
     tar xfz lhapdf-${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cat $CURRENTDIR/install.log 
-    cd ${lhapdf}-${lhapdfver}
+    cd lhapdf-${lhapdf}-${lhapdfver}
     ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
