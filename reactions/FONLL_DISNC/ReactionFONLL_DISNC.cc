@@ -63,13 +63,16 @@ void ReactionFONLL_DISNC::atIteration()
   for (auto termID : _dsIDs)
   {
     TermData *td = GetTermData(termID);
-
+    
     // Non-apfelFF evolution
     if (_non_apfel_evol) {
       td -> actualizeWrappers();
       APFEL::SetPDFSet("external1");
     }
-
+    
+    // Get evolution boundary:
+    double gridLowQLimit = td->getPDF()->getQgrid()[0];
+    
     // Charge of the projectile.
     // This does not have any impact because the difference between
     // "electron" and "positron" for a NC cross section is relevant
@@ -98,7 +101,7 @@ void ReactionFONLL_DISNC::atIteration()
     for (size_t i = 0; i < Np; i++)
     {
       // Skip all points with Q2 below starting scale
-      if (q2[i] < Q0*Q0)
+      if (q2[i] < gridLowQLimit*gridLowQLimit)
         continue;
 
       // Recompute structure functions only if the value of Q2
