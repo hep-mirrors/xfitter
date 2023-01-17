@@ -9,7 +9,7 @@ Dataset    5    219.27( -0.24)   159  HERA1+2 NCem
 Dataset    6     44.92( +0.37)    39  HERA1+2 CCep                                    
 Dataset    7     56.02( -2.14)    42  HERA1+2 CCem                                    
 
- Correlated Chi2    91.460589111749783     
+ Correlated Chi2    91.460589111749840     
  Log penalty Chi2    5.8442132621088394     
  Systematic shifts          169
   
