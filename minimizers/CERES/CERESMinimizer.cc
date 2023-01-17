@@ -1,4 +1,3 @@
-
 /*
    @file CERESMinimizer.cc
    @date 2018-08-17
@@ -353,8 +352,18 @@ void CERESMinimizer::actionAtFCN3()
 }
 
 /// Error analysis
-void CERESMinimizer::errorAnalysis()
+void CERESMinimizer::errorAnalysis(ceres::Solver::Summary summary, const double* covmat)
 {
+
+   // Multiply the covariance matrix by the Chi-squared value
+    double chi_squared = summary.final_cost;
+    Eigen::MatrixXd hessian = Eigen::Map<Eigen::MatrixXd>(covariance, npars, npars) * chi_squared;
+    
+    // Diagonalize the Hessian matrix
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigensolver(hessian);
+    Eigen::VectorXd eigenvalues = eigensolver.eigenvalues();
+    Eigen::MatrixXd eigenvectors = eigensolver.eigenvectors();
+
     return;
 }
 
