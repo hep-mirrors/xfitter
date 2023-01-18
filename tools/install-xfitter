@@ -468,7 +468,7 @@ else
 	then
             echo "Error, check install.log for details"
 	fi
-	make -j 8 install
+	make -j 8 install >> $CURRENTDIR/install.log  2>&1
 	cd - >& /dev/null
     fi
     
