@@ -304,6 +304,7 @@ else
     else
         wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >& pdfinstall.log >> $CURRENTDIR/install.log 2>&1
     fi
+    ls 
     tar -xf LHAPDF-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd LHAPDF-${lhapdfver}
     ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
