@@ -489,7 +489,6 @@ else
     mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar -xzf apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfelxx-${apfelxxver}
-    mkdir build && cd build
     cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx .. >> $CURRENTDIR/install.log  2>&1
     make -j 8 >> $CURRENTDIR/install.log  2>&1
     make -j 8 install >> $CURRENTDIR/install.log  2>&1
@@ -506,7 +505,6 @@ else
     fi
     tar -xzf qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
-
     ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
 
