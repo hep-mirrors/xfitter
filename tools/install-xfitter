@@ -482,11 +482,10 @@ else
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
-        curl -L -O https://github.com/vbertone/apfelxx/archive/refs/tags/v${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        curl -L -O https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     else
-        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/refs/tags/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
-    mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar -xzf apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfelxx-${apfelxxver}
     mkdir build && cd build
