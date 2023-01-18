@@ -300,7 +300,7 @@ else
     echo "Installing LHAPDF $lhapdfver..."
     if [[ $http == "curl" ]]
     then
-        curl http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz > LHAPDF-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl -L http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz > LHAPDF-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
     else
         wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >& pdfinstall.log >> $CURRENTDIR/install.log 2>&1
     fi
@@ -326,7 +326,7 @@ else
     hathor="Hathor"
     if [[ $http == "curl" ]]
     then
-        curl https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl -L https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
     else
         wget --no-check-certificate https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
@@ -345,7 +345,7 @@ else
     echo "Installing HOPPET $hoppetver..."
     if [[ $http == "curl" ]]
     then
-        curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
+        curl -L http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
     else
         wget --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
     fi
@@ -379,7 +379,7 @@ else
     APPLGRID_URL=https://applgrid.hepforge.org/downloads/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
     then
-        curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
+        curl -L $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
     else
         wget --no-check-certificate $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
     fi
@@ -412,7 +412,7 @@ else
     echo "Installing APFEL $apfelver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl -L https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
         wget --no-check-certificate https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
@@ -440,8 +440,8 @@ else
     echo "Installing HELL tables..."
     if [[ $http == "curl" ]]
     then
-      curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz > HELLx.v3.0.tgz 2 >> $CURRENTDIR/install.log
-      curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz > HELLx-data.v3.tgz 2 >> $CURRENTDIR/install.log
+      curl -L https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz > HELLx.v3.0.tgz 2 >> $CURRENTDIR/install.log
+      curl -L https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz > HELLx-data.v3.tgz 2 >> $CURRENTDIR/install.log
     else
       wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
       wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
@@ -462,7 +462,7 @@ else
       # tmp solution is to use fork @zenaiev
 	if [[ $http == "curl" ]]
 	then
-            curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+            curl -L https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
 	else
             wget --no-check-certificate https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	fi
@@ -483,7 +483,7 @@ else
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl -L https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
         wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
@@ -497,12 +497,13 @@ else
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
+
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
     if [[ $http == "curl" ]]
     then 
-        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl -L https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
     else
         wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
@@ -530,7 +531,7 @@ else
         echo "Installing DYTurbo ${dyturbover}..."
         if [[ $http == "curl" ]]
         then
-	    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
+	    curl -L https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
         else
 	    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
         fi
@@ -563,7 +564,7 @@ else
       numdiff_url=http://nongnu.askapache.com/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
-          curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+          curl -L ${numdiff_url} > numdiff-${numdiffver}.tar.gz 2>> $CURRENTDIR/install.log
       else
           wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       fi
@@ -600,7 +601,7 @@ then
     else
         if [[ $http == "curl" ]]
         then
-            curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
+            curl -L 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
             wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
