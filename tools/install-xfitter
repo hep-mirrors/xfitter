@@ -640,9 +640,8 @@ then
     echo "cd -" >>setup.sh
 fi
 
-if [[ $MODE == "cvmfs" ]]
+if [ -z "$CI" ] && [[ $MODE == "cvmfs" ]];
 then
-    #echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
     echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
 fi
 
