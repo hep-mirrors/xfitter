@@ -233,8 +233,20 @@ fi
 
 #Require full PineAPPL installation if precompiled files not available
 if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu" ]]; then
+    echo "Unsupported architecture or rust version, installing pineappl from scratch"
     pineappl_lite=0
 fi
+if [[ $skip_pineappl != 1 ]] && [[ pineappl_lite == 1 ]]; then
+    glibcminver=2.17  #Pineappl precompiled using this version
+    glibcmaxver=2.31  #Highest version pineappl light installation checked with
+    glibcver=`ldd --version | awk '{if (NR==1) print $NF}'`
+    echo "Found GLIBC version "${glibcver}
+    if [[ $glibcver < $glibcminver || $glibcver > $glibcmaxver ]]; then
+        echo "Incompatible version of glibc, installing pineappl from scratch"
+        pineappl_lite=0
+    fi
+fi
+
 
 if [[ $MODE == "cern" ]]
     then
