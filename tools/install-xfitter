@@ -688,7 +688,7 @@ else
 
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/lhapdf/lib/pkgconfig
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
-        export LD_LIBRARY_PATH=$CURRENTDIR/deps/pineappl/lib:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
     fi
 
 fi
@@ -762,7 +762,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH      
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH                  >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH                >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH               >> setup.sh
+echo export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CURRENTDIR/deps/pineappl/lib               >> setup.sh
 
 if [[ $MODE == "cern" ]]
 then
