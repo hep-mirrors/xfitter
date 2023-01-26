@@ -26,15 +26,20 @@ namespace xfitter{
       hf_errlog(18120700,"F: Wrong number of parameters for a parameterisation, see stderr");
     }
   }
-  double NegativeGluonPdfParam::operator()(double x)const{
-    double Pos = pow(x,(*pars[1]))*pow((1-x),(*pars[2])) * ( 1 + x * (*pars[3]) + x*x *(*pars[4]));
+  
+  double NegativeGluonPdfParam::operator()(double x) const {
+    double Pos = (*pars[0])*pow(x,(*pars[1]))*pow((1-x),(*pars[2])) * ( 1 + x * (*pars[3]) + x*x *(*pars[4]));
     double Neg = (*pars[5])*pow(x,(*pars[6]))*pow((1-x),(*pars[7])) ;
-    return (*pars[0])*(Pos-Neg);
+    return Pos - Neg;
   }
-  double NegativeGluonPdfParam::moment(int n)const{
+
+  double NegativeGluonPdfParam::moment(int n) const {
+    return moment_pos(n) - moment_neg(n);
+  }
+
+  double NegativeGluonPdfParam::moment_pos(int n) const {
     /// cut and paste from HERAPDF_PdfParam
 
-    // Positive part:
     const double B=(*pars[1])+(n+1) , C=(*pars[2])+1;
     if(B<=0.||C<=0.)return NAN;// integral does not converge
     double sum=1;
@@ -47,10 +52,20 @@ namespace xfitter{
       a++;
       b++;
     }
-    // Negative part:
+
+    return (*pars[0])*( exp(lgamma(B)+lgamma(C)-lgamma(B+C))*sum ) ;
+  }
+
+  double NegativeGluonPdfParam::moment_neg(int n) const {
     const double Bn=(*pars[6])+(n+1) , Cn=(*pars[7])+1;
     if(Bn<=0.||Cn<=0.)return NAN;// integral does not converge
 
-    return (*pars[0])*( exp(lgamma(B)+lgamma(C)-lgamma(B+C))*sum - (*pars[5])*exp(lgamma(Bn)+lgamma(Cn)-lgamma(Bn+Cn)) ) ;
+    return (*pars[5])*exp(lgamma(Bn)+lgamma(Cn)-lgamma(Bn+Cn)) ;
+  }
+
+  void NegativeGluonPdfParam::setMoment(int nMoment,double value) {
+    // new_moment = f * pos - neg
+    // -> f = (new_moment + neg) / pos
+    *pars[0] *= (value + moment_neg(nMoment)) / moment_pos(nMoment);
   }
 }
