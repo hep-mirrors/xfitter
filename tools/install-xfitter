@@ -182,10 +182,8 @@ then
 	    then
             echo "System not recognized, but cvmfs is mounted"
             MODE=cvmfs
-
-	        #setup older gcc
-	        . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
-            echo "Using gcc version = 4.9.3"
+	        #setup entire LCG view
+            . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
         else
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
@@ -216,13 +214,7 @@ fi
 if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
-    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-    . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-    PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:${PATH}
-    if [[ $os == slc6 ]]
-    then
-        export BOOST=--with-boost=/cvmfs/sft.cern.ch/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
-    fi
+    . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
 fi
 
 #check some basic dependendencies before starting the installation
@@ -610,6 +602,20 @@ fi
 #make a setup run enviroment script
 echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
+
+if [[ $MODE == "cern" ]]
+then
+    echo ". /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh" >> setup.sh
+    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
+fi
+
+if [[ $MODE == "cvmfs" ]]
+then
+    echo ". /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh" >> setup.sh
+fi
+
+
+
 echo "export version=\`cat version\`" >> setup.sh
 echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
@@ -618,6 +624,7 @@ echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
@@ -630,23 +637,6 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >>
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
-
-
-if [[ $MODE == "cern" ]]
-then
-    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-
-    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
-    echo "cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/" >> setup.sh
-    echo ". /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh ">> setup.sh
-    echo "cd -" >>setup.sh
-fi
-
-if [ -z "$CI" ] && [[ $MODE == "cvmfs" ]];
-then
-    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
-fi
 
 #make a compilation script
 echo source ./setup.sh > compile
@@ -655,7 +645,7 @@ echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH     >> compile
 
 
 if [[ $mode != "deps" ]]
