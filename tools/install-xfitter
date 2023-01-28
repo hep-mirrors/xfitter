@@ -13,6 +13,7 @@ apfelgridver=1.0.5
 apfelxxver=4.0.0
 dyturbover=1.2
 
+
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
 skip_dyturbo=1
@@ -420,13 +421,13 @@ else
  #apfel
     echo "Installing APFEL $apfelver..."
     if [[ $http == "curl" ]]
-    then
-        curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
+    then 
+        curl https://github.com/vbertone/apfel/archive/refs/heads/resummation-scales.zip > ${apfelver}.zip 2 >> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/vbertone/apfel/archive/refs/heads/resummation-scales.zip >> $CURRENTDIR/install.log 2>&1
     fi
-    mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
-    tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    mv ${apfelver}.zip apfel-${apfelver}.zip
+    unzip apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfel-${apfelver}
     ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
 
@@ -488,15 +489,15 @@ else
 	cd - >& /dev/null
     fi
     
- #apfel
+ #apfelxx
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz > ${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
-    mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
+    mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
@@ -506,6 +507,7 @@ else
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
+
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`

@@ -40,6 +40,12 @@ find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
 
+
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME OFF) 
+find_package(Boost REQUIRED)
+
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
 else()
@@ -129,6 +135,7 @@ add_subdirectory(pdfparams/ABMPsea)
 add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
+add_subdirectory(pdfparams/Chebyschev)
 
 #Decompositions
 add_subdirectory(pdfdecomps/Pion_FF_B_C)

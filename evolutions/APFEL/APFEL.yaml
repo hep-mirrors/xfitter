@@ -12,6 +12,7 @@ fragmentation : "off"
 FONLLVariant : "C"
 muRoverQ : 1.0 # ratio of renormalisation scale over Q
 muFoverQ : 1.0 # ratio of factorisation scale over Q
+muRovermuF : 1.0 # ratio of renormalisation scale over factorisation scale
 kmc : 1.0 # ratio between charm quark threshold and mass
 kmb : 1.0 # ratio between bottom quark threshold and mass
 kmt : 1.0 # ratio between top quark threshold and mass
