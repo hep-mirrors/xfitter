@@ -649,7 +649,7 @@ echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfelxx/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH     >> compile
 echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> compile
-
+echo export LHAPDF_DATA_PATH=\$CURRENTDIR/deps/lhapdf/share/LHAPDF/ >> setup.sh
 
 if [[ $mode != "deps" ]]
 then
