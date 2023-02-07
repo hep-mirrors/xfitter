@@ -481,7 +481,7 @@ else
     mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar -xzf apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfelxx-${apfelxxver}
-    cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx .. >> $CURRENTDIR/install.log  2>&1
+    cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx . >> $CURRENTDIR/install.log  2>&1
     make -j 8 >> $CURRENTDIR/install.log  2>&1
     make -j 8 install >> $CURRENTDIR/install.log  2>&1
     cd - >& /dev/null
