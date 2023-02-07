@@ -635,6 +635,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfelxx/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
 
@@ -645,7 +646,9 @@ echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/apfelxx/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH     >> compile
+echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> compile
 
 
 if [[ $mode != "deps" ]]
