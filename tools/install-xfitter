@@ -19,8 +19,8 @@ cargocver=0.9.14
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
 skip_dyturbo=1
-skip_rust=0
-skip_pineappl=0
+skip_rust=1
+skip_pineappl=1
 # fetch precompiled files for pineappl if possible, avoiding heavy rust deps
 pineappl_lite=1
 
