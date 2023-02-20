@@ -51,8 +51,8 @@ vector<bool> maskParser(string mask) {
         vs.push_back(substr);
     }
     for (string s : vs) {
-		if (s!="1" || s!="0") {
-		    hf_errlog(23010307, "F: if PineAPPL mask given, it must be a comma-separated string of 1s and 0s!");
+        if (s!="1" || s!="0") {
+            hf_errlog(23010307, "F: if PineAPPL mask given, it must be a comma-separated string of 1s and 0s!");
         }
         sstream.str("");  sstream.clear();
         sstream << s;
@@ -107,7 +107,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     } else data->Nord = 0;
     if (data->Nord==0) hf_errlog(23010302, "I: PineAPPL order mask unspecified, using all in grid");
 
-	// Get LumiMask
+    // Get LumiMask
     if (td->hasParam("LumiMask")) {
         string lumiS = td->getParamS("LumiMask");
         data->lumivec = maskParser(lumiS);
@@ -144,19 +144,6 @@ void ReactionPineAPPL::freeTerm(TermData*td) {
     delete data;
 }
 
-//Pineappl assumes that the PDF and alphaS wrapper function pointers should be given a pointer
-//"state" of e.g. an LHAPDF object if the values were read from there. Here we just call the 
-//existing wrappers, but rearrange the parameter list and return value to suit the demands of
-//the pineappl convolution function.
-double xfx(int32_t id, double x, double q2, void *state) {
-    double pdfs[13];
-    pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
-    return pdfs[id+6];
-}
-double alphas(double q2, void *state) {
-    return alphas_wrapper_(sqrt(q2));
-}
-
 void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err) {
     const DatasetData& data = *(DatasetData*)td->reactionData;
     const double muR = *data.muR;
@@ -175,11 +162,28 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     for (pineappl_grid* grid : data.grids) {
         vector<double> gridVals;
         gridVals.resize(data.Nbins);
+
         if (grid) {//real, non-dummy grid
             td->actualizeWrappers();
+
+            //Pineappl assumes PDF and alphaS wrapper function pointers
+            //are given a pointer "state", e.g. an LHAPDF object, if the 
+            //values were read from there. Here, call existing wrappers 
+            //rearranging parameter list & return value to suit pineappl 
+            //convolution function.
+            auto xfx = [](int32_t id_in, double x, double q2, void *state) {
+                double pdfs[13];
+                int32_t id = id_in==21 ? 6 : id_in+6;
+                pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
+                return pdfs[id];
+            };
+            auto alphas = [](double q2, void *state) {
+                return alphas_wrapper_(sqrt(q2));
+            };
+
             //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
             pineappl_grid_convolute_with_one(grid, data.pdg_id, 
-                                             &xfx, &alphas, 
+                                             xfx, alphas, 
                                              nullptr,//"state" provided to wrappers, redundant in xFitter
                                              data.Nord>0 ? order_mask : nullptr,
                                              data.Nlumi>0 ? lumi_mask : nullptr,
