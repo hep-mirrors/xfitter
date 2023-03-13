@@ -1,4 +1,3 @@
-
 /*
    @file ReactionBaseDISNC.cc
    @date 2017-04-08
