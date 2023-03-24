@@ -14,7 +14,7 @@ apfelxxver=4.7.0
 dyturbover=1.2
 
 # skip some packages depending on xfitter version
-skip_apfelgrid=0
+skip_apfelgrid=1
 skip_dyturbo=1
 
 ## Optional manual configurations
