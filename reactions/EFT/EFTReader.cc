@@ -9,9 +9,9 @@ using namespace std;
 
 //------------------------------------------------------------------------------------
 
-void EFTReader::setinit(int num_bin_in, vector<string> name_EFT_param)
+void EFTReader::setinit(vector<string> name_EFT_param)
 {
-  num_bin = num_bin_in;
+  num_bin = -1;
   num_param = name_EFT_param.size();
   if (num_param > MAX_NUM_PARAM)
     hf_errlog(23040302, "E: too many EFT parameters");
@@ -21,15 +21,17 @@ void EFTReader::setinit(int num_bin_in, vector<string> name_EFT_param)
   for (int i=0; i < num_param; i++){
     string param_name = name_EFT_param[i];
     if ( coeff_node[param_name] ){
-      // todo: check the size the vector, should = num_bin
-      if (coeff_node[param_name].size() != num_bin)
+      if (num_bin < 0) {
+	num_bin = coeff_node[param_name].size();
+      } else if (coeff_node[param_name].size() != num_bin) {
 	hf_errlog(23032903, "E: number of cefficients is not equal to number of bins");
-      else
+      } else {
 	coeff.insert(std::make_pair(-1*(i+1), new vector<double>(	\
 				  coeff_node[param_name].as<std::vector<double> >() )));
-    }
-    else
+      }
+    } else {
       hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name);
+    }
   }
   // read quadratic coefficients
   for (int i=0; i < num_param; i++)

@@ -59,9 +59,7 @@ void ReactionEFT::initTerm(TermData* td) {
   //------------------------------------------------------------------
   // read the coefficients
   for ( EFTReaction* EFT_reader_one_file : EFT_all_dataset[ID] ) {
-    // int num_bin = *td->getNBins(); //? TODO Does this really work? generally number of bins is file-dependent
-    int num_bin = 7; // TODO !!
-    EFT_reader_one_file->setinit(num_bin, name_EFT_param); //a7: read the coeff. from the input file
+    EFT_reader_one_file->setinit(name_EFT_param); //a7: read the coeff. from the input file
   }
 }
 

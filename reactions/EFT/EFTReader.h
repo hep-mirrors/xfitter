@@ -35,15 +35,15 @@ public:
 
   // name of file  
   string file_EFT;
-  int MAX_NUM_PARAM = 100;
+  int MAX_NUM_PARAM = 100; // todo set as a global const
 
-  int num_bin; //a7: number of bins
-  int num_param; //a7: number of EFT paramters; should be less than 100
+  int num_bin; // number of bins
+  int num_param; // number of EFT paramters; should be less than 100
   std::map<int,std::vector<double>* > coeff; //a7: linear and quadratic coefficients of all val_EFT_params.
-  double val_EFT_param[100];
+  double val_EFT_param[100]; // MAX_NUM_PARAM
 
   // initialization
-  void setinit(int num_bin, vector<string> name_EFT_param);
+  void setinit(vector<string> name_EFT_param);
 
   void setValEFT(vector<double> coe){
     //a7: executed for each computation
