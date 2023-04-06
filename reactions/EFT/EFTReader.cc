@@ -13,10 +13,12 @@ void EFTReader::setinit(vector<string> name_EFT_param)
 {
   num_bin = -1;
   num_param = name_EFT_param.size();
+
   if (num_param > MAX_NUM_PARAM)
     hf_errlog(23040302, "E: too many EFT parameters");
 
   YAML::Node coeff_node = YAML::LoadFile(file_EFT);
+
   // read linear coefficients
   for (int i=0; i < num_param; i++){
     string param_name = name_EFT_param[i];
@@ -25,14 +27,15 @@ void EFTReader::setinit(vector<string> name_EFT_param)
 	num_bin = coeff_node[param_name].size();
       } else if (coeff_node[param_name].size() != num_bin) {
 	hf_errlog(23032903, "E: number of cefficients is not equal to number of bins");
-      } else {
-	coeff.insert(std::make_pair(-1*(i+1), new vector<double>(	\
-				  coeff_node[param_name].as<std::vector<double> >() )));
       }
+      hf_errlog(23040603, "I: linear coefficients found for: " + param_name);
+      coeff.insert(std::make_pair(-1*(i+1), new vector<double>(	\
+		   coeff_node[param_name].as<std::vector<double> >() )));
     } else {
       hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name);
     }
   }
+
   // read quadratic coefficients
   for (int i=0; i < num_param; i++)
     for (int j=i; j < num_param; j++){
@@ -46,6 +49,7 @@ void EFTReader::setinit(vector<string> name_EFT_param)
   	hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name1);
       }
     }
+
 }
 
 vector<double> EFTReader::calcxsec(void)
@@ -57,7 +61,7 @@ vector<double> EFTReader::calcxsec(void)
   // hf_errlog(23033001, "E: too many bins");
   vector<double> xsec;
   for (int k=0; k < num_bin; k++)
-    xsec.push_back(0.0);
+    xsec.push_back(1.0);
 
   for (int i=0; i < num_param; i++) //a7: calculate the linear contribution
     for (int k=0; k < num_bin; k++) //a7: loop over all bins

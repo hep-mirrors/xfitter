@@ -23,14 +23,15 @@ void ReactionEFT::initTerm(TermData* td) {
   // read the list of EFT parameters
   string list_EFT_param = td->getParamS("listEFTParam");
   // getNameEFTParam(list_EFT_param);
-  // a7: remove `[` and `]`
-  list_EFT_param.erase(0, 1);
-  list_EFT_param.erase(list_EFT_param.size()-1);
 
-  stringstream ss(list_EFT_param);
-  string temp;
-  while(getline(ss, temp, ',')) { // todo: what if there is additional whitespace?
-    name_EFT_param.push_back(temp);
+  if (list_EFT_param.size() == 0) {
+    hf_errlog(23040601,"I: list of EFT parameters is empty");
+  } else {
+    stringstream ss(list_EFT_param);
+    string temp;
+    while(getline(ss, temp, ',')) { // todo: what if there is additional whitespace?
+      name_EFT_param.push_back(temp);
+    }
   }
 
   //------------------------------------------------------------------
