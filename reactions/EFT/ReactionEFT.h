@@ -42,6 +42,7 @@ public:
   virtual string getReactionName() const override { return  "EFT" ;};
   virtual void initTerm(TermData* td) override final;
   virtual void atStart() override {};
+  // virtual void freeTerm(TermData*) override final; // delete the pineappl grids.
   virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override;
 protected:
   virtual int parseOptions(){ return 0;};

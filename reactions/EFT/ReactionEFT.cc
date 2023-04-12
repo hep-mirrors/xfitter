@@ -28,9 +28,9 @@ void ReactionEFT::initTerm(TermData* td) {
     hf_errlog(23040601,"I: list of EFT parameters is empty");
   } else {
     stringstream ss(list_EFT_param);
-    string temp;
-    while(getline(ss, temp, ',')) { // todo: what if there is additional whitespace?
-      name_EFT_param.push_back(temp);
+    string param_name;
+    while(getline(ss, param_name, ',')) { // todo: what if there is additional whitespace?
+      name_EFT_param.push_back(param_name);
     }
   }
 
@@ -73,6 +73,8 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   // a7: read values of all EFT parameters; shall we try to save the time of memory allocation?
   // getParamD returns a pointer, is this address fixed?
   vector<double> val_EFT_param;  
+  val_EFT_param.reserve(name_EFT_param.size());
+
   for (string EFT_param : name_EFT_param) {
     val_EFT_param.push_back(*td->getParamD(EFT_param));
   }
@@ -88,9 +90,16 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
     for (double x: cs) xsec_one_dataset.push_back(x);
   }
  
-  if ( val.size()!=xsec_one_dataset.size() )
-    hf_errlog(23032804,"F: Size of EFT cross section array does not match data.");
+  if ( val.size() != xsec_one_dataset.size() )
+    hf_errlog(23032804,"F: Size of cross section array does not match data.");
   for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<xsec_one_dataset.size()) ? xsec_one_dataset[i] : 0.;
+
+  // a7: performance may be improved ?
+  // code from the PineAPPL reaction:
+  // unsigned int pos = 0;
+  // // insert values from this grid into output array
+  // copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
+  // pos += pineappl_grid_bin_count(grid);
 }
 
 //---------------------------------
@@ -102,8 +111,8 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
 //   s.erase(input.size()-1);
 
 //   stringstream ss(s);
-//   string temp;
-//   while(getline(ss, temp, ",")) {
-//     name_EFT_Param.push_back(temp);
+//   string param_name;
+//   while(getline(ss, param_name, ",")) {
+//     name_EFT_Param.push_back(param_name);
 //   }
 // };
