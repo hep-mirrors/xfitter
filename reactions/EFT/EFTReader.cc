@@ -29,7 +29,7 @@ void EFTReader::setinit(vector<string> name_EFT_param)
 	hf_errlog(23032903, "E: number of cefficients is not equal to number of bins");
       }
       hf_errlog(23040603, "I: linear coefficients found for: " + param_name);
-      coeff.insert(std::make_pair(-1*(i+1), new vector<double>(	\
+      coeff.insert(std::make_pair(i+1, new vector<double>(	\
 		   coeff_node[param_name].as<std::vector<double> >() )));
     } else {
       hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name);
@@ -42,9 +42,9 @@ void EFTReader::setinit(vector<string> name_EFT_param)
       string param_name1 = name_EFT_param[i] + "*" + name_EFT_param[j];
       string param_name2 = name_EFT_param[j] + "*" + name_EFT_param[i];
       if (coeff_node[param_name1]) {
-  	coeff.insert(std::make_pair(i*100+j, new vector<double>(coeff_node[param_name1].as<std::vector<double> >() )));
+  	coeff.insert(std::make_pair((i+1)*100+j+1, new vector<double>(coeff_node[param_name1].as<std::vector<double> >() )));
       } else if (coeff_node[param_name2]) {
-  	coeff.insert(std::make_pair(i*100+j, new vector<double>(coeff_node[param_name2].as<std::vector<double> >() )));
+  	coeff.insert(std::make_pair((i+1)*100+j+1, new vector<double>(coeff_node[param_name2].as<std::vector<double> >() )));
       } else {
   	hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name1);
       }
@@ -63,17 +63,17 @@ vector<double> EFTReader::calcxsec(void)
   for (int k=0; k < num_bin; k++)
     xsec.push_back(1.0);
 
-  for (int i=0; i < num_param; i++) //a7: calculate the linear contribution
-    for (int k=0; k < num_bin; k++) //a7: loop over all bins
-      if (coeff[-1*(i+1)]){
-	xsec[k] += (*coeff[-1*(i+1)])[k] * val_EFT_param[i]; // / power(lambda, 2);
+  for (int i=0; i < num_param; i++)
+    for (int k=0; k < num_bin; k++)
+      if ( coeff[i+1] ){
+	xsec[k] += (*coeff[i+1])[k] * val_EFT_param[i];
       }
   
   for (int i=0; i < num_param; i++) 
-    for (int j=i; j < num_param; j++)  //a7: calculate the quadratic contribution
-      for (int k=0; k < num_bin; k++)  //a7: loop over all bins
-	if (coeff[i*100+j]){
-	  xsec[k] += (*coeff[i*100+j])[k] * val_EFT_param[i] * val_EFT_param[j]; // / power(labmda, 4);
+    for (int j=i; j < num_param; j++)
+      for (int k=0; k < num_bin; k++)
+	if ( coeff[(i+1)*100+j+1] ) {
+	  xsec[k] += (*coeff[(i+1)*100+j+1])[k] * val_EFT_param[i] * val_EFT_param[j]; // / power(labmda, 4);
 	}
 
   // vector<double> vec_xsec;

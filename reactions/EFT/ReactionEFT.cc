@@ -29,7 +29,7 @@ void ReactionEFT::initTerm(TermData* td) {
   } else {
     stringstream ss(list_EFT_param);
     string param_name;
-    while(getline(ss, param_name, ',')) { // todo: what if there is additional whitespace?
+    while(getline(ss, param_name, ',')) {
       name_EFT_param.push_back(param_name);
     }
   }
@@ -101,18 +101,3 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   // copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
   // pos += pineappl_grid_bin_count(grid);
 }
-
-//---------------------------------
-// void getNameEFTParam(string list_EFT_param){
-//   string s=list_EFT_param;
-  
-//   //Remove opening and closing brackets
-//   s.erase(0, 1);
-//   s.erase(input.size()-1);
-
-//   stringstream ss(s);
-//   string param_name;
-//   while(getline(ss, param_name, ",")) {
-//     name_EFT_Param.push_back(param_name);
-//   }
-// };
