@@ -189,7 +189,7 @@ then
         then
             echo "Detected Ubuntu distribution"
             rusttag="unknown-linux-gnu"
-            if arch==""
+            if [[ $arch == "" ]]
             then
                 arch=`uname -m`
             fi
@@ -717,10 +717,6 @@ then
     then
         git clone https://gitlab.cern.ch/fitters/xfitter.git >> $CURRENTDIR/install.log  2>&1
         mv xfitter xfitter-master
-    elif [[ $version == "pineappl" ]] #TODO remove when merging to master
-    then
-        git clone --branch pineappl https://gitlab.cern.ch/fitters/xfitter.git >> $CURRENTDIR/install.log  2>&1
-        mv xfitter xfitter-pineappl
     else
         if [[ $http == "curl" ]]
         then
