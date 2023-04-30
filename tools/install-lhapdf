@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Programs versions
-lhapdfver=6.5.1
+lhapdfver=6.5.4
 
 which wget >& /dev/null
 if [[ $? == 0 ]]
