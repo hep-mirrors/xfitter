@@ -8,7 +8,7 @@ Parameters:
   Ag   :  DEPENDENT
   Bg   : [ -0.061953, 0.27 ]
   Cg   : [  5.562367,  0.32 ]
-  Agp  : [ 0.07311, 0.01 ]
+  Agp  : [ 0.166087, 0.01 ]
   Bgp  : [ -0.383100, 0.01 ]
   Cgp  : [ 25.0, 0.]
   Auv  :  DEPENDENT
