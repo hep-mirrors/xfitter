@@ -145,10 +145,8 @@ runTest()
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
-  #echo -e "run \n bt" | gdb ${xfitter} | tee ${xflogfile}
-=======
-  ${xfitter} >& ${xflogfile}
->>>>>>> master
+  echo -e "run \n bt" | gdb ${xfitter} | tee ${xflogfile}
+  #${xfitter} >& ${xflogfile}
   cd - > /dev/null
 
   # check chi2 in Results.txt ("After minimisation ...")
