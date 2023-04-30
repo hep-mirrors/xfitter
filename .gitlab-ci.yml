@@ -115,6 +115,7 @@ job-dyturbo:
     - schedules
   script: 
     - yum -y install git tar gdb
+    - . /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc12-opt/setup.sh
     - ./tools/install-qcdnum
     - ./tools/install-lhapdf
     - ./tools/install-dyturbo
