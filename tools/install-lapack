@@ -5,8 +5,7 @@
 #
 
 # Package versions:
-
-lapackver=3.7.0
+lapackver=3.11.0
 
 #Check for dummies
 if [[ $0 == bash || $0 = csh ]]
@@ -23,16 +22,39 @@ CURRENTDIR=`pwd`
 
 echo "Get lapack"
 mkdir -p deps
-cd deps
-wget http://www.netlib.org/lapack/lapack-${lapackver}.tgz > $CURRENTDIR/install_lapack.log 2>&1
-tar xfz lapack-${lapackver}.tgz >> $CURRENTDIR/install_lapack.log 2>&1
+cd deps 
+
+# check if wget available, otherwise revert to curl
+ which wget >& /dev/null
+if [[ $? == 0 ]]
+then
+    http=wget
+else
+    which curl >& /dev/null
+    if [[ $? == 0 ]]
+    then
+        http=curl
+    else
+        echo "Error, wget or curl not found"
+        exit
+    fi
+fi
+
+#download tarball and compile
+if [[ $http == "curl" ]]
+  then
+  curl -L -O https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v${lapackver}.tar.gz > $CURRENTDIR/install_lapack.log 2>&1
+else 
+  wget --no-check-certificate https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v${lapackver}.tar.gz > $CURRENTDIR/install_lapack.log 2>&1
+fi
+mv v${lapackver}.tar.gz lapack-${lapackver}.tar.gz
+tar xfz lapack-${lapackver}.tar.gz >> $CURRENTDIR/install_lapack.log 2>&1
 cd  lapack-${lapackver}
 mkdir -p build
 cd build
 rm -fr $CURRENTDIR/deps/lapack
 cmake -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/lapack .. >> $CURRENTDIR/install_lapack.log 2>&1
 make -j 12 install >> $CURRENTDIR/install_lapack.log 2>&1
-
 if [[ $? != 0 ]]
 then
   echo "Error, check install_lapack.log for details"
