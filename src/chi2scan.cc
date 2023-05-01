@@ -971,7 +971,8 @@ void chi2_scan_()
                 {
                   sysmeas_.syst_meas_idx[nsysloc][i] = i + 1;
 
-                  systema_.beta[i][nsysloc] = (pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
+                  //account for the sign flip due to applying a theory variation as a shift to the data
+                  systema_.beta[i][nsysloc] = -(pointsmap[i].th_hess_s[j] - pointsmap[i].thc) / pointsmap[i].thc;
                   systasym_.omega[i][nsysloc] = 0;
 
                   systasym_.lasymsyst[nsysloc] = false;
