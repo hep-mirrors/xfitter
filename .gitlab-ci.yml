@@ -114,7 +114,7 @@ job-dyturbo:
     - merge_requests
     - schedules
   script: 
-    - yum -y install git tar gdb gcc gcc-gfortran
+    - yum -y install git tar
     #- . /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc12-opt/setup.sh
     - . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
     - ./tools/install-qcdnum
