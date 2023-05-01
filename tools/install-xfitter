@@ -236,7 +236,7 @@ if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu" ]]; then
     echo "Unsupported architecture or rust version, installing pineappl from scratch"
     pineappl_lite=0
 fi
-if [[ $skip_pineappl != 1 ]] && [[ pineappl_lite == 1 ]]; then
+if [[ $skip_pineappl == 0 ]] && [[ pineappl_lite == 1 ]]; then
     glibcminver=2.17  #Pineappl precompiled using this version
     glibcmaxver=2.31  #Highest version pineappl light installation checked with
     glibcver=`ldd --version | awk '{if (NR==1) print $NF}'`
@@ -661,49 +661,48 @@ else
  # pineappl:
     if [[ $skip_pineappl == 0 ]]; then
         echo "Installing PineAPPL $pineapplver..."
-
-            if [[ $pineappl_lite == 1 ]]; then
-                pineapplurl=https://gitlab.cern.ch/fitters/xfitter/-/archive/${version}/xfitter-${version}.tar.gz?path=tools/pineappl
-                wget --no-check-certificate ${pineapplurl} -O pineappl_lite.tar.gz >> $CURRENTDIR/install.log 2>&1
-                tar xzf pineappl_lite.tar.gz >> $CURRENTDIR/install.log  2>&1
-                mv xfitter-${version}-tools-pineappl/tools/pineappl/ pineappl
-                rmdir xfitter-${version}-tools-pineappl/tools/
-                rmdir xfitter-${version}-tools-pineappl
-                cd pineappl/lib
-                ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so
-                ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so.0
-                mkdir pkgconfig
-                cd pkgconfig
-                echo "prefix=$CURRENTDIR/deps/pineappl"                          >> pineappl_capi.pc
-                echo "exec_prefix=\${prefix}"                                    >> pineappl_capi.pc
-                echo "libdir=\${exec_prefix}/lib"                                >> pineappl_capi.pc
-                echo "includedir=\${prefix}/include"                             >> pineappl_capi.pc
-                echo ""                                                          >> pineappl_capi.pc
-                echo "Name: pineappl_capi"                                       >> pineappl_capi.pc
-                echo "Description: C language interface to PineAPPL"             >> pineappl_capi.pc
-                echo "Version: 0.5.8"                                            >> pineappl_capi.pc
-                echo "Libs: -L\${libdir} -lpineappl_capi"                        >> pineappl_capi.pc
-                echo "Cflags: -I\${includedir}/pineappl_capi"                    >> pineappl_capi.pc
-                echo "Libs.private:  -lgcc_s -lutil -lrt -lpthread -lm -ldl -lc" >> pineappl_capi.pc
-            else
-                PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
-                git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
-                cd pineappl/pineappl_capi
-                cargo cinstall --release --prefix=$CURRENTDIR/deps/pineappl
-                if [[ $? != 0 ]]
-                then
-                    echo "Error, check install.log for details"
-                    exit
-                fi
+        
+        if [[ $pineappl_lite == 1 ]]; then
+            pineapplurl=https://gitlab.cern.ch/fitters/xfitter/-/archive/${version}/xfitter-${version}.tar.gz?path=tools/pineappl
+            wget --no-check-certificate ${pineapplurl} -O pineappl_lite.tar.gz >> $CURRENTDIR/install.log 2>&1
+            tar xzf pineappl_lite.tar.gz >> $CURRENTDIR/install.log  2>&1
+            mv xfitter-${version}-tools-pineappl/tools/pineappl/ pineappl
+            rmdir xfitter-${version}-tools-pineappl/tools/
+            rmdir xfitter-${version}-tools-pineappl
+            cd pineappl/lib
+            ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so
+            ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so.0
+            mkdir pkgconfig
+            cd pkgconfig
+            echo "prefix=$CURRENTDIR/deps/pineappl"                          >> pineappl_capi.pc
+            echo "exec_prefix=\${prefix}"                                    >> pineappl_capi.pc
+            echo "libdir=\${exec_prefix}/lib"                                >> pineappl_capi.pc
+            echo "includedir=\${prefix}/include"                             >> pineappl_capi.pc
+            echo ""                                                          >> pineappl_capi.pc
+            echo "Name: pineappl_capi"                                       >> pineappl_capi.pc
+            echo "Description: C language interface to PineAPPL"             >> pineappl_capi.pc
+            echo "Version: 0.5.8"                                            >> pineappl_capi.pc
+            echo "Libs: -L\${libdir} -lpineappl_capi"                        >> pineappl_capi.pc
+            echo "Cflags: -I\${includedir}/pineappl_capi"                    >> pineappl_capi.pc
+            echo "Libs.private:  -lgcc_s -lutil -lrt -lpthread -lm -ldl -lc" >> pineappl_capi.pc
+        else
+            PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
+            git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
+            cd pineappl/pineappl_capi
+            cargo cinstall --release --prefix=$CURRENTDIR/deps/pineappl
+            if [[ $? != 0 ]]
+            then
+                echo "Error, check install.log for details"
+                exit
             fi
-
+        fi
+        
         cd - >& /dev/null
-
+        
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/lhapdf/lib/pkgconfig
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
     fi
-
 fi
 cd $CURRENTDIR
 
@@ -739,39 +738,42 @@ echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
 if [[ $skip_rust == 0 ]]; then
-    echo export CARGODIR=\$HOME/.cargo                                        >> setup.sh
-    echo export PATH=\$CURRENTDIR/deps/rust/bin:\$PATH                        >> setup.sh
-    echo export PATH=\$CARGODIR/bin:\$PATH                                    >> setup.sh
-    echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/rust/lib/:\$LD_LIBRARY_PATH >> setup.sh
+    echo "export CARGODIR=\$HOME/.cargo" >> setup.sh
+    echo "export PATH=\$CURRENTDIR/deps/rust/bin:\$PATH" >> setup.sh
+    echo "export PATH=\$CARGODIR/bin:\$PATH" >> setup.sh
+    echo "export LD_LIBRARY_PATH=\$CURRENTDIR/deps/rust/lib/:\$LD_LIBRARY_PATH" >> setup.sh
 fi
-echo export PATH=\$CURRENTDIR/xfitter-$version/bin:\$PATH           >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/hoppet/bin:\$PATH                >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/applgrid/bin:\$PATH              >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/lhapdf/bin:\$PATH                >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/apfel/bin:\$PATH                 >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/mela/bin:\$PATH                  >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/apfelxx/bin:\$PATH               >> setup.sh
-echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH >> setup.sh
-echo export PATH=\$CARGODIR/bin:\$PATH                              >> setup.sh 
-echo export PATH=\$CURRENTDIR/deps/qcdnum/bin:\$PATH                >> setup.sh
+echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
+if [[ $skip_rust == 0 ]]; then
+    echo "export PATH=$CARGODIR/bin:\$PATH" >> setup.sh 
+fi
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
 rm /tmp/xf_py1234_a
 
 if [[ $skip_pineapple == 0 ]]; then
-    echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH   >> setup.sh
+    echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
     echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/pineappl/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
-    echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH               >> setup.sh
+    echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH >> setup.sh
 fi
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH                >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH                >> setup.sh
-echo export HATHOR_DIR=\$CURRENTDIR/deps/Hathor-${hathorver}                               >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH              >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH                 >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH                  >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH                >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
+echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
+
 
 if [[ $MODE == "cern" ]]
 then
