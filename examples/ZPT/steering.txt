@@ -24,6 +24,14 @@
     CorrFileNames(1) = 'datafiles/tevatron/cdf/wzProduction/1207.7138/cdf196.corr'
 &End
 
+&CovarToNuisance
+  ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .true.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+&End
+
 *
 * Main steering cards
 *
