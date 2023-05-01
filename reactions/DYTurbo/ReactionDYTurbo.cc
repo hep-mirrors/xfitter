@@ -164,6 +164,8 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
       pdf::q = xfitter::get_evolution()->getPropertyD("q", -1.);
 
       pdf::blim = xfitter::get_evolution()->getPropertyD("blim", -1.);
+
+      pdf::lambda = xfitter::get_evolution()->getPropertyD("lambda", -1.);
     }
   else
     {
@@ -174,10 +176,11 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
       pdf::g0 = -1.;
       pdf::q  = -1.;
       pdf::blim = -1.;
+      pdf::lambda = -1.;
     }
 
-  if (td->hasParam("Q0"))
-    opts.Q0 = *(td->getParamD("Q0"));
+  //if (td->hasParam("Q0"))
+  //opts.Q0 = *(td->getParamD("Q0"));
 
   if (td->hasParam("order"))
     opts.order = td->getParamI("order");
