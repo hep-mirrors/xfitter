@@ -13,7 +13,7 @@ Parameters:
   Ag   :  DEPENDENT
   Bg   : [  0.0580,   0.0170 ]
   Cg   : [  5.8390,   0.2039 ]
-  Agp  : [ -0.2111,   0.0322 ]  # negative gluon ....
+  Agp  : [ -0.5721,   0.0322 ]  # negative gluon ....
   Bgp  : [ -0.2012,   0.0072 ]
   Cgp  : [ 25.0, 0.]  # fix C of negative gluon
   Auv  :  DEPENDENT
