@@ -100,6 +100,7 @@ byReaction:
      g2: 0       # Q-dependent Gaussian non-perturbative form factor
      g3: 0       # x-dependent Gaussian non-perturbative form factor
      Q0: 1       # Reference scale at which the g2 contribution is zero
+     debug: 0
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
