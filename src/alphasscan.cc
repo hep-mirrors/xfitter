@@ -129,11 +129,11 @@ namespace asscan
     
     //3rd order fit
     TF1 *parfit3 = new TF1("ParFit3", "pol3");
-    chi2graph->Fit(parfit3, "WQG", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     parfit3->SetParameter(3,0);
     parfit3->SetParameter(2,a);
     parfit3->SetParameter(1,b);
     parfit3->SetParameter(0,c);
+    chi2graph->Fit(parfit3, "WQG", "", chi2graph->GetX()[0], chi2graph->GetX()[chi2graph->GetN()-1]);
     double a3 = parfit3->GetParameter(3);
     double b3 = parfit3->GetParameter(2);
     double c3 = parfit3->GetParameter(1);
@@ -282,6 +282,7 @@ void alphas_scan_()
   bool lhapdfprofile = alphasscan_.aspdfprofile_;
   bool scaleprofile = alphasscan_.asscaleprofile_;
   bool decomposition = true;
+  //bool decomposition = false;
 
   //Reduce LHAPDF verbosity
   LHAPDF::Info& cfg = LHAPDF::getConfig();
