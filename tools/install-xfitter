@@ -244,6 +244,7 @@ if [[ $skip_pineappl != 1 ]] && [[ pineappl_lite == 1 ]]; then
     if [[ $glibcver < $glibcminver || $glibcver > $glibcmaxver ]]; then
         echo "Incompatible version of glibc, installing pineappl from scratch"
         pineappl_lite=0
+        skip_rust=0
     fi
 fi
 
@@ -628,8 +629,8 @@ else
       cd - >& /dev/null
     fi
     
- # rust:
-    if [[ $skip_rust != 1 ]] && [[ $pineappl_lite != 1 ]]; then
+ # rust
+    if [[ $skip_rust == 0 ]]; then
         echo "Installing Rust $rustver..."
         rust_url=https://static.rust-lang.org/dist/rust-${rustver}-${arch}-${rusttag}.tar.gz
         if [[ $http == "curl" ]]
@@ -657,8 +658,8 @@ else
         export PATH=$CARGODIR/bin:$PATH 
     fi
     
-# pineappl:
-    if [[ $skip_pineappl != 1 ]]; then
+ # pineappl:
+    if [[ $skip_pineappl == 0 ]]; then
         echo "Installing PineAPPL $pineapplver..."
 
             if [[ $pineappl_lite == 1 ]]; then
@@ -737,10 +738,10 @@ fi
 echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
-if [[ $skip_rust != 1 ]] && [[ $pineappl_lite != 1 ]]; then
+if [[ $skip_rust == 0 ]]; then
     echo export CARGODIR=\$HOME/.cargo                                        >> setup.sh
     echo export PATH=\$CURRENTDIR/deps/rust/bin:\$PATH                        >> setup.sh
-    echo export PATH=$CARGODIR/bin:$PATH                                      >> setup.sh
+    echo export PATH=\$CARGODIR/bin:\$PATH                                    >> setup.sh
     echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/rust/lib/:\$LD_LIBRARY_PATH >> setup.sh
 fi
 echo export PATH=\$CURRENTDIR/xfitter-$version/bin:\$PATH           >> setup.sh
@@ -758,10 +759,11 @@ echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
 rm /tmp/xf_py1234_a
 
-echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH   >> setup.sh
-echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/pineappl/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
-
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH               >> setup.sh
+if [[ $skip_pineapple == 0 ]]; then
+    echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH   >> setup.sh
+    echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/pineappl/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
+    echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH               >> setup.sh
+fi
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH                >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH                >> setup.sh
 echo export HATHOR_DIR=\$CURRENTDIR/deps/Hathor-${hathorver}                               >> setup.sh
@@ -770,7 +772,6 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH      
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH                  >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH                >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$CURRENTDIR/deps/pineappl/lib               >> setup.sh
 
 if [[ $MODE == "cern" ]]
 then
