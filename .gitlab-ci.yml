@@ -123,7 +123,7 @@ job-dyturbo:
     - ./tools/install-numdiff
     - . setup.sh
     - ./make.sh install
-    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - git clone -b cdfzpt-dyt1.3 https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
     - rm -rf temp-datafiles
     - cd datafiles
