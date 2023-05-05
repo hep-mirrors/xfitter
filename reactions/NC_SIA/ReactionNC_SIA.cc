@@ -60,7 +60,7 @@ void ReactionNC_SIA::initTerm(TermData *td)
 
   string msg = "I: calculating SIA cross section";
   //flavObs incl, inclNor, inclNF4, inclNorNF4, inclCH,inclBT
-  if (td->hasParam("flavObs"));
+  if (td->hasParam("flavObs"))
   {
     string flavObs = td->getParamS("flavObs");
     if (flavObs == "incl")
