@@ -128,8 +128,8 @@ C-----------------------------------------------------------------------
       IF (MAX_ERR_ALLOWED.LT.1) THEN
          MAX_ERR_ALLOWED = 2
       ENDIF
-      IF (MAX_ERR_ALLOWED.GT.4) THEN
-         MAX_ERR_ALLOWED = 4
+      IF (MAX_ERR_ALLOWED.GT.5) THEN
+         MAX_ERR_ALLOWED = 5
       ENDIF
       
       LTEXT = MAX(MIN(1,LEN(TEXT)), LENB(TEXT))
