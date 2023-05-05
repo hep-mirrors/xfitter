@@ -21,7 +21,6 @@ using namespace xfitter;
 struct DatasetData {
     vector<pineappl_grid*> grids;
     int order;
-    int32_t pdg_id;
     const double *muR, *muF; // !> renormalisation and factorisation scales
     bool flagNorm;  // !> if true, multiply by bin width
     int Nbins;
@@ -85,12 +84,6 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     } catch ( const exception& e ) {
         hf_errlog(22121301, "E: Unhandled exception while trying to read PineAPPL grid(s) "+GridName);
         throw e;
-    }
-
-    if (td->hasParam("PDG")) data->pdg_id = td->getParamI("PDG");
-    else {
-        data->pdg_id = 2212;
-        hf_errlog(22121201, "W: PineAPPL initTerm assuming protons");
     }
 
     // Get OrderMask
@@ -159,6 +152,10 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     for (pineappl_grid* grid : data.grids) if (grid) np += pineappl_grid_bin_count(grid);
     val.resize(np);
 
+    // Fix PDG ID to p, avoiding double charge conjugation in case pbar is used,
+    // as this is already done elsewhere before passing PDFs to PineAPPL
+    int32_t PDGID = 2212;  //DO NOT MODIFY
+    
     for (pineappl_grid* grid : data.grids) {
         vector<double> gridVals;
         gridVals.resize(data.Nbins);
@@ -182,7 +179,7 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
             };
 
             //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
-            pineappl_grid_convolute_with_one(grid, data.pdg_id, 
+            pineappl_grid_convolute_with_one(grid, PDGID, 
                                              xfx, alphas, 
                                              nullptr,//"state" provided to wrappers, redundant in xFitter
                                              data.Nord>0 ? order_mask : nullptr,
