@@ -3,4 +3,4 @@
  ATLAS total ttbar 7TeV mt=173.3 GeV                                             
 Plot1@Experiment:ATLAS@ExtraLabel:top 7 TeV@XTitle:m_{t}@YTitle:#sigma
  ptlow       pthigh      m_t            data      +- uncor     +- tot     th orig         th mod   therr+         therr-     pull    iset       iplot
- 0.00000E+00 0.40000E+03 0.17330E+03 0.18290E+03 0.69944E+01 0.71484E+01 0.17855E+03 0.18008E+03 0.10596E+02 0.17818E+02 0.40328E+00      5307948   1/0.17330E+03
+ 0.00000E+00 0.40000E+03 0.17330E+03 0.18290E+03 0.69944E+01 0.71484E+01 0.17855E+03 0.18008E+03 0.40764E+01 0.68352E+01 0.40328E+00      5307948   1/0.17330E+03
