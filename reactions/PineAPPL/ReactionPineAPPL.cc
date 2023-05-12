@@ -156,6 +156,13 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     // as this is already done elsewhere before passing PDFs to PineAPPL
     int32_t PDGID = 2212;  //DO NOT MODIFY
     
+    // SZ
+    std::vector<double> binsl(np);
+    std::vector<double> binsr(np);
+    std::vector<double> binsl2(np);
+    std::vector<double> binsr2(np);
+    //
+
     for (pineappl_grid* grid : data.grids) {
         vector<double> gridVals;
         gridVals.resize(data.Nbins);
@@ -192,9 +199,88 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
               pineappl_grid_bin_normalizations(grid, bin_sizes.data());
               gridVals[i] *= bin_sizes[i];
           }
+
+            // SZ
+            pineappl_grid_bin_limits_left(grid, 0, binsl.data() + pos);
+            pineappl_grid_bin_limits_right(grid, 0, binsr.data() + pos);
+            pineappl_grid_bin_limits_left(grid, 1, binsl2.data() + pos);
+            pineappl_grid_bin_limits_right(grid, 1, binsr2.data() + pos);
+            //
         }
         // insert values from this grid into output array
         copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
         pos += pineappl_grid_bin_count(grid);
+    }
+    // rebin
+    auto *mttmin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("mttmin"));
+    auto *mttmax  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("mttmax"));
+    auto *yttmin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("yttmin"));
+    auto *yttmax  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("yttmax"));
+    auto compare = [](double b1, double b2) {
+        const double eps = 1e-6;
+        auto diff = b2 - b1;
+        auto reldiff = (b1 == 0.) ? ( (b2 == 0.) ? 0. : 1. ) : diff / b1;
+        if (fabs(diff) < eps || fabs(reldiff) < eps) return 0;
+        else if (diff > 0) return 1;
+        else return -1;
+    };
+    std::vector<std::vector<int> > rebin(mttmin->size());
+    for(size_t bin = 0; bin < mttmin->size(); bin++) {
+        rebin[bin].resize(binsl2.size());
+        bool match_l = false;
+        bool match_r = false;
+        bool match_l2 = false;
+        bool match_r2 = false;
+        for(size_t bingrid = 0; bingrid < binsl2.size(); bingrid++) {
+            rebin[bin][bingrid] = 0;
+            // 1st dimension
+            int flag1 = 0;
+            auto l = compare((*mttmin)[bin], binsl2[bingrid]);
+            if (l == -1) continue;
+            else {
+                if (l == 0) match_l2 = true;
+                auto r = compare((*mttmax)[bin], binsr2[bingrid]);
+                if (r == 1) continue;
+                if (r == 0) match_r2 = true;
+                flag1 = 1;
+            }
+            // 2nd dimension
+            int flag2 = 0;
+            l = compare((*yttmin)[bin], binsl[bingrid]);
+            if (l == -1) continue;
+            else {
+                if (l == 0) match_l = true;
+                auto r = compare((*yttmax)[bin], binsr[bingrid]);
+                if (r == 1) continue;
+                if (r == 0) match_r = true;
+                flag2 = 1;
+            }
+            if (flag1 && flag2) rebin[bin][bingrid] = 1;
+        }
+        printf("match_l, match_r, match_l2, match_r2 = %d %d %d %d\n", match_l, match_r, match_l2, match_r2);
+        if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin");
+        if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax");
+        if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin");
+        if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax");
+    }
+    for (size_t i1 = 0; i1 < rebin.size(); i1++) {
+        printf("target bin %.0f < M < %.0f, %.2f < y < %.2f\n", (*mttmin)[i1], (*mttmax)[i1], (*yttmin)[i1], (*yttmax)[i1]);
+        std::string line = "";
+        for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
+            if (i2 > 0) line += " ";
+            line += std::to_string(rebin[i1][i2]);
+            printf("   %d   bin %.0f < M < %.0f, %.2f < y < %.2f\n", rebin[i1][i2], binsl2[i2], binsr2[i2], binsl[i2], binsr[i2]);
+        }
+        printf("%s\n", line.c_str());
+    }
+    //throw 42;
+    //if (val.size() != rebin.size()) hf_errlog(23051204, "F: Binning mismatch: inconsistent number of bins");
+    auto val_orig = val;
+    val.resize(rebin.size());
+    for(size_t i1 = 0; i1 < rebin.size(); i1++) {
+        val[i1] = 0.;
+        for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
+            val[i1] += val_orig[i2] * rebin[i1][i2];
+        }
     }
 } //compute
