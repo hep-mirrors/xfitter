@@ -28,9 +28,9 @@
   // a7: why we need EFTReaction when we already have EFTReader?
 class EFTReaction : public EFTReader {
 public:
-  EFTReaction(string name, ReactionTheory* reaction) : EFTReader(name, reaction) {};
+  EFTReaction(vector<string> fname_list, ReactionTheory* reaction) : EFTReader(fname_list, reaction) {};
 protected:
-  EFTReaction(string name) : EFTReader(name) {}; // not public!
+  EFTReaction(vector<string> fname_list) : EFTReader(fname_list) {}; // not public!
 };
 
 

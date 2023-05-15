@@ -64,9 +64,10 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //------------------------------------------------------------------
   // read the coefficients
-  for ( EFTReaction* EFT_reader_one_file : EFT_all_dataset[ID] ) {
-    EFT_reader_one_file->setinit(name_EFT_param); //a7: read the coeff. from the input file
-  }
+  EFT_all_dataset[ID]->setinit(name_EFT_param); //a7: read the coeff. from the input file
+  // for ( EFTReaction* EFT_reader_one_file : EFT_all_dataset[ID] ) {
+  //   EFT_reader_one_file->setinit(name_EFT_param); //a7: read the coeff. from the input file
+  // }
 }
 
 //______________________________________________________________________________
@@ -88,16 +89,20 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   xsec_one_dataset.reserve(val.size());
   int ID = td->id;
 
-  for ( EFTReaction* EFT_reader_one_file : EFT_all_dataset[ID] ) {
-    EFT_reader_one_file->setValEFT(val_EFT_param);
-    std::vector<double> cs = EFT_reader_one_file->calcxsec();
-    // for ( std::size_t i=0; i<cs.size(); i++) xsec_one_dataset.push_back(cs[i]);
-    for (double x: cs) xsec_one_dataset.push_back(x);
-  }
+  EFTReaction* EFT_term = EFT_all_dataset[ID];
+  EFT_term->setValEFT(val_EFT_param);
+  std::vector<double> cs = EFT_term->calcxsec();
+
+  // for ( EFTReaction* EFT_reader_one_file : EFT_all_dataset[ID] ) {
+  //   EFT_reader_one_file->setValEFT(val_EFT_param);
+  //   std::vector<double> cs = EFT_reader_one_file->calcxsec();
+  //   // for ( std::size_t i=0; i<cs.size(); i++) xsec_one_dataset.push_back(cs[i]);
+  //   for (double x: cs) xsec_one_dataset.push_back(x);
+  // }
  
-  if ( val.size() != xsec_one_dataset.size() )
+  if ( val.size() != cs.size() )
     hf_errlog(23032804,"F: Size of cross section array does not match data.");
-  for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<xsec_one_dataset.size()) ? xsec_one_dataset[i] : 0.;
+  for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<cs.size()) ? cs[i] : 0.;
 
   // a7: performance may be improved ?
   // code from the PineAPPL reaction:
