@@ -18,7 +18,8 @@ extern "C" ReactionEFT* create() {
 //______________________________________________________________________________
 // Initialise for a given dataset:
 void ReactionEFT::initTerm(TermData* td) {
- 
+  vector<string> fname_list;
+
   int ID = td->id;  // ID=dataSetID -> updated to termdata td
   // read the list of EFT parameters
   string list_EFT_param = td->getParamS("listEFTParam");
@@ -41,7 +42,9 @@ void ReactionEFT::initTerm(TermData* td) {
     const std::string filename = td->getParamS("Filename");
 
     hf_errlog(23032801,"I: Reading EFT file "+filename);
-    EFT_all_dataset.insert(std::make_pair(ID,vector<EFTReaction*>{new EFTReaction(filename,this)} ));
+    fname_list.push_back(filename);
+    // EFT_all_dataset.insert(std::make_pair(ID,vector<EFTReaction*>{new EFTReaction(filename, this)} ));
+    EFT_all_dataset.insert(std::make_pair(ID, new EFTReaction(fname_list, this) ));
   }
   else if ( td->hasParam("Filenames") ) {
     const std::string filenames = td->getParamS("Filenames");
@@ -49,8 +52,10 @@ void ReactionEFT::initTerm(TermData* td) {
     std::string filename;
     while (std::getline(ss, filename, ',')) {
       hf_errlog(23032801,"I: Reading EFT file "+filename);
-      EFT_all_dataset[ID].push_back(new EFTReaction(filename,this));
+      fname_list.push_back(filename);
+      // EFT_all_dataset[ID].push_back(new EFTReaction(filename,this));
     }
+    EFT_all_dataset.insert(std::make_pair(ID, new EFTReaction(fname_list, this) ));
   }
   else {
     hf_errlog(23032803,"F:No EFT file specified. Please provide 'Filename' or 'Filenames' to reaction EFT.");

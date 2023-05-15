@@ -46,8 +46,9 @@ public:
   virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override;
 protected:
   virtual int parseOptions(){ return 0;};
-  // a7: a map: dataSetID -> a vector of pointers to EFTReaction
-  std::map<int,std::vector<EFTReaction*> > EFT_all_dataset;
+  
+  // std::map<int,std::vector<EFTReaction*> > EFT_all_dataset;
+  std::map<int, EFTReaction* > EFT_all_dataset;
   vector<string> name_EFT_param; 
 };
 

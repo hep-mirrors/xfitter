@@ -24,29 +24,33 @@ class EFTReader {
 public:
 
   // initialization
-  EFTReader(string fname) {
-    file_EFT=fname;
+  EFTReader(vector<string> fname_list) {
+    for (string fname : fname_list)
+      filename_list.push_back(fname);
   }
     
-  EFTReader(string fname, ReactionTheory* reaction) {
-    file_EFT=fname;
+  EFTReader(vector<string> fname_list, ReactionTheory* reaction) {
+    for (string fname : fname_list)
+      filename_list.push_back(fname);
     _reactionTheory=reaction;
   }
 
   // name of file  
-  string file_EFT;
+  // string file_EFT;
+  vector<string> filename_list;
+
   int MAX_NUM_PARAM = 100; // todo set as a global const
 
   int num_bin; // number of bins
   int num_param; // number of EFT paramters; should be less than 100
-  std::map<int,std::vector<double>* > coeff; //a7: linear and quadratic coefficients of all val_EFT_params.
+  std::map<int, std::vector<double>* > coeff; //a7: linear and quadratic coefficients of all val_EFT_params.
   double val_EFT_param[100]; // MAX_NUM_PARAM
 
   // initialization
   void setinit(vector<string> name_EFT_param);
 
   void setValEFT(vector<double> coe){
-    //a7: executed for each computation
+    // executed for each computation
     if (num_param == coe.size()) {
       for (int i=0; i<num_param; i++)
 	val_EFT_param[i] = coe[i];
