@@ -21,6 +21,10 @@ void ReactionEFT::initTerm(TermData* td) {
   vector<string> fname_list;
 
   int ID = td->id;  // ID=dataSetID -> updated to termdata td
+  if ( td->hasParam("debug") )
+    if ( td->getParamI("debug") > 0 ) 
+      debug = true;
+
   // read the list of EFT parameters
   string list_EFT_param = td->getParamS("listEFTParam");
   // getNameEFTParam(list_EFT_param);
@@ -44,7 +48,7 @@ void ReactionEFT::initTerm(TermData* td) {
     hf_errlog(23032801,"I: Reading EFT file "+filename);
     fname_list.push_back(filename);
     // EFT_all_dataset.insert(std::make_pair(ID,vector<EFTReaction*>{new EFTReaction(filename, this)} ));
-    EFT_all_dataset.insert(std::make_pair(ID, new EFTReaction(fname_list, this) ));
+    EFT_all_dataset.insert(std::make_pair(ID, new EFTReader(fname_list, debug, this) ));
   }
   else if ( td->hasParam("Filenames") ) {
     const std::string filenames = td->getParamS("Filenames");
@@ -55,7 +59,7 @@ void ReactionEFT::initTerm(TermData* td) {
       fname_list.push_back(filename);
       // EFT_all_dataset[ID].push_back(new EFTReaction(filename,this));
     }
-    EFT_all_dataset.insert(std::make_pair(ID, new EFTReaction(fname_list, this) ));
+    EFT_all_dataset.insert(std::make_pair(ID, new EFTReader(fname_list, debug, this) ));
   }
   else {
     hf_errlog(23032803,"F:No EFT file specified. Please provide 'Filename' or 'Filenames' to reaction EFT.");
@@ -89,19 +93,27 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   xsec_one_dataset.reserve(val.size());
   int ID = td->id;
 
-  EFTReaction* EFT_term = EFT_all_dataset[ID];
+  EFTReader* EFT_term = EFT_all_dataset[ID];
   EFT_term->setValEFT(val_EFT_param);
   std::vector<double> cs = EFT_term->calcxsec();
 
-  // for ( EFTReaction* EFT_reader_one_file : EFT_all_dataset[ID] ) {
-  //   EFT_reader_one_file->setValEFT(val_EFT_param);
-  //   std::vector<double> cs = EFT_reader_one_file->calcxsec();
-  //   // for ( std::size_t i=0; i<cs.size(); i++) xsec_one_dataset.push_back(cs[i]);
-  //   for (double x: cs) xsec_one_dataset.push_back(x);
-  // }
+  if (debug == true) {
+    std::cout << "=======================================================" << std::endl;
+    std::cout << "ReactionEFT.comppute: cross section: " << std::endl;
+    for (double v : cs){
+      std::cout << v << ", ";
+    }
+    std::cout << std::endl;
+  }
+      
  
-  if ( val.size() != cs.size() )
+  // if ( int(val.size()) != int(cs.size()) ){
+  if ( val.size() != cs.size() ){
+    std::cout << "=======================================================" << std::endl;
+    std::cout << val.size() << ", " <<  cs.size() << std::endl;
+    std::cout << "=======================================================" << std::endl;
     hf_errlog(23032804,"F: Size of cross section array does not match data.");
+  }
   for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<cs.size()) ? cs[i] : 0.;
 
   // a7: performance may be improved ?

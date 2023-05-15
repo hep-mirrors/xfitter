@@ -24,14 +24,17 @@ class EFTReader {
 public:
 
   // initialization
-  EFTReader(vector<string> fname_list) {
+  EFTReader(vector<string> fname_list, bool debug_in) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
+    debug = debug_in;
   }
     
-  EFTReader(vector<string> fname_list, ReactionTheory* reaction) {
+  EFTReader(vector<string> fname_list, bool debug_in, ReactionTheory* reaction) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
+
+    debug = debug_in;
     _reactionTheory=reaction;
   }
 
@@ -61,6 +64,8 @@ public:
 
   // calculating xsecs 
   vector<double> calcxsec();
+
+  bool debug;
 
 private:
 

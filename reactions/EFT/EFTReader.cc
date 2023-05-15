@@ -29,11 +29,11 @@ void EFTReader::setinit(vector<string> name_EFT_param)
       if ( coeff_node[param_name] ){
 	if (num_bin_one_file < 0) {
 	  num_bin_one_file = coeff_node[param_name].size();
+	  num_bin += num_bin_one_file;
 	} else if (coeff_node[param_name].size() != num_bin) {
 	  hf_errlog(23032903, "E: number of cefficients is not equal to number of bins");
 	}
 	hf_errlog(23040603, "I: linear coefficients found for: " + param_name);
-	num_bin += num_bin_one_file;
 	if (coeff[i+1]) {
 	  for (double val: coeff_node[param_name].as<std::vector<double> >() ) {
 	    (*coeff[i+1]).push_back(val);
@@ -85,22 +85,32 @@ vector<double> EFTReader::calcxsec(void)
     xsec.push_back(1.0);
 
   for (int i=0; i < num_param; i++)
-    for (int k=0; k < num_bin; k++)
-      if ( coeff[i+1] ){
+    if ( coeff[i+1] ) {
+      if ( debug == true ) {
+	std::cout << "=======================================================" << std::endl;
+	std::cout << "EFTReader.xsec: linear term: " << i << ", " << val_EFT_param[i] << std::endl;
+	// std::cout << std::endl;
+      }
+      for (int k=0; k < num_bin; k++) {
 	xsec[k] += (*coeff[i+1])[k] * val_EFT_param[i];
       }
+    }
   
   for (int i=0; i < num_param; i++) 
     for (int j=i; j < num_param; j++)
-      for (int k=0; k < num_bin; k++)
-	if ( coeff[(i+1)*100+j+1] ) {
-	  xsec[k] += (*coeff[(i+1)*100+j+1])[k] * val_EFT_param[i] * val_EFT_param[j]; // / power(labmda, 4);
+      if ( coeff[(i+1)*100+j+1] ) {
+
+	if ( debug == true ) {
+	  std::cout << "=======================================================" << std::endl;
+	  std::cout << "EFTReader.xsec: mixed term: " << i << ", " << j << std::endl;
+	  // std::cout << std::endl;
 	}
 
-  // vector<double> vec_xsec;
-  // for (int k=0; k < num_bin; k++)
-  //   vec_xsec.push_back(xsec[i]);
-  // return vec_xsec;
+	vector<double>* pvec = coeff[(i+1)*100+j+1];
+	for (int k=0; k < num_bin; k++)
+	  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j]; // / power(labmda, 4);
+      }
+  
   return xsec;
 }
 
