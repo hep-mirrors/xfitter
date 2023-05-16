@@ -26,7 +26,6 @@ void ReactionEFT::initTerm(TermData* td) {
 
   // read the list of EFT parameters
   string list_EFT_param = td->getParamS("listEFTParam");
-  // getNameEFTParam(list_EFT_param);
 
   if (list_EFT_param.size() == 0) {
     hf_errlog(23040601,"I: list of EFT parameters is empty");
@@ -85,11 +84,11 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
 
   // vector<double> xsec_one_dataset;
   // xsec_one_dataset.reserve(val.size());
-  int ID = td->id;
+  // int ID = td->id;
 
-  EFTReader* EFT_term = EFT_terms[ID];
+  EFTReader* EFT_term = EFT_terms[td->id];
   EFT_term->setValEFT(val_EFT_param);
-  std::vector<double> cs = EFT_term->calcxsec();
+  std::vector<double> cs = EFT_term->calcXSec();
 
   if (debug > 0) {
     std::cout << "=======================================================" << std::endl;

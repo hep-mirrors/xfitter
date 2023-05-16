@@ -27,7 +27,9 @@ void EFTReader::init(vector<string> name_EFT_param_in)
     // read linear coefficients
     for (int i=0; i < num_param; i++) {
       string param_name = name_EFT_param[i];
+
       if (coeff_node[param_name]) {
+	/////////////////////////////////
 	if (num_bin_one_file < 0) {
 	  num_bin_one_file = coeff_node[param_name].size();
 	  num_bin += num_bin_one_file;
@@ -35,8 +37,8 @@ void EFTReader::init(vector<string> name_EFT_param_in)
 	  hf_errlog(23032903, "F: # coefficients != # bins");
 	}
 
-	hf_errlog(23040603, "I: linear coefficients found for: " + param_name);
-
+	// hf_errlog(23040603, "I: linear coefficients found for: " + param_name);
+	/////////////////////////////////
 	if (coeff.count(i+1) > 0) {
 	  for (double val: coeff_node[param_name].as<std::vector<double> >() ) {
 	    (*coeff[i+1]).push_back(val);
@@ -48,12 +50,12 @@ void EFTReader::init(vector<string> name_EFT_param_in)
 	    std::cout << "=======================================================" << std::endl;
 	    std::cout << "EFTReader.init: size of map coeff: " << coeff.size() << std::endl;
 	  }
-
 	}
+	/////////////////////////////////
       } else {
 	hf_errlog(23032901, "F: EFT coefficients missing for: " + param_name);
       }
-    }
+    } // end of reading linear coeff.
 
     // read quadratic coefficients
     for (int i=0; i < num_param; i++)
@@ -82,13 +84,13 @@ void EFTReader::init(vector<string> name_EFT_param_in)
   }
 }
 
-vector<double> EFTReader::calcxsec(void)
+vector<double> EFTReader::calcXSec(void)
 {
   // double xsec[100] = {0.0}; // initialize all xsec as zeros
   // a7: how to save the time of memory allocation? use the reserve method?
   if (debug > 0) {
     std::cout << "=======================================================" << std::endl;
-    std::cout << "EFTReader.calcxsec: size of map coeff: " << coeff.size() << std::endl;
+    std::cout << "EFTReader.calcXSec: size of map coeff: " << coeff.size() << std::endl;
   }
 
   vector<double> xsec;
@@ -97,17 +99,15 @@ vector<double> EFTReader::calcxsec(void)
 
   for (int i=0; i < num_param; i++) {
     if (coeff.count(i+1) > 0) {
-      if (debug > 0) {
-	std::cout << "=======================================================" << std::endl;
-	std::cout << "EFTReader.calcxsec: l:" + name_EFT_param[i] + " = " << val_EFT_param[i] << std::endl;
-      }
+
       for (int k=0; k < num_bin; k++) {
 	xsec[k] += (*(coeff[i+1]))[k] * val_EFT_param[i];
       }
 
       if (debug > 0) {
 	std::cout << "=======================================================" << std::endl;
-	std::cout << "EFTReader.calcxsec:" << std::endl;
+	std::cout << "EFTReader.calcXSec: l:" + name_EFT_param[i] + " = " << val_EFT_param[i] << std::endl;
+	std::cout << "EFTReader.calcXSec: new xsec=" << std::endl;
 	for (double v : xsec) {
 	  std::cout << v << ", ";
 	}
@@ -121,27 +121,26 @@ vector<double> EFTReader::calcxsec(void)
   }
 
   for (int i=0; i < num_param; i++) {
-    for (int j=i; j < num_param; j++)
+    for (int j=i; j < num_param; j++) {
       if (coeff.count((i+1)*100+j+1) > 0) {
 
-	if (debug > 0) {
-	  std::cout << "=======================================================" << std::endl;
-	  std::cout << "EFTReader.calcxsec: q/m: " << name_EFT_param[i] +  "*" + name_EFT_param[j] << " = " << val_EFT_param[i] * val_EFT_param[j] << std::endl;
-	  // std::cout << std::endl;
-	}
 	vector<double>* pvec = coeff[(i+1)*100+j+1];
-	for (int k=0; k < num_bin; k++)  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j];
-
+	for (int k=0; k < num_bin; k++)
+	  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j];
+	/////////////////////////////////
 	if (debug > 0) {
 	  std::cout << "=======================================================" << std::endl;
-	  std::cout << "EFTReader.calcxsec:" << std::endl;
+	  std::cout << "EFTReader.calcXSec: q/m: " << name_EFT_param[i] +  "*" + name_EFT_param[j] 
+		    << " = " << val_EFT_param[i] * val_EFT_param[j] << std::endl;
+	  std::cout << "EFTReader.calcXSec:" << std::endl;
 	  for (double v : xsec) {
 	    std::cout << v << ", ";
 	  }
 	  std::cout << std::endl;
 	}
-
-      } 
+	/////////////////////////////////
+      }
+    }
   } // end of double loop
 
   return xsec;

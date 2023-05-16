@@ -38,16 +38,16 @@ public:
     _reactionTheory=reaction;
   }
 
-  // name of file  
-  // string file_EFT;
   vector<string> filename_list;
+  int debug = -1;
 
   int MAX_NUM_PARAM = 100; // todo set as a global const
 
   int num_bin; // number of bins
   int num_param; // number of EFT paramters; should be less than 100
-  std::map<int, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters
+  vector<string> name_EFT_param; 
   double val_EFT_param[100]; // MAX_NUM_PARAM
+  std::map<int, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters
 
   // initialization
   void init(vector<string> name_EFT_param);
@@ -71,9 +71,7 @@ public:
   };
 
   // calculating xsecs 
-  vector<double> calcxsec();
-  vector<string> name_EFT_param; 
-  int debug = -1;
+  vector<double> calcXSec();
 
 private:
   // commons
