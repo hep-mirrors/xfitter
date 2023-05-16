@@ -60,8 +60,112 @@ class Vec {
 
 class RawVec {
  public:
-  RawVec() {
-  }
+  RawVec(YAML::node node, string key) {
+    // key: tag for the current entry; only used for issuing errors
+
+    // read type
+    if (node["type"]) {
+      string typeS =  node["type"].as<string>();
+      switch (typeS) {
+      case "C":
+	type = 0;
+	break;
+      case "l":
+	type = 1;
+	break;
+      case "L":
+	type = -1;
+	break;
+      case "q":
+	type = 2;
+	break;
+      case "Q":
+	type = -2;
+	break;
+      case "m":
+	type = 3;
+	break;
+      case "M":
+	type = -3;
+	break;
+      default:
+	cout << "invalid type" << endl;
+      }
+    }  else {
+      cout << "Error: entry type not given: " << key << endl;
+    }
+    ///////////////////////////////////////////////////////
+    // read input
+    if (node["format"]) 
+      format = node["format"].as<string>();
+    else
+      cout << "Error: entry format not given: " << key << endl;
+
+    if (format == "FR" || format == "FA") {
+	if (node["value"])
+	  value_list = node["value"].as<vector<double> >();
+	else
+	  cout << "Error: values for fixed input not given: " << key  << endl;
+    }
+    else {
+      if (format != "PineAPPL" || format != "fastNLO" || format != "APPLgrid")
+	cout << "Error: grid format not support" << endl;
+
+      if (node["file"])
+	grid_file_list = node["file"].as<string>();
+      else
+	cout << "Error: filenames for grids not given: " << key << endl;
+    }
+
+    ///////////////////////////////////////////////////////      
+    // read EFT parameters
+    if (type == -3 || type == 3) {
+      // names of parameters
+      if (node["param"]) {
+	vector<string> params = node["param"].as<vector<string> >();
+	if (param.size() != 2) 
+	  cout << "Error: number of parameters" << endl;
+	else {
+	  param_name1 = params[0];
+	  param_name2 = params[1];
+	}
+      } 
+      else
+	cout << "Error: param not found" << endl;
+
+      if (type == -3) {
+	// value of parameters
+	if (node["param_value"]) {
+	  vector<double> param_vals = node["param_value"].as<vector<double> >();
+
+	  if (param_value.size() != 2) 
+	    cout << "Error: number of parameters" << endl;
+	  else {
+	    param_val1 = param_vals[0];
+	    param_val2 = param_vals[1];
+	  }
+	} 
+	else
+	  cout << "Error: param not found" << endl;
+      }
+    }
+    else if (type != 0) {
+      // names of parameter
+      if (node["param"])
+	param_name1 = node["param"].as<string>();
+      else
+	cout << "Error: param not found" << endl;
+
+      if (type < 0) {
+	// value of parameter
+	if (node["param_value"])
+	  param_val1 = node["param_value"].as<double>();
+	else
+	  cout << "Error: param not found" << endl;
+      }
+    }
+  } // end of constructor
+
   ///////////////////////////////////////////////////////
   int type = 4;
   string format;
@@ -70,17 +174,36 @@ class RawVec {
   string param_name1;
   string param_name2;
   vector<string> grid_file_list;
-  vector<double> value_list;
+  vector<double> value_list; // cross sections in each bin
   double coeff = 0.0;
   ///////////////////////////////////////////////////////
-  void increaseXSecInPlace() {
+  void increaseXSecInPlace(vector<double> xsec) {
+    if (xsec.size() != value_list.size())
+      cout << "Error: size does not match" << endl;
+    else {
+      for (int i=0; i<val_list.size(); i++)
+	xsec[i] += value_list[i] * coeff;
+    }
   }
 
   void setCoeff(double val) { coeff = val; }
-  void increaseCoeff(double val) { coeff += val; }
-  void convolute() {}
-  void FR2FA() {}
 
+  void increaseCoeff(double val) { coeff += val; }
+
+  void convolute() {} // todo
+
+  /////////////////////////////////
+  void FR2FA(vector<double> val_list_C) {
+    // ratio -> absolute value
+    format = "FA";
+    if (value_list.size() != val_list_C.size()) 
+      cout << "Error: size does not match" << endl;
+    else {
+      for (int i=0; i<val_list_C.size(); i++)
+	value_list[i] *= val_list_C[i];
+    }
+  }
+  /////////////////////////////////
   // private:
 
 };
