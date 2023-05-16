@@ -25,7 +25,6 @@
      @date 2016-12-06
   */
 
-  // a7: why we need EFTReaction when we already have EFTReader?
 // class EFTReaction : public EFTReader {
 // public:
 //  EFTReaction(vector<string> fname_list, ReactionTheory* reaction) : EFTReader(fname_list, reaction) {};
@@ -47,9 +46,7 @@ public:
 protected:
   virtual int parseOptions(){ return 0;};
   
-  // std::map<int,std::vector<EFTReaction*> > EFT_all_dataset;
-  // std::map<int, EFTReaction* > EFT_all_dataset;
-  std::map<int, EFTReader* > EFT_all_dataset;
+  std::map<int, EFTReader* > EFT_terms;
   vector<string> name_EFT_param; 
   int debug = -1;
 };

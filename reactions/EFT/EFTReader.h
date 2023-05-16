@@ -46,13 +46,13 @@ public:
 
   int num_bin; // number of bins
   int num_param; // number of EFT paramters; should be less than 100
-  std::map<int, std::vector<double>* > coeff; //a7: linear and quadratic coefficients of all val_EFT_params.
+  std::map<int, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters
   double val_EFT_param[100]; // MAX_NUM_PARAM
 
   // initialization
-  void setinit(vector<string> name_EFT_param);
+  void init(vector<string> name_EFT_param);
 
-  void setValEFT(vector<double> coe){
+  void setValEFT(vector<double> coe) {
     // executed for each computation
     if (num_param == coe.size()) {
       for (int i=0; i<num_param; i++)
@@ -64,7 +64,7 @@ public:
     if (debug > 2) {
       std::cout << "=======================================================" << std::endl;
       std::cout << "EFTReader.setValEFT" << std::endl;
-      for (int i=0; i<num_param; i++){
+      for (int i=0; i<num_param; i++) {
 	std::cout << name_EFT_param[i] << "=" <<  val_EFT_param[i] << std::endl;
       }
     }
@@ -76,7 +76,6 @@ public:
   int debug = -1;
 
 private:
-
   // commons
   ReactionTheory* _reactionTheory;
 

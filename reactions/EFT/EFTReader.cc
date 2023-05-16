@@ -9,7 +9,7 @@ using namespace std;
 
 //------------------------------------------------------------------------------------
 
-void EFTReader::setinit(vector<string> name_EFT_param_in)
+void EFTReader::init(vector<string> name_EFT_param_in)
 {
   name_EFT_param = name_EFT_param_in;
   num_param = name_EFT_param.size();
@@ -19,15 +19,15 @@ void EFTReader::setinit(vector<string> name_EFT_param_in)
     hf_errlog(23040302, "E: too many EFT parameters");
 
   // read coefficients for all files
-  for (string fname : filename_list){
+  for (string fname : filename_list) {
 
     YAML::Node coeff_node = YAML::LoadFile(fname);
     int num_bin_one_file = -1;
 
     // read linear coefficients
-    for (int i=0; i < num_param; i++){
+    for (int i=0; i < num_param; i++) {
       string param_name = name_EFT_param[i];
-      if ( coeff_node[param_name] ){
+      if (coeff_node[param_name]) {
 	if (num_bin_one_file < 0) {
 	  num_bin_one_file = coeff_node[param_name].size();
 	  num_bin += num_bin_one_file;
@@ -46,7 +46,7 @@ void EFTReader::setinit(vector<string> name_EFT_param_in)
 
 	  if (debug > 0) {
 	    std::cout << "=======================================================" << std::endl;
-	    std::cout << "EFTReader.setinit: size of map coeff: " << coeff.size() << std::endl;
+	    std::cout << "EFTReader.init: size of map coeff: " << coeff.size() << std::endl;
 	  }
 
 	}
@@ -57,7 +57,7 @@ void EFTReader::setinit(vector<string> name_EFT_param_in)
 
     // read quadratic coefficients
     for (int i=0; i < num_param; i++)
-      for (int j=i; j < num_param; j++){
+      for (int j=i; j < num_param; j++) {
 	string param_name1 = name_EFT_param[i] + "*" + name_EFT_param[j];
 	string param_name2 = name_EFT_param[j] + "*" + name_EFT_param[i];
 	vector<double>* pvd;
@@ -72,8 +72,8 @@ void EFTReader::setinit(vector<string> name_EFT_param_in)
 	  hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name1);
 	}
 	if (found) {
-	  if ( coeff.count((i+1)*100 + j+1) > 0 ) {
-	    for (double val : (*pvd) ) (*coeff[(i+1)*100 + j+1]).push_back(val);
+	  if (coeff.count((i+1)*100 + j+1) > 0) {
+	    for (double val : (*pvd)) (*coeff[(i+1)*100 + j+1]).push_back(val);
 	  } else {
 	    coeff.insert(std::make_pair((i+1)*100+j+1, pvd));
 	  }
@@ -96,8 +96,8 @@ vector<double> EFTReader::calcxsec(void)
     xsec.push_back(1.0);
 
   for (int i=0; i < num_param; i++) {
-    if ( coeff.count(i+1) > 0 ) {
-      if ( debug > 0 ) {
+    if (coeff.count(i+1) > 0) {
+      if (debug > 0) {
 	std::cout << "=======================================================" << std::endl;
 	std::cout << "EFTReader.calcxsec: l:" + name_EFT_param[i] + " = " << val_EFT_param[i] << std::endl;
       }
@@ -105,8 +105,7 @@ vector<double> EFTReader::calcxsec(void)
 	xsec[k] += (*(coeff[i+1]))[k] * val_EFT_param[i];
       }
 
-
-      if ( debug > 0 ) {
+      if (debug > 0) {
 	std::cout << "=======================================================" << std::endl;
 	std::cout << "EFTReader.calcxsec:" << std::endl;
 	for (double v : xsec) {
@@ -114,7 +113,6 @@ vector<double> EFTReader::calcxsec(void)
 	}
 	std::cout << std::endl;
       }
-
 
     } else {
       hf_errlog(23051601, "F: linear coefficients missing for: " + name_EFT_param[i]);
@@ -124,9 +122,9 @@ vector<double> EFTReader::calcxsec(void)
 
   for (int i=0; i < num_param; i++) {
     for (int j=i; j < num_param; j++)
-      if ( coeff.count((i+1)*100+j+1) > 0 ) {
+      if (coeff.count((i+1)*100+j+1) > 0) {
 
-	if ( debug > 0 ) {
+	if (debug > 0) {
 	  std::cout << "=======================================================" << std::endl;
 	  std::cout << "EFTReader.calcxsec: q/m: " << name_EFT_param[i] +  "*" + name_EFT_param[j] << " = " << val_EFT_param[i] * val_EFT_param[j] << std::endl;
 	  // std::cout << std::endl;
@@ -134,7 +132,7 @@ vector<double> EFTReader::calcxsec(void)
 	vector<double>* pvec = coeff[(i+1)*100+j+1];
 	for (int k=0; k < num_bin; k++)  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j];
 
-	if ( debug > 0 ) {
+	if (debug > 0) {
 	  std::cout << "=======================================================" << std::endl;
 	  std::cout << "EFTReader.calcxsec:" << std::endl;
 	  for (double v : xsec) {
@@ -148,4 +146,3 @@ vector<double> EFTReader::calcxsec(void)
 
   return xsec;
 }
-

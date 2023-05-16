@@ -46,8 +46,8 @@ void ReactionEFT::initTerm(TermData* td) {
 
     hf_errlog(23032801,"I: Reading EFT file "+filename);
     fname_list.push_back(filename);
-    // EFT_all_dataset.insert(std::make_pair(ID,vector<EFTReaction*>{new EFTReaction(filename, this)} ));
-    EFT_all_dataset.insert(std::make_pair(ID, new EFTReader(fname_list, debug, this) ));
+    // EFT_terms.insert(std::make_pair(ID,vector<EFTReaction*>{new EFTReaction(filename, this)} ));
+    EFT_terms.insert(std::make_pair(ID, new EFTReader(fname_list, debug, this) ));
   }
   else if ( td->hasParam("Filenames") ) {
     const std::string filenames = td->getParamS("Filenames");
@@ -56,9 +56,9 @@ void ReactionEFT::initTerm(TermData* td) {
     while (std::getline(ss, filename, ',')) {
       hf_errlog(23032801,"I: Reading EFT file "+filename);
       fname_list.push_back(filename);
-      // EFT_all_dataset[ID].push_back(new EFTReaction(filename,this));
+      // EFT_terms[ID].push_back(new EFTReaction(filename,this));
     }
-    EFT_all_dataset.insert(std::make_pair(ID, new EFTReader(fname_list, debug, this) ));
+    EFT_terms.insert(std::make_pair(ID, new EFTReader(fname_list, debug, this) ));
   }
   else {
     hf_errlog(23032803,"F:No EFT file specified. Please provide 'Filename' or 'Filenames' to reaction EFT.");
@@ -67,10 +67,7 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //------------------------------------------------------------------
   // read the coefficients
-  EFT_all_dataset[ID]->setinit(name_EFT_param); //a7: read the coeff. from the input file
-  // for ( EFTReaction* EFT_reader_one_file : EFT_all_dataset[ID] ) {
-  //   EFT_reader_one_file->setinit(name_EFT_param); //a7: read the coeff. from the input file
-  // }
+  EFT_terms[ID]->init(name_EFT_param); // read the coeff. from the input file
 }
 
 //______________________________________________________________________________
@@ -78,8 +75,6 @@ void ReactionEFT::initTerm(TermData* td) {
 void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valarray<double> > &err)
 {
   td->actualizeWrappers();
-  // Get relevant parameters:
-  // a7: read values of all EFT parameters; shall we try to save the time of memory allocation?
   // getParamD returns a pointer, is this address fixed?
   vector<double> val_EFT_param;  
   val_EFT_param.reserve(name_EFT_param.size());
@@ -92,7 +87,7 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   // xsec_one_dataset.reserve(val.size());
   int ID = td->id;
 
-  EFTReader* EFT_term = EFT_all_dataset[ID];
+  EFTReader* EFT_term = EFT_terms[ID];
   EFT_term->setValEFT(val_EFT_param);
   std::vector<double> cs = EFT_term->calcxsec();
 
@@ -106,7 +101,6 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   }
       
  
-  // if ( int(val.size()) != int(cs.size()) ){
   if ( val.size() != cs.size() ){
     std::cout << "=======================================================" << std::endl;
     std::cout << val.size() << ", " <<  cs.size() << std::endl;
