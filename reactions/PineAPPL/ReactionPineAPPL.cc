@@ -51,7 +51,7 @@ vector<bool> maskParser(string mask) {
         vs.push_back(substr);
     }
     for (string s : vs) {
-        if (s!="1" || s!="0") {
+        if (s!="1" && s!="0") {
             hf_errlog(23010307, "F: if PineAPPL mask given, it must be a comma-separated string of 1s and 0s!");
         }
         sstream.str("");  sstream.clear();
