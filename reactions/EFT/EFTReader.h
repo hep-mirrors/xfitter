@@ -24,13 +24,13 @@ class EFTReader {
 public:
 
   // initialization
-  EFTReader(vector<string> fname_list, bool debug_in) {
+  EFTReader(vector<string> fname_list, int debug_in) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
     debug = debug_in;
   }
     
-  EFTReader(vector<string> fname_list, bool debug_in, ReactionTheory* reaction) {
+  EFTReader(vector<string> fname_list, int debug_in, ReactionTheory* reaction) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
 
@@ -60,12 +60,20 @@ public:
     } else {
       hf_errlog(23040301, "E: number of EFT parameters does not match");
     }
+
+    if (debug > 2) {
+      std::cout << "=======================================================" << std::endl;
+      std::cout << "EFTReader.setValEFT" << std::endl;
+      for (int i=0; i<num_param; i++){
+	std::cout << name_EFT_param[i] << "=" <<  val_EFT_param[i] << std::endl;
+      }
+    }
   };
 
   // calculating xsecs 
   vector<double> calcxsec();
-
-  bool debug;
+  vector<string> name_EFT_param; 
+  int debug = -1;
 
 private:
 

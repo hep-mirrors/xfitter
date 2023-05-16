@@ -22,8 +22,7 @@ void ReactionEFT::initTerm(TermData* td) {
 
   int ID = td->id;  // ID=dataSetID -> updated to termdata td
   if ( td->hasParam("debug") )
-    if ( td->getParamI("debug") > 0 ) 
-      debug = true;
+    debug = td->getParamI("debug");
 
   // read the list of EFT parameters
   string list_EFT_param = td->getParamS("listEFTParam");
@@ -89,17 +88,17 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
     val_EFT_param.push_back(*td->getParamD(EFT_param));
   }
 
-  vector<double> xsec_one_dataset;
-  xsec_one_dataset.reserve(val.size());
+  // vector<double> xsec_one_dataset;
+  // xsec_one_dataset.reserve(val.size());
   int ID = td->id;
 
   EFTReader* EFT_term = EFT_all_dataset[ID];
   EFT_term->setValEFT(val_EFT_param);
   std::vector<double> cs = EFT_term->calcxsec();
 
-  if (debug == true) {
+  if (debug > 0) {
     std::cout << "=======================================================" << std::endl;
-    std::cout << "ReactionEFT.comppute: cross section: " << std::endl;
+    std::cout << "ReactionEFT.compute: cross section: " << std::endl;
     for (double v : cs){
       std::cout << v << ", ";
     }
@@ -116,10 +115,4 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   }
   for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<cs.size()) ? cs[i] : 0.;
 
-  // a7: performance may be improved ?
-  // code from the PineAPPL reaction:
-  // unsigned int pos = 0;
-  // // insert values from this grid into output array
-  // copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
-  // pos += pineappl_grid_bin_count(grid);
 }

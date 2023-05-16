@@ -9,8 +9,9 @@ using namespace std;
 
 //------------------------------------------------------------------------------------
 
-void EFTReader::setinit(vector<string> name_EFT_param)
+void EFTReader::setinit(vector<string> name_EFT_param_in)
 {
+  name_EFT_param = name_EFT_param_in;
   num_param = name_EFT_param.size();
   num_bin = 0;
 
@@ -23,6 +24,21 @@ void EFTReader::setinit(vector<string> name_EFT_param)
     YAML::Node coeff_node = YAML::LoadFile(fname);
     int num_bin_one_file = -1;
 
+    // std::cout << "=======================================================" << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+    std::cout << "EFTReader.setinit debug" << std::endl;
+    std::cout << fname << std::endl;
+    // vector<double> vmt = coeff_node["deltamt"].as<std::vector<double> >();
+    // vector<double>* pvmt = new vector<double>(coeff_node["deltamt"].as<std::vector<double> >() );
+    // std::cout << "vmt:" << vmt[0] << std::endl;
+    // std::cout << "pvmt:" << (*pvmt)[0] << std::endl;
+    // coeff.insert(std::make_pair(-1, pvmt));
+    // std::cout << "coeff1:" << (*(coeff[-1]))[0] << std::endl;
+
+    // coeff.insert(std::make_pair(-2, new vector<double>(coeff_node["deltamt"].as<std::vector<double> >() )));
+    // std::cout << "coeff2:" << (*(coeff[-2]))[0] << std::endl;
+    // std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+
     // read linear coefficients
     for (int i=0; i < num_param; i++){
       string param_name = name_EFT_param[i];
@@ -31,18 +47,26 @@ void EFTReader::setinit(vector<string> name_EFT_param)
 	  num_bin_one_file = coeff_node[param_name].size();
 	  num_bin += num_bin_one_file;
 	} else if (coeff_node[param_name].size() != num_bin) {
-	  hf_errlog(23032903, "E: number of cefficients is not equal to number of bins");
+	  hf_errlog(23032903, "F: # coefficients != # bins");
 	}
+
 	hf_errlog(23040603, "I: linear coefficients found for: " + param_name);
-	if (coeff[i+1]) {
+
+	if (coeff.count(i+1) > 0) {
 	  for (double val: coeff_node[param_name].as<std::vector<double> >() ) {
 	    (*coeff[i+1]).push_back(val);
 	  }
 	} else {
-	  coeff.insert(std::make_pair(i+1, new vector<double>(coeff_node[param_name].as<std::vector<double> >() )));	  
+	  coeff.insert(std::make_pair(i+1, new vector<double>(coeff_node[param_name].as<std::vector<double> >() )));
+
+	  if (debug > 0) {
+	    std::cout << "=======================================================" << std::endl;
+	    std::cout << "EFTReader.setinit: size of map coeff: " << coeff.size() << std::endl;
+	  }
+
 	}
       } else {
-	hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name);
+	hf_errlog(23032901, "F: EFT coefficients missing for: " + param_name);
       }
     }
 
@@ -63,7 +87,7 @@ void EFTReader::setinit(vector<string> name_EFT_param)
 	  hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name1);
 	}
 	if (found) {
-	  if (coeff[(i+1)*100 + j+1]) {
+	  if ( coeff.count((i+1)*100 + j+1) > 0 ) {
 	    for (double val : (*pvd) ) (*coeff[(i+1)*100 + j+1]).push_back(val);
 	  } else {
 	    coeff.insert(std::make_pair((i+1)*100+j+1, pvd));
@@ -77,40 +101,69 @@ vector<double> EFTReader::calcxsec(void)
 {
   // double xsec[100] = {0.0}; // initialize all xsec as zeros
   // a7: how to save the time of memory allocation? use the reserve method?
-  // TODO: parallel calc. for vector operation ?
-  //  if (num_bin > 100)
-  // hf_errlog(23033001, "E: too many bins");
+  if (debug > 0) {
+    std::cout << "=======================================================" << std::endl;
+    std::cout << "EFTReader.calcxsec: size of map coeff: " << coeff.size() << std::endl;
+  }
+
+
   vector<double> xsec;
   for (int k=0; k < num_bin; k++)
     xsec.push_back(1.0);
 
   for (int i=0; i < num_param; i++)
-    if ( coeff[i+1] ) {
-      if ( debug == true ) {
+    if ( coeff.count(i+1) > 0 ) {
+      //    if ( coeff[i+1] ) {
+      if ( debug > 0 ) {
 	std::cout << "=======================================================" << std::endl;
-	std::cout << "EFTReader.xsec: linear term: " << i << ", " << val_EFT_param[i] << std::endl;
-	// std::cout << std::endl;
+	std::cout << "EFTReader.calcxsec: l:" + name_EFT_param[i] + " = " << val_EFT_param[i] << std::endl;
       }
       for (int k=0; k < num_bin; k++) {
-	xsec[k] += (*coeff[i+1])[k] * val_EFT_param[i];
+	xsec[k] += (*(coeff[i+1]))[k] * val_EFT_param[i];
       }
+
+
+      if ( debug > 0 ) {
+	std::cout << "=======================================================" << std::endl;
+	std::cout << "EFTReader.calcxsec:" << std::endl;
+	for (double v : xsec) {
+	  std::cout << v << ", ";
+	}
+	std::cout << std::endl;
+      }
+
+
+    } else {
+      hf_errlog(23051601, "F: linear coefficients missing for: " + name_EFT_param[i]);
     }
   
+
   for (int i=0; i < num_param; i++) 
     for (int j=i; j < num_param; j++)
-      if ( coeff[(i+1)*100+j+1] ) {
+      if ( coeff.count((i+1)*100+j+1) > 0 ) {
 
-	if ( debug == true ) {
+	if ( debug > 0 ) {
 	  std::cout << "=======================================================" << std::endl;
-	  std::cout << "EFTReader.xsec: mixed term: " << i << ", " << j << std::endl;
+	  std::cout << "EFTReader.calcxsec: q/m: " << name_EFT_param[i] +  "*" + name_EFT_param[j] << " = " << val_EFT_param[i] * val_EFT_param[j] << std::endl;
 	  // std::cout << std::endl;
 	}
-
 	vector<double>* pvec = coeff[(i+1)*100+j+1];
 	for (int k=0; k < num_bin; k++)
-	  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j]; // / power(labmda, 4);
+	  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j];
+
+	if ( debug > 0 ) {
+	  std::cout << "=======================================================" << std::endl;
+	  std::cout << "EFTReader.calcxsec:" << std::endl;
+	  for (double v : xsec) {
+	    std::cout << v << ", ";
+	  }
+	  std::cout << std::endl;
+	}
+
       }
   
+
+
   return xsec;
 }
 

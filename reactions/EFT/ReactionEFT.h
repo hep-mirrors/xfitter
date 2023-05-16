@@ -51,7 +51,7 @@ protected:
   // std::map<int, EFTReaction* > EFT_all_dataset;
   std::map<int, EFTReader* > EFT_all_dataset;
   vector<string> name_EFT_param; 
-  bool debug = false;
+  int debug = -1;
 };
 
 #endif
