@@ -15,9 +15,11 @@
 #include "ReactionTheory.h"
 #include "TermData.h"
 #include <map>
+#include "Vec.h"
 			//--------------------------------------------
 
 using namespace std;
+
 
 class EFTReader {
 
