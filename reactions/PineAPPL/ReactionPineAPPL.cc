@@ -226,16 +226,21 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     };
     std::vector<std::vector<int> > rebin(mttmin->size());
     for(size_t bin = 0; bin < mttmin->size(); bin++) {
+        //printf("bin = %ld\n", bin);
+        auto mttmin_mod = (*mttmin)[bin];
+        //if (mttmin_mod <= 330.) mttmin_mod = 0.; // low mtt bins: everything below == 0 GeV
+        if (mttmin_mod <= 330.) mttmin_mod = 250.; // low mtt bins: everything below == 250 GeV
         rebin[bin].resize(binsl2.size());
         bool match_l = false;
         bool match_r = false;
         bool match_l2 = false;
         bool match_r2 = false;
         for(size_t bingrid = 0; bingrid < binsl2.size(); bingrid++) {
+            //printf("bingrid = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bingrid, binsl2[bingrid],binsr2[bingrid],binsl[bingrid],binsr[bingrid]);
             rebin[bin][bingrid] = 0;
             // 1st dimension
             int flag1 = 0;
-            auto l = compare((*mttmin)[bin], binsl2[bingrid]);
+            auto l = compare(mttmin_mod, binsl2[bingrid]);
             if (l == -1) continue;
             else {
                 if (l == 0) match_l2 = true;
@@ -257,13 +262,13 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
             }
             if (flag1 && flag2) rebin[bin][bingrid] = 1;
         }
-        printf("match_l, match_r, match_l2, match_r2 = %d %d %d %d\n", match_l, match_r, match_l2, match_r2);
-        if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin");
-        if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax");
-        if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin");
-        if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax");
+        //printf("match_l, match_r, match_l2, match_r2 = %d %d %d %d\n", match_l, match_r, match_l2, match_r2);
+        if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin " + std::to_string((*mttmin)[bin]));
+        if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax " + std::to_string((*mttmax)[bin]));
+        if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin " + std::to_string((*yttmin)[bin]));
+        if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax " + std::to_string((*yttmax)[bin]));
     }
-    for (size_t i1 = 0; i1 < rebin.size(); i1++) {
+    /*for (size_t i1 = 0; i1 < rebin.size(); i1++) {
         printf("target bin %.0f < M < %.0f, %.2f < y < %.2f\n", (*mttmin)[i1], (*mttmax)[i1], (*yttmin)[i1], (*yttmax)[i1]);
         std::string line = "";
         for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
@@ -272,7 +277,7 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
             printf("   %d   bin %.0f < M < %.0f, %.2f < y < %.2f\n", rebin[i1][i2], binsl2[i2], binsr2[i2], binsl[i2], binsr[i2]);
         }
         printf("%s\n", line.c_str());
-    }
+    }*/
     //throw 42;
     //if (val.size() != rebin.size()) hf_errlog(23051204, "F: Binning mismatch: inconsistent number of bins");
     auto val_orig = val;
