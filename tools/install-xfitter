@@ -12,7 +12,7 @@ apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
 dyturbover=1.2
-pineapplver=0.5.8
+pineapplver="0.6.0-alpha.17"
 rustver=1.66.0
 cargocver=0.9.14
 
@@ -663,28 +663,10 @@ else
         echo "Installing PineAPPL $pineapplver..."
         
         if [[ $pineappl_lite == 1 ]]; then
-            pineapplurl=https://gitlab.cern.ch/fitters/xfitter/-/archive/${version}/xfitter-${version}.tar.gz?path=tools/pineappl
-            wget --no-check-certificate ${pineapplurl} -O pineappl_lite.tar.gz >> $CURRENTDIR/install.log 2>&1
-            tar xzf pineappl_lite.tar.gz >> $CURRENTDIR/install.log  2>&1
-            mv xfitter-${version}-tools-pineappl/tools/pineappl/ pineappl
-            rmdir xfitter-${version}-tools-pineappl/tools/
-            rmdir xfitter-${version}-tools-pineappl
-            cd pineappl/lib
-            ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so
-            ln -s libpineappl_capi.so.0.5.8 libpineappl_capi.so.0
-            mkdir pkgconfig
-            cd pkgconfig
-            echo "prefix=$CURRENTDIR/deps/pineappl"                          >> pineappl_capi.pc
-            echo "exec_prefix=\${prefix}"                                    >> pineappl_capi.pc
-            echo "libdir=\${exec_prefix}/lib"                                >> pineappl_capi.pc
-            echo "includedir=\${prefix}/include"                             >> pineappl_capi.pc
-            echo ""                                                          >> pineappl_capi.pc
-            echo "Name: pineappl_capi"                                       >> pineappl_capi.pc
-            echo "Description: C language interface to PineAPPL"             >> pineappl_capi.pc
-            echo "Version: 0.5.8"                                            >> pineappl_capi.pc
-            echo "Libs: -L\${libdir} -lpineappl_capi"                        >> pineappl_capi.pc
-            echo "Cflags: -I\${includedir}/pineappl_capi"                    >> pineappl_capi.pc
-            echo "Libs.private:  -lgcc_s -lutil -lrt -lpthread -lm -ldl -lc" >> pineappl_capi.pc
+            mkdir $CURRENTDIR/deps/pineappl
+            PINEAPPL_URL=https://github.com/NNPDF/pineappl/releases/download
+            wget --no-check-certificate "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz -O- | tar xzf - -C "$CURRENTDIR/deps/pineappl"
+            sed -i s:prefix=/:prefix=$CURRENTDIR/deps/pineappl: "$CURRENTDIR/deps/pineappl"/lib/pkgconfig/pineappl_capi.pc            
         else
             PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
             git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
