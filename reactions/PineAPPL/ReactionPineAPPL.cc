@@ -72,18 +72,26 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         istringstream ss(GridName);
         string token;
         while (getline(ss, token, ',')) {
-            pineappl_grid* g = pineappl_grid_read(token.c_str());             
+            pineappl_grid* g = nullptr;
+            const auto& find = _initialized.find(token);
+            if(find == _initialized.end()) {
+                g = pineappl_grid_read(token.c_str());             
+                _initialized.insert(std::make_pair(token, g));
+                hf_errlog(22122901, "I: read PineAPPL grids with "
+                                    +to_string(pineappl_grid_bin_count(g))
+                                    +" bins");
+            }
+            else {
+                g = find->second;
+            }
             data->grids.push_back(g);
-            data->GridNames.push_back(token.c_str());
+            data->GridNames.push_back(token);
         }
         // Init dimensions
         data->Nbins = pineappl_grid_bin_count(data->grids[0]);
         data->Nord  = pineappl_grid_order_count(data->grids[0]);
         auto* lumi  = pineappl_grid_lumi(data->grids[0]);
         data->Nlumi = pineappl_lumi_count(lumi);
-        hf_errlog(22122901, "I: read PineAPPL grids with "
-                            +to_string(data->Nbins)
-                            +" bins");
     } catch ( const exception& e ) {
         hf_errlog(22121301, "E: Unhandled exception while trying to read PineAPPL grid(s) "+GridName);
         throw e;

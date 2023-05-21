@@ -1,11 +1,13 @@
 #pragma once
 #include"ReactionTheory.h"
+class pineappl_grid;
 /**
   @class' ReactionPineAPPL
 
   @brief A wrapper class for PineAPPL reaction
   */
 class ReactionPineAPPL:public ReactionTheory{
+  std::map<std::string, pineappl_grid*> _initialized;
   std::map<std::string, vector<double> > _convolved;
 public:
   virtual string getReactionName() const override {return"PineAPPL";};
