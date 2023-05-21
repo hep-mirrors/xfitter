@@ -28,6 +28,8 @@ struct DatasetData {
     int Nlumi;
     vector<bool> ordervec;
     vector<bool> lumivec;
+    vector<std::string> GridNames;
+    std::vector<std::vector<int> > rebin;
 };
 
 const double ONE=1;
@@ -72,6 +74,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         while (getline(ss, token, ',')) {
             pineappl_grid* g = pineappl_grid_read(token.c_str());             
             data->grids.push_back(g);
+            data->GridNames.push_back(token.c_str());
         }
         // Init dimensions
         data->Nbins = pineappl_grid_bin_count(data->grids[0]);
@@ -128,90 +131,24 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     }
     size_t Ngrids = data->grids.size();
 
-} //initTerm
-
-void ReactionPineAPPL::freeTerm(TermData*td) {
-    DatasetData* data = (DatasetData*)td->reactionData;
-    size_t Ngrids=data->grids.size();
-    for (size_t i=0; i<Ngrids; ++i) pineappl_grid_delete(data->grids[i]);
-    delete data;
-}
-
-void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err) {
-    const DatasetData& data = *(DatasetData*)td->reactionData;
-    const double muR = *data.muR;
-    const double muF = *data.muF;
-    unsigned int pos = 0;
-    bool order_mask[data.Nord];
-    bool lumi_mask[data.Nlumi];
-    for (int i=0; i<data.Nord; ++i) order_mask[i] = data.ordervec[i];
-    for (int i=0; i<data.Nlumi; ++i) lumi_mask[i] = data.lumivec[i];   
-
-    //calculate output array size
-    size_t np=0;
-    for (pineappl_grid* grid : data.grids) if (grid) np += pineappl_grid_bin_count(grid);
-    val.resize(np);
-
-    // Fix PDG ID to p, avoiding double charge conjugation in case pbar is used,
-    // as this is already done elsewhere before passing PDFs to PineAPPL
-    int32_t PDGID = 2212;  //DO NOT MODIFY
-    
-    // SZ
+    // rebin
+    size_t np = 0;
+    for (pineappl_grid* grid : data->grids) if (grid) np += pineappl_grid_bin_count(grid);
     std::vector<double> binsl(np);
     std::vector<double> binsr(np);
     std::vector<double> binsl2(np);
     std::vector<double> binsr2(np);
-    //
-
-    for (pineappl_grid* grid : data.grids) {
-        vector<double> gridVals;
-        gridVals.resize(data.Nbins);
-
+    unsigned int pos = 0;
+    for (size_t igrid = 0; igrid < data->grids.size(); igrid++) {
+        pineappl_grid* grid = data->grids[igrid];
         if (grid) {//real, non-dummy grid
-            td->actualizeWrappers();
-
-            //Pineappl assumes PDF and alphaS wrapper function pointers
-            //are given a pointer "state", e.g. an LHAPDF object, if the 
-            //values were read from there. Here, call existing wrappers 
-            //rearranging parameter list & return value to suit pineappl 
-            //convolution function.
-            auto xfx = [](int32_t id_in, double x, double q2, void *state) {
-                double pdfs[13];
-                int32_t id = id_in==21 ? 6 : id_in+6;
-                pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
-                return pdfs[id];
-            };
-            auto alphas = [](double q2, void *state) {
-                return alphas_wrapper_(sqrt(q2));
-            };
-
-            //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
-            pineappl_grid_convolute_with_one(grid, PDGID, 
-                                             xfx, alphas, 
-                                             nullptr,//"state" provided to wrappers, redundant in xFitter
-                                             data.Nord>0 ? order_mask : nullptr,
-                                             data.Nlumi>0 ? lumi_mask : nullptr,
-                                             muR, muF, gridVals.data());
-          //scale by bin width
-          if (data.flagNorm) for(size_t i=0; i<gridVals.size(); i++) {
-              vector<double> bin_sizes;
-              bin_sizes.resize(pineappl_grid_bin_count(grid));
-              pineappl_grid_bin_normalizations(grid, bin_sizes.data());
-              gridVals[i] *= bin_sizes[i];
-          }
-
-            // SZ
             pineappl_grid_bin_limits_left(grid, 0, binsl.data() + pos);
             pineappl_grid_bin_limits_right(grid, 0, binsr.data() + pos);
             pineappl_grid_bin_limits_left(grid, 1, binsl2.data() + pos);
             pineappl_grid_bin_limits_right(grid, 1, binsr2.data() + pos);
-            //
+            pos += pineappl_grid_bin_count(grid);
         }
-        // insert values from this grid into output array
-        copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
-        pos += pineappl_grid_bin_count(grid);
     }
-    // rebin
     auto *mttmin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("mttmin"));
     auto *mttmax  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("mttmax"));
     auto *yttmin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("yttmin"));
@@ -224,12 +161,14 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
         else if (diff > 0) return 1;
         else return -1;
     };
-    std::vector<std::vector<int> > rebin(mttmin->size());
+    auto& rebin = data->rebin;
+    rebin.resize(mttmin->size());
     for(size_t bin = 0; bin < mttmin->size(); bin++) {
-        //printf("bin = %ld\n", bin);
+        printf("bin = %ld\n", bin);
         auto mttmin_mod = (*mttmin)[bin];
         //if (mttmin_mod <= 330.) mttmin_mod = 0.; // low mtt bins: everything below == 0 GeV
-        if (mttmin_mod <= 330.) mttmin_mod = 250.; // low mtt bins: everything below == 250 GeV
+        //if (mttmin_mod <= 330.) mttmin_mod = 250.; // low mtt bins: everything below == 250 GeV
+        if (mttmin_mod <= 330.) mttmin_mod = binsl2[0]; // low mtt bins: everything below == 250 GeV
         rebin[bin].resize(binsl2.size());
         bool match_l = false;
         bool match_r = false;
@@ -280,6 +219,91 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     }*/
     //throw 42;
     //if (val.size() != rebin.size()) hf_errlog(23051204, "F: Binning mismatch: inconsistent number of bins");
+} //initTerm
+
+void ReactionPineAPPL::freeTerm(TermData*td) {
+    DatasetData* data = (DatasetData*)td->reactionData;
+    size_t Ngrids=data->grids.size();
+    for (size_t i=0; i<Ngrids; ++i) pineappl_grid_delete(data->grids[i]);
+    delete data;
+}
+
+void ReactionPineAPPL::atIteration() {
+    _convolved.clear();
+}
+
+void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err) {
+    const DatasetData& data = *(DatasetData*)td->reactionData;
+    //DatasetData& data = *(DatasetData*)td->reactionData;
+    const double muR = *data.muR;
+    const double muF = *data.muF;
+    unsigned int pos = 0;
+    bool order_mask[data.Nord];
+    bool lumi_mask[data.Nlumi];
+    for (int i=0; i<data.Nord; ++i) order_mask[i] = data.ordervec[i];
+    for (int i=0; i<data.Nlumi; ++i) lumi_mask[i] = data.lumivec[i];   
+
+    //calculate output array size
+    size_t np=0;
+    for (pineappl_grid* grid : data.grids) if (grid) np += pineappl_grid_bin_count(grid);
+    val.resize(np);
+
+    // Fix PDG ID to p, avoiding double charge conjugation in case pbar is used,
+    // as this is already done elsewhere before passing PDFs to PineAPPL
+    int32_t PDGID = 2212;  //DO NOT MODIFY
+
+    //for (pineappl_grid* grid : data.grids) {
+    for (size_t igrid = 0; igrid < data.grids.size(); igrid++) {
+        pineappl_grid* grid = data.grids[igrid];
+        vector<double> gridVals;
+        gridVals.resize(data.Nbins);
+
+        if (grid and _convolved.find(data.GridNames[igrid]) == _convolved.end()) {//real, non-dummy grid
+            td->actualizeWrappers();
+
+            //Pineappl assumes PDF and alphaS wrapper function pointers
+            //are given a pointer "state", e.g. an LHAPDF object, if the 
+            //values were read from there. Here, call existing wrappers 
+            //rearranging parameter list & return value to suit pineappl 
+            //convolution function.
+            auto xfx = [](int32_t id_in, double x, double q2, void *state) {
+                //return 0.01;
+                //printf("SZ xfx id_in,q2,x = %d,%f,%f\n", id_in, q2, x);
+                double pdfs[13];
+                int32_t id = id_in==21 ? 6 : id_in+6;
+                pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
+                return pdfs[id];
+            };
+            auto alphas = [](double q2, void *state) {
+                //printf("SZ alphas q2 = %f\n", q2);
+                return alphas_wrapper_(sqrt(q2));
+            };
+
+            //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
+            pineappl_grid_convolute_with_one(grid, PDGID, 
+                                             xfx, alphas, 
+                                             nullptr,//"state" provided to wrappers, redundant in xFitter
+                                             data.Nord>0 ? order_mask : nullptr,
+                                             data.Nlumi>0 ? lumi_mask : nullptr,
+                                             muR, muF, gridVals.data());
+            //scale by bin width
+            if (data.flagNorm) for(size_t i=0; i<gridVals.size(); i++) {
+                vector<double> bin_sizes;
+                bin_sizes.resize(pineappl_grid_bin_count(grid));
+                pineappl_grid_bin_normalizations(grid, bin_sizes.data());
+                gridVals[i] *= bin_sizes[i];
+            }
+            _convolved.insert(std::make_pair(data.GridNames[igrid], gridVals));
+        }
+        else {
+            gridVals = _convolved[data.GridNames[igrid]];
+        }
+        // insert values from this grid into output array
+        copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
+        pos += pineappl_grid_bin_count(grid);
+    }
+    // rebin
+    const auto& rebin = data.rebin;
     auto val_orig = val;
     val.resize(rebin.size());
     for(size_t i1 = 0; i1 < rebin.size(); i1++) {
