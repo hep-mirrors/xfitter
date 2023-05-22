@@ -172,7 +172,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     auto& rebin = data->rebin;
     rebin.resize(mttmin->size());
     for(size_t bin = 0; bin < mttmin->size(); bin++) {
-        printf("bin = %ld\n", bin);
+        //printf("bin = %ld\n", bin);
         auto mttmin_mod = (*mttmin)[bin];
         //if (mttmin_mod <= 330.) mttmin_mod = 0.; // low mtt bins: everything below == 0 GeV
         //if (mttmin_mod <= 330.) mttmin_mod = 250.; // low mtt bins: everything below == 250 GeV
