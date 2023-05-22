@@ -83,21 +83,21 @@ RawVec::RawVec(YAML::node node, string key) {
   else
     cout << "Error: entry format not given: " << key << endl;
 
-  if (format == "FR" || format == "FA") {
-    if (node["value"])
-      value_list = node["value"].as<vector<double> >();
+  if (node["xsec"]) {
+    if (format == "FR") {
+      ratio_list = node["xsec"].as<vector<double> >();
+      for (i=0; i<ratio_list.size(); i++)
+	value_list.push_back(0.0);
+    }
+    else if (format == "FA")
+      value_list = node["xsec"].as<vector<double> >();
+    else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid")
+      grid_file_list = node["xsec"].as<string>();
     else
-      cout << "Error: values for fixed input not given: " << key  << endl;
-  }
-  else {
-    if (format != "PineAPPL" || format != "fastNLO" || format != "APPLgrid")
       cout << "Error: grid format not support" << endl;
-
-    if (node["file"])
-      grid_file_list = node["file"].as<string>();
-    else
-      cout << "Error: filenames for grids not given: " << key << endl;
   }
+  else
+    cout << "Error: values(grids) for fixed input(mixed) not given: " << key  << endl;
 
   ///////////////////////////////////////////////////////      
   // read EFT parameters
@@ -130,7 +130,7 @@ RawVec::RawVec(YAML::node node, string key) {
       else
 	cout << "Error: param not found" << endl;
     }
-  }
+  } // end of 3,-3
   else if (type != 0) {
     // names of parameter
     if (node["param"])
@@ -150,6 +150,21 @@ RawVec::RawVec(YAML::node node, string key) {
 
 /////////////////////////////////
 
+void RawVec::FR2FA(vector<double> val_list_C) {
+  // ratio -> absolute value
+  assert(format == "FR");
+
+  if (value_list.size() != val_list_C.size()) 
+    cout << "Error: size does not match" << endl;
+  else {
+    for (int i=0; i<val_list_C.size(); i++)
+      value_list[i] = ratio_list[i] * val_list_C[i];
+  }
+}
+
+void RawVec::convolute() {} // todo
+
+/////////////////////////////////
 void RawVec::increaseXSecInPlace(vector<double> xsec) {
   if (xsec.size() != value_list.size())
     cout << "Error: size does not match" << endl;
@@ -159,22 +174,4 @@ void RawVec::increaseXSecInPlace(vector<double> xsec) {
   }
 }
 
-void setCoeff(double val) { coeff = val; }
-
-void increaseCoeff(double val) { coeff += val; }
-
-void convolute() {} // todo
-
 /////////////////////////////////
-void RawVec::FR2FA(vector<double> val_list_C) {
-  // ratio -> absolute value
-  format = "FA";
-  if (value_list.size() != val_list_C.size()) 
-    cout << "Error: size does not match" << endl;
-  else {
-    for (int i=0; i<val_list_C.size(); i++)
-      value_list[i] *= val_list_C[i];
-  }
-}
-/////////////////////////////////
-void RawVec::convolute()

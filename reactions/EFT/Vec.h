@@ -34,8 +34,6 @@ class Vec {
 
 class RawVec {
  public:
-  RawVec(YAML::node node, string key);
-
   ///////////////////////////////////////////////////////
   int type = 4;
   string format;
@@ -48,6 +46,8 @@ class RawVec {
   vector<double> value_list; // cross sections in each bin
   double coeff = 0.0;
   ///////////////////////////////////////////////////////
+  RawVec(YAML::node node, string key);
+
   void FR2FA(vector<double> val_list_C);
 
   void convolute();
