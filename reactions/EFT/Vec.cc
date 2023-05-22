@@ -3,8 +3,8 @@
 // #include <cstring>
 // #include <iostream>
 // #include <fstream>
-// #include <yaml-cpp/yaml.h>
-#include <Vec.h>
+#include <yaml-cpp/yaml.h>
+#include "Vec.h"
 
 //--------------------------------------------------------------
 using namespace std;
@@ -20,7 +20,7 @@ void Vec::addIng(RawVec* prvec, double coeff) {
   // ingredient* ping = new ingredient { prvec, coeff };
   bool findQ = false;
 
-  if (self.type == 3) {
+  if (type == 3) {
     for (auto ing: ingredients) {
       if (ing.prvec == prvec) {
 	ing.coeff += coeff;
@@ -35,45 +35,37 @@ void Vec::addIng(RawVec* prvec, double coeff) {
 ///////////////////////////////////////////////////////
 void Vec::book(double val) {
   for (auto ing: ingredients)
-    ing.prvec->increase_coeff(ing.coeff * val);
+    ing.prvec->increaseCoeff(ing.coeff * val);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 // RawVec
 /////////////////////////////////////////////////////////////////////////////
-RawVec::RawVec(YAML::node node, string key) {
+RawVec::RawVec (YAML::Node node, std::string key) {
   // key: tag for the current entry; only used for issuing errors
 
   // read type
   if (node["type"]) {
     string typeS =  node["type"].as<string>();
-    switch (typeS) {
-    case "C":
+    if      (typeS == "C")
       type = 0;
-      break;
-    case "l":
+    else if (typeS == "l")
       type = 1;
-      break;
-    case "L":
+    else if (typeS == "L")
       type = -1;
-      break;
-    case "q":
+    else if (typeS == "q")
       type = 2;
-      break;
-    case "Q":
+    else if (typeS == "Q")
       type = -2;
-      break;
-    case "m":
+    else if (typeS == "m")
       type = 3;
-      break;
-    case "M":
+    else if (typeS == "M")
       type = -3;
-      break;
-    default:
+    else
       cout << "invalid type" << endl;
-    }
-  }  else {
+  }
+  else {
     cout << "Error: entry type not given: " << key << endl;
   }
   ///////////////////////////////////////////////////////
@@ -86,13 +78,13 @@ RawVec::RawVec(YAML::node node, string key) {
   if (node["xsec"]) {
     if (format == "FR") {
       ratio_list = node["xsec"].as<vector<double> >();
-      for (i=0; i<ratio_list.size(); i++)
+      for (int i=0; i<ratio_list.size(); i++)
 	value_list.push_back(0.0);
     }
     else if (format == "FA")
       value_list = node["xsec"].as<vector<double> >();
     else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid")
-      grid_file_list = node["xsec"].as<string>();
+      grid_file_list = node["xsec"].as<vector<string> >();
     else
       cout << "Error: grid format not support" << endl;
   }
@@ -105,7 +97,7 @@ RawVec::RawVec(YAML::node node, string key) {
     // names of parameters
     if (node["param"]) {
       vector<string> params = node["param"].as<vector<string> >();
-      if (param.size() != 2) 
+      if (params.size() != 2) 
 	cout << "Error: number of parameters" << endl;
       else {
 	param_name1 = params[0];
@@ -120,7 +112,7 @@ RawVec::RawVec(YAML::node node, string key) {
       if (node["param_value"]) {
 	vector<double> param_vals = node["param_value"].as<vector<double> >();
 
-	if (param_value.size() != 2) 
+	if (param_vals.size() != 2) 
 	  cout << "Error: number of parameters" << endl;
 	else {
 	  param_val1 = param_vals[0];
@@ -148,6 +140,7 @@ RawVec::RawVec(YAML::node node, string key) {
   }
 } // end of constructor
 
+
 /////////////////////////////////
 
 void RawVec::FR2FA(vector<double> val_list_C) {
@@ -162,16 +155,17 @@ void RawVec::FR2FA(vector<double> val_list_C) {
   }
 }
 
-void RawVec::convolute() {} // todo
+void RawVec::convolute() {
+  cout << "Error: convoute() not implemented" << endl;
+} // todo
 
 /////////////////////////////////
 void RawVec::increaseXSecInPlace(vector<double> xsec) {
   if (xsec.size() != value_list.size())
     cout << "Error: size does not match" << endl;
   else {
-    for (int i=0; i<val_list.size(); i++)
+    for (int i=0; i<value_list.size(); i++)
       xsec[i] += value_list[i] * coeff;
   }
 }
-
 /////////////////////////////////
