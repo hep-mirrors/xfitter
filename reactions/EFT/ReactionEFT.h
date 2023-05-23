@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include "TermData.h"
 #include "ReactionTheory.h"
 #include "EFTReader.h"
-//#include <memory> 
 #include <map>
 #include <vector>
 #include <string>
@@ -19,10 +19,9 @@
      @brief A wrapper class for EFT reaction 
 
      Based on the ReactionTheory class
-     Adapted from ReactionCIJET
 
-     @version 0.3
-     @date 2016-12-06
+     @version 0.1
+     @date 2023-05
   */
 
 // class EFTReaction : public EFTReader {
@@ -41,14 +40,12 @@ public:
   virtual string getReactionName() const override { return  "EFT" ;};
   virtual void initTerm(TermData* td) override final;
   virtual void atStart() override {};
-  // virtual void freeTerm(TermData*) override final; // delete the pineappl grids.
   virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override;
 protected:
   virtual int parseOptions(){ return 0;};
   
   std::map<int, EFTReader* > EFT_terms;
-  vector<string> name_EFT_param; 
-  int debug = -1;
+  const int debug = 3;
 };
 
 #endif
