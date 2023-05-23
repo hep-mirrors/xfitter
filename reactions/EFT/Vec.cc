@@ -42,7 +42,7 @@ void Vec::book(double val) {
 /////////////////////////////////////////////////////////////////////////////
 // RawVec
 /////////////////////////////////////////////////////////////////////////////
-RawVec::RawVec (YAML::Node node, std::string key) {
+RawVec::RawVec (YAML::Node node, string key) {
   // key: tag for the current entry; only used for issuing errors
 
   // read type

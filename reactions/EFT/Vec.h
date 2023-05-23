@@ -14,22 +14,22 @@
 using namespace std;
 
 class RawVec {
- public:
-  RawVec (YAML::Node node, std::string key);
-
-  ///////////////////////////////////////////////////////
+ private:
   int type = 4;
   string format;
+  double coeff = 0.0;
+  vector<string> grid_file_list;
+  vector<double> ratio_list;
+
+ public:
   string param_name1;
   string param_name2;
   double param_val1;
   double param_val2;
-  vector<string> grid_file_list;
-  vector<double> ratio_list;
   vector<double> value_list; // cross sections in each bin
-  double coeff = 0.0;
 
   ///////////////////////////////////////////////////////
+  RawVec (YAML::Node node, string key);
 
   void FR2FA(vector<double> val_list_C);
 
@@ -40,9 +40,6 @@ class RawVec {
   void increaseCoeff(double val) { coeff += val; }
 
   void increaseXSecInPlace(vector<double> xsec);
-
-  /////////////////////////////////
-  // private:
 
 };
 
