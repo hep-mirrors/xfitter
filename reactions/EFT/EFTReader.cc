@@ -107,6 +107,27 @@ void EFTReader::read_fixed_input() {
 //------------------------------------------------------------------------------------
 void EFTReader::read_mixed_input(){
 
+  assert (filename_list.size() == 1);
+  string fname = filename_list[0];
+  YAML::Node node = YAML::LoadFile(fname);
+
+  for (YAML::const_iterator entry=node.begin(); entry!=node.end(); ++entry ) {
+    if (entry["mask"])
+      if (entry["mask"].as<bool>() == true)
+	continue;
+
+    string type;
+    if (entry["type"])
+      type = entry["type"].as<string>(); // use string instead of char for future extension
+    else
+      hf_errlog(23052303, "F: type not given for entry " + entry.first);
+
+    // C term
+    if 
+
+
+  }
+
 }
 //------------------------------------------------------------------------------------
 
@@ -162,7 +183,10 @@ void EFTReader::setValEFT(vector<double> list_val) {
 
 //------------------------------------------------------------------------------------
 vector<double> EFTReader::calcXSec() {
-
+  if (inputType == "fixed")
+    return calcXSecFixed();
+  else
+    return calcXSecMixed();
 };
 
 //------------------------------------------------------------------------------------
@@ -171,24 +195,32 @@ vector<double> EFTReader::calcXSecMixed(){
 
 //------------------------------------------------------------------------------------
 vector<double> EFTReader::calcXSecFixed(){
-  // double xsec[100] = {0.0}; // initialize all xsec as zeros
-  // a7: how to save the time of memory allocation? use the reserve method?
+
   if (debug > 0) {
     std::cout << "=======================================================" << std::endl;
     std::cout << "EFTReader.calcXSec: size of map coeff: " << coeff.size() << std::endl;
   }
 
   vector<double> xsec;
-  for (int k=0; k < num_bin; k++)
-    xsec.push_back(1.0);
 
+  // C
+  if (no_central == false) {
+    for (int k=0; k < num_bin; k++)
+      xsec.push_back(0.0);
+  }
+  else {
+    for (int k=0; k < num_bin; k++)
+      xsec.push_back(1.0);
+  }
+
+  // l
   for (int i=0; i < num_param; i++) {
     if (coeff.count(i+1) > 0) {
 
       for (int k=0; k < num_bin; k++) {
 	xsec[k] += (*(coeff[i+1]))[k] * val_EFT_param[i];
       }
-
+      /////////////////////////////////
       if (debug > 0) {
 	std::cout << "=======================================================" << std::endl;
 	std::cout << "EFTReader.calcXSec: l:" + name_EFT_param[i] + " = " << val_EFT_param[i] << std::endl;
@@ -198,13 +230,15 @@ vector<double> EFTReader::calcXSecFixed(){
 	}
 	std::cout << std::endl;
       }
-
-    } else {
+      /////////////////////////////////
+    } 
+    else {
       hf_errlog(23051601, "F: linear coefficients missing for: " + name_EFT_param[i]);
     }
   
   }
 
+  // q&m
   for (int i=0; i < num_param; i++) {
     for (int j=i; j < num_param; j++) {
       if (coeff.count((i+1)*100+j+1) > 0) {
@@ -226,7 +260,7 @@ vector<double> EFTReader::calcXSecFixed(){
 	/////////////////////////////////
       }
     }
-  } // end of double loop
+  } // end of q&m
 
   return xsec;
 }
