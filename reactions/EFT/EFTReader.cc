@@ -117,16 +117,80 @@ void EFTReader::read_mixed_input(){
 	continue;
 
     string type;
+    string param_name;
     if (entry["type"])
       type = entry["type"].as<string>(); // use string instead of char for future extension
     else
       hf_errlog(23052303, "F: type not given for entry " + entry.first);
 
     // C term
-    if 
+    if (type == "C") {
+      assert (prvec_C == nullptr);
+      prvec_C = new RawVe(entry);
+      assert (prvec_C->format != "FR");
+    }
+    else if (type=="l" || type=="L" || type=="q" || type=="Q") {
+      if (entry["param"]) {
+	param_name = entry["param"].as<string>();
+	if (find_EFT_param_id.count(param_name) == 0) 
+	  continue;
+	int id = find_EFT_param_id[param_name];
+	if (basis.count[id] == 0) {
+	  basis.insert = make_pair(id, new Vec(1));
+	}
+
+	RawVec* prvec = new RawVec(entry);
+	raw_basis.push_back(prvec);
+	basis[i].addIng(prvec, 1.0);
+      }
+      else {
+	hf_errlog(23052401, "F: param name not given for " + entry.first);
+      }
+    } // end of l, q
+    else if (type=="m" || type=="M") {
+      if (entry["param"]) {
+	vector<string> param_names = entry["param"].as<vector<string> >();
+	// todo assert we can find param_val
+	vector<double> param_vals = entry["param_val"].as<vector<double> >();
+	
+	assert (param_names.size() == 2);
+	if (find_EFT_param_id.count(param_names[0]) * find_EFT_param_id.count(param_names[1]) == 0 ) 
+	  continue;
+
+	int i1 = find_EFT_param_id[param_names[0]];
+	int i2 = find_EFT_param_id[param_names[1]];
+	double param_val1;
+	double param_val2;
 
 
-  }
+	if (i1 > i2) {
+	  i1 += i2;
+	  i2 = i1 - i2;
+	  i1 -= i1;
+	  param_val1 = param_vals[1];
+	  param_val2 = param_vals[0];	  
+	}
+	else{
+	  param_val1 = param_vals[0];
+	  param_val2 = param_vals[1];	  
+	}
+
+	assert(basis.count(i1*100+i2) == 0);
+	basis.insert(make_pair(i1*100+i2, new Vec(2)));
+	
+	RawVec* prvec = new RawVec(entry);
+	raw_basis.push_back(prvec);
+	basis[i1*100+i2].addIng(prvec, 1.0);
+      }
+    } // end of m, M
+    else {
+      hf_errlog(23052402, "F: type not supported for entry " + entry.first);
+    }
+  } // end of loop over entries
+
+  initlq();
+  initm();
+  initrvec();
 
 }
 //------------------------------------------------------------------------------------
@@ -191,6 +255,25 @@ vector<double> EFTReader::calcXSec() {
 
 //------------------------------------------------------------------------------------
 vector<double> EFTReader::calcXSecMixed(){
+  vector<double> xsec;
+
+  // C
+  for (int k=0; k < num_bin; k++)
+    xsec.push_back(0.0);
+  
+  if (no_central == false) {
+    prvec_C->increase_xsec_in_place(xsec); // to do, pass the referene instead !!
+  }
+
+  // lqm
+  for (auto prvec : raw_basis) 
+    prvec->increase_xsec_in_place(xsec);
+
+  if (abs_output == false)
+    for (int i=0; i<num_bin; ++i)
+      xsec[i] /= prvec_C->value_list[i];
+
+  return xsec;
 };
 
 //------------------------------------------------------------------------------------
@@ -204,7 +287,7 @@ vector<double> EFTReader::calcXSecFixed(){
   vector<double> xsec;
 
   // C
-  if (no_central == false) {
+  if (no_central == true) {
     for (int k=0; k < num_bin; k++)
       xsec.push_back(0.0);
   }

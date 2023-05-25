@@ -37,7 +37,7 @@ public:
   std::map<int, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters; for fixed input
   std::map<int, Vec* > basis; // for mixed input
 
-  RawVec* prvec_C;
+  RawVec* prvec_C = nullptr;
   vector<RawVec* > raw_basis;
 
   double val_EFT_param[99]; // MAX_NUM_PARAM

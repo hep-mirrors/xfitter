@@ -29,7 +29,7 @@ class RawVec {
   vector<double> value_list; // cross sections in each bin
 
   ///////////////////////////////////////////////////////
-  RawVec (YAML::Node node, string key);
+  RawVec (YAML::const_iterator node, string key);
 
   void FR2FA(vector<double> val_list_C);
 
