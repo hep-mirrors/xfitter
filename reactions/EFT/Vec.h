@@ -15,13 +15,13 @@ using namespace std;
 
 class RawVec {
  private:
-  int type = 4;
-  string format;
   double coeff = 0.0;
   vector<string> grid_file_list;
   vector<double> ratio_list;
 
  public:
+  int type = 4;
+  string format;
   string param_name1;
   string param_name2;
   double param_val1;
@@ -29,7 +29,8 @@ class RawVec {
   vector<double> value_list; // cross sections in each bin
 
   ///////////////////////////////////////////////////////
-  RawVec (YAML::const_iterator node, string key);
+  // RawVec (YAML::const_iterator node, string key);
+  RawVec (YAML::Node node, string key);
 
   void FR2FA(vector<double> val_list_C);
 

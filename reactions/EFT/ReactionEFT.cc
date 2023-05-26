@@ -86,15 +86,19 @@ void ReactionEFT::initTerm(TermData* td) {
 
   if ( td->hasParam("AbsOutput") ) {
     string s1 = td->getParamS("AbsOutput");
-    if (s1[0] == 'T' || s1[0] == 't')
+    if (s1[0] == 'T' || s1[0] == 't') {
       EFT_terms[ID]->abs_output = true;
+      if ( EFT_terms[ID]->inputType == "fixed" )
+	hf_errlog(23052302, "F: for fixed input, absolute output is not supported");
+    }
   }
-
   if ( td->hasParam("NoCentral") ) {
     string s1 = td->getParamS("NoCentral");
     if (s1[0] == 'T' || s1[0] == 't')
       EFT_terms[ID]->no_central = true;
   }
+
+
 
   //------------------------------------------------------------------
   // read the filenames of coefficients

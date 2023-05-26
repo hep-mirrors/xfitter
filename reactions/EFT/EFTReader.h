@@ -30,7 +30,7 @@ public:
 
   vector<string> name_EFT_param; 
   int num_param; // number of EFT paramters; should be less than 99
-  map<string, int> find_EFT_param_id;
+  map<string, int> find_EFT_param_id1, find_EFT_param_id0;
 
   int num_bin; // number of bins
 
@@ -62,8 +62,8 @@ public:
   void read_input();
   void read_fixed_input();
   void read_mixed_input();
-  void initlq();
-  void initm();
+  void initlq(int);
+  int  initm(int, int);
   void initrvec();
   void initIter(vector<double> list_val);
   void updatervec();  
