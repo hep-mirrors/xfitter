@@ -1,6 +1,5 @@
 #include <string>
 #include <cstring>
-#include "EFTReader.h"
 #include <yaml-cpp/yaml.h>
 #include "EFTReader.h"
 
@@ -39,6 +38,7 @@ void EFTReader::read_fixed_input() {
   for (string fname : filename_list) {
 
     YAML::Node coeff_node = YAML::LoadFile(fname);
+    // YAML::Node coeff_node = YAML::LoadFile("/afs/desy.de/user/s/shenxiao/works/fitting/code/EFT-test/test_qlm.yaml");
     int num_bin_one_file = -1;
 
     // read linear coefficients
@@ -221,12 +221,13 @@ void EFTReader::initlq(int i){
 
   if (pvecl->ingredients.size() == 1) {
     hf_errlog(23052602, "I: quadrtic term for " + name_EFT_param[i-1] + " not found");
-    ingredient ing = pvecl->ingredients[0];
-    assert (ing.prvec->type == 1 || ing.prvec->type == -1);
+    ingredient* ing = pvecl->ingredients[0];
+    // assert (ing.prvec->type == 1 || ing.prvec->type == -1);
+    assert (ing->prvec->type == 1 || ing->prvec->type == -1);
     
-    if (ing.prvec->type == -1) {
-      double val = ing.prvec->param_val1;
-      ing.coeff = 1.0 / val;
+    if (ing->prvec->type == -1) {
+      double val = ing->prvec->param_val1;
+      ing->coeff = 1.0 / val;
       pvecl->addIng(prvec_C, -1.0/val);
     }
   }
@@ -234,8 +235,8 @@ void EFTReader::initlq(int i){
     Vec* pvecq = new Vec(2);
     basis.insert(make_pair(100*i+i, pvecq));
 
-    RawVec* prvec1 = pvecl->ingredients[0].prvec;
-    RawVec* prvec2 = pvecl->ingredients[1].prvec;
+    RawVec* prvec1 = pvecl->ingredients[0]->prvec;
+    RawVec* prvec2 = pvecl->ingredients[1]->prvec;
 
     
 
@@ -253,36 +254,36 @@ int EFTReader::initm(int i1, int i2){
   }
 
   Vec* pvecm = basis[im];
-  if (pvecm->ingredients[0].prvec->type == 2)
+  if (pvecm->ingredients[0]->prvec->type == 2)
     return 1;
 
   if (basis.count(i1*101) * basis.count(i2*101) == 0) {
     return 0;
   }
     
-  RawVec* prvecM = pvecm->ingredients[0].prvec;
+  RawVec* prvecM = pvecm->ingredients[0]->prvec;
   double c1 = prvecM->param_val1;
   double c2 = prvecM->param_val2;
 
   // M
-  pvecm->ingredients[0].coeff = 1.0/c1/c2;
+  pvecm->ingredients[0]->coeff = 1.0/c1/c2;
   
   // C
   pvecm->addIng(prvec_C, -1.0/c1/c2);
 
   // l
   for (auto ing: basis[i1]->ingredients)
-    pvecm->addIng(ing.prvec, ing.coeff * (-1.0 / c2));
+    pvecm->addIng(ing->prvec, ing->coeff * (-1.0 / c2));
 
   for (auto ing: basis[i2]->ingredients)
-    pvecm->addIng(ing.prvec, ing.coeff * (-1.0 / c1));
+    pvecm->addIng(ing->prvec, ing->coeff * (-1.0 / c1));
 
   // q
   for (auto ing: basis[i1*101]->ingredients)
-    pvecm->addIng(ing.prvec, ing.coeff * (-1.0 * c1 / c2));
+    pvecm->addIng(ing->prvec, ing->coeff * (-1.0 * c1 / c2));
 
   for (auto ing: basis[i2*101]->ingredients)
-    pvecm->addIng(ing.prvec, ing.coeff * (-1.0 * c2 / c1));
+    pvecm->addIng(ing->prvec, ing->coeff * (-1.0 * c2 / c1));
 
   return 1;
 }

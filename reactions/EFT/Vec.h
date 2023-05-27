@@ -56,7 +56,8 @@ class Vec {
  public:
   ///////////////////////////////////////////////////////
   int type = 0;
-  vector<ingredient> ingredients;
+  // vector<ingredient> ingredients;
+  vector<ingredient*> ingredients;
 
   ///////////////////////////////////////////////////////
   Vec(int type_in);

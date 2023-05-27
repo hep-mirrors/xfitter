@@ -22,20 +22,24 @@ void Vec::addIng(RawVec* prvec, double coeff) {
 
   if (type == 3) {
     for (auto ing: ingredients) {
-      if (ing.prvec == prvec) {
-	ing.coeff += coeff;
+      if (ing->prvec == prvec) {
+	ing->coeff += coeff;
 	findQ = true;
 	break;
       }
     }
   }
-  if (findQ == false)
-    ingredients.push_back(ingredient{ prvec, coeff });
+  if (findQ == false){
+    ingredient* p = new ingredient();
+    p->prvec = prvec;
+    p->coeff = coeff;
+    ingredients.push_back(p);
+  }
 }
 ///////////////////////////////////////////////////////
 void Vec::book(double val) {
   for (auto ing: ingredients)
-    ing.prvec->increaseCoeff(ing.coeff * val);
+    ing->prvec->increaseCoeff(ing->coeff * val);
 }
 
 
