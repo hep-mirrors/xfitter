@@ -3,7 +3,7 @@
 // #include <cstring>
 // #include <iostream>
 // #include <fstream>
-#include <yaml-cpp/yaml.h>
+#include "yaml-cpp/yaml.h"
 #include "Vec.h"
 
 //--------------------------------------------------------------

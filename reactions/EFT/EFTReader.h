@@ -29,13 +29,13 @@ public:
   bool no_central = false;
 
   vector<string> name_EFT_param; 
-  int num_param; // number of EFT paramters; should be less than 99
-  map<string, int> find_EFT_param_id1, find_EFT_param_id0;
+  size_t num_param; // number of EFT paramters; should be less than 99
+  map<string, size_t> find_EFT_param_id1, find_EFT_param_id0;
 
-  int num_bin; // number of bins
+  size_t num_bin; // number of bins
 
-  std::map<int, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters; for fixed input
-  std::map<int, Vec* > basis; // for mixed input
+  std::map<size_t, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters; for fixed input
+  std::map<size_t, Vec* > basis; // for mixed input
 
   RawVec* prvec_C = nullptr;
   vector<RawVec* > raw_basis;
@@ -62,8 +62,8 @@ public:
   void read_input();
   void read_fixed_input();
   void read_mixed_input();
-  void initlq(int);
-  int  initm(int, int);
+  void initlq(size_t);
+  int  initm(size_t, size_t);
   void initrvec();
   void initIter(vector<double> list_val);
   void updatervec();  
@@ -78,7 +78,11 @@ public:
 private:
   // commons
   ReactionTheory* _reactionTheory;
-  const int MAX_NUM_PARAM = 99;
+  const size_t MAX_NUM_PARAM = 99;
+  void solvelq(Vec*, Vec*, RawVec*, RawVec*);
+  void solvelQ(Vec*, Vec*, RawVec*, RawVec*);
+  void solveNol(Vec*, Vec*, RawVec*, RawVec*);
+  void lqQCoeff(vector<double>& c, int type, double val);
 };
 
 #endif

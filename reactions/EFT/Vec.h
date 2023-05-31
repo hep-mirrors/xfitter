@@ -7,8 +7,8 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include <yaml-cpp/yaml.h>
 #include <cassert>
+#include "yaml-cpp/yaml.h"
 
 //--------------------------------------------------------------
 using namespace std;

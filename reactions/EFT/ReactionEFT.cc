@@ -44,7 +44,7 @@ void ReactionEFT::initTerm(TermData* td) {
     }
   }
 
-  if ( td->hasParam("MixeInput") ) {
+  if ( td->hasParam("MixedInput") ) {
     if (find_input_Q > 0) 
       hf_errlog(23052301, "F: there can be only one input in Filename/Filenames/MixedInput");
     find_input_Q = 2;

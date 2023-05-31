@@ -1,13 +1,13 @@
 #include <string>
 #include <cstring>
-#include <yaml-cpp/yaml.h>
+#include "yaml-cpp/yaml.h"
 #include "EFTReader.h"
 
 using namespace std;
 
 //------------------------------------------------------------------------------------
 void EFTReader::initParamName(vector<string> name_EFT_param_in){
-  int i = 1;
+  size_t i = 0;
   num_param = name_EFT_param_in.size();
 
   if (num_param > MAX_NUM_PARAM)
@@ -19,7 +19,7 @@ void EFTReader::initParamName(vector<string> name_EFT_param_in){
     find_EFT_param_id1.insert(std::make_pair(name, ++i));
   }
 
-  assert(i == num_param-1);
+  assert(i == num_param);
 }
 
 //------------------------------------------------------------------------------------
@@ -39,15 +39,15 @@ void EFTReader::read_fixed_input() {
 
     YAML::Node coeff_node = YAML::LoadFile(fname);
     // YAML::Node coeff_node = YAML::LoadFile("/afs/desy.de/user/s/shenxiao/works/fitting/code/EFT-test/test_qlm.yaml");
-    int num_bin_one_file = -1;
+    size_t num_bin_one_file = 0;
 
     // read linear coefficients
-    for (int i=1; i <= num_param; i++) {
+    for (size_t i=1; i <= num_param; i++) {
       string param_name = name_EFT_param[i];
 
       if (coeff_node[param_name]) {
 	// check the number of bins
-	if (num_bin_one_file < 0) {
+	if (num_bin_one_file == 0) {
 	  num_bin_one_file = coeff_node[param_name].size();
 	  num_bin += num_bin_one_file;
 	} 
@@ -76,8 +76,8 @@ void EFTReader::read_fixed_input() {
     } // end of reading linear coeff.
 
     // read quadratic coefficients
-    for (int i=1; i <= num_param; i++) {
-      for (int j=i; j <= num_param; j++) {
+    for (size_t i=1; i <= num_param; i++) {
+      for (size_t j=i; j <= num_param; j++) {
 	string param_name1 = name_EFT_param[i-1] + "*" + name_EFT_param[j-1];
 	string param_name2 = name_EFT_param[j-1] + "*" + name_EFT_param[i-1];
 	vector<double>* pvd;
@@ -142,7 +142,7 @@ void EFTReader::read_mixed_input(){
 	param_name = entry["param"].as<string>();
 	if (find_EFT_param_id1.count(param_name) == 0) 
 	  continue;
-	int id = find_EFT_param_id1[param_name];
+	size_t id = find_EFT_param_id1[param_name];
 	if (basis.count(id) == 0) {
 	  basis.insert(make_pair(id, new Vec(1)));
 	}
@@ -158,29 +158,18 @@ void EFTReader::read_mixed_input(){
     else if (type=="m" || type=="M") {
       if (entry["param"]) {
 	vector<string> param_names = entry["param"].as<vector<string> >();
-	// todo assert we can find param_val
-	vector<double> param_vals = entry["param_val"].as<vector<double> >();
 	
 	assert (param_names.size() == 2);
 	if (find_EFT_param_id1.count(param_names[0]) * find_EFT_param_id1.count(param_names[1]) == 0 ) 
 	  continue;
 
-	int i1 = find_EFT_param_id1[param_names[0]];
-	int i2 = find_EFT_param_id1[param_names[1]];
-	double param_val1;
-	double param_val2;
-
+	size_t i1 = find_EFT_param_id1[param_names[0]];
+	size_t i2 = find_EFT_param_id1[param_names[1]];
 
 	if (i1 > i2) {
 	  i1 += i2;
 	  i2 = i1 - i2;
 	  i1 -= i1;
-	  param_val1 = param_vals[1];
-	  param_val2 = param_vals[0];	  
-	}
-	else{
-	  param_val1 = param_vals[0];
-	  param_val2 = param_vals[1];	  
 	}
 
 	assert(basis.count(i1*100+i2) == 0);
@@ -196,15 +185,15 @@ void EFTReader::read_mixed_input(){
     }
   } // end of loop over entries
 
-  for (int i=1; i<=num_param; ++i) {
+  for (size_t i=1; i<=num_param; ++i) {
     if (basis.count(i) == 0) {
       hf_errlog(23052601, "F: linear term not found for " + name_EFT_param[i-1]);
     }
     initlq(i);
   }
 
-  for (int i=1; i<num_param; ++i) {
-    for (int j=i+1; i<=num_param; ++j) {
+  for (size_t i=1; i<num_param; ++i) {
+    for (size_t j=i+1; j<=num_param; ++j) {
       initm(i, j);
     }
   }
@@ -215,14 +204,14 @@ void EFTReader::read_mixed_input(){
 //------------------------------------------------------------------------------------
 
 
-void EFTReader::initlq(int i){
+void EFTReader::initlq(size_t i){
   Vec* pvecl = basis[i];
   assert (pvecl->ingredients.size() == 1 || pvecl->ingredients.size() == 2);
 
   if (pvecl->ingredients.size() == 1) {
     hf_errlog(23052602, "I: quadrtic term for " + name_EFT_param[i-1] + " not found");
     ingredient* ing = pvecl->ingredients[0];
-    // assert (ing.prvec->type == 1 || ing.prvec->type == -1);
+
     assert (ing->prvec->type == 1 || ing->prvec->type == -1);
     
     if (ing->prvec->type == -1) {
@@ -231,22 +220,101 @@ void EFTReader::initlq(int i){
       pvecl->addIng(prvec_C, -1.0/val);
     }
   }
-  else {
+  else { // len==2
     Vec* pvecq = new Vec(2);
     basis.insert(make_pair(100*i+i, pvecq));
 
     RawVec* prvec1 = pvecl->ingredients[0]->prvec;
-    RawVec* prvec2 = pvecl->ingredients[1]->prvec;
+    RawVec* prvec2 = pvecl->ingredients[1]->prvec;    
+    pvecl->ingredients.clear();
 
-    
+    int type1 = prvec1->type;
+    int type2 = prvec2->type;
 
+    // assert (solvablelq(type1, type2));
+    if (type1 == 1) {
+      if (type2 == 2)
+	solvelq(pvecl, pvecq, prvec1, prvec2);
+      else if (type2 == -2) 
+	solvelQ(pvecl, pvecq, prvec1, prvec2);
+    }
+    else if (type2 == 1) {
+      if (type1 == 2)
+	solvelq(pvecl, pvecq, prvec2, prvec1);
+      else if (type1 == -2) 
+	solvelQ(pvecl, pvecq, prvec2, prvec1);
+    }
+    else
+      solveNol(pvecl, pvecq, prvec1, prvec2);
   }
   
 }
+
+void EFTReader::solvelq(Vec* pvecl, Vec* pvecq, RawVec* prvec1, RawVec* prvec2) {
+  pvecl->addIng(prvec1, 1.0);
+  pvecq->addIng(prvec2, 1.0);
+}
+
+void EFTReader::solvelQ(Vec* pvecl, Vec* pvecq, RawVec* prvec1, RawVec* prvec2) {
+  double val = prvec2->param_val1;
+
+  pvecl->addIng(prvec1, 1.0);
+
+  pvecq->addIng(prvec2, 1.0/val/val);
+  pvecq->addIng(prvec1, -1.0/val);
+  pvecq->addIng(prvec_C, -1.0/val/val);
+}
+
+void EFTReader::solveNol(Vec* pvecl, Vec* pvecq, RawVec* prvec1, RawVec* prvec2) {
+  int type1 = prvec1->type;
+  int type2 = prvec2->type;
+
+  double val1 = prvec1->param_val1;
+  double val2 = prvec2->param_val1;
+
+  vector<double> c1;
+  vector<double> c2;
+  lqQCoeff(c1, type1, val1);
+  lqQCoeff(c2, type2, val2);
+
+  double det = c1[1]*c2[2] - c2[1]*c1[2];
+  if (det == 0.0)
+    hf_errlog(23053101, "F: can not solve l/q for parameter.");
+  else if (det < 0.0001 && det > -0.0001 )
+    hf_errlog(23053102, "W: small det in solving l/q for parameter.");
+  else {
+    pvecl->addIng(prvec_C, (-c2[2]*c1[0] + c1[2]*c2[0]) / det );
+    pvecl->addIng(prvec1, c2[2]/det);
+    pvecl->addIng(prvec2, -c1[2]/det);
+
+    pvecq->addIng(prvec_C, (c2[1]*c1[0] - c1[1]*c2[0]) / det );
+    pvecq->addIng(prvec1, -c2[1]/det);
+    pvecq->addIng(prvec2, c1[1]/det);
+  }
+}
+
+void EFTReader::lqQCoeff(vector<double>& c, int type, double val){
+  if (type == -1) {
+    c.push_back(1.0);
+    c.push_back(val);
+    c.push_back(0.0);
+  }
+  else if (type == 2){
+    c.push_back(0.0);
+    c.push_back(0.0);
+    c.push_back(val*val);
+  }
+  else if (type == -2){
+    c.push_back(1.0);
+    c.push_back(val);
+    c.push_back(val*val);
+  }
+}
+
 //------------------------------------------------------------------------------------
 
-int EFTReader::initm(int i1, int i2){
-  int im = i1 * 100 + i2;
+int EFTReader::initm(size_t i1, size_t i2){
+  size_t im = i1 * 100 + i2;
   if (basis.count(im) == 0) {
     hf_errlog(23052603, "I: mixed term not found: " 
 	      + name_EFT_param[i1-1] + "*" + name_EFT_param[i2-1]);
@@ -315,19 +383,53 @@ void EFTReader::initIter(vector<double> list_val){
 
 //------------------------------------------------------------------------------------
 void EFTReader::updatervec() {
-  // todo
+  // FR -> FA
+  if (prvec_C->format != "FR" && prvec_C->format != "FA") {
+    prvec_C->convolute();
+
+    for (auto prvec: raw_basis) {
+      if (prvec->format == "FR") {
+	prvec->FR2FA(prvec_C->value_list);
+      }
+    }
+  }
+
+  // convolution
+  for (auto prvec: raw_basis) {
+    if (prvec->format != "FR" && prvec->format != "FA") {
+      prvec->convolute();
+    }
+  }
 } 
 
 //------------------------------------------------------------------------------------
 void EFTReader::book() {
-  // todo
+  for (auto prvec: raw_basis)
+    prvec->setCoeff(0.0);
+
+  for (size_t i=0; i < num_param; ++i) {
+    // l
+    double vi = val_EFT_param[i];
+    basis[i+1]->book(vi);
+
+    // q
+    if (basis.count((i+1)*101) > 0) 
+      basis[(i+1)*101]->book(vi*vi);
+    
+    // m
+    for (size_t j=i+1; j < num_param; ++j) {
+      if (basis.count((i+1)*100+j+1) > 0) {
+	basis[100*(i+1)+j+1]->book(vi * val_EFT_param[j]);
+      }
+    }
+  }
 }
 
 //------------------------------------------------------------------------------------
 void EFTReader::setValEFT(vector<double> list_val) {
   // executed for each computation
   if (num_param == list_val.size()) {
-    for (int i=0; i<num_param; i++)
+    for (size_t i=0; i<num_param; i++)
       val_EFT_param[i] = list_val[i];
   } else {
     hf_errlog(23040301, "E: number of EFT parameters does not match");
@@ -336,7 +438,7 @@ void EFTReader::setValEFT(vector<double> list_val) {
   if (debug > 2) {
     std::cout << "=======================================================" << std::endl;
     std::cout << "EFTReader.setValEFT" << std::endl;
-    for (int i=0; i<num_param; i++) {
+    for (size_t i=0; i<num_param; i++) {
       std::cout << name_EFT_param[i] << "=" <<  val_EFT_param[i] << std::endl;
     }
   }
@@ -355,7 +457,7 @@ vector<double> EFTReader::calcXSecMixed(){
   vector<double> xsec;
 
   // C
-  for (int k=0; k < num_bin; k++)
+  for (size_t k=0; k < num_bin; k++)
     xsec.push_back(0.0);
   
   if (no_central == false) {
@@ -367,7 +469,7 @@ vector<double> EFTReader::calcXSecMixed(){
     prvec->increaseXSecInPlace(xsec);
 
   if (abs_output == false)
-    for (int i=0; i<num_bin; ++i)
+    for (size_t i=0; i<num_bin; ++i)
       xsec[i] /= prvec_C->value_list[i];
 
   return xsec;
@@ -385,19 +487,19 @@ vector<double> EFTReader::calcXSecFixed(){
 
   // C
   if (no_central == true) {
-    for (int k=0; k < num_bin; k++)
+    for (size_t k=0; k < num_bin; k++)
       xsec.push_back(0.0);
   }
   else {
-    for (int k=0; k < num_bin; k++)
+    for (size_t k=0; k < num_bin; k++)
       xsec.push_back(1.0);
   }
 
   // l
-  for (int i=0; i < num_param; i++) {
+  for (size_t i=0; i < num_param; i++) {
     if (coeff.count(i+1) > 0) {
 
-      for (int k=0; k < num_bin; k++) {
+      for (size_t k=0; k < num_bin; k++) {
 	xsec[k] += (*(coeff[i+1]))[k] * val_EFT_param[i];
       }
       /////////////////////////////////
@@ -419,12 +521,12 @@ vector<double> EFTReader::calcXSecFixed(){
   }
 
   // q&m
-  for (int i=0; i < num_param; i++) {
-    for (int j=i; j < num_param; j++) {
+  for (size_t i=0; i < num_param; i++) {
+    for (size_t j=i; j < num_param; j++) {
       if (coeff.count((i+1)*100+j+1) > 0) {
 
 	vector<double>* pvec = coeff[(i+1)*100+j+1];
-	for (int k=0; k < num_bin; k++)
+	for (size_t k=0; k < num_bin; k++)
 	  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j];
 	/////////////////////////////////
 	if (debug > 0) {
