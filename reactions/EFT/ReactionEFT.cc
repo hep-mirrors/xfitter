@@ -1,7 +1,6 @@
    /*
      @file ReactionEFT.cc
      @date 2023-05
-     Adapted from ReactionCIJET
    */
 
 #include "ReactionEFT.h"
@@ -88,7 +87,7 @@ void ReactionEFT::initTerm(TermData* td) {
     string s1 = td->getParamS("AbsOutput");
     if (s1[0] == 'T' || s1[0] == 't') {
       EFT_terms[ID]->abs_output = true;
-      if ( EFT_terms[ID]->inputType == "fixed" )
+      if ( EFT_terms[ID]->input_type == "fixed" )
 	hf_errlog(23052302, "F: for fixed input, absolute output is not supported");
     }
   }
@@ -97,8 +96,6 @@ void ReactionEFT::initTerm(TermData* td) {
     if (s1[0] == 'T' || s1[0] == 't')
       EFT_terms[ID]->no_central = true;
   }
-
-
 
   //------------------------------------------------------------------
   // read the filenames of coefficients
@@ -123,25 +120,18 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
 
   EFT_term->initIter(val_EFT_param);
   // X.S. todo: modify val in place; may save the time for memory allocation
-  std::vector<double> cs = EFT_term->calcXSec();
+  // std::vector<double> cs = EFT_term->calcXSec();
+  EFT_term->calcXSec(val);
 
   if (debug > 0) {
     std::cout << "=======================================================" << std::endl;
     std::cout << "ReactionEFT.compute: cross section: " << std::endl;
-    for (double v : cs){
+    for (double v : val){
       std::cout << v << ", ";
     }
     std::cout << std::endl;
   }
       
- 
-  if ( val.size() != cs.size() ){
-    std::cout << "=======================================================" << std::endl;
-    std::cout << val.size() << ", " <<  cs.size() << std::endl;
-    std::cout << "=======================================================" << std::endl;
-    hf_errlog(23032804,"F: Size of cross section array does not match data.");
-  }
-
-  for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<cs.size()) ? cs[i] : 0.;
+  // for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<cs.size()) ? cs[i] : 0.;
 
 }

@@ -25,7 +25,7 @@ void EFTReader::initParamName(vector<string> name_EFT_param_in){
 //------------------------------------------------------------------------------------
 void EFTReader::read_input(){
   num_bin = 0;  
-  if (inputType == "fixed") 
+  if (input_type == "fixed") 
     read_fixed_input();
   else
     read_mixed_input();
@@ -114,9 +114,23 @@ void EFTReader::read_mixed_input(){
 
   assert (node.Type() == YAML::NodeType::Map);
 
+  // the info entry
+  if (node["info"]) {
+    if (node["info"]["num_bin"])
+      num_bin = node["info"]["num_bin"].as<size_t>();
+    else
+      hf_errlog(23060102, "F: please provide `num_bin` in the `info` entry");
+  }
+  else
+    hf_errlog(23060101, "F: please provide the `info` entry in the mixed input file");
+
+  // 
   for (YAML::const_iterator it=node.begin(); it!=node.end(); ++it ) {
-  // for (size_t i=0; i<node.size(); i++) {
+
     string entry_name = it->first.as<string>() ;
+    if (entry_name == "info")
+      continue;
+
     YAML::Node entry = it->second;
     assert (entry.Type() == YAML::NodeType::Map);
 
@@ -184,6 +198,11 @@ void EFTReader::read_mixed_input(){
       hf_errlog(23052402, "F: type not supported for entry " + entry_name );
     }
   } // end of loop over entries
+  //-------------------------------------------------------
+  // initialize each vec
+  //-------------------------------------------------------
+  if (prvec_C == nullptr)
+    hf_errlog(23053104, "F: central value not found in the mixed input file ");
 
   for (size_t i=1; i<=num_param; ++i) {
     if (basis.count(i) == 0) {
@@ -375,7 +394,7 @@ void EFTReader::initrvec(){
 void EFTReader::initIter(vector<double> list_val){
   setValEFT(list_val);
   
-  if (inputType == "mixed") {
+  if (input_type == "mixed") {
     updatervec();
     book();
   }
@@ -445,21 +464,24 @@ void EFTReader::setValEFT(vector<double> list_val) {
 };
 
 //------------------------------------------------------------------------------------
-vector<double> EFTReader::calcXSec() {
-  if (inputType == "fixed")
-    return calcXSecFixed();
+void EFTReader::calcXSec(valarray<double>& xsec) {
+
+  assert (xsec.size() == num_bin);
+
+  if (input_type == "fixed")
+    calcXSecFixed(xsec);
   else
-    return calcXSecMixed();
+    calcXSecMixed(xsec);
 };
 
 //------------------------------------------------------------------------------------
-vector<double> EFTReader::calcXSecMixed(){
-  vector<double> xsec;
+void EFTReader::calcXSecMixed(valarray<double>& xsec) {
+  // vector<double> xsec;
 
   // C
-  for (size_t k=0; k < num_bin; k++)
-    xsec.push_back(0.0);
-  
+  // for (size_t k=0; k < num_bin; k++)
+  //  xsec.push_back(0.0);
+  xsec = 0.0;
   if (no_central == false) {
     prvec_C->increaseXSecInPlace(xsec); // to do, pass the referene instead !!
   }
@@ -472,27 +494,29 @@ vector<double> EFTReader::calcXSecMixed(){
     for (size_t i=0; i<num_bin; ++i)
       xsec[i] /= prvec_C->value_list[i];
 
-  return xsec;
+  // return xsec;
 };
 
 //------------------------------------------------------------------------------------
-vector<double> EFTReader::calcXSecFixed(){
+void EFTReader::calcXSecFixed(valarray<double>& xsec) {
 
   if (debug > 0) {
     std::cout << "=======================================================" << std::endl;
     std::cout << "EFTReader.calcXSec: size of map coeff: " << coeff.size() << std::endl;
   }
 
-  vector<double> xsec;
+  // vector<double> xsec;
 
   // C
   if (no_central == true) {
-    for (size_t k=0; k < num_bin; k++)
-      xsec.push_back(0.0);
+    // for (size_t k=0; k < num_bin; k++)
+    //   xsec.push_back(0.0);
+    xsec = 0.0;
   }
   else {
-    for (size_t k=0; k < num_bin; k++)
-      xsec.push_back(1.0);
+    // for (size_t k=0; k < num_bin; k++)
+    //  xsec.push_back(1.0);
+    xsec = 1.0;
   }
 
   // l
@@ -544,5 +568,5 @@ vector<double> EFTReader::calcXSecFixed(){
     }
   } // end of q&m
 
-  return xsec;
+  // return xsec;
 }

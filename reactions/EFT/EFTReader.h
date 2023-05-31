@@ -22,7 +22,7 @@ class EFTReader {
 
 public:
   vector<string> filename_list;
-  string inputType;
+  string input_type;
 
   int debug = -1;
   bool abs_output = false;
@@ -44,17 +44,17 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
   // initialization
-  EFTReader(vector<string> fname_list, string inputType_in) {
+  EFTReader(vector<string> fname_list, string input_type_in) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
-    inputType = inputType_in;
+    input_type = input_type_in;
   }
     
-  EFTReader(vector<string> fname_list, string inputType_in, ReactionTheory* reaction) {
+  EFTReader(vector<string> fname_list, string input_type_in, ReactionTheory* reaction) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
 
-    inputType = inputType_in;
+    input_type = input_type_in;
     _reactionTheory=reaction;
   }
 
@@ -71,9 +71,9 @@ public:
   void setValEFT(vector<double> list_val);
 
   // calculating cross sections
-  vector<double> calcXSecMixed();
-  vector<double> calcXSecFixed();
-  vector<double> calcXSec();
+  void calcXSecMixed(valarray<double>& xsec);
+  void calcXSecFixed(valarray<double>& xsec);
+  void calcXSec(valarray<double>& xsec);
 
 private:
   // commons

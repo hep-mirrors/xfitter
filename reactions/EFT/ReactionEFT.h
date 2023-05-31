@@ -37,6 +37,8 @@ public:
   ReactionEFT(){};
 
 public:
+  std::map<int, EFTReader* > EFT_terms;
+  //
   virtual string getReactionName() const override { return  "EFT" ;};
   virtual void initTerm(TermData* td) override final;
   virtual void atStart() override {};
@@ -44,7 +46,6 @@ public:
 protected:
   virtual int parseOptions(){ return 0;};
   
-  std::map<int, EFTReader* > EFT_terms;
   const int debug = 3;
 };
 

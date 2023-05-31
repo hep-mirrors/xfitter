@@ -83,7 +83,7 @@ RawVec::RawVec (YAML::Node node, string key) {
   if (node["xsec"]) {
     if (format == "FR") {
       ratio_list = node["xsec"].as<vector<double> >();
-      for (int i=0; i<ratio_list.size(); i++)
+      for (size_t i=0; i<ratio_list.size(); i++)
 	value_list.push_back(0.0);
     }
     else if (format == "FA")
@@ -153,9 +153,9 @@ void RawVec::FR2FA(vector<double> val_list_C) {
   assert(format == "FR");
 
   if (value_list.size() != val_list_C.size()) 
-    cout << "Error: size does not match" << endl;
+    cout << "Error: size does not match:" << value_list.size() << ", " << val_list_C.size()  << endl;
   else {
-    for (int i=0; i<val_list_C.size(); i++)
+    for (size_t i=0; i<val_list_C.size(); i++)
       value_list[i] = ratio_list[i] * val_list_C[i];
   }
 }
@@ -165,11 +165,11 @@ void RawVec::convolute() {
 } // todo
 
 /////////////////////////////////
-void RawVec::increaseXSecInPlace(vector<double> xsec) {
+void RawVec::increaseXSecInPlace(valarray<double> xsec) {
   if (xsec.size() != value_list.size())
-    cout << "Error: size does not match" << endl;
+    cout << "Error: size does not match:" << xsec.size() << ", " << value_list.size() << endl;
   else {
-    for (int i=0; i<value_list.size(); i++)
+    for (size_t i=0; i<value_list.size(); i++)
       xsec[i] += value_list[i] * coeff;
   }
 }

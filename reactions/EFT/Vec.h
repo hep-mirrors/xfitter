@@ -40,7 +40,7 @@ class RawVec {
 
   void increaseCoeff(double val) { coeff += val; }
 
-  void increaseXSecInPlace(vector<double> xsec);
+  void increaseXSecInPlace(valarray<double> xsec);
 
 };
 
