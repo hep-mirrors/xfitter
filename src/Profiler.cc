@@ -342,7 +342,7 @@ namespace xfitter
 	  auto pred = evaluatePredictions();
 
 	  // store in shared memory
-	  int idxOff = imember*NPRED;
+	  int idxOff = (imember-first)*NPRED;
 	  for (size_t idx = 0; idx<NPRED; idx++) {
 		sharedArray[idxOff+idx] = pred.first[idx];
 	      }
@@ -527,6 +527,11 @@ namespace xfitter
 	    }
 	  }	  
 	}
+
+	//	for (size_t i =200; i<210; i++) {
+	//  std::cout << " BLA BLA " << preds[1][i] << std::endl;
+	//  std::cout << " BLA2 BLA2 " << preds[2][i] << std::endl;
+	// }
 	
         // Restore original
 
