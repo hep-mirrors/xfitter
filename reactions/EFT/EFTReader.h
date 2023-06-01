@@ -65,10 +65,10 @@ public:
   void initlq(size_t);
   int  initm(size_t, size_t);
   void initrvec();
-  void initIter(vector<double> list_val);
+  void initIter(valarray<double>& list_val);
   void updatervec();  
   void book();
-  void setValEFT(vector<double> list_val);
+  void setValEFT(valarray<double>& list_val);
 
   // calculating cross sections
   void calcXSecMixed(valarray<double>& xsec);

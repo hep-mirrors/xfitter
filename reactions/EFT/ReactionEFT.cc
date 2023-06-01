@@ -63,7 +63,8 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //------------------------------------------------------------------
   // read the list of EFT parameters
-  string list_EFT_param = td->getParamS("listEFTParam");
+  // todo: what if ListEFTParam is not available
+  string list_EFT_param = td->getParamS("ListEFTParam");
   vector<string> name_EFT_param;
 
   if (list_EFT_param.size() == 0) {
@@ -80,10 +81,11 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //-------------------------------------------------------
   // more init
-  if ( td->hasParam("debug") )
-    EFT_terms[ID]->debug = td->getParamI("debug");
+  if ( td->hasParam("Debug") )
+    EFT_terms[ID]->debug = td->getParamI("Debug");
 
   if ( td->hasParam("AbsOutput") ) {
+    cout << "Find AbsOutput----------------------"  << endl;
     string s1 = td->getParamS("AbsOutput");
     if (s1[0] == 'T' || s1[0] == 't') {
       EFT_terms[ID]->abs_output = true;
@@ -91,10 +93,15 @@ void ReactionEFT::initTerm(TermData* td) {
 	hf_errlog(23052302, "F: for fixed input, absolute output is not supported");
     }
   }
+
   if ( td->hasParam("NoCentral") ) {
+    cout << "Find NoCentral----------------------"  << endl;
     string s1 = td->getParamS("NoCentral");
+
     if (s1[0] == 'T' || s1[0] == 't')
       EFT_terms[ID]->no_central = true;
+    else
+      EFT_terms[ID]->no_central = false;
   }
 
   //------------------------------------------------------------------
@@ -111,16 +118,19 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   EFTReader* EFT_term = EFT_terms[td->id];
 
   // X.S.: getParamD returns a pointer, is this address fixed?
-  vector<double> val_EFT_param;  
-  val_EFT_param.reserve(EFT_term->num_param);
+  //vector<double> val_EFT_param;  
+  valarray<double> val_EFT_param(100);  
+  // val_EFT_param.reserve(EFT_term->num_param);
 
+  int i=0;
   for (string EFT_param : EFT_term->name_EFT_param) {
-    val_EFT_param.push_back(*td->getParamD(EFT_param));
+    // val_EFT_param.push_back(*td->getParamD(EFT_param));
+    val_EFT_param[i] = *td->getParamD(EFT_param);
+    i++;
   }
 
   EFT_term->initIter(val_EFT_param);
-  // X.S. todo: modify val in place; may save the time for memory allocation
-  // std::vector<double> cs = EFT_term->calcXSec();
+
   EFT_term->calcXSec(val);
 
   if (debug > 0) {

@@ -341,7 +341,7 @@ int EFTReader::initm(size_t i1, size_t i2){
   }
 
   Vec* pvecm = basis[im];
-  if (pvecm->ingredients[0]->prvec->type == 2)
+  if (pvecm->ingredients[0]->prvec->type == 3)
     return 1;
 
   if (basis.count(i1*101) * basis.count(i2*101) == 0) {
@@ -391,7 +391,7 @@ void EFTReader::initrvec(){
 }
 
 //------------------------------------------------------------------------------------
-void EFTReader::initIter(vector<double> list_val){
+void EFTReader::initIter(valarray<double>& list_val){
   setValEFT(list_val);
   
   if (input_type == "mixed") {
@@ -423,21 +423,31 @@ void EFTReader::updatervec() {
 
 //------------------------------------------------------------------------------------
 void EFTReader::book() {
+
+  if (no_central)
+    prvec_C->setCoeff(0.0);
+  else
+    prvec_C->setCoeff(1.0);
+
   for (auto prvec: raw_basis)
     prvec->setCoeff(0.0);
 
   for (size_t i=0; i < num_param; ++i) {
     // l
     double vi = val_EFT_param[i];
+    cout << "ha6-l: " << i << ", " << vi << endl;
     basis[i+1]->book(vi);
 
     // q
-    if (basis.count((i+1)*101) > 0) 
+    if (basis.count((i+1)*101) > 0)  {
+      cout << "ha6-q: " << i << ", " << vi << endl;
       basis[(i+1)*101]->book(vi*vi);
+    }
     
     // m
     for (size_t j=i+1; j < num_param; ++j) {
       if (basis.count((i+1)*100+j+1) > 0) {
+	cout << "ha6-m: " << i << j << ", " << vi << ", " << val_EFT_param[j] << endl;
 	basis[100*(i+1)+j+1]->book(vi * val_EFT_param[j]);
       }
     }
@@ -445,14 +455,14 @@ void EFTReader::book() {
 }
 
 //------------------------------------------------------------------------------------
-void EFTReader::setValEFT(vector<double> list_val) {
+void EFTReader::setValEFT(valarray<double>& list_val) {
   // executed for each computation
-  if (num_param == list_val.size()) {
-    for (size_t i=0; i<num_param; i++)
-      val_EFT_param[i] = list_val[i];
-  } else {
-    hf_errlog(23040301, "E: number of EFT parameters does not match");
-  }
+  // if (num_param == list_val.size()) {
+  for (size_t i=0; i<num_param; i++)
+    val_EFT_param[i] = list_val[i];
+  // } else {
+  // hf_errlog(23040301, "E: number of EFT parameters does not match");
+  // }
 
   if (debug > 2) {
     std::cout << "=======================================================" << std::endl;
@@ -476,25 +486,21 @@ void EFTReader::calcXSec(valarray<double>& xsec) {
 
 //------------------------------------------------------------------------------------
 void EFTReader::calcXSecMixed(valarray<double>& xsec) {
-  // vector<double> xsec;
 
-  // C
-  // for (size_t k=0; k < num_bin; k++)
-  //  xsec.push_back(0.0);
   xsec = 0.0;
-  if (no_central == false) {
-    prvec_C->increaseXSecInPlace(xsec); // to do, pass the referene instead !!
-  }
 
-  // lqm
-  for (auto prvec : raw_basis) 
+  prvec_C->increaseXSecInPlace(xsec);
+
+  for (auto prvec : raw_basis) {
+    // cout << "ha9: " << prvec->type << ", " << prvec->param_name1 << endl;
+    // cout << "ha8: " << xsec[0] << endl;
     prvec->increaseXSecInPlace(xsec);
+  }
 
   if (abs_output == false)
     for (size_t i=0; i<num_bin; ++i)
       xsec[i] /= prvec_C->value_list[i];
 
-  // return xsec;
 };
 
 //------------------------------------------------------------------------------------
@@ -505,17 +511,11 @@ void EFTReader::calcXSecFixed(valarray<double>& xsec) {
     std::cout << "EFTReader.calcXSec: size of map coeff: " << coeff.size() << std::endl;
   }
 
-  // vector<double> xsec;
-
   // C
-  if (no_central == true) {
-    // for (size_t k=0; k < num_bin; k++)
-    //   xsec.push_back(0.0);
+  if (no_central) {
     xsec = 0.0;
   }
   else {
-    // for (size_t k=0; k < num_bin; k++)
-    //  xsec.push_back(1.0);
     xsec = 1.0;
   }
 

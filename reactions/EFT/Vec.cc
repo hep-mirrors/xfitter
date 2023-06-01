@@ -38,8 +38,10 @@ void Vec::addIng(RawVec* prvec, double coeff) {
 }
 ///////////////////////////////////////////////////////
 void Vec::book(double val) {
-  for (auto ing: ingredients)
+  for (auto ing: ingredients) {
+    cout << "ha5: " << ing->coeff  << ", " <<  val << endl;;
     ing->prvec->increaseCoeff(ing->coeff * val);
+  }
 }
 
 
@@ -165,12 +167,14 @@ void RawVec::convolute() {
 } // todo
 
 /////////////////////////////////
-void RawVec::increaseXSecInPlace(valarray<double> xsec) {
+void RawVec::increaseXSecInPlace(valarray<double>& xsec) {
   if (xsec.size() != value_list.size())
     cout << "Error: size does not match:" << xsec.size() << ", " << value_list.size() << endl;
   else {
-    for (size_t i=0; i<value_list.size(); i++)
+    for (size_t i=0; i<value_list.size(); i++) {
+      cout << "ha2:" << xsec[i] << ", " << value_list[i] << ", " << coeff << endl;
       xsec[i] += value_list[i] * coeff;
+    }
   }
 }
 /////////////////////////////////
