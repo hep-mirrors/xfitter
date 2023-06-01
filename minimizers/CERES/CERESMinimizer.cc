@@ -20,6 +20,10 @@
 
 #include <iomanip>
 #include <fstream>
+#include <unistd.h>
+#include <sys/wait.h>
+
+
 
 // Fortran interface
 extern "C" {
@@ -44,10 +48,10 @@ extern "C" CERESMinimizer* create() {
 
     static int counter = 0;
     counter++;
-    BaseMinimizer* mini = xfitter::get_minimizer();
+    const BaseMinimizer* mini = xfitter::get_minimizer();
     mini->setPars(par);
 
-    int npar = mini->getNpars();
+    const int npar = mini->getNpars();
 
     double pp[200];  // 200 is needed for fcn ... //--> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize with MNE from endmini.inc
     for (int i=0; i<npar; i++) {
@@ -110,6 +114,64 @@ struct CostFunctiorData
    }
 };
 
+
+  //
+  // Connect fcn and xfitter pars
+  //
+
+  bool derivative(double const* const* parameters, double const* centralResiduals, int iPar, int nPar, int nRes, double* derivatives) {
+    //
+    double *pars = new double[nPar];
+    double *resid = new double[nRes];
+    for (int i=0; i<nPar; i+=1) {
+      pars[i] = parameters[0][i];
+    }
+    
+    
+    double delta = abs(pars[iPar])<1.e-30 ? 1.e-30 :  abs(pars[iPar])* 1e-6;
+    CostFunctiorData evaluate;
+    pars[iPar] += delta;
+    auto res = evaluate(&pars,resid);
+
+    for (int i=0; i<nRes; i+=1) {
+      derivatives[i] = (resid[i]-centralResiduals[i])/delta;
+    }
+    
+    delete[] pars;
+    delete[] resid;
+    return true;
+  }
+
+
+  class CostFuntionrDataAndDerivative : public ceres::CostFunction
+  {
+    virtual bool Evaluate(double const* const* parameters, double* residuals, double** jakobian) const
+    {     
+      CostFunctiorData evaluate;
+      // number of parameters:
+      const int npar = parameter_block_sizes()[0];
+      // number of residuals:
+      const int nres = num_residuals();
+     
+      // central value:
+      auto res= evaluate(parameters,residuals);
+
+      for (int ipar=0; ipar<npar; ipar+=1) {
+	pid_t pid = fork();
+	if ( pid == 0) {
+	  auto res = derivative(parameters,residuals, ipar, npar, nres, *(jakobian+ipar*nres));
+	  exit(0);
+	}
+      }
+      int status;
+      while (wait(&status) > 0);
+     
+      return true;
+    }
+  };
+
+
+ 
 class PenaltyLog final: public ceres::LossFunction
 {
 public:
@@ -189,13 +251,17 @@ void CERESMinimizer::doMinimization()
   // Cost function:
   ceres::DynamicNumericDiffCostFunction<CostFunctiorData>* dynamic_cost_function =
     new ceres::DynamicNumericDiffCostFunction<CostFunctiorData>(new CostFunctiorData);
-
+    
   dynamic_cost_function->AddParameterBlock(npars);
 
   int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
 
   dynamic_cost_function->SetNumResiduals(nres);
 
+  auto diffCostFunction = new CostFuntionrDataAndDerivative();
+  //  diffCostFunction->AddParameterBlock(npars);
+  // diffCostFunction->SetNumResiduals(nres);
+  
   // Loss function to compensate offset for the log penalty terms
   ceres::LossFunction* loss_function(new PenaltyLog);
 
