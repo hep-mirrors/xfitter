@@ -282,15 +282,13 @@ namespace xfitter
     // Create shared memory segment
     shmid = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE, IPC_CREAT | 0666);
     if (shmid < 0) {
-      std::cerr << "Failed to create shared memory segment\n";
-      exit(0);
+      hf_errlog(2023060200,"F: Failed to create shared memory segment");
     }
 	
     // Attach shared memory segment
     sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
     if (sharedArray == reinterpret_cast<double*>(-1)) {
-      std::cerr << "Failed to attach shared memory segment\n";
-      exit(0);
+      hf_errlog(2023060201,"F: Failed to attach shared memory segment");
     }
 
     // Shared memory for chi2s
@@ -301,24 +299,22 @@ namespace xfitter
     // Create shared memory segment
     shmid2 = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE2, IPC_CREAT | 0666);
     if (shmid < 0) {
-      std::cerr << "Failed to create shared memory segment\n";
-      exit(0);
+      hf_errlog(2023060202,"F: Failed to create shared memory segment");
     }
 	
     // Attach shared memory segment
     sharedArray2 = static_cast<double*>(shmat(shmid2, nullptr, 0));
     if (sharedArray == reinterpret_cast<double*>(-1)) {
-      std::cerr << "Failed to attach shared memory segment\n";
-      exit(0);
+      hf_errlog(2023060203,"F: Failed to attach shared memory segment");
     }
 
 
-    // define chuncks
+    // define Chunks
 
     std::cout << "N CPU: " << _ncpu << std::endl;
 
     int NCPU = _ncpu;
-    int chankSize = NALL / NCPU;
+    int chunkSize = NALL / NCPU;
     int reminder  = NALL % NCPU; 
     int startIndex = 0;
     int endIndex = 0;
@@ -326,7 +322,7 @@ namespace xfitter
     // loop over all
     for (int icpu = 0; icpu<min(NCPU,NALL); icpu++) {
       startIndex = endIndex;
-      endIndex   = startIndex + chankSize;
+      endIndex   = startIndex + chunkSize;
       if (icpu < reminder) {
 	endIndex += 1;
       }
@@ -334,18 +330,15 @@ namespace xfitter
       if ( pid == 0) {       
 	for (int imember = first+startIndex; imember < first+endIndex; imember++) {
 	  
-	  //	  std::cout << icpu << " " << chankSize << " " << startIndex << " " << endIndex << std::endl;
-	  //std::cout <<  "   MMM : " << imember << std::endl;
-	  
 	  gNode["member"] = imember;
 	  evol->atConfigurationChange();
 	  auto pred = evaluatePredictions();
-
+	  
 	  // store in shared memory
 	  int idxOff = (imember-first)*NPRED;
 	  for (size_t idx = 0; idx<NPRED; idx++) {
-		sharedArray[idxOff+idx] = pred.first[idx];
-	      }
+	    sharedArray[idxOff+idx] = pred.first[idx];
+	  }
 	      
 	  sharedArray2[imember-first] = pred.second;
 
@@ -355,6 +348,9 @@ namespace xfitter
 	      
 	}
 	exit(0);	    
+      }
+      else if (pid<0) {
+	hf_errlog(2023060204,"F: Failed to create a fork process");	
       }
     }
 	
@@ -374,7 +370,7 @@ namespace xfitter
       preds[imember+1] = temp;
     }
     
-    // Detach and remove shared memory segment
+    // Detach and remove shared memory segments
     shmdt(sharedArray);
     shmctl(shmid, IPC_RMID, NULL);
     shmdt(sharedArray2);
@@ -527,11 +523,6 @@ namespace xfitter
 	    }
 	  }	  
 	}
-
-	//	for (size_t i =200; i<210; i++) {
-	//  std::cout << " BLA BLA " << preds[1][i] << std::endl;
-	//  std::cout << " BLA2 BLA2 " << preds[2][i] << std::endl;
-	// }
 	
         // Restore original
 
@@ -540,8 +531,6 @@ namespace xfitter
 	  gNode["member"]=oMember;
 	  evol->atConfigurationChange();
 	}
-
-
 
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
@@ -579,8 +568,7 @@ namespace xfitter
         }
         else {
           hf_errlog(2018082441,"S: Profiler Unsupported PDF error type : "+errorType);
-        }
-        
+        }        
     }
   }
   
