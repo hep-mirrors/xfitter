@@ -15,6 +15,7 @@
 #include "glog/logging.h"
 #include "ceres/dynamic_numeric_diff_cost_function.h"
 #include "ceres/covariance.h"
+#include "ceres/numeric_diff_options.h"
 
 #include <Eigen/Dense>
 
@@ -22,6 +23,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 
 
@@ -67,7 +70,7 @@ extern "C" CERESMinimizer* create() {
 //
 // Connect fcn and xfitter pars
 //
-struct CostFunctiorData
+struct CostFunctorData
 {
    bool operator()(double const* const* parameters, double* residuals) const
    {
@@ -127,9 +130,16 @@ struct CostFunctiorData
       pars[i] = parameters[0][i];
     }
     
+    const double min_step_size = std::sqrt(std::numeric_limits<double>::epsilon());
+    ceres::NumericDiffOptions options; 
+    const double step_size = options.relative_step_size;
+
+    double delta = abs(pars[iPar])*step_size;
+
+    if (delta<min_step_size)
+      delta = min_step_size;
     
-    double delta = abs(pars[iPar])<1.e-30 ? 1.e-30 :  abs(pars[iPar])* 1e-6;
-    CostFunctiorData evaluate;
+    CostFunctorData evaluate;
     pars[iPar] += delta;
     auto res = evaluate(&pars,resid);
 
@@ -145,9 +155,18 @@ struct CostFunctiorData
 
   class CostFuntionrDataAndDerivative : public ceres::CostFunction
   {
+  public:
+    void SetParsAndResiduals(int nPar, int nResid, int nCPU) {
+      set_num_residuals(nResid);
+      mutable_parameter_block_sizes()->push_back(nPar);
+      _nCPU = nCPU;
+    }
+  private:
+    int _nCPU;
+    
     virtual bool Evaluate(double const* const* parameters, double* residuals, double** jakobian) const
     {     
-      CostFunctiorData evaluate;
+      CostFunctorData evaluate;
       // number of parameters:
       const int npar = parameter_block_sizes()[0];
       // number of residuals:
@@ -156,16 +175,82 @@ struct CostFunctiorData
       // central value:
       auto res= evaluate(parameters,residuals);
 
-      for (int ipar=0; ipar<npar; ipar+=1) {
-	pid_t pid = fork();
-	if ( pid == 0) {
-	  auto res = derivative(parameters,residuals, ipar, npar, nres, *(jakobian+ipar*nres));
-	  exit(0);
+      
+      if (jakobian && jakobian[0]) {
+	vector <double> result;
+	result.resize(nres);
+
+	if (_nCPU==0) {
+	  for (int ipar=0; ipar<npar; ipar+=1) {
+	    auto res = derivative(parameters,residuals, ipar, npar, nres, result.data());
+	    for (int j=0; j<nres; j+=1) {
+	      jakobian[0][j*npar+ipar] = result[j];
+	    }
+	  }
+	}
+	else {
+	  // use the fork
+	  int shmid;
+	  double* sharedArray;
+	  int ARRAY_SIZE = npar*nres;
+	
+	  // Create shared memory segment
+	  shmid = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE, IPC_CREAT | 0666);
+	  if (shmid < 0) {
+	    hf_errlog(2023060210,"F: Failed to create shared memory segment");
+	  }
+	
+	  // Attach shared memory segment
+	  sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+	  if (sharedArray == reinterpret_cast<double*>(-1)) {
+	    hf_errlog(2023060211,"F: Failed to attach shared memory segment");
+	  }
+
+	  // define Chunks
+
+	  std::cout << "N CPU: " << _nCPU << std::endl;
+
+	  int NCPU = _nCPU;
+	  int chunkSize = npar / NCPU;
+	  int reminder  = npar % NCPU; 
+	  int startIndex = 0;
+	  int endIndex = 0;
+
+	  // loop over all
+	  for (int icpu = 0; icpu<min(NCPU,npar); icpu++) {
+	    startIndex = endIndex;
+	    endIndex   = startIndex + chunkSize;
+	    if (icpu < reminder) {
+	      endIndex += 1;
+	    }
+	    pid_t pid = fork();
+	    if ( pid == 0) {       
+	      for (int ipar = startIndex; ipar < endIndex; ipar += 1) {
+		auto res = derivative(parameters,residuals, ipar, npar, nres, result.data());
+		for (int j=0; j<nres; j+=1) {
+		  sharedArray[j*npar+ipar] = result[j];
+		}
+	      }
+	      exit(0);
+	    }
+	    else if (pid<0) {
+	      hf_errlog(2023060213,"F: Failed to create a fork process");	
+	    }
+	  }
+	
+	  int status;
+	  while (wait(&status) > 0);
+
+	  // move to jakobian:
+	  for (int j=0; j<nres*npar; j+=1) {
+	    jakobian[0][j] = sharedArray[j];
+	  }
+
+	  // Detach and remove shared memory segments
+	  shmdt(sharedArray);
+	  shmctl(shmid, IPC_RMID, NULL);
 	}
       }
-      int status;
-      while (wait(&status) > 0);
-     
       return true;
     }
   };
@@ -248,25 +333,40 @@ void CERESMinimizer::doMinimization()
   ceres::Solver::Options soloptions;
   ceres::Solver::Summary summary;
   
-  // Cost function:
-  ceres::DynamicNumericDiffCostFunction<CostFunctiorData>* dynamic_cost_function =
-    new ceres::DynamicNumericDiffCostFunction<CostFunctiorData>(new CostFunctiorData);
-    
-  dynamic_cost_function->AddParameterBlock(npars);
 
   int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
 
-  dynamic_cost_function->SetNumResiduals(nres);
+  // 
+  ceres::Problem problem;
 
-  auto diffCostFunction = new CostFuntionrDataAndDerivative();
-  //  diffCostFunction->AddParameterBlock(npars);
-  // diffCostFunction->SetNumResiduals(nres);
-  
   // Loss function to compensate offset for the log penalty terms
   ceres::LossFunction* loss_function(new PenaltyLog);
 
-  ceres::Problem problem;
-  problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+  // Cost function:
+
+  if (ceresNode["threads"]) {
+    auto diffCostFunction = new CostFuntionrDataAndDerivative();
+    diffCostFunction->SetParsAndResiduals(npars,nres,ceresNode["threads"].as<int>());
+    problem.AddResidualBlock(diffCostFunction, loss_function, parVals);
+  }
+  else {
+    // We can use forward deriviative (faster, potentially less accurate):
+    if (ceresNode["ForwardDerivative"]) {
+      ceres::DynamicNumericDiffCostFunction<CostFunctorData, ceres::FORWARD>* dynamic_cost_function =
+	new ceres::DynamicNumericDiffCostFunction<CostFunctorData, ceres::FORWARD>(new CostFunctorData);    
+      dynamic_cost_function->AddParameterBlock(npars);
+      dynamic_cost_function->SetNumResiduals(nres);
+      problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+    }
+    else {
+      exit(0);
+      ceres::DynamicNumericDiffCostFunction<CostFunctorData>* dynamic_cost_function =
+	new ceres::DynamicNumericDiffCostFunction<CostFunctorData>(new CostFunctorData);    
+      dynamic_cost_function->AddParameterBlock(npars);
+      dynamic_cost_function->SetNumResiduals(nres);
+      problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+    }
+  }
 
   // Set CERES options
   soloptions.minimizer_progress_to_stdout = true;
