@@ -18,8 +18,8 @@ public:
    virtual ~fastNLOCoeffAddFlex(){;}
    virtual fastNLOCoeffAddFlex* Clone() const;                                     //!< returns 'new' copy of this instance.
    static bool CheckCoeffConstants(const fastNLOCoeffBase* c, bool quiet = false) ;
-   virtual void Read(std::istream& table);
-   void ReadRest(std::istream& table);
+   virtual void Read(std::istream& table, int ITabVersionRead);
+   void ReadRest(std::istream& table, int ITabVersionRead);
    virtual void Write(std::ostream& table, int ITabVersionWrite);
    virtual void Print(int iprint) const;
    virtual void Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge moption = fastNLO::kMerge);
@@ -31,8 +31,8 @@ public:
    virtual void MultiplyCoefficientsByConstant(double fact); //!< Multiply all coefficients of all bins by a constant factor
    virtual void MultiplyBin(unsigned int iObsIdx, double fact); //!< Multiply coefficients of one bin a factor (iObsIdx starting with index 0)
    virtual void MultiplyBinProc(unsigned int iObsIdx, unsigned int iProc, double fact); //!< Multiply coefficients of one bin and subprocess a factor
-   virtual void EraseBin(unsigned int iObsIdx); //!< Erase observable bin from table
-   virtual void CatBin(const fastNLOCoeffAddFlex& other, unsigned int iObsIdx); //!< Catenate observable to table
+   virtual void EraseBin(unsigned int iObsIdx, int ITabVersionRead); //!< Erase observable bin from table
+   virtual void CatBin(const fastNLOCoeffAddFlex& other, unsigned int iObsIdx, int ITabVersionRead); //!< Catenate observable to table
 
    unsigned int GetNScaleNode1(int iObsBin) const { return ScaleNode1[iObsBin].size(); };
    unsigned int GetNScaleNode2(int iObsBin) const { return ScaleNode2[iObsBin].size(); };
@@ -51,7 +51,7 @@ public:
 
 protected:
 
-   void ReadCoeffAddFlex(std::istream& table);
+   void ReadCoeffAddFlex(std::istream& table, int ITabVersionRead);
 
    int fILOord;   // obtained from Scenario
    int fSTildeDISFormat = 1; // format of sigma-tilde coefficients (0: log(mu2/q2), 1: log(mu2))

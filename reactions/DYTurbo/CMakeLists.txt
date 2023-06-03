@@ -1,0 +1,10 @@
+if(NOT DYTurbo_FOUND)
+  message(STATUS "Skipping optional reaction DYTurbo because DYTurbo library was not found")
+  return()
+endif()
+
+set(TARGET reactionDYTurbo)
+add_library(${TARGET} MODULE ReactionDYTurbo.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter DYTurbo cuba LHAPDF)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES DYTurbo.yaml DESTINATION ${DEST_YAML}/reactions)

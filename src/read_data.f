@@ -1323,6 +1323,8 @@ C Basic consistency check:
          elseif (ColumnType(i).eq.'Error') then
             NUncert = NUncert + 1
             SystematicType(NUncert) = ColumnName(i)
+         elseif (ColumnType(i).eq.'Flag') then
+            continue
          else
             call hf_errlog(5,'F:Unknown column type in file '
      $           //trim(FileName))

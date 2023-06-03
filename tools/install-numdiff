@@ -1,0 +1,63 @@
+#!/bin/bash
+
+#Check for dummies
+if [[ $0 == bash || $0 = csh ]]
+then
+    echo "Please don't source me, I am an executable!"
+    echo "Give me attributes with:"
+    echo "chmod +x install-xfitter"
+    echo "and run me with:"
+    echo "./install-xfitter"
+    return 2
+fi
+
+which wget >& /dev/null
+if [[ $? == 0 ]]
+then
+    http=wget
+else
+    which curl >& /dev/null
+    if [[ $? == 0 ]]
+    then
+        http=curl
+    else
+        echo "Error, wget or curl not found"
+        exit
+    fi
+fi
+
+#directory:
+CURRENTDIR=`pwd`
+
+mkdir -p deps
+cd deps
+
+# numdiff
+numdiff -v >& /dev/null
+if [[ `echo $?` != "0" ]]; then
+    numdiffver='5.9.0'
+    echo "Installing numdiff $numdiffver..."
+    numdiff_url=http://nongnu.askapache.com/numdiff/numdiff-${numdiffver}.tar.gz
+    if [[ $http == "curl" ]]
+    then
+        curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+    else
+        wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
+    fi
+    tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+    cd numdiff-${numdiffver}
+    ./configure  --prefix=$CURRENTDIR/deps/numdiff  >> $CURRENTDIR/install.log  2>&1
+    echo export PATH=$CURRENTDIR/deps/numdiff/bin/:\$PATH >> $CURRENTDIR/setup.sh
+    if [[ $? != 0 ]]
+    then
+        echo "Error, check install.log for details"
+        exit
+    fi
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+        echo "Error, check install.log for details"
+        exit
+    fi
+    cd - >& /dev/null
+fi

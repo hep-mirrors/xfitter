@@ -26,7 +26,7 @@ bool fastNLOTable::fWelcomeOnce = false;
 
 // ___________________________________________________________________________________________________
 fastNLOTable::fastNLOTable()
-   : ffilename(""), fPrecision(8), Itabversion(), ScenName(),
+   : ffilename(""), fPrecision(8), ITabVersionRead(), ITabVersionWrite(), ScenName(),
      logger("fastNLOTable"), fCoeff(), Ecms(), ILOord(), Ipublunits(),
      ScDescript(), NObsBin(), NDim(), DimLabel(), IDiffBin(), Bin(),
      BinSize(), INormFlag(), DenomTable(), IDivLoPointer(), IDivUpPointer() {
@@ -51,7 +51,9 @@ fastNLOTable::~fastNLOTable(){
 // ___________________________________________________________________________________________________
 fastNLOTable::fastNLOTable(const fastNLOTable& other)
    : ffilename(other.ffilename), fPrecision(other.fPrecision),
-     Itabversion(other.Itabversion), ScenName(other.ScenName),
+     ITabVersionRead(other.ITabVersionRead),
+     ITabVersionWrite(other.ITabVersionRead),
+     ScenName(other.ScenName),
      logger("fastNLOTable"),
      fCoeff(other.fCoeff.size()),
      Ecms(other.Ecms), ILOord(other.ILOord), Ipublunits(other.Ipublunits),
@@ -83,16 +85,16 @@ void fastNLOTable::ReadTable(){
    //! Read file
    std::istream* strm = OpenFileRead();
    // read header
-   logger.debug["ReadTable"]<<"Reading header."<<endl;
+   logger.debug["ReadTable"]<<"Reading header ..."<<endl;
    int nCoeff = ReadHeader(*strm);
    // read scenario
-   logger.debug["ReadTable"]<<"Reading scenario."<<endl;
+   logger.debug["ReadTable"]<<"Reading scenario ..."<<endl;
    ReadScenario(*strm);
    // read b-blocks
-   logger.debug["ReadTable"]<<"Reading coeff tables."<<endl;
+   logger.debug["ReadTable"]<<"Reading coefficient tables ..."<<endl;
    ReadCoeffTables(*strm, nCoeff);
    // close stream
-   logger.debug["ReadTable"]<<"Reading done closing files."<<endl;
+   logger.debug["ReadTable"]<<"Reading done, closing files ..."<<endl;
    CloseFileRead(*strm);
 }
 
@@ -103,21 +105,19 @@ int fastNLOTable::ReadHeader(istream& table) {
    //!< Read table header (formely named BlockA1 and BlockA2)
    //!< return number of contributions to follow
    //!<
+   logger.debug["ReadHeader"]<<"Start reading table header ..."<<endl;
    table.peek();
    if (table.eof()) {
-      logger.error["ReadHeader"]<<"Cannot read from stream."<<endl;
+      logger.error["ReadHeader"]<<"Premature end of file; cannot read from stream."<<endl;
    }
 
    fastNLOTools::ReadMagicNo(table);
-   table >> Itabversion;
-   fastNLOTools::CheckVersion(Itabversion);
-   std::string test;
-   if ( Itabversion >= 24000 ) table >> test; // "fastNLO_Header
+   table >> ITabVersionRead;
+   fastNLOTools::CheckVersion(ITabVersionRead);
+   SetITabVersionRead(ITabVersionRead);
+   // By default set write-out version same as the one read in
+   SetITabVersionWrite(ITabVersionRead);
    table >> ScenName;
-   if ( test != "" )  {
-      logger.warn["ReadHeader"]<<"Scenario name is not allowed to contain white spaces!!"<<endl;
-   }
-   // check if ScenName contains spaces
    int Ncontrib,Ndata,Nmult;
    table >> Ncontrib;
    table >> Nmult ; // not used any longer
@@ -129,6 +129,7 @@ int fastNLOTable::ReadHeader(istream& table) {
    fastNLOTools::ReadUnused(table); // Imachine
    fastNLOTools::ReadMagicNo(table);
    fastNLOTools::PutBackMagicNo(table);
+   logger.debug["ReadHeader"]<<"Finished reading table header."<<endl;
    return Ncontrib+Ndata;
 }
 
@@ -136,17 +137,20 @@ int fastNLOTable::ReadHeader(istream& table) {
 // ___________________________________________________________________________________________________
 void fastNLOTable::ReadCoeffTables(istream& table, int nCoeff){
    //!< read nCoeff Coefficient tables (additive, multiplicative and data)
+   logger.debug["ReadCoeffTables"]<<"Start reading coefficient tables for version "<<ITabVersionRead<<endl;
    for (int i=0; i<nCoeff; i++) {
+      logger.debug["ReadCoeffTables"]<<"Start reading coefficient table no. "<<i+1<<endl;
       fastNLOCoeffBase cTemp(NObsBin);
-      cTemp.ReadBase(table);
-      fastNLOCoeffBase* cN = ReadRestOfCoeffTable(cTemp, table);
+      cTemp.ReadBase(table, ITabVersionRead);
+      fastNLOCoeffBase* cN = ReadRestOfCoeffTable(cTemp, table, ITabVersionRead);
       CreateCoeffTable(i, cN);
    }
+   logger.debug["ReadCoeffTables"]<<"Finished reading coefficient tables."<<endl;
 }
 
 
 // ___________________________________________________________________________________________________
-fastNLOCoeffBase* fastNLOTable::ReadRestOfCoeffTable(const fastNLOCoeffBase& cB, istream& table){
+fastNLOCoeffBase* fastNLOTable::ReadRestOfCoeffTable(const fastNLOCoeffBase& cB, istream& table, int ITabVersionRead){
    // take coeffbase and identify type of contribution.
    //  - create instance of correct full coefficient table
    //  - read in 'rest' of coeff table
@@ -156,22 +160,22 @@ fastNLOCoeffBase* fastNLOTable::ReadRestOfCoeffTable(const fastNLOCoeffBase& cB,
    if ( fastNLOCoeffData::CheckCoeffConstants(&cB,quiet) ) {
       logger.debug["ReadRestOfCoeffTable"]<<"Found data table. Now reading in."<<endl;
       fastNLOCoeffData* cN = new fastNLOCoeffData(cB);
-      cN->ReadRest(table);
+      cN->ReadRest(table, ITabVersionRead);
       return cN;
    } else if ( fastNLOCoeffMult::CheckCoeffConstants(&cB,quiet) ) {
       logger.debug["ReadRestOfCoeffTable"]<<"Found multiplicative contribution. Now reading in."<<endl;
       fastNLOCoeffMult* cN = new fastNLOCoeffMult(cB);
-      cN->ReadRest(table);
+      cN->ReadRest(table, ITabVersionRead);
       return cN;
    } else if ( fastNLOCoeffAddFix::CheckCoeffConstants(&cB,quiet) ) {
       logger.debug["ReadRestOfCoeffTable"]<<"Found additive fixed order contribution (v2.0). Now reading in."<<endl;
       fastNLOCoeffAddFix* cN = new fastNLOCoeffAddFix(cB);
-      cN->ReadRest(table);
+      cN->ReadRest(table, ITabVersionRead);
       return cN;
    } else if ( fastNLOCoeffAddFlex::CheckCoeffConstants(&cB,quiet) ) {
       logger.debug["ReadRestOfCoeffTable"]<<"Found additive flexible scale contribution. Now reading in."<<endl;
       fastNLOCoeffAddFlex* cN = new fastNLOCoeffAddFlex(cB,ILOord);
-      cN->ReadRest(table);
+      cN->ReadRest(table, ITabVersionRead);
       return cN;
    } else {
       logger.error["ReadRestOfCoeffTable"]<<"Could not identify coefficient table. Print and exiting ... "<<endl;
@@ -185,9 +189,9 @@ fastNLOCoeffBase* fastNLOTable::ReadRestOfCoeffTable(const fastNLOCoeffBase& cB,
 // ___________________________________________________________________________________________________
 void fastNLOTable::WriteTable() {
    //!<
-   //!< WriteTable(). writes the full FastNLO table to
-   //!< the previously defined ffilename on disk.
-   //!< Write fastNLO table to file 'ffilename' (member)
+   //!< WriteTable() writes the full fastNLO table to the previously defined filename 'ffilename' on disk.
+   //!< 'ffilename' is a protected member of the fastNLOTable class.
+   logger.debug["WriteTable"]<<"Start writing fastNLO table to preset filename "<<ffilename<<endl;
    std::string extension = ".gz";
    bool compress = false;
    if ((ffilename.length() >= extension.length()) and
@@ -202,7 +206,7 @@ void fastNLOTable::WriteTable() {
    //    fastNLOTools::binary = true;
    // }
 
-   logger.info["WriteTable"]<<"Writing fastNLO table with " << GetNcontrib() << " theory contributions to file: " << ffilename << endl;
+   logger.info["WriteTable"]<<"Writing fastNLO table version "<<GetITabVersionWrite()<<" with "<<GetNcontrib()<<" theory contributions to file: "<<ffilename<<endl;
    std::ostream* table = OpenFileWrite(compress);
    logger.debug["WriteTable"]<<"Writing table header to file ..."<<endl;
    WriteHeader(*table);
@@ -210,27 +214,31 @@ void fastNLOTable::WriteTable() {
    WriteScenario(*table);
    for(int i=0;i<GetNcontrib()+GetNdata();i++){
       logger.debug["WriteTable"]<<"Writing coefficient table #"<<i<<endl;
-      GetCoeffTable(i)->Write(*table,GetItabversion());
+      GetCoeffTable(i)->Write(*table,GetITabVersionWrite());
    }
    CloseFileWrite(*table);
+   logger.debug["WriteTable"]<<"Finished writing fastNLO table to preset filename "<<ffilename<<endl;
 }
 
 
 // ___________________________________________________________________________________________________
 void fastNLOTable::WriteTable(string filename) {
    //! Write fastNLO table to file 'filename'
-   string tempfilename = ffilename;
+   logger.debug["WriteTable"]<<"Start writing fastNLO table to file "<<filename<<endl;
+   // Temporarily store active table filename ffilename
+   string tmpfilename = ffilename;
    SetFilename(filename);
    WriteTable();
-   SetFilename(tempfilename);
+   SetFilename(tmpfilename);
+   logger.debug["WriteTable"]<<"Finished writing fastNLO table to file "<<filename<<endl;
 }
 
 
 //______________________________________________________________________________
 void fastNLOTable::WriteHeader(std::ostream& table) {
    table << fastNLO::tablemagicno << sep;
-   table << GetItabversion() << sep;
-   if ( GetItabversion() >= 24000 ) table << "fastNLO_Header" << sep;
+   table << GetITabVersionWrite() << sep;
+   //   if ( GetItabversion() >= 24000 ) table << "fastNLO_Header" << sep;
    if ( ScenName.find(" ")!=string::npos )  {
       logger.warn["WriteHeader"]<<"Scenario name is not allowed to contain white spaces!!"<<endl;
       ScenName = ScenName.substr(0,ScenName.find(" "));
@@ -249,27 +257,14 @@ void fastNLOTable::WriteHeader(std::ostream& table) {
 
 // ___________________________________________________________________________________________________
 void fastNLOTable::ReadScenario(istream& table){
-   //table.peek();
+   logger.debug["ReadScenario"]<<"Start reading table scenario ..."<<endl;
    fastNLOTools::ReadMagicNo(table);
-   std::string test;
-   if ( Itabversion >= 24000 ) table >> test; // "fastNLO_Scenario
    table >> Ipublunits;
    fastNLOTools::ReadFlexibleVector(ScDescript,table);
    char buffer[257];
-   // size_t NScDescript = 0;
-   // table >> NScDescript;
-   // ScDescript.resize(NScDescript);
-   // table.getline(buffer,256);
-   // for(size_t i=0;i<NScDescript;i++){
-   //    table.getline(buffer,256);
-   //    ScDescript[i] = buffer;
-   //    //      StripWhitespace(ScDescript[i]);
-   // }
-
    table >> Ecms;
    table >> ILOord;
    table >> NObsBin;
-   //NDim = fastNLOTools::ReadFlexibleVector(DimLabel,table) -1 ;
    table >> NDim;
    DimLabel.resize(NDim);
    table.getline(buffer,256);
@@ -277,7 +272,6 @@ void fastNLOTable::ReadScenario(istream& table){
       table.getline(buffer,256);
       DimLabel[i] = buffer;
    }
-   //fastNLOTools::ReadFlexibleVector(IDiffBin,table,NDim);
    IDiffBin.resize(NDim);
    for(int i=NDim-1;i>=0;i--){
       table >>  IDiffBin[i];
@@ -296,11 +290,6 @@ void fastNLOTable::ReadScenario(istream& table){
       }
    }
    fastNLOTools::ReadFlexibleVector(BinSize,table,NObsBin);
-   // BinSize.resize(NObsBin);
-   // for(unsigned int i=0;i<NObsBin;i++){
-   //    table >> BinSize[i];
-   // }
-
    table >> INormFlag;
    if( INormFlag < 0 ) table >> DenomTable;
    if( INormFlag != 0 ){
@@ -311,22 +300,15 @@ void fastNLOTable::ReadScenario(istream& table){
          table >> IDivUpPointer[i];
       }
    }
-   if ( Itabversion >= 24000 ) fastNLOTools::ReadUnused(table); // v2.4 yet unused
-   if ( Itabversion >= 24000 ) fastNLOTools::ReadUnused(table); // v2.4 yet unused
    fastNLOTools::ReadMagicNo(table);
-   // if (!fastNLOTools::ReadMagicNo(table)) {
-   //    logger.error["ReadScenario"]<<"Did not find final magic number, aborting!"<<endl;
-   //    logger.error["ReadScenario"]<<"Please check compatibility of tables and program version!"<<endl;
-   //    exit(1);
-   // }
    fastNLOTools::PutBackMagicNo(table);
+   logger.debug["ReadScenario"]<<"Finished reading table scenario."<<endl;
 }
 
 
 // ___________________________________________________________________________________________________
 void fastNLOTable::WriteScenario(std::ostream& table){
    table << fastNLO::tablemagicno << sep;
-   if ( GetItabversion() >= 24000 ) table << "fastNLO_Scenario" <<sep;
    table << Ipublunits << sep;
    size_t NScDescript = ScDescript.size();
    table << NScDescript << sep;
@@ -365,8 +347,8 @@ void fastNLOTable::WriteScenario(std::ostream& table){
          table << IDivUpPointer[i] << sep;
       }
    }
-   if ( GetItabversion() >= 24000 ) table << 0 << sep; // v2.4 (yet unused)
-   if ( GetItabversion() >= 24000 ) table << 0 << sep; // v2.4 (yet unused)
+   //   if ( GetItabversion() >= 24000 ) table << 0 << sep; // v2.4 (yet unused)
+   //   if ( GetItabversion() >= 24000 ) table << 0 << sep; // v2.4 (yet unused)
 }
 
 
@@ -966,7 +948,7 @@ void fastNLOTable::AddTable(const fastNLOTable& other, fastNLO::EMerge moption) 
    }
    // Loop over all contributions from 'other'-table
    for ( int ic=0; ic<ntot; ic++ ) {
-      logger.info["fastNLOTable::AddTable"]<<"Adding contribution no. " << ic << endl;
+      logger.info["AddTable"]<<"Adding contribution no. " << ic << endl;
       bool wasAdded = false;
       // Find matching contribution from 'this'-table
       for ( unsigned int jc=0; jc<fCoeff.size(); jc++) {
@@ -1371,7 +1353,7 @@ vector < pair < double, double > > fastNLOTable::GetDim0BinBounds() const {
 vector < pair < double, double > > fastNLOTable::GetDim1BinBounds(unsigned int iDim0Bin) const {
    vector< pair<double, double > > Bins;
    if ( NDim < 2 ) {
-      logger.error["fastNLOTable::GetDim1BinBounds"] << "No second dimension available, aborted!" << endl;
+      logger.error["GetDim1BinBounds"] << "No second dimension available, aborted!" << endl;
       exit(1);
    }
    pair< double, double> bin0 = GetDim0BinBounds()[iDim0Bin];
@@ -1391,7 +1373,7 @@ vector < pair < double, double > > fastNLOTable::GetDim1BinBounds(unsigned int i
 vector < pair < double, double > > fastNLOTable::GetDim2BinBounds(unsigned int iDim0Bin, unsigned int iDim1Bin) const {
    vector< pair<double, double > > Bins;
    if ( NDim < 3 ) {
-      logger.error["fastNLOTable::GetDim2BinBounds"] << "No third dimension available, aborted!" << endl;
+      logger.error["GetDim2BinBounds"] << "No third dimension available, aborted!" << endl;
       exit(1);
    }
    pair< double, double> bin0 = GetDim0BinBounds()[iDim0Bin];
@@ -1446,7 +1428,7 @@ unsigned int fastNLOTable::GetIDim0Bin(unsigned int iObs) const {
    //! Valid for up to triple differential binnings
    //  There always must be at least one bin!
    if ( Bin.size() == 0 || Bin[0].size() == 0 ) {
-      logger.error["fastNLOTable::GetIDim0Bin"] << "No observable bins defined, aborted!" << endl;
+      logger.error["GetIDim0Bin"] << "No observable bins defined, aborted!" << endl;
       exit(1);
    }
    if ( ! (iObs < NObsBin) ) {
@@ -1464,7 +1446,7 @@ unsigned int fastNLOTable::GetIDim0Bin(unsigned int iObs) const {
          return i0bin;
       }
    }
-   logger.error["fastNLOTable::GetIDim0Bin"] << "Observable bin not found. This should never happen, aborted!" << endl;
+   logger.error["GetIDim0Bin"] << "Observable bin not found. This should never happen, aborted!" << endl;
    exit(1);
 }
 
@@ -1476,12 +1458,12 @@ unsigned int fastNLOTable::GetIDim1Bin(unsigned int iObs) const {
    //! Valid for up to triple differential binnings
    //  1d binning --> logger.error exit
    if ( NDim < 2 ) {
-      logger.error["fastNLOTable::GetIDim1Bin"] << "No second dimension available, aborted!" << endl;
+      logger.error["GetIDim1Bin"] << "No second dimension available, aborted!" << endl;
       exit(1);
    }
    //  Otherwise there always must be at least one bin!
    if ( Bin.size() == 0 || Bin[0].size() == 0 ) {
-      logger.error["fastNLOTable::GetIDim1Bin"] << "No observable bins defined, aborted!" << endl;
+      logger.error["GetIDim1Bin"] << "No observable bins defined, aborted!" << endl;
       exit(1);
    }
    if ( ! (iObs < NObsBin) ) {
@@ -1506,7 +1488,7 @@ unsigned int fastNLOTable::GetIDim1Bin(unsigned int iObs) const {
          return i1bin;
       }
    }
-   logger.error["fastNLOTable::GetIDim1Bin"] << "Observable bin not found. This should never happen, aborted!" << endl;
+   logger.error["GetIDim1Bin"] << "Observable bin not found. This should never happen, aborted!" << endl;
    exit(1);
 }
 
@@ -1518,16 +1500,16 @@ unsigned int fastNLOTable::GetIDim2Bin(unsigned int iObs) const {
    //! Valid for up to triple differential binnings
    //  1d, 2d binning --> logger.error exit
    if ( NDim < 3 ) {
-      logger.error["fastNLOTable::GetIDim2Bin"] << "No third dimension available, aborted!" << endl;
+      logger.error["GetIDim2Bin"] << "No third dimension available, aborted!" << endl;
       exit(1);
    }
    //  Otherwise there always must be at least one bin!
    if ( Bin.size() == 0 || Bin[0].size() == 0 ) {
-      logger.error["fastNLOTable::GetIDim2Bin"] << "No observable bins defined, aborted!" << endl;
+      logger.error["GetIDim2Bin"] << "No observable bins defined, aborted!" << endl;
       exit(1);
    }
    if ( iObs >= NObsBin ) {
-      logger.error["fastNLOTable::GetIDim2Bin"] << "Observable bin out of range, aborted!" << endl;
+      logger.error["GetIDim2Bin"] << "Observable bin out of range, aborted!" << endl;
       exit(1);
    }
    unsigned int i0bin = 0;
@@ -1557,7 +1539,7 @@ unsigned int fastNLOTable::GetIDim2Bin(unsigned int iObs) const {
          return i2bin;
       }
    }
-   logger.error["fastNLOTable::GetIDim2Bin"] << "Observable bin not found. This should never happen, aborted!" << endl;
+   logger.error["GetIDim2Bin"] << "Observable bin not found. This should never happen, aborted!" << endl;
    exit(1);
 }
 
@@ -1579,7 +1561,7 @@ unsigned int fastNLOTable::GetNDim1Bins(unsigned int iDim0Bin) const {
    //! Valid for up to triple differential binnings
    //  1d binning --> logger.error exit
    if ( NDim < 2 ) {
-      logger.error["fastNLOTable::GetNDim1Bins"] << "No second dimension available, aborted!" << endl;
+      logger.error["GetNDim1Bins"] << "No second dimension available, aborted!" << endl;
       exit(1);
    }
    for ( unsigned int i = 0; i<Bin.size(); i++ ) {
@@ -1589,7 +1571,7 @@ unsigned int fastNLOTable::GetNDim1Bins(unsigned int iDim0Bin) const {
          return GetIDim1Bin(i) +1;
       }
    }
-   logger.error["fastNLOTable::GetNDim1Bins"] << "Observable bin not found. This should never happen, aborted!" << endl;
+   logger.error["GetNDim1Bins"] << "Observable bin not found. This should never happen, aborted!" << endl;
    exit(1);
 }
 
@@ -1601,7 +1583,7 @@ unsigned int fastNLOTable::GetNDim2Bins(unsigned int iDim0Bin, unsigned int iDim
    //! Valid for up to triple differential binnings
    //  1d, 2d binning --> logger.error exit
    if ( NDim < 3 ) {
-      logger.error["fastNLOTable::GetNDim2Bins"] << "No third dimension available, aborted!" << endl;
+      logger.error["GetNDim2Bins"] << "No third dimension available, aborted!" << endl;
       exit(1);
    }
    for ( unsigned int i = 0; i<Bin.size(); i++ ) {
@@ -1613,7 +1595,7 @@ unsigned int fastNLOTable::GetNDim2Bins(unsigned int iDim0Bin, unsigned int iDim
          return GetIDim2Bin(i) +1;
       }
    }
-   logger.error["fastNLOTable::GetNDim2Bins"] << "Observable bin not found. This should never happen, aborted!" << endl;
+   logger.error["GetNDim2Bins"] << "Observable bin not found. This should never happen, aborted!" << endl;
    exit(1);
 }
 
@@ -1624,7 +1606,7 @@ int fastNLOTable::GetODim0Bin(double obs0) const {
    int iDim0Bin = -1;
    for ( unsigned int i=0; i<NObsBin; i++ ) {
       if ( IDiffBin[0] == 1 ) {
-         logger.error["fastNLOTable::GetODim0Bin"] << "Point-wise differential not yet implemented, aborted!" << endl;
+         logger.error["GetODim0Bin"] << "Point-wise differential not yet implemented, aborted!" << endl;
          exit(1);
       } else {
          if ( Bin[i][0].first <= obs0 && obs0 < Bin[i][0].second ) {
@@ -1643,7 +1625,7 @@ int fastNLOTable::GetODim1Bin(double obs0, double obs1) const {
    int iDim1Bin = -1;
    for ( unsigned int i=0; i<NObsBin; i++ ) {
       if ( IDiffBin[0] == 1 ) {
-         logger.error["fastNLOTable::GetODim1Bin"] << "Point-wise differential not yet implemented, aborted!" << endl;
+         logger.error["GetODim1Bin"] << "Point-wise differential not yet implemented, aborted!" << endl;
          exit(1);
       } else {
          if ( Bin[i][0].first <= obs0 && obs0 < Bin[i][0].second &&
@@ -1663,7 +1645,7 @@ int fastNLOTable::GetODim2Bin(double obs0, double obs1, double obs2) const {
    int iDim2Bin = -1;
    for ( unsigned int i=0; i<NObsBin; i++ ) {
       if ( IDiffBin[0] == 1 ) {
-         logger.error["fastNLOTable::GetODim2Bin"] << "Point-wise differential not yet implemented, aborted!" << endl;
+         logger.error["GetODim2Bin"] << "Point-wise differential not yet implemented, aborted!" << endl;
          exit(1);
       } else {
          if ( Bin[i][0].first <= obs0 && obs0 < Bin[i][0].second &&
@@ -1690,7 +1672,7 @@ int fastNLOTable::GetObsBinNumber( const vector<double>& vobs ) const {
       exit(1);
    }
    if ( ! (NDim < 4) ) {
-      logger.error["fastNLOTable::GetObsBinNumber"] << "More than 3-dimensional binning not yet implemented, aborted!" << endl;
+      logger.error["GetObsBinNumber"] << "More than 3-dimensional binning not yet implemented, aborted!" << endl;
       exit(1);
    }
 
@@ -1774,10 +1756,6 @@ string fastNLOTable::GetXSDescr() const {
       }
    }
    return "Undefined";
-}
-
-vector <string> fastNLOTable::GetScDescr() const {
-   return ScDescript;
 }
 
 void fastNLOTable::SetScDescr(std::vector <std::string> ScDescr) {
@@ -2025,19 +2003,19 @@ void fastNLOTable::PrintTableInfo(const int iprint) const {
 // unsigned int fastNLOTable::GetIDimBin(unsigned int iObsBin, unsigned int iDim) const {
 //    //! Returns bin number in dimension iDim
 //    //  iDim larger than table dimensions --> logger.error exit
-//    logger.error["fastNLOTable::GetIDimBin"] << "DO NOT USE! DOES NOT WORK YET!" << endl;
+//    logger.error["GetIDimBin"] << "DO NOT USE! DOES NOT WORK YET!" << endl;
 //    const unsigned int idiff = GetNumDiffBin();
 //    if ( ! (iDim < idiff) ) {
-//       logger.error["fastNLOTable::GetIDimBin"] << "Requested dimension iDim not available, aborted!" << endl;
+//       logger.error["GetIDimBin"] << "Requested dimension iDim not available, aborted!" << endl;
 //       exit(1);
 //    }
 //    //  Otherwise there always must be at least one bin!
 //    if ( Bin.size() == 0 || Bin[0].size() == 0 ) {
-//       logger.error["fastNLOTable::GetIDimBin"] << "No observable bins defined, aborted!" << endl;
+//       logger.error["GetIDimBin"] << "No observable bins defined, aborted!" << endl;
 //       exit(1);
 //    }
 //    if ( iObsBin >= NObsBin ) {
-//       logger.error["fastNLOTable::GetIDimBin"] << "Observable bin out of range, aborted!" << endl;
+//       logger.error["GetIDimBin"] << "Observable bin out of range, aborted!" << endl;
 //       exit(1);
 //    }
 //    vector < unsigned int > ibin(NDim);
@@ -2097,7 +2075,7 @@ void fastNLOTable::PrintTableInfo(const int iprint) const {
 //          return ibin[iDim];
 //       }
 //    }
-//    logger.error["fastNLOTable::GetIDimBin"] << "Observable bin not found. This should never happen, aborted!" << endl;
+//    logger.error["GetIDimBin"] << "Observable bin not found. This should never happen, aborted!" << endl;
 //    exit(1);
 // }
 //
@@ -2185,12 +2163,12 @@ void fastNLOTable::PrintTableInfo(const int iprint) const {
 // not the observable bin no. running from 1 to NObsBin
 template<typename T> void fastNLOTable::EraseBin(vector<T>& v, unsigned int idx) {
    if ( v.empty() ) {
-      logger.warn["fastNLOTable::EraseBin"]<<"Empty vector, nothing to erase!" << endl;
+      logger.warn["EraseBin"]<<"Empty vector, nothing to erase!" << endl;
    } else if ( idx < v.size() ) {
-      logger.info["fastNLOTable::EraseBin"]<<"Erasing vector index no. " << idx << endl;
+      logger.info["EraseBin"]<<"Erasing vector index no. " << idx << endl;
       v.erase(v.begin()+idx);
    } else {
-      logger.error["fastNLOTable::EraseBin"]<<"Bin no. larger than vector size, aborted!" << endl;
+      logger.error["EraseBin"]<<"Bin no. larger than vector size, aborted!" << endl;
       exit(1);
    }
 }
@@ -2202,7 +2180,7 @@ void fastNLOTable::EraseBinFromTable(unsigned int iObsIdx) {
       exit(1);
    }
 
-   logger.info["fastNLOTable::EraseBinFromTable"]<<"Erasing from table the observable index no. " << iObsIdx << endl;
+   logger.info["EraseBinFromTable"]<<"Erasing from table the observable index no. " << iObsIdx << endl;
    // Changes to table header block A2
    EraseBin(fastNLOTable::Bin,iObsIdx);
    EraseBin(fastNLOTable::BinSize,iObsIdx);
@@ -2212,7 +2190,7 @@ void fastNLOTable::EraseBinFromTable(unsigned int iObsIdx) {
    }
    // Changes to table contributions block B
    for ( int ic = 0; ic<GetNcontrib()+GetNdata(); ic++ ) {
-      logger.info["fastNLOTable::EraseBinFromTable"]<<"Erasing the observable index no. " << iObsIdx << " from contribution no. " << ic << endl;
+      logger.info["EraseBinFromTable"]<<"Erasing the observable index no. " << iObsIdx << " from contribution no. " << ic << endl;
       fastNLOCoeffAddBase* ctmp = (fastNLOCoeffAddBase*)fCoeff[ic];
 
       // Identify type of coeff-table
@@ -2228,11 +2206,11 @@ void fastNLOTable::EraseBinFromTable(unsigned int iObsIdx) {
       } else if ( fastNLOCoeffAddFix::CheckCoeffConstants(ctmp,quiet) ) {
          logger.info["EraseBinFromTable"]<<"Found additive fix-table contribution. Now erasing index no. " << iObsIdx << endl;
          fastNLOCoeffAddFix* cfix = (fastNLOCoeffAddFix*)fCoeff[ic];
-         cfix->EraseBin(iObsIdx);
+         cfix->EraseBin(iObsIdx,ITabVersionRead);
       } else if ( fastNLOCoeffAddFlex::CheckCoeffConstants(ctmp,quiet) ) {
          logger.info["EraseBinFromTable"]<<"Found additive flex-table contribution. Now erasing index no. " << iObsIdx << endl;
          fastNLOCoeffAddFlex* cflex = (fastNLOCoeffAddFlex*)fCoeff[ic];
-         cflex->EraseBin(iObsIdx);
+         cflex->EraseBin(iObsIdx,ITabVersionRead);
       } else {
          logger.error["EraseBinFromTable"]<<"Could not identify contribution. Print and abort!" << endl;
          ctmp->Print(-1);
@@ -2249,27 +2227,27 @@ void fastNLOTable::EraseBinFromTable(unsigned int iObsIdx) {
 // not the observable bin no. running from 1 to NObsBin
 template<typename T> void fastNLOTable::MultiplyBin(vector<T>& v, unsigned int idx, double fact) {
    if ( v.empty() ) {
-      logger.warn["fastNLOTable::MultiplyBin"]<<"Empty vector, nothing to multiply!" << endl;
+      logger.warn["MultiplyBin"]<<"Empty vector, nothing to multiply!" << endl;
    } else if ( idx < v.size() ) {
-      logger.info["fastNLOTable::MultiplyBin"]<<"Multiplying vector index no. " << idx << endl;
+      logger.info["MultiplyBin"]<<"Multiplying vector index no. " << idx << endl;
       v[idx] *= fact;
    } else {
-      logger.error["fastNLOTable::MultiplyBin"]<<"Bin no. larger than vector size, aborted!" << endl;
+      logger.error["MultiplyBin"]<<"Bin no. larger than vector size, aborted!" << endl;
       exit(1);
    }
 }
 
 void fastNLOTable::MultiplyBinSize(unsigned int iObsIdx, double fact) {
-   logger.debug["fastNLOTable::MultiplyBinSize"]<<"Multiplying the bin size of the observable index no. " << iObsIdx << " by " << fact << endl;
+   logger.debug["MultiplyBinSize"]<<"Multiplying the bin size of the observable index no. " << iObsIdx << " by " << fact << endl;
    MultiplyBin(fastNLOTable::BinSize,iObsIdx,fact);
 }
 
 void fastNLOTable::MultiplyBinInTable(unsigned int iObsIdx, double fact) {
-   logger.debug["fastNLOTable::MultiplyBinInTable"]<<"Multiplying the observable index no. " << iObsIdx << endl;
+   logger.debug["MultiplyBinInTable"]<<"Multiplying the observable index no. " << iObsIdx << endl;
    // Changes to table header block A2
    // Changes to table contributions block B
    for ( int ic = 0; ic<GetNcontrib()+GetNdata(); ic++ ) {
-      logger.debug["fastNLOTable::MultiplyBinInTable"]<<"Multiplying the observable index no. " << iObsIdx << " from contribution no. " << ic << endl;
+      logger.debug["MultiplyBinInTable"]<<"Multiplying the observable index no. " << iObsIdx << " from contribution no. " << ic << endl;
       fastNLOCoeffAddBase* ctmp = (fastNLOCoeffAddBase*)fCoeff[ic];
 
       // Identify type of coeff-table
@@ -2299,13 +2277,13 @@ void fastNLOTable::MultiplyBinInTable(unsigned int iObsIdx, double fact) {
 }
 
 void fastNLOTable::CatBinToTable(const fastNLOTable& other, unsigned int iObsIdx, unsigned int table_count) {
-   logger.info["fastNLOTable::CatBinToTable"]<<"Catenating the observable bin index no. " << iObsIdx << " from other table to this." << endl;
+   logger.info["CatBinToTable"]<<"Catenating the observable bin index no. " << iObsIdx << " from other table to this." << endl;
    // Changes to table header block A2
    CatBin(other,iObsIdx,table_count);
    // Changes to table contributions block B
    // Loop over all contributions from 'other'-table
    for ( int ic=0; ic<other.GetNcontrib()+other.GetNdata(); ic++ ) {
-      logger.info["fastNLOTable::CatBinToTable"]<<"Catenating the observable index no. " << iObsIdx << " from contribution no. " << ic << endl;
+      logger.info["CatBinToTable"]<<"Catenating the observable index no. " << iObsIdx << " from contribution no. " << ic << endl;
       // Find matching contribution from 'this'-table
       for ( unsigned int jc=0; jc<fCoeff.size(); jc++) {
          bool quiet = true;
@@ -2319,7 +2297,7 @@ void fastNLOTable::CatBinToTable(const fastNLOTable& other, unsigned int iObsIdx
                fastNLOCoeffAddFix* crhs = (fastNLOCoeffAddFix*)other.GetCoeffTable(ic);
                if ( clhs->IsCatenable(*crhs) ) {
                   logger.info["CatBinToTable"]<<"Found fix-scale additive contribution. Now catenating index no. " << iObsIdx << endl;
-                  clhs->CatBin(*crhs,iObsIdx);
+                  clhs->CatBin(*crhs,iObsIdx,ITabVersionRead);
                   continue;
                }
             }
@@ -2328,7 +2306,7 @@ void fastNLOTable::CatBinToTable(const fastNLOTable& other, unsigned int iObsIdx
                fastNLOCoeffAddFlex* crhs = (fastNLOCoeffAddFlex*)other.GetCoeffTable(ic);
                if ( clhs->IsCatenable(*crhs) ) {
                   logger.info["CatBinToTable"]<<"Found flex-scale additive contribution. Now catenating index no. " << iObsIdx << endl;
-                  clhs->CatBin(*crhs,iObsIdx);
+                  clhs->CatBin(*crhs,iObsIdx,ITabVersionRead);
                   continue;
                }
             }
@@ -2367,7 +2345,7 @@ void fastNLOTable::CatBinToTable(const fastNLOTable& other, unsigned int iObsIdx
 
 // Catenate observable bin
 void fastNLOTable::CatBin(const fastNLOTable& other, unsigned int iObsIdx, unsigned int table_count) {
-   logger.debug["fastNLOTable::CatBin"]<<"Catenating observable bin in scenario header corresponding to bin index " << iObsIdx << endl;
+   logger.debug["CatBin"]<<"Catenating observable bin in scenario header corresponding to bin index " << iObsIdx << endl;
    if ( Bin.size() == 0 ) {
       say::error["CatBin"]<<"Bin size cannot be zero for a fastNLO table. Aborted!" << endl;
       exit(1);
@@ -2449,7 +2427,7 @@ std::ostream* fastNLOTable::OpenFileWrite(bool compress) {
 #else
    std::ostream* stream = (ostream*)(new std::ofstream(ffilename));
    if ( compress ) logger.info["OpenFileWrite"]<<"gz-compression requested, but compilation was performed without zlib."<<endl;
-#endif /* HAVE_LIBZ */   
+#endif /* HAVE_LIBZ */
    if (!stream->good()) {
       logger.error["OpenFileWrite"]<<"Cannot open file '"<<ffilename<<"' for writing. Aborting."<<endl;
       exit(2);
@@ -2471,15 +2449,15 @@ void fastNLOTable::CloseFileWrite(std::ostream& table) {
 
 //______________________________________________________________________________
 bool fastNLOTable::IsCompatibleHeader(const fastNLOTable& other) const {
-   if ( trunc(Itabversion/10000) != trunc(other.GetItabversion()/10000)) {
-      logger.error["IsCompatibleHeader"]<<"Differing major versions of table format: "<<Itabversion<<" and "<<other.GetItabversion()<<endl;
+   if ( trunc(ITabVersionRead/10000) != trunc(other.GetITabVersionRead()/10000)) {
+      logger.error["IsCompatibleHeader"]<<"Differing major versions of table format: "<<ITabVersionRead<<" and "<<other.GetITabVersionRead()<<endl;
       return false;
-   } else if ( ( trunc(Itabversion/1000) <= 22 && trunc(other.GetItabversion()/1000) >= 23 ) ||
-               ( trunc(Itabversion/1000) >= 23 && trunc(other.GetItabversion()/1000) <= 22 ) ) {
-      logger.error["IsCompatibleHeader"]<<"Incompatible minor versions of table format: "<<Itabversion<<" and "<<other.GetItabversion()<<endl;
+   } else if ( ( trunc(ITabVersionRead/1000) <= 22 && trunc(other.GetITabVersionRead()/1000) >= 23 ) ||
+               ( trunc(ITabVersionRead/1000) >= 23 && trunc(other.GetITabVersionRead()/1000) <= 22 ) ) {
+      logger.error["IsCompatibleHeader"]<<"Incompatible minor versions of table format: "<<ITabVersionRead<<" and "<<other.GetITabVersionRead()<<endl;
       return false;
-   } else if ( Itabversion != other.GetItabversion() ) {
-      logger.warn["IsCompatibleHeader"]<<"Differing sub-versions of table format: "<<Itabversion<<" and "<<other.GetItabversion()<<endl;
+   } else if ( ITabVersionRead != other.GetITabVersionRead() ) {
+      logger.warn["IsCompatibleHeader"]<<"Differing sub-versions of table format: "<<ITabVersionRead<<" and "<<other.GetITabVersionRead()<<endl;
       logger.warn["IsCompatibleHeader"]<<"Please check your result carefully!"<<endl;
    }
    if (GetNdata() + other.GetNdata() > 1) {
@@ -2496,15 +2474,15 @@ bool fastNLOTable::IsCompatibleHeader(const fastNLOTable& other) const {
 
 //______________________________________________________________________________
 bool fastNLOTable::IsCatenableHeader(const fastNLOTable& other) const {
-   if ( trunc(Itabversion/10000) != trunc(other.GetItabversion()/10000)) {
-      logger.error["IsCatenableHeader"]<<"Differing major versions of table format: "<<Itabversion<<" and "<<other.GetItabversion()<<endl;
+   if ( trunc(ITabVersionRead/10000) != trunc(other.GetITabVersionRead()/10000)) {
+      logger.error["IsCatenableHeader"]<<"Differing major versions of table format: "<<ITabVersionRead<<" and "<<other.GetITabVersionRead()<<endl;
       return false;
-   } else if ( ( trunc(Itabversion/1000) <= 22 && trunc(other.GetItabversion()/1000) >= 23 ) ||
-               ( trunc(Itabversion/1000) >= 23 && trunc(other.GetItabversion()/1000) <= 22 ) ) {
-      logger.error["IsCatenableHeader"]<<"Incatenable minor versions of table format: "<<Itabversion<<" and "<<other.GetItabversion()<<endl;
+   } else if ( ( trunc(ITabVersionRead/1000) <= 22 && trunc(other.GetITabVersionRead()/1000) >= 23 ) ||
+               ( trunc(ITabVersionRead/1000) >= 23 && trunc(other.GetITabVersionRead()/1000) <= 22 ) ) {
+      logger.error["IsCatenableHeader"]<<"Incatenable minor versions of table format: "<<ITabVersionRead<<" and "<<other.GetITabVersionRead()<<endl;
       return false;
-   } else if ( Itabversion != other.GetItabversion() ) {
-      logger.warn["IsCatenableHeader"]<<"Differing sub-versions of table format: "<<Itabversion<<" and "<<other.GetItabversion()<<endl;
+   } else if ( ITabVersionRead != other.GetITabVersionRead() ) {
+      logger.warn["IsCatenableHeader"]<<"Differing sub-versions of table format: "<<ITabVersionRead<<" and "<<other.GetITabVersionRead()<<endl;
       logger.warn["IsCatenableHeader"]<<"Please check your result carefully!"<<endl;
    }
    if (GetNcontrib() != other.GetNcontrib()) {
@@ -2529,7 +2507,7 @@ void fastNLOTable::PrintHeader(int iprint) const {
    } else {
       cout << endl << fastNLO::_CSEP20C << " fastNLO Table: Header " << fastNLO::_CSEP20 << endl;
    }
-   printf(" # Table version (Itabversion)         %d\n",Itabversion);
+   printf(" # Table version (ITabVersionRead)         %d\n",ITabVersionRead);
    printf(" # Scenario name (ScenName)            %s\n",ScenName.data());
    printf(" # Theory contributions (Ncontrib)     %d\n",GetNcontrib());
    printf(" # Data contribution 0/1 (Ndata)       %d\n",GetNdata());

@@ -10,6 +10,22 @@
 
 namespace say {
    enum Verbosity {DEBUG=-1000, MANUAL=2, INFO=0, WARNING=1, ERROR=2, SILENT=1000};
+
+   // String to enum
+   struct toVerbosity : public std::map<std::string, Verbosity>
+      {
+         toVerbosity()
+            {
+               this->operator[]("DEBUG")   = DEBUG;
+               this->operator[]("MANUAL")  = MANUAL;
+               this->operator[]("INFO")    = INFO;
+               this->operator[]("WARNING") = WARNING;
+               this->operator[]("ERROR")   = ERROR;
+               this->operator[]("SILENT")  = SILENT;
+            };
+         ~toVerbosity(){}
+      };
+
 }
 
 class speaker {
@@ -17,7 +33,6 @@ public:
    speaker(std::string prefix="",say::Verbosity volume=say::INFO,bool err=false,bool quiet=false);
    speaker(const speaker& spk);
    ~speaker();
-   //speaker(const speaker& spk) : weg(0) {;};
    const speaker& operator= (const speaker& other);
    std::ostream& operator[](const std::string& fct) const ;
    const speaker& operator+ (const std::string& fct) const {
@@ -67,7 +82,6 @@ public:
    };
 
 protected:
-   //std::ostream weg;
    static std::ostream* weg;
    bool fquiet;
    std::string pref;
@@ -83,7 +97,7 @@ protected:
 
 namespace say {
    extern speaker debug;
-   extern speaker man;   //
+   extern speaker man;
    extern speaker info;
    extern speaker warn;
    extern speaker error;
@@ -95,7 +109,7 @@ namespace say {
 
 class PrimalScream {
 public:
-   PrimalScream(std::string classname);//,std::string prefix="");
+   PrimalScream(std::string classname);
    void SetClassName(const std::string classname );
    void SetVerbosity(say::Verbosity volume);
    speaker debug;

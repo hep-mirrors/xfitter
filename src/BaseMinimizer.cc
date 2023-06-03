@@ -2,6 +2,7 @@
 #include "xfitter_pars.h"
 #include <memory>
 #include <iostream>
+#include <iomanip>
 
 namespace xfitter {
 
@@ -41,8 +42,10 @@ namespace xfitter {
   }
 
   void BaseMinimizer::setPars(double const* pars) const {
+    std::cout << std::setw(5) << "NO" << std::setw(30) << "NAME" << std::setw(15) << "VALUE" << std::endl;
     for (size_t i = 0; i<_allParameterNames.size(); i++) {
-      std::cout << i << " parval = " << pars[i] << std::endl;
+      std::cout << std::setw(5) << i << std::setw(30)  << _allParameterNames[i] << std::setw(15) <<  pars[i] << std::endl;
+      //std::cout << i << " parval = " << pars[i] << std::endl;
       *XFITTER_PARS::gParameters.at( _allParameterNames[i]) = pars[i];
     }
   }

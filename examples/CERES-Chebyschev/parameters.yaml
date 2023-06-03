@@ -1,0 +1,115 @@
+Minimizer: CERES
+
+CERES:
+  offset: 2
+  tolerance: 1e-5
+  strategy: 0
+  covariance: 1
+
+Parameters:
+  Ag   :  DEPENDENT
+  Bg: [ 0.605361, 0.079750 ]
+  Cg: [ 17.906382, 2.248437 ]
+  Agp: [ 2.194591, 0.527080 ]
+  Bgp: [ 0.830423, 0.038997 ]
+  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  Auv  :  DEPENDENT
+  Buv: [ 0.692241, 0.385026 ]
+  Cuv: [ 3.597810, 0.087136 ]
+  Duv  : [    0     ]
+  Euv: [ -0.677340, 0.716534 ]
+  Adv  :  DEPENDENT
+  Bdv: [ 1.220061, 0.078563 ]
+  Cdv: [ 5.382530, 0.316441 ]
+  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
+  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
+  Cubar: [ 7.549746, 39.556120 ]
+  Dubar: [ -0.370371, 40.462915 ]
+  Eubar: [ -0.370371, 40.462915 ]
+  Adbar: [ 0.1613, 0.01 ]
+  Bdbar: [ -0.1273, 0.004  ]
+  Cdbar: [9.58, 1.23 ]
+  ZERO : [ 0. ]          # zero
+  fs   :   0.4   #no step means fixed
+  DbarToS: "=fs/(1-fs)"
+
+Parameterisations:
+  par_uv:
+    class: Chebyschev
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: Chebyschev
+    parameters: [Adv,Bdv,Cdv]
+  par_ubar:
+    class: Chebyschev
+    parameters: [Adbar,Bdbar,Cubar,Dubar,Eubar]
+  par_dbar:
+    class: Chebyschev
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s: # s=fs/(1-fs) * Dbar
+    class: Factor
+    factor: DbarToS #name of parameter
+    input: par_dbar
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
+
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+    # The following allows QCDNUM to read PDFs from other evolutions:
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
+? !include constants.yaml
+
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+
+OutputDirectory: "output" #Can be omitted, default is "output"
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120

@@ -1,4 +1,4 @@
-After minimisation    1075.11  1093     0.984
+After minimisation    1075.12  1093     0.984
 
   Partial chi2s 
 Dataset    1     26.27( -1.71)    34  CC cross section HERA-I H1-ZEUS combined e-p.   
@@ -12,12 +12,12 @@ Dataset    8     53.73(-13.57)    37  LHCb 7TeV Dch pT-y cross section
 Dataset    9     49.30( -9.86)    31  LHCb 7TeV Dstar pT-y cross section              
 Dataset   10     23.75( -4.02)    28  LHCb 7TeV Ds pT-y cross section                 
 Dataset   11      5.23( -5.17)     6  LHCb 7TeV Lambdac pT cross section              
-Dataset   12     98.21(-32.65)   135  LHCb 7TeV Bch pT-y cross section                
+Dataset   12     98.20(-32.65)   135  LHCb 7TeV Bch pT-y cross section                
 Dataset   13     64.82(-19.87)    95  LHCb 7TeV Bzero pT-y cross section              
 Dataset   14     76.83(-16.89)    75  LHCb 7TeV Bs pT-y cross section                 
 
- Correlated Chi2    71.129538729771525     
- Log penalty Chi2   -122.13059892336813     
+ Correlated Chi2    71.129061270251611     
+ Log penalty Chi2   -122.12969793970606     
  Systematic shifts          120
   
                                 Name          Shift   +/-    Error          Type
@@ -43,7 +43,7 @@ Dataset   14     76.83(-16.89)    75  LHCb 7TeV Bs pT-y cross section
    20  HERA_Charm_Source_20                  -1.0950   +/-   0.9359        :N:M:D
    21  HERA_Charm_Source_21                   0.5513   +/-   0.9606        :N:M:D
    22  HERA_Charm_Source_22                  -0.9577   +/-   0.8782        :N:M:D
-   23  HERA_Charm_Source_23                   0.1038   +/-   0.8952        :N:M:D
+   23  HERA_Charm_Source_23                   0.1037   +/-   0.8952        :N:M:D
    24  HERA_Charm_Source_24                   0.8909   +/-   0.9314        :N:M:D
    25  HERA_Charm_Source_25                   2.9082   +/-   0.8335        :N:M:D
    26  HERA_Charm_Source_26                   0.7450   +/-   0.9274        :N:M:D

@@ -1,6 +1,7 @@
 #include "Profiler.h"
 #include "xfitter_cpp_base.h"
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <vector>
 #include "xfitter_cpp.h"
@@ -9,6 +10,11 @@
 #include "xfitter_cpp.h"
 #include <algorithm>
 #include <string.h>
+#include <numeric>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 extern "C" {
   void update_theory_iteration_();
@@ -19,11 +25,44 @@ extern "C" {
   
 namespace xfitter
 {
-  std::valarray<double> Profiler::evaluatePredictions() {
+  vector <double> mcweights(vector<double> const& chi2, int ndata, bool GK_method)
+  {
+    vector<double> w;
+    const int nrep = chi2.size();
+  
+    vector<double> logw;  // Calculate Ln(wnn) (nn - not normalised) -> use repnums as index for unweighted PDFs
+    for (vector <double>::const_iterator c = chi2.begin(); c != chi2.end(); c++) {
+      if ( (GK_method) == false) {
+	logw.push_back( - (*c)/(2.0) +( (((double) ndata)-1.0)/2.)*log(*c)); //Bayesian
+      }
+      if ( (GK_method) == true)  logw.push_back(- (*c)/(2.0)); //Giele-Keller
+    }
+    // Get maximum value of log(w)
+    double exp_avg = *(max_element(logw.begin(), logw.end()));
+    //exp_avg =0;//only needed to normalise
+    // Calculate weights
+    for (size_t i=0 ;i<nrep; i++) {
+      w.push_back(exp(logw[i] - exp_avg ));
+    }
+    //Drop any weights smaller than 1e-12
+    double wtot = std::accumulate(w.begin(),w.end(),0.0); 
+    for (size_t i=0; i<w.size(); i++) {
+      if ((w[i]*(nrep/wtot)) < 1e-12)
+	w[i]=0;
+    }
+    wtot=std::accumulate(w.begin(),w.end(),0.0);  // Normalise weights so Sum(weights)=N
+    for (size_t i=0;i<w.size();i++){
+      w[i]*=(nrep/wtot); 
+    }
+    return w;
+  }
+  
+  std::pair < std::valarray<double>, double> Profiler::evaluatePredictions() {
+    double chi2 = NAN;
     if (_getChi2) {
       int save_nsys = systema_.nsys;
       systema_.nsys = _nSourcesOrig; // reset to the original sources
-      double chi2 = chi2data_theory_(2);
+      chi2 = chi2data_theory_(2);
       systema_.nsys = save_nsys;
       std::cout << std::fixed << std::setprecision(2) << "Chi2 = " << chi2 << std::endl;
     }else{
@@ -31,7 +70,7 @@ namespace xfitter
     }
 
     //Return theory predictions
-    return valarray<double>(c_theo_.theo, cndatapoints_.npoints);
+    return std::pair<valarray<double>,double> ( valarray<double>(c_theo_.theo, cndatapoints_.npoints), chi2);
   }
 
   void Profiler::storePdfFiles(int imember, int iPDF, std::string const& type) {
@@ -117,7 +156,10 @@ namespace xfitter
       _getChi2 = node["getChi2"].as<string>() == "On";
     }
 
-
+    if (node["threads"]) {
+      _ncpu =  node["threads"].as<int>();
+    }
+    
     //rescaling  PDF eigenvectors
     if (node["scalePdfs"]) {
       _scalePdfs = node["scalePdfs"].as<float>();
@@ -172,7 +214,7 @@ namespace xfitter
     // Store theo file:
     if (node["WriteTheo"]) {
       if (node["WriteTheo"].as<string>() != "Off") {
-        auto cent = evaluatePredictions();
+        auto cent = evaluatePredictions().first;
         int ntot = systema_.nsys;
         systema_.nsys = nsysloc;
         writetheoryfiles_(ntot-nsysloc, &cent[0], node["WriteTheo"].as<string>() != "Asymmetric");
@@ -210,7 +252,8 @@ namespace xfitter
     for ( size_t i=0; i<len; i++) {
       *ppar = node[i].as<double>();
       updateAtConfigurationChange();
-      preds.push_back( evaluatePredictions() );
+      auto pred = evaluatePredictions();
+      preds.push_back( pred.first );
     }
     *ppar = save;
 
@@ -223,6 +266,119 @@ namespace xfitter
     }
   }
 
+
+  void Profiler::compute_parallel(int NALL, int NPRED, int first, int iPdfSet,
+			std::vector< std::valarray<double> >& preds,
+			std::vector< double >& chi2vals,
+				  YAML::Node gNode,
+				  BaseEvolution* evol, const std::string& errorType)
+  {
+    
+    // Shared memory for predictions
+    int shmid;
+    double* sharedArray;
+    int ARRAY_SIZE = preds.size() * NPRED;
+	
+    // Create shared memory segment
+    shmid = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE, IPC_CREAT | 0666);
+    if (shmid < 0) {
+      hf_errlog(2023060200,"F: Failed to create shared memory segment");
+    }
+	
+    // Attach shared memory segment
+    sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+    if (sharedArray == reinterpret_cast<double*>(-1)) {
+      hf_errlog(2023060201,"F: Failed to attach shared memory segment");
+    }
+
+    // Shared memory for chi2s
+    int shmid2;
+    double* sharedArray2;
+    int ARRAY_SIZE2 = chi2vals.size();
+	
+    // Create shared memory segment
+    shmid2 = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE2, IPC_CREAT | 0666);
+    if (shmid < 0) {
+      hf_errlog(2023060202,"F: Failed to create shared memory segment");
+    }
+	
+    // Attach shared memory segment
+    sharedArray2 = static_cast<double*>(shmat(shmid2, nullptr, 0));
+    if (sharedArray == reinterpret_cast<double*>(-1)) {
+      hf_errlog(2023060203,"F: Failed to attach shared memory segment");
+    }
+
+
+    // define Chunks
+
+    std::cout << "N CPU: " << _ncpu << std::endl;
+
+    int NCPU = _ncpu;
+    int chunkSize = NALL / NCPU;
+    int reminder  = NALL % NCPU; 
+    int startIndex = 0;
+    int endIndex = 0;
+    
+    // loop over all
+    for (int icpu = 0; icpu<min(NCPU,NALL); icpu++) {
+      startIndex = endIndex;
+      endIndex   = startIndex + chunkSize;
+      if (icpu < reminder) {
+	endIndex += 1;
+      }
+      pid_t pid = fork();
+      if ( pid == 0) {       
+	for (int imember = first+startIndex; imember < first+endIndex; imember++) {
+	  
+	  gNode["member"] = imember;
+	  evol->atConfigurationChange();
+	  auto pred = evaluatePredictions();
+	  
+	  // store in shared memory
+	  int idxOff = (imember-first)*NPRED;
+	  for (size_t idx = 0; idx<NPRED; idx++) {
+	    sharedArray[idxOff+idx] = pred.first[idx];
+	  }
+	      
+	  sharedArray2[imember-first] = pred.second;
+
+	  if (_storePdfs) {
+	    storePdfFiles(imember,iPdfSet,errorType);
+	  }
+	      
+	}
+	exit(0);	    
+      }
+      else if (pid<0) {
+	hf_errlog(2023060204,"F: Failed to create a fork process");	
+      }
+    }
+	
+    // Wait ...
+    int status;
+    while (wait(&status) > 0);
+    
+    // Store in vectors
+    for (size_t imember = 0; imember<NALL; imember++) {
+      chi2vals[imember] = sharedArray2[imember];
+      
+      std::valarray<double> temp;
+      temp.resize(NPRED);
+      for (size_t ipred = 0; ipred < NPRED; ipred++) {	    
+	temp[ipred] = sharedArray[imember*NPRED+ipred];
+      }
+      preds[imember+1] = temp;
+    }
+    
+    // Detach and remove shared memory segments
+    shmdt(sharedArray);
+    shmctl(shmid, IPC_RMID, NULL);
+    shmdt(sharedArray2);
+    shmctl(shmid2, IPC_RMID, NULL);
+    
+  }
+
+  
   void Profiler::profilePDF( std::string const& evolName, YAML::Node const& node) {
     // get evolution
     auto evol=get_evolution(evolName);
@@ -312,12 +468,7 @@ namespace xfitter
 
         // all predictions
         std::vector< std::valarray<double> > preds;
-
-        preds.push_back(evaluatePredictions() );
-
-	if (_storePdfs) {
-	  storePdfFiles(0,i);
-	}
+	std::vector< double > chi2vals;
 
         if ( last == 0) {
           // auto determine XXXXXXXXXXXXXXXX
@@ -336,21 +487,43 @@ namespace xfitter
             hf_errlog(2018082432,"S: Profiler: hessian error members should start from odd number. Check your inputs");
           }
         }
-                
-        // loop over all
-        for (int imember = first; imember<=last; imember++) {
-          gNode["member"] = imember;
-          evol->atConfigurationChange();
-          preds.push_back( evaluatePredictions() );
-          //              for ( double th : preds[imember] ) {
-          //std::cout << th << std::endl;
-          //}
-          //std::cout << imember << std::endl;
-	  if (_storePdfs) {
-	    storePdfFiles(imember,i,errorType);
-	  }
-        }
 
+	// Central+all PDFs
+	preds.resize(last-first+2);
+	// All PDFs only
+	chi2vals.resize(last-first+1);
+	
+        auto pred = evaluatePredictions();
+        preds[0] = pred.first;
+
+	int NPRED = pred.first.size();
+	int NALL = last-first+1;
+	
+	/// DO NOT store the central chi2:
+	/// chi2vals.push_back(pred.second);
+	
+	if (_storePdfs) {
+	  storePdfFiles(0,i);
+	}
+
+	if (_ncpu>0) {
+	  // Use multiprocessing
+	  compute_parallel(NALL, NPRED, first, i, preds, chi2vals, gNode, evol, errorType);
+	}
+	else {
+	  // loop over all
+	  for (int imember = first; imember<=last; imember++) {
+	    gNode["member"] = imember;
+	    evol->atConfigurationChange();
+	    auto pred = evaluatePredictions();
+	    preds[imember-first+1] = pred.first;
+	    chi2vals[imember-first] = pred.second;
+	    if (_storePdfs) {
+	      storePdfFiles(imember,i,errorType);
+	    }
+	  }	  
+	}
+	
         // Restore original
 
 	if ( oSet && oMember ) {
@@ -358,8 +531,6 @@ namespace xfitter
 	  gNode["member"]=oMember;
 	  evol->atConfigurationChange();
 	}
-
-
 
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
@@ -391,11 +562,13 @@ namespace xfitter
 
           // convert to eigenvectors, add to list of systematics
           addReplicas(pName,preds);
+
+	  // Write out aux files for reweighting method.
+	  addMCweightsFiles(pName,chi2vals,preds[0].size(),preds.size()-1);
         }
         else {
           hf_errlog(2018082441,"S: Profiler Unsupported PDF error type : "+errorType);
-        }
-        
+        }        
     }
   }
   
@@ -444,6 +617,35 @@ namespace xfitter
     }
     delete[] beta;
     delete[] covar;
+  }
+
+  void Profiler::addMCweightsFiles(std::string const& pdfName, std::vector<double>& chi2vals, int ndata, int nrep) {
+    vector <double> weights = mcweights(chi2vals, ndata, false);
+    std::ofstream chi2wf((_outputDir + "/pdf_BAYweights.dat").c_str());
+    vector <double>::iterator ic = chi2vals.begin();
+    vector <double>::iterator iw = weights.begin();
+    string lhapdfsetname=pdfName;
+    
+    if (lhapdfsetname.find(".LHgrid")!=string::npos)   lhapdfsetname.erase(lhapdfsetname.find(".LHgrid"));
+    chi2wf << "LHAPDF set=   " << lhapdfsetname<<endl;
+    chi2wf << "Reweight method=   BAYESIAN"<<endl;
+    chi2wf << "ndata=   " << ndata <<endl;
+    chi2wf << nrep << endl;
+    for (; ic != chi2vals.end(); ic++, iw++)
+      chi2wf << (ic - chi2vals.begin()) << "\t" << *ic << "\t" << *iw << endl;
+    chi2wf.close();
+    
+    vector <double> weights_GK = mcweights(chi2vals, ndata, true);
+    std::ofstream chi2wf2((_outputDir + "/pdf_GKweights.dat").c_str());
+    ic = chi2vals.begin();
+    iw = weights_GK.begin();
+    chi2wf2 << "LHAPDF set=   " << lhapdfsetname<<endl;
+    chi2wf2 << "Reweight method=   GIELE-KELLER"<<endl;
+    chi2wf2 << "ndata=   " << ndata <<endl;
+    chi2wf2 << nrep << endl;
+    for (; ic != chi2vals.end(); ic++, iw++)
+      chi2wf2 << (ic - chi2vals.begin()) << "\t" << *ic << "\t" << *iw << endl;
+    chi2wf2.close();
   }
   
 } //namespace xfitter

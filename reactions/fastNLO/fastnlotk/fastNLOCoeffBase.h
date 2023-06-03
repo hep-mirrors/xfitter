@@ -23,7 +23,7 @@ public:
    virtual ~fastNLOCoeffBase(){};                                              //! destructor
    virtual fastNLOCoeffBase* Clone() const;                                     //!< returns 'new' copy of this instance.
 
-   virtual void Read(std::istream& table);
+   virtual void Read(std::istream& table, int ITabVersionRead);
    virtual void Write(std::ostream& table, int ITabVersionWrite);
    virtual void Print(int iprint) const;
 
@@ -37,6 +37,10 @@ public:
    bool IsCatenable(const fastNLOCoeffBase& other) const;
 
    void SetCoeffAddDefaults();
+
+   /// ___________________________________________________________________________________________________
+   /// Some info getters & setters for contribution modifications
+   /// ___________________________________________________________________________________________________
 
    int GetIDataFlag() const {return IDataFlag;}
    void SetIDataFlag(int n){IDataFlag = n;}
@@ -61,9 +65,11 @@ public:
 
    bool GetIsFlexibleScale() const { return (NScaleDep>=3) && (IAddMultFlag==0); }
 
+   /// get/set contribution and code description
    std::vector<std::string > GetContributionDescription() const { return CtrbDescript; }
-   void SetContributionDescription(std::vector<std::string > descr ) { CtrbDescript = descr; };           //! Set contribution description
+   void SetContributionDescription(std::vector<std::string > descr );
    std::vector<std::string > GetCodeDescription() const { return CodeDescript; }
+   void SetCodeDescription(std::vector<std::string > descr );
 
    bool IsLO() const {return IContrFlag1==1 && IContrFlag2==1;}
    bool IsNLO() const {return IContrFlag1==1 && IContrFlag2==2;}
@@ -73,9 +79,30 @@ public:
    bool IsEnabled() const {return enabled;}
    void Enable(bool on=true) {enabled = on;}
 
+   // Added to include CoeffInfoBlocks
+   bool HasCoeffInfoBlock() const {return NCoeffInfoBlocks>0;}
+   bool HasCoeffInfoBlock(int ICoeffInfoBlockFlag1) const;
+   bool HasCoeffInfoBlock(int ICoeffInfoBlockFlag1, int ICoeffInfoBlockFlag2) const;
+   int GetCoeffInfoBlockIndex(int ICoeffInfoBlockFlag1);
+   int GetCoeffInfoBlockIndex(int ICoeffInfoBlockFlag1, int ICoeffInfoBlockFlag2);
+   int GetCoeffInfoBlockFlag1(int Index) const { return ICoeffInfoBlockFlag1[Index]; };
+   int GetCoeffInfoBlockFlag2(int Index) const { return ICoeffInfoBlockFlag2[Index]; };
+   void SetCoeffInfoBlockFlag1(int Index, int iFlag1) { ICoeffInfoBlockFlag1[Index] = iFlag1; };
+   void SetCoeffInfoBlockFlag2(int Index, int iFlag2) { ICoeffInfoBlockFlag2[Index] = iFlag2; };
+   std::vector < double > GetCoeffInfoContent(int Index) const { return CoeffInfoBlockContent[Index]; };
+   int GetNCoeffInfoBlocks() const {return NCoeffInfoBlocks;}
+   // Provide uncertainty via input vector
+   void AddCoeffInfoBlock(int ICoeffInfoBlockFlag1, int ICoeffInfoBlockFlag2, std::vector<std::string> Description,
+                          std::vector<double> uncertainty);
+   // Provide uncertainty reading from filename
+   void AddCoeffInfoBlock(int ICoeffInfoBlockFlag1, int ICoeffInfoBlockFlag2, std::vector<std::string> Description,
+                          std::string filename, unsigned int icola = 0, unsigned int icolb = 0);
+
 protected:
-   void ReadBase(std::istream& table);
-   void EndReadCoeff(std::istream& table);
+   void ReadBase(std::istream& table, int ITabVersionRead);
+   void ReadCoeffInfoBlocks(std::istream& table, int ITabVersionRead);
+   void WriteCoeffInfoBlocks(std::ostream& table, int ITabVersionWrite);
+   void EndReadCoeff(std::istream& table, int ITabVersionRead);
 
    int fNObsBins; // obtained from Scenario
 
@@ -90,6 +117,15 @@ protected:
    std::vector < std::string > CodeDescript;
 
    bool enabled = false;
+
+   // Added to include CoeffInfoBlocks
+   int NCoeffInfoBlocks = 0; // Not present for version numbers < 25000
+   std::vector < int > ICoeffInfoBlockFlag1;
+   std::vector < int > ICoeffInfoBlockFlag2;
+   std::vector < int > NCoeffInfoBlockDescr;
+   std::vector < std::vector < std::string > > CoeffInfoBlockDescript;
+   std::vector < int > NCoeffInfoBlockCont;
+   fastNLO::v2d CoeffInfoBlockContent;
 };
 
 

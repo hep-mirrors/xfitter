@@ -11,6 +11,7 @@ set(xfitter-process_SOURCES
   custom.c
   symmetrize.c
   reweight.c
+  scale90to68.c
   )
 
 

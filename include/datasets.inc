@@ -57,7 +57,9 @@ C
       character*80 DATASETInfoNames(NInfoDimensionMax,NSET)        !> Names of info entries
       double precision DATASETInfo(NInfoDimensionMax,NSET)         !> info values.
 
+      double precision chi2_poi_tot
       double precision chi2_poi(NSET)
+      double precision chi2_poi_data(NTOT)
 
 C VB: For the hybrid VFNS
       integer DATASETMaxNF(NSET)                                   !> Maximum number of active flavours per dataset
@@ -95,7 +97,7 @@ C VB: For the hybrid VFNS
      $     ,UseFixedTheory
      $     ,UseHVFNS
 
-      Common/cdatapoi/chi2_poi
+      Common/cdatapoi/chi2_poi_tot,chi2_poi,chi2_poi_data
 
 C
 C Keep track of uncertainty types per dataset

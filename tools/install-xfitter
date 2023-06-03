@@ -3,17 +3,19 @@
 ## Configuration ####################################################
 
 ## Programs versions
-lhapdfver=6.5.1
+lhapdfver=6.5.4
 hathorver=2.0
 hoppetver=1.2.0
-applgridver=1.5.46
+applgridver=1.6.32
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
+dyturbover=1.2
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
+skip_dyturbo=1
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -176,6 +178,29 @@ then
         then
             echo "Detected Ubuntu distribution"
             MODE=local
+        elif [[ -e /cvmfs/sft.cern.ch ]]
+	then
+            echo "System not recognized, but cvmfs is mounted"
+            MODE=cvmfs
+	    #gccv=10.3.0
+	    #arch=x86_64
+	    #os=centos7
+	    #cmakev=3.20.0
+	    #rootversion=6.06.08
+	    #boostver=1.53.0
+	    #pyth=2.7
+
+	    #. /cvmfs/sft.cern.ch/lcg/releases/gcc/10.3.0-f5826/x86_64-centos7/setup.sh
+	    #. /cvmfs/sft.cern.ch/lcg/releases/ROOT/6.24.06-3455f/x86_64-centos7-gcc10-opt/bin/thisroot.sh
+            #echo "Using gcc version = 10.3.0"
+
+	    #setup entire view (fails on cmake for ceres)
+	    #. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
+
+	    #setup older gcc
+	    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
+            echo "Using gcc version = 4.9.3"
         else
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
@@ -297,7 +322,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -317,7 +342,7 @@ else
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
-    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j9 >> $CURRENTDIR/install.log  2>&1 
+    make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j 8 >> $CURRENTDIR/install.log  2>&1 
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -341,7 +366,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -376,13 +401,13 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make   >> $CURRENTDIR/install.log  2>&1
+    make -j 8  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -410,7 +435,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -459,7 +484,7 @@ else
 	then
             echo "Error, check install.log for details"
 	fi
-	make install
+	make -j 8 install
 	cd - >& /dev/null
     fi
     
@@ -476,8 +501,8 @@ else
 
     cd apfelxx-${apfelxxver}
     cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
-    make >> $CURRENTDIR/install.log  2>&1
-    make install >> $CURRENTDIR/install.log  2>&1
+    make -j 8 >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install >> $CURRENTDIR/install.log  2>&1
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
@@ -501,7 +526,7 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
@@ -509,6 +534,36 @@ else
     fi
     cd - >& /dev/null
 
+ #dyturbo
+    if [[ $skip_dyturbo != 1 ]]; then
+        echo "Installing DYTurbo ${dyturbover}..."
+        if [[ $http == "curl" ]]
+        then
+	    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
+        else
+	    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        fi
+        tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+        cd dyturbo-${dyturbover}
+
+        export CXXFLAGS="${CXXFLAGS} -std=c++0x"
+        ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1 --enable-Ofast  >> $CURRENTDIR/install.log  2>&1
+        export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
+
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        cd - >& /dev/null
+    fi
+    
   # numdiff
     numdiff -v >& /dev/null
     if [[ `echo $?` != "0" ]]; then
@@ -530,7 +585,7 @@ else
           echo "Error, check install.log for details"
           exit
       fi
-      make -j 9 install  >> $CURRENTDIR/install.log  2>&1
+      make -j 8 install  >> $CURRENTDIR/install.log  2>&1
       if [[ $? != 0 ]]
       then
           echo "Error, check install.log for details"
@@ -578,6 +633,7 @@ echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
@@ -590,6 +646,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >>
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 
 
@@ -603,6 +660,12 @@ then
     echo "cd -" >>setup.sh
 fi
 
+if [[ $MODE == "cvmfs" ]]
+then
+    #echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
+    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
+fi
+
 #make a compilation script
 echo source ./setup.sh > compile
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
@@ -611,6 +674,7 @@ echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:\$PATH     >> compile
 
 
 if [[ $mode != "deps" ]]
@@ -662,11 +726,11 @@ then
   if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
     echo autoreconf --install                                 >> compile
     echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
-    echo make -j 9 install                                    >> compile
+    echo make -j 8 install                                    >> compile
   elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
     # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
     echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
-    echo make -j 9 install                                    >> compile
+    echo make -j 8 install                                    >> compile
     echo autoreconf --install                                 >> compile
   else
     # cmake compilation
