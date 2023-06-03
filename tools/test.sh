@@ -59,7 +59,11 @@ function tolerateDiff()
 checkFile()
 {
   printf "$diff $1 $2 ... "
-  $diff $1 $2 > /dev/null
+  if [ $diff = 'diff' ]; then
+      $diff  $1 $2 > /dev/null
+  else
+      $diff -s ' \t\n,' $1 $2 > /dev/null
+  fi
   exitcode=$?
   
   #if [ $exitcode = 1 ]; then
