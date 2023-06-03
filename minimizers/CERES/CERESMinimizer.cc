@@ -348,6 +348,7 @@ void CERESMinimizer::doMinimization()
     auto diffCostFunction = new CostFuntionrDataAndDerivative();
     diffCostFunction->SetParsAndResiduals(npars,nres,ceresNode["threads"].as<int>());
     problem.AddResidualBlock(diffCostFunction, loss_function, parVals);
+    hf_errlog(23060301,"I: Use multiprocess computation of derivatives with FORWARD method");
   }
   else {
     // We can use forward deriviative (faster, potentially less accurate):
@@ -357,6 +358,7 @@ void CERESMinimizer::doMinimization()
       dynamic_cost_function->AddParameterBlock(npars);
       dynamic_cost_function->SetNumResiduals(nres);
       problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+      hf_errlog(23060302,"I: Compute derivatives with FORWARD method");
     }
     else {
       ceres::DynamicNumericDiffCostFunction<CostFunctorData>* dynamic_cost_function =
@@ -364,6 +366,7 @@ void CERESMinimizer::doMinimization()
       dynamic_cost_function->AddParameterBlock(npars);
       dynamic_cost_function->SetNumResiduals(nres);
       problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+      hf_errlog(23060303,"I: Compute derivatives with CENTRAL (default) method");
     }
   }
 
