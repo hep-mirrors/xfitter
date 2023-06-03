@@ -359,7 +359,6 @@ void CERESMinimizer::doMinimization()
       problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
     }
     else {
-      exit(0);
       ceres::DynamicNumericDiffCostFunction<CostFunctorData>* dynamic_cost_function =
 	new ceres::DynamicNumericDiffCostFunction<CostFunctorData>(new CostFunctorData);    
       dynamic_cost_function->AddParameterBlock(npars);
