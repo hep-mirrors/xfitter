@@ -100,16 +100,16 @@ void report_convergence_status_(){
       hf_errlog(16042801,"I: No minimization has run");
       break;
     case ConvergenceStatus::INACCURATE:
-      hf_errlog(16042803,"S: Error matrix not accurate");
+      hf_errlog(16042803,"E: Error matrix not accurate");
       break;
     case ConvergenceStatus::FORCED_POSITIVE:
-      hf_errlog(16042804,"S: Error matrix forced positive");
+      hf_errlog(16042804,"E: Error matrix forced positive");
       break;
     case ConvergenceStatus::SUCCESS:
       hf_errlog(16042802,"I: Fit converged");
       break;
     case ConvergenceStatus::NO_CONVERGENCE:
-      hf_errlog(16042805,"S: No convergence");
+      hf_errlog(16042805,"E: No convergence");
       break;
     case ConvergenceStatus::ERROR:
       hf_errlog(16042806,"F: Minimizer error");
