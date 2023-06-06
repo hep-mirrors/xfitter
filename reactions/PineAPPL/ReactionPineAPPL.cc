@@ -140,93 +140,101 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     size_t Ngrids = data->grids.size();
 
     // rebin
-    size_t np = 0;
-    for (pineappl_grid* grid : data->grids) if (grid) np += pineappl_grid_bin_count(grid);
-    std::vector<double> binsl(np);
-    std::vector<double> binsr(np);
-    std::vector<double> binsl2(np);
-    std::vector<double> binsr2(np);
-    unsigned int pos = 0;
-    for (size_t igrid = 0; igrid < data->grids.size(); igrid++) {
-        pineappl_grid* grid = data->grids[igrid];
-        if (grid) {//real, non-dummy grid
-            pineappl_grid_bin_limits_left(grid, 0, binsl.data() + pos);
-            pineappl_grid_bin_limits_right(grid, 0, binsr.data() + pos);
-            pineappl_grid_bin_limits_left(grid, 1, binsl2.data() + pos);
-            pineappl_grid_bin_limits_right(grid, 1, binsr2.data() + pos);
-            pos += pineappl_grid_bin_count(grid);
+    if (td->hasParam("rebin")) {
+        std::vector<std::string> rebin_vars;
+        string rebin_str = td->getParamS("rebin");
+        istringstream ss(rebin_str);
+        string token;
+        while (getline(ss, token, ',')) 
+            rebin_vars.push_back(token);
+        if (data->grids.size() == 0)
+            hf_errlog(23060501, "F: cannot rebin without grids");
+        size_t np = 0;
+        int ndim = -1;
+        for (size_t ig = 0; ig < data->grids.size(); ig++) {
+            if (data->grids[ig]) {
+                np += pineappl_grid_bin_count(data->grids[ig]);
+                auto thisdim = pineappl_grid_bin_dimensions(data->grids[ig]);
+                if (ndim == -1)
+                ndim = thisdim;
+                else if (ndim != thisdim)
+                hf_errlog(23060502, "F: Dimension mismatch for grid " + data->GridNames[ig]);
+            }
+        }
+        printf("ndim = %d, np = %ld\n", ndim, np);
+        if (rebin_vars.size() != (ndim * 2))
+            hf_errlog(23060502, "F: rebin [" + std::to_string(rebin_vars.size()) + "] and grid dimension [" + std::to_string(ndim) + "] mismatch");
+        std::vector<std::vector<double> > binsl(ndim);
+        std::vector<std::vector<double> > binsr(ndim);
+        for (int idim = 0; idim < ndim; idim++){
+            binsl[idim].resize(np);
+            binsr[idim].resize(np);
+        }
+        unsigned int pos = 0;
+        for (size_t igrid = 0; igrid < data->grids.size(); igrid++) {
+            pineappl_grid* grid = data->grids[igrid];
+            if (grid) {//real, non-dummy grid
+                for (int idim = 0; idim < ndim; idim++){
+                    pineappl_grid_bin_limits_left(grid, idim, binsl[idim].data() + pos);
+                    pineappl_grid_bin_limits_right(grid, idim, binsr[idim].data() + pos);
+                }
+                pos += pineappl_grid_bin_count(grid);
+            }
+        }
+        std::vector<std::vector<double> > bins_data(rebin_vars.size());
+        for (size_t ivar = 0; ivar < rebin_vars.size(); ivar++) {
+            const auto& thisbins = *(const_cast<std::valarray<double>*>(td->getBinColumnOrNull(rebin_vars[ivar])));
+            bins_data[ivar].resize(thisbins.size());
+            std::copy(&thisbins[0], &thisbins[0] + thisbins.size(), bins_data[ivar].begin());
+        }
+        auto compare = [](double b1, double b2) {
+            const double eps = 1e-6;
+            auto diff = b2 - b1;
+            auto reldiff = (b1 == 0.) ? ( (b2 == 0.) ? 0. : 1. ) : diff / b1;
+            if (fabs(diff) < eps || fabs(reldiff) < eps) return 0;
+            else if (diff > 0) return 1;
+            else return -1;
+        };
+        auto& rebin = data->rebin;
+        rebin.resize(bins_data[0].size());
+        for(size_t bin = 0; bin < bins_data[0].size(); bin++) {
+            //printf("bin = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bin, bins_data[2][bin], bins_data[3][bin], bins_data[0][bin], bins_data[1][bin]);
+            // TODO read this from reaction parameters
+            if (ndim == 2 && rebin_vars[2] == "mttmin" && bins_data[2][bin] <= 330.) bins_data[2][bin] = binsl[1][0]; // low mtt bins: everything below == 330 GeV
+            rebin[bin].resize(binsl[0].size());
+            std::vector<int> match_l(ndim, 0);
+            std::vector<int> match_r(ndim, 0);
+            for(size_t bingrid = 0; bingrid < binsl[0].size(); bingrid++) {
+                //printf("bingrid = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bingrid, binsl[1][bingrid],binsr[1][bingrid],binsl[0][bingrid],binsr[0][bingrid]);
+                rebin[bin][bingrid] = 0;
+                std::vector<int> flag(ndim);
+                for (size_t idim = 0; idim < ndim; idim++) {
+                    flag[idim] = 0;
+                    auto l = compare(bins_data[0+idim*2][bin], binsl[idim][bingrid]);
+                    if (l == -1) continue;
+                    else {
+                        if (l == 0) match_l[idim] = 1;
+                        auto r = compare(bins_data[1+idim*2][bin], binsr[idim][bingrid]);
+                        if (r == 1) continue;
+                        if (r == 0) match_r[idim] = 1;
+                        flag[idim] = 1;
+                    }
+                }
+                if (std::all_of(flag.begin(), flag.end(), [](bool v) { return v; }))
+                    rebin[bin][bingrid] = 1;
+            }
+            for (size_t idim = 0; idim < ndim; idim++) {
+                //printf("%d %d\n", match_l[idim], match_r[idim]);
+                if (match_l[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[0+idim*2] + " " + std::to_string(bins_data[0+idim*2][bin]));
+                if (match_r[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[1+idim*2] + " " + std::to_string(bins_data[1+idim*2][bin]));
+            }
+            //printf("match_l, match_r, match_l2, match_r2 = %d %d %d %d\n", match_l, match_r, match_l2, match_r2);
+            //if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin " + std::to_string((*mttmin)[bin]));
+            //if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax " + std::to_string((*mttmax)[bin]));
+            //if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin " + std::to_string((*yttmin)[bin]));
+            //if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax " + std::to_string((*yttmax)[bin]));
         }
     }
-    auto *mttmin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("mttmin"));
-    auto *mttmax  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("mttmax"));
-    auto *yttmin  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("yttmin"));
-    auto *yttmax  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("yttmax"));
-    auto compare = [](double b1, double b2) {
-        const double eps = 1e-6;
-        auto diff = b2 - b1;
-        auto reldiff = (b1 == 0.) ? ( (b2 == 0.) ? 0. : 1. ) : diff / b1;
-        if (fabs(diff) < eps || fabs(reldiff) < eps) return 0;
-        else if (diff > 0) return 1;
-        else return -1;
-    };
-    auto& rebin = data->rebin;
-    rebin.resize(mttmin->size());
-    for(size_t bin = 0; bin < mttmin->size(); bin++) {
-        //printf("bin = %ld\n", bin);
-        auto mttmin_mod = (*mttmin)[bin];
-        //if (mttmin_mod <= 330.) mttmin_mod = 0.; // low mtt bins: everything below == 0 GeV
-        //if (mttmin_mod <= 330.) mttmin_mod = 250.; // low mtt bins: everything below == 250 GeV
-        if (mttmin_mod <= 330.) mttmin_mod = binsl2[0]; // low mtt bins: everything below == 250 GeV
-        rebin[bin].resize(binsl2.size());
-        bool match_l = false;
-        bool match_r = false;
-        bool match_l2 = false;
-        bool match_r2 = false;
-        for(size_t bingrid = 0; bingrid < binsl2.size(); bingrid++) {
-            //printf("bingrid = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bingrid, binsl2[bingrid],binsr2[bingrid],binsl[bingrid],binsr[bingrid]);
-            rebin[bin][bingrid] = 0;
-            // 1st dimension
-            int flag1 = 0;
-            auto l = compare(mttmin_mod, binsl2[bingrid]);
-            if (l == -1) continue;
-            else {
-                if (l == 0) match_l2 = true;
-                auto r = compare((*mttmax)[bin], binsr2[bingrid]);
-                if (r == 1) continue;
-                if (r == 0) match_r2 = true;
-                flag1 = 1;
-            }
-            // 2nd dimension
-            int flag2 = 0;
-            l = compare((*yttmin)[bin], binsl[bingrid]);
-            if (l == -1) continue;
-            else {
-                if (l == 0) match_l = true;
-                auto r = compare((*yttmax)[bin], binsr[bingrid]);
-                if (r == 1) continue;
-                if (r == 0) match_r = true;
-                flag2 = 1;
-            }
-            if (flag1 && flag2) rebin[bin][bingrid] = 1;
-        }
-        //printf("match_l, match_r, match_l2, match_r2 = %d %d %d %d\n", match_l, match_r, match_l2, match_r2);
-        if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin " + std::to_string((*mttmin)[bin]));
-        if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax " + std::to_string((*mttmax)[bin]));
-        if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin " + std::to_string((*yttmin)[bin]));
-        if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax " + std::to_string((*yttmax)[bin]));
-    }
-    /*for (size_t i1 = 0; i1 < rebin.size(); i1++) {
-        printf("target bin %.0f < M < %.0f, %.2f < y < %.2f\n", (*mttmin)[i1], (*mttmax)[i1], (*yttmin)[i1], (*yttmax)[i1]);
-        std::string line = "";
-        for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
-            if (i2 > 0) line += " ";
-            line += std::to_string(rebin[i1][i2]);
-            printf("   %d   bin %.0f < M < %.0f, %.2f < y < %.2f\n", rebin[i1][i2], binsl2[i2], binsr2[i2], binsl[i2], binsr[i2]);
-        }
-        printf("%s\n", line.c_str());
-    }*/
-    //throw 42;
-    //if (val.size() != rebin.size()) hf_errlog(23051204, "F: Binning mismatch: inconsistent number of bins");
 } //initTerm
 
 void ReactionPineAPPL::freeTerm(TermData*td) {
@@ -255,6 +263,7 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     size_t np=0;
     for (pineappl_grid* grid : data.grids) if (grid) np += pineappl_grid_bin_count(grid);
     val.resize(np);
+    //err.resize(np);
 
     // Fix PDG ID to p, avoiding double charge conjugation in case pbar is used,
     // as this is already done elsewhere before passing PDFs to PineAPPL
@@ -314,10 +323,14 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     const auto& rebin = data.rebin;
     auto val_orig = val;
     val.resize(rebin.size());
+    //auto err_orig = err;
+    //err.resize(rebin.size());
     for(size_t i1 = 0; i1 < rebin.size(); i1++) {
         val[i1] = 0.;
+        //err[i1] = 0.;
         for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
             val[i1] += val_orig[i2] * rebin[i1][i2];
+            //err[i1] += err_orig[i2] * rebin[i1][i2];
         }
     }
 } //compute
