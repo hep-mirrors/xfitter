@@ -1,0 +1,175 @@
+*  Namelist to control input data
+*
+
+&InFiles
+  ! Number of intput files
+    NInputFiles = 46
+ 
+  ! Input files:
+
+     InputFileNames = 
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
+
+     'datafiles/lhc/atlas/wzProduction/1612.03016/wminus-thexp.dat',
+     'datafiles/lhc/atlas/wzProduction/1612.03016/wplus-thexp.dat',
+     'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cc-thexp.dat',
+     'datafiles/lhc/atlas/wzProduction/1612.03016/zyhigh_cf-thexp.dat',
+     'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cc-thexp.dat',
+     'datafiles/lhc/atlas/wzProduction/1612.03016/zypeak_cf-thexp.dat',
+
+     'datafiles/lhc/atlas/topProduction/1511.04716/ttbar_8TeV_mtt.dat',
+     'datafiles/lhc/atlas/topProduction/1511.04716/ttbar_8TeV_pt.dat',
+     'datafiles/lhc/atlas/topProduction/1607.07281/ttbar_8TeV_ytt_dilep.dat',
+
+     'datafiles/lhc/atlas/wjets/1711.03296/wcand_pt_WminusJet.dat',
+     'datafiles/lhc/atlas/wjets/1711.03296/wcand_pt_WplusJet.dat',
+
+     'datafiles/lhc/atlas/zjets/1907.06728/Zjets_8000_pt0.dat',
+     'datafiles/lhc/atlas/zjets/1907.06728/Zjets_8000_pt1.dat',
+     'datafiles/lhc/atlas/zjets/1907.06728/Zjets_8000_pt2.dat',
+     'datafiles/lhc/atlas/zjets/1907.06728/Zjets_8000_pt3.dat',
+     'datafiles/lhc/atlas/zjets/1907.06728/Zjets_8000_pt4.dat',
+     'datafiles/lhc/atlas/zjets/1907.06728/Zjets_8000_pt5.dat',
+
+     'datafiles/lhc/atlas/drellYan/1710.05167/sig_cc_data_1.dat',
+     'datafiles/lhc/atlas/drellYan/1710.05167/sig_cc_data_2.dat',
+     'datafiles/lhc/atlas/drellYan/1710.05167/sig_cc_data_3.dat',
+     'datafiles/lhc/atlas/drellYan/1710.05167/sig_cc_data_4.dat',
+     'datafiles/lhc/atlas/drellYan/1710.05167/sig_cc_data_5.dat',
+     'datafiles/lhc/atlas/drellYan/1710.05167/sig_cc_data_6.dat',
+
+     'datafiles/lhc/atlas/wzProduction/1904.05631/Wminus.dat',
+     'datafiles/lhc/atlas/wzProduction/1904.05631/Wplus.dat',
+
+     'datafiles/lhc/atlas/photonRatios/1901.10075/phot1ratio_ges.dat',
+     'datafiles/lhc/atlas/photonRatios/1901.10075/phot2ratio_ges.dat',
+     'datafiles/lhc/atlas/photonRatios/1901.10075/phot3ratio_ges.dat',
+     'datafiles/lhc/atlas/photonRatios/1901.10075/phot4ratio_ges.dat',
+
+     'datafiles/lhc/atlas/topProduction/1908.07305/ttbar_13TeV_mtt.dat',
+     'datafiles/lhc/atlas/topProduction/1908.07305/ttbar_13TeV_pt.dat',
+     'datafiles/lhc/atlas/topProduction/1908.07305/ttbar_13TeV_yavt.dat',
+     'datafiles/lhc/atlas/topProduction/1908.07305/ttbar_13TeV_yttboosted.dat',
+
+     'datafiles/lhc/atlas/jets/1706.03192/incjets_8000_R06_rapidity_y_00_05.dat',
+     'datafiles/lhc/atlas/jets/1706.03192/incjets_8000_R06_rapidity_y_05_10.dat',
+     'datafiles/lhc/atlas/jets/1706.03192/incjets_8000_R06_rapidity_y_10_15.dat',
+     'datafiles/lhc/atlas/jets/1706.03192/incjets_8000_R06_rapidity_y_15_20.dat',
+     'datafiles/lhc/atlas/jets/1706.03192/incjets_8000_R06_rapidity_y_20_25.dat',
+     'datafiles/lhc/atlas/jets/1706.03192/incjets_8000_R06_rapidity_y_25_30.dat',
+&End
+
+&InCorr
+  ! Number of correlation (statistical, systematical or full) files
+    NCorrFiles = 10
+
+  ! Correlation files:
+    CorrFileNames(1) = 'datafiles/lhc/atlas/topProduction/1607.07281/top_ytt_dilep.corr'
+    CorrFileNames(2) = 'datafiles/lhc/atlas/topProduction/1511.04716/mtt_pt_8TeV.corr'
+    CorrFileNames(3) = 'datafiles/lhc/atlas/topProduction/1511.04716/pt_8TeV.corr'
+    CorrFileNames(4) = 'datafiles/lhc/atlas/topProduction/1511.04716/mtt_8TeV.corr'
+    CorrFileNames(5) = 'datafiles/lhc/atlas/topProduction/1908.07305/ptavt_mtt.corr'
+    CorrFileNames(6) = 'datafiles/lhc/atlas/topProduction/1908.07305/yavt_mtt.corr'
+    CorrFileNames(7) = 'datafiles/lhc/atlas/topProduction/1908.07305/yavt_ptavt.corr'
+    CorrFileNames(8) = 'datafiles/lhc/atlas/topProduction/1908.07305/yavt_yttboost.corr'
+    CorrFileNames(9) = 'datafiles/lhc/atlas/topProduction/1908.07305/mtt_yttboost.corr'
+    CorrFileNames(10) = 'datafiles/lhc/atlas/topProduction/1908.07305/ptavt_yttboost.corr'
+&End
+
+*
+* Main steering cards
+*
+&xFitter 
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
+
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2ExtraParam = 'PoissonCorr'
+
+
+
+ ! Debug flag
+  LDEBUG     = False
+
+
+ ! Quadratic approximation for asymmetric uncertainties
+ ! AsymErrorsIterations = 10
+&End
+
+
+*
+* Output steering cards
+*
+&Output 
+  ! -- Q2 values at which the pdfs & errors are done (up to 20)
+  Q2VAL = 1.9, 3.0, 4.0, 5., 10., 100., 6464, 8317 
+!  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
+
+  ! How many x points to write (standard = 101)
+  OUTNX = 101
+
+  ! x-range of output (standard = 1E-4 1.0)
+  OUTXRANGE = 1E-4, 0.9999
+
+  ! Write out LHAPDF5 output
+  ! WriteLHAPDF5 = false
+&End
+
+
+
+*
+* Process dependent cuts
+*
+&Cuts
+
+  !--------------------- NC ep  --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 10.0
+   CutValueMax(1)     = 1000000.0
+
+  ! Rule #2: x cuts
+   ProcessName(2)     = 'NC e+-p'
+   Variable(2)        = 'x'
+   CutValueMin(2)     = 0.000001 
+   CutValueMax(2)     = 1.0
+
+  !---------------------  CC ep  ------------------
+
+   ProcessName(3)     = 'CC e+-p'
+   Variable(3)        = 'Q2'
+   CutValueMin(3)     = 10.0
+   CutValueMax(3)     = 1000000.0
+
+   ProcessName(4)     = 'CC e+-p'
+   Variable(4)        = 'x'
+   CutValueMin(4)     = 0.000001 
+   CutValueMax(4)     = 1.0
+
+&End
+

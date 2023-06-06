@@ -1,0 +1,83 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'Adbar     '   0.14590      0.17800E-01     no limits
+     2 'Adv       '    1.0000      constant
+     3 'Ag        '    1.0000      constant
+     4 'Agp       '   0.85600E-01  0.81000E-02     no limits
+     5 'Aubar     '   0.13720      0.10900E-01     no limits
+     6 'Auv       '    1.0000      constant
+     7 'Bdbar     '  -0.13470      0.22300E-01     no limits
+     8 'Bdv       '   0.73540      0.34100E-01     no limits
+     9 'Bg        '  -0.74170      0.41700E-01     no limits
+    10 'Bgp       '  -0.80740      0.20400E-01     no limits
+    11 'Bstr      '  -0.88500E-01  0.47200E-01     no limits
+    12 'Bubar     '  -0.14190      0.15800E-01     no limits
+    13 'Buv       '   0.69270      0.22500E-01     no limits
+    14 'Cdbar     '    3.7831      0.60960         no limits
+    15 'Cdv       '    2.7340      0.29790         no limits
+    16 'Cg        '    5.0493      0.22640         no limits
+    17 'Cgp       '    25.000      constant
+    18 'Cstr      '    13.040       1.9101         no limits
+    19 'Cubar     '    5.7571      0.49220         no limits
+    20 'Cuv       '    4.7116      0.10790         no limits
+    21 'Ddv       '  -0.76800      0.19060         no limits
+    22 'Dg        '    23.269       2.3120         no limits
+    23 'Duv       '    1.7605      0.54260         no limits
+    24 'Euv       '    9.8936       1.2281         no limits
+    25 'ZERO      '    0.0000      constant
+    26 'rs        '    1.1007      0.17850         no limits
+ **********
+ **    1 **SET STR    2.000    
+ **********
+
+ NOW USING STRATEGY  2: MAKE SURE MINIMUM TRUE, ERRORS CORRECT  
+
+ **********
+ **    2 **#CALL FCN    3.000    
+ **********
+           UNKNOWN COMMAND IGNORED:#CALL FCN 
+ **********
+ **    3 **#MIGRAD   0.2000E+05
+ **********
+           UNKNOWN COMMAND IGNORED:#MIGRAD 
+ **********
+ **    4 **#HESSE 
+ **********
+           UNKNOWN COMMAND IGNORED:#HESSE 
+ **********
+ **    5 **CALL FCN    3.000    
+ **********
+
+ FCN=   2283.319     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 2      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1    Adbar      0.14590       0.17800E-01
+   2    Adv         1.0000       constant   
+   3    Ag          1.0000       constant   
+   4    Agp        0.85600E-01   0.81000E-02
+   5    Aubar      0.13720       0.10900E-01
+   6    Auv         1.0000       constant   
+   7    Bdbar     -0.13470       0.22300E-01
+   8    Bdv        0.73540       0.34100E-01
+   9    Bg        -0.74170       0.41700E-01
+  10    Bgp       -0.80740       0.20400E-01
+  11    Bstr      -0.88500E-01   0.47200E-01
+  12    Bubar     -0.14190       0.15800E-01
+  13    Buv        0.69270       0.22500E-01
+  14    Cdbar       3.7831       0.60960    
+  15    Cdv         2.7340       0.29790    
+  16    Cg          5.0493       0.22640    
+  17    Cgp         25.000       constant   
+  18    Cstr        13.040        1.9101    
+  19    Cubar       5.7571       0.49220    
+  20    Cuv         4.7116       0.10790    
+  21    Ddv       -0.76800       0.19060    
+  22    Dg          23.269        2.3120    
+  23    Duv         1.7605       0.54260    
+  24    Euv         9.8936        1.2281    
+  25    ZERO        0.0000       constant   
+  26    rs          1.1007       0.17850    

@@ -1,0 +1,118 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    #call fcn 3
+    #migrad 20000
+    #hesse
+    call fcn 3
+
+Parameters:
+  Ag   :  DEPENDENT
+  Bg   : [ -0.7417,   0.0417 ]
+  Cg   : [  5.0493,   0.2264 ]
+  Dg   : [ 23.2690,   2.3120 ]
+  Agp  : [  0.0856,   0.0081 ]  # negative gluon ....
+  Bgp  : [ -0.8074,   0.0204 ]
+  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  Auv  :  DEPENDENT
+  Buv  : [  0.6927,   0.0225 ]
+  Cuv  : [  4.7116,   0.1079 ]
+  Duv  : [  1.7605,   0.5426 ]
+  Euv  : [  9.8936,   1.2281 ]
+  Adv  :  DEPENDENT
+  Bdv  : [  0.7354,   0.0341 ]
+  Cdv  : [  2.7340,   0.2979 ]
+  Ddv  : [ -0.7680,   0.1906 ]
+  Aubar: [  0.1372,   0.0109 ]
+  Bubar: [ -0.1419,   0.0158 ]
+  Cubar: [  5.7571,   0.4922 ]
+  Adbar: [  0.1459,   0.0178 ]
+  Bdbar: [ -0.1347,   0.0223 ]
+  Cdbar: [  3.7831,   0.6096 ]
+  ZERO : [ 0. ]          # zero
+  Bstr : [ -0.0885,   0.0472 ]
+  Cstr : [ 13.0395,   1.9101 ]
+  rs   : [  1.1007,   0.1785 ]
+
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv,Ddv]
+  par_ubar:
+    class: HERAPDF
+    parameters: [Aubar,Bubar,Cubar]
+  par_dbar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s:
+    #class: HERAPDF
+    #parameters: [As,Bs,Cs]
+    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
+    class: Expression
+    expression: "Adbar*rs*(x^Bstr*(1-x)^Cstr)"
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,Dg,ZERO,Agp,Bgp,Cgp]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+
+# QCD parameters
+NFlavour: 5
+Order: NNLO
+isFFNS: 0
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
+
+? !include constants.yaml
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid.yaml
+    Order: NLO
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120
