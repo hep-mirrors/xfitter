@@ -142,11 +142,27 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     // rebin
     if (td->hasParam("rebin")) {
         std::vector<std::string> rebin_vars;
+        std::vector<double> rebin_vars_bound;
         string rebin_str = td->getParamS("rebin");
         istringstream ss(rebin_str);
         string token;
-        while (getline(ss, token, ',')) 
-            rebin_vars.push_back(token);
+        while (getline(ss, token, ',')) {
+            auto start = token.find("[");
+            if (start != std::string::npos) {
+                rebin_vars.push_back(std::string(token.data(), start));
+                auto start2 = token.find(",");
+                if (token[token.length()-1] != ']')
+                    hf_errlog(23060601, "F: wrong format of rebin: " + rebin_str);
+                auto bound_str = std::string(token.data() + start + 1);
+                bound_str = std::string(bound_str.data(), bound_str.length()-1);
+                rebin_vars_bound.push_back(atof(bound_str.data()));
+            }
+            else
+                rebin_vars.push_back(token);
+                rebin_vars_bound.push_back(std::numeric_limits<double>::quiet_NaN());
+        }
+        //for(size_t ivar = 0; ivar < rebin_vars.size(); ivar++)
+        //    printf("rebin[%ld] = %s %f\n", ivar, rebin_vars[ivar].data(), rebin_vars_bound[ivar]);
         if (data->grids.size() == 0)
             hf_errlog(23060501, "F: cannot rebin without grids");
         size_t np = 0;
@@ -161,7 +177,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
                 hf_errlog(23060502, "F: Dimension mismatch for grid " + data->GridNames[ig]);
             }
         }
-        printf("ndim = %d, np = %ld\n", ndim, np);
+        //printf("ndim = %d, np = %ld\n", ndim, np);
         if (rebin_vars.size() != (ndim * 2))
             hf_errlog(23060502, "F: rebin [" + std::to_string(rebin_vars.size()) + "] and grid dimension [" + std::to_string(ndim) + "] mismatch");
         std::vector<std::vector<double> > binsl(ndim);
@@ -199,8 +215,12 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         rebin.resize(bins_data[0].size());
         for(size_t bin = 0; bin < bins_data[0].size(); bin++) {
             //printf("bin = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bin, bins_data[2][bin], bins_data[3][bin], bins_data[0][bin], bins_data[1][bin]);
-            // TODO read this from reaction parameters
-            if (ndim == 2 && rebin_vars[2] == "mttmin" && bins_data[2][bin] <= 330.) bins_data[2][bin] = binsl[1][0]; // low mtt bins: everything below == 330 GeV
+            for (int idim = 0; idim < ndim; idim++) {
+                if (!std::isnan(rebin_vars_bound[0+idim*2]) && bins_data[0+idim*2][bin] < rebin_vars_bound[0+idim*2])
+                    bins_data[0+idim*2][bin] = binsl[idim][0];
+                if (!std::isnan(rebin_vars_bound[1+idim*2]) && bins_data[1+idim*2][bin] < rebin_vars_bound[1+idim*2])
+                    bins_data[1+idim*2][bin] = binsr[idim][binsr[idim].size()-1];
+            }
             rebin[bin].resize(binsl[0].size());
             std::vector<int> match_l(ndim, 0);
             std::vector<int> match_r(ndim, 0);
