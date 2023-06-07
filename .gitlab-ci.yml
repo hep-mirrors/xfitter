@@ -1,7 +1,7 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel git-lfs
   #eigen3-devel gflags-devel glog-devel
   - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   
@@ -33,6 +33,9 @@ job-install-full:
     - rm -rf temp-datafiles
     - cd datafiles
     - git reset --hard HEAD
+    - git lfs install
+    - git lfs fetch
+    - git lfs checkout
     - cd -
     - ./tools/test.sh
   artifacts:
