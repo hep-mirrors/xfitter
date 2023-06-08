@@ -38,7 +38,7 @@ class RawVec {
 
   void setCoeff(double val) { coeff = val; }
 
-  void increaseCoeff(double val) { cout << "ha4: " << coeff << ", " << val << endl; coeff += val; }
+  void increaseCoeff(double val) { coeff += val; }
 
   void increaseXSecInPlace(valarray<double>& xsec);
 

@@ -85,8 +85,8 @@ void ReactionEFT::initTerm(TermData* td) {
     EFT_terms[ID]->debug = td->getParamI("Debug");
 
   if ( td->hasParam("AbsOutput") ) {
-    cout << "Find AbsOutput----------------------"  << endl;
     string s1 = td->getParamS("AbsOutput");
+
     if (s1[0] == 'T' || s1[0] == 't') {
       EFT_terms[ID]->abs_output = true;
       if ( EFT_terms[ID]->input_type == "fixed" )
@@ -95,7 +95,6 @@ void ReactionEFT::initTerm(TermData* td) {
   }
 
   if ( td->hasParam("NoCentral") ) {
-    cout << "Find NoCentral----------------------"  << endl;
     string s1 = td->getParamS("NoCentral");
 
     if (s1[0] == 'T' || s1[0] == 't')

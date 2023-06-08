@@ -435,19 +435,16 @@ void EFTReader::book() {
   for (size_t i=0; i < num_param; ++i) {
     // l
     double vi = val_EFT_param[i];
-    cout << "ha6-l: " << i << ", " << vi << endl;
     basis[i+1]->book(vi);
 
     // q
     if (basis.count((i+1)*101) > 0)  {
-      cout << "ha6-q: " << i << ", " << vi << endl;
       basis[(i+1)*101]->book(vi*vi);
     }
     
     // m
     for (size_t j=i+1; j < num_param; ++j) {
       if (basis.count((i+1)*100+j+1) > 0) {
-	cout << "ha6-m: " << i << j << ", " << vi << ", " << val_EFT_param[j] << endl;
 	basis[100*(i+1)+j+1]->book(vi * val_EFT_param[j]);
       }
     }
@@ -492,8 +489,6 @@ void EFTReader::calcXSecMixed(valarray<double>& xsec) {
   prvec_C->increaseXSecInPlace(xsec);
 
   for (auto prvec : raw_basis) {
-    // cout << "ha9: " << prvec->type << ", " << prvec->param_name1 << endl;
-    // cout << "ha8: " << xsec[0] << endl;
     prvec->increaseXSecInPlace(xsec);
   }
 
