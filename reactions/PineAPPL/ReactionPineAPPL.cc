@@ -26,6 +26,7 @@ struct DatasetData {
     int Nbins;
     int Nord;
     int Nlumi;
+    double energyRescale;
     vector<bool> ordervec;
     vector<bool> lumivec;
     vector<std::string> GridNames;
@@ -138,6 +139,14 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         else if (norm!=0) hf_errlog(22121202, "F: unrecognised norm = " + norm);
     }
     size_t Ngrids = data->grids.size();
+
+    // Get CMS energy (by default the one used to create the grid is used)
+    if(td->hasParam("energyRescale")) {
+        data->energyRescale = *td->getParamD("energyRescale");
+    }
+    else {
+        data->energyRescale = 1.0;
+    }
 
     // rebin
     if (td->hasParam("rebin")) {
@@ -295,7 +304,8 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
         vector<double> gridVals;
         gridVals.resize(data.Nbins);
 
-        if (grid and _convolved.find(data.GridNames[igrid]) == _convolved.end()) {//real, non-dummy grid
+        std::string grid_name_and_energy = data.GridNames[igrid] + std::string("_energy_") + std::to_string(data.energyRescale);
+        if (grid && _convolved.find(grid_name_and_energy) == _convolved.end()) {//real, non-dummy grid
             td->actualizeWrappers();
 
             //Pineappl assumes PDF and alphaS wrapper function pointers
@@ -303,12 +313,14 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
             //values were read from there. Here, call existing wrappers 
             //rearranging parameter list & return value to suit pineappl 
             //convolution function.
+            //const auto& energyRescale = data.energyRescale;
             auto xfx = [](int32_t id_in, double x, double q2, void *state) {
                 //return 0.01;
                 //printf("SZ xfx id_in,q2,x = %d,%f,%f\n", id_in, q2, x);
                 double pdfs[13];
                 int32_t id = id_in==21 ? 6 : id_in+6;
-                pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
+                double energyRescale = *((double*)state);
+                pdf_xfxq_wrapper_(x*energyRescale, sqrt(q2), pdfs);
                 return pdfs[id];
             };
             auto alphas = [](double q2, void *state) {
@@ -319,7 +331,7 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
             //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
             pineappl_grid_convolute_with_one(grid, PDGID, 
                                              xfx, alphas, 
-                                             nullptr,//"state" provided to wrappers, redundant in xFitter
+                                             (void*)&data.energyRescale,//"state" is energyRescale
                                              data.Nord>0 ? order_mask : nullptr,
                                              data.Nlumi>0 ? lumi_mask : nullptr,
                                              muR, muF, gridVals.data());
@@ -328,12 +340,12 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
                 vector<double> bin_sizes;
                 bin_sizes.resize(pineappl_grid_bin_count(grid));
                 pineappl_grid_bin_normalizations(grid, bin_sizes.data());
-                gridVals[i] *= bin_sizes[i];
+                gridVals[i] *= bin_sizes[i]*std::pow(data.energyRescale, 2.);
             }
-            _convolved.insert(std::make_pair(data.GridNames[igrid], gridVals));
+            _convolved.insert(std::make_pair(grid_name_and_energy, gridVals));
         }
         else {
-            gridVals = _convolved[data.GridNames[igrid]];
+            gridVals = _convolved[grid_name_and_energy];
         }
         // insert values from this grid into output array
         copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
