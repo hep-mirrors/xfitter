@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
+#include <valarray>
 #include <cstdlib>
 #include <map>
 #include "Vec.h"

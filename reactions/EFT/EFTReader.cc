@@ -43,7 +43,7 @@ void EFTReader::read_fixed_input() {
 
     // read linear coefficients
     for (size_t i=1; i <= num_param; i++) {
-      string param_name = name_EFT_param[i];
+      string param_name = name_EFT_param[i-1];
 
       if (coeff_node[param_name]) {
 	// check the number of bins
