@@ -19,6 +19,9 @@ class RawVec {
   double coeff = 0.0;
   vector<string> grid_file_list;
   vector<double> ratio_list;
+  int pdg_id = 2212;
+  double xi_ren = 1.0; // renom. scale
+  double xi_fac = 1.0; // fact. scale
 
  public:
   int type = 4;
@@ -43,6 +46,11 @@ class RawVec {
 
   void increaseXSecInPlace(valarray<double>& xsec);
 
+  void setScaleRen(double xi_ren_in) {xi_ren = xi_ren_in};
+
+  void setScaleFac(double xi_fac_in) {xi_fac = xi_fac_in};
+
+  void setPDGId(int id) {pdg_id = id};
 };
 
 /////////////////////////////////////////////////////////////////////////////
