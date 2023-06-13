@@ -225,9 +225,9 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         for(size_t bin = 0; bin < bins_data[0].size(); bin++) {
             //printf("bin = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bin, bins_data[2][bin], bins_data[3][bin], bins_data[0][bin], bins_data[1][bin]);
             for (int idim = 0; idim < ndim; idim++) {
-                if (!std::isnan(rebin_vars_bound[0+idim*2]) && bins_data[0+idim*2][bin] < rebin_vars_bound[0+idim*2])
+                if (!std::isnan(rebin_vars_bound[0+idim*2]) && bins_data[0+idim*2][bin] <= rebin_vars_bound[0+idim*2])
                     bins_data[0+idim*2][bin] = binsl[idim][0];
-                if (!std::isnan(rebin_vars_bound[1+idim*2]) && bins_data[1+idim*2][bin] < rebin_vars_bound[1+idim*2])
+                if (!std::isnan(rebin_vars_bound[1+idim*2]) && bins_data[1+idim*2][bin] <= rebin_vars_bound[1+idim*2])
                     bins_data[1+idim*2][bin] = binsr[idim][binsr[idim].size()-1];
             }
             rebin[bin].resize(binsl[0].size());
