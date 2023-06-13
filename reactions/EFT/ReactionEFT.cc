@@ -4,6 +4,7 @@
    */
 
 #include "ReactionEFT.h"
+#include <chrono>
 
 //______________________________________________________________________________
 // the class factories
@@ -112,35 +113,39 @@ void ReactionEFT::initTerm(TermData* td) {
 // Main function to compute results at an iteration
 void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valarray<double> > &err)
 {
+  auto startTime = std::chrono::high_resolution_clock::now();
+
   td->actualizeWrappers();
 
   EFTReader* EFT_term = EFT_terms[td->id];
-
-  // X.S.: getParamD returns a pointer, is this address fixed?
-  //vector<double> val_EFT_param;  
   valarray<double> val_EFT_param(100);  
-  // val_EFT_param.reserve(EFT_term->num_param);
 
   int i=0;
   for (string EFT_param : EFT_term->name_EFT_param) {
-    // val_EFT_param.push_back(*td->getParamD(EFT_param));
+    // X.S.: getParamD returns a pointer, is this address fixed?
     val_EFT_param[i] = *td->getParamD(EFT_param);
     i++;
   }
 
   EFT_term->initIter(val_EFT_param);
+  auto endTime1 = std::chrono::high_resolution_clock::now();
 
   EFT_term->calcXSec(val);
 
+
   if (debug > 0) {
     std::cout << "=======================================================" << std::endl;
-    std::cout << "ReactionEFT.compute: cross section: " << std::endl;
+    std::cout << "ReactionEFT.compute: " ;
     for (double v : val){
       std::cout << v << ", ";
     }
     std::cout << std::endl;
+
+    auto endTime2 = std::chrono::high_resolution_clock::now();
+    auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime1 - startTime).count();
+    auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime2 - endTime1).count();
+    std::cout << "Time cost(milliseconds): " << duration1 << ", " << duration2 << std::endl;
   }
       
-  // for ( std::size_t i=0; i<val.size(); i++) val[i] = (i<cs.size()) ? cs[i] : 0.;
 
 }

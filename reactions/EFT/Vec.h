@@ -34,7 +34,13 @@ class RawVec {
 
   ///////////////////////////////////////////////////////
   // RawVec (YAML::const_iterator node, string key);
-  RawVec (YAML::Node node, string key);
+  RawVec (YAML::Node node, string key, string grid_dir);
+
+  RawVec (YAML::Node node, string key, string grid_dir, double xi_ren_in, double xi_fac_in) {
+    xi_ren = xi_ren_in;
+    xi_fac = xi_fac_in;
+    RawVec(node, key, grid_dir);
+  }
 
   void FR2FA(vector<double> val_list_C);
 

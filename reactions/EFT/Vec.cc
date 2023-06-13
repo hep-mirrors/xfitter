@@ -57,7 +57,7 @@ void Vec::book(double val) {
 /////////////////////////////////////////////////////////////////////////////
 // RawVec
 /////////////////////////////////////////////////////////////////////////////
-RawVec::RawVec (YAML::Node node, string key) {
+RawVec::RawVec (YAML::Node node, string key, string grid_dir) {
   // RawVec::RawVec (YAML::const_iterator node, string key) {
   // key: tag for the current entry; only used for issuing errors
 
@@ -110,8 +110,10 @@ RawVec::RawVec (YAML::Node node, string key) {
     }
     else if (format == "FA")
       value_list = node["xsec"].as<vector<double> >();
-    else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid")
-      grid_file_list = node["xsec"].as<vector<string> >();
+    else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid") {
+      for (string filepath: node["xsec"].as<vector<string> >())
+	grid_file_list.push_back(grid_dir + "/" + filepath);
+    }
     else
       cout << "Error: grid format not support" << endl;
   }

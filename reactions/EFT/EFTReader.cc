@@ -115,16 +115,30 @@ void EFTReader::read_mixed_input(){
   assert (node.Type() == YAML::NodeType::Map);
 
   // the info entry
+  string grid_dir = "/";
+  double xi_ren = 1.0;
+  double xi_fac = 1.0;
+
   if (node["info"]) {
     if (node["info"]["num_bin"])
       num_bin = node["info"]["num_bin"].as<size_t>();
     else
       hf_errlog(23060102, "F: please provide `num_bin` in the `info` entry");
+    
+    if (node["info"]["grid_dir"])
+      grid_dir = node["info"]["grid_dir"].as<string>();
+
+    if (node["info"]["xi_ren"])
+      xi_ren = node["info"]["xi_ren"].as<double>();
+
+    if (node["info"]["xi_fac"])
+      xi_fac = node["info"]["xi_fac"].as<double>();
   }
   else
     hf_errlog(23060101, "F: please provide the `info` entry in the mixed input file");
 
-  // 
+
+  // check all other entries
   for (YAML::const_iterator it=node.begin(); it!=node.end(); ++it ) {
 
     string entry_name = it->first.as<string>() ;
@@ -148,7 +162,7 @@ void EFTReader::read_mixed_input(){
     // C term
     if (type == "C") {
       assert (prvec_C == nullptr);
-      prvec_C = new RawVec(entry, entry_name);
+      prvec_C = new RawVec(entry, entry_name, grid_dir);
       assert (prvec_C->format != "FR");
     }
     else if (type=="l" || type=="L" || type=="q" || type=="Q") {
@@ -161,7 +175,7 @@ void EFTReader::read_mixed_input(){
 	  basis.insert(make_pair(id, new Vec(1)));
 	}
 
-	RawVec* prvec = new RawVec(entry, entry_name);
+	RawVec* prvec = new RawVec(entry, entry_name, grid_dir);
 	raw_basis.push_back(prvec);
 	basis[id]->addIng(prvec, 1.0);
       }
@@ -189,7 +203,7 @@ void EFTReader::read_mixed_input(){
 	assert(basis.count(i1*100+i2) == 0);
 	basis.insert(make_pair(i1*100+i2, new Vec(2)));
 	
-	RawVec* prvec = new RawVec(entry, entry_name);
+	RawVec* prvec = new RawVec(entry, entry_name, grid_dir);
 	raw_basis.push_back(prvec);
 	basis[i1*100+i2]->addIng(prvec, 1.0);
       }
