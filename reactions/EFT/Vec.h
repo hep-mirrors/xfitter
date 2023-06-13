@@ -46,11 +46,11 @@ class RawVec {
 
   void increaseXSecInPlace(valarray<double>& xsec);
 
-  void setScaleRen(double xi_ren_in) {xi_ren = xi_ren_in};
+  void setScaleRen(double xi_ren_in) {xi_ren = xi_ren_in; }
 
-  void setScaleFac(double xi_fac_in) {xi_fac = xi_fac_in};
+  void setScaleFac(double xi_fac_in) {xi_fac = xi_fac_in; }
 
-  void setPDGId(int id) {pdg_id = id};
+  void setPDGId(int id) {pdg_id = id; }
 };
 
 /////////////////////////////////////////////////////////////////////////////

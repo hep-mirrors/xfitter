@@ -227,18 +227,17 @@ void RawVec::convolute() {
                          nullptr, // order mask
                          nullptr, // lumi mask
                          xi_ren, xi_fac,
-                         val_list.data() + shift_bins);
+                         value_list.data() + shift_bins);
 
       shift_bins += pineappl_grid_bin_count(pgrid);
     } // end of loop over all grid files
 
     // todo: debug
-    // print val_list
+    // print value_list
 
     // free the grids
     for (auto p: pgrid_list)
       pineappl_grid_delete(p);
-    delete pgrid_list;
   }
   /////////////////////////////////////////////////////////////////////////////
   // for APPLgrid
