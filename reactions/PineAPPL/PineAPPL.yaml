@@ -1,0 +1,8 @@
+#PineAPPL:
+  muF: 1.0
+  muR: 1.0
+  norm: 0
+  #OrderMask : "1,0,0"
+  #LumiMask : "1,0,0"
+  #^Formatting example. Comment masks out to use all in grid;
+  #otherwise their lengths must agree w/ order and lumi counts in grid

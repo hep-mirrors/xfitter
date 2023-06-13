@@ -39,6 +39,7 @@ find_package(Hathor)
 find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
+find_package(PineAPPL)
 
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
@@ -172,6 +173,7 @@ add_subdirectory(reactions/HathorSingleTop)
 add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
+add_subdirectory(reactions/PineAPPL)
 
 #Tools
 add_subdirectory(tools/draw/src)

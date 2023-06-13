@@ -12,10 +12,17 @@ apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
 dyturbover=1.2
+pineapplver="0.6.0-alpha.17"
+rustver=1.66.0
+cargocver=0.9.14
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
 skip_dyturbo=1
+skip_rust=1
+skip_pineappl=1
+# fetch precompiled files for pineappl if possible, avoiding heavy rust deps
+pineappl_lite=1
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -147,6 +154,8 @@ then
     if [[ $? == 0 ]]
     then
         echo "Detected Mac OS X system"
+        rusttag="apple-darwin"
+        # TODO is there a mac command to check "arch" as in "Ubuntu" case below? Needed for rust.
         MODE=local
     else
         SYS=$(echo `lsb_release -i |cut -d: -f2`)
@@ -163,6 +172,7 @@ then
             rootversion=5.34.36
             boostver=1.53.0
             pyth=2.7
+            rusttag="unknown-linux-gnu"
         elif [[ $SYS == CentOS* && $ver == 7.* ]]
         then
             echo "Detected CentOS7 Linux distribution"
@@ -174,9 +184,15 @@ then
             rootversion=6.06.08
             boostver=1.53.0
             pyth=2.7
+            rusttag="unknown-linux-gnu"
         elif [[ $SYS == "Ubuntu" ]]
         then
             echo "Detected Ubuntu distribution"
+            rusttag="unknown-linux-gnu"
+            if [[ $arch == "" ]]
+            then
+                arch=`uname -m`
+            fi
             MODE=local
         elif [[ -e /cvmfs/sft.cern.ch ]]
 	then
@@ -214,6 +230,25 @@ then
         fi
     fi
 fi
+
+#Require full PineAPPL installation if precompiled files not available
+if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu" ]]; then
+    echo "Unsupported architecture or rust version, installing pineappl from scratch"
+    pineappl_lite=0
+fi
+if [[ $skip_pineappl == 0 ]] && [[ pineappl_lite == 1 ]]; then
+    glibcminver=2.17  #Pineappl precompiled using this version
+    glibcmaxver=2.31  #Highest version pineappl light installation checked with
+    glibcver=`ldd --version | awk '{if (NR==1) print $NF}'`
+    echo "Found GLIBC version "${glibcver}
+    if [[ $glibcver < $glibcminver || $glibcver > $glibcmaxver ]]; then
+        echo "Incompatible version of glibc, installing pineappl from scratch"
+        pineappl_lite=0
+        skip_rust=0
+    fi
+fi
+
+
 if [[ $MODE == "cern" ]]
     then
     if [[ ! -e /cvmfs/sft.cern.ch ]]
@@ -593,8 +628,66 @@ else
       fi
       cd - >& /dev/null
     fi
+    
+ # rust
+    if [[ $skip_rust == 0 ]]; then
+        echo "Installing Rust $rustver..."
+        rust_url=https://static.rust-lang.org/dist/rust-${rustver}-${arch}-${rusttag}.tar.gz
+        if [[ $http == "curl" ]]
+        then
+            curl ${rust_url} > rust-${rustver}-${arch}-${rusttag}.tar.gz 2>> $CURRENTDIR/install.log
+        else
+            wget --no-check-certificate ${rust_url} >> $CURRENTDIR/install.log 2>&1
+        fi
+        tar xzf rust-${rustver}-${arch}-${rusttag}.tar.gz >> $CURRENTDIR/install.log  2>&1
+        cd rust-${rustver}-${arch}-${rusttag}
+        ./install.sh --prefix=$CURRENTDIR/deps/rust
+        export PATH=$CURRENTDIR/deps/rust/bin:$PATH
+        export LD_LIBRARY_PATH=$CURRENTDIR/deps/rust/lib/:$LD_LIBRARY_PATH
+        
+        # cargo-c needed for pineappl c-interface
+        echo "Installing cargo-c..."
+        cargo install --version ${cargocver} cargo-c
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        cd - >& /dev/null
+        export CARGODIR=$HOME/.cargo
+        export PATH=$CARGODIR/bin:$PATH 
+    fi
+    
+ # pineappl:
+    if [[ $skip_pineappl == 0 ]]; then
+        echo "Installing PineAPPL $pineapplver..."
+        
+        if [[ $pineappl_lite == 1 ]]; then
+            mkdir $CURRENTDIR/deps/pineappl
+            PINEAPPL_URL=https://github.com/NNPDF/pineappl/releases/download
+            wget --no-check-certificate "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz -O- | tar xzf - -C "$CURRENTDIR/deps/pineappl"
+            sed -i s:prefix=/:prefix=$CURRENTDIR/deps/pineappl: "$CURRENTDIR/deps/pineappl"/lib/pkgconfig/pineappl_capi.pc            
+        else
+            PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
+            git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
+            cd pineappl/pineappl_capi
+            cargo cinstall --release --prefix=$CURRENTDIR/deps/pineappl
+            if [[ $? != 0 ]]
+            then
+                echo "Error, check install.log for details"
+                exit
+            fi
+        fi
+        
+        cd - >& /dev/null
+        
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/lhapdf/lib/pkgconfig
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
+    fi
 fi
 cd $CURRENTDIR
+
 
  #xfitter
 if [[ $mode != "deps" ]]
@@ -626,6 +719,12 @@ fi
 echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
+if [[ $skip_rust == 0 ]]; then
+    echo "export CARGODIR=\$HOME/.cargo" >> setup.sh
+    echo "export PATH=\$CURRENTDIR/deps/rust/bin:\$PATH" >> setup.sh
+    echo "export PATH=\$CARGODIR/bin:\$PATH" >> setup.sh
+    echo "export LD_LIBRARY_PATH=\$CURRENTDIR/deps/rust/lib/:\$LD_LIBRARY_PATH" >> setup.sh
+fi
 echo "export PATH=$CURRENTDIR/xfitter-$version/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
@@ -634,11 +733,19 @@ echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
+if [[ $skip_rust == 0 ]]; then
+    echo "export PATH=$CARGODIR/bin:\$PATH" >> setup.sh 
+fi
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
 rm /tmp/xf_py1234_a
 
+if [[ $skip_pineapple == 0 ]]; then
+    echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
+    echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/pineappl/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
+    echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH >> setup.sh
+fi
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/hoppet/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
