@@ -54,6 +54,12 @@ namespace xfitter
 
     /// write out extra files to do MC reweighting
     void addMCweightsFiles(std::string const& pdfName, std::vector<double>& chi2vals, int ndata, int nrep);
+
+    /// Compute using fork()
+    void compute_parallel(int NALL, int NPRED, int first, int iPdfSet,
+			std::vector< std::valarray<double> >& preds,
+			std::vector< double >& chi2vals,
+			  YAML::Node gNode, BaseEvolution* evol, const std::string& errorType);
     
     /// continuous nuisance parameter number for PDFs (if several are used)
     int _ipdf{0};
@@ -72,6 +78,9 @@ namespace xfitter
 
     /// output directory name
     string _outputDir{"output"};
+
+    /// number of processes to use by "fork"
+    int _ncpu{0};
 
   };
   
