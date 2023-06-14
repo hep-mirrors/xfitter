@@ -16,6 +16,7 @@ using namespace std;
 
 class RawVec {
  private:
+  size_t num_bin;
   double coeff = 0.0;
   vector<string> grid_file_list;
   vector<double> ratio_list;
@@ -34,12 +35,13 @@ class RawVec {
 
   ///////////////////////////////////////////////////////
   // RawVec (YAML::const_iterator node, string key);
-  RawVec (YAML::Node node, string key, string grid_dir);
+  RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir);
 
-  RawVec (YAML::Node node, string key, string grid_dir, double xi_ren_in, double xi_fac_in) {
+  RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir, 
+          double xi_ren_in, double xi_fac_in) {
     xi_ren = xi_ren_in;
     xi_fac = xi_fac_in;
-    RawVec(node, key, grid_dir);
+    RawVec(node, key, num_bin, grid_dir);
   }
 
   void FR2FA(vector<double> val_list_C);

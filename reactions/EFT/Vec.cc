@@ -57,10 +57,11 @@ void Vec::book(double val) {
 /////////////////////////////////////////////////////////////////////////////
 // RawVec
 /////////////////////////////////////////////////////////////////////////////
-RawVec::RawVec (YAML::Node node, string key, string grid_dir) {
+RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir) {
   // RawVec::RawVec (YAML::const_iterator node, string key) {
   // key: tag for the current entry; only used for issuing errors
 
+  num_bin = num_bin_in;
   ///////////////////////////////////////////////////////
   // read type
   if (node["type"]) {
@@ -80,10 +81,10 @@ RawVec::RawVec (YAML::Node node, string key, string grid_dir) {
     else if (typeS == "M")
       type = -3;
     else
-      cout << "invalid type" << endl;
+      hf_errlog(23061505, "S: invalid type for entry " + key);
   }
   else {
-    cout << "Error: entry type not given: " << key << endl;
+    hf_errlog(23061505, "S: type not given for entry " + key);
   }
   ///////////////////////////////////////////////////////
   // read xiF, xiR, pdg_id
@@ -100,25 +101,38 @@ RawVec::RawVec (YAML::Node node, string key, string grid_dir) {
   if (node["format"]) 
     format = node["format"].as<string>();
   else
-    cout << "Error: entry format not given: " << key << endl;
+    hf_errlog(23061504, "S: format not given for entry " + key);
 
   if (node["xsec"]) {
     if (format == "FR") {
       ratio_list = node["xsec"].as<vector<double> >();
-      for (size_t i=0; i<ratio_list.size(); i++)
+
+      if (ratio_list.size() != num_bin) {
+	hf_errlog(23061501, "S: length of xsec does not match info:num_bin for entry " + key);
+      }
+
+      for (size_t i=0; i<num_bin; i++)
 	value_list.push_back(0.0);
     }
-    else if (format == "FA")
+    else if (format == "FA") {
       value_list = node["xsec"].as<vector<double> >();
+
+      if (ratio_list.size() != num_bin) {
+	hf_errlog(23061501, "S: length of xsec does not match info:num_bin for entry " + key);
+      }
+    }
     else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid") {
+      for (size_t i=0; i<num_bin; i++)
+	value_list.push_back(0.0);
+
       for (string filepath: node["xsec"].as<vector<string> >())
 	grid_file_list.push_back(grid_dir + "/" + filepath);
     }
     else
-      cout << "Error: grid format not support" << endl;
+      hf_errlog(23061503, "S: grid format not support for entry " + key);
   }
   else
-    cout << "Error: values(grids) for fixed input(mixed) not given: " << key  << endl;
+    hf_errlog(23061502, "S: cross section(grids) for fixed input(mixed) not given for entry " + key);
 
   ///////////////////////////////////////////////////////      
   // read EFT parameters

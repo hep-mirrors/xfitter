@@ -162,7 +162,7 @@ void EFTReader::read_mixed_input(){
     // C term
     if (type == "C") {
       assert (prvec_C == nullptr);
-      prvec_C = new RawVec(entry, entry_name, grid_dir);
+      prvec_C = new RawVec(entry, entry_name, num_bin, grid_dir);
       assert (prvec_C->format != "FR");
     }
     else if (type=="l" || type=="L" || type=="q" || type=="Q") {
@@ -175,7 +175,7 @@ void EFTReader::read_mixed_input(){
 	  basis.insert(make_pair(id, new Vec(1)));
 	}
 
-	RawVec* prvec = new RawVec(entry, entry_name, grid_dir);
+	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir);
 	raw_basis.push_back(prvec);
 	basis[id]->addIng(prvec, 1.0);
       }
@@ -203,7 +203,7 @@ void EFTReader::read_mixed_input(){
 	assert(basis.count(i1*100+i2) == 0);
 	basis.insert(make_pair(i1*100+i2, new Vec(2)));
 	
-	RawVec* prvec = new RawVec(entry, entry_name, grid_dir);
+	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir);
 	raw_basis.push_back(prvec);
 	basis[i1*100+i2]->addIng(prvec, 1.0);
       }
