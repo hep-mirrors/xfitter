@@ -85,7 +85,8 @@ void ReactionAPPLgrid::initTerm(TermData*td){
     if(norm==1){
       data->flagNorm=true;
     }else if(norm!=0){
-      hf_errlog(17102102, "F: unrecognised norm = " + norm);
+      hf_errlog(17102102, "F: unrecognised norm = " + std::to_string(norm));
+      //      hf_errlog(17102102, "F: unrecognised norm = " + norm);
     }
   }
   size_t Ngrids=data->grids.size();

@@ -20,10 +20,10 @@ class ReactionNC_SIA : public ReactionTheory
  public:
   ReactionNC_SIA() {};
 
-  virtual string getReactionName() const { return "NC_SIA"; };
+  virtual string getReactionName() const override { return "NC_SIA"; };
   virtual void atStart() override final;
   virtual void atIteration() override final;
-  virtual void initTerm(TermData *td)override final;
+  virtual void initTerm(TermData *td) override final;
   virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &err) override;
  protected:
   enum class dataObs
