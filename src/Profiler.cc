@@ -158,6 +158,10 @@ namespace xfitter
 
     if (node["threads"]) {
       _ncpu =  node["threads"].as<int>();
+      if (_ncpu == -1) {
+        _ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+        hf_errlog(2023061401,"I: Will use "+std::to_string(_ncpu)+" threads");
+      }
     }
     
     //rescaling  PDF eigenvectors
