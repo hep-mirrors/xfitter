@@ -219,7 +219,13 @@ int TEST_save_load_lhapdf6_member() {
         pdf.pdf_flavours[1][0]=-2;
         pdf.pdf_flavours[1][1]=2;
 
-        char *path=tmpnam(NULL);
+	//        char *path=tmpnam(NULL);
+	char path[] = "/tmp/tempfileXXXXXX";
+	int fd = mkstemp(path);
+	if (fd == -1) {
+	  perror("mkstemp");
+	  return 1;
+	}
         save_lhapdf6_member(&pdf, path);
         Pdf loaded;
         load_lhapdf6_member(&loaded, path);
@@ -389,7 +395,13 @@ int TEST_save_load_lhapdf6_set() {
         for(iq=0; iq< pdf_set.members[0].nq[0] ; iq++)
         for(ifl=0; ifl< pdf_set.members[0].n_pdf_flavours[0] ; ifl++) pdf_set.members[1].val[0][ix][iq][ifl]=3.3;
 
-        char *path=tmpnam(NULL);
+        //char *path=tmpnam(NULL);
+	char path[] = "/tmp/tempfileXXXXXX";
+        int fd = mkstemp(path);
+        if (fd == -1) {
+          perror("mkstemp");
+          return 1;
+        }
         save_lhapdf6_set(&pdf_set, path);
         PdfSet loaded;
         load_lhapdf6_set(&loaded, path);

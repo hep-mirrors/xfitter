@@ -1,17 +1,17 @@
-After minimisation    1363.45  1151     1.185
+After minimisation    1363.18  1151     1.184
 
   Partial chi2s 
 Dataset    1      9.88( +0.00)    23  CMS 13TeV ttbar [Njet,M(ttbar),y(ttbar)] cross s
-Dataset    2    448.33( +1.35)   377  HERA1+2 NCep 920                                
-Dataset    3     70.87( -1.37)    70  HERA1+2 NCep 820                                
+Dataset    2    448.17( +1.37)   377  HERA1+2 NCep 920                                
+Dataset    3     70.86( -1.36)    70  HERA1+2 NCep 820                                
 Dataset    4    223.25( -3.17)   254  HERA1+2 NCep 575                                
 Dataset    5    221.59( -4.44)   204  HERA1+2 NCep 460                                
-Dataset    6    216.83( -1.56)   159  HERA1+2 NCem                                    
+Dataset    6    216.72( -1.55)   159  HERA1+2 NCem                                    
 Dataset    7     38.47( +0.18)    39  HERA1+2 CCep                                    
-Dataset    8     55.18( -2.43)    42  HERA1+2 CCem                                    
+Dataset    8     55.17( -2.43)    42  HERA1+2 CCem                                    
 
- Correlated Chi2    90.478494456281993     
- Log penalty Chi2   -11.431184425708663     
+ Correlated Chi2    90.463668199178670     
+ Log penalty Chi2   -11.396522268327187     
  Systematic shifts          324
   
                                 Name          Shift   +/-    Error          Type
@@ -170,172 +170,172 @@ Dataset    8     55.18( -2.43)    42  HERA1+2 CCem
   153  CMSTOP18004_UETUNE_UP                  0.3223   +/-   0.6958        :N:A:D
   154  CMSTOP18004_UNCLUSTERED_DOWN          -0.6424   +/-   0.9192        :N:A:D
   155  CMSTOP18004_UNCLUSTERED_UP            -0.1451   +/-   0.9228        :N:A:D
-  156  sysHZComb1001                          0.1146   +/-   0.9327        :N:M:D
-  157  sysHZComb1002                         -0.5461   +/-   0.9364        :N:M:D
-  158  sysHZComb1003                          1.4470   +/-   0.5571        :N:M:D
+  156  sysHZComb1001                          0.1152   +/-   0.9327        :N:M:D
+  157  sysHZComb1002                         -0.5460   +/-   0.9364        :N:M:D
+  158  sysHZComb1003                          1.4468   +/-   0.5571        :N:M:D
   159  sysHZComb1004                          0.5736   +/-   0.6190        :N:M:D
-  160  sysHZComb1005                          0.0482   +/-   0.6093        :N:M:D
-  161  sysHZComb1006                         -0.2209   +/-   0.7879        :N:M:D
+  160  sysHZComb1005                          0.0501   +/-   0.6093        :N:M:D
+  161  sysHZComb1006                         -0.2221   +/-   0.7879        :N:M:D
   162  sysHZComb1007                          0.1693   +/-   0.9982        :N:M:D
-  163  sysHZComb1008                          0.1004   +/-   0.9984        :N:M:D
-  164  sysHZComb1009                         -0.0152   +/-   0.9004        :N:M:D
-  165  sysHZComb1010                         -0.3026   +/-   0.9936        :N:M:D
-  166  sysHZComb1011                         -0.6365   +/-   0.9663        :N:M:D
-  167  sysHZComb1012                          0.5615   +/-   0.9722        :N:M:D
-  168  sysHZComb1013                         -0.5587   +/-   0.9621        :N:M:D
-  169  sysHZComb1014                         -0.1197   +/-   0.9876        :N:M:D
-  170  sysHZComb1015                         -0.0354   +/-   0.9635        :N:M:D
-  171  sysHZComb1016                         -0.2073   +/-   0.9749        :N:M:D
-  172  sysHZComb1017                         -0.5089   +/-   0.9710        :N:M:D
-  173  sysHZComb1018                          0.3072   +/-   0.8230        :N:M:D
-  174  sysHZComb1019                         -0.4297   +/-   0.9837        :N:M:D
-  175  sysHZComb1020                         -0.4824   +/-   0.9815        :N:M:D
-  176  sysHZComb1021                          0.0389   +/-   0.9745        :N:M:D
-  177  sysHZComb1022                          0.1817   +/-   0.9687        :N:M:D
-  178  sysHZComb1023                         -0.1159   +/-   0.9454        :N:M:D
-  179  sysHZComb1024                         -0.1081   +/-   0.9879        :N:M:D
+  163  sysHZComb1008                          0.1003   +/-   0.9984        :N:M:D
+  164  sysHZComb1009                         -0.0154   +/-   0.9004        :N:M:D
+  165  sysHZComb1010                         -0.3025   +/-   0.9936        :N:M:D
+  166  sysHZComb1011                         -0.6369   +/-   0.9663        :N:M:D
+  167  sysHZComb1012                          0.5616   +/-   0.9722        :N:M:D
+  168  sysHZComb1013                         -0.5590   +/-   0.9621        :N:M:D
+  169  sysHZComb1014                         -0.1196   +/-   0.9876        :N:M:D
+  170  sysHZComb1015                         -0.0353   +/-   0.9635        :N:M:D
+  171  sysHZComb1016                         -0.2074   +/-   0.9749        :N:M:D
+  172  sysHZComb1017                         -0.5088   +/-   0.9710        :N:M:D
+  173  sysHZComb1018                          0.3073   +/-   0.8230        :N:M:D
+  174  sysHZComb1019                         -0.4291   +/-   0.9837        :N:M:D
+  175  sysHZComb1020                         -0.4828   +/-   0.9815        :N:M:D
+  176  sysHZComb1021                          0.0391   +/-   0.9745        :N:M:D
+  177  sysHZComb1022                          0.1818   +/-   0.9687        :N:M:D
+  178  sysHZComb1023                         -0.1160   +/-   0.9454        :N:M:D
+  179  sysHZComb1024                         -0.1077   +/-   0.9879        :N:M:D
   180  sysHZComb1025                          0.1232   +/-   0.9934        :N:M:D
-  181  sysHZComb1026                         -0.8712   +/-   0.9206        :N:M:D
-  182  sysHZComb1027                         -0.8015   +/-   0.9546        :N:M:D
-  183  sysHZComb1028                          0.5609   +/-   0.9750        :N:M:D
-  184  sysHZComb1029                         -0.0535   +/-   0.9187        :N:M:D
-  185  sysHZComb1030                          0.0273   +/-   0.9439        :N:M:D
-  186  sysHZComb1031                         -0.3746   +/-   0.8393        :N:M:D
+  181  sysHZComb1026                         -0.8709   +/-   0.9206        :N:M:D
+  182  sysHZComb1027                         -0.8014   +/-   0.9546        :N:M:D
+  183  sysHZComb1028                          0.5610   +/-   0.9750        :N:M:D
+  184  sysHZComb1029                         -0.0536   +/-   0.9187        :N:M:D
+  185  sysHZComb1030                          0.0267   +/-   0.9439        :N:M:D
+  186  sysHZComb1031                         -0.3743   +/-   0.8393        :N:M:D
   187  sysHZComb1032                          0.3191   +/-   0.9644        :N:M:D
-  188  sysHZComb1033                          0.4611   +/-   0.9709        :N:M:D
-  189  sysHZComb1034                         -0.2711   +/-   0.9841        :N:M:D
-  190  sysHZComb1035                          0.1604   +/-   0.9782        :N:M:D
-  191  sysHZComb1036                         -0.2032   +/-   0.9744        :N:M:D
-  192  sysHZComb1037                          0.1409   +/-   0.9703        :N:M:D
-  193  sysHZComb1038                         -0.5631   +/-   0.9129        :N:M:D
-  194  sysHZComb1039                         -0.2668   +/-   0.9537        :N:M:D
-  195  sysHZComb1040                         -0.4716   +/-   0.9304        :N:M:D
-  196  sysHZComb1041                         -0.4067   +/-   0.8132        :N:M:D
+  188  sysHZComb1033                          0.4610   +/-   0.9709        :N:M:D
+  189  sysHZComb1034                         -0.2709   +/-   0.9841        :N:M:D
+  190  sysHZComb1035                          0.1600   +/-   0.9782        :N:M:D
+  191  sysHZComb1036                         -0.2030   +/-   0.9744        :N:M:D
+  192  sysHZComb1037                          0.1412   +/-   0.9703        :N:M:D
+  193  sysHZComb1038                         -0.5627   +/-   0.9129        :N:M:D
+  194  sysHZComb1039                         -0.2665   +/-   0.9537        :N:M:D
+  195  sysHZComb1040                         -0.4714   +/-   0.9304        :N:M:D
+  196  sysHZComb1041                         -0.4068   +/-   0.8132        :N:M:D
   197  sysHZComb1042                         -0.2741   +/-   0.8750        :N:M:D
-  198  sysHZComb1043                         -0.2517   +/-   0.9099        :N:M:D
-  199  sysHZComb1044                         -0.0344   +/-   0.9369        :N:M:D
-  200  sysHZComb1045                         -0.1581   +/-   0.9312        :N:M:D
-  201  sysHZComb1046                         -0.2215   +/-   0.9570        :N:M:D
-  202  sysHZComb1047                          0.0953   +/-   0.9472        :N:M:D
-  203  sysHZComb1048                         -0.1945   +/-   0.9612        :N:M:D
-  204  sysHZComb1049                         -0.7204   +/-   0.9462        :N:M:D
+  198  sysHZComb1043                         -0.2513   +/-   0.9099        :N:M:D
+  199  sysHZComb1044                         -0.0349   +/-   0.9369        :N:M:D
+  200  sysHZComb1045                         -0.1585   +/-   0.9312        :N:M:D
+  201  sysHZComb1046                         -0.2218   +/-   0.9570        :N:M:D
+  202  sysHZComb1047                          0.0943   +/-   0.9472        :N:M:D
+  203  sysHZComb1048                         -0.1933   +/-   0.9612        :N:M:D
+  204  sysHZComb1049                         -0.7191   +/-   0.9462        :N:M:D
   205  sysHZComb1050                          0.2048   +/-   0.9432        :N:M:D
-  206  sysHZComb1051                          0.2361   +/-   0.9525        :N:M:D
-  207  sysHZComb1052                          0.6955   +/-   0.9508        :N:M:D
-  208  sysHZComb1053                         -2.4603   +/-   0.9195        :N:M:D
-  209  sysHZComb1054                         -0.0997   +/-   0.9751        :N:M:D
+  206  sysHZComb1051                          0.2358   +/-   0.9525        :N:M:D
+  207  sysHZComb1052                          0.6956   +/-   0.9508        :N:M:D
+  208  sysHZComb1053                         -2.4598   +/-   0.9195        :N:M:D
+  209  sysHZComb1054                         -0.0995   +/-   0.9751        :N:M:D
   210  sysHZComb1055                         -1.6181   +/-   0.9060        :N:M:D
-  211  sysHZComb1056                         -1.3623   +/-   0.8907        :N:M:D
-  212  sysHZComb1057                          0.0797   +/-   0.9197        :N:M:D
-  213  sysHZComb1058                          0.1108   +/-   0.9435        :N:M:D
-  214  sysHZComb1059                         -0.7367   +/-   0.8702        :N:M:D
-  215  sysHZComb1060                          0.1050   +/-   0.9791        :N:M:D
+  211  sysHZComb1056                         -1.3614   +/-   0.8907        :N:M:D
+  212  sysHZComb1057                          0.0790   +/-   0.9197        :N:M:D
+  213  sysHZComb1058                          0.1105   +/-   0.9435        :N:M:D
+  214  sysHZComb1059                         -0.7364   +/-   0.8702        :N:M:D
+  215  sysHZComb1060                          0.1052   +/-   0.9791        :N:M:D
   216  sysHZComb1061                          0.1409   +/-   0.9831        :N:M:D
-  217  sysHZComb1062                         -1.4352   +/-   0.8954        :N:M:D
-  218  sysHZComb1063                          0.2728   +/-   0.8368        :N:M:D
-  219  sysHZComb1064                          0.5840   +/-   0.9295        :N:M:D
-  220  sysHZComb1065                         -0.8234   +/-   0.9470        :N:M:D
-  221  sysHZComb1066                         -0.6631   +/-   0.9322        :N:M:D
-  222  sysHZComb1067                          0.0064   +/-   0.9639        :N:M:D
-  223  sysHZComb1068                         -0.3932   +/-   0.9202        :N:M:D
-  224  sysHZComb1069                         -0.0622   +/-   0.9127        :N:M:D
-  225  sysHZComb1070                          0.3476   +/-   0.9077        :N:M:D
-  226  sysHZComb1071                         -1.2658   +/-   0.8579        :N:M:D
-  227  sysHZComb1072                          0.0403   +/-   0.9704        :N:M:D
-  228  sysHZComb1073                          0.1320   +/-   0.9039        :N:M:D
-  229  sysHZComb1074                         -0.0958   +/-   0.9353        :N:M:D
-  230  sysHZComb1075                          0.1461   +/-   0.8655        :N:M:D
-  231  sysHZComb1076                         -0.1525   +/-   0.9607        :N:M:D
-  232  sysHZComb1077                         -0.6422   +/-   0.9612        :N:M:D
-  233  sysHZComb1078                         -0.0333   +/-   0.9757        :N:M:D
-  234  sysHZComb1079                          0.0501   +/-   0.8848        :N:M:D
-  235  sysHZComb1080                         -0.5351   +/-   0.9253        :N:M:D
-  236  sysHZComb1081                         -0.2840   +/-   0.8877        :N:M:D
-  237  sysHZComb1082                         -0.8244   +/-   0.8387        :N:M:D
-  238  sysHZComb1083                         -1.2287   +/-   0.8906        :N:M:D
-  239  sysHZComb1084                          0.3201   +/-   0.9685        :N:M:D
-  240  sysHZComb1085                         -0.1752   +/-   0.8690        :N:M:D
-  241  sysHZComb1086                         -0.2119   +/-   0.7925        :N:M:D
-  242  sysHZComb1087                         -0.5325   +/-   0.8601        :N:M:D
-  243  sysHZComb1088                          0.2227   +/-   0.9912        :N:M:D
-  244  sysHZComb1089                         -0.1563   +/-   0.9612        :N:M:D
-  245  sysHZComb1090                          0.4842   +/-   0.9431        :N:M:D
-  246  sysHZComb1091                          0.6627   +/-   0.8876        :N:M:D
-  247  sysHZComb1092                          0.5823   +/-   0.8097        :N:M:D
-  248  sysHZComb1093                          0.2121   +/-   0.7911        :N:M:D
+  217  sysHZComb1062                         -1.4354   +/-   0.8954        :N:M:D
+  218  sysHZComb1063                          0.2720   +/-   0.8368        :N:M:D
+  219  sysHZComb1064                          0.5835   +/-   0.9295        :N:M:D
+  220  sysHZComb1065                         -0.8224   +/-   0.9470        :N:M:D
+  221  sysHZComb1066                         -0.6617   +/-   0.9322        :N:M:D
+  222  sysHZComb1067                          0.0074   +/-   0.9639        :N:M:D
+  223  sysHZComb1068                         -0.3919   +/-   0.9202        :N:M:D
+  224  sysHZComb1069                         -0.0639   +/-   0.9127        :N:M:D
+  225  sysHZComb1070                          0.3501   +/-   0.9077        :N:M:D
+  226  sysHZComb1071                         -1.2637   +/-   0.8579        :N:M:D
+  227  sysHZComb1072                          0.0396   +/-   0.9704        :N:M:D
+  228  sysHZComb1073                          0.1328   +/-   0.9039        :N:M:D
+  229  sysHZComb1074                         -0.0960   +/-   0.9353        :N:M:D
+  230  sysHZComb1075                          0.1471   +/-   0.8655        :N:M:D
+  231  sysHZComb1076                         -0.1524   +/-   0.9607        :N:M:D
+  232  sysHZComb1077                         -0.6411   +/-   0.9612        :N:M:D
+  233  sysHZComb1078                         -0.0331   +/-   0.9757        :N:M:D
+  234  sysHZComb1079                          0.0503   +/-   0.8848        :N:M:D
+  235  sysHZComb1080                         -0.5327   +/-   0.9253        :N:M:D
+  236  sysHZComb1081                         -0.2862   +/-   0.8877        :N:M:D
+  237  sysHZComb1082                         -0.8277   +/-   0.8387        :N:M:D
+  238  sysHZComb1083                         -1.2274   +/-   0.8906        :N:M:D
+  239  sysHZComb1084                          0.3211   +/-   0.9685        :N:M:D
+  240  sysHZComb1085                         -0.1724   +/-   0.8690        :N:M:D
+  241  sysHZComb1086                         -0.2146   +/-   0.7925        :N:M:D
+  242  sysHZComb1087                         -0.5322   +/-   0.8601        :N:M:D
+  243  sysHZComb1088                          0.2225   +/-   0.9912        :N:M:D
+  244  sysHZComb1089                         -0.1570   +/-   0.9612        :N:M:D
+  245  sysHZComb1090                          0.4835   +/-   0.9431        :N:M:D
+  246  sysHZComb1091                          0.6610   +/-   0.8876        :N:M:D
+  247  sysHZComb1092                          0.5820   +/-   0.8097        :N:M:D
+  248  sysHZComb1093                          0.2114   +/-   0.7911        :N:M:D
   249  sysHZComb1094                          0.0615   +/-   0.9992        :N:M:D
-  250  sysHZComb1095                         -0.3478   +/-   0.8465        :N:M:D
-  251  sysHZComb1096                          0.1385   +/-   0.8951        :N:M:D
-  252  sysHZComb1097                          0.3436   +/-   0.9880        :N:M:D
-  253  sysHZComb1098                          1.5000   +/-   0.7366        :N:M:D
-  254  sysHZComb1099                         -0.9629   +/-   0.6845        :N:M:D
-  255  sysHZComb1100                         -0.7632   +/-   0.6887        :N:M:D
-  256  sysHZComb1101                         -0.6138   +/-   0.7731        :N:M:D
-  257  sysHZComb1102                         -0.4199   +/-   0.9023        :N:M:D
-  258  sysHZComb1103                          0.3012   +/-   0.7912        :N:M:D
-  259  sysHZComb1104                         -1.3421   +/-   0.7951        :N:M:D
+  250  sysHZComb1095                         -0.3454   +/-   0.8465        :N:M:D
+  251  sysHZComb1096                          0.1370   +/-   0.8951        :N:M:D
+  252  sysHZComb1097                          0.3440   +/-   0.9880        :N:M:D
+  253  sysHZComb1098                          1.4972   +/-   0.7366        :N:M:D
+  254  sysHZComb1099                         -0.9648   +/-   0.6845        :N:M:D
+  255  sysHZComb1100                         -0.7631   +/-   0.6887        :N:M:D
+  256  sysHZComb1101                         -0.6145   +/-   0.7731        :N:M:D
+  257  sysHZComb1102                         -0.4183   +/-   0.9023        :N:M:D
+  258  sysHZComb1103                          0.2993   +/-   0.7912        :N:M:D
+  259  sysHZComb1104                         -1.3425   +/-   0.7951        :N:M:D
   260  sysHZComb1105                          1.1889   +/-   0.6961        :N:M:D
-  261  sysHZComb1106                         -0.7053   +/-   0.7729        :N:M:D
-  262  sysHZComb1107                          0.4035   +/-   0.7423        :N:M:D
-  263  sysHZComb1108                          1.3457   +/-   0.6807        :N:M:D
-  264  sysHZComb1109                          0.3255   +/-   0.9900        :N:M:D
-  265  sysHZComb1110                         -0.7664   +/-   0.7045        :N:M:D
-  266  sysHZComb1111                         -1.8847   +/-   0.5508        :N:M:D
+  261  sysHZComb1106                         -0.7036   +/-   0.7729        :N:M:D
+  262  sysHZComb1107                          0.4017   +/-   0.7423        :N:M:D
+  263  sysHZComb1108                          1.3453   +/-   0.6807        :N:M:D
+  264  sysHZComb1109                          0.3254   +/-   0.9900        :N:M:D
+  265  sysHZComb1110                         -0.7665   +/-   0.7045        :N:M:D
+  266  sysHZComb1111                         -1.8843   +/-   0.5508        :N:M:D
   267  sysHZComb1112                          0.3749   +/-   0.9904        :N:M:D
-  268  sysHZComb1113                          1.2529   +/-   0.8405        :N:M:D
-  269  sysHZComb1114                          1.5671   +/-   0.8070        :N:M:D
-  270  sysHZComb1115                          0.8010   +/-   0.7578        :N:M:D
-  271  sysHZComb1116                          0.5533   +/-   0.7740        :N:M:D
-  272  sysHZComb1117                          0.4093   +/-   0.8249        :N:M:D
-  273  sysHZComb1118                         -0.1585   +/-   0.9966        :N:M:D
-  274  sysHZComb1119                          0.5102   +/-   0.9750        :N:M:D
-  275  sysHZComb1120                          0.7776   +/-   0.8565        :N:M:D
-  276  sysHZComb1121                          0.3160   +/-   0.9900        :N:M:D
-  277  sysHZComb1122                          0.3627   +/-   0.9333        :N:M:D
-  278  sysHZComb1123                         -0.2718   +/-   0.9290        :N:M:D
-  279  sysHZComb1124                         -0.9387   +/-   0.8629        :N:M:D
-  280  sysHZComb1125                          0.5239   +/-   0.8725        :N:M:D
-  281  sysHZComb1126                         -0.2376   +/-   0.9171        :N:M:D
-  282  sysHZComb1127                         -0.1334   +/-   0.9241        :N:M:D
-  283  sysHZComb1128                         -0.3099   +/-   0.9557        :N:M:D
-  284  sysHZComb1129                          0.0621   +/-   0.8592        :N:M:D
-  285  sysHZComb1130                          0.3781   +/-   0.8083        :N:M:D
-  286  sysHZComb1131                         -0.9156   +/-   0.7926        :N:M:D
-  287  sysHZComb1132                         -0.2009   +/-   0.7907        :N:M:D
-  288  sysHZComb1133                          0.6152   +/-   0.8234        :N:M:D
-  289  sysHZComb1134                          0.2425   +/-   0.9788        :N:M:D
-  290  sysHZComb1135                         -1.0978   +/-   0.8202        :N:M:D
-  291  sysHZComb1136                          0.1453   +/-   0.8789        :N:M:D
-  292  sysHZComb1137                          0.0112   +/-   0.8852        :N:M:D
-  293  sysHZComb1138                          0.5505   +/-   0.9205        :N:M:D
-  294  sysHZComb1139                         -0.7236   +/-   0.9416        :N:M:D
-  295  sysHZComb1140                         -0.1821   +/-   0.9582        :N:M:D
-  296  sysHZComb1141                         -0.2123   +/-   0.9713        :N:M:D
-  297  sysHZComb1142                          1.2871   +/-   0.8615        :N:M:D
-  298  sysHZComb1143                          0.6589   +/-   0.8558        :N:M:D
-  299  sysHZComb1144                          1.9220   +/-   0.8425        :N:M:D
-  300  sysHZComb1145                          0.3730   +/-   0.9861        :N:M:D
-  301  sysHZComb1146                          0.2527   +/-   0.9897        :N:M:D
-  302  sysHZComb1147                          1.0315   +/-   0.8057        :N:M:D
-  303  sysHZComb1148                         -0.4942   +/-   0.7958        :N:M:D
-  304  sysHZComb1149                          0.6825   +/-   0.7668        :N:M:D
-  305  sysHZComb1150                         -0.6069   +/-   0.7886        :N:M:D
+  268  sysHZComb1113                          1.2524   +/-   0.8405        :N:M:D
+  269  sysHZComb1114                          1.5680   +/-   0.8070        :N:M:D
+  270  sysHZComb1115                          0.8008   +/-   0.7578        :N:M:D
+  271  sysHZComb1116                          0.5543   +/-   0.7740        :N:M:D
+  272  sysHZComb1117                          0.4083   +/-   0.8249        :N:M:D
+  273  sysHZComb1118                         -0.1584   +/-   0.9966        :N:M:D
+  274  sysHZComb1119                          0.5105   +/-   0.9750        :N:M:D
+  275  sysHZComb1120                          0.7781   +/-   0.8565        :N:M:D
+  276  sysHZComb1121                          0.3159   +/-   0.9900        :N:M:D
+  277  sysHZComb1122                          0.3616   +/-   0.9333        :N:M:D
+  278  sysHZComb1123                         -0.2716   +/-   0.9290        :N:M:D
+  279  sysHZComb1124                         -0.9399   +/-   0.8629        :N:M:D
+  280  sysHZComb1125                          0.5241   +/-   0.8725        :N:M:D
+  281  sysHZComb1126                         -0.2377   +/-   0.9171        :N:M:D
+  282  sysHZComb1127                         -0.1350   +/-   0.9241        :N:M:D
+  283  sysHZComb1128                         -0.3090   +/-   0.9557        :N:M:D
+  284  sysHZComb1129                          0.0630   +/-   0.8592        :N:M:D
+  285  sysHZComb1130                          0.3788   +/-   0.8083        :N:M:D
+  286  sysHZComb1131                         -0.9161   +/-   0.7926        :N:M:D
+  287  sysHZComb1132                         -0.2007   +/-   0.7907        :N:M:D
+  288  sysHZComb1133                          0.6159   +/-   0.8234        :N:M:D
+  289  sysHZComb1134                          0.2424   +/-   0.9788        :N:M:D
+  290  sysHZComb1135                         -1.0984   +/-   0.8202        :N:M:D
+  291  sysHZComb1136                          0.1457   +/-   0.8789        :N:M:D
+  292  sysHZComb1137                          0.0124   +/-   0.8852        :N:M:D
+  293  sysHZComb1138                          0.5493   +/-   0.9205        :N:M:D
+  294  sysHZComb1139                         -0.7242   +/-   0.9416        :N:M:D
+  295  sysHZComb1140                         -0.1810   +/-   0.9582        :N:M:D
+  296  sysHZComb1141                         -0.2122   +/-   0.9713        :N:M:D
+  297  sysHZComb1142                          1.2865   +/-   0.8615        :N:M:D
+  298  sysHZComb1143                          0.6596   +/-   0.8558        :N:M:D
+  299  sysHZComb1144                          1.9245   +/-   0.8425        :N:M:D
+  300  sysHZComb1145                          0.3729   +/-   0.9861        :N:M:D
+  301  sysHZComb1146                          0.2526   +/-   0.9897        :N:M:D
+  302  sysHZComb1147                          1.0350   +/-   0.8057        :N:M:D
+  303  sysHZComb1148                         -0.4947   +/-   0.7958        :N:M:D
+  304  sysHZComb1149                          0.6819   +/-   0.7668        :N:M:D
+  305  sysHZComb1150                         -0.6055   +/-   0.7886        :N:M:D
   306  sysHZComb1151                          0.2462   +/-   0.9632        :N:M:D
-  307  sysHZComb1152                          0.6646   +/-   0.7361        :N:M:D
-  308  sysHZComb1153                         -1.5352   +/-   0.8359        :N:M:D
-  309  sysHZComb1154                          0.1467   +/-   0.8136        :N:M:D
-  310  sysHZComb1155                          1.0509   +/-   0.8176        :N:M:D
-  311  sysHZComb1156                         -0.1227   +/-   0.9164        :N:M:D
-  312  sysHZComb1157                          1.2199   +/-   0.7244        :N:M:D
+  307  sysHZComb1152                          0.6659   +/-   0.7361        :N:M:D
+  308  sysHZComb1153                         -1.5355   +/-   0.8359        :N:M:D
+  309  sysHZComb1154                          0.1462   +/-   0.8136        :N:M:D
+  310  sysHZComb1155                          1.0501   +/-   0.8176        :N:M:D
+  311  sysHZComb1156                         -0.1209   +/-   0.9164        :N:M:D
+  312  sysHZComb1157                          1.2197   +/-   0.7244        :N:M:D
   313  sysHZComb1158                          0.2408   +/-   0.7989        :N:M:D
   314  sysHZComb1159                         -0.0316   +/-   1.0000        :N:M:D
-  315  sysHZComb1160                         -0.0435   +/-   0.8824        :N:M:D
-  316  sysHZComb1161                          0.7815   +/-   0.8432        :N:M:D
-  317  sysHZComb1162                          0.9334   +/-   0.8888        :N:M:D
-  318  proc_nrl                              -0.0751   +/-   0.3886        :N:M:D
-  319  proc_tb21                             -2.6527   +/-   0.6720        :N:M:D
+  315  sysHZComb1160                         -0.0436   +/-   0.8824        :N:M:D
+  316  sysHZComb1161                          0.7812   +/-   0.8432        :N:M:D
+  317  sysHZComb1162                          0.9338   +/-   0.8888        :N:M:D
+  318  proc_nrl                              -0.0756   +/-   0.3886        :N:M:D
+  319  proc_tb21                             -2.6522   +/-   0.6720        :N:M:D
   320  proc_tb22                             -1.4529   +/-   0.3074        :N:M:D
-  321  proc_tb23                             -0.2788   +/-   0.4348        :N:M:D
-  322  proc_tb24                             -0.4689   +/-   0.4103        :N:M:D
-  323  proc_gp                                0.1832   +/-   0.4555        :N:M:D
-  324  proc_had                               0.5439   +/-   0.5395        :N:M:D
+  321  proc_tb23                             -0.2787   +/-   0.4348        :N:M:D
+  322  proc_tb24                             -0.4690   +/-   0.4103        :N:M:D
+  323  proc_gp                                0.1820   +/-   0.4555        :N:M:D
+  324  proc_had                               0.5452   +/-   0.5395        :N:M:D
