@@ -28,7 +28,7 @@ job-install-full:
     - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nlo CT14nnlo ABMP16_3_nlo ABMP16_5_nnlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian NNPDF31_nnlo_as_0118 MMHT2014nnlo68cl nCTEQ15FullNuc_184_74 nCTEQ15FullNuc_1_1 >& download-lhapdf.log
     - cat *.log
     - ./make.sh install
-    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - git clone -b fix2 --single-branch https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
     - rm -rf temp-datafiles
     - cd datafiles

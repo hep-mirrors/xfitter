@@ -23,8 +23,10 @@ namespace xfitter {
     // names for minimized parameters only
     if ( step > 0) {
       _allParameterNames.push_back(name);
+      _bounds.push_back(bounds);
+      _priors.push_back(priors);    
     }
-    
+
     // store it on the global map too. Will replace pointer if already present. 
     //    std::unique_ptr<double[]> parval( new double );
     double*parval = new double;

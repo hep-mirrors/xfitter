@@ -39,6 +39,7 @@ find_package(Hathor)
 find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
+find_package(PineAPPL)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
@@ -135,6 +136,7 @@ add_subdirectory(pdfparams/ABMPsea)
 add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
+add_subdirectory(pdfparams/Chebyschev)
 
 #Decompositions
 add_subdirectory(pdfdecomps/Pion_FF_B_C)
@@ -177,6 +179,7 @@ add_subdirectory(reactions/HathorSingleTop)
 add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
+add_subdirectory(reactions/PineAPPL)
 
 #Tools
 add_subdirectory(tools/draw/src)

@@ -40,6 +40,7 @@ extern "C" {
   void add_to_param_map_(map<std::string,double*>* map,double &value, int& global, char *name, int len);
   // Get parameters in fortran, for backward compatibility:
   double getparamd_(const char* name, int len);
+  int getparami_(const char* name, int len);
   // Update of EWK/QCD parameters, can be fitted at each iteration.
   void update_pars_fortran_();
 }
@@ -909,6 +910,19 @@ double getparamd_(const char* name,int len){
   std::string key(buff);
   if (XFITTER_PARS::gParameters.find(key) != XFITTER_PARS::gParameters.end()) {
     return *XFITTER_PARS::gParameters[key];
+  }
+  else {
+    return 0;
+  }
+}
+
+int getparami_(const char* name,int len){
+  char buff[128];
+  memcpy( buff, &name[0], len);
+  buff[len] = '\0';
+  std::string key(buff);
+  if (XFITTER_PARS::gParametersI.find(key) != XFITTER_PARS::gParametersI.end()) {
+    return XFITTER_PARS::gParametersI[key];
   }
   else {
     return 0;
