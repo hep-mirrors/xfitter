@@ -15,6 +15,8 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <semaphore.h>
+#include <fcntl.h>
 
 extern "C" {
   void update_theory_iteration_();
@@ -273,7 +275,13 @@ namespace xfitter
 				  YAML::Node gNode,
 				  BaseEvolution* evol, const std::string& errorType)
   {
-    
+
+    // Semaphore for critical code section (writing fittedresults.txt_set_???? via intermidiate fittedresults.txt)
+    sem_t* sem = sem_open("pSem", O_CREAT | O_EXCL, 0644, 1);
+    if (!sem) {
+      hf_errlog(2023061501,"F: Failed to initialize semaphore");
+    }
+
     // Shared memory for predictions
     int shmid;
     double* sharedArray;
@@ -343,7 +351,9 @@ namespace xfitter
 	  sharedArray2[imember-first] = pred.second;
 
 	  if (_storePdfs) {
+      sem_wait(sem);
 	    storePdfFiles(imember,iPdfSet,errorType);
+      sem_post(sem);
 	  }
 	      
 	}
@@ -375,6 +385,8 @@ namespace xfitter
     shmctl(shmid, IPC_RMID, NULL);
     shmdt(sharedArray2);
     shmctl(shmid2, IPC_RMID, NULL);
+    sem_unlink("pSem");
+    sem_close(sem);
     
   }
 
