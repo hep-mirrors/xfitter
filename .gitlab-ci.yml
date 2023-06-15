@@ -108,3 +108,35 @@ job-scanmin:
       - temp/**/xfitter.log
       - temp/**/output
     expire_in: 2 day
+
+job-dyturbo:
+  only: 
+    - merge_requests
+    - schedules
+  script: 
+    - yum -y install git tar
+    #- . /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc12-opt/setup.sh
+    - . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+    - ./tools/install-qcdnum
+    - ./tools/install-lhapdf
+    - ./tools/install-dyturbo
+    - ./tools/install-numdiff
+    - . setup.sh
+    - ./make.sh install
+    - git clone -b cdfzpt-dyt1.3 https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+    - ./tools/test.sh ZPT
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
