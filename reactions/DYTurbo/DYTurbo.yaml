@@ -7,22 +7,9 @@ blim: 1.5   # bmax value for the bstar prescription
 g1: 1       # Universal Gaussian non-perturbative form factor
 g2: 0       # Q-dependent Gaussian non-perturbative form factor
 g3: 0       # tau-dependent Gaussian non-perturbative form factor
-gx: 0       # x-dependent Gaussian non-perturbative form factor
-ga: 0       # x-dependent Gaussian non-perturbative form factor
-gb: 0       # x-dependent Gaussian non-perturbative form factor
-a2: 0.06    # DMW non-perturbative form factor
-ap: 0.06    # DMW non-perturbative form factor
-Q0: 1       # Reference scale at which the g2 contribution is zero
-g1a: 0       # x-dependent Gaussian non-perturbative form factor
-g1b: 0       # x-dependent Gaussian non-perturbative form factor
-lambda: 1
-gA: 0
-gB: 0
-NA: 0
-sigmaA: 1
-alphaA: 1
-NB: 0
-sigmaB: 1
-alphaB: 1
-q: 0     # quartic term
-debug: 0
+g1x: 0      # x-dependent Gaussian non-perturbative form factor
+g1a: 0      # x-dependent Gaussian non-perturbative form factor
+g1b: 0      # x-dependent Gaussian non-perturbative form factor
+lambda: 1   # Transition to exponential
+q: 0        # Quartic term
+debug: 0    # verbosity flag

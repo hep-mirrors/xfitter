@@ -149,6 +149,7 @@ runTest()
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
+  #echo -e "run \n bt" | gdb ${xfitter} | tee ${xflogfile}
   ${xfitter} >& ${xflogfile}
   cd - > /dev/null
 

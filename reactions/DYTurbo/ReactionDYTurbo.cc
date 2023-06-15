@@ -105,14 +105,14 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   if (td->hasParam("g0"))
     opts.g0 = *(td->getParamD("g0"));
 
-  if (td->hasParam("gx"))
-    opts.g1x = *(td->getParamD("gx"));
+  if (td->hasParam("g1x"))
+    opts.g1x = *(td->getParamD("g1x"));
 
-  if (td->hasParam("ga"))
-    opts.g1a = *(td->getParamD("ga"));
+  if (td->hasParam("g1a"))
+    opts.g1a = *(td->getParamD("g1a"));
 
-  if (td->hasParam("gb"))
-    opts.g1b = *(td->getParamD("gb"));
+  if (td->hasParam("g1b"))
+    opts.g1b = *(td->getParamD("g1b"));
 
   if (td->hasParam("a2"))
     opts.a2 = *(td->getParamD("a2"));
