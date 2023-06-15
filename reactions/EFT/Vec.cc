@@ -57,10 +57,15 @@ void Vec::book(double val) {
 /////////////////////////////////////////////////////////////////////////////
 // RawVec
 /////////////////////////////////////////////////////////////////////////////
-RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir) {
-  // RawVec::RawVec (YAML::const_iterator node, string key) {
+//RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir) {
+RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir, 
+          double xi_ren_in, double xi_fac_in, bool save_grid_Q) {
   // key: tag for the current entry; only used for issuing errors
 
+  xi_ren = xi_ren_in;
+  xi_fac = xi_fac_in;
+  save_grid_in_memory = save_grid_Q;
+  entry = key;
   num_bin = num_bin_in;
   ///////////////////////////////////////////////////////
   // read type
@@ -98,8 +103,9 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir)
 
   ///////////////////////////////////////////////////////
   // read xsec
-  if (node["format"]) 
+  if (node["format"]) {
     format = node["format"].as<string>();
+  }
   else
     hf_errlog(23061504, "S: format not given for entry " + key);
 
@@ -134,6 +140,15 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir)
   else
     hf_errlog(23061502, "S: cross section(grids) for fixed input(mixed) not given for entry " + key);
 
+  ///////////////////////////////////////////////////////      
+  // read grids
+  if ( save_grid_in_memory ) {
+    for (string grid_file_name: grid_file_list) {
+      pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
+      pgrid_list.push_back(g);
+      hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
+    }
+  }  
   ///////////////////////////////////////////////////////      
   // read EFT parameters
   if (type == -3 || type == 3) {
@@ -181,6 +196,8 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir)
 	cout << "Error: param not found" << endl;
     }
   }
+
+
 } // end of constructor
 
 
@@ -199,21 +216,22 @@ void RawVec::FR2FA(vector<double> val_list_C) {
 }
 
 void RawVec::convolute() {
-  if (format != "PineAPPL")
+  if (format != "PineAPPL") {
     hf_errlog(23061201, "S: Grids other than PineAPPL are not supported yet");
+  }
   /////////////////////////////////////////////////////////////////////////////
   // for PineAPPL
   /////////////////////////////////////////////////////////////////////////////
   if (format == "PineAPPL") {
     // read the grids
-    // todo: read only once and store in RawVec
     // todo: add up the number of bins and compare with num_bin
     // todo: follow Toni's code to deal with exceptions
-    vector<pineappl_grid* > pgrid_list;
-    for (string grid_file_name: grid_file_list) {
-      pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
-      pgrid_list.push_back(g);
-      hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
+    if ( ! save_grid_in_memory ) {
+      for (string grid_file_name: grid_file_list) {
+	pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
+	pgrid_list.push_back(g);
+	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
+      }
     }
     ////////////////////////////////////////////
     // convolute
@@ -252,8 +270,11 @@ void RawVec::convolute() {
     // print value_list
 
     // free the grids
-    for (auto p: pgrid_list)
-      pineappl_grid_delete(p);
+    if (! save_grid_in_memory) {
+      for (auto p: pgrid_list)
+	pineappl_grid_delete(p);
+      pgrid_list.clear();
+    }
   }
   /////////////////////////////////////////////////////////////////////////////
   // for APPLgrid

@@ -118,6 +118,7 @@ void EFTReader::read_mixed_input(){
   string grid_dir = "/";
   double xi_ren = 1.0;
   double xi_fac = 1.0;
+  bool save_grid_Q = true;
 
   if (node["info"]) {
     if (node["info"]["num_bin"])
@@ -133,6 +134,15 @@ void EFTReader::read_mixed_input(){
 
     if (node["info"]["xi_fac"])
       xi_fac = node["info"]["xi_fac"].as<double>();
+
+    if (node["info"]["save_grid_in_memory"]) {
+      // char tmp = (node["info"]["save_grid_in_meomry"].as<string>())[0];
+      save_grid_Q = node["info"]["save_grid_in_memory"].as<bool>();
+      if (save_grid_Q)
+	hf_errlog(23061507, "I: save grids in memory");
+      else
+	hf_errlog(23061508, "I: do not save grids in memory");
+    }
   }
   else
     hf_errlog(23060101, "F: please provide the `info` entry in the mixed input file");
@@ -162,7 +172,8 @@ void EFTReader::read_mixed_input(){
     // C term
     if (type == "C") {
       assert (prvec_C == nullptr);
-      prvec_C = new RawVec(entry, entry_name, num_bin, grid_dir);
+      prvec_C = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
+
       assert (prvec_C->format != "FR");
     }
     else if (type=="l" || type=="L" || type=="q" || type=="Q") {
@@ -175,7 +186,8 @@ void EFTReader::read_mixed_input(){
 	  basis.insert(make_pair(id, new Vec(1)));
 	}
 
-	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir);
+	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
+
 	raw_basis.push_back(prvec);
 	basis[id]->addIng(prvec, 1.0);
       }
@@ -203,7 +215,8 @@ void EFTReader::read_mixed_input(){
 	assert(basis.count(i1*100+i2) == 0);
 	basis.insert(make_pair(i1*100+i2, new Vec(2)));
 	
-	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir);
+	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
+
 	raw_basis.push_back(prvec);
 	basis[i1*100+i2]->addIng(prvec, 1.0);
       }
@@ -396,6 +409,7 @@ void EFTReader::initrvec(){
 
   if (prvec_C->format == "FA") {
     for (auto prvec: raw_basis) {
+
       if (prvec->format == "FR") {
 	prvec->FR2FA(prvec_C->value_list);
       }
