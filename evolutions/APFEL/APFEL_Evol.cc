@@ -244,10 +244,10 @@ void APFEL_Evol::atStart()
   if (nllxResummation == "On")
   {
     APFEL::SetSmallxResummation(true, "NLL");
-    APFEL::SetQLimits(1.6, 4550.0); // Hardwire for now.
-    _Qmin = 1.6;
-    _Qmax = 4550.0;
-    hf_errlog(1908202201,"I: Setting APFEL grid range to 1.6 < Q < 4550 to match resummation grids.");
+    if (_Qmin < 1.6)
+      hf_errlog(1506202301,"E: Lower APFEL grid range should be Q >= 1.6 GeV to match resummation grids.");
+    if(_Qmax > 4550.0)
+      hf_errlog(1506202302,"E: Higher APFEL grid range should be Q <= 4550 GeV to match resummation grids.");
   }
 
   // set the ratio muR / Q (default 1), muF / Q (default 1)
@@ -256,7 +256,12 @@ void APFEL_Evol::atStart()
   APFEL::EnableDynamicalScaleVariations(true); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
   APFEL::SetRenQRatio(muRoverQ);
   APFEL::SetFacQRatio(muFoverQ);
-  APFEL::InitializeAPFEL_DIS();  // hamed FF
+
+  // Initialize the APFEL DIS module
+  APFEL::SetAlphaQCDRef(0.118, *Mz); //need to set alphas = 0.118 at initializiation
+  APFEL::InitializeAPFEL_DIS();
+  APFEL::SetAlphaQCDRef(*alphas, *Mz);
+
   APFEL::SetPDFSet("external");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atStart();
