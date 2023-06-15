@@ -65,6 +65,12 @@ namespace xfitter
 
     /// Set parameters:
     void setPars(double const* pars) const;
+
+
+    /// Get priors:
+    const std::vector<const double* >* getPriors() const {
+      return &_priors;
+    }
   protected:
 
     /// name to ID minimizer
@@ -72,6 +78,12 @@ namespace xfitter
 
     /// names of the parameters
     std::vector<std::string> _allParameterNames;
+    
+    /// Priors:
+    std::vector< const double* > _priors;
+
+    /// Bounds:
+    std::vector< const double* > _bounds;
 
   };
 

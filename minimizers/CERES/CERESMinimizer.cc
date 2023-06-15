@@ -15,11 +15,18 @@
 #include "glog/logging.h"
 #include "ceres/dynamic_numeric_diff_cost_function.h"
 #include "ceres/covariance.h"
+#include "ceres/numeric_diff_options.h"
 
 #include <Eigen/Dense>
 
 #include <iomanip>
 #include <fstream>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+
 
 // Fortran interface
 extern "C" {
@@ -44,10 +51,10 @@ extern "C" CERESMinimizer* create() {
 
     static int counter = 0;
     counter++;
-    BaseMinimizer* mini = xfitter::get_minimizer();
+    const BaseMinimizer* mini = xfitter::get_minimizer();
     mini->setPars(par);
 
-    int npar = mini->getNpars();
+    const int npar = mini->getNpars();
 
     double pp[200];  // 200 is needed for fcn ... //--> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize with MNE from endmini.inc
     for (int i=0; i<npar; i++) {
@@ -63,53 +70,242 @@ extern "C" CERESMinimizer* create() {
 //
 // Connect fcn and xfitter pars
 //
-struct CostFunctiorData
+struct CostFunctorData
 {
-   bool operator()(double const* const* parameters, double* residuals) const
-   {
-     cout << std::endl;
-     double chi2;
-     myFCN(chi2,parameters[0],2);
-     chi2 = 0;
-     int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
-     bool calctotoff = true;
-     if (CERESMinimizer::totoffset > 0.)
-       calctotoff = false;
-       
-     for (int i = 0; i < nres; i++)
-       {
-	 if (i < cndatapoints_.npoints + systema_.nsys)
-	   residuals[i] = sqrt(2.)*c_resid_.residuals_[i];
-	 else
-	   //Log penalty terms
-	   {
-	     int j = i-systema_.nsys-cndatapoints_.npoints;
+  int _nres;
+  CostFunctorData(int nres) {
+    _nres = nres;
+  }
+  bool operator()(double const* const* parameters, double* residuals) const
+  {
+    cout << std::endl;
+    double chi2;
+    myFCN(chi2,parameters[0],2);
+    chi2 = 0;
+    int nres = _nres;
+    bool calctotoff = true;
+    if (CERESMinimizer::totoffset > 0.)
+      calctotoff = false;
 
-	     //Add a positive offset to each squared residual to enforce a positive cost function also when the log penalty term is included
-	     if (calctotoff)
-	       {
-		 if (CERESMinimizer::glboff > 0.)
-		   CERESMinimizer::offset[j] = CERESMinimizer::glboff;
-		 else
-		   CERESMinimizer::offset[j] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
-		 CERESMinimizer::totoffset += CERESMinimizer::offset[j];
-	       }
-	     residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j]));
-	     if (cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] < 0)
-	       {
-		 cout << "Warning: negative squared residual for i " << j << " offset " << CERESMinimizer::offset[j] << " res^2 " << cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] << endl;
-		 string message = "W: Negative squared residual in CERES minimisation, consider raising the chi-square offset";
-		 hf_errlog_(22082101, message.c_str(), message.size());
-	       }
-    	   }
-	 chi2 += residuals[i]*residuals[i]/2.;
-       }
-     //std::cout << " CERES total offset in Cost function: " <<  CERESMinimizer::totoffset << std::endl;
-     std::cout << " CERES residuals squared: " <<  chi2 - CERESMinimizer::totoffset << std::endl;
-     return true;
-   }
+    for (int i = 0; i < nres; i++)
+      {
+	if (i < cndatapoints_.npoints + systema_.nsys)
+	  residuals[i] = sqrt(2.)*c_resid_.residuals_[i];
+	else
+	  //Log penalty terms
+	  {
+	    int j = i-systema_.nsys-cndatapoints_.npoints;
+	    //Add a positive offset to each squared residual to enforce a positive cost function also when the log penalty term is included
+	    if (calctotoff)
+	      {
+		if (CERESMinimizer::glboff > 0.)
+		  CERESMinimizer::offset[j] = CERESMinimizer::glboff;
+		else
+		  CERESMinimizer::offset[j] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
+		CERESMinimizer::totoffset += CERESMinimizer::offset[j];
+	      }
+	    residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j]));
+	    if (cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] < 0)
+	      {
+		cout << "Warning: negative squared residual for i " << j << " offset " << CERESMinimizer::offset[j] << " res^2 " << cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] << endl;
+		string message = "W: Negative squared residual in CERES minimisation, consider raising the chi-square offset";
+		hf_errlog_(22082101, message.c_str(), message.size());
+	      }
+	  }
+	chi2 += residuals[i]*residuals[i]/2.;
+      }
+    //std::cout << " CERES total offset in Cost function: " <<  CERESMinimizer::totoffset << std::endl;
+    std::cout << " CERES residuals squared: " <<  chi2 - CERESMinimizer::totoffset << std::endl;
+    return true;
+  }
 };
 
+
+  //
+  // Connect fcn and xfitter pars
+  //
+
+  bool derivative(double const* const* parameters, double const* centralResiduals, int iPar, int nPar, int nRes, double* derivatives) {
+    //
+    double *pars = new double[nPar];
+    double *resid = new double[nRes];
+    for (int i=0; i<nPar; i+=1) {
+      pars[i] = parameters[0][i];
+    }
+    
+    const double min_step_size = std::sqrt(std::numeric_limits<double>::epsilon());
+    ceres::NumericDiffOptions options; 
+    const double step_size = options.relative_step_size;
+
+    double delta = abs(pars[iPar])*step_size;
+
+    if (delta<min_step_size)
+      delta = min_step_size;
+    
+    CostFunctorData evaluate(nRes);
+    pars[iPar] += delta;
+    auto res = evaluate(&pars,resid);
+
+    for (int i=0; i<nRes; i+=1) {
+      derivatives[i] = (resid[i]-centralResiduals[i])/delta;
+    }
+    
+    delete[] pars;
+    delete[] resid;
+    return true;
+  }
+
+  /// Penalty term (and derivative)
+  class CostFunctionPenalty : public ceres::CostFunction
+  {
+  public:
+    void SetParsAndResiduals(int nPar) {
+      set_num_residuals(nPar);
+      mutable_parameter_block_sizes()->push_back(nPar);
+    }
+  private:
+    virtual bool Evaluate(double const* const* parameters, double* residuals, double** jakobian) const
+    {
+      const BaseMinimizer* mini = xfitter::get_minimizer();
+      auto const Priors =  *(mini->getPriors());
+      const int npar = parameter_block_sizes()[0];
+
+      for ( int ipar=0; ipar<npar; ipar+=1 ) {
+	if (Priors[ipar]) {
+	  residuals[ipar] = (parameters[0][ipar] - Priors[ipar][0]) / Priors[ipar][1];
+	}
+	else {
+	  residuals[ipar] = 0;
+	}
+      }
+
+      if (jakobian && jakobian[0]) {
+	for (int ipar=0; ipar<npar; ipar+=1) {
+	  vector <double> result;
+	  result.resize(npar);
+	  for ( int ipar=0; ipar<npar; ipar+=1 ) {
+	    if (Priors[ipar]) {
+	      result[ipar] = 1. / Priors[ipar][1];
+	    }
+	    else {
+	      result[ipar] = 0;
+	    }
+	  }
+
+	  for (int j=0; j<npar; j+=1) {
+	    jakobian[0][j*npar+ipar] = result[j];
+	  }
+	}
+      }
+      return true;
+    }
+  };
+
+  class CostFuntionrDataAndDerivative : public ceres::CostFunction
+  {
+  public:
+    void SetParsAndResiduals(int nPar, int nResid, int nCPU) {
+      set_num_residuals(nResid);
+      mutable_parameter_block_sizes()->push_back(nPar);
+      _nCPU = nCPU;
+    }
+  private:
+    int _nCPU;
+    
+    virtual bool Evaluate(double const* const* parameters, double* residuals, double** jakobian) const
+    {     
+      // number of parameters:
+      const int npar = parameter_block_sizes()[0];
+      // number of residuals:
+      const int nres = num_residuals();
+
+      CostFunctorData evaluate(nres);
+
+      // central value:
+      auto res= evaluate(parameters,residuals);
+
+      
+      if (jakobian && jakobian[0]) {
+	vector <double> result;
+	result.resize(nres);
+
+	if (_nCPU==0) {
+	  for (int ipar=0; ipar<npar; ipar+=1) {
+	    auto res = derivative(parameters,residuals, ipar, npar, nres, result.data());
+	    for (int j=0; j<nres; j+=1) {
+	      jakobian[0][j*npar+ipar] = result[j];
+	    }
+	  }
+	}
+	else {
+	  // use the fork
+	  int shmid;
+	  double* sharedArray;
+	  int ARRAY_SIZE = npar*nres;
+	
+	  // Create shared memory segment
+	  shmid = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE, IPC_CREAT | 0666);
+	  if (shmid < 0) {
+	    hf_errlog(2023060210,"F: Failed to create shared memory segment");
+	  }
+	
+	  // Attach shared memory segment
+	  sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+	  if (sharedArray == reinterpret_cast<double*>(-1)) {
+	    hf_errlog(2023060211,"F: Failed to attach shared memory segment");
+	  }
+
+	  // define Chunks
+
+	  std::cout << "N CPU: " << _nCPU << std::endl;
+
+	  int NCPU = _nCPU;
+	  int chunkSize = npar / NCPU;
+	  int reminder  = npar % NCPU; 
+	  int startIndex = 0;
+	  int endIndex = 0;
+
+	  // loop over all
+	  for (int icpu = 0; icpu<min(NCPU,npar); icpu++) {
+	    startIndex = endIndex;
+	    endIndex   = startIndex + chunkSize;
+	    if (icpu < reminder) {
+	      endIndex += 1;
+	    }
+	    pid_t pid = fork();
+	    if ( pid == 0) {       
+	      for (int ipar = startIndex; ipar < endIndex; ipar += 1) {
+		auto res = derivative(parameters,residuals, ipar, npar, nres, result.data());
+		for (int j=0; j<nres; j+=1) {
+		  sharedArray[j*npar+ipar] = result[j];
+		}
+	      }
+	      exit(0);
+	    }
+	    else if (pid<0) {
+	      hf_errlog(2023060213,"F: Failed to create a fork process");	
+	    }
+	  }
+	
+	  int status;
+	  while (wait(&status) > 0);
+
+	  // move to jakobian:
+	  for (int j=0; j<nres*npar; j+=1) {
+	    jakobian[0][j] = sharedArray[j];
+	  }
+
+	  // Detach and remove shared memory segments
+	  shmdt(sharedArray);
+	  shmctl(shmid, IPC_RMID, NULL);
+	}
+      }
+      return true;
+    }
+  };
+
+
+ 
 class PenaltyLog final: public ceres::LossFunction
 {
 public:
@@ -186,21 +382,65 @@ void CERESMinimizer::doMinimization()
   ceres::Solver::Options soloptions;
   ceres::Solver::Summary summary;
   
-  // Cost function:
-  ceres::DynamicNumericDiffCostFunction<CostFunctiorData>* dynamic_cost_function =
-    new ceres::DynamicNumericDiffCostFunction<CostFunctiorData>(new CostFunctiorData);
-
-  dynamic_cost_function->AddParameterBlock(npars);
 
   int nres = (chi2options_.chi2poissoncorr) ? cndatapoints_.npoints + systema_.nsys + cndatapoints_.npoints : cndatapoints_.npoints + systema_.nsys;
 
-  dynamic_cost_function->SetNumResiduals(nres);
+  // 
+  ceres::Problem problem;
 
   // Loss function to compensate offset for the log penalty terms
   ceres::LossFunction* loss_function(new PenaltyLog);
 
-  ceres::Problem problem;
-  problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+  // Cost function:
+
+  if (ceresNode["threads"]) {
+    auto diffCostFunction = new CostFuntionrDataAndDerivative();
+    diffCostFunction->SetParsAndResiduals(npars,nres,ceresNode["threads"].as<int>());
+    problem.AddResidualBlock(diffCostFunction, loss_function, parVals);
+    hf_errlog(23060301,"I: Use multiprocess computation of derivatives with FORWARD method");
+  }
+  else {
+    // We can use forward deriviative (faster, potentially less accurate):
+    if (ceresNode["ForwardDerivative"]) {
+      ceres::DynamicNumericDiffCostFunction<CostFunctorData, ceres::FORWARD>* dynamic_cost_function =
+	new ceres::DynamicNumericDiffCostFunction<CostFunctorData, ceres::FORWARD>(new CostFunctorData(nres));
+      dynamic_cost_function->AddParameterBlock(npars);
+      dynamic_cost_function->SetNumResiduals(nres);
+      problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+      hf_errlog(23060302,"I: Compute derivatives with FORWARD method");
+    }
+    else {
+      ceres::DynamicNumericDiffCostFunction<CostFunctorData>* dynamic_cost_function =
+	new ceres::DynamicNumericDiffCostFunction<CostFunctorData>(new CostFunctorData(nres));
+      dynamic_cost_function->AddParameterBlock(npars);
+      dynamic_cost_function->SetNumResiduals(nres);
+      problem.AddResidualBlock(dynamic_cost_function, loss_function, parVals);
+      hf_errlog(23060303,"I: Compute derivatives with CENTRAL (default) method");
+    }
+  }
+
+  vector <double*> par_blocks;
+  problem.GetParameterBlocks(&par_blocks);
+
+  // Some parameters may have penalty terms
+  for ( auto const prior : *getPriors() ) {
+    if (prior) {
+      auto penaltyCostFunction = new CostFunctionPenalty();
+      penaltyCostFunction->SetParsAndResiduals(npars);
+      problem.AddResidualBlock(penaltyCostFunction, nullptr, parVals);
+      hf_errlog(23060501,"I: Add prior terms for some parameters");
+      break;
+    }
+  }
+
+  // Some parameters may have bounds
+  for (int ipar=0; ipar<npars; ipar+=1) {
+    if ( _bounds[ipar] ) {
+      problem.SetParameterLowerBound(par_blocks[0],ipar, _bounds[ipar][0]);
+      problem.SetParameterUpperBound(par_blocks[0],ipar, _bounds[ipar][1]);
+      hf_errlog(23060502,"I: Add a bound for a parameter");
+    }
+  }
 
   // Set CERES options
   soloptions.minimizer_progress_to_stdout = true;

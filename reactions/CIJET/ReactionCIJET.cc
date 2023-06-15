@@ -56,6 +56,7 @@ void ReactionCIJET::initTerm(TermData* td) {
         // --- Set CI normalization
         double nm=1.0;
         if ( td->hasParam("CInorm") ) nm = *td->getParamD("CInorm");  // Local order
+        else hf_errlog(23061301,"W: Normalization factor 'CInorm' unspecified, assuming 1.0.");
         fnlo->setnorm(nm);
      
         // --- Set scale factors
