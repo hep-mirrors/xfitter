@@ -277,7 +277,8 @@ namespace xfitter
 			std::vector< std::valarray<double> >& preds,
 			std::vector< double >& chi2vals,
 				  YAML::Node gNode,
-				  BaseEvolution* evol, const std::string& errorType)
+				  BaseEvolution* evol, const std::string& errorType,
+          const int i, YAML::Node parametersNode)
   {
 
     // Semaphore for critical code section (writing fittedresults.txt_set_???? via intermidiate fittedresults.txt)
@@ -343,6 +344,9 @@ namespace xfitter
 	for (int imember = first+startIndex; imember < first+endIndex; imember++) {
 	  
 	  gNode["member"] = imember;
+    for(YAML::const_iterator it=parametersNode.begin();it != parametersNode.end();++it) {
+      *XFITTER_PARS::gParameters.at(it->first.as<std::string>()) = it->second[i][imember].as<double>();
+    }
 	  evol->atConfigurationChange();
 	  auto pred = evaluatePredictions();
 	  
@@ -403,6 +407,7 @@ namespace xfitter
     YAML::Node const sets = node["sets"];
     YAML::Node const members = node["members"];
     YAML::Node const error_type_override = node["error_type_override"];
+    YAML::Node const parameters = node["parameters"];
     //Sanity checks
     if ( !sets  ) {
       hf_errlog(2018082401,"S: Profiler: missing set parameters for evolution "+evolName);  // XXXXXXXXXXXXXXXX
@@ -458,6 +463,9 @@ namespace xfitter
         // Set central PDF and init 
         gNode["set"]   =pName;
         gNode["member"]=central;
+        for(YAML::const_iterator it=parameters.begin();it != parameters.end();++it) {
+          *XFITTER_PARS::gParameters.at(it->first.as<std::string>()) = it->second[i][0].as<double>();
+        }
         evol->atConfigurationChange();
 
 	// Compatibility with fortran:
@@ -522,14 +530,32 @@ namespace xfitter
 	  storePdfFiles(0,i);
 	}
 
+  for(YAML::const_iterator it=parameters.begin();it != parameters.end();++it) {
+    if(!it->second.IsSequence()){
+      hf_errlog(2023061502,"F: Profiler: parameters must be sequence");  // XXXXXXXXXXXXXXXX
+    }
+    if(it->second.size()!=sets.size()){
+      hf_errlog(2023061504,"F: Profiler: parameters and sets must be the same length");  // XXXXXXXXXXXXXXXX
+    }
+    if(!it->second[i].IsSequence()){
+      hf_errlog(2023061503,"F: Profiler: parameters for each set must be sequence");  // XXXXXXXXXXXXXXXX
+    }
+    if(it->second[i].size()!=(last-first+2)){
+      hf_errlog(2023061505,"F: Profiler: parameters for each set and members must be the same length");  // XXXXXXXXXXXXXXXX
+    }
+  }
+
 	if (_ncpu>0) {
 	  // Use multiprocessing
-	  compute_parallel(NALL, NPRED, first, i, preds, chi2vals, gNode, evol, errorType);
+	  compute_parallel(NALL, NPRED, first, i, preds, chi2vals, gNode, evol, errorType, i, parameters);
 	}
 	else {
 	  // loop over all
 	  for (int imember = first; imember<=last; imember++) {
 	    gNode["member"] = imember;
+      for(YAML::const_iterator it=parameters.begin();it != parameters.end();++it) {
+        *XFITTER_PARS::gParameters.at(it->first.as<std::string>()) = it->second[i][imember].as<double>();
+      }
 	    evol->atConfigurationChange();
 	    auto pred = evaluatePredictions();
 	    preds[imember-first+1] = pred.first;
