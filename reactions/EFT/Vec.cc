@@ -21,9 +21,10 @@ using namespace std;
 
 Vec::Vec(int type_in) {
   type = type_in;
-  if (type > 3 || type < 1)
-    std::cout << "valid type = 1,2,3 for l,q,m" << std::endl;
-  // hf_errlog(23051602, "valid type = 1,2,3 for l,q,m");
+  if (type > 3 || type < 1) {
+    // std::cout << "valid type = 1,2,3 for l,q,m" << std::endl;
+    hf_errlog(23051602, "S: valid type = 1,2,3 for l,q,m");
+  }
 }
 
 void Vec::addIng(RawVec* prvec, double coeff) {
@@ -114,6 +115,8 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
       ratio_list = node["xsec"].as<vector<double> >();
 
       if (ratio_list.size() != num_bin) {
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << ratio_list.size() << " v.s. " <<  num_bin  << endl;
 	hf_errlog(23061501, "S: length of xsec does not match info:num_bin for entry " + key);
       }
 
@@ -123,8 +126,10 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     else if (format == "FA") {
       value_list = node["xsec"].as<vector<double> >();
 
-      if (ratio_list.size() != num_bin) {
-	hf_errlog(23061501, "S: length of xsec does not match info:num_bin for entry " + key);
+      if (value_list.size() != num_bin) {
+	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << value_list.size() << " v.s. " <<  num_bin  << endl;
+	hf_errlog(23061521, "S: length of xsec does not match info:num_bin for entry " + key);
       }
     }
     else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid") {
@@ -156,14 +161,15 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     if (node["param"]) {
       vector<string> params = node["param"].as<vector<string> >();
       if (params.size() != 2) 
-	cout << "Error: number of parameters" << endl;
+	// cout << "Error: number of parameters" << endl;
+	hf_errlog(23061510, "S: check `param` for entry:" +entry);
       else {
 	param_name1 = params[0];
 	param_name2 = params[1];
       }
     } 
     else
-      cout << "Error: param not found" << endl;
+      hf_errlog(23061511, "S: `param` not found for entry:" +entry);
 
     if (type == -3) {
       // value of parameters
@@ -171,14 +177,14 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	vector<double> param_vals = node["param_value"].as<vector<double> >();
 
 	if (param_vals.size() != 2) 
-	  cout << "Error: number of parameters" << endl;
+	  hf_errlog(23061513, "S: `param_value` for entry:" +entry);
 	else {
 	  param_val1 = param_vals[0];
 	  param_val2 = param_vals[1];
 	}
       } 
       else
-	cout << "Error: param not found" << endl;
+	hf_errlog(23061511, "S: `param_value` not found for entry:" +entry);
     }
   } // end of 3,-3
   else if (type != 0) {
@@ -186,14 +192,14 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     if (node["param"])
       param_name1 = node["param"].as<string>();
     else
-      cout << "Error: param not found" << endl;
+      hf_errlog(23061511, "S: `param` not found for entry:" +entry);
 
     if (type < 0) {
       // value of parameter
       if (node["param_value"])
 	param_val1 = node["param_value"].as<double>();
       else
-	cout << "Error: param not found" << endl;
+	hf_errlog(23061511, "S: `param_value` not found for entry:" +entry);
     }
   }
 
@@ -208,7 +214,7 @@ void RawVec::FR2FA(vector<double> val_list_C) {
   assert(format == "FR");
 
   if (value_list.size() != val_list_C.size()) 
-    cout << "Error: size does not match:" << value_list.size() << ", " << val_list_C.size()  << endl;
+    hf_errlog(23061515, "S: size does not match");
   else {
     for (size_t i=0; i<val_list_C.size(); i++)
       value_list[i] = ratio_list[i] * val_list_C[i];
@@ -285,7 +291,7 @@ void RawVec::convolute() {
 /////////////////////////////////
 void RawVec::increaseXSecInPlace(valarray<double>& xsec) {
   if (xsec.size() != value_list.size())
-    cout << "Error: size does not match:" << xsec.size() << ", " << value_list.size() << endl;
+    hf_errlog(23061516, "S: size does not match");
   else {
     for (size_t i=0; i<value_list.size(); i++) {
       xsec[i] += value_list[i] * coeff;
