@@ -1,0 +1,59 @@
+#!/bin/bash
+
+## Programs versions
+lhapdfver=6.5.4
+
+which wget >& /dev/null
+if [[ $? == 0 ]]
+then
+    http=wget
+else
+    which curl >& /dev/null
+    if [[ $? == 0 ]]
+    then
+        http=curl
+    else
+        echo "Error, wget or curl not found"
+        exit
+    fi
+fi
+
+#directory:
+CURRENTDIR=`pwd`
+
+mkdir -p deps
+cd deps
+
+echo "Installing LHAPDF $lhapdfver..."
+lhapdf="LHAPDF"
+
+if [[ $http == "curl" ]]
+then
+    curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+else
+    wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+fi
+cat $CURRENTDIR/install.log
+tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+cat $CURRENTDIR/install.log 
+cd ${lhapdf}-${lhapdfver}
+./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+make -j 8 install >> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+cd - >& /dev/null
+
+cd $CURRENTDIR
+
+#make a setup run enviroment script
+echo "export CURRENTDIR=`pwd`" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
