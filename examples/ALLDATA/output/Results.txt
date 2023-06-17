@@ -1,4 +1,4 @@
-After minimisation    5345.49  3024     1.768
+After minimisation    5345.67  3024     1.768
 
   Partial chi2s 
 Dataset    1    547.11   377  HERA1+2 NCep 920                                
@@ -87,7 +87,8 @@ Dataset   83      1.56     1  ATLAS 7 TeV single top t-channel, top antiquark
 Dataset   84      2.08     1  CMS 8 TeV single top t-channel, top quark       
 Dataset   85      1.56     1  CMS 8 TeV single top t-channel, top antiquark   
 
- Correlated Chi2    799.87466739231809     
+ Correlated Chi2    799.92082476480061     
+ Systematic shifts          909
   
                                 Name          Shift   +/-    Error          Type
     1  sysHZComb1001                         -0.8648   +/-   0.9328        :N:M:D
