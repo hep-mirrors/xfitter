@@ -36,6 +36,7 @@ const double ONE=1;
 extern "C" ReactionAPPLgrid* create() {
   return new ReactionAPPLgrid();
 }
+
 void ReactionAPPLgrid::initTerm(TermData*td){
   DatasetData*data=new DatasetData;
   td->reactionData=(void*)data;
@@ -123,6 +124,7 @@ void ReactionAPPLgrid::initTerm(TermData*td){
     }
   }
 }
+
 void ReactionAPPLgrid::freeTerm(TermData*td){
   DatasetData*data=(DatasetData*)td->reactionData;
   size_t Ngrids=data->grids.size();
@@ -131,6 +133,22 @@ void ReactionAPPLgrid::freeTerm(TermData*td){
   }
   delete data;
 }
+
+void  ReactionAPPLgrid::atIteration(){
+  double Vud = *XFITTER_PARS::getParamD("Vud");
+  double Vus = *XFITTER_PARS::getParamD("Vus");
+  double Vub = *XFITTER_PARS::getParamD("Vub");
+  double Vcd = *XFITTER_PARS::getParamD("Vcd");
+  double Vcs = *XFITTER_PARS::getParamD("Vcs");
+  double Vcb = *XFITTER_PARS::getParamD("Vcb");
+  double Vtd = *XFITTER_PARS::getParamD("Vtd");
+  double Vts = *XFITTER_PARS::getParamD("Vts");
+  double Vtb = *XFITTER_PARS::getParamD("Vtb");
+  _ckm[0] = { Vud, Vus, Vub };
+  _ckm[1] = { Vcd, Vcs, Vcb };
+  _ckm[2] = { Vtd, Vts, Vtb };
+}
+
 void ReactionAPPLgrid::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err){
   const DatasetData&data=*(DatasetData*)td->reactionData;
   const int order=data.order;
@@ -153,6 +171,16 @@ void ReactionAPPLgrid::compute(TermData*td,valarray<double>&val,map<string,valar
       double eScale=gd.eScale;
       gridVals.resize(grid->Nobs());
       if(!data.flagUseReference){
+	auto const grid_ckm =  grid->getckm();
+	if (grid_ckm.size()>0) // the grid is for W
+	  {
+	    // When setting CKM, keep ellements that are zero in the grid zeros (important for V_{tx})
+	    std::vector< vector<double> > loc_ckm{ {1,0,0}, {0.,1.,0}, {0.,0.,1} };
+	    for ( int irow=0; irow<3; irow+=1)
+	      for ( int icol=0; icol<3; icol+=1)
+		loc_ckm[irow][icol] =  grid_ckm[irow][icol] == 0 ? 0 : _ckm[irow][icol];
+	    grid->setckm(loc_ckm);
+	  }
         td->actualizeWrappers();
         gridVals=grid->vconvolute(pdf_xfxq_wrapper_,pdf_xfxq_wrapper1_,alphas_wrapper_,order-1,muR,muF,eScale);
       }else{
