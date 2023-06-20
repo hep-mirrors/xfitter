@@ -45,8 +45,10 @@ public:
   virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override;
 protected:
   virtual int parseOptions(){ return 0;};
-  
-  const int debug = 3;
+private:
+  long int num_comp = 0;
+  double time_comp = 0.0;  
+  const int debug = 0;
 };
 
 #endif

@@ -22,7 +22,6 @@ using namespace std;
 Vec::Vec(int type_in) {
   type = type_in;
   if (type > 3 || type < 1) {
-    // std::cout << "valid type = 1,2,3 for l,q,m" << std::endl;
     hf_errlog(23051602, "S: valid type = 1,2,3 for l,q,m");
   }
 }
@@ -147,6 +146,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 
   ///////////////////////////////////////////////////////      
   // read grids
+  // todo: check if num_bin matches
   if ( save_grid_in_memory ) {
     for (string grid_file_name: grid_file_list) {
       pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
@@ -161,7 +161,6 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     if (node["param"]) {
       vector<string> params = node["param"].as<vector<string> >();
       if (params.size() != 2) 
-	// cout << "Error: number of parameters" << endl;
 	hf_errlog(23061510, "S: check `param` for entry:" +entry);
       else {
 	param_name1 = params[0];
@@ -230,7 +229,6 @@ void RawVec::convolute() {
   /////////////////////////////////////////////////////////////////////////////
   if (format == "PineAPPL") {
     // read the grids
-    // todo: add up the number of bins and compare with num_bin
     // todo: follow Toni's code to deal with exceptions
     if ( ! save_grid_in_memory ) {
       for (string grid_file_name: grid_file_list) {
@@ -244,8 +242,6 @@ void RawVec::convolute() {
     ////////////////////////////////////////////
     // PDFs can be called with wrappers within xFitter
     // Here we follow Toni's strategy to deal with PDFs
-    // todo:
-    // td->actualizeWrappers(); // should be done in reactionEFT.compute()
     auto xfx = [](int32_t id_in, double x, double q2, void *state) {
       double pdfs[13];
       int32_t id = id_in==21 ? 6 : id_in+6;
@@ -271,9 +267,6 @@ void RawVec::convolute() {
 
       shift_bins += pineappl_grid_bin_count(pgrid);
     } // end of loop over all grid files
-
-    // todo: debug
-    // print value_list
 
     // free the grids
     if (! save_grid_in_memory) {

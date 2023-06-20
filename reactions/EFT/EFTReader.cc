@@ -15,7 +15,7 @@ void EFTReader::initParamName(vector<string> name_EFT_param_in){
 
   for (string name : name_EFT_param_in) {
     name_EFT_param.push_back(name);
-    find_EFT_param_id0.insert(std::make_pair(name, i)); // not used
+    // find_EFT_param_id0.insert(std::make_pair(name, i));
     find_EFT_param_id1.insert(std::make_pair(name, ++i));
   }
 
@@ -38,7 +38,7 @@ void EFTReader::read_fixed_input() {
   for (string fname : filename_list) {
 
     YAML::Node coeff_node = YAML::LoadFile(fname);
-    // YAML::Node coeff_node = YAML::LoadFile("/afs/desy.de/user/s/shenxiao/works/fitting/code/EFT-test/test_qlm.yaml");
+
     size_t num_bin_one_file = 0;
 
     // read linear coefficients
@@ -143,6 +143,21 @@ void EFTReader::read_mixed_input(){
       else
 	hf_errlog(23061508, "I: do not save grids in memory");
     }
+    
+    if (node["info"]["scaleQ"]) {
+      scaleQ = node["info"]["scaleQ"].as<bool>();      
+    }
+
+    if (scaleQ) {
+      if (node["info"]["final_scaling"]) {
+	vector<double> vec = node["info"]["final_scaling"].as<vector<double> >();
+	final_scaling.resize(vec.size());
+	std::copy(vec.begin(), vec.end(), std::begin(final_scaling));
+      }
+      else 
+	hf_errlog(23061901, "S: scaling xsec asked, but array `final_scaling` not provided");
+    }
+
   }
   else
     hf_errlog(23060101, "F: please provide the `info` entry in the mixed input file");
@@ -482,12 +497,9 @@ void EFTReader::book() {
 //------------------------------------------------------------------------------------
 void EFTReader::setValEFT(valarray<double>& list_val) {
   // executed for each computation
-  // if (num_param == list_val.size()) {
+
   for (size_t i=0; i<num_param; i++)
     val_EFT_param[i] = list_val[i];
-  // } else {
-  // hf_errlog(23040301, "E: number of EFT parameters does not match");
-  // }
 
   if (debug > 2) {
     std::cout << "=======================================================" << std::endl;
@@ -507,7 +519,18 @@ void EFTReader::calcXSec(valarray<double>& xsec) {
     calcXSecFixed(xsec);
   else
     calcXSecMixed(xsec);
+
+  if (scaleQ)
+    scaleXSec(xsec);
+
 };
+
+void EFTReader::scaleXSec(valarray<double>& xsec) {
+  assert (final_scaling.size() == num_bin);
+
+  xsec = xsec * final_scaling;
+}
+
 
 //------------------------------------------------------------------------------------
 void EFTReader::calcXSecMixed(valarray<double>& xsec) {

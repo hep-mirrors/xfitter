@@ -31,9 +31,13 @@ public:
 
   vector<string> name_EFT_param; 
   size_t num_param; // number of EFT paramters; should be less than 99
-  map<string, size_t> find_EFT_param_id1, find_EFT_param_id0;
+  map<string, size_t> find_EFT_param_id1; // , find_EFT_param_id0;
 
   size_t num_bin; // number of bins
+  bool normQ = false; // todo; what do we need?
+
+  bool scaleQ = false;
+  valarray<double> final_scaling; // use valarray to simplify multiplication
 
   std::map<size_t, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters; for fixed input
   std::map<size_t, Vec* > basis; // for mixed input
@@ -72,8 +76,6 @@ public:
   void setValEFT(valarray<double>& list_val);
 
   // calculating cross sections
-  void calcXSecMixed(valarray<double>& xsec);
-  void calcXSecFixed(valarray<double>& xsec);
   void calcXSec(valarray<double>& xsec);
 
 private:
@@ -84,6 +86,9 @@ private:
   void solvelQ(Vec*, Vec*, RawVec*, RawVec*);
   void solveNol(Vec*, Vec*, RawVec*, RawVec*);
   void lqQCoeff(vector<double>& c, int type, double val);
+  void scaleXSec(valarray<double>& xsec);
+  void calcXSecMixed(valarray<double>& xsec);
+  void calcXSecFixed(valarray<double>& xsec);
 };
 
 #endif

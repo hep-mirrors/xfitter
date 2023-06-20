@@ -64,7 +64,9 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //------------------------------------------------------------------
   // read the list of EFT parameters
-  // todo: what if ListEFTParam is not available
+  if (! td->hasParam("ListEFTParam") ) 
+    hf_errlog(23061603,"S: ListEFTParam not provided");
+
   string list_EFT_param = td->getParamS("ListEFTParam");
   vector<string> name_EFT_param;
 
@@ -128,12 +130,20 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   }
 
   EFT_term->initIter(val_EFT_param);
+
   auto endTime1 = std::chrono::high_resolution_clock::now();
 
   EFT_term->calcXSec(val);
 
 
   if (debug > 0) {
+    auto endTime2 = std::chrono::high_resolution_clock::now();
+    auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime1 - startTime).count();
+    auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime2 - endTime1).count();
+    num_comp++;
+    time_comp += duration1 + duration2;
+
+
     std::cout << "=======================================================" << std::endl;
     std::cout << "ReactionEFT.compute: " ;
     for (double v : val){
@@ -141,10 +151,11 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
     }
     std::cout << std::endl;
 
-    auto endTime2 = std::chrono::high_resolution_clock::now();
-    auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime1 - startTime).count();
-    auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime2 - endTime1).count();
-    std::cout << "Time cost(milliseconds): " << duration1 << ", " << duration2 << std::endl;
+    std::cout << "Time cost(milliseconds): " 
+	      << duration1 << ", " 
+	      << duration2 << ", " 
+	      << time_comp / num_comp << ", " 
+	      << std::endl;
   }
       
 
