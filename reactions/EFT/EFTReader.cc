@@ -144,6 +144,12 @@ void EFTReader::readMixedInput(){
 	hf_errlog(23061508, "I: do not save grids in memory");
     }
     
+    if (node["info"]["rows_before_transpose"]) {
+      rows_before_transpose = node["info"]["rows_before_transpose"].as<int>();
+      if ( num_bin % rows_before_transpose != 0 )
+	hf_errlog(23062001, "S: rows_before_transpose does not divide num_bin");	
+    }
+
     if (node["info"]["scaleQ"]) {
       scaleQ = node["info"]["scaleQ"].as<bool>();      
     }
@@ -520,10 +526,27 @@ void EFTReader::calcXSec(valarray<double>& xsec) {
   else
     calcXSecMixed(xsec);
 
+  if (rows_before_transpose > 0) {
+    transpose(xsec);
+  }
+
   if (scaleQ)
     scaleXSec(xsec);
 
 };
+
+void EFTReader::transpose(valarray<double>& xsec) {
+  int m = rows_before_transpose;
+  int n = num_bin / rows_before_transpose;
+
+  valarray<double> tmp(xsec.size());
+
+  for (int i=0; i<m; i++)
+    for (int j=0; j<n; j++)
+      tmp[j*m + i] = xsec[i*n + j];
+
+  xsec = std::move(tmp);
+}
 
 void EFTReader::scaleXSec(valarray<double>& xsec) {
   assert (final_scaling.size() == num_bin);

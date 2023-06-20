@@ -28,6 +28,7 @@ public:
   int debug = -1;
   bool abs_output = false;
   bool no_central = false;
+  int rows_before_transpose = -1; // do not tranpose xsec if <= 0
 
   vector<string> name_EFT_param; 
   size_t num_param; // number of EFT paramters; should be less than 99
@@ -84,6 +85,8 @@ private:
   void solvelQ(Vec*, Vec*, RawVec*, RawVec*);
   void solveNol(Vec*, Vec*, RawVec*, RawVec*);
   void lqQCoeff(vector<double>& c, int type, double val);
+
+  void transpose(valarray<double>& xsec) {
   void scaleXSec(valarray<double>& xsec);
   void calcXSecMixed(valarray<double>& xsec);
   void calcXSecFixed(valarray<double>& xsec);

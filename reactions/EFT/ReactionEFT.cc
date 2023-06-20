@@ -108,7 +108,7 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //------------------------------------------------------------------
   // read the filenames of coefficients
-  EFT_terms[ID]->read_input();
+  EFT_terms[ID]->readInput();
 }
 
 //______________________________________________________________________________
