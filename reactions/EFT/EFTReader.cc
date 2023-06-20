@@ -23,16 +23,16 @@ void EFTReader::initParamName(vector<string> name_EFT_param_in){
 }
 
 //------------------------------------------------------------------------------------
-void EFTReader::read_input(){
+void EFTReader::readInput(){
   num_bin = 0;  
   if (input_type == "fixed") 
-    read_fixed_input();
+    readFixedInput();
   else
-    read_mixed_input();
+    readMixedInput();
 }
 
 //------------------------------------------------------------------------------------
-void EFTReader::read_fixed_input() {
+void EFTReader::readFixedInput() {
 
   // read coefficients for all files
   for (string fname : filename_list) {
@@ -106,7 +106,7 @@ void EFTReader::read_fixed_input() {
 }
 
 //------------------------------------------------------------------------------------
-void EFTReader::read_mixed_input(){
+void EFTReader::readMixedInput(){
 
   assert (filename_list.size() == 1);
   string fname = filename_list[0];

@@ -64,9 +64,7 @@ public:
   }
 
   void initParamName(vector<string> name_EFT_param_in);
-  void read_input();
-  void read_fixed_input();
-  void read_mixed_input();
+  void readInput();
   void initlq(size_t);
   int  initm(size_t, size_t);
   void initrvec();
@@ -89,6 +87,8 @@ private:
   void scaleXSec(valarray<double>& xsec);
   void calcXSecMixed(valarray<double>& xsec);
   void calcXSecFixed(valarray<double>& xsec);
+  void readFixedInput();
+  void readMixedInput();
 };
 
 #endif
