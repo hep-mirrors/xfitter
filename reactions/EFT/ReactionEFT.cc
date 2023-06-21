@@ -84,6 +84,7 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //-------------------------------------------------------
   // more init
+  // may be overwritten by inputs in the YAML file
   if ( td->hasParam("Debug") )
     EFT_terms[ID]->debug = td->getParamI("Debug");
 
@@ -136,7 +137,7 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   EFT_term->calcXSec(val);
 
 
-  if (debug > 0) {
+  if (EFT_term->debug > 0) {
     auto endTime2 = std::chrono::high_resolution_clock::now();
     auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime1 - startTime).count();
     auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(endTime2 - endTime1).count();
@@ -158,5 +159,4 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
 	      << std::endl;
   }
       
-
 }

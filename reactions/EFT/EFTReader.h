@@ -86,7 +86,7 @@ private:
   void solveNol(Vec*, Vec*, RawVec*, RawVec*);
   void lqQCoeff(vector<double>& c, int type, double val);
 
-  void transpose(valarray<double>& xsec) {
+  void transpose(valarray<double>& xsec);
   void scaleXSec(valarray<double>& xsec);
   void calcXSecMixed(valarray<double>& xsec);
   void calcXSecFixed(valarray<double>& xsec);

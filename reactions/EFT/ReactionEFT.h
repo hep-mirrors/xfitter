@@ -48,7 +48,6 @@ protected:
 private:
   long int num_comp = 0;
   double time_comp = 0.0;  
-  const int debug = 0;
 };
 
 #endif

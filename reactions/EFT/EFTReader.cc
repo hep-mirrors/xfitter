@@ -164,6 +164,16 @@ void EFTReader::readMixedInput(){
 	hf_errlog(23061901, "S: scaling xsec asked, but array `final_scaling` not provided");
     }
 
+    if (node["info"]["debug"])
+      debug = node["info"]["debug"].as<int>();
+
+    if (node["info"]["no_central"])
+      no_central = node["info"]["no_central"].as<bool>();
+
+    if (node["info"]["abs_output"])
+      abs_output = node["info"]["abs_output"].as<bool>();
+
+
   }
   else
     hf_errlog(23060101, "F: please provide the `info` entry in the mixed input file");
@@ -535,6 +545,7 @@ void EFTReader::calcXSec(valarray<double>& xsec) {
 
 };
 
+//------------------------------------------------------------------------------------
 void EFTReader::transpose(valarray<double>& xsec) {
   int m = rows_before_transpose;
   int n = num_bin / rows_before_transpose;
@@ -548,12 +559,12 @@ void EFTReader::transpose(valarray<double>& xsec) {
   xsec = std::move(tmp);
 }
 
+//------------------------------------------------------------------------------------
 void EFTReader::scaleXSec(valarray<double>& xsec) {
   assert (final_scaling.size() == num_bin);
 
   xsec = xsec * final_scaling;
 }
-
 
 //------------------------------------------------------------------------------------
 void EFTReader::calcXSecMixed(valarray<double>& xsec) {
