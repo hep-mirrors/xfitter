@@ -4,6 +4,7 @@
 #include "systematics.inc"
 #include "iofnames.inc"
       ResultsFile = TRIM(OutDirName)//'/Results.txt'
+      close (85)
       OPEN(85,file=ResultsFile,form='formatted',status='replace')
       end
       
@@ -44,6 +45,7 @@ C----------------------------------------------------------------------
       MinuitOut = TRIM(OutDirName)//'/minuit.out'//Suffix
       MinuitSave = TRIM(OutDirName)//'/minuit.save'//Suffix
 
+      close (85)
       OPEN(85,file=ResultsFile,form='formatted',status='replace')
 
       return
