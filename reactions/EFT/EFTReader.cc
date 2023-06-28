@@ -150,10 +150,10 @@ void EFTReader::readMixedInput(){
 	hf_errlog(23062001, "S: rows_before_transpose does not divide num_bin");	
     }
 
+    ///////////////////////////////////////////////////////
     if (node["info"]["scaleQ"]) {
       scaleQ = node["info"]["scaleQ"].as<bool>();      
     }
-
     if (scaleQ) {
       if (node["info"]["final_scaling"]) {
 	vector<double> vec = node["info"]["final_scaling"].as<vector<double> >();
@@ -163,6 +163,27 @@ void EFTReader::readMixedInput(){
       else 
 	hf_errlog(23061901, "S: scaling xsec asked, but array `final_scaling` not provided");
     }
+    ///////////////////////////////////////////////////////
+    if (node["info"]["normQ"]) {
+      normQ = node["info"]["normQ"].as<bool>();      
+    }
+    if (normQ) {
+      if (node["info"]["binning_for_norm"]) {
+	vector<double> vecN = node["info"]["binning_for_norm"].as<vector<double> >();
+	binning_for_norm.resize(vecN.size());
+	std::copy(vecN.begin(), vecN.end(), std::begin(binning_for_norm));
+      }
+      else {
+	hf_errlog(23062601, "I: `binning_for_norm` not provided, assumed to be 1.");
+	if (num_bin > 0) {
+	  binning_for_norm.resize(num_bin);
+	  binning_for_norm = 1.0;
+	}
+	else
+	  hf_errlog(23062602, "S: please define `num_bin` before `normQ`.");
+      }
+    }
+
 
     if (node["info"]["debug"])
       debug = node["info"]["debug"].as<int>();
@@ -543,6 +564,9 @@ void EFTReader::calcXSec(valarray<double>& xsec) {
   if (scaleQ)
     scaleXSec(xsec);
 
+  if (normQ)
+    normXSec(xsec);
+
 };
 
 //------------------------------------------------------------------------------------
@@ -567,6 +591,13 @@ void EFTReader::scaleXSec(valarray<double>& xsec) {
 }
 
 //------------------------------------------------------------------------------------
+void EFTReader::normXSec(valarray<double>& xsec) {
+  assert (binning_for_norm.size() == num_bin);
+
+  xsec /= (xsec * binning_for_norm).sum();
+}
+
+//------------------------------------------------------------------------------------
 void EFTReader::calcXSecMixed(valarray<double>& xsec) {
 
   xsec = 0.0;
@@ -579,7 +610,7 @@ void EFTReader::calcXSecMixed(valarray<double>& xsec) {
 
   if (abs_output == false)
     for (size_t i=0; i<num_bin; ++i)
-      xsec[i] /= prvec_C->value_list[i];
+      xsec[i] /= prvec_C->value_list[i]; // value_list is a vector, not a valarray; so can only be divided bin by bin
 
 };
 

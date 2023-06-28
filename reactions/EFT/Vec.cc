@@ -5,14 +5,18 @@
 // #include <fstream>
 #include "yaml-cpp/yaml.h"
 #include "Vec.h"
-// the following inclusions are from Toni's script:
-#include "pineappl_capi.h"
+
+// from ReactionAPPLgrid
 #include "xfitter_pars.h"
 #include "xfitter_steer.h"
 #include "xfitter_cpp_base.h"
 #include <memory>
 #include "BaseEvolution.h"
-#include "TermData.h"
+
+#include "appl_grid/appl_grid.h"
+#include "TermData.h" // needed by the PDF wrappers
+// from Toni's script:
+#include "pineappl_capi.h"
 #include <sstream>
 
 
@@ -148,10 +152,16 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
   // read grids
   // todo: check if num_bin matches
   if ( save_grid_in_memory ) {
+    // todo check format type
     for (string grid_file_name: grid_file_list) {
-      pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
-      pgrid_list.push_back(g);
-      hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
+      if (format == "PineAPPL") {
+	pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
+	pgrid_list.push_back(g);
+	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
+      }
+      else if (format == "APPLgrid") {
+	
+      }
     }
   }  
   ///////////////////////////////////////////////////////      

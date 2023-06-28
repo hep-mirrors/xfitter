@@ -10,8 +10,9 @@
 #include <valarray>
 #include <cassert>
 #include "yaml-cpp/yaml.h"
+// for fast grids
 #include "pineappl_capi.h"
-
+#include "appl_grid/appl_grid.h"
 //--------------------------------------------------------------
 using namespace std;
 
@@ -36,6 +37,7 @@ class RawVec {
   double param_val2;
   vector<double> value_list; // cross sections in each bin
   vector<pineappl_grid* > pgrid_list;
+  vector<unique_ptr<appl::grid> > p_APPLgrid_list;
 
   ///////////////////////////////////////////////////////
   RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir, 

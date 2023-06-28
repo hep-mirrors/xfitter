@@ -35,9 +35,10 @@ public:
   map<string, size_t> find_EFT_param_id1; // , find_EFT_param_id0;
 
   size_t num_bin; // number of bins
-  bool normQ = false; // todo; what do we need?
 
+  bool normQ = false;
   bool scaleQ = false;
+  valarray<double> binning_for_norm; // use valarray to simplify multiplication
   valarray<double> final_scaling; // use valarray to simplify multiplication
 
   std::map<size_t, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters; for fixed input
@@ -88,6 +89,7 @@ private:
 
   void transpose(valarray<double>& xsec);
   void scaleXSec(valarray<double>& xsec);
+  void normXSec(valarray<double>& xsec);
   void calcXSecMixed(valarray<double>& xsec);
   void calcXSecFixed(valarray<double>& xsec);
   void readFixedInput();
