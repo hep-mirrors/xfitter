@@ -151,17 +151,32 @@ void EFTReader::readMixedInput(){
     }
 
     ///////////////////////////////////////////////////////
-    if (node["info"]["scaleQ"]) {
-      scaleQ = node["info"]["scaleQ"].as<bool>();      
+    if (node["info"]["scaleQ1"]) {
+      scaleQ1 = node["info"]["scaleQ1"].as<bool>();      
     }
-    if (scaleQ) {
-      if (node["info"]["final_scaling"]) {
-	vector<double> vec = node["info"]["final_scaling"].as<vector<double> >();
-	final_scaling.resize(vec.size());
-	std::copy(vec.begin(), vec.end(), std::begin(final_scaling));
+
+    if (node["info"]["scaleQ2"]) {
+      scaleQ1 = node["info"]["scaleQ2"].as<bool>();      
+    }
+
+    if (scaleQ1) {
+      if (node["info"]["scaling1"]) {
+	vector<double> vec = node["info"]["scaling1"].as<vector<double> >();
+	scaling1.resize(vec.size());
+	std::copy(vec.begin(), vec.end(), std::begin(scaling1));
       }
       else 
-	hf_errlog(23061901, "S: scaling xsec asked, but array `final_scaling` not provided");
+	hf_errlog(23061901, "S: scaling xsec asked, but array `scaling1` not provided");
+    }
+
+    if (scaleQ2) {
+      if (node["info"]["scaling2"]) {
+	vector<double> vec = node["info"]["scaling2"].as<vector<double> >();
+	scaling2.resize(vec.size());
+	std::copy(vec.begin(), vec.end(), std::begin(scaling2));
+      }
+      else 
+	hf_errlog(23070301, "S: scaling xsec asked, but array `scaling2` not provided");
     }
     ///////////////////////////////////////////////////////
     if (node["info"]["normQ"]) {
@@ -557,20 +572,24 @@ void EFTReader::calcXSec(valarray<double>& xsec) {
   else
     calcXSecMixed(xsec);
 
-  if (rows_before_transpose > 0) {
-    transpose(xsec);
-  }
+  if (scaleQ1)
+    scaleXSec1(xsec);
 
-  if (scaleQ)
-    scaleXSec(xsec);
+  if (scaleQ2)
+    scaleXSec2(xsec);
 
   if (normQ)
     normXSec(xsec);
+
+  if (rows_before_transpose > 1) {
+    transpose(xsec);
+  }
 
 };
 
 //------------------------------------------------------------------------------------
 void EFTReader::transpose(valarray<double>& xsec) {
+  // tranpose xsec as if it is a matrix with "rows_before_transpose" rows
   int m = rows_before_transpose;
   int n = num_bin / rows_before_transpose;
 
@@ -584,10 +603,16 @@ void EFTReader::transpose(valarray<double>& xsec) {
 }
 
 //------------------------------------------------------------------------------------
-void EFTReader::scaleXSec(valarray<double>& xsec) {
-  assert (final_scaling.size() == num_bin);
+void EFTReader::scaleXSec1(valarray<double>& xsec) {
+  assert (scaling1.size() == num_bin);
 
-  xsec = xsec * final_scaling;
+  xsec = xsec * scaling1;
+}
+
+void EFTReader::scaleXSec2(valarray<double>& xsec) {
+  assert (scaling2.size() == num_bin);
+
+  xsec = xsec * scaling2;
 }
 
 //------------------------------------------------------------------------------------

@@ -37,9 +37,12 @@ public:
   size_t num_bin; // number of bins
 
   bool normQ = false;
-  bool scaleQ = false;
+  bool scaleQ1 = false;
+  bool scaleQ2 = false;
+  valarray<double> scaling1; // use valarray to simplify multiplication
+  valarray<double> scaling2; // use valarray to simplify multiplication
+
   valarray<double> binning_for_norm; // use valarray to simplify multiplication
-  valarray<double> final_scaling; // use valarray to simplify multiplication
 
   std::map<size_t, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters; for fixed input
   std::map<size_t, Vec* > basis; // for mixed input
@@ -88,7 +91,8 @@ private:
   void lqQCoeff(vector<double>& c, int type, double val);
 
   void transpose(valarray<double>& xsec);
-  void scaleXSec(valarray<double>& xsec);
+  void scaleXSec1(valarray<double>& xsec);
+  void scaleXSec2(valarray<double>& xsec);
   void normXSec(valarray<double>& xsec);
   void calcXSecMixed(valarray<double>& xsec);
   void calcXSecFixed(valarray<double>& xsec);
