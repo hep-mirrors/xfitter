@@ -579,3 +579,12 @@ C this replaces old subroutine PDF_param_iteration
         ExtraParamValue(i)=p(iExtraParamMinuit(GetParameterIndex(trim(ExtraParamNames(i)))))
       enddo
       end
+
+C
+C Reset extra parameters
+C
+      subroutine reset_extra_parameters
+      implicit none
+#include "extrapars.inc"
+      nextraparam = 0
+      end

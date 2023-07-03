@@ -9,6 +9,7 @@
 #include"BasePdfDecomposition.h"
 #include"BaseEvolution.h"
 #include"BaseMinimizer.h"
+#include "BasePdfParam.h"
 using std::string;
 using std::cerr;
 
@@ -68,14 +69,39 @@ void init_minimizer_() {
   auto mini = xfitter::get_minimizer();
 }
 
+bool updateMinimizer() {
+  if ( XFITTER_PARS::gParametersVS.find("Minimizers" ) == XFITTER_PARS::gParametersVS.end() )
+    return false;
+  auto currentMinimizer =std::find( XFITTER_PARS::gParametersVS["Minimizers"].begin(),
+				    XFITTER_PARS::gParametersVS["Minimizers"].end(),
+				    XFITTER_PARS::gParametersS["__currentMinimizer"]);
+
+  if (std::next(currentMinimizer) == XFITTER_PARS::gParametersVS["Minimizers"].end())
+    return false;
+  else {
+    XFITTER_PARS::gParametersS["__currentMinimizer"] = *std::next(currentMinimizer);
+    // update it and init
+    auto mini = xfitter::get_minimizer();
+    // We need to re-initialize parameterisations (since parameters may moved)
+    for(const auto& pdfparam : XFITTER_PARS::gParameterisations){
+      pdfparam.second->atStart();
+    }
+    return true;
+  }
+}
+
+
 void run_minimizer_() {
-  auto mini = xfitter::get_minimizer();
   /// get profiler too
   auto *prof = new xfitter::Profiler();
 
   prof->doProfiling();
 
-  mini->doMinimization();
+  do {
+    auto mini = xfitter::get_minimizer();
+    mini->doMinimization();
+  }
+  while ( updateMinimizer() );
 }
 
 void report_convergence_status_(){
