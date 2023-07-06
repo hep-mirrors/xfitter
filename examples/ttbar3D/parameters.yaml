@@ -9,7 +9,7 @@ Parameters:
   Bg   : [ 0.023513, 0.08 ]
   Cg   : [ 11.595993,  1.62 ]
   Eg   : [ 16.634623,  11.5 ]
-  Agp  : [ 0.029088, 0.01 ]  # negative gluon
+  Agp  : [ 0.143420, 0.01 ]  # negative gluon
   Bgp  : [ -0.340250, 0.13 ]
   Cgp  : [ 25.0, 0.]  # fix C of negative gluon
   Auv  :  DEPENDENT

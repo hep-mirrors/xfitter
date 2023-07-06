@@ -10,6 +10,12 @@ MINUIT:
     
 #  doErrors :  Hesse # None
 
+CERES:
+  offset: 2
+  tolerance: 1e-5
+  strategy: 0
+  covariance: 1
+
 Parameters:
   Ag   :  DEPENDENT
   Bg   : [ -0.061953, 0.27 ]
@@ -150,8 +156,8 @@ byReaction:
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
-  DYTurbo:
-    ? !include reactions/DYTurbo.yaml
+#  DYTurbo:
+#    ? !include reactions/DYTurbo.yaml
 
 #byDataset: #Here one can redefine some parameters for specific datasets
 #  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
@@ -205,3 +211,13 @@ WriteLHAPDF6:
   #Qrange: [1,1000]
   #Xnpoints: 200
   #Qnpoints: 120
+
+#
+# Possible levels to stop program execution:
+#  1 - will stop on warnings
+#  2 - will stop on errors (default)
+#  3 - will stop on severe errors
+#  4 - will stop on fatal
+#  5 - will not stop on any error
+
+MaxErrAllowed: 2

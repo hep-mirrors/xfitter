@@ -5,7 +5,7 @@
      1 'Adbar     '   0.10017      0.10000E-01     no limits
      2 'Adv       '    1.0000      constant
      3 'Ag        '    1.0000      constant
-     4 'Agp       '   0.29088E-01  0.10000E-01     no limits
+     4 'Agp       '   0.14342      0.10000E-01     no limits
      5 'Aubar     '    0.0000      constant
      6 'Auv       '    1.0000      constant
      7 'Bdbar     '  -0.17258      0.70000E-02     no limits
@@ -51,7 +51,7 @@
    1   Adbar       0.10017       0.10000E-01
    2   Adv          1.0000       constant   
    3   Ag           1.0000       constant   
-   4   Agp         0.29088E-01   0.10000E-01
+   4   Agp         0.14342       0.10000E-01
    5   Aubar        0.0000       constant   
    6   Auv          1.0000       constant   
    7   Bdbar      -0.17258       0.70000E-02

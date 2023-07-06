@@ -1,7 +1,8 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool ceres-solver-devel zlib zlib-devel zlib-static
+  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+  #eigen3-devel gflags-devel glog-devel
   - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   
 job-install-minimal:
@@ -27,7 +28,7 @@ job-install-full:
     - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nlo CT14nnlo ABMP16_3_nlo ABMP16_5_nnlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian NNPDF31_nnlo_as_0118 MMHT2014nnlo68cl nCTEQ15FullNuc_184_74 nCTEQ15FullNuc_1_1 >& download-lhapdf.log
     - cat *.log
     - ./make.sh install
-    - git clone https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - git clone -b fix2 --single-branch https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
     - rm -rf temp-datafiles
     - cd datafiles
@@ -43,3 +44,99 @@ job-install-full:
       - temp/**/output
     expire_in: 2 day
 
+job-ceres-fit:
+  only: 
+    - merge_requests
+    - schedules
+  script: 
+    - ./tools/install-qcdnum
+    - ./tools/install-numdiff
+    #- ./tools/install-ceres
+    - . setup.sh
+    - ./make.sh install
+    - ./tools/test.sh CERES-fit
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
+
+job-ceres-parallel:
+  only: 
+    - merge_requests
+    - schedules
+  script: 
+    - ./tools/install-qcdnum
+    - ./tools/install-numdiff
+    #- ./tools/install-ceres
+    - . setup.sh
+    - ./make.sh install
+    - ./tools/test.sh CERES-parallel
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
+
+job-scanmin:
+  only: 
+    - merge_requests
+    - schedules
+  script: 
+    - ./tools/install-qcdnum
+    - ./tools/install-numdiff
+    - . setup.sh
+    - ./make.sh install
+    - ./tools/test.sh scanmin
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: always
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
+
+job-dyturbo:
+  only: 
+    - merge_requests
+    - schedules
+  script: 
+    - yum -y install git tar
+    #- . /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc12-opt/setup.sh
+    - . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+    - ./tools/install-qcdnum
+    - ./tools/install-lhapdf
+    - ./tools/install-dyturbo
+    - ./tools/install-numdiff
+    - . setup.sh
+    - ./make.sh install
+    - git clone -b cdfzpt-dyt1.3 https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+    - ./tools/test.sh ZPT
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day

@@ -1,0 +1,47 @@
+# EW parameters
+Mz : 91.1876
+Mw : 80.385
+Mh : 125.9
+
+Wz : 2.4952
+Ww : 2.085
+Wh : 1d-3
+Wtp: 2.0d0
+
+gf : 1.16638e-5
+convFac : 0.389379338e9
+alphaem : 7.29735e-3
+
+sin2thW :  0.23127
+Vud : 0.97427
+Vus : 0.2254
+Vub : 0.00358
+Vcd : 0.22520
+Vcs : 0.97344 
+Vcb : 0.04156
+Vtd : 0.00872
+Vts : 0.04076
+Vtb : 0.999133
+
+# lepton masses:
+men : 1e-10
+mel : 0.510998928e-3
+mmn : 1e-10
+mmo : 0.1056583715
+mtn : 1e-10
+mta : 1.77682
+
+# light quark masses:
+mup : 0.06983
+mdn : 0.06983
+mst : 0.150
+
+# heavy quark masses:
+mch : 1.43 
+mbt : 4.50
+mtp : 173.0
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0 # 0 (default): VFNS with number of flavours changing from 3 to NFlavour, 1: FFNS with number of flavours = NFlavour at any scale

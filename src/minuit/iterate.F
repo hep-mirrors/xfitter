@@ -120,6 +120,7 @@ c
 	common /umatco/ hquad(MNI,MNI), umat(MNI,MNI), vmat(MNI,MNI), 
      &	                tvec(MNI), errmat(MNI,MNI)
 
+        integer NCPU, GetParamI
 c get the requested number of iterations...
       niters = WORD7(1) + 0.01
       niters = max(niters,0)
@@ -128,6 +129,8 @@ c get the requested number of iterations...
 
       LDEBUG = (IDBG(3) .GE. 1)
 
+      NCPU = GetParamI("NCPUPumplin")
+      
 c get the starting point and starting FCN value...
       IF (AMIN .EQ. UNDEFI)  CALL MNAMIN(FCN,FUTIL)
 
@@ -238,64 +241,70 @@ c on first pass, only reset step sizes...
 
 C get diagonal elements of second derivative matrix...
       IF (LDEBUG) WRITE (ISYSWR,100) iter
-100	format(1x,'ITERATE iteration',i2,/1x,
+ 100  format(1x,'ITERATE iteration',i2,/1x,
      &  ' Par               STEP     ',
      &  '   2nd Deriv.      1st Deriv.        SAGITA  ',
      &  '        F(+)            F(-)')
 
-	amin4s = amin4
+      amin4s = amin4
 
+C SG: compute all in parallel
+      if ( (NCPU.gt.1) .and. (NPAR.gt.1) ) then
+         call hf_errlog(2023060901,'I: Compute Hessian using fork()')
+         call compute_hessian(NPAR,
+     $        NCPU, x0, x0best, dstep, amin,
+     $        amin4, vhvec, cormax, cormin, G11, FCN,FUTIL)
+      else
 c Loop over variable parameters for diagonal second derivatives...
-	do I = 1, NPAR
+         do I = 1, NPAR
+c     take steps in opposite directions...
 
-c take steps in opposite directions...
+            do j = 1, npar
+               x(j) = x0(j) + umat(j,i)*dstep
+            enddo
+            CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
 
-	   do j = 1, npar
-	      x(j) = x0(j) + umat(j,i)*dstep
-	   enddo
-	   CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
+            do j = 1, npar
+               x(j) = x0(j) - umat(j,i)*dstep
+            enddo
+            CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
 
-	   do j = 1, npar
-	      x(j) = x0(j) - umat(j,i)*dstep
-	   enddo
-	   CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
+            SAG = 0.5d0*(FS1+FS2-2.0*AMIN)
+            G22(I) = 2.d0*SAG/dstep**2 !estimate of second derivative
+            G11(I) = (FS1-FS2)/(2.d0*dstep) !estimate of first derivative
 
-	   SAG = 0.5d0*(FS1+FS2-2.0*AMIN)
-	   G22(I) = 2.d0*SAG/dstep**2		!estimate of second derivative
-	   G11(I) = (FS1-FS2)/(2.d0*dstep)	!estimate of first derivative
+            sum = 0.d0
+            do j = 1, npar
+               sum = sum + umat(j,i)**2
+            enddo
+            step = dstep*sqrt(sum)
 
-	   sum = 0.d0
-	   do j = 1, npar
-	      sum = sum + umat(j,i)**2
-	   enddo
-	   step = dstep*sqrt(sum)
+            IF (LDEBUG) WRITE (ISYSWR,31)
+     &           I,step,G22(I),G11(I),SAG, FS1, FS2
+ 31         FORMAT (2x,I2,8x,4G16.7,1x,2G16.7)
 
-	   IF (LDEBUG) WRITE (ISYSWR,31)
-     &	      I,step,G22(I),G11(I),SAG, FS1, FS2
-   31	      FORMAT (2x,I2,8x,4G16.7,1x,2G16.7)
+            NDEX = I*(I+1)/2
+            vhvec(NDEX) = G22(I)
+         enddo
 
-	   NDEX = I*(I+1)/2
-	   vhvec(NDEX) = G22(I)
-	enddo
+         IF(ldebug .and. (amin4 .lt. amin4s))
+     &        WRITE (ISYSWR,130) amin4,amin4s-amin4
+ 130     format(1x,'new minimum found while calculating',
+     &        ' diagonal elements:',e15.7,
+     &        ' lower by',e12.5,' (not used now)')
 
-	IF(ldebug .and. (amin4 .lt. amin4s))
-     &	   WRITE (ISYSWR,130) amin4,amin4s-amin4
-130	   format(1x,'new minimum found while calculating',
-     &     ' diagonal elements:',e15.7,
-     &     ' lower by',e12.5,' (not used now)')
-
-	if(ldebug) write(isyswr,140) iter, amin, nfcn
-140	format(1x,'diagonal elements done; begin off-diag',1x,
-     &  'iteration',i3,' FCN=',g16.9,' NFCN=',i6)
+         if(ldebug) write(isyswr,140) iter, amin, nfcn
+ 140     format(1x,'diagonal elements done; begin off-diag',1x,
+     &        'iteration',i3,' FCN=',g16.9,' NFCN=',i6)
 
 c first derivatives and diagonal second derivatives are finished;
 c now compute the off-diagonal second derivatives.
-	amin4s = amin4
+         amin4s = amin4
 
-	IF (NPAR .EQ. 1)  GOTO 230
+         IF (NPAR .EQ. 1)  GOTO 230
 
-	DO I= 2, NPAR
-	DO J= 1, I-1
+         DO I= 2, NPAR
+            DO J= 1, I-1
 c ******************************************************************************
 c evaluate the fcn at 4 new points: (a,b), (-a,-b), (a, -b), (-a, b).
 c Minuit's Hesse uses just one new point (a,b), and combines with the already
@@ -314,63 +323,64 @@ c the steps for diagonal elements by factor 1/sqrt(2), so that when
 c convergence is achieved, they will correspond to raising the function
 c by aimsag, just like the diagonal computations.
 
-	   cmult = dstep/sqrt(2.d0)
+               cmult = dstep/sqrt(2.d0)
 
-	   do k = 1, npar
-	      x(k) = x0(k)+cmult*(umat(k,i) + umat(k,j))
-	   enddo
-	   CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
+               do k = 1, npar
+                  x(k) = x0(k)+cmult*(umat(k,i) + umat(k,j))
+               enddo
+               CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
 
-	   do k = 1, npar
-	      x(k) = x0(k)-cmult*(umat(k,i) + umat(k,j))
-	   enddo
-	   CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
+               do k = 1, npar
+                  x(k) = x0(k)-cmult*(umat(k,i) + umat(k,j))
+               enddo
+               CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
 
-	   do k = 1, npar
-	      x(k) = x0(k)+cmult*(umat(k,i) - umat(k,j))
-	   enddo
-	   CALL FCALL(FS3,amin4,x0best,FCN,FUTIL)
+               do k = 1, npar
+                  x(k) = x0(k)+cmult*(umat(k,i) - umat(k,j))
+               enddo
+               CALL FCALL(FS3,amin4,x0best,FCN,FUTIL)
 
-	   do k = 1, npar
-	      x(k) = x0(k)-cmult*(umat(k,i) - umat(k,j))
-	   enddo
-	   CALL FCALL(FS4,amin4,x0best,FCN,FUTIL)
+               do k = 1, npar
+                  x(k) = x0(k)-cmult*(umat(k,i) - umat(k,j))
+               enddo
+               CALL FCALL(FS4,amin4,x0best,FCN,FUTIL)
 
-	   slow = (FS1 + FS2 - FS3 - FS4)/(4.d0*cmult**2)
+               slow = (FS1 + FS2 - FS3 - FS4)/(4.d0*cmult**2)
+               if(ldebug) write(isyswr,150)
+     &              i,j,fs1-amin,fs2-amin,fs3-amin,fs4-amin,slow
+ 150           format(1x,'i,j=',2i3,' corners=',4e12.4,1x,
+     &              'dF/dY(i)dY(j)=',e13.5)
 
-	   if(ldebug) write(isyswr,150)
-     &	           i,j,fs1-amin,fs2-amin,fs3-amin,fs4-amin,slow
-150	   format(1x,'i,j=',2i3,' corners=',4e12.4,1x,
-     &          'dF/dY(i)dY(j)=',e13.5)
-
-	   cmax = max(fs1-amin,fs2-amin,fs3-amin,fs4-amin)
-	   cmin = min(fs1-amin,fs2-amin,fs3-amin,fs4-amin)
+               cmax = max(fs1-amin,fs2-amin,fs3-amin,fs4-amin)
+               cmin = min(fs1-amin,fs2-amin,fs3-amin,fs4-amin)
 
 
-	   NDEX = (I*(I-1))/2 + J
-	   vhvec(NDEX) = slow
+               NDEX = (I*(I-1))/2 + J
+               vhvec(NDEX) = slow
 
-	   if(NDEX .eq. 2) then
-	      cormax = cmax
-	      cormin = cmin
-	   else
-	      cormax = max(cormax,cmax)
-	      cormin = min(cormin,cmin)
-	   endif
+               if(NDEX .eq. 2) then
+                  cormax = cmax
+                  cormin = cmin
+               else
+                  cormax = max(cormax,cmax)
+                  cormin = min(cormin,cmin)
+               endif
 
-	ENDDO
-	ENDDO
+            ENDDO
+         ENDDO
 
-	if(ldebug) write(isyswr,210) cormin, cormax
-210	format(1x,'off-diagonal corner points:',e13.5,' < F-FMIN <',e13.5)
+      endif
 
-	IF(ldebug .and. (amin4 .lt. amin4s))
-     &	WRITE (ISYSWR,220) amin4, amin4s-amin4
-220   format(1x,'new minimum found while calculating',
-     &  ' off-diagonal elements:',e15.7,
-     &  ' lower by',e12.5,' (not used now)')
+      if(ldebug) write(isyswr,210) cormin, cormax
+ 210  format(1x,'off-diagonal corner points:',e13.5,' < F-FMIN <',e13.5)
 
-230	CONTINUE
+      IF(ldebug .and. (amin4 .lt. amin4s))
+     &     WRITE (ISYSWR,220) amin4, amin4s-amin4
+ 220  format(1x,'new minimum found while calculating',
+     &     ' off-diagonal elements:',e15.7,
+     &     ' lower by',e12.5,' (not used now)')
+
+ 230  CONTINUE
 
 c get qmat = hessian matrix in y's:  qmat(i,j) = D^2F / Dy_i Dy_j.
 	DO I= 1, NPAR
@@ -728,121 +738,133 @@ c adjust step sizes for each direction to make the increases in Chisqr
 c to be approximately equal to the desired value set by errdef...
 	amin4s = amin4
 
-	do ipar = 1, npar
+        if (ncpu.gt.1) then
+           if  (iter .lt. 5) then
+              call step_method_one(npar,ncpu,x0,x0best,
+     $             AIMSAG,AMIN,AMIN4,ncyc,FCN, FUTIL)
+           else
+              call step_method_two(npar,ncpu,x0,x0best,
+     $             AIMSAG,AMIN,AMIN4,ncyc,FCN, FUTIL)
+           endif
+        else
+           do ipar = 1, npar
 
-	   if(ldebug) write(isyswr,710)
-710	   format(1x)
 
+              if(ldebug) write(isyswr,710)
+ 710          format(1x)
+           
+              if(iter .ge. 5) goto 750
+           
 c *** BEGINNING WITH ITERATION 5, SWITCH TO THE SLOWER BUT 
 c *** MORE ACCURATE "ALTERNATIVE" METHOD ***
-	   if(iter .ge. 5) goto 750
 
-	   do isize = 1, ncyc
+              do isize = 1, ncyc
+              
+                 do j = 1, npar
+                    x(j) = x0(j) + umat(j,ipar)*sqrt(aimsag)
+                 enddo
+                 CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
+              
+                 do j = 1, npar
+                    x(j) = x0(j) - umat(j,ipar)*sqrt(aimsag)
+                 enddo
+                 CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
+              
+              
+                 if(ldebug) write(isyswr,720)
+     &                ipar, aimsag, fs1-amin, fs2-amin, isize, iter
+ 720             format(1x,'Direction #',i2,' expected UP=',g14.6,
+     &      ' got',g14.6,' ,',g14.6,' (isize=',i2,' iter=',i4,')')
 
-	      do j = 1, npar
-	         x(j) = x0(j) + umat(j,ipar)*sqrt(aimsag)
-	      enddo
-	      CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
-
-	      do j = 1, npar
-	         x(j) = x0(j) - umat(j,ipar)*sqrt(aimsag)
-	      enddo
-	      CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
-
-
-	      if(ldebug) write(isyswr,720)
-     &	               ipar, aimsag, fs1-amin, fs2-amin, isize, iter
-720	      format(1x,'Direction #',i2,' expected UP=',g14.6,
-     &        ' got',g14.6,' ,',g14.6,' (isize=',i2,' iter=',i4,')')
-
-	      rat1 = (max(fs1,fs2) - amin)/aimsag
-	      rat2 = (min(fs1,fs2) - amin)/aimsag
+                 rat1 = (max(fs1,fs2) - amin)/aimsag
+                 rat2 = (min(fs1,fs2) - amin)/aimsag
 
 c ideally, rat1 and rat2 would both be 1.0; scale the step size to approximate that...
 c (in bizarre case that rat2 is negative, instead increase step size.)
-
-	      if(rat2 .le. 0.d0) then
-	         tmp = 2.0d0
-	         if(isize .gt. 2) then
-	            if(tmpst1 .gt. 1.d0) tmp = min(tmp,tmpst1)
-	            if(tmpst2 .gt. 1.d0) tmp = min(tmp,tmpst2)
-	         endif
-	      else
-	         tmp = sqrt(2.d0/(rat1 + rat2))
-	      endif
+              
+                 if(rat2 .le. 0.d0) then
+                    tmp = 2.0d0
+                    if(isize .gt. 2) then
+                       if(tmpst1 .gt. 1.d0) tmp = min(tmp,tmpst1)
+                       if(tmpst2 .gt. 1.d0) tmp = min(tmp,tmpst2)
+                    endif
+                 else
+                    tmp = sqrt(2.d0/(rat1 + rat2))
+                 endif
 
 c force the scale change to lie between 0.5 and 2.0, so very large
 c changes are avoided...
-	      if(tmp .gt. 1.5d0) then
-	         tmp = 2.d0 - 0.75d0/tmp
-	      elseif(tmp .lt. 0.7d0) then
-	         tmp = 0.5d0 + (2.d0/7.d0)*tmp
-	      endif
+                 if(tmp .gt. 1.5d0) then
+                    tmp = 2.d0 - 0.75d0/tmp
+                 elseif(tmp .lt. 0.7d0) then
+                    tmp = 0.5d0 + (2.d0/7.d0)*tmp
+                 endif
 
 c terminate iterations if last few multipliers were close to 1...
-	      if(isize .gt. 2) then
-	         if(max(abs(tmp-1.d0),
-     &	                abs(tmpst1-1.d0),
-     &	                abs(tmpst2-1.d0)) .lt. 0.1d0) then
-
-	            if(ldebug) write(isyswr,730)
-     &	              ipar,min(rat1,rat2),max(rat1,rat2),isize,iter
-730	              format(1x,'dir',i2,' rats',2f15.5,' after',
+                 if(isize .gt. 2) then
+                    if(max(abs(tmp-1.d0),
+     &                   abs(tmpst1-1.d0),
+     &                   abs(tmpst2-1.d0)) .lt. 0.1d0) then
+                    
+                       if(ldebug) write(isyswr,730)
+     &              ipar,min(rat1,rat2),max(rat1,rat2),isize,iter
+ 730                   format(1x,'dir',i2,' rats',2f15.5,' after',
      &                   i3,' tries (iter=',i4,')')
-
-	            goto 900
-
-	         endif
-	      endif
+                    
+                       goto 900
+                    
+                    endif
+                 endif
 
 c store the previous multipliers...
-	      if(isize .gt. 1) tmpst2 = tmpst1
-	      tmpst1 = tmp
+                 if(isize .gt. 1) tmpst2 = tmpst1
+                 tmpst1 = tmp
 
-	      do j = 1, npar
-	         umat(j,ipar) = tmp*umat(j,ipar)
-	      enddo
+                 do j = 1, npar
+                    umat(j,ipar) = tmp*umat(j,ipar)
+                 enddo
+                 print *,'SCALE umat',ipar,tmp
+              enddo
 
-	   enddo
 
-
-	   if(ldebug) write(isyswr,740) ipar, iter
-740	   format(1x,'warning -- step size didn''t converge along dir=',
+              if(ldebug) write(isyswr,740) ipar, iter
+ 740          format(1x,
+     $             'warning -- step size didn''t converge along dir=',
      &          i2,' (iter=',i4,') --- use alternative procedure')
 
 c ===========================
 c begin alternative procedure
 c ===========================
-
-750	   continue
+       
+ 750          continue
 
 c loop over forward/backward along this direction...
-	   igood = 0
-	   do idir = 1, 2
+              igood = 0
+              do idir = 1, 2
 
-	      tmult = sqrt(aimsag)
-	      if(idir .eq. 2) then
-	         tmult = -tmult
-	      endif
+                 tmult = sqrt(aimsag)
+                 if(idir .eq. 2) then
+                    tmult = -tmult
+                 endif
 
 c loop over iterations to find the displacement that 
 c gives the desired increase of aimsag in chisqr...
 c (This scheme avoids using derivatives -- it is 
 c intended to be robust in the face of discontinuities in 
 c FCN which can be present due to numerical integration noise.)
-	      ntry = 50
-	      dbesth = -9.d99
-	      dbestl = +9.d99
-	      tbesth = 1.d0
-	      tbestl = 1.d0
-	      do itry = 1, ntry
+                 ntry = 50
+                 dbesth = -9.d99
+                 dbestl = +9.d99
+                 tbesth = 1.d0
+                 tbestl = 1.d0
+                 do itry = 1, ntry
 
-	         do j = 1, npar
-	            x(j) = x0(j) + umat(j,ipar)*tmult
-	         enddo
-	         CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
+                    do j = 1, npar
+                       x(j) = x0(j) + umat(j,ipar)*tmult
+                    enddo
+                    CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
 
-	         del = FS1 - amin
+                    del = FS1 - amin
 
 c **************************************************************
 c EXTRA PRINTOUT FOR TESTING
@@ -853,167 +875,171 @@ c **************************************************************
 
 c go if convergence good enough...
 c *** sets desired accuracy ***
-	         accu = 1.e-3
+                    accu = 1.e-3
 
-	         if(abs(del-aimsag) .lt. accu*aimsag) then
-	            igood = igood + idir
-	            goto 880	
-	         endif
+                    if(abs(del-aimsag) .lt. accu*aimsag) then
+                       igood = igood + idir
+                       goto 880	
+                    endif
 
-	         if(itry .eq. 1) then
-	            tbest = tmult
-	            dbest = del
-	         endif
+                    if(itry .eq. 1) then
+                       tbest = tmult
+                       dbest = del
+                    endif
 
 c keep track of best above and best below...
-	         if(del .ge. aimsag) then
-	            if(abs(del-aimsag) .lt. abs(dbesth-aimsag)) then
-	               tbesth = tmult
-	               dbesth = del
-	            endif
-	         endif
+                    if(del .ge. aimsag) then
+                       if(abs(del-aimsag) .lt. abs(dbesth-aimsag)) then
+                          tbesth = tmult
+                          dbesth = del
+                       endif
+                    endif
 
-	         if(del .le. aimsag) then
+                    if(del .le. aimsag) then
 c *** error corrected 9/26/00 ***
-	            if(abs(del-aimsag) .lt. abs(dbestl-aimsag)) then
-	               tbestl = tmult
-	               dbestl = del
-	            endif
-	         endif
+                       if(abs(del-aimsag) .lt. abs(dbestl-aimsag)) then
+                          tbestl = tmult
+                          dbestl = del
+                       endif
+                    endif
 
 
 c del should always be positive, because amin should be the local minimum;
 c bail out if it isn't.
-	         if(del .le. 0.d0) then
-	            if(ldebug) write(isyswr,840) (-del), ipar, idir, itry
-840	            format(1x,'ITERATE: warning, FS1 below amin by',e12.5,
-     &                   ' ipar=',i3,' idir=',i2,' itry=',i3)
-	            goto 880
-	         endif
+                    if(del .le. 0.d0) then
+                       if(ldebug)
+     $                      write(isyswr,840) (-del), ipar, idir, itry
+ 840       format(1x,'ITERATE: warning, FS1 below amin by',e12.5,
+     &                      ' ipar=',i3,' idir=',i2,' itry=',i3)
+                       goto 880
+                    endif
 
 c first time, calculate the multiplier by assuming chisqr is a quadratic 
 c function of the displacement, as it is expected to be near a local minimum...
-	         if(itry .eq. 1) then
-	            xmult = sqrt(aimsag/del)
+                    if(itry .eq. 1) then
+                       xmult = sqrt(aimsag/del)
 
 c force the multiplier to be not too far from 1; but 
 c if it is already close to 1, leave it nearly as is...
-	            ascale = 0.3d0		!*** parameter choice ***
-	            xmult = 1.d0 + ascale*atan((xmult-1.d0)/ascale)
-	            goto 850
-	         endif
+                       ascale = 0.3d0 !*** parameter choice ***
+                       xmult = 1.d0 + ascale*atan((xmult-1.d0)/ascale)
+                       goto 850
+                    endif
 
 c keep track of best found so far...
-	         if(abs(del-aimsag) .lt. abs(dbest-aimsag)) then
-	            tbest = tmult
-	            dbest = del
-	         endif
+                    if(abs(del-aimsag) .lt. abs(dbest-aimsag)) then
+                       tbest = tmult
+                       dbest = del
+                    endif
 
 c reduce step size if have stepped to the other side of the desired value...
-	         if(((xmult .gt. 1.d0) .and. (del .ge. aimsag)) .or.
-     &	            ((xmult .lt. 1.d0) .and. (del .le. aimsag))) then
-	            tmult = tbest
-	            del = dbest
-	            xmult = sqrt(xmult)		!makes step factor closer to 1.0, i.e., smaller step size
-	         endif
+                    if(((xmult .gt. 1.d0) .and. (del .ge. aimsag)) .or.
+     &               ((xmult .lt. 1.d0) .and. (del .le. aimsag))) then
+                       tmult = tbest
+                       del = dbest
+                       xmult = sqrt(xmult) !makes step factor closer to 1.0, i.e., smaller step size
+                    endif
 
-	         if(((xmult .gt. 1.d0) .and. (del .ge. aimsag)) .or.
-     &	            ((xmult .lt. 1.d0) .and. (del .le. aimsag))) then
-	            xmult = 1.d0/xmult
-	         endif
+                    if(((xmult .gt. 1.d0) .and. (del .ge. aimsag)) .or.
+     &                ((xmult .lt. 1.d0) .and. (del .le. aimsag))) then
+                       xmult = 1.d0/xmult
+                    endif
 
-850	         continue
-	         tmult = xmult*tmult
+ 850                continue
+                    tmult = xmult*tmult
 	            
-	      enddo
+                 enddo
    
 c here it didn't converge.  This appears to happen only if the function is not 
 c monotonic.  In that case, go back to the best result found...
-	      tmult = tbest
+                 tmult = tbest
 
-	      do j = 1, npar
-	         x(j) = x0(j) + umat(j,ipar)*tmult
-	      enddo
-	      CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
+                 do j = 1, npar
+                    x(j) = x0(j) + umat(j,ipar)*tmult
+                 enddo
+                 CALL FCALL(FS1,amin4,x0best,FCN,FUTIL)
 
-	      write(isyswr,860) FS1-amin, ipar, idir
-860	      format(1x,'ITERATE: poor convergence warning -- ',
-     &             'Delta Chisqr=',e12.5,' ipar=',i2,' idir=',i1)
+                 write(isyswr,860) FS1-amin, ipar, idir
+ 860             format(1x,'ITERATE: poor convergence warning -- ',
+     &                'Delta Chisqr=',e12.5,' ipar=',i2,' idir=',i1)
 
-	      if(ldebug) write(isyswr,870) 
-     &	      tbestl, dbestl, tbesth, dbesth, tmult, fs1-amin
-870	      format(11x,'tmult=',e16.8,' ==> del=',e15.8,
-     &             /11x,'tmult=',e16.8,' ==> del=',e15.8,
-     &             /7x,'use tmult=',e16.8,' ==> del=',e15.8)
+                 if(ldebug) write(isyswr,870) 
+     &                tbestl, dbestl, tbesth, dbesth, tmult, fs1-amin
+ 870             format(11x,'tmult=',e16.8,' ==> del=',e15.8,
+     &                /11x,'tmult=',e16.8,' ==> del=',e15.8,
+     &                /7x,'use tmult=',e16.8,' ==> del=',e15.8)
 
-880	      continue
+ 880             continue
 
 
-	      if(ldebug) write(isyswr,890) itry, ipar, idir
-890	      format(1x,'alternative method:  itry=',i3,' ipar=',i3,' idir=',i2)
+                 if(ldebug) write(isyswr,890) itry, ipar, idir
+ 890      format(1x,'alternative method:  itry=',i3,' ipar=',i3,' idir=',i2)
 
-	      tmvec(idir) = tmult
+                 tmvec(idir) = tmult
 
-	   enddo		!end of loop over forward/back
+              enddo		!end of loop over forward/back
 
 c get an "average" tmult, based on assuming a quadratic + cubic form...
 c NOTE, tmvec(2) is negative.
-	   if(igood .eq. 3) then
-	      tmp = 1.d0/tmvec(1)**2 + 1.d0/tmvec(2)**2 + 1.d0/(tmvec(1)*tmvec(2))
-	      tmult = 1.d0/sqrt(tmp)
+              if(igood .eq. 3) then
+                 tmp = 1.d0/tmvec(1)**2
+     $                + 1.d0/tmvec(2)**2 + 1.d0/(tmvec(1)*tmvec(2))
+                 tmult = 1.d0/sqrt(tmp)
 
-	      if(ldebug) write(isyswr,2230) tmvec(1), tmvec(2), tmult 
-2230	      format(1x,'tmvec(1), tmvec(2), tmult=',3e13.5)
+                 if(ldebug) write(isyswr,2230) tmvec(1), tmvec(2),tmult 
+ 2230            format(1x,'tmvec(1), tmvec(2), tmult=',3e13.5)
 
-	   elseif(igood .eq. 1) then
-	      tmult = abs(tmvec(1))
-	      if(ldebug) write(isyswr,2240) tmult
-2240	      format(1x,'only idir=1 converged; use tmult=',e14.6)
+              elseif(igood .eq. 1) then
+                 tmult = abs(tmvec(1))
+                 if(ldebug) write(isyswr,2240) tmult
+ 2240            format(1x,'only idir=1 converged; use tmult=',e14.6)
 
-	   elseif(igood .eq. 2) then
-	      tmult = abs(tmvec(2))
-	      if(ldebug) write(isyswr,2250) tmult
-2250	      format(1x,'only idir=2 converged, use tmult=',e14.6)
+              elseif(igood .eq. 2) then
+                 tmult = abs(tmvec(2))
+                 if(ldebug) write(isyswr,2250) tmult
+ 2250            format(1x,'only idir=2 converged, use tmult=',e14.6)
 
-	   else
-	      tmult = 0.001d0
-	      if(ldebug) write(isyswr,2260) tmult
-2260	      format(1x,'warning: neither direction converged; take tmult=',
-     &             f10.5)
-
-	   endif
+              else
+                 tmult = 0.001d0
+                 if(ldebug) write(isyswr,2260) tmult
+ 2260   format(1x,'warning: neither direction converged; take tmult=',
+     &                f10.5)
+        
+              endif
 
 
 c update umat...
-	   do j = 1, npar
-	      umat(j,ipar) = umat(j,ipar)*tmult/sqrt(aimsag)
-	   enddo
+              do j = 1, npar
+                 umat(j,ipar) = umat(j,ipar)*tmult/sqrt(aimsag)
+              enddo
 
+C     print *,'TMUL STD',tmult,tmvec(1)-1,tmvec(2)-1
 c ============================
 c end of alternative procedure
 c ============================
-900	   continue
+ 900          continue
+           
+           
+              if(ldebug) then
+                 sum = 0.d0
+                 do j = 1, npar
+                    sum = sum + umat(j,ipar)**2
+                 enddo
+                 write(isyswr,920) ipar, sqrt(sum*aimsag), aimsag
+ 920             format(1x,'Eigenvector #',i2,1x,'has length=',e12.5,
+     &                ' to increase fcn by',e12.5)
 
-	   if(ldebug) then
-	      sum = 0.d0
-	      do j = 1, npar
-	         sum = sum + umat(j,ipar)**2
-	      enddo
-	      write(isyswr,920) ipar, sqrt(sum*aimsag), aimsag
-920	      format(1x,'Eigenvector #',i2,1x,'has length=',e12.5,
-     &             ' to increase fcn by',e12.5)
-
-	      do j = 1, npar
-	         JEXT = NEXOFI(j)
-	         write(isyswr,930) j, jext, umat(j,ipar)*sqrt(aimsag)
-930	         format(5x,'par',i3,' TruePar',i3,1x,g16.8)
-	      enddo
-	   endif
-
-
-	enddo		!end of loop over eigenvector directions ipar
+                 do j = 1, npar
+                    JEXT = NEXOFI(j)
+                    write(isyswr,930) j, jext, umat(j,ipar)*sqrt(aimsag)
+ 930                format(5x,'par',i3,' TruePar',i3,1x,g16.8)
+                 enddo
+              endif
 
 
+           enddo		!end of loop over eigenvector directions ipar
+        endif  ! fortran instead of C
+        
 	IF(ldebug .and. (amin4 .lt. min(amin,amin4s)))
      &	   WRITE (ISYSWR,950) amin4, amin4s-amin4
 950	   format(1x,'new minimum found while adjusting lengths',
@@ -1108,7 +1134,18 @@ c calculate the final notion of the hessian and the error matrix...
 	RETURN
 	END
 
-c ---------------------------------------------------------
+
+
+      subroutine set_x_values(Xinput)
+#include "./d506dp.inc"
+#include "./d506cm.inc"
+      double precision xinput(*)
+      do i=1, npar
+         X(i) = Xinput(i)
+      enddo
+      end
+
+c---------------------------------------------------------
 	SUBROUTINE FCALL(FSHERE,amin4,x0best,FCN,FUTIL)
 c ---------------------------------------------------------
 c call the chisqr function, recording any new best value and its location.
@@ -1210,3 +1247,25 @@ C--------------------------------------------------------------------
 
       end
 
+      subroutine ScaleUmat(i,j,scale)
+C
+C  Wraper around Umat common.
+C  Return values from UMAT matrix
+C
+
+#include "./d506dp.inc"
+#include "./d506cm.inc"
+      integer i,j
+      double precision scale
+      double precision hquad,umat,vmat,tvec,errmat
+C--------------------------------------------------------------------
+      common /umatco/ hquad(MNI,MNI), umat(MNI,MNI), vmat(MNI,MNI), 
+     &	                tvec(MNI), errmat(MNI,MNI)
+C--------------------------------------------------------------------
+
+      umat(i,j) = umat(i,j)*scale
+
+      end
+
+
+      

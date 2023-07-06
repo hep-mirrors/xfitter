@@ -8,10 +8,8 @@
 #include <math.h>
 #include "BasePdfDecomposition.h"
 #include <algorithm>
-
 // Global var to hold current pdfDecomposition
 xfitter::BasePdfDecomposition *gPdfDecomp = nullptr;
-
 // Global photon or not PDF
 bool gQCDevol;
 
@@ -30,10 +28,10 @@ extern "C" void externalsetapfel_(double &x, double &Q, double *xf)
     x = 1.0;
 
   const std::map<int, int> ip =
-      {{-3, -3}, {-2, -2}, {-1, -1}, {0, 21}, {1, 1}, {2, 2}, {3, 3}};
+      {{-5, -5},{-4, -4},{-3, -3}, {-2, -2}, {-1, -1}, {0, 21}, {1, 1}, {2, 2}, {3, 3},{4, 4},{5, 5}};
   for (auto &i : ip)
   {
-    xf[i.first + 6] = gPdfDecomp->xfxMap(x)[i.second];
+    xf[i.first + 6] = gPdfDecomp->xfxMap(x)[i.second]; 
   }
   if (!gQCDevol)
   {
@@ -112,6 +110,7 @@ void APFEL_Evol::atStart()
   const string heavyQuarkMassRunning = _yAPFEL["heavyQuarkMassRunning"].as<string>();
   const string theoryType = _yAPFEL["theoryType"].as<string>();
   const string nllxResummation = _yAPFEL["nllxResummation"].as<string>();
+  const string fragmen = _yAPFEL["fragmentation"].as<string>();
 
   if (theoryType == "QCD")
   {
@@ -126,9 +125,12 @@ void APFEL_Evol::atStart()
     hf_errlog(2019050601, "S: Unknown APFEL evolution theoryType, QCD or QUniD exected got " + theoryType);
   }
 
+  string scheme = "FONLL-" + _yAPFEL["FONLLVariant"].as<string>();
+  if (fragmen == "On")
+  {
+   scheme.replace(0,7,"ZM-VFNS",8);
+   }
 
-  // FONLL-specific settings
-  const string scheme = "FONLL-" + _yAPFEL["FONLLVariant"].as<string>();
 
   if (PtOrder == 1)
   {
@@ -149,7 +151,6 @@ void APFEL_Evol::atStart()
   {
     APFEL::SetMassScheme(scheme);
   }
-
 
 
   APFEL::SetTheory(theoryType);
@@ -184,9 +185,13 @@ void APFEL_Evol::atStart()
     hf_errlog(110520203, "F: Unsupported isFFNS = " + std::to_string(isFFNS));
   }
 
+
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
-
+  if (fragmen == "On")
+  {
+    APFEL::SetTimeLikeEvolution(true);
+  }
   // Set Parameters
   APFEL::SetZMass(*Mz);                 // make fittable at some point
   APFEL::SetWMass(*Mw);
@@ -198,6 +203,8 @@ void APFEL_Evol::atStart()
   APFEL::EnableDynamicalScaleVariations(true);
 
   APFEL::SetQLimits(qLimits[0], qLimits[1]);
+  _Qmin = qLimits[0];
+  _Qmax = qLimits[1];
   // Setup x sub-grids:
   APFEL::SetNumberOfGrids(iNxGrids);
   for (size_t igrid = 0; igrid < iNxGrids; igrid++)
@@ -238,19 +245,18 @@ void APFEL_Evol::atStart()
   {
     APFEL::SetSmallxResummation(true, "NLL");
     APFEL::SetQLimits(1.6, 4550.0); // Hardwire for now.
+    _Qmin = 1.6;
+    _Qmax = 4550.0;
+    hf_errlog(1908202201,"I: Setting APFEL grid range to 1.6 < Q < 4550 to match resummation grids.");
   }
 
   // set the ratio muR / Q (default 1), muF / Q (default 1)
   double muRoverQ = _yAPFEL["muRoverQ"].as<double>();
   double muFoverQ = _yAPFEL["muFoverQ"].as<double>();
-  APFEL::EnableDynamicalScaleVariations(false); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
+  APFEL::EnableDynamicalScaleVariations(true); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
   APFEL::SetRenQRatio(muRoverQ);
   APFEL::SetFacQRatio(muFoverQ);
-
-  // APFEL::InitializeAPFEL();
-  // Initialize the APFEL DIS module
-  APFEL::InitializeAPFEL_DIS();
-
+  APFEL::InitializeAPFEL_DIS();  // hamed FF
   APFEL::SetPDFSet("external");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atStart();
@@ -329,6 +335,14 @@ vector<double> APFEL_Evol::getXgrid() {
   xGrid.resize(Nx);
   for (int i=0; i<Nx; ++i) xGrid[i] = APFEL::xGrid(i);
   return xGrid;
+}
+
+std::vector<double> APFEL_Evol::getQgrid() {
+  vector<double> qGrid;
+  qGrid.resize(2);
+  qGrid[0] = _Qmin;
+  qGrid[1] = _Qmax;
+  return qGrid;
 }
 
 } // namespace xfitter

@@ -9,6 +9,7 @@
 #include"BasePdfDecomposition.h"
 #include"BaseEvolution.h"
 #include"BaseMinimizer.h"
+#include "BasePdfParam.h"
 using std::string;
 using std::cerr;
 
@@ -68,14 +69,39 @@ void init_minimizer_() {
   auto mini = xfitter::get_minimizer();
 }
 
+bool updateMinimizer() {
+  if ( XFITTER_PARS::gParametersVS.find("Minimizers" ) == XFITTER_PARS::gParametersVS.end() )
+    return false;
+  auto currentMinimizer =std::find( XFITTER_PARS::gParametersVS["Minimizers"].begin(),
+				    XFITTER_PARS::gParametersVS["Minimizers"].end(),
+				    XFITTER_PARS::gParametersS["__currentMinimizer"]);
+
+  if (std::next(currentMinimizer) == XFITTER_PARS::gParametersVS["Minimizers"].end())
+    return false;
+  else {
+    XFITTER_PARS::gParametersS["__currentMinimizer"] = *std::next(currentMinimizer);
+    // update it and init
+    auto mini = xfitter::get_minimizer();
+    // We need to re-initialize parameterisations (since parameters may moved)
+    for(const auto& pdfparam : XFITTER_PARS::gParameterisations){
+      pdfparam.second->atStart();
+    }
+    return true;
+  }
+}
+
+
 void run_minimizer_() {
-  auto mini = xfitter::get_minimizer();
   /// get profiler too
   auto *prof = new xfitter::Profiler();
 
   prof->doProfiling();
 
-  mini->doMinimization();
+  do {
+    auto mini = xfitter::get_minimizer();
+    mini->doMinimization();
+  }
+  while ( updateMinimizer() );
 }
 
 void report_convergence_status_(){
@@ -100,16 +126,16 @@ void report_convergence_status_(){
       hf_errlog(16042801,"I: No minimization has run");
       break;
     case ConvergenceStatus::INACCURATE:
-      hf_errlog(16042803,"S: Error matrix not accurate");
+      hf_errlog(16042803,"E: Error matrix not accurate");
       break;
     case ConvergenceStatus::FORCED_POSITIVE:
-      hf_errlog(16042804,"S: Error matrix forced positive");
+      hf_errlog(16042804,"E: Error matrix forced positive");
       break;
     case ConvergenceStatus::SUCCESS:
       hf_errlog(16042802,"I: Fit converged");
       break;
     case ConvergenceStatus::NO_CONVERGENCE:
-      hf_errlog(16042805,"S: No convergence");
+      hf_errlog(16042805,"E: No convergence");
       break;
     case ConvergenceStatus::ERROR:
       hf_errlog(16042806,"F: Minimizer error");

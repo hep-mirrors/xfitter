@@ -39,6 +39,17 @@ find_package(Hathor)
 find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
+find_package(PineAPPL)
+
+set(CMAKE_CXX_FLAGS "-O ${CMAKE_CXX_FLAGS}")
+set(CMAKE_Fortran_FLAGS "-O ${CMAKE_Fortran_FLAGS}")
+set(CMAKE_C_FLAGS "-O ${CMAKE_C_FLAGS}")
+
+if(OPENMP)
+  set(CMAKE_CXX_FLAGS "-fopenmp ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_Fortran_FLAGS "-fopenmp ${CMAKE_Fortran_FLAGS}")
+  set(CMAKE_C_FLAGS "-fopenmp ${CMAKE_C_FLAGS}")
+endif()
 
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
@@ -57,17 +68,17 @@ endif()
 #Use c preprocessor with fortran
 
 if(UNIX AND NOT APPLE)
-  set(CMAKE_Fortran_FLAGS "-cpp -Wno-argument-mismatch")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp -Wno-argument-mismatch")
 endif()
 
 if(APPLE)
-  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp -fallow-argument-mismatch")
 endif()
 
 
 if (CMAKE_MAJOR_VERSION VERSION_GREATER_EQUAL "3")
 if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10")
-  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp -fallow-argument-mismatch")
 endif()
 endif()
 
@@ -86,6 +97,9 @@ endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fbounds-check -ffpe-trap='invalid,overflow,zero'")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ggdb")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
   elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -check bounds -fpe0")
   endif()
@@ -119,6 +133,7 @@ add_subdirectory(minimizers/MINUIT)
 add_subdirectory(minimizers/CERES)
 
 #Parameterisations
+add_subdirectory(pdfparams/Pion_FF)
 add_subdirectory(pdfparams/HERAPDF)
 add_subdirectory(pdfparams/Normalized)
 add_subdirectory(pdfparams/Factor)
@@ -128,9 +143,10 @@ add_subdirectory(pdfparams/ABMPsea)
 add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
-add_subdirectory(pdfparams/Bernstein)
+add_subdirectory(pdfparams/Chebyschev)
 
 #Decompositions
+add_subdirectory(pdfdecomps/Pion_FF_B_C)
 add_subdirectory(pdfdecomps/UvDvUbarDbarS)
 add_subdirectory(pdfdecomps/LHAPDF)
 add_subdirectory(pdfdecomps/SU3_Pion)
@@ -145,6 +161,7 @@ add_subdirectory(evolutions/FlipUD)
 add_subdirectory(evolutions/LHAPDF)
 
 #Reactions
+add_subdirectory(reactions/NC_SIA)
 add_subdirectory(reactions/BaseDISNC)
 add_subdirectory(reactions/BaseDISCC)
 add_subdirectory(reactions/FFABM_DISNC)
@@ -169,6 +186,7 @@ add_subdirectory(reactions/HathorSingleTop)
 add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
+add_subdirectory(reactions/PineAPPL)
 
 #Tools
 add_subdirectory(tools/draw/src)

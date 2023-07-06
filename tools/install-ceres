@@ -1,0 +1,26 @@
+#!/bin/bash
+
+ceresver=2.1.0
+
+CURRENTDIR=`pwd`
+
+mkdir -p deps
+cd deps
+
+echo "Installing CERES $ceresver..."
+
+wget http://ceres-solver.org/ceres-solver-${ceresver}.tar.gz
+tar -xzf ceres-solver-${ceresver}.tar.gz
+rm ceres-solver-${ceresver}.tar.gz
+cd ceres-solver-${ceresver}
+mkdir build
+cd build
+cmake ../ -DEXPORT_BUILD_DIR=on -DMINIGLOG=on -DCXSPARSE=off -DSUITESPARSE=off -DSCHUR_SPECIALIZATIONS=off -DGFLAGS=off -DLAPACK=off #-DBUILD_SHARED_LIBS=on
+make
+
+cd - >& /dev/null
+
+cd $CURRENTDIR
+
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/ceres-solver-${ceresver}/build/lib:\$LD_LIBRARY_PATH >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/ceres-solver-${ceresver}/build/bin:\$PATH" >> setup.sh
