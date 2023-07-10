@@ -55,8 +55,12 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
   if [ "$cmd" == "reconfigure" ] && [ -e CMakeCache.txt ];then
     rm CMakeCache.txt
   fi
+  cmake3='cmake3'
+  if [ -x "command -v cmake3" ]; then
+    cmake3='cmake'
+  fi
   if [ ! -f Makefile ] || [ ! -f CMakeCache.txt ];then
-    cmake $CMAKE_FLAGS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
+    $cmake3 $CMAKE_FLAGS $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
   fi
   if [ "$cmd" == "reconfigure" ];then
     exit 0
