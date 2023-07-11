@@ -30,6 +30,8 @@ CC     Except for IUINT, this is exactly the inverse of MNPARM
 CC
 #include "./d506cm.inc"
       CHARACTER*(*) CHNAM
+      CHARACTER TMP
+      INTEGER I
       XLOLIM = 0.
       XUPLIM = 0.
       ERR = 0.
@@ -51,7 +53,12 @@ C                    external parameter number specified
 C                     in both cases
          NVL = NVARL(IEXT)
          IF (NVL .LT. 0) GO TO 100
-      CHNAM = CPNAM(IEXT)
+      DO I = 1, LEN(CPNAM(IEXT))
+        if (I.LE.LEN(CHNAM)) THEN
+          TMP = CPNAM(IEXT)(I:I)
+          CHNAM(I:I) = TMP
+        ENDIF
+      ENDDO
       VAL = U(IEXT)
       IF (IINT .GT. 0)  ERR = WERR(IINT)
       IF (NVL .EQ. 4) THEN
