@@ -119,27 +119,27 @@ byReaction:
   #BaseDISCC:
   #  evolution: proton-QCDNUM
   # FONLL scheme settings:
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml    
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
+#  FONLL_DISNC:
+#    ? !include reactions/FONLL_DISNC.yaml    
+#  FONLL_DISCC:
+#    ? !include reactions/FONLL_DISCC.yaml
   # FF ABM scheme settings:
-  FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC.yaml
-  FFABM_DISCC:
-    ? !include reactions/FFABM_DISCC.yaml
+ # FFABM_DISNC:
+ #   ? !include reactions/FFABM_DISNC.yaml
+ # FFABM_DISCC:
+ #   ? !include reactions/FFABM_DISCC.yaml
   # AFB settings:
-  AFB:
-    ? !include reactions/AFB.yaml
+ # AFB:
+ #   ? !include reactions/AFB.yaml
   # APPLgrid settings:
   APPLgrid:
     ? !include reactions/APPLgrid.yaml
   # APPLgrid settings:
-  APFELgrid:
-    ? !include reactions/APFELgrid.yaml
+ # APFELgrid:
+ #   ? !include reactions/APFELgrid.yaml
   # (optional) Fractal module settings:
-  Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC.yaml
+ # Fractal_DISNC:
+ #   ? !include reactions/Fractal_DISNC.yaml
 
 #byDataset: #Here one can redefine some parameters for specific datasets
 #  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"

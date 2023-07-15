@@ -9,8 +9,8 @@ Dataset    5    219.27( -0.24)   159  HERA1+2 NCem
 Dataset    6     44.92( +0.37)    39  HERA1+2 CCep                                    
 Dataset    7     56.02( -2.14)    42  HERA1+2 CCem                                    
 
- Correlated Chi2    91.460589111749783     
- Log penalty Chi2    5.8442132621088394     
+ Correlated Chi2    91.460675205716726     
+ Log penalty Chi2    5.8443159492049404     
  Systematic shifts          169
   
                                 Name          Shift   +/-    Error          Type
@@ -31,7 +31,7 @@ Dataset    7     56.02( -2.14)    42  HERA1+2 CCem
    15  sysHZComb1015                         -0.0981   +/-   0.9633        :N:M:D
    16  sysHZComb1016                         -0.0857   +/-   0.9748        :N:M:D
    17  sysHZComb1017                         -0.3070   +/-   0.9709        :N:M:D
-   18  sysHZComb1018                          0.2042   +/-   0.8226        :N:M:D
+   18  sysHZComb1018                          0.2041   +/-   0.8226        :N:M:D
    19  sysHZComb1019                         -0.3621   +/-   0.9837        :N:M:D
    20  sysHZComb1020                         -0.3568   +/-   0.9814        :N:M:D
    21  sysHZComb1021                         -0.0893   +/-   0.9744        :N:M:D
@@ -51,7 +51,7 @@ Dataset    7     56.02( -2.14)    42  HERA1+2 CCem
    35  sysHZComb1035                          0.0213   +/-   0.9781        :N:M:D
    36  sysHZComb1036                         -0.4209   +/-   0.9743        :N:M:D
    37  sysHZComb1037                          0.5038   +/-   0.9702        :N:M:D
-   38  sysHZComb1038                         -0.5784   +/-   0.9126        :N:M:D
+   38  sysHZComb1038                         -0.5785   +/-   0.9126        :N:M:D
    39  sysHZComb1039                         -0.4698   +/-   0.9535        :N:M:D
    40  sysHZComb1040                         -0.1805   +/-   0.9302        :N:M:D
    41  sysHZComb1041                         -0.6099   +/-   0.8122        :N:M:D
@@ -72,7 +72,7 @@ Dataset    7     56.02( -2.14)    42  HERA1+2 CCem
    56  sysHZComb1056                         -1.4313   +/-   0.8904        :N:M:D
    57  sysHZComb1057                          0.0657   +/-   0.9194        :N:M:D
    58  sysHZComb1058                          0.0859   +/-   0.9433        :N:M:D
-   59  sysHZComb1059                         -1.0579   +/-   0.8698        :N:M:D
+   59  sysHZComb1059                         -1.0578   +/-   0.8698        :N:M:D
    60  sysHZComb1060                          0.1568   +/-   0.9789        :N:M:D
    61  sysHZComb1061                          0.1559   +/-   0.9831        :N:M:D
    62  sysHZComb1062                         -1.3328   +/-   0.8949        :N:M:D
@@ -113,7 +113,7 @@ Dataset    7     56.02( -2.14)    42  HERA1+2 CCem
    97  sysHZComb1097                          0.4121   +/-   0.9880        :N:M:D
    98  sysHZComb1098                          1.6276   +/-   0.7355        :N:M:D
    99  sysHZComb1099                         -0.9751   +/-   0.6835        :N:M:D
-  100  sysHZComb1100                         -0.9400   +/-   0.6878        :N:M:D
+  100  sysHZComb1100                         -0.9399   +/-   0.6878        :N:M:D
   101  sysHZComb1101                         -0.3023   +/-   0.7721        :N:M:D
   102  sysHZComb1102                         -0.4923   +/-   0.9019        :N:M:D
   103  sysHZComb1103                          0.2911   +/-   0.7906        :N:M:D
