@@ -147,6 +147,7 @@ add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
 add_subdirectory(pdfparams/Chebyschev)
+add_subdirectory(pdfparams/Bernstein)
 
 #Decompositions
 add_subdirectory(pdfdecomps/Pion_FF_B_C)

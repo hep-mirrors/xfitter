@@ -18,9 +18,9 @@
 
 
 namespace xfitter{
-class BernsteinPdfParam:public BasePdfParam{
+class Bernstein_PdfParam:public BasePdfParam{
   public:
-    BernsteinPdfParam(const std::string&name):BasePdfParam(name){}
+    Bernstein_PdfParam(const std::string&name):BasePdfParam(name){}
     virtual double operator()(double x)const override final;
     virtual void atStart()override final;
 };

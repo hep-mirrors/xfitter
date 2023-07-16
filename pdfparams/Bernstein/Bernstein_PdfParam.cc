@@ -8,12 +8,12 @@
 namespace xfitter{
 
 //for dynamic loading
-extern"C" BernsteinPdfParam*create(const char*s){
-  return new BernsteinPdfParam(s);
+extern"C" Bernstein_PdfParam*create(const char*s){
+  return new Bernstein_PdfParam(s);
 }
 
 
-void BernsteinPdfParam::atStart(){
+void Bernstein_PdfParam::atStart(){
   using namespace std;
   BasePdfParam::atStart();
   const size_t n=getNPar();
@@ -24,7 +24,7 @@ void BernsteinPdfParam::atStart(){
 }
 
 
-double BernsteinPdfParam::operator()(double x)const{
+double Bernstein_PdfParam::operator()(double x)const{
   const unsigned int npar=getNPar();
   double power=(*pars[0])*pow(x,(*pars[1]))*pow((1-x),(*pars[2]));
 
