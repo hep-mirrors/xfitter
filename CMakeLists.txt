@@ -106,7 +106,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # For semaphore in multithreading
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
 
 #When linking, set rpath to install directories
 #This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
