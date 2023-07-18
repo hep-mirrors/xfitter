@@ -23,6 +23,7 @@ extern "C" {
   void addsystematics_(char const* name, int len);
   void store_pdfs_(char const* base, int len);
   void writefittedpoints_();
+  int systematicexists_(char const* name, int len);
 }
   
 namespace xfitter
@@ -110,6 +111,8 @@ namespace xfitter
     // Fortran inteface
     size_t npt = uncertainties.size();
     int nsys = systema_.nsys;
+    int index = systematicexists_(name.c_str(), name.size());
+    if (index)
     addsystematics_(name.c_str(), name.size());
     sysmeas_.n_syst_meas[nsys] = npt;
     for (int j = 0; j < npt; j++) {
