@@ -925,7 +925,10 @@ void parse_params_(){
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:
 void add_to_param_map_(map<std::string,double*> *map, double &value, int& global, char *name, int len) {
   string nam = name;
-  nam.erase(nam.find(" "));
+  const auto pos = nam.find(" ");
+  if (pos < nam.size()) {
+    nam.erase(pos);
+  }
 
   if ( global>0 ) {
     XFITTER_PARS::gParameters[nam] = &value;
