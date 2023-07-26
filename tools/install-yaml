@@ -35,7 +35,11 @@ tar xfz yaml-cpp-${yamlppver}.tar.gz
 cd yaml-cpp-yaml-cpp-${yamlppver}
 mkdir build
 cd build
-cmake3  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
+cmake3='cmake3'
+if [ -x "command -v cmake3" ]; then
+  cmake3='cmake'
+fi
+$cmake3  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
 make -j 12 install >> $CURRENTDIR/install_yam.log 2>&1 
 
 if [[ $? != 0 ]]

@@ -794,6 +794,8 @@ C find them (???)
       double precision gParam
       logical to_gParam
       integer iglobal
+      CHARACTER TMP
+      INTEGER I
 C---------------------------------------------
 C Add extra param
 C
@@ -808,7 +810,11 @@ C
          print *,'stopping'
          call HF_stop
       endif
-      ExtraParamNames(nExtraParam) = name
+      ExtraParamNames(nExtraParam) = REPEAT(' ',LEN(ExtraParamNames(nExtraParam)))
+      DO I = 1, LEN(name)
+        TMP = name(I:I)
+        ExtraParamNames(nExtraParam)(I:I) = TMP
+      ENDDO
       ExtraParamValue(nExtraParam) = value
       ExtraParamStep (nExtraParam) = step
       ExtraParamMin  (nExtraParam) = min
