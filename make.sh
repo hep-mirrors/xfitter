@@ -56,7 +56,7 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
     rm CMakeCache.txt
   fi
   cmake3='cmake3'
-  if [ -x "command -v cmake3" ]; then
+  if ! command -v cmake3 >/dev/null 2>&1; then
     cmake3='cmake'
   fi
   if [ ! -f Makefile ] || [ ! -f CMakeCache.txt ];then
