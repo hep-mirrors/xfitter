@@ -82,7 +82,7 @@ C-------------------------------------------------------------------------
 C-------------------------------------------------------------------------
 
 
-      Subroutine ACOT_SetAlphaS(alphaSzero)
+      Subroutine ACOT_SetAlphaS_OLD(alphaSzero)
 C--------------------------------------------------------------
 C  Wraper for INPUT common, to set alphaS
 C--------------------------------------------------------------
@@ -113,7 +113,7 @@ C-----------------------------------------
 
 c===================
 
-      Subroutine ACOT_Set_Input(varin,
+      Subroutine ACOT_Set_Input_OLD(varin,
 !     $     distancein,tolerancein,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
      $     alphaSorderin,alphaSnfmaxin,iordin,intvarin)

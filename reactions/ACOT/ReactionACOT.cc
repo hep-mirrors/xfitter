@@ -19,10 +19,10 @@ extern "C" ReactionACOT *create()
 // ACOT wrappers from ACOT/src/mstw2008_wrap.f:
 extern "C"
 {
-  // void acotNC_wrapa_(const double &x, const double &q2, const int &ipn,
-  //                   double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
-  //                   const int &iflag, const int &index, const double &f2QCDNUM, const double &flQCDNUM,
-  //                   const int &usekfactors = 0);
+  void acotNC_wrapa_(const double &x, const double &q2, const int &ipn,
+                    double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
+                    const int &iflag, const int &index, const double &f2QCDNUM, const double &flQCDNUM,
+                    const int &usekfactors = 0);
 
   void mstwnc_wrapa_(const double &x, const double &q2, const int &ipn,
                     double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
