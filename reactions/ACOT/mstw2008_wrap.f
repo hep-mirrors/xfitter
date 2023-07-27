@@ -1,5 +1,7 @@
+C-------------------------------------------------------------------------
+C-------------------------------------------------------------------------
       subroutine mstwnc_wrapa(x,q2,ipn,f2,
-     $     f2c,f2b,fl,flc,flb,iflag,index,f2QCDNUM,flQCDNUM
+     $     f2c,f2b,fl,flc,flb,iflag,idatapt,f2QCDNUM,flQCDNUM
      $     ,usekfactors)
 C-------------------------------------------------------------------------
 C
@@ -13,9 +15,16 @@ C                   UseKFactors        -- use or not kfactors
 C------------------------------------------------------------------------
       implicit none
       double precision x,q2,q,f2,f2c,f2b,fl,flc,flb
-      integer iflag, index, ipn
+      integer iflag, ipn, idatapt
       double precision f2QCDNUM,flQCDNUM
       logical usekfactors
+c     26 July 2023: Fred: 
+c     index keeps track of the sequential data point number
+c     this is used to keep track of the k-factors to speed up the ACOT calculation
+c     idatapt is only the # for the individual data set; not used for K-facor
+      integer index
+      common /acotIndex/  index
+      data index /0/
 
 
 C
@@ -28,6 +37,12 @@ C-------------------------------------------------------------------------
       double precision polar,f123L(4),f123Lc(4),f123Lb(4)
       integer icharge,hfscheme
 C-------------------------------------------------------------------------
+c23456789012345678901234567890123456789012345678901234567890123456789012
+      if(index.ge.NKfactMax) then
+         write(6,*) "Error: more data than K-factor array space:",
+     >        "index, NKfactMax",index,NKfactMax
+      ENDIF
+C-------------------------------------------------------------------------
 c     ipn: 1=proton; 2=neutron
 c     Fred: for UseKFactors=.true.
       UseKFactors=.true.  !*** Fred force
@@ -35,8 +50,6 @@ c     Fred: for UseKFactors=.true.
       
       q=dsqrt(q2)
 
-      x=0.1  !*** PATCH
-      q=10.  !*** PATCH
 
 C-------------------------------------------------------------------------
          call mstwnca(x,q,ipn,f2,f2c,f2b,fl,flc,flb)
@@ -48,12 +61,13 @@ cccccccccccccccccccccccccccccccccccccccccccc
          icharge=4  !*** NC w/ Gamma+Z terms
          iflag=0  !*** not used
          polar=0  !*** only unpolarized 
-         index=0  !*** =0 skip k-factors
-         index=1
+c         index=0  !*** =0 skip k-factors
+c         index=1
          UseKFactors=.false.
          UseKFactors=.true.  !*** Fred force
          
-      call SF_ACOT_wrap(
+         index=index+1
+         call SF_ACOT_wrap(
      $     x,q2,
      $     f123L,
      $     f123Lc,
@@ -102,14 +116,14 @@ c===================
       Subroutine ACOT_Set_Input(varin,
 !     $     distancein,tolerancein,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
-     $     alphaSorderin,alphaSnfmaxin,iordin)
+     $     alphaSorderin,alphaSnfmaxin,iordin,intvarin)
 C---------------------------------------------------------------------------
 C  Wraper for INPUT common, set parameters
 C---------------------------------------------------------------------------
       implicit none
 C Input variables:
  
-      INTEGER alphaSorderin,alphaSnfmaxin
+      INTEGER alphaSorderin,alphaSnfmaxin,intvarin(4)
       DOUBLE PRECISION mCharmin,mBottomin,alphaSQ0in,alphaSMZin
       DOUBLE PRECISION var1, var2, var3, var4
       DOUBLE PRECISION varin(4)

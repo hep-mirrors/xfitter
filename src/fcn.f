@@ -254,6 +254,10 @@ C--------------------------------------------------------------
 *     ---------------------------------------------------------
 *     Calculate theory for datasets:
 *     ---------------------------------------------------------
+*     ---------------------------------------------------------
+      call ACOTindexRESET()
+*     ---------------------------------------------------------
+*     ---------------------------------------------------------
       do idataset=1,NDATASETS
          if(NDATAPOINTS(idataset).gt.0) then
             call GetTheoryForDataset(idataset)
@@ -576,4 +580,19 @@ C this replaces old subroutine PDF_param_iteration
       do i=1,nExtraParam
         ExtraParamValue(i)=p(iExtraParamMinuit(GetParameterIndex(trim(ExtraParamNames(i)))))
       enddo
+      end
+c ==========================================
+c ==========================================
+c ==========================================
+c     THIS IS NOT THE RIGHT PLACE FOR THIS FUNCTION
+c ==========================================
+c ==========================================
+c ==========================================
+      subroutine ACOTindexRESET()
+      implicit none
+      integer index
+      common /acotIndex/  index
+
+      index=0
+      return
       end

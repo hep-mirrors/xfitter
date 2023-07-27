@@ -18,4 +18,5 @@ extern "C" {
   void acot_get_pdfs_(const double&, const double&, double*);  //!< Return PDFs
   double acot_get_alphas_(const double&);                      //!< Return alphaS
   void acot_set_pdfs_alphaS( pXFXlike xfx, pOneParFunc aS);    //!< Set PDFs and alphaS
+  
 }

@@ -114,6 +114,13 @@ C----------------------------------------------------------------------
          endif
 
 
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%         
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%         
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%         
+c         isch=5  !*** testing patch:  NEED TO REMOVE LATER
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%         
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%         
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%         
 
 C ---------------------------------------
 C     F2, FL, XF3 are already computed by QCDNUM:  (FIO 15 Dec 2012)
@@ -285,6 +292,12 @@ c     only dump the k-factor info the first time through the loop
 c
 C-----------------------------------------------------------------------------
          else  !***  NOT FIRST TIME THROUGH: USE K-FACTOR ======================
+           write(6,101)   !**** FORMAT FOR SCREEN
+     $           index,x,q,icharge,polar,
+     >        ((akFACTxcb(i,j,Index),j=1,4),i=1,3)
+
+
+
             IschORIG=Isch
             Isch=5  !*** Massive LO Calculation
             call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
