@@ -1,0 +1,3 @@
+rm -fv CMakeCache.txt
+rm -fv cmake_install.cmake
+rm -rfv CMakeFiles   
