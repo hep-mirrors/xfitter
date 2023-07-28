@@ -16,15 +16,10 @@ extern "C" ReactionACOT *create()
   return new ReactionACOT();
 }
 
-// ACOT wrappers from ACOT/src/mstw2008_wrap.f:
+// ACOT wrappers from ACOT/src/acotncX_wrap.f:
 extern "C"
 {
-  void acotNC_wrapa_(const double &x, const double &q2, const int &ipn,
-                    double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
-                    const int &iflag, const int &index, const double &f2QCDNUM, const double &flQCDNUM,
-                    const int &usekfactors = 0);
-
-  void mstwnc_wrapa_(const double &x, const double &q2, const int &ipn,
+  void acotnc_wrapa_(const double &x, const double &q2, const int &ipn,
                     double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
                     const int &iflag, const int &index, const double &f2QCDNUM, const double &flQCDNUM,
                     const int &usekfactors = 0);
@@ -182,9 +177,11 @@ void ReactionACOT::calcF2FL(TermData *td)
       if (q2[i] > 1.0)
       {
 
-        mstwnc_wrapa_(x[i], q2[i], 1,
+        acotnc_wrapa_(x[i], q2[i], 1,
                      f2, f2c, f2b, fl, flc, flb,
                      iflag, i + 1, 1., 0.1, 0);
+
+
       }
 
       switch (GetDataFlav(termID))

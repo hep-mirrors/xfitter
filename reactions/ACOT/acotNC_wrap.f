@@ -23,8 +23,7 @@ c     index keeps track of the sequential data point number
 c     this is used to keep track of the k-factors to speed up the ACOT calculation
 c     idatapt is only the # for the individual data set; not used for K-facor
       integer index
-      common /acotIndex_TMP/  index
-      data index /0/
+      common /acotIndex/  index
 
 
 C
