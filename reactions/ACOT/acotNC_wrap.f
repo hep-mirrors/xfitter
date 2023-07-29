@@ -14,7 +14,8 @@ C                   f2QCDNUM,flQCDNUM  -- f2_gamma,fl_gamma from QCDNUM for this
 C                   UseKFactors        -- use or not kfactors
 C------------------------------------------------------------------------
       implicit none
-      double precision x,q2,q,f2,f2c,f2b,fl,flc,flb
+      double precision x,q2,q,f2,f2c,f2b,fl,flc,flb,
+     > f2mstw,f2cmstw,f2bmstw,flmstw,flcmstw,flbmstw
       integer iflag, ipn, idatapt
       double precision f2QCDNUM,flQCDNUM
       logical usekfactors
@@ -46,12 +47,16 @@ c     ipn: 1=proton; 2=neutron
 c     Fred: for UseKFactors=.true.
       UseKFactors=.true.  !*** Fred force
 
+
+      x=0.1d0
+      q=10.0d0
+      q2=q*q
       
       q=dsqrt(q2)
 
-
+      
 C-------------------------------------------------------------------------
-         call mstwnca(x,q,ipn,f2,f2c,f2b,fl,flc,flb)
+         call mstwnca(x,q,ipn,f2mstw,f2cmstw,f2bmstw,flmstw,flcmstw,flbmstw)
 C-------------------------------------------------------------------------
 cccccccccccccccccccccccccccccccccccccccccccc
          if(ipn.ne.1) stop      !*** FIO: only wired for proton at present  31mar2022
@@ -73,7 +78,21 @@ c         index=1
      $     f123Lb,
      $     hfscheme,
      $     icharge   ,
-     $     iflag, index, UseKFactors, polar   )
+     $        iflag, index, UseKFactors, polar   )
+
+         f2=f123L(2)
+         fL=f123L(4)
+         f2c=f123Lc(2)
+         fLc=f123Lc(4)
+         f2b=f123Lb(2)
+         fLb=f123Lb(4)
+
+ 811     format(A,1x,1pG10.3,1x,f6.2,A,8(1x,f6.2))
+         write(6,*) "ACOT/MSTW: x,q,F2,FL,...C..B", x,q," | ",
+     >   f2/f2mstw,fL/flmstw,f2c/f2cmstw,fLc/flcmstw,
+     >   f2b/f2bmstw,fLb/flbmstw
+     >         
+         
 cccccccccccccccccccccccccccccccccccccccccccc         
 C-------------------------------------------------------------------------
       end
