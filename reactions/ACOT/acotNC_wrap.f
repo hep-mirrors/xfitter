@@ -48,9 +48,9 @@ c     Fred: for UseKFactors=.true.
       UseKFactors=.true.  !*** Fred force
 
 
-      x=0.1d0
-      q=10.0d0
-      q2=q*q
+c$$$      x=0.1d0
+c$$$      q=10.0d0
+c$$$      q2=q*q
       
       q=dsqrt(q2)
 
@@ -87,8 +87,9 @@ c         index=1
          f2b=f123Lb(2)
          fLb=f123Lb(4)
 
- 811     format(A,1x,1pG10.3,1x,f6.2,A,8(1x,f6.2))
-         write(6,*) "ACOT/MSTW: x,q,F2,FL,...C..B", x,q," | ",
+ 811     format(A,1x,e10.3,1x,f6.2,8(1x,f6.2))
+         write(6,811) "ACOT/MSTW: x,q,F2,FL,...C..B",
+     >   x,q,
      >   f2/f2mstw,fL/flmstw,f2c/f2cmstw,fLc/flcmstw,
      >   f2b/f2bmstw,fLb/flbmstw
      >         
