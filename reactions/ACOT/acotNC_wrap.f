@@ -87,12 +87,18 @@ c         index=1
          f2b=f123Lb(2)
          fLb=f123Lb(4)
 
- 811     format(A,1x,e10.3,1x,f6.2,8(1x,f6.2))
+ 811     format(A,1x,i4,1x,f11.6,1x,f6.1,A3,8(1x,f6.2))
          write(6,811) "ACOT/MSTW: x,q,F2,FL,...C..B",
-     >   x,q,
+     >   index,x,q," | ",
      >   f2/f2mstw,fL/flmstw,f2c/f2cmstw,fLc/flcmstw,
      >   f2b/f2bmstw,fLb/flbmstw
-     >         
+
+         write(86,*) index,x,q,
+     >   f2,f2mstw,fL,flmstw,f2c,f2cmstw,fLc,flcmstw,
+     >   f2b,f2bmstw,fLb,flbmstw
+
+
+
          
 cccccccccccccccccccccccccccccccccccccccccccc         
 C-------------------------------------------------------------------------
@@ -146,19 +152,6 @@ C Input variables:
       DOUBLE PRECISION mCharmin,mBottomin,alphaSQ0in,alphaSMZin
       DOUBLE PRECISION var1, var2, var3, var4
       DOUBLE PRECISION varin(4)
-
-
-C--   G.W. 12/04/2012 Set these variables via COMMON/TRprimeCommon/.
-C      var1=0d0; var2=0d0; var3=0d0; var4=0d0; ! standard TR' scheme
-C      var1=0d0; var2=1d0; var3=-2d0/3d0; var4=1d0; ! optimal TR' scheme
-C--   Other parameter values can be used to investigate uncertainties
-C--   due to the choice of TR' GM-VFNS (see Table 1 of arXiv:1201.6180).
-C      var1=0d0; var2=1d0; var3=-1d0; var4=0d0; ! GM-VFNS1
-C      var1=0d0; var2=0.5d0; var3=-1d0; var4=0d0; ! GM-VFNS2
-C      var1=0d0; var2=0d0; var3=0d0; var4=1d0; ! GM-VFNS3
-C      var1=0d0; var2=1d0; var3=0.3d0; var4=0d0; ! GM-VFNS4
-C      var1=0.1d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS5
-C      var1=-0.2d0; var2=0d0; var3=0d0; var4=0d0; ! GM-VFNS6
 
       INTEGER iordin
       

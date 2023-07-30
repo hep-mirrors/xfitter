@@ -259,7 +259,7 @@ c     only dump the k-factor info the first time through the loop
 c
 C-----------------------------------------------------------------------------
          else  !***  NOT FIRST TIME THROUGH: USE K-FACTOR ======================
-           write(6,101)   !**** FORMAT FOR SCREEN
+           write(76,101)   !**** FORMAT FOR SCREEN
      $           index,x,q,icharge,polar,
      >        ((akFACTxcb(i,j,Index),j=1,4),i=1,3)
 
