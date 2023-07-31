@@ -404,6 +404,15 @@ void TheorEval::Evaluate(valarray<double> &vte )
   // get values from grids
   this->updateReactionValues();
 
+  // resize two valarrays to minimum size for safe arithmetics (+,-,*,/), e.g. for APPLgrid when grid is longer than data
+  auto resize_to_min = [](std::valarray<double>& v1, std::valarray<double>& v2) {
+    if (v1.size() != v2.size()) {
+      auto newsize = std::min(v1.size(), v2.size());
+      v1.resize(newsize);
+      v2.resize(newsize);
+    }
+  };
+
   // calculate expression result
   stack<valarray<double> > stk;
   vector<tToken>::iterator it = _exprRPN.begin();
@@ -472,18 +481,22 @@ void TheorEval::Evaluate(valarray<double> &vte )
     } else if ( it->name == string("+") ){
       valarray<double> a(stk.top());
       stk.pop();
+      resize_to_min(stk.top(), a);
       stk.top() += a;
     } else if ( it->name == string("-") ){
       valarray<double> a(stk.top());
       stk.pop();
+      resize_to_min(stk.top(), a);
       stk.top() -= a;
     } else if ( it->name == string("*") ){
       valarray<double> a(stk.top());
       stk.pop();
+      resize_to_min(stk.top(), a);
       stk.top() *= a;
     } else if ( it->name == string("/") ){
       valarray<double> a(stk.top());
       stk.pop();
+      resize_to_min(stk.top(), a);
       stk.top() /= a;
     }
     else if ( it->name == string(".") ){
