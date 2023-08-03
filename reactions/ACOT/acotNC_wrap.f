@@ -103,23 +103,33 @@ C-----------------------------------------
 
 c===================
 
-      Subroutine ACOT_Set_Input(varin,
-!     $     distancein,tolerancein,
+      Subroutine ACOT_Set_Input(varin,varinacot,
+!    $     distancein,tolerancein,
      $     mCharmin,mBottomin,alphaSQ0in,alphaSMZin,
-     $     alphaSorderin,alphaSnfmaxin,iordin,intvarin)
+     $     alphaSorderin,alphaSnfmaxin,iordin,
+     $     intvarin)
 C---------------------------------------------------------------------------
 C  Wraper for INPUT common, set parameters
 C---------------------------------------------------------------------------
       implicit none
+
+      DOUBLE PRECISION XKMIN,XKMAX,DUM1,DUM2
+      INTEGER NORD,ISCH,KFAC,IQCD
+
+      COMMON /ACOT_SET/ NORD,ISCH,KFAC,IQCD,XKMIN,XKMAX,DUM1,DUM2
+      
+C---------------------------------------------------------------------------
 C Input variables:
  
       INTEGER alphaSorderin,alphaSnfmaxin,intvarin(4)
       DOUBLE PRECISION mCharmin,mBottomin,alphaSQ0in,alphaSMZin
       DOUBLE PRECISION var1, var2, var3, var4
-      DOUBLE PRECISION varin(4)
+      DOUBLE PRECISION varin(4),varinacot(4)
 
       INTEGER iordin
       
+C---------------------------------------------------------------------------
+C---------------------------------------------------------------------------
 C Common variables:
       INTEGER alphaSorder,alphaSnfmax
       DOUBLE PRECISION distance,tolerance,
@@ -133,8 +143,7 @@ C Common variables:
       INTEGER iord
       COMMON/iordCommona/iord
 !$OMP THREADPRIVATE(/TRprimeCommon/)
-
-
+C---------------------------------------------------------------------------
 C-------------------------------      
 
       alphaSorder  = alphaSorderin
@@ -146,10 +155,21 @@ C-------------------------------
       iord         = iordin
       tolerance    = 0d0 ! dummy
       distance     = 0d0 ! dummy
-      var1         = varin(1)
-      var2         = varin(2)
-      var3         = varin(3)
-      var4         = varin(4)
+      var1         = varin(1)  !  MWTW STUFF 
+      var2         = varin(2)  !  MWTW STUFF 
+      var3         = varin(3)  !  MWTW STUFF 
+      var4         = varin(4)   !  MWTW STUFF
+
+C---------------------------------------------------------------------------
+      xkmin=varinacot(1)
+      xkmax=varinacot(2)
+      dum1 =varinacot(3)
+      dum2 =varinacot(4)
+
+      nord=intvarin(1)     !  NORD for calcululation: = [1,2,3]                                  
+      isch=intvarin(2)     !  NOT USED: iScheme: 9= preferred ACOT-CHI                                     
+      kfac=intvarin(3)     !  Use K-Factor 1=yes, 0=no                                           
+      iqcd=intvarin(4)     !  Use QCDNUM for K-factor denominator: 1=yes, [ 0=no not implemented]
 
 C--------------------------------------------------------------------------
       end

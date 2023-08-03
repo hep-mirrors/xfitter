@@ -34,24 +34,30 @@ cccccccccccccccccccccccccccccccccccccccccccc
       integer icharge
 
 C----------------------------------------------------------------------
+      DOUBLE PRECISION XKMIN,XKMAX,DUM1,DUM2
+      INTEGER NORD,ISCHin,KFAC,IQCD
+
+      COMMON /ACOT_SET/ NORD,ISCHin,KFAC,IQCD,XKMIN,XKMAX,DUM1,DUM2      
+C----------------------------------------------------------------------
 c communication with Fred's code
-      integer isch, iset, iflg, ihad
+      integer ISCHout, iset, iflg, ihad
       double precision hmass, xmc,xmb
       double precision sinw2, xmw, xmz
 
-      COMMON /Ischeme/ ISCH, ISET, IFLG, IHAD
+      COMMON /Ischeme/ ISCHout, ISET, IFLG, IHAD
       common /fred/ xmc,xmb,HMASS
       common/fredew/ sinw2, xmw, xmz
 
       logical ifirst,UseKFactors
-      data ifirst,UseKFactors /.true.,.true./
-
+      data ifirst /.true./
 C----------------------------------------------------------------------
 C     set "Isch, Iset, Iflg, Ihad" in common block first
       iset =1                   ! dummy
       iflg =0                   ! dummy
       ihad =1                   ! proton
 
+C     Use ISCH instead of HFSCHEME_IN
+      ISCHout=ISCH in
 
 !     taken from couplings.inc
       xmc=mch                   
@@ -59,15 +65,8 @@ C     set "Isch, Iset, Iflg, Ihad" in common block first
       sinw2=sin2thw
       xmw=mw
       xmz=mz
-      UseKFactors=.true.  !*** NEED TO LINK LATER
-
-c     not used i think: fred 28 july 2023
-C      if(MASSH.eq.1) then
-C       xmu=sqrt(hqscale1in*Q2_in+hqscale2in*4*mch*mch)      !*** mu=Q
-C      elseif (MASSH.eq.2) then
-C       xmu=dsqrt(hqscale1in*Q2_in+hqscale2in*4*mbt*mbt) 
-C      endif         
-c      write(6,*) " **** mu = ",xmu
+      UseKFactors=.true.
+      if(KFAC.eq.0)  UseKFactors=.false.
       
       q=dsqrt(q2_in)
       xmu=q !*** FIX MU=Q
@@ -77,32 +76,8 @@ c      write(6,*) " **** mu = ",xmu
       polar=polar_in
 
 ! Target mass correction!
-!     hmass=0.d0
 C     ************** FIO 31mar2022 ** THIS IS HARD-WIRED FOR NOW:
        hmass=0.938d0             !*** Hadron Mass for target mass corrections
-
-C----------------------------------------------------------------------
-C      isch= 0  !*** NLO Massless MS-Bar'                
-C      isch= 1  !*** Full ACOT Scheme '                  
-C      isch= 2  !*** FFS '                               
-C      isch= 3  !*** Simplified ACOT Scheme '            
-C      isch= 4  !*** Test Full ACOT Scheme (no NLO Q)'   
-C      isch= 5  !*** LO  '                               
-C      isch= 6  !*** Massless LO '                       
-C      isch= 7  !*** Short-cut2: ACOT w/ Massless NLO-Q '
-C      isch= 8  !*** S-ACOT(Chi) [not preferred]'        
-C      isch= 9  !*** S-ACOT(Chi) [preferred] '           
-C----------------------------------------------------------------------
-
-         if (HFSCHEME_IN.eq.1) then 
-            ISCH=0                  !*** NLO Massless MS-Bar
-         elseif (HFSCHEME_IN.eq.11) then 
-            ISCH=1                  !*** Full ACOT Scheme
-         elseif (HFSCHEME_IN.eq.111) then 
-            ISCH=9                  !*** S-ACOT(Chi) [preferred]
-         endif
-
-            ISCH=9                  !*** S-ACOT(Chi) [preferred]
 
 C----------------------------------------------------------------------
 C----------------------------------------------------------------------
@@ -117,7 +92,7 @@ c     Note: scheme is set inside; this should not change from point to point
 c     If index is too big (.gt.NKfactMax) or 0, use full calculation
 
 
-      if ((.not.UseKFactors).or.(index.eq.0))
+      if (.not.UseKFactors)
      >    then
          if(ifirst) write(6,*) ' NOT using K-Factors  (may be slow)'
          ifirst=.false.
@@ -162,14 +137,23 @@ c     data maxFactor,small /1.0d1, 1.e-12/
 
 C Local table of k-factors
       integer NKfactMax,nTotal,i,j
-      parameter (NKfactMax=NPmaxDIS,nTotal=3*4*NKfactMax)
+      parameter (NKfactMax=NPmaxDIS,nTotal=3*4*NKfactMax)  !*** NPmaxDIS defined in qcdnumhelper.inc
       double precision akFACTxcb(3,4,NKFACTMAX) !*** 3='xcb', 4='123L'
       data  akFACTxcb/nTotal*0.d0/  !*** Zero K-Factor table
 
 c     Create a vector to keep track of which index has k-factors already computed
-      logical ifirst(NKfactMax),ihead,isave
-      data ifirst, ihead, isave /NKfactMax*.TRUE.,.TRUE.,.TRUE./
+      logical ifirst(NKfactMax),ihead,isave,iprint
+      data ifirst, ihead, isave, iprint
+     > /NKfactMax*.TRUE.,.TRUE.,.TRUE.,.FALSE./
 
+C----------------------------------------------------------------------
+      DOUBLE PRECISION XKMIN,XKMAX,DUM1,DUM2
+      INTEGER NORD,ISCHin,KFAC,IQCDNUM
+
+      COMMON /ACOT_SET/ NORD,ISCHin,KFAC,IQCDNUM,XKMIN,XKMAX,DUM1,DUM2      
+C----------------------------------------------------------------------
+
+      
 c     ------Check index is within bounds
       if(index.gt.NKfactMax) then
          write(6,*) ' Error: index > NKfactMax = ',index,NKfactMax
@@ -186,43 +170,46 @@ C-----------------------------------------------------------------------------
          IschORIG=Isch
          Isch=5  !*** Massive LO Calculation
          call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
+         Isch=IschORIG          !*** Reset Ischeme
+         
+C==========================================================================
 C---------------------------------!*** OPTION TO USE QCDNUM FOR K-FACTORS
-         if(isave) then
-            isave=.false.
-            iqcdnum=0
-            iqcdnum=1
-cv            write(6,*) ' enter 1 for QCDNUM K-facs; 0 for LO-Massive ACOT ',iqcdnum
-cv            read (5,*) iqcdnum
-            write(6,*) ' set: 1 for QCDNUM K-facs; 0 for LO-Massive ACOT  = ',iqcdnum
-         endif
-
          if(iqcdnum.eq.1) then
          if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN  !*** NEUTRAL CURRENT ONLY FOR NOW
          call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
 c     !*** 3='xcb', 4='123L'
-c         F123Lxcb_LO(1,2)=Fsave(2)  !*** Use QCDNUM F2
-c         F123Lxcb_LO(1,4)=Fsave(4)  !*** Use QCDNUM FL
          F123Lxcb_LO(1,2)=F123Lxcb_QCDNUM(1,2)  !*** Use QCDNUM F2
          F123Lxcb_LO(1,4)=F123Lxcb_QCDNUM(1,4)  !*** Use QCDNUM FL
          ENDIF
          endif
+
+C==========================================================================
 C---------------------------------
-         Isch=IschORIG  !*** Reset Ischeme
 C     Generate K-Factor
-         do i=1,3
-         do j=1,4
-            if(abs(F123Lxcb_LO(i,j)).lt.small) then
-               akFACTxcb(i,j,Index)=1.0d0 !**** Default if denom is zero or small
-            else
-               akFACTxcb(i,j,Index)=F123Lxcb(i,j)/F123Lxcb_LO(i,j)
-c
-               if(Abs(akFACTxcb(i,j,Index)).gt.maxFactor) then  !*** Sanity Check:
-c               write(6,*) ' Warning: K-Fac is large: '
-               akFACTxcb(i,j,Index)=sign(maxFactor,akFACTxcb(i,j,Index))
+      
+      do i=1,3
+      do j=1,4
+         if(abs(F123Lxcb_LO(i,j)).lt.small) then
+            akFACTxcb(i,j,Index)=1.0d0 !**** Default if denom is zero or small
+         else
+            akFACTxcb(i,j,Index)=F123Lxcb(i,j)/F123Lxcb_LO(i,j)
+
+            if( akFACTxcb(i,j,Index).gt.xkmax ) then
+               if(iprint) then
+                  write(6,*)'Warning: K-Fac is large:',
+     >                 akFACTxcb(i,j,Index),F123Lxcb(i,j),i,j
+                endif
+                akFACTxcb(i,j,Index)=xkmax
+            elseif( akFACTxcb(i,j,Index).lt.xkmin ) then
+               if(iprint) then
+                  write(6,*)'Warning: K-Fac is small: *** ',
+     >                  akFACTxcb(i,j,Index),F123Lxcb(i,j),i,j
                endif
+               akFACTxcb(i,j,Index)=xkmin
             endif
-         enddo
-         enddo
+         endif
+      enddo
+      enddo
 
 C-----------------------------------------------------------------------------
 C-----------------------------------------------------------------------------
@@ -243,11 +230,18 @@ c     only dump the k-factor info the first time through the loop
      >        ((F123Lxcb_LO(i,j),j=1,4),i=1,3),
      >        ((akFACTxcb(i,j,Index),j=1,4),i=1,3)
 
-           write(76,101)   !**** FORMAT FOR SCREEN
+           write(6,101)   !**** FORMAT FOR SCREEN
      $           index,x,q,icharge,polar,
      >        ((akFACTxcb(i,j,Index),j=1,4),i=1,3)
 101        Format(i4,1x,f0.5,1x,f5.1,1x,i3,1x,f5.3,1x,12(f7.2,1x))
 c
+C-----------------------------------------------------------------------------
+c     END OF  FILL K-FACTOR      
+C-----------------------------------------------------------------------------
+c===============================================================================           
+C-----------------------------------------------------------------------------
+c    NOT FIRST TIME THROUGH: USE K-FACTOR 
+C-----------------------------------------------------------------------------
 C-----------------------------------------------------------------------------
          else  !***  NOT FIRST TIME THROUGH: USE K-FACTOR ======================
            write(76,101)   !**** FORMAT FOR SCREEN
@@ -257,34 +251,26 @@ C-----------------------------------------------------------------------------
             IschORIG=Isch
             Isch=5  !*** Massive LO Calculation
             call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
+            Isch=IschORIG       !*** Reset Ischeme
 
-            Isch=IschORIG  !*** Reset Ischeme
+            if(iqcdnum.eq.1) then
+            if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN  !*** NEUTRAL CURRENT ONLY FOR NOW
+               call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,
+     >                  F123Lxcb_QCDNUM, polar)
+c     !*** 3='xcb', 4='123L'
+               F123Lxcb_LO(1,2)=F123Lxcb_QCDNUM(1,2)  !*** Use QCDNUM F2
+               F123Lxcb_LO(1,4)=F123Lxcb_QCDNUM(1,4)  !*** Use QCDNUM FL
+            ENDIF
+            endif
+            
 C     Use K-Factor
             do i=1,3
             do j=1,4
                F123Lxcb(i,j)=F123Lxcb_LO(i,j)* akFACTxcb(i,j,Index)
             enddo
             enddo
-         endif
 
-
-c     Adjust F2 and FL if we use QCDNUM K-facs
-c     Note: this code is call both first time to re-set F123Lxcb, and 
-c     during later calls to overwrite with QCDNUM + K-factor result
-         if(iqcdnum.eq.1) then
-           if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN !*** NEUTRAL CURRENT ONLY FOR NOW
-c               call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
-               F123Lxcb(1,2)=F123Lxcb_QCDNUM(1,2)* akFACTxcb(1,2,Index)
-               F123Lxcb(1,4)=F123Lxcb_QCDNUM(1,4)* akFACTxcb(1,4,Index)
-
-c              F123Lxcb(1,2)=Fsave(2)* akFACTxcb(1,2,Index) !*** Use Stored QCDNUM F2
-c              F123Lxcb(1,4)=Fsave(4)* akFACTxcb(1,4,Index) !*** Use Stored QCDNUM FL
-
-
-           endif
-         ENDIF
-  
-
+         endif   !***  END OF: NOT FIRST TIME THROUGH: USE K-FACTOR ======================
 C-----------------------------------------------------------------------------
 C-----------------------------------------------------------------------------
       return

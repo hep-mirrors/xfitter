@@ -163,11 +163,28 @@ c      Common /Iacot/  nord  !*** pass nord to ACOT module from Subroutine SetHF
       save ifirst
 #include "steering.inc"
 
+C----------------------------------------------------------------------
+      DOUBLE PRECISION XKMIN,XKMAX,DUM1,DUM2
+      INTEGER NORD,ISCHin,KFAC,IQCDNUM
+
+      COMMON /ACOT_SET/ NORD,ISCHin,KFAC,IQCDNUM,XKMIN,XKMAX,DUM1,DUM2      
+C----------------------------------------------------------------------
+      
 C-----------------------------------------------------------------------------
 C     DATA SINW2, XMW, XMZ   / 0.23D0,   80.4D0,  91.2D0 /
 !C-----------------------------------------------------------------------------
 
 C-----------------------------------------------------------------------------
+
+      if(ifirst) then
+         WRITE(6,*) " ============================================ "
+         WRITE(6,*) " NORD = ",NORD
+         WRITE(6,*) " ISCH = ",ISCH
+         WRITE(6,*) " icharge = ",icharge
+         ifirst=.false.
+      endif
+
+      
       if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) then !*** Neutral Current  (only photon for icharge=0)
           call Fnc123Lxcb(icharge,xbj,q,xmu,F123Lxcb2, polar) !*** 
       endif
@@ -187,32 +204,13 @@ c     if(kord.le.1) return
 
 c     ==============================================================
 c     ==============================================================
-      nord=3                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
-      nord=2                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
-      nord=1                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
-      nord=1                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
+c$$$      nord=3                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
+c$$$      nord=2                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
+c$$$      nord=1                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
+c$$$      nord=1                    !*********** PATCH NEED TO LINK DYNAMIC: FIO: 31 MAR 2022
 c     ==============================================================
 c     ==============================================================
-      
 
-c$$$      if(ifirst) then 
-c$$$c     *** UPDATED 19 APRIL 2016: FIO: 
-c$$$C     *** GET "NORD" FROM COMMON BLOCK PASSED FROM STEERING.TXT
-c$$$c         nord=1
-c$$$         write(6,*) ' First time in ACOT module ' 
-c$$$         write(6,*) ' set NORD =2,3 FOR N2LO OR N3LO  ' 
-c$$$         write(6,*) ' set NORD to any other value to skip  N2LO OR N3LO' 
-c$$$         write(6,*) ' NORD =',nord
-c$$$c         read( 5,*)  nord
-c$$$C         if(nord.ne.1) then 
-c$$$            open(63,file='output/KfactorsACOT3.txt')
-c$$$            write(63,*) ' OUTPUT NLO AND N3LO K-FACTORS: NORD = ',nord
-c$$$            write(63,*) 
-c$$$     >   '  icharge, XBJ, Q,XMU, polar, ',
-c$$$     >   '  ratios-F123L NxLO/NLO, NLO F123L, NxLO F123L '
-c$$$C          endif
-c$$$         ifirst=.false.
-c$$$      endif
 
 c     SKIP IF NOT N2LO OR N3LO
       if((nord.ne.2).and.(nord.ne.3)) return
