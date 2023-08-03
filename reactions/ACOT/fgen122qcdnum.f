@@ -195,24 +195,24 @@ c     ==============================================================
 c     ==============================================================
       
 
-      if(ifirst) then 
-c     *** UPDATED 19 APRIL 2016: FIO: 
-C     *** GET "NORD" FROM COMMON BLOCK PASSED FROM STEERING.TXT
-c         nord=1
-         write(6,*) ' First time in ACOT module ' 
-         write(6,*) ' set NORD =2,3 FOR N2LO OR N3LO  ' 
-         write(6,*) ' set NORD to any other value to skip  N2LO OR N3LO' 
-         write(6,*) ' NORD =',nord
-c         read( 5,*)  nord
-C         if(nord.ne.1) then 
-            open(63,file='output/KfactorsACOT3.txt')
-            write(63,*) ' OUTPUT NLO AND N3LO K-FACTORS: NORD = ',nord
-            write(63,*) 
-     >   '  icharge, XBJ, Q,XMU, polar, ',
-     >   '  ratios-F123L NxLO/NLO, NLO F123L, NxLO F123L '
-C          endif
-         ifirst=.false.
-      endif
+c$$$      if(ifirst) then 
+c$$$c     *** UPDATED 19 APRIL 2016: FIO: 
+c$$$C     *** GET "NORD" FROM COMMON BLOCK PASSED FROM STEERING.TXT
+c$$$c         nord=1
+c$$$         write(6,*) ' First time in ACOT module ' 
+c$$$         write(6,*) ' set NORD =2,3 FOR N2LO OR N3LO  ' 
+c$$$         write(6,*) ' set NORD to any other value to skip  N2LO OR N3LO' 
+c$$$         write(6,*) ' NORD =',nord
+c$$$c         read( 5,*)  nord
+c$$$C         if(nord.ne.1) then 
+c$$$            open(63,file='output/KfactorsACOT3.txt')
+c$$$            write(63,*) ' OUTPUT NLO AND N3LO K-FACTORS: NORD = ',nord
+c$$$            write(63,*) 
+c$$$     >   '  icharge, XBJ, Q,XMU, polar, ',
+c$$$     >   '  ratios-F123L NxLO/NLO, NLO F123L, NxLO F123L '
+c$$$C          endif
+c$$$         ifirst=.false.
+c$$$      endif
 
 c     SKIP IF NOT N2LO OR N3LO
       if((nord.ne.2).and.(nord.ne.3)) return

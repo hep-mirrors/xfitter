@@ -33,6 +33,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
       double precision polar_in, polar
       integer icharge
 
+C----------------------------------------------------------------------
 c communication with Fred's code
       integer isch, iset, iflg, ihad
       double precision hmass, xmc,xmb
