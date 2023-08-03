@@ -20,9 +20,7 @@ extern "C" ReactionACOT *create()
 extern "C"
 {
   void acotnc_wrapa_(const double &x, const double &q2, const int &ipn,
-                    double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
-                    const int &iflag, const int &index, const double &f2QCDNUM, const double &flQCDNUM,
-                    const int &usekfactors = 0);
+		     double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb);
 
   void mstwnc_wrapa_(const double &x, const double &q2, const int &ipn,
                     double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
@@ -183,8 +181,7 @@ void ReactionACOT::calcF2FL(TermData *td)
       {
 
         acotnc_wrapa_(x[i], q2[i], 1,
-                     f2, f2c, f2b, fl, flc, flb,
-                     iflag, i + 1, 1., 0.1, 0);
+		      f2, f2c, f2b, fl, flc, flb);
 
 
       }

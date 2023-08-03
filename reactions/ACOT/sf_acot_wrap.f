@@ -1,20 +1,12 @@
 cccccccccccccccccccccccccccccccccccccccccccc
       subroutine SF_ACOT_wrap(
-     $     x_in,q2_in,
-     $     f123l_out,
-     $     f123lc_out,
-     $     f123lb_out,
-     $     hfscheme_in,
-     $     icharge_in,
-     $     iflag, index, UseKFactors, polar_in)
+     $     x_in,q2_in,index,
+     $     f123l_out,f123lc_out,f123lb_out)
 cccccccccccccccccccccccccccccccccccccccccccc
 c     F1, F2, F3, FL are out via f123l_out 
-c     f123l_out(1)=F1
-c     f123l_out(2)=F2
-c     f123l_out(3)=F3
-c     f123l_out(4)=FL
-c     same for charm only cotribution: f123lc
-c     same for charm only cotribution: f123lb
+c     f123l_out(1..4)=F1,F2,F3,FL
+c     same for charm  only cotribution: f123lc
+c     same for bottom only cotribution: f123lb
 c     
 c     hfscheme_in: for now only NLO massless and massive are possible
 c     icharge_in: 0 NC: photon exchange only
@@ -22,10 +14,6 @@ c     icharge_in: 4 NC e+: gamma+gammaZ+Z
 c     icharge_in: 5 NC e-: gamma+gammaZ+Z 
 c     icharge_in:-1 CC e-
 c     icharge_in:+1 CC e+
-c     iflag: flag from FCN (main minimisation routine)
-c     index: data index - integer
-c     UseKFactors: use of kfactors (NLO/LO) - Logical 
-c     (since ACOT takes long time, this is for now set always to TRUE)
 cccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 !--------      
@@ -37,8 +25,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
       double precision f123lc_out(4)
       double precision f123lb_out(4)
 
-      logical UseKFactors
-      integer iflag, index,i
+      integer index,i
 
       double precision x_in,q2_in,xmu,x,q
       integer icharge_in, mode_in, hfscheme_in
@@ -55,8 +42,8 @@ c communication with Fred's code
       common /fred/ xmc,xmb,HMASS
       common/fredew/ sinw2, xmw, xmz
 
-      logical ifirst
-      data ifirst /.true./
+      logical ifirst,UseKFactors
+      data ifirst,UseKFactors /.true.,.true./
 
 C----------------------------------------------------------------------
 C     set "Isch, Iset, Iflg, Ihad" in common block first
@@ -71,18 +58,20 @@ C     set "Isch, Iset, Iflg, Ihad" in common block first
       sinw2=sin2thw
       xmw=mw
       xmz=mz
+      UseKFactors=.true.  !*** NEED TO LINK LATER
 
-c      xmu=q !*** FIX MU=Q
 c     not used i think: fred 28 july 2023
-      if(MASSH.eq.1) then
-       xmu=sqrt(hqscale1in*Q2_in+hqscale2in*4*mch*mch)      !*** mu=Q
-      elseif (MASSH.eq.2) then
-       xmu=dsqrt(hqscale1in*Q2_in+hqscale2in*4*mbt*mbt) 
-      endif         
+C      if(MASSH.eq.1) then
+C       xmu=sqrt(hqscale1in*Q2_in+hqscale2in*4*mch*mch)      !*** mu=Q
+C      elseif (MASSH.eq.2) then
+C       xmu=dsqrt(hqscale1in*Q2_in+hqscale2in*4*mbt*mbt) 
+C      endif         
 c      write(6,*) " **** mu = ",xmu
       
       q=dsqrt(q2_in)
+      xmu=q !*** FIX MU=Q
       icharge=icharge_in
+      icharge=4
       x=x_in
       polar=polar_in
 
@@ -112,6 +101,7 @@ C----------------------------------------------------------------------
             ISCH=9                  !*** S-ACOT(Chi) [preferred]
          endif
 
+            ISCH=9                  !*** S-ACOT(Chi) [preferred]
 
 C----------------------------------------------------------------------
 C----------------------------------------------------------------------
