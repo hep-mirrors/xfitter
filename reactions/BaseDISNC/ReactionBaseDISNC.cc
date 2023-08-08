@@ -16,6 +16,7 @@
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
 #include "EvolutionQCDNUM.h"
+#include <spline.h>
 
 template <typename T>
 void print(T d)
@@ -84,9 +85,13 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
     break;
   case dataType::f2:
     F2(td, val, err);
+    if (_ht[termID]) 
+      ApplyHigherTwist(td, 2, val, err);
     break;
   case dataType::fl:
     FL(td, val, err);
+    if (_ht[termID]) 
+      ApplyHigherTwist(td, 1, val, err);
     break;
   }
 
@@ -285,6 +290,9 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     }
     _npoints[termID] = (*q2p).size();
   }
+  if (td->hasParam("ht")) {
+    _ht[termID] = td->getParamI("ht");
+  }
 
   hf_errlog(17041001, msg);
 
@@ -298,6 +306,13 @@ void ReactionBaseDISNC::initTerm(TermData *td)
 
   // Get PDF id
   _ipdfSet[termID] = static_cast<xfitter::EvolutionQCDNUM*> (td->getPDF())->getPdfType();
+
+  // higher twist spline knots
+  _ht_x = {    0.,    0.1,    0.3,   0.5,   0.7,   0.9, 1.};
+  _ht_2 = { 0.023, -0.032, -0.005, 0.025, 0.051, 0.003, 0.};
+  _ht_t = {-0.319, -0.134, -0.052, 0.071, 0.030, 0.003, 0.};
+  _ht_alpha_2 = 0.;
+  _ht_alpha_t = 0.05;
 }
 
 void ReactionBaseDISNC::reinitTerm(TermData *td)
@@ -454,9 +469,13 @@ void ReactionBaseDISNC::sred BASE_PARS
 
   valarray<double> f2(_npoints[termID]);
   F2(td, f2, err);
+  if (_ht[termID]) 
+    ApplyHigherTwist(td, 2, f2, err);
 
   valarray<double> fl(_npoints[termID]);
   FL(td, fl, err);
+  if (_ht[termID]) 
+    ApplyHigherTwist(td, 1, fl, err);
 
   valarray<double> xf3(_npoints[termID]);
   xF3(td, xf3, err);
@@ -578,4 +597,32 @@ void ReactionBaseDISNC::kappa(TermData *td, valarray<double> &k)
   double cos2thetaW = 1 - _sin2thetaW;
 
   k = 1. / (4 * _sin2thetaW * cos2thetaW) * (*q2p) / ((*q2p) + _Mz * _Mz);
+}
+
+void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err)
+{
+  if (f_type == 1) {
+    // F_t = F_2 - F_L
+    valarray<double> f2;
+    F2(td, f2, err);
+    valarray<double> ft = f2 - val;
+    tk::spline spline;
+    spline.set_points(_ht_x, _ht_t);
+    auto &x = *GetBinValues(td, "x");
+    auto &q2 = *GetBinValues(td, "Q2");
+    for (size_t ip = 0; ip < ft.size(); ip++) {
+      ft[ip] += pow(x[ip], _ht_alpha_t) * spline(x[ip]) / q2[ip];
+    }
+    // F_L = F_2 - F_T
+    val = f2 - ft;
+  }
+  else if (f_type == 2) {
+    tk::spline spline;
+    spline.set_points(_ht_x, _ht_2);
+    auto &x = *GetBinValues(td, "x");
+    auto &q2 = *GetBinValues(td, "Q2");
+    for (size_t ip = 0; ip < val.size(); ip++) {
+      val[ip] += pow(x[ip], _ht_alpha_2) * spline(x[ip]) / q2[ip];
+    }
+  }
 }
