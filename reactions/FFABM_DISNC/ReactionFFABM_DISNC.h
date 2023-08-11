@@ -46,4 +46,15 @@ private:
   const double* _sin2thwPtr;
 
   void calcF2FL(unsigned dataSetID);
+
+  struct integration_params {
+    std::valarray<double> q2;
+    int i;
+    int ncflag;
+    int charge;
+    double polarity;
+    double cos2thw;
+    const double* _sin2thwPtr;
+    const double* _mzPtr;
+  };
 };
