@@ -601,6 +601,7 @@ void ReactionBaseDISNC::kappa(TermData *td, valarray<double> &k)
 
 void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err)
 {
+  double q02 = 1.;
   if (f_type == 1) {
     // F_t = F_2 - F_L
     valarray<double> f2;
@@ -611,7 +612,7 @@ void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarra
     auto &x = *GetBinValues(td, "x");
     auto &q2 = *GetBinValues(td, "Q2");
     for (size_t ip = 0; ip < ft.size(); ip++) {
-      ft[ip] += pow(x[ip], _ht_alpha_t) * spline(x[ip]) / q2[ip];
+      ft[ip] += pow(x[ip], _ht_alpha_t) * spline(x[ip]) * q02 / q2[ip];
     }
     // F_L = F_2 - F_T
     val = f2 - ft;
@@ -622,7 +623,7 @@ void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarra
     auto &x = *GetBinValues(td, "x");
     auto &q2 = *GetBinValues(td, "Q2");
     for (size_t ip = 0; ip < val.size(); ip++) {
-      val[ip] += pow(x[ip], _ht_alpha_2) * spline(x[ip]) / q2[ip];
+      val[ip] += pow(x[ip], _ht_alpha_2) * spline(x[ip]) * q02 / q2[ip];
     }
   }
 }
