@@ -4,7 +4,7 @@ MINUIT:
     call fcn 1
     set str 2
     call fcn 3
-    migrad
+#    migrad
 #    hesse
 #    call fcn 3
     

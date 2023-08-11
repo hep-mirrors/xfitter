@@ -30,6 +30,9 @@ c     if(x.gt.0.99d0) x=0.99d0
 
 cv      print*,'pdfs',x,q2, xpdf(-1), xpdf(-2), xpdf(0), xpdf(1)-xpdf(-1),xpdf(2)-xpdf(-2)
 cv      stop
+C     Note: ACOT code uses old flavor order: {udscbt}
+c     while QCDNUM uses modern {duscbt}
+c      
       tmp= xpdf(IPARTONin)
       if(IPARTONin.eq.+1) tmp = xpdf(+2)
       if(IPARTONin.eq.+2) tmp = xpdf(+1)

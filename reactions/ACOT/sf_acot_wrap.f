@@ -30,7 +30,8 @@ cccccccccccccccccccccccccccccccccccccccccccc
       double precision x_in,q2_in,xmu,x,q
       integer icharge_in, mode_in, hfscheme_in
 
-      double precision polar_in, polar
+      data polar /0.0d0/
+      double precision polar !*** We only do unpolarized
       integer icharge
 
 C----------------------------------------------------------------------
@@ -73,7 +74,6 @@ C     Use ISCH instead of HFSCHEME_IN
       icharge=icharge_in
       icharge=4
       x=x_in
-      polar=polar_in
 
 ! Target mass correction!
 C     ************** FIO 31mar2022 ** THIS IS HARD-WIRED FOR NOW:
@@ -91,13 +91,19 @@ c     BUT no error checking is done on {x,Q}, user must ensure index matches {x,
 c     Note: scheme is set inside; this should not change from point to point
 c     If index is too big (.gt.NKfactMax) or 0, use full calculation
 
+c====================================================================
+      if (.not.UseKFactors)  then
+c -DON'T USED K-FACTORS ----------------------------------------------------------------------------------------------
+         if(ifirst) then
+            write(6,*) ' NOT using K-Factors  (may be slow)'
+            ifirst=.false.
+         endif
+         Call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb, polar) !*** total F no-K-factors,
+         write(6,201)
+     >       index,icharge, X, Q,xmu,F123Lxcb(1,2),F123Lxcb(1,4) !*** polar is not used
+ 201     format(2(1x,i4),5(1x,1pG9.3))
 
-      if (.not.UseKFactors)
-     >    then
-         if(ifirst) write(6,*) ' NOT using K-Factors  (may be slow)'
-         ifirst=.false.
-         Call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb, polar) !*** total F no-K-factors, 
-
+c -USE K-FACTORS ----------------------------------------------------------------------------------------------
       else
          Call Fgen123LxcbK(index,icharge, X, Q,xmu,F123Lxcb, polar) !*** total F
       endif
@@ -161,6 +167,8 @@ c     ------Check index is within bounds
       endif
 
 
+C==========================================================================
+C==========================================================================
 C-----------------------------------------------------------------------------
 c     FIRST TIME THROUGH: FILL K-FACTOR      
 C-----------------------------------------------------------------------------
@@ -172,8 +180,7 @@ C-----------------------------------------------------------------------------
          call Fgen123Lxcb(icharge, X, Q,xmu,F123Lxcb_LO, polar)
          Isch=IschORIG          !*** Reset Ischeme
          
-C==========================================================================
-C---------------------------------!*** OPTION TO USE QCDNUM FOR K-FACTORS
+C====-!*** OPTION TO USE QCDNUM FOR K-FACTORS
          if(iqcdnum.eq.1) then
          if((icharge.eq.0).or.(icharge.eq.4).or.(icharge.eq.5)) THEN  !*** NEUTRAL CURRENT ONLY FOR NOW
          call Fgen123LxcbQCDNUM(index,icharge, X, Q,xmu,F123Lxcb_QCDNUM, polar)
@@ -183,7 +190,6 @@ c     !*** 3='xcb', 4='123L'
          ENDIF
          endif
 
-C==========================================================================
 C---------------------------------
 C     Generate K-Factor
       
@@ -212,8 +218,6 @@ C     Generate K-Factor
       enddo
 
 C-----------------------------------------------------------------------------
-C-----------------------------------------------------------------------------
-C     
 C-----------------------------------------------------------------------------
          if(ihead) open(62,file='output/KfactorsACOT.txt')
          if(ihead) write(6,*)   ' K-factors '

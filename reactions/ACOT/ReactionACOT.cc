@@ -22,21 +22,7 @@ extern "C"
   void acotnc_wrapa_(const double &x, const double &q2, const int &ipn,
 		     double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb);
 
-  void mstwnc_wrapa_(const double &x, const double &q2, const int &ipn,
-                    double &f2, double &f2c, double &f2b, double &fl, double &flc, double &flb,
-                    const int &iflag, const int &index, const double &f2QCDNUM, const double &flQCDNUM,
-                    const int &usekfactors = 0);
-
-  void acot_setalphas_(const double &alphaSzero);
-  //
-  // ******************** FIO: added "const int *intvarin"
-  void acot_set_input_(const double *varin, const double *varinacot, 
-		       const double &mCharmin, const double &mBottomin, const double &alphaSQ0in,
-                     const double &alphaSMZin, const int &alphaSorderin, const double &alphaSnfmaxin,
-		       const int &iordin,
-		       const int *intvarin
-		       );
-  void wate96a_();
+  void acot_set_input_(const double *varinacot, const int *intvarin );
   
 }
 
@@ -73,12 +59,9 @@ void ReactionACOT::compute(TermData *td, valarray<double> &val, map<string, vala
 {
   // First init, then call base class:
   td->actualizeWrappers();
-  vector<double> varin = {*td->getParamD("varin0"), *td->getParamD("varin1"), *td->getParamD("varin2"), *td->getParamD("varin3")}; // {0.0, 1.0, -2./3., 1.0};
-  // ******************** FIO: added "const *intvarinacot"
   vector<double> varinacot = {*td->getParamD("varinacot0"), *td->getParamD("varinacot1"), *td->getParamD("varinacot2"), *td->getParamD("varinacot3")}; // {0.0, 1.0, -2./3., 1.0};
-  //
-  // ******************** FIO: added "const int *intvarin"
   vector<int> intvarin = {td->getParamI("intvarin0"), td->getParamI("intvarin1"), td->getParamI("intvarin2"), td->getParamI("intvarin3")}; // {NORD, dum, dum, dum};
+  //
   const double mc = *td->getParamD("mch");
   const double mb = *td->getParamD("mbt");
   const double mZ = *td->getParamD("Mz");
@@ -95,8 +78,9 @@ void ReactionACOT::compute(TermData *td, valarray<double> &val, map<string, vala
   // set PDFs, alphaS functions:
   acot_set_pdfs_alphaS(pdf_xfxq_wrapper_, alphas_wrapper_);
 
-  acot_set_input_(&varin[0], &varinacot[0], mc, mb, as_q0, as_MZ, asOrederIn, alphaSnfmaxin, iord, &intvarin[0]);
-  wate96a_();
+  //  acot_set_input_ 
+  acot_set_input_(&varinacot[0], &intvarin[0]);
+
 
   Super::compute(td, val, err);
 }

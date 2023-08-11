@@ -1,13 +1,13 @@
 #ACOT:               # Reaction-specific settings
   varinacot0 : 0.5       # K-factor min
   varinacot1 : 1.5       # K-factor-max
-  varinacot2 : 0.0       # 
-  varinacot3 : 0.0       #  
+  varinacot2 : 0.0       # not used
+  varinacot3 : 0.0       # not used
 
   intvarin0 : 1   #  NORD for calcululation: = [1,2,3]  Note, 2,3 are approximate
-  intvarin1 : 5   #  IScheme: 9= preferred ACOT-CHI; [Not used: HFSCHEME_IN ]
+  intvarin1 : 9   #  IScheme: 9= preferred ACOT-CHI; [Not used: HFSCHEME_IN ]
   intvarin2 : 1   #  Use K-Factor 1=yes, 0=no 
-  intvarin3 : 1   #  Use QCDNUM for K-factor denominator: 1=yes, [ 0=no not implemented]
+  intvarin3 : 1   #  Use QCDNUM for K-factor denominator: 1=yes, 0=no
 
 # C----------------------------------------------------------------------
 # C      isch= 0  !*** NLO Massless MS-Bar'                
@@ -18,15 +18,6 @@
 # C      isch= 5  !*** LO  '                               
 # C      isch= 6  !*** Massless LO '                       
 # C      isch= 7  !*** Short-cut2: ACOT w/ Massless NLO-Q '
-# C      isch= 8  !*** S-ACOT(Chi) [not preferred]'        
+# C      isch= 8  !*** S-ACOT(Chi) [not preferred; DISABLED]'        
 # C      isch= 9  !*** S-ACOT(Chi) [preferred] '           
 # C----------------------------------------------------------------------
-
-# These are TEMPORARILY retained to allow cross checks of ACOT with MSTW
-#
-#RT_DISNC:               # Reaction-specific settings
-  varin0 : 0.0
-  varin1 : 1.0
-  varin2 : -0.666666666667
-  varin3 : 1.0        # recommended RT OPT settings
-
