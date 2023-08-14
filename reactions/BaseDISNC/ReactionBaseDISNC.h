@@ -128,7 +128,7 @@ protected:
    map<unsigned, IntegrateDIS *> _integrated;
    virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
    // higher twist
-   map<unsigned, bool> _ht;
+   map<unsigned, bool> _flag_ht;
    std::vector<double> _ht_x;
    std::vector<double> _ht_2;
    std::vector<double> _ht_t;

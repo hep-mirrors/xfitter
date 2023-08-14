@@ -85,12 +85,12 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
     break;
   case dataType::f2:
     F2(td, val, err);
-    if (_ht[termID]) 
+    if (_flag_ht[termID] && 0) 
       ApplyHigherTwist(td, 2, val, err);
     break;
   case dataType::fl:
     FL(td, val, err);
-    if (_ht[termID]) 
+    if (_flag_ht[termID] && 0) 
       ApplyHigherTwist(td, 1, val, err);
     break;
   }
@@ -291,7 +291,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     _npoints[termID] = (*q2p).size();
   }
   if (td->hasParam("ht")) {
-    _ht[termID] = td->getParamI("ht");
+    _flag_ht[termID] = td->getParamI("ht");
   }
 
   hf_errlog(17041001, msg);
@@ -469,12 +469,12 @@ void ReactionBaseDISNC::sred BASE_PARS
 
   valarray<double> f2(_npoints[termID]);
   F2(td, f2, err);
-  if (_ht[termID]) 
+  if (_flag_ht[termID] && 0) 
     ApplyHigherTwist(td, 2, f2, err);
 
   valarray<double> fl(_npoints[termID]);
   FL(td, fl, err);
-  if (_ht[termID]) 
+  if (_flag_ht[termID] && 0) 
     ApplyHigherTwist(td, 1, fl, err);
 
   valarray<double> xf3(_npoints[termID]);
@@ -601,6 +601,7 @@ void ReactionBaseDISNC::kappa(TermData *td, valarray<double> &k)
 
 void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err)
 {
+  throw 42;
   double q02 = 1.;
   if (f_type == 1) {
     // F_t = F_2 - F_L
