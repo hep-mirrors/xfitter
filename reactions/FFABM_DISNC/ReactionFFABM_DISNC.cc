@@ -10,6 +10,7 @@
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_integration.h>
+#include <spline.h>
 
 // the class factories
 extern "C" ReactionFFABM_DISNC *create()
@@ -143,6 +144,12 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
 
   _mzPtr = td->getParamD("Mz");
   _sin2thwPtr = td->getParamD("sin2thW");
+
+  // target mass correction
+  if (td->hasParam("tmc"))
+    _flag_tmc = *td->getParamD("tmc");
+  else
+    _flag_tmc = 0;
 }
 
 //
@@ -204,51 +211,72 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                       ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
-        // target mass corrections
-        double mn = 0.938272;
-        double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]/q2[i]);
-        double xi = 2*x[i]/(1+gam);
-        auto integrate = [](double xip, void* params) {
-          const integration_params& integrationParams = *(integration_params*)params;
-          double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-          sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
-                      f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                      integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
-          return f2/xip/xip;
-        };
-        integration_params pars;
-        pars.q2 = q2;
-        pars.i = i;
-        pars.ncflag = ncflag;
-        pars.charge = charge;
-        pars.polarity = polarity;
-        pars.cos2thw = cos2thw;
-        pars._sin2thwPtr = _sin2thwPtr;
-        pars._mzPtr = _mzPtr;
-        // numerical integration
-        gsl_function F;
-        F.function = integrate;
-        F.params = &pars;
-        size_t alloc_space = 1000;
-        gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-        double epsabs = 0;
-        double epsrel = 1e-2;
-        int key_param = 6;
-        double result, error;
-        gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-        gsl_integration_workspace_free (w);
-        // Simpson 3/8 integration
-        double a = xi;
-        //double b = log10(1/xi);
-        double b = a*5;
-        if (b > 0.999) 
-          b = 0.999;
-        double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
-        printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1);
-        printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
-        if (fabs(sim38/result-1) >  maxdiff)
-          maxdiff = fabs(sim38/result-1);
-        double I = result;
+        if(_flag_tmc) {
+          // target mass corrections
+          double mn = 0.938272;
+          double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]/q2[i]);
+          double xi = 2*x[i]/(1+gam);
+          auto integrate = [](double xip, void* params) {
+            const integration_params& integrationParams = *(integration_params*)params;
+            double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
+            sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
+                        f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
+                        integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
+            return f2/xip/xip;
+          };
+          integration_params pars;
+          pars.q2 = q2;
+          pars.i = i;
+          pars.ncflag = ncflag;
+          pars.charge = charge;
+          pars.polarity = polarity;
+          pars.cos2thw = cos2thw;
+          pars._sin2thwPtr = _sin2thwPtr;
+          pars._mzPtr = _mzPtr;
+          // numerical integration
+          gsl_function F;
+          F.function = integrate;
+          F.params = &pars;
+          size_t alloc_space = 1000;
+          gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+          double epsabs = 0;
+          double epsrel = 1e-2;
+          int key_param = 6;
+          double result, error;
+          gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+          gsl_integration_workspace_free (w);
+          // Simpson 3/8 integration
+          double a = xi;
+          //double b = log10(1/xi);
+          double b = a*5;
+          if (b > 0.999) 
+            b = 0.999;
+          double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
+          //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
+          double I = result;
+          double f20 = f2;
+          f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2 + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
+          double ft = f2 - fl;
+          ft = x[i]*x[i]/xi/xi/gam*ft + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
+          fl = f2 - ft;
+          double fl0 = fl;
+          printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
+          if (fabs(f20/f2-1) >  maxdiff)
+            maxdiff = fabs(f20/f2-1);
+        }
+        if (_flag_ht[td->id]) {
+          double q02 = 1.;
+          double ft = f2 - fl;
+          tk::spline spline_2;
+          spline_2.set_points(_ht_x, _ht_2);
+          //printf("%f", ft);
+          f2 += pow(x[i], _ht_alpha_2) * spline_2(x[i]) * q02 / q2[i];
+          tk::spline spline_t;
+          spline_t.set_points(_ht_x, _ht_t);
+          ft += pow(x[i], _ht_alpha_t) * spline_t(x[i]) * q02 / q2[i];
+          fl = f2 - ft;
+          //printf("  %f\n", ft);
+        }
       }
 
       switch (GetDataFlav(dataSetID))

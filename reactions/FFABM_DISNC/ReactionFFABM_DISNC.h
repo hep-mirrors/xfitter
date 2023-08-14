@@ -57,4 +57,5 @@ private:
     const double* _sin2thwPtr;
     const double* _mzPtr;
   };
+  int _flag_tmc;
 };
