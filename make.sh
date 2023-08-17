@@ -57,7 +57,7 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
     rm CMakeCache.txt
   fi
   if [ ! -f Makefile ] || [ ! -f CMakeCache.txt ];then
-    cmake $CMAKE_FLAGS -g $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
+    cmake $CMAKE_FLAGS  $SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR || exit
   fi
   if [ "$cmd" == "reconfigure" ];then
     exit 0
