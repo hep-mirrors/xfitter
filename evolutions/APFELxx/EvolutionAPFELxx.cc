@@ -53,15 +53,15 @@ namespace xfitter
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
-    const double* Q0         = XFITTER_PARS::getParamD("Q0");
+    _Q0 = *XFITTER_PARS::getParamD((yamlNode["Q0"]) ? yamlNode["Q0"].as<string>() : "Q0");
     const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
-    const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");
+    _alphas = XFITTER_PARS::getParamD((yamlNode["alphas"]) ? yamlNode["alphas"].as<string>() : "alphas");
     const YAML::Node QGrid   = yamlNode["QGrid"];
 
     // Reinitialise and tabulate the running coupling at every
     // iteration. This is fast enough and allows for the reference
     // value to be fitted.
-    apfel::AlphaQCD a{*Alphas_ref, *Q_ref, _Masses, _Thresholds, PtOrder};
+    apfel::AlphaQCD a{*_alphas, *Q_ref, _Masses, _Thresholds, PtOrder};
     const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
     _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
 
@@ -70,7 +70,7 @@ namespace xfitter
       [=] (double const& x, double const&)->std::map<int,double>{
         return apfel::PhysToQCDEv(_inPDFs->xfxMap(x));
       },
-    *Q0, PtOrder, _AlphaQCD);
+    _Q0, PtOrder, _AlphaQCD);
 
     // Tabulate PDFs (ideally the parameters of the tabulation should
     // be read from parameters.yaml).

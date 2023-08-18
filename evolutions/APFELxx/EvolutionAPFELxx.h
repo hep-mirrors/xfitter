@@ -53,5 +53,9 @@ namespace xfitter
     std::map<int,apfel::DglapObjects>                                       _DglapObj;
     std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>> _TabulatedPDFs;
     std::function<double(double const& Q)>                                  _AlphaQCD;
+    /// pointer to alphas parameter
+    double* _alphas;
+    /// Evolution starting scale:
+    double _Q0;
   };
 }
