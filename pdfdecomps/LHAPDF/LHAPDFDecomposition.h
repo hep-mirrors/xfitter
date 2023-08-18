@@ -36,5 +36,6 @@ namespace xfitter
 
   private:
     LHAPDF::PDF*_pdf{nullptr};
+    std::string _Q0_parname;
   };
 }

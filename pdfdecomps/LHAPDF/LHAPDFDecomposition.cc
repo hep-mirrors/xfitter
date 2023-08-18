@@ -36,9 +36,10 @@ namespace xfitter {
     member=pars["member"].as<int>();
     if(_pdf)delete _pdf;
     _pdf=LHAPDF::mkPDF(setName,member);
+    _Q0_parname = pars["Q0"] ? pars["Q0"].as<string>() : "Q0";
   }
   std::map<int,double>LHAPDFDecomposition::xfxMap(double x)const{
-    return _pdf->xfxQ(x, *(XFITTER_PARS::gParameters.at("Q0")));
+    return _pdf->xfxQ(x, *(XFITTER_PARS::gParameters.at(_Q0_parname)));
   }
 }
 
