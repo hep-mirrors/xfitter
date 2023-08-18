@@ -54,5 +54,10 @@ namespace xfitter
 
     const double* Mz;/// Z-boson mass
     const double* alphas;/// alphaS(Mz^2)
+
+    /// pointer to alphas parameter
+    double* _alphas;
+    /// Evolution starting scale:
+    double _Q0;
   };
 };

@@ -108,11 +108,7 @@ namespace xfitter {
     // Evolution order:
     const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) ;
 
-    const double* Q0         = XFITTER_PARS::getParamD("Q0");
-    double q20 = (*Q0) * (*Q0);
-
     Mz = XFITTER_PARS::getParamD("Mz");
-    alphas = XFITTER_PARS::getParamD("alphas");
 
     const double* mch     = XFITTER_PARS::getParamD("mch");
     const double* mbt     = XFITTER_PARS::getParamD("mbt");
@@ -120,6 +116,11 @@ namespace xfitter {
     //  const double* mtp     = XFITTER_PARS::getParamD("mtp");   // no top PDF treatment yet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     
     YAML::Node yQCDNUM=XFITTER_PARS::getEvolutionNode(_name);
+
+    _Q0 = *XFITTER_PARS::getParamD((yQCDNUM["Q0"]) ? yQCDNUM["Q0"].as<string>() : "Q0");
+    double q20 = _Q0 * _Q0;
+    _alphas = XFITTER_PARS::getParamD((yQCDNUM["alphas"]) ? yQCDNUM["alphas"].as<string>() : "alphas");
+
     _icheck      = yQCDNUM["ICheck"].as<int>();
     _splineOrder = yQCDNUM["SplineOrder"].as<int>();
     _readTables  = yQCDNUM["Read_QCDNUM_Tables"].as<int>();
@@ -236,12 +237,11 @@ namespace xfitter {
 
   void EvolutionQCDNUM::atIteration(){
     if (_itype <5 ) {
-      const double* q0 = XFITTER_PARS::getParamD("Q0");
-      int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
+      int iq0  = QCDNUM::iqfrmq( _Q0 * _Q0 );
       double epsi = 0;
 
       //Re-read Mz and alphas at each iteration so that they can be fitted
-      double alS = *alphas;
+      double alS = *_alphas;
       if ( std::isnan(alS) ) {
         alS = 0.0001; //this should make chi2 bad and force minimizer to an earlier, valid, value of alphas
         cerr<<"[WARN] QCDNUM got alphas = NaN; using alphas = "<<alS<<" instead"<<endl;
