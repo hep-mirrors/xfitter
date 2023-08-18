@@ -43,5 +43,7 @@ private:
   YAML::Node _yAPFEL;
   /// Q grid boundaries:
   double _Qmin, _Qmax;
+  /// pointer to alphas parameter
+  double* _alphas;
 };
 } // namespace xfitter

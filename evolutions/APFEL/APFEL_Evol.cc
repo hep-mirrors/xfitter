@@ -74,9 +74,6 @@ void APFEL_Evol::atStart()
   const double *mbt = XFITTER_PARS::getParamD("mbt");
   const double *mtp = XFITTER_PARS::getParamD("mtp");
 
-  const double *alphas = XFITTER_PARS::getParamD("alphas");
-  _Q0 = *XFITTER_PARS::getParamD("Q0");
-
   // Retrieve parameters needed to initialize DIS APFEL.
   const double *sin2thw = XFITTER_PARS::getParamD("sin2thW");
   const double *Vud = XFITTER_PARS::getParamD("Vud");
@@ -93,6 +90,10 @@ void APFEL_Evol::atStart()
 
   // Read yaml steering
   _yAPFEL = XFITTER_PARS::getEvolutionNode(_name);
+
+  _alphas = XFITTER_PARS::getParamD((_yAPFEL["alphas"]) ? _yAPFEL["alphas"].as<string>() : "alphas");
+  _Q0 = *XFITTER_PARS::getParamD((_yAPFEL["Q0"]) ? _yAPFEL["Q0"].as<string>() : "Q0");
+
   const int iSplineOrder = _yAPFEL["SplineOrder"].as<int>();
 
   vector<double> xGrid = getSeq<double>(_yAPFEL["xGrid"]);
@@ -161,11 +162,18 @@ void APFEL_Evol::atStart()
 
   // treat number of flavours
   int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+  if (_yAPFEL["NFlavour"]) {
+    nflavour = _yAPFEL["NFlavour"].as<int>();
+  }
   if(nflavour < 3 || nflavour > 6)
     hf_errlog(110520204, "F: Unsupported NFlavour = " + std::to_string(nflavour));
   int isFFNS = 0; // VFNS by default
-  if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end())
+  if (_yAPFEL["isFFNS"]) {
+    isFFNS = _yAPFEL["isFFNS"].as<int>();
+  }
+  else if (XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end()) {
     isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
+  }
   if(isFFNS == 1)
   {
     std::cout << "Fixed Flavour Number Scheme set with nf=" << nflavour << std::endl;
@@ -186,7 +194,7 @@ void APFEL_Evol::atStart()
   }
 
 
-  APFEL::SetAlphaQCDRef(*alphas, *Mz);
+  APFEL::SetAlphaQCDRef(*_alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
   if (fragmen == "On")
   {
@@ -266,8 +274,7 @@ void APFEL_Evol::atIteration()
 {
   _Qlast = -1.;
   const double *Mz = XFITTER_PARS::getParamD("Mz");
-  const double *alphas = XFITTER_PARS::getParamD("alphas");
-  APFEL::SetAlphaQCDRef(*alphas, *Mz);
+  APFEL::SetAlphaQCDRef(*_alphas, *Mz);
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atIteration();
 }
