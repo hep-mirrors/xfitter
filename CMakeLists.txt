@@ -154,6 +154,7 @@ add_subdirectory(pdfdecomps/UvDvUbarDbarS)
 add_subdirectory(pdfdecomps/LHAPDF)
 add_subdirectory(pdfdecomps/SU3_Pion)
 add_subdirectory(pdfdecomps/UvDvUbarDbarSSbar)
+add_subdirectory(pdfdecomps/FromEvolution)
 
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
