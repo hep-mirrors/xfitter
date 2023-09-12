@@ -125,7 +125,6 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
 
   int i=0;
   for (string EFT_param : EFT_term->name_EFT_param) {
-    // X.S.: getParamD returns a pointer, is this address fixed?
     val_EFT_param[i] = *td->getParamD(EFT_param);
     i++;
   }

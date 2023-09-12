@@ -61,7 +61,6 @@ void Vec::book(double val) {
 /////////////////////////////////////////////////////////////////////////////
 // RawVec
 /////////////////////////////////////////////////////////////////////////////
-//RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir) {
 RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir, 
           double xi_ren_in, double xi_fac_in, bool save_grid_Q) {
   // key: tag for the current entry; only used for issuing errors
@@ -139,8 +138,20 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
       for (size_t i=0; i<num_bin; i++)
 	value_list.push_back(0.0);
 
-      for (string filepath: node["xsec"].as<vector<string> >())
-	grid_file_list.push_back(grid_dir + "/" + filepath);
+      for (string filename: node["xsec"].as<vector<string> >()) {
+	std::string filepath = grid_dir + "/" + filename;
+	std::ifstream file_stream(filepath);
+	if (file_stream.good()) {
+	  grid_file_list.push_back(filepath);
+	} else {
+	  std::cout << "grid file does not exist:"  << std::endl
+		    << filepath << std::endl
+		    << grid_dir << std::endl
+		    << filename << std::endl
+		    << std::endl;
+	  hf_errlog(23091201, "S: grid file does not exist.");
+	}
+      }
     }
     else
       hf_errlog(23061503, "S: grid format not support for entry " + key);

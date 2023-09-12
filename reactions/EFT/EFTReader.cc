@@ -156,7 +156,7 @@ void EFTReader::readMixedInput(){
     }
 
     if (node["info"]["scaleQ2"]) {
-      scaleQ1 = node["info"]["scaleQ2"].as<bool>();      
+      scaleQ2 = node["info"]["scaleQ2"].as<bool>();      
     }
 
     if (scaleQ1) {
