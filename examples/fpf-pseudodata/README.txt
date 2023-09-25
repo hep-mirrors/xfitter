@@ -1,4 +1,4 @@
-Illustrating profiling using the FPF pseudodata produced for arXiv:2309.09581 [hep-ph].
+An illustration of profiling using a selection of the Forward Physics Facility (FPF) pseudodata produced for arXiv:2309.09581 [hep-ph], assuming an isoscalar free-nucleon target and neglecting nuclear PDF modifications.
 The subdirectories contain runfiles for profiling using only estimates for statistical uncertainties, 
 or for both statistical and systematic uncertainties. 
 In the latter, illustrate plotting the two cases together for comparison.
