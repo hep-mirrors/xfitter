@@ -1,0 +1,48 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+
+DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+    # The following allows QCDNUM to read PDFs from other evolutions:
+    EvolutionCopy: "proton-LHAPDF"
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "PDF4LHC21_40"
+    member: 0
+#  antiproton:
+#    class: FlipCharge
+
+Q0 : 1.65 #1.378404875209 # Initial scale =sqrt(Q^2_0)
+
+? !include constants.yaml
+
+alphas : 0.118
+
+byReaction:
+  PineAPPL:
+    muF: 1.0
+    muR: 1.0
+    norm: 0
+
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  #Parameters:
+  #  alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
+  Evolutions:
+    proton-LHAPDF:
+      sets:    [PDF4LHC21_40]
+      members: [[0,1,end]] # skip last replica because difference between 0 and 100 is linear combination of differences between 0 and 1-99 members
+  Status: "On"               # "Off" to turn off profiler
+  WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "On"              # determine and report chi2 for each variation
+  enableExternalProfiler: "On" # enable creation of additional files, needed for xfitter draw
+  threads: 4                 # use multiprocess for calculations
+  scalePdfs: 3.16228         # rescale (divide) all PDF eigenvectors by the given factor

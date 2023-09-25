@@ -1,0 +1,20 @@
+After minimisation      90.63   354     0.256
+
+  Partial chi2s 
+Dataset    1     11.31( -0.08)    44  FASER$\nu$2 inclusive $\nu_{\mu}$               
+Dataset    2     11.65( -0.09)    39  FASER$\nu$2 inclusive $\bar{\nu}_{\mu}$         
+Dataset    3     12.29( +0.06)    36  FASER$\nu$2 charm $\nu_{\mu}$                   
+Dataset    4      6.01( -0.22)    29  FASER$\nu$2 charm $\bar{\nu}_{\mu}$             
+Dataset    5     11.76( -0.02)    43  FLArE10 inclusive $\nu_{\mu}$                   
+Dataset    6     11.27( -0.02)    38  FLArE10 inclusive $\bar{\nu}_{\mu}$             
+Dataset    7      4.22( -0.00)    30  FLArE10 charm $\nu_{\mu}$                       
+Dataset    8      3.51( -0.14)    18  FLArE10 charm $\bar{\nu}_{\mu}$                 
+Dataset    9      8.06( -0.29)    33  AdvSND inclusive $\nu_{\mu}$                    
+Dataset   10      7.24( -0.14)    29  AdvSND inclusive $\bar{\nu}_{\mu}$              
+Dataset   11      4.35( -0.08)    15  AdvSND charm $\nu_{\mu}$                        
+
+ Correlated Chi2    0.0000000000000000     
+ Log penalty Chi2   -1.0218188968727182     
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type
