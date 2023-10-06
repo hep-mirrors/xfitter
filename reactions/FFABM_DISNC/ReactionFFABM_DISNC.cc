@@ -222,7 +222,12 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
             sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
                         f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                         integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
-            return f2/xip/xip;
+            if (integrationParams.flag_calc_fl == 0) {
+              return f2/xip/xip;
+            }
+            else {
+              return fl/xip/xip;
+            }
           };
           integration_params pars;
           pars.q2 = q2;
@@ -233,6 +238,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           pars.cos2thw = cos2thw;
           pars._sin2thwPtr = _sin2thwPtr;
           pars._mzPtr = _mzPtr;
+          pars.flag_calc_fl = 0;
           // numerical integration
           gsl_function F;
           F.function = integrate;
@@ -255,9 +261,16 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
           double I = result;
           double f20 = f2;
-          f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2 + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
-          double ft = f2 - fl;
-          ft = x[i]*x[i]/xi/xi/gam*ft + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
+          //f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2 + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
+          double f2_at_xi = integrate(xi, &pars)*xi*xi;
+          printf("f2: %f %f\n", f2, f2_at_xi);
+          f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2_at_xi + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
+          //double ft = f2 - fl;
+          //ft = x[i]*x[i]/xi/xi/gam*ft + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
+          pars.flag_calc_fl = 1;
+          double fl_at_xi = integrate(xi, &pars)*xi*xi;
+          double ft_at_xi = f2_at_xi - fl_at_xi;
+          double ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
           fl = f2 - ft;
           double fl0 = fl;
           printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
