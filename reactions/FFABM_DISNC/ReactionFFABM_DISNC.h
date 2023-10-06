@@ -56,6 +56,7 @@ private:
     double cos2thw;
     const double* _sin2thwPtr;
     const double* _mzPtr;
+    int flag_calc_fl;
   };
   int _flag_tmc;
 };
