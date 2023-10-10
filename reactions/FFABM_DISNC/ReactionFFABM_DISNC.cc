@@ -214,7 +214,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         if(_flag_tmc) {
           // target mass corrections
           double mn = 0.938272;
-          double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]/q2[i]);
+          double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]);
           double xi = 2*x[i]/(1+gam);
           auto integrate = [](double xip, void* params) {
             const integration_params& integrationParams = *(integration_params*)params;
@@ -246,7 +246,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           size_t alloc_space = 1000;
           gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
           double epsabs = 0;
-          double epsrel = 1e-2;
+          double epsrel = 1e-3;
           int key_param = 6;
           double result, error;
           gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
@@ -260,6 +260,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
           //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
           double I = result;
+          //I = sim38;
           double f20 = f2;
           //f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2 + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
           double f2_at_xi = integrate(xi, &pars)*xi*xi;
@@ -272,6 +273,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           double ft_at_xi = f2_at_xi - fl_at_xi;
           double ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
           fl = f2 - ft;
+          //fl = fl + x[i]*x[i]/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x[i]*x[i]*x[i]/q2[i]/gam/gam/gam/gam*I;
           double fl0 = fl;
           printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
           if (fabs(f20/f2-1) >  maxdiff)
