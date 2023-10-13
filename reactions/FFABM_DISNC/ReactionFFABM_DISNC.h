@@ -47,6 +47,8 @@ private:
 
   void calcF2FL(unsigned dataSetID);
 
+  double apply_tmc(double& f2, double& fl, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
+    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i);
   struct integration_params {
     std::valarray<double> q2;
     int i;
@@ -57,6 +59,7 @@ private:
     const double* _sin2thwPtr;
     const double* _mzPtr;
     int flag_calc_fl;
+    int flag_flavour;
   };
   int _flag_tmc;
 };
