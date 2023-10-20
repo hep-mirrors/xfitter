@@ -83,6 +83,9 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
   case dataType::sigred:
     sred(td, val, err);
     break;
+  case dataType::sigred_nof3:
+    sred(td, val, err);
+    break;
   case dataType::f2:
     F2(td, val, err);
     if (_flag_ht[termID] && 0) 
@@ -92,6 +95,13 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
     FL(td, val, err);
     if (_flag_ht[termID] && 0) 
       ApplyHigherTwist(td, 1, val, err);
+    break;
+  case dataType::f3:
+    xF3(td, val, err);
+    auto &y = *GetBinValues(td, "y");
+    valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
+    valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
+    val *= (yminus / yplus);
     break;
   }
 
@@ -182,6 +192,11 @@ void ReactionBaseDISNC::initTerm(TermData *td)
       _dataType[termID] = dataType::sigred;
       msg = "I: Calculating DIS NC reduced cross section";
     }
+    else if (type == "sigred_noF3")
+    {
+      _dataType[termID] = dataType::sigred_nof3;
+      msg = "I: Calculating DIS NC reduced cross section w/o F3";
+    }
     else if (type == "F2")
     {
       _dataType[termID] = dataType::f2;
@@ -191,6 +206,11 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     {
       _dataType[termID] = dataType::fl;
       msg = "I: Calculating DIS NC FL";
+    }
+    else if (type == "F3")
+    {
+      _dataType[termID] = dataType::f3;
+      msg = "I: Calculating DIS NC F3";
     }
     else
     {
@@ -478,14 +498,36 @@ void ReactionBaseDISNC::sred BASE_PARS
     ApplyHigherTwist(td, 1, fl, err);
 
   valarray<double> xf3(_npoints[termID]);
-  xF3(td, xf3, err);
-
-  //  double charge = GetCharge(termID);   xF3 is alredy charge-dependent.
+  xf3 = 0;
+  if (GetDataType(td->id) != dataType::sigred_nof3) {
+    xF3(td, xf3, err);
+  }
+  //xf3 = 0;
+  //fl = 0;
 
   valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
   valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
-
-  val = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
+  //val = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
+  //auto val0 = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
+  auto *xp = GetBinValues(td, "x");
+  auto x = *xp;
+  auto *q2p = GetBinValues(td, "Q2");
+  auto q2 = *q2p;
+  double mp = 0.938272;
+  //double rmu2 = 0.105658*0.105658;
+  double rmu2 = 0;
+  //val = ((1-y-mp*mp*x*x*y*y/q2)*f2+(1-2*rmu2/q2)*y*y/2*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  auto s = q2/x/y;
+  //val = ((1-y-x*y*mp*mp/s)*f2+y*y/2*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  //auto val_nmc = ((1-y-x*y*mp*mp/s)*f2+(y*y/2+2*x*y*mp*mp/s)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  auto val_sa = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  /*//auto r = (val_nmc-val)/val;
+  //auto r = (val_nmc-val0)/val0;
+  auto val_m = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  auto val_p = ((1-y+x*y*mp*mp/s)*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  auto r = (val_p-val_m)/val_m;
+  val = r;*/
+  val = val_sa;
 }
 
 void ReactionBaseDISNC::GetF2ud(TermData *td, valarray<double> &f2u, valarray<double> &f2d)
