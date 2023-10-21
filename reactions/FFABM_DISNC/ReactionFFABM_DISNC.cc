@@ -293,14 +293,14 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   auto integrate = [](double xip, void* params) {
     const integration_params& integrationParams = *(integration_params*)params;
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-    //if (integrationParams.order == -1)
+    if (integrationParams.order == -1)
       sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
                 f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                 integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
-    //else
-    //  sf_abkm_wrap_order_(xip, integrationParams.q2[integrationParams.i],
-    //            f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-    //            integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.order);
+    else
+      sf_abkm_wrap_order_(xip, integrationParams.q2[integrationParams.i],
+                f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
+                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.order);
     if (integrationParams.flag_calc_fl == 0) {
       if (integrationParams.flag_flavour == 1)
         return f2/xip/xip;
@@ -379,7 +379,10 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   double f2_at_xi = integrate(xi, &pars)*xi*xi;
   //double f2_at_xi = integrate(xi, &pars)*xi;
   //printf("f2: %f %f\n", f2, f2_at_xi);
-  f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2_at_xi + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
+  double f2_tmc = x[i]*x[i]/xi/xi/gam/gam/gam*f2_at_xi + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
+  //double f2_orig = integrate(x[i], &pars)*x[i]*x[i];
+  //f2 = f2 * f2_tmc / f2_orig;
+  f2 = f2_tmc;
   //double ft = f2 - fl;
   //ft = x[i]*x[i]/xi/xi/gam*ft + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
   pars.flag_calc_fl = 1;
@@ -387,12 +390,21 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   //double fl_at_xi = integrate(xi, &pars)*xi;
   double ft_at_xi = f2_at_xi - fl_at_xi;
   double ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
-  fl = f2 - ft;
+  double fl_tmc = f2_tmc - ft;
+  fl = fl_tmc;
   //fl = fl + x[i]*x[i]/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x[i]*x[i]*x[i]/q2[i]/gam/gam/gam/gam*I;
-  double fl0 = fl;
+  //double fl0 = fl;
   //pars.flag_calc_fl = 2;
   //double f3_at_xi = integrate(xi, &pars)*xi*xi;
   //f3 = x[i]/xi/gam/gam*f3_at_xi + 2*mn*mn/q2[i]*x[i]*x[i]/gam/gam/gam*I;
+  /*double fl_orig = integrate(x[i], &pars)*x[i]*x[i];
+  //fl = fl * fl_tmc / fl_orig;
+  pars.order = -1;
+  f2_at_xi = integrate(xi, &pars)*xi*xi;
+  fl_at_xi = integrate(xi, &pars)*xi*xi;
+  ft_at_xi = f2_at_xi - fl_at_xi;
+  ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
+  fl = f2-ft;*/
   printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
   return f2/f20-1;
 }
