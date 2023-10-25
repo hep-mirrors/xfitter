@@ -1,9 +1,8 @@
-image: "gitlab-registry.cern.ch/fitters/xfitter"
+image: "rootproject/root:6.26.10-fedora36"
 
 before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+  - dnf -y install which yaml-cpp-devel libyaml-devel gsl-devel cmake automake libtool zlib zlib-devel zlib-static ceres-solver-devel openblas-devel
   #eigen3-devel gflags-devel glog-devel
-  - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   
 job-install-minimal:
   only: 
@@ -21,7 +20,7 @@ job-install-full:
   timeout: 120m
   script: 
     #- yum -y install gcc-gfortran git tar root libgfortran-static
-    - yum -y install git tar root
+    - dnf install git tar root
     - ./tools/install-xfitter deps
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it

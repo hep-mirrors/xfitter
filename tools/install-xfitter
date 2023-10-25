@@ -10,14 +10,15 @@ applgridver=1.6.32
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
-apfelxxver=4.0.0
+apfelxxver=4.7.0
 dyturbover=1.3.0
 pineapplver="0.6.0-alpha.17"
 rustver=1.66.0
 cargocver=0.9.14
 
+
 # skip some packages depending on xfitter version
-skip_apfelgrid=0
+skip_apfelgrid=1
 skip_dyturbo=1
 skip_rust=1
 skip_pineappl=1
@@ -194,29 +195,12 @@ then
                 arch=`uname -m`
             fi
             MODE=local
-        elif [[ -e /cvmfs/sft.cern.ch ]]
-	then
+        elif [ -z "$CI" ] && [[ -e /cvmfs/sft.cern.ch ]]; 
+	    then
             echo "System not recognized, but cvmfs is mounted"
             MODE=cvmfs
-	    #gccv=10.3.0
-	    #arch=x86_64
-	    #os=centos7
-	    #cmakev=3.20.0
-	    #rootversion=6.06.08
-	    #boostver=1.53.0
-	    #pyth=2.7
-
-	    #. /cvmfs/sft.cern.ch/lcg/releases/gcc/10.3.0-f5826/x86_64-centos7/setup.sh
-	    #. /cvmfs/sft.cern.ch/lcg/releases/ROOT/6.24.06-3455f/x86_64-centos7-gcc10-opt/bin/thisroot.sh
-            #echo "Using gcc version = 10.3.0"
-
-	    #setup entire view (fails on cmake for ceres)
-	    #. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
-
-	    #setup older gcc
-	    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
-	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
-            echo "Using gcc version = 4.9.3"
+	        #setup entire LCG view
+            . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
         else
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
@@ -266,13 +250,7 @@ fi
 if [[ $MODE == "cern" ]]
 then
     compiler=`echo gcc${gccv} | sed "s/\.//"`
-    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh
-    . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh
-    PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:${PATH}
-    if [[ $os == slc6 ]]
-    then
-        export BOOST=--with-boost=/cvmfs/sft.cern.ch/lcg/external/Boost/${boostver}_python${pyth}/${arch}-${os}-${compiler}-opt
-    fi
+    . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
 fi
 
 #check some basic dependendencies before starting the installation
@@ -289,6 +267,10 @@ then
     echo "Error, root not found"
     exit
 fi
+
+#Print compiler 
+gcc_version="$(gcc --version 2>&1)"
+echo "GCC version: ${gcc_version}"
 
 # Get root c flags:
 root_c_flags=`root-config --cflags`
@@ -333,24 +315,14 @@ else
     cd deps
 #lhapdf:
     echo "Installing LHAPDF $lhapdfver..."
-    if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
-    then
-        lhapdf="LHAPDF"
-        withboost=$BOOST
-    else
-        lhapdf="lhapdf"
-    fi
-
     if [[ $http == "curl" ]]
     then
-        curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl -L -O http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     else
-        wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
-    cat $CURRENTDIR/install.log
-    tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-    cat $CURRENTDIR/install.log 
-    cd ${lhapdf}-${lhapdfver}
+    tar -xf LHAPDF-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    cd LHAPDF-${lhapdfver}
     ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
@@ -370,11 +342,11 @@ else
     hathor="Hathor"
     if [[ $http == "curl" ]]
     then
-        curl https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl -L -O https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     else
         wget --no-check-certificate https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    tar -xzf Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
     make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j 8 >> $CURRENTDIR/install.log  2>&1 
@@ -389,11 +361,11 @@ else
     echo "Installing HOPPET $hoppetver..."
     if [[ $http == "curl" ]]
     then
-        curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
+        curl -L -O http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
     else
         wget --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
+    tar -xzf hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
     cd hoppet-${hoppetver}
     ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
@@ -423,11 +395,11 @@ else
     APPLGRID_URL=https://applgrid.hepforge.org/downloads/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
     then
-        curl $APPLGRID_URL > applgrid-$applgridver.tgz  2>> $CURRENTDIR/install.log
+        curl -L -O $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
     else
         wget --no-check-certificate $APPLGRID_URL >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
+    tar -xzf applgrid-$applgridver.tgz  >> $CURRENTDIR/install.log  2>&1
     cd applgrid-$applgridver
     # need to supply c++1X flag from root explicitly
     ./configure CXXFLAGS="${root_c_flags}" --prefix=$CURRENTDIR/deps/applgrid  >> $CURRENTDIR/install.log  2>&1
@@ -456,12 +428,12 @@ else
     echo "Installing APFEL $apfelver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz > ${apfelver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl -L -O https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     else
         wget --no-check-certificate https://github.com/scarrazza/apfel/archive/${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
-    tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    tar -xzf apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfel-${apfelver}
     ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
 
@@ -484,42 +456,53 @@ else
     echo "Installing HELL tables..."
     if [[ $http == "curl" ]]
     then
-      curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz > HELLx.v3.0.tgz 2 >> $CURRENTDIR/install.log
-      curl https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz > HELLx-data.v3.tgz 2 >> $CURRENTDIR/install.log
+      curl -L -O https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz  >> $CURRENTDIR/install.log 2>&1
+      curl -L -O https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz  >> $CURRENTDIR/install.log 2>&1
     else
       wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
       wget --no-check-certificate https://www.ge.infn.it/~bonvini/hell/downloads/HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
     fi
 
-    tar xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
-    tar xzf HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
+    tar -xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
+    tar -xzf HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
 
     cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
 
  #apfelgrid
     if [[ $skip_apfelgrid != 1 ]]; then
+    if [[ $http == "curl" ]]
+    then
+        curl -L -O http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+    else
         wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-        tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
-        mv NNPDF30_nlo_as_0118 lhapdf/share/LHAPDF >> $CURRENTDIR/install.log  2>&1
-        rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
-        echo "Installing APFELgrid $apfelgridver..."
-      # tmp solution is to use fork @zenaiev
+    fi
+    tar -xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
+    mv NNPDF30_nlo_as_0118 lhapdf/share/LHAPDF >> $CURRENTDIR/install.log  2>&1
+    rm NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
+    
+    echo "Installing APFELgrid $apfelgridver..."
+    # tmp solution is to use fork @zenaiev
 	if [[ $http == "curl" ]]
 	then
-            curl https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz > v${apfelgridver}.tar.gz 2 >> $CURRENTDIR/install.log
+            curl -L -O https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	else
             wget --no-check-certificate https://github.com/zenaiev/APFELgrid/archive/v${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	fi
 	mv v${apfelgridver}.tar.gz APFELgrid-${apfelgridver}.tar.gz
-	tar xfvz APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+	tar -xzf APFELgrid-${apfelgridver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 	cd APFELgrid-${apfelgridver}
-	sed -i 's|wget|wget --no-check-certificate|' setup.sh
+    if [[ $http == "curl" ]]
+	then
+        sed -i 's|wget|curl -L -O|' setup.sh
+	else
+    	sed -i 's|wget|wget --no-check-certificate|' setup.sh
+	fi
 	./setup.sh  >> $CURRENTDIR/install.log  2>&1
 	if [[ $? != 1 ]]
 	then
             echo "Error, check install.log for details"
 	fi
-	make -j 8 install
+	make -j 8 install >> $CURRENTDIR/install.log  2>&1
 	cd - >& /dev/null
     fi
     
@@ -527,13 +510,12 @@ else
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
-        curl https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz > v${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
+        curl -L -O https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     else
-        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/v${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     fi
-    mv v${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
-    tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-
+    mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
+    tar -xzf apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfelxx-${apfelxxver}
     cmake3='cmake3'
     if [ -x "command -v cmake3" ]; then
@@ -542,21 +524,19 @@ else
     $cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
     make -j 8 >> $CURRENTDIR/install.log  2>&1
     make -j 8 install >> $CURRENTDIR/install.log  2>&1
-    
-    export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
+
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
     if [[ $http == "curl" ]]
     then 
-        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl -L -O https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     else
         wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+    tar -xzf qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
-
     ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
     export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
 
@@ -578,18 +558,15 @@ else
         echo "Installing DYTurbo ${dyturbover}..."
         if [[ $http == "curl" ]]
         then
-	    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz 2>> $CURRENTDIR/install.log
+	        curl -L -O https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
         else
-	    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
+	        wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $CURRENTDIR/install.log 2>&1
         fi
-        tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+        tar -xzf dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1
         cd dyturbo-${dyturbover}
-
-
         export CXXFLAGS="${CXXFLAGS} -std=c++0x"
         ./configure --enable-Ofast --disable-tlsopt >> $CURRENTDIR/install.log  2>&1
         export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
-
         if [[ $? != 0 ]]
         then
             echo "Error, check install.log for details"
@@ -612,11 +589,11 @@ else
       numdiff_url=http://nongnu.askapache.com/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
-          curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+          curl -L -O ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       else
           wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       fi
-      tar xfz numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
+      tar -xzf numdiff-${numdiffver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
       cd numdiff-${numdiffver}
       ./configure  --prefix=$CURRENTDIR/deps/numdiff  >> $CURRENTDIR/install.log  2>&1
       echo export PATH=$CURRENTDIR/deps/numdiff/bin/:\$PATH >> $CURRENTDIR/setup.sh
@@ -707,13 +684,13 @@ then
     else
         if [[ $http == "curl" ]]
         then
-            curl 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
+            curl -L -O 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' > xfitter-$version.tar.gz
         else
             wget 'https://www.xfitter.org/xFitter/xFitter/DownloadPage?action=AttachFile&do=get&target=xfitter-'$version'.tgz' -O xfitter-$version.tar.gz  >> $CURRENTDIR/install.log 2>&1
         fi
        # unpack nicely:
         rm -fr xfitter-${version}
-        mkdir xfitter-${version} ; tar xfz xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
+        mkdir xfitter-${version} ; tar -xzf xfitter-${version}.tar.gz -C xfitter-${version} --strip-components 1
     fi
 #else
 #    make -C xfitter-${version} clean >> $CURRENTDIR/install.log  2>&1
@@ -723,6 +700,20 @@ fi
 #make a setup run enviroment script
 echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
+
+if [[ $MODE == "cern" ]]
+then
+    echo ". /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh" >> setup.sh
+    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
+fi
+
+if [[ $MODE == "cvmfs" ]]
+then
+    echo ". /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh" >> setup.sh
+fi
+
+
+
 echo "export version=\`cat version\`" >> setup.sh
 if [[ $skip_rust == 0 ]]; then
     echo "export CARGODIR=\$HOME/.cargo" >> setup.sh
@@ -735,12 +726,13 @@ echo "export PATH=$CURRENTDIR/deps/hoppet/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/applgrid/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfel/bin:\$PATH" >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/mela/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
 if [[ $skip_rust == 0 ]]; then
     echo "export PATH=$CARGODIR/bin:\$PATH" >> setup.sh 
 fi
+echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
+
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
@@ -756,27 +748,9 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfelxx/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
-echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
-
-
-if [[ $MODE == "cern" ]]
-then
-    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/${gccv}/${arch}-${os}/setup.sh            >> setup.sh
-
-    echo PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/${cmakev}/Linux-x86_64/bin/:\$PATH >> setup.sh
-    echo "cd /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/" >> setup.sh
-    echo ". /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/${rootversion}/${arch}-${os}-${compiler}-opt/root/bin/thisroot.sh ">> setup.sh
-    echo "cd -" >>setup.sh
-fi
-
-if [[ $MODE == "cvmfs" ]]
-then
-    #echo . /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh >> setup.sh
-    echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
-fi
 
 #make a compilation script
 echo source ./setup.sh > compile
@@ -785,9 +759,10 @@ echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> compile
 echo export PATH=\$CURRENTDIR/deps/applgrid/bin/:\$PATH     >> compile
 echo export PATH=\$CURRENTDIR/deps/apfel/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/mela/bin/:\$PATH     >> compile
-echo export PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:\$PATH     >> compile
-
+echo export PATH=\$CURRENTDIR/deps/apfelxx/bin/:\$PATH     >> compile
+echo export PATH=\$CURRENTDIR/deps/qcdnum/bin/:\$PATH     >> compile
+echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> compile
+echo export LHAPDF_DATA_PATH=\$CURRENTDIR/deps/lhapdf/share/LHAPDF/ >> setup.sh
 
 if [[ $mode != "deps" ]]
 then
@@ -837,11 +812,11 @@ if [[ $mode != "deps" ]]
 then
   if [[ $version == "2.0.0" ]] || [[ $version == "2.0.1" ]]; then
     echo autoreconf --install                                 >> compile
-    echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-mela  --enable-apfelgrid --enable-process    >> compile
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-apfelxx --enable-apfelgrid --enable-process    >> compile
     echo make -j 8 install                                    >> compile
   elif [[ $version == "master_before_PionCeres_merge" ]] || [[ $version == "test_ceres_v0.01" ]]; then
     # SZ 10.07.2019 apfelgrid produces linking error in PionCeres
-    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-mela --enable-process    >> compile
+    echo ./configure --enable-applgrid --enable-lhapdf --enable-hathor --enable-apfel --enable-apfelxx --enable-process    >> compile
     echo make -j 8 install                                    >> compile
     echo autoreconf --install                                 >> compile
   else

@@ -1,24 +1,24 @@
-After minimisation      80.05    -2   -40.023
+After minimisation      80.07    -2   -40.037
 
   Partial chi2s 
-Dataset    1     54.11( -0.15)    12  ATLAS peak CC Z rapidity 2011                   
+Dataset    1     54.16( -0.15)    12  ATLAS peak CC Z rapidity 2011                   
 
- Correlated Chi2    26.087689058889339     
- Log penalty Chi2  -0.15313353591023987     
+ Correlated Chi2    26.063345617175635     
+ Log penalty Chi2  -0.15250299784935617     
  Systematic shifts          131
   
                                 Name          Shift   +/-    Error          Type
     1  sysATLAS1001                           0.7807   +/-   0.9894        :N:M:D
-    2  sysATLAS1002                           1.1212   +/-   0.9869        :N:M:D
-    3  sysATLAS1003                          -1.9221   +/-   0.9685        :N:M:D
-    4  sysATLAS1004                           0.1589   +/-   0.9984        :N:M:D
-    5  sysATLAS1005                           0.1919   +/-   0.9956        :N:M:D
-    6  sysATLAS1006                          -0.5116   +/-   0.9976        :N:M:D
-    7  sysATLAS1007                          -0.2393   +/-   0.9986        :N:M:D
-    8  sysATLAS1008                          -0.3514   +/-   0.9715        :N:M:D
-    9  sysATLAS1009                          -0.5573   +/-   0.9970        :N:M:D
-   10  sysATLAS1010                          -0.2730   +/-   0.9969        :N:M:D
-   11  sysATLAS1011                          -1.2865   +/-   0.9866        :N:M:D
+    2  sysATLAS1002                           1.1211   +/-   0.9869        :N:M:D
+    3  sysATLAS1003                          -1.9213   +/-   0.9685        :N:M:D
+    4  sysATLAS1004                           0.1591   +/-   0.9984        :N:M:D
+    5  sysATLAS1005                           0.1923   +/-   0.9956        :N:M:D
+    6  sysATLAS1006                          -0.5115   +/-   0.9976        :N:M:D
+    7  sysATLAS1007                          -0.2396   +/-   0.9986        :N:M:D
+    8  sysATLAS1008                          -0.3515   +/-   0.9715        :N:M:D
+    9  sysATLAS1009                          -0.5572   +/-   0.9970        :N:M:D
+   10  sysATLAS1010                          -0.2731   +/-   0.9969        :N:M:D
+   11  sysATLAS1011                          -1.2863   +/-   0.9866        :N:M:D
    12  sysATLAS1012                          -0.2508   +/-   0.9995        :N:M:D
    13  sysATLAS1013                           0.0000   +/-   1.0000        :N:M:D
    14  sysATLAS1014                           0.0013   +/-   1.0000        :N:M:D
@@ -26,78 +26,78 @@ Dataset    1     54.11( -0.15)    12  ATLAS peak CC Z rapidity 2011
    16  sysATLAS1016                          -0.0548   +/-   1.0000        :N:M:D
    17  sysATLAS1017                          -0.0041   +/-   1.0000        :N:M:D
    18  sysATLAS1018                           0.0028   +/-   1.0000        :N:M:D
-   19  sysATLAS1019                          -0.1446   +/-   0.9997        :N:M:D
-   20  sysATLAS1020                           0.4903   +/-   0.9981        :N:M:D
-   21  sysATLAS1021                          -0.4401   +/-   0.9985        :N:M:D
-   22  sysATLAS1022                          -0.0135   +/-   0.9994        :N:M:D
-   23  sysATLAS1023                           0.1546   +/-   0.9995        :N:M:D
+   19  sysATLAS1019                          -0.1444   +/-   0.9997        :N:M:D
+   20  sysATLAS1020                           0.4904   +/-   0.9981        :N:M:D
+   21  sysATLAS1021                          -0.4402   +/-   0.9985        :N:M:D
+   22  sysATLAS1022                          -0.0133   +/-   0.9994        :N:M:D
+   23  sysATLAS1023                           0.1545   +/-   0.9995        :N:M:D
    24  sysATLAS1024                           0.1417   +/-   0.9998        :N:M:D
-   25  sysATLAS1025                          -0.4032   +/-   0.9982        :N:M:D
-   26  sysATLAS1026                           0.0591   +/-   0.9996        :N:M:D
-   27  sysATLAS1027                          -0.1905   +/-   0.9995        :N:M:D
+   25  sysATLAS1025                          -0.4029   +/-   0.9982        :N:M:D
+   26  sysATLAS1026                           0.0590   +/-   0.9996        :N:M:D
+   27  sysATLAS1027                          -0.1903   +/-   0.9995        :N:M:D
    28  sysATLAS1028                           0.2313   +/-   0.9994        :N:M:D
-   29  sysATLAS1029                          -0.0963   +/-   0.9999        :N:M:D
-   30  sysATLAS1030                          -0.0732   +/-   0.9999        :N:M:D
+   29  sysATLAS1029                          -0.0964   +/-   0.9999        :N:M:D
+   30  sysATLAS1030                          -0.0733   +/-   0.9999        :N:M:D
    31  sysATLAS1031                           0.0771   +/-   0.9999        :N:M:D
-   32  sysATLAS1032                          -0.0782   +/-   0.9998        :N:M:D
+   32  sysATLAS1032                          -0.0783   +/-   0.9998        :N:M:D
    33  sysATLAS1033                          -0.1558   +/-   0.9996        :N:M:D
-   34  sysATLAS1034                           0.2547   +/-   0.9994        :N:M:D
+   34  sysATLAS1034                           0.2546   +/-   0.9994        :N:M:D
    35  sysATLAS1035                           0.0506   +/-   0.9999        :N:M:D
-   36  sysATLAS1036                          -0.1558   +/-   0.9997        :N:M:D
+   36  sysATLAS1036                          -0.1559   +/-   0.9997        :N:M:D
    37  sysATLAS1037                          -0.0254   +/-   0.9999        :N:M:D
-   38  sysATLAS1038                           0.0745   +/-   0.9998        :N:M:D
+   38  sysATLAS1038                           0.0746   +/-   0.9998        :N:M:D
    39  sysATLAS1039                           0.0927   +/-   0.9996        :N:M:D
-   40  sysATLAS1040                          -0.1796   +/-   0.9996        :N:M:D
+   40  sysATLAS1040                          -0.1797   +/-   0.9996        :N:M:D
    41  sysATLAS1041                          -0.1586   +/-   0.9996        :N:M:D
    42  sysATLAS1042                           0.0498   +/-   0.9999        :N:M:D
    43  sysATLAS1043                          -0.0508   +/-   0.9999        :N:M:D
    44  sysATLAS1044                          -0.1034   +/-   0.9998        :N:M:D
-   45  sysATLAS1045                          -0.1199   +/-   0.9996        :N:M:D
+   45  sysATLAS1045                          -0.1200   +/-   0.9996        :N:M:D
    46  sysATLAS1046                           0.0083   +/-   0.9999        :N:M:D
    47  sysATLAS1047                           0.0072   +/-   1.0000        :N:M:D
    48  sysATLAS1048                          -0.0485   +/-   1.0000        :N:M:D
    49  sysATLAS1049                          -0.1379   +/-   0.9995        :N:M:D
-   50  sysATLAS1050                           0.0474   +/-   0.9999        :N:M:D
-   51  sysATLAS1051                          -2.1552   +/-   0.7845        :N:M:D
-   52  sysATLAS1052                           0.2461   +/-   0.9555        :N:M:D
-   53  sysATLAS1053                          -0.1452   +/-   0.9991        :N:M:D
-   54  sysATLAS1054                           0.1913   +/-   0.9989        :N:M:D
-   55  sysATLAS1055                           0.1661   +/-   0.9949        :N:M:D
-   56  sysATLAS1056                          -0.2857   +/-   0.9990        :N:M:D
-   57  sysATLAS1057                           0.1011   +/-   0.9997        :N:M:D
+   50  sysATLAS1050                           0.0475   +/-   0.9999        :N:M:D
+   51  sysATLAS1051                          -2.1533   +/-   0.7845        :N:M:D
+   52  sysATLAS1052                           0.2453   +/-   0.9555        :N:M:D
+   53  sysATLAS1053                          -0.1450   +/-   0.9991        :N:M:D
+   54  sysATLAS1054                           0.1914   +/-   0.9989        :N:M:D
+   55  sysATLAS1055                           0.1665   +/-   0.9949        :N:M:D
+   56  sysATLAS1056                          -0.2854   +/-   0.9990        :N:M:D
+   57  sysATLAS1057                           0.1010   +/-   0.9997        :N:M:D
    58  sysATLAS1058                          -0.0236   +/-   0.9998        :N:M:D
    59  sysATLAS1059                          -0.6790   +/-   0.9947        :N:M:D
    60  sysATLAS1060                          -0.2550   +/-   0.9989        :N:M:D
-   61  sysATLAS1061                          -0.0963   +/-   0.9996        :N:M:D
-   62  sysATLAS1062                           0.1985   +/-   0.9997        :N:M:D
-   63  sysATLAS1063                           0.7053   +/-   0.9947        :N:M:D
-   64  sysATLAS1064                           0.1273   +/-   0.9997        :N:M:D
-   65  sysATLAS1065                           0.0167   +/-   0.9999        :N:M:D
-   66  sysATLAS1066                          -0.1925   +/-   0.9994        :N:M:D
-   67  sysATLAS1067                          -0.0188   +/-   0.9997        :N:M:D
-   68  sysATLAS1068                           0.4493   +/-   0.9948        :N:M:D
-   69  sysATLAS1069                          -0.0808   +/-   0.9989        :N:M:D
+   61  sysATLAS1061                          -0.0961   +/-   0.9996        :N:M:D
+   62  sysATLAS1062                           0.1986   +/-   0.9997        :N:M:D
+   63  sysATLAS1063                           0.7052   +/-   0.9947        :N:M:D
+   64  sysATLAS1064                           0.1272   +/-   0.9997        :N:M:D
+   65  sysATLAS1065                           0.0168   +/-   0.9999        :N:M:D
+   66  sysATLAS1066                          -0.1924   +/-   0.9994        :N:M:D
+   67  sysATLAS1067                          -0.0189   +/-   0.9997        :N:M:D
+   68  sysATLAS1068                           0.4498   +/-   0.9948        :N:M:D
+   69  sysATLAS1069                          -0.0807   +/-   0.9989        :N:M:D
    70  sysATLAS1070                           0.0000   +/-   1.0000        :N:M:D
    71  sysATLAS1071                           0.7958   +/-   0.9928        :N:M:D
-   72  sysATLAS1072                          -2.0698   +/-   0.9562        :N:M:D
-   73  sysATLAS1073                          -0.4658   +/-   0.9912        :N:M:D
+   72  sysATLAS1072                          -2.0690   +/-   0.9562        :N:M:D
+   73  sysATLAS1073                          -0.4660   +/-   0.9912        :N:M:D
    74  sysATLAS1074                           0.1394   +/-   0.9980        :N:M:D
-   75  sysATLAS1075                           0.6060   +/-   0.9962        :N:M:D
-   76  sysATLAS1076                           0.4081   +/-   0.9981        :N:M:D
+   75  sysATLAS1075                           0.6061   +/-   0.9962        :N:M:D
+   76  sysATLAS1076                           0.4080   +/-   0.9981        :N:M:D
    77  sysATLAS1077                           0.2393   +/-   0.9982        :N:M:D
-   78  sysATLAS1078                           0.0042   +/-   0.9986        :N:M:D
-   79  sysATLAS1079                          -0.3744   +/-   0.9924        :N:M:D
+   78  sysATLAS1078                           0.0041   +/-   0.9986        :N:M:D
+   79  sysATLAS1079                          -0.3737   +/-   0.9924        :N:M:D
    80  sysATLAS1080                          -0.0292   +/-   0.9928        :N:M:D
-   81  sysATLAS1081                          -0.2353   +/-   0.9977        :N:M:D
-   82  sysATLAS1082                          -0.3754   +/-   0.9962        :N:M:D
-   83  sysATLAS1083                           0.3496   +/-   0.9981        :N:M:D
+   81  sysATLAS1081                          -0.2356   +/-   0.9977        :N:M:D
+   82  sysATLAS1082                          -0.3756   +/-   0.9962        :N:M:D
+   83  sysATLAS1083                           0.3495   +/-   0.9981        :N:M:D
    84  sysATLAS1084                           0.1170   +/-   0.9991        :N:M:D
-   85  sysATLAS1085                          -0.3567   +/-   0.9985        :N:M:D
-   86  sysATLAS1086                           1.5432   +/-   0.9730        :N:M:D
-   87  sysATLAS1087                          -0.4635   +/-   0.9964        :N:M:D
-   88  sysATLAS1088                          -0.3242   +/-   0.9901        :N:M:D
-   89  sysATLAS1089                           0.1726   +/-   0.9930        :N:M:D
-   90  sysATLAS1090                          -0.1562   +/-   0.9964        :N:M:D
+   85  sysATLAS1085                          -0.3566   +/-   0.9985        :N:M:D
+   86  sysATLAS1086                           1.5420   +/-   0.9730        :N:M:D
+   87  sysATLAS1087                          -0.4630   +/-   0.9964        :N:M:D
+   88  sysATLAS1088                          -0.3250   +/-   0.9901        :N:M:D
+   89  sysATLAS1089                           0.1730   +/-   0.9930        :N:M:D
+   90  sysATLAS1090                          -0.1564   +/-   0.9964        :N:M:D
    91  sysATLAS1091                           0.0000   +/-   1.0000        :N:M:D
    92  sysATLAS1092                           0.0000   +/-   1.0000        :N:M:D
    93  sysATLAS1093                           0.0000   +/-   1.0000        :N:M:D
@@ -106,36 +106,36 @@ Dataset    1     54.11( -0.15)    12  ATLAS peak CC Z rapidity 2011
    96  sysATLAS1096                           0.0000   +/-   1.0000        :N:M:D
    97  sysATLAS1097                           0.0000   +/-   1.0000        :N:M:D
    98  sysATLAS1098                           0.0000   +/-   1.0000        :N:M:D
-   99  sysATLAS1099                          -0.1458   +/-   0.9989        :N:M:D
+   99  sysATLAS1099                          -0.1460   +/-   0.9989        :N:M:D
   100  sysATLAS1100                          -0.0015   +/-   1.0000        :N:M:D
   101  sysATLAS1101                           0.1665   +/-   0.9998        :N:M:D
-  102  sysATLAS1102                          -0.0234   +/-   0.9999        :N:M:D
+  102  sysATLAS1102                          -0.0235   +/-   0.9999        :N:M:D
   103  sysATLAS1103                          -0.0320   +/-   1.0000        :N:M:D
   104  sysATLAS1104                           0.1284   +/-   0.9998        :N:M:D
   105  sysATLAS1105                           0.0460   +/-   1.0000        :N:M:D
-  106  sysATLAS1106                          -0.1711   +/-   0.9993        :N:M:D
-  107  sysATLAS1107                           0.2989   +/-   0.9991        :N:M:D
-  108  sysATLAS1108                          -0.0707   +/-   0.9998        :N:M:D
-  109  sysATLAS1109                           0.0547   +/-   0.9999        :N:M:D
+  106  sysATLAS1106                          -0.1712   +/-   0.9993        :N:M:D
+  107  sysATLAS1107                           0.2987   +/-   0.9991        :N:M:D
+  108  sysATLAS1108                          -0.0708   +/-   0.9998        :N:M:D
+  109  sysATLAS1109                           0.0546   +/-   0.9999        :N:M:D
   110  sysATLAS1110                          -0.0414   +/-   1.0000        :N:M:D
   111  sysATLAS1111                           0.0500   +/-   1.0000        :N:M:D
-  112  sysATLAS1112                           0.0431   +/-   0.9993        :N:M:D
-  113  sysATLAS1113                          -0.0347   +/-   0.9996        :N:M:D
-  114  sysATLAS1114                          -0.1943   +/-   0.9994        :N:M:D
+  112  sysATLAS1112                           0.0430   +/-   0.9993        :N:M:D
+  113  sysATLAS1113                          -0.0346   +/-   0.9996        :N:M:D
+  114  sysATLAS1114                          -0.1942   +/-   0.9994        :N:M:D
   115  sysATLAS1115                          -0.0154   +/-   1.0000        :N:M:D
   116  sysATLAS1116                           0.0179   +/-   1.0000        :N:M:D
-  117  sysATLAS1117                           0.1163   +/-   0.9999        :N:M:D
+  117  sysATLAS1117                           0.1164   +/-   0.9999        :N:M:D
   118  sysATLAS1118                           0.0642   +/-   0.9999        :N:M:D
-  119  sysATLAS1119                          -0.0334   +/-   0.9998        :N:M:D
+  119  sysATLAS1119                          -0.0333   +/-   0.9998        :N:M:D
   120  sysATLAS1120                           0.4031   +/-   0.9983        :N:M:D
-  121  sysATLAS1121                          -0.0384   +/-   0.9997        :N:M:D
+  121  sysATLAS1121                          -0.0383   +/-   0.9997        :N:M:D
   122  sysATLAS1122                          -0.0162   +/-   1.0000        :N:M:D
   123  sysATLAS1123                          -0.0277   +/-   0.9999        :N:M:D
-  124  sysATLAS1124                           0.3279   +/-   0.9990        :N:M:D
-  125  sysATLAS1125                          -0.2451   +/-   0.9991        :N:M:D
-  126  sysATLAS1126                          -0.0179   +/-   1.0000        :N:M:D
-  127  sysATLAS1127                          -0.2634   +/-   0.9979        :N:M:D
-  128  sysATLAS1128                          -0.0676   +/-   0.9998        :N:M:D
-  129  sysATLAS1129                           0.4816   +/-   0.9971        :N:M:D
-  130  sysATLAS1130                          -0.1421   +/-   0.9974        :N:M:D
-  131  AtlasLumi2011                         -0.8084   +/-   0.1576        :N:M:D
+  124  sysATLAS1124                           0.3277   +/-   0.9990        :N:M:D
+  125  sysATLAS1125                          -0.2450   +/-   0.9991        :N:M:D
+  126  sysATLAS1126                          -0.0180   +/-   1.0000        :N:M:D
+  127  sysATLAS1127                          -0.2632   +/-   0.9979        :N:M:D
+  128  sysATLAS1128                          -0.0677   +/-   0.9998        :N:M:D
+  129  sysATLAS1129                           0.4811   +/-   0.9971        :N:M:D
+  130  sysATLAS1130                          -0.1423   +/-   0.9974        :N:M:D
+  131  AtlasLumi2011                         -0.8059   +/-   0.1576        :N:M:D
