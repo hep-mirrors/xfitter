@@ -40,13 +40,12 @@ echo "Installing QCDNUM $qcdnumver..."
 qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
 if [[ $http == "curl" ]]
 then 
-    curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+    curl -L -O https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
 else
     wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 fi
 tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
 cd qcdnum-${qcdnumver}
-
 ./configure --prefix=$CURRENTDIR/deps/qcdnum  >> $CURRENTDIR/install.log  2>&1
 export PATH=$CURRENTDIR/deps/qcdnum/bin/:$PATH
 

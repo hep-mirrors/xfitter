@@ -29,14 +29,13 @@ lhapdf="LHAPDF"
 
 if [[ $http == "curl" ]]
 then
-    curl https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz > ${lhapdf}-${lhapdfver}.tar.gz 2>> $CURRENTDIR/install.log
+    curl -L -O curl -L -O http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 else
-    wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>\
+&1
 fi
-cat $CURRENTDIR/install.log
-tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-cat $CURRENTDIR/install.log 
-cd ${lhapdf}-${lhapdfver}
+tar -xf LHAPDF-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+cd LHAPDF-${lhapdfver}
 ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
 then
