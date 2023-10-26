@@ -29,7 +29,7 @@ lhapdf="LHAPDF"
 
 if [[ $http == "curl" ]]
 then
-    curl -L -O curl -L -O http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    curl -L -O http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 else
     wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/LHAPDF-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>\
 &1
@@ -56,3 +56,6 @@ cd $CURRENTDIR
 echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/lhapdf/bin:\$PATH" >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >> setup.sh
+echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
+echo export LHAPDF_DATA_PATH=\$CURRENTDIR/deps/lhapdf/share/LHAPDF/ >> setup.sh
+
