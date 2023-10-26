@@ -49,11 +49,11 @@ cd deps
 echo "Installing DYTurbo ${dyturbover}..."
 if [[ $http == "curl" ]]
 then
-    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz #2>> $CURRENTDIR/install.log
+    curl -L -O https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz #2>> $CURRENTDIR/install.log
 else
     wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz #>> $CURRENTDIR/install.log 2>&1
 fi
-tar xfz dyturbo-${dyturbover}.tar.gz  #>> $CURRENTDIR/install.log  2>&1
+tar -xzf dyturbo-${dyturbover}.tar.gz  #>> $CURRENTDIR/install.log  2>&1
 cd dyturbo-${dyturbover}
 
 export CXXFLAGS="${CXXFLAGS} -std=c++0x"
