@@ -347,22 +347,27 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
         else {
             gridVals = _convolved[grid_name_and_energy];
         }
+        //for(size_t i=0; i<gridVals.size(); i++) {
+        //    printf("i = %ld xsec = %f\n", i, gridVals[i]);
+        //}
         // insert values from this grid into output array
         copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
         pos += pineappl_grid_bin_count(grid);
     }
     // rebin
-    const auto& rebin = data.rebin;
-    auto val_orig = val;
-    val.resize(rebin.size());
-    //auto err_orig = err;
-    //err.resize(rebin.size());
-    for(size_t i1 = 0; i1 < rebin.size(); i1++) {
-        val[i1] = 0.;
-        //err[i1] = 0.;
-        for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
-            val[i1] += val_orig[i2] * rebin[i1][i2];
-            //err[i1] += err_orig[i2] * rebin[i1][i2];
+    if (data.rebin.size() > 0) {
+        const auto& rebin = data.rebin;
+        auto val_orig = val;
+        val.resize(rebin.size());
+        //auto err_orig = err;
+        //err.resize(rebin.size());
+        for(size_t i1 = 0; i1 < rebin.size(); i1++) {
+            val[i1] = 0.;
+            //err[i1] = 0.;
+            for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
+                val[i1] += val_orig[i2] * rebin[i1][i2];
+                //err[i1] += err_orig[i2] * rebin[i1][i2];
+            }
         }
     }
 } //compute
