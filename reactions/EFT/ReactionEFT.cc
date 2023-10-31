@@ -126,6 +126,11 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   int i=0;
   for (string EFT_param : EFT_term->name_EFT_param) {
     val_EFT_param[i] = *td->getParamD(EFT_param);
+
+    if (EFT_term->debug > 3) {
+      std::cout << "EFT_param: " << EFT_param << " = " << val_EFT_param[i] << std::endl;
+    }
+    
     i++;
   }
 
