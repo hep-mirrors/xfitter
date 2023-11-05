@@ -44,13 +44,13 @@ extern "C" uLong filechecksum_(const char text[], size_t size) {
   filelen = ftell(fileptr);             // Get the current byte offset in the file
   rewind(fileptr);                      // Jump back to the beginning of the file
   
-  buffer = (Bytef *)malloc(filelen * sizeof(Bytef)); // Enough memory for the file
+  buffer = new Bytef[filelen]; // Enough memory for the file
   int i = fread(buffer, filelen, 1, fileptr); // Read in the entire file
   fclose(fileptr); // Close the file
 
   uLong cs = checksum_(buffer, filelen);
   
-  delete buffer;
+  delete[] buffer;
   return cs;
 }
  
