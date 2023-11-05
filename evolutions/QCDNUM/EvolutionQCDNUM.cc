@@ -1,11 +1,3 @@
-
-/*
-   @file EvolutionQCDNUM.cc
-   @date 2018-08-14
-   @author  AddEvolution.py
-   Created by  AddEvolution.py on 2018-08-14
-*/
-
 #include "EvolutionQCDNUM.h"
 #include "QCDNUM/QCDNUM.h"
 #include "QCDNUM_Manager.h"
@@ -15,6 +7,8 @@
 #include"BasePdfDecomposition.h"
 #include <algorithm>
 #include <cmath>
+#include <vector>
+
 
 // Global var to hold current pdfDecomposition
 xfitter::BasePdfDecomposition* gPdfDecomp;
