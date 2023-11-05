@@ -3,28 +3,33 @@
 #include "LHAPDF/Paths.h"
 #include <iostream>
 #include <algorithm>
-#include <cstring>
+#include <string>
 
-using namespace std;
+void CheckForPDF(char const* pdfname) {
+  bool found = false;
+  std::string spdfname(pdfname);
+  spdfname.erase(std::remove_if(spdfname.begin(), spdfname.end(), ::isspace), spdfname.end());
 
-void CheckForPDF(char const*pdfname){
-  bool found= false;
-  string spdfname=string(pdfname);
-  spdfname.erase(std::remove_if(spdfname.begin(), spdfname.end(), ::isspace),spdfname.end());
-  for (const string& s : LHAPDF::availablePDFSets()){
-    if (s==spdfname) found=true;
-	    }
+  for (const std::string& s : LHAPDF::availablePDFSets()) {
+    if (s == spdfname) {
+      found = true;
+      break;
+	  }
+  }
+
   if (!found){
-    cout << "PDF: " << spdfname << " not found"<< endl;
-    cout << "List of available PDFs in this installation:" << endl;
-    for (const string& s : LHAPDF::availablePDFSets())
-      cout << " " << s << endl;
+    std::cout << "PDF: " << spdfname << " not found" << std::endl;
+    std::cout << "List of available PDFs in this installation:" << std::endl;
+    for (const string& s : LHAPDF::availablePDFSets()) {
+      std::cout << " " << s << std::endl;
+    }
 
-    cout << "You can try installing your chosen pdf with: ./tools/download-lhapdf.sh " << spdfname  << endl;
+    std::cout << "You can try installing your chosen pdf with: ./tools/download-lhapdf.sh " << spdfname  << std::endl;
 
-    exit(0);
+    std::exit(0);
+
   } else {
-    string msg = "I: PDF: " + spdfname + " found in this installation";
+    std::string msg = "I: PDF: " + spdfname + " found in this installation";
     hf_errlog_(19092501, msg.c_str(), msg.size());
   }
 }
