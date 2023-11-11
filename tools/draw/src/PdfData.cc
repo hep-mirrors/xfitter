@@ -48,7 +48,8 @@ pdftype pdfts[]={
   SeaOverGlue,
   photonOverGlue,
   uvplusdv,
-  uvplusdvplusSea
+  uvplusdvplusSea,
+  uvplusdvNEW,
 };
 //pdf labels
 string pdflab[]={
@@ -79,7 +80,8 @@ string pdflab[]={
   "#Sigma/g",
   "#gamma/g",
   "u_{V}+d_{V}",
-  "u_{V}+d_{V}+2#Sigma"
+  "u_{V}+d_{V}+2#Sigma",
+  "2/3u_{V}+1/3d_{V}",
 };
 //pdf filenames
 string pdffil[]={
@@ -110,7 +112,8 @@ string pdffil[]={
   "sg",
   "gg",
   "uv+dv",
-  "uv+dv+2Sea"
+  "uv+dv+2Sea",
+  "23uv+13dv",
 };
 
 vector <pdftype> pdfs(pdfts, pdfts + sizeof(pdfts) / sizeof(pdftype));
@@ -271,6 +274,13 @@ Pdf::Pdf(string filename) : Q2value(0), NxValues(0), NPdfs(0), Xmin(0), Xmax(0)
       tablemap[uvplusdvplusSea].push_back(tablemap[dv][ix]+tablemap[uv][ix]+2.0*tablemap[Sea][ix]);
     else
       tablemap[uvplusdvplusSea].push_back(0);
+
+  PdfTypes.push_back(uvplusdvNEW);  NPdfs++;
+  for (int ix = 0; ix < NxValues; ix++)
+    if (tablemap[g][ix] != 0)
+      tablemap[uvplusdvNEW].push_back(1./3.*tablemap[dv][ix]+2./3.*tablemap[uv][ix]);
+    else
+      tablemap[uvplusdvNEW].push_back(0);
 }
 
 TGraphAsymmErrors* Pdf::GetPdf(pdftype ipdf, int iunctype)
