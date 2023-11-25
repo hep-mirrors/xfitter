@@ -337,7 +337,8 @@ else
     rm -rf deps >& /dev/null
     mkdir deps
     cd deps
-#lhapdf:
+
+    # lhapdf:
     echo "Installing LHAPDF $lhapdfver..."
     if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
     then
@@ -371,7 +372,7 @@ else
     fi
     cd - >& /dev/null
 
-#Hathor:
+    # Hathor:
     echo "Installing Hathor $hathorver..."
     hathor="Hathor"
     if [[ $http == "curl" ]]
@@ -391,7 +392,7 @@ else
     fi
     cd - >& /dev/null
 
- #hoppet:
+    # hoppet:
     echo "Installing HOPPET $hoppetver..."
     if [[ $http == "curl" ]]
     then
@@ -415,7 +416,7 @@ else
     fi
     cd - >& /dev/null
 
- # setup paths for applgrid:
+    # setup paths for applgrid:
     export PATH=$CURRENTDIR/deps/hoppet/bin/:$PATH
     export PATH=$CURRENTDIR/deps/lhapdf/bin/:$PATH
     export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}
@@ -424,7 +425,7 @@ else
     export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a`
     rm /tmp/xf_py1234_a
 
- #applgrid:
+    # applgrid:
     echo "Installing APPLGRID $applgridver..."
     APPLGRID_URL=https://applgrid.hepforge.org/downloads/applgrid-"$applgridver".tgz
     if [[ $http == "curl" ]]
@@ -458,7 +459,7 @@ else
 
     export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
 
- #apfel
+    # apfel
     echo "Installing APFEL $apfelver..."
     if [[ $http == "curl" ]]
     then
@@ -478,11 +479,11 @@ else
         echo "Error, check install.log for details"
         exit
     fi
-    cd - >& /dev/null
     # setup paths for apfel:
     export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
+    cd - >& /dev/null
 
-#Importing tables for Small-x resummation studies
+    # Importing tables for Small-x resummation studies
     echo "Installing HELL tables..."
     if [[ $http == "curl" ]]
     then
@@ -496,9 +497,9 @@ else
     tar xzf HELLx.v3.0.tgz >> $CURRENTDIR/install.log  2>&1
     tar xzf HELLx-data.v3.tgz >> $CURRENTDIR/install.log  2>&1
 
-    cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/apfel/.
+    cp -r HELLx/data/* $CURRENTDIR/deps/apfel/share/APFEL/.
 
- #apfelgrid
+    # apfelgrid
     if [[ $skip_apfelgrid != 1 ]]; then
         wget --no-check-certificate http://www.hepforge.org/archive/lhapdf/pdfsets/6.2/NNPDF30_nlo_as_0118.tar.gz  >> $CURRENTDIR/install.log  2>&1
         tar xvzpf NNPDF30_nlo_as_0118.tar.gz >> $CURRENTDIR/install.log  2>&1
@@ -525,7 +526,7 @@ else
 	cd - >& /dev/null
     fi
     
- #apfel
+    # apfel
     echo "Installing APFELxx $apfelxxver..."
     if [[ $http == "curl" ]]
     then
@@ -543,7 +544,8 @@ else
     
     export PATH=$CURRENTDIR/deps/apfelxx/bin/:$PATH
     cd - >& /dev/null
- #qcdnum
+
+    # qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
     if [[ $http == "curl" ]]
@@ -571,7 +573,7 @@ else
     fi
     cd - >& /dev/null
 
- #dyturbo
+    # dyturbo
     if [[ $skip_dyturbo != 1 ]]; then
         echo "Installing DYTurbo ${dyturbover}..."
         if [[ $http == "curl" ]]
@@ -602,7 +604,7 @@ else
         cd - >& /dev/null
     fi
     
-  # numdiff
+    # numdiff
     numdiff -v >& /dev/null
     if [[ `echo $?` != "0" ]]; then
       numdiffver='5.9.0'
@@ -632,7 +634,7 @@ else
       cd - >& /dev/null
     fi
     
- # rust
+    # rust
     if [[ $skip_rust == 0 ]]; then
         echo "Installing Rust $rustver..."
         rust_url=https://static.rust-lang.org/dist/rust-${rustver}-${arch}-${rusttag}.tar.gz
@@ -661,7 +663,7 @@ else
         export PATH=$CARGODIR/bin:$PATH 
     fi
     
- # pineappl:
+    # pineappl:
     if [[ $skip_pineappl == 0 ]]; then
         echo "Installing PineAPPL $pineapplver..."
         
@@ -692,7 +694,7 @@ fi
 cd $CURRENTDIR
 
 
- #xfitter
+ # xfitter
 if [[ $mode != "deps" ]]
 then
     echo "Installing xFitter $version..."
@@ -718,7 +720,7 @@ then
 fi
 
 
-#make a setup run enviroment script
+# make a setup run enviroment script
 echo $version > version
 echo "export CURRENTDIR=`pwd`" >> setup.sh
 echo "export version=\`cat version\`" >> setup.sh
@@ -776,7 +778,7 @@ then
     echo . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9/x86_64-cc7/setup.sh  >> setup.sh
 fi
 
-#make a compilation script
+# make a compilation script
 echo source ./setup.sh > compile
 echo export PATH=\$CURRENTDIR/deps/hoppet/bin/:\$PATH       >> compile
 echo export PATH=\$CURRENTDIR/deps/lhapdf/bin/:\$PATH       >> compile
@@ -890,7 +892,7 @@ else
       echo
   fi
 
-  #quick start guide
+  # quick start guide
   if [[ ! -e quickstart-readme.txt ]]
   then
       echo "for a quick start do:" >> quickstart-readme.txt
