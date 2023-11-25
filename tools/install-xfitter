@@ -8,7 +8,7 @@ hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.6.35
 qcdnumver=18-00-00
-apfelver=3.0.6
+apfelver=3.1.0
 apfelgridver=1.0.5
 apfelxxver=4.0.0
 dyturbover=1.3.2
@@ -310,6 +310,12 @@ else
     fi
 fi
 
+#set alias for cmake
+cmake3='cmake3'
+if [ -x "command -v cmake3" ]; then
+    cmake3='cmake'
+fi
+
 #directory:
 CURRENTDIR=`pwd`
 
@@ -463,6 +469,16 @@ else
     mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
     tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfel-${apfelver}
+    $cmake3 -S . -D BUILD -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfel -DAPFEL_ENABLE_PYTHON=OFF -DAPFEL_DOWNLOAD_PDFS=OFF -DAPFEL_ENABLE_LHAPDF=OFF >> $CURRENTDIR/install.log  2>&1
+    $cmake3 --build BUILD >> $CURRENTDIR/install.log  2>&1
+    $cmake3 --install BUILD >> $CURRENTDIR/install.log  2>&1
+    cd - >& /dev/null
+
+
+
+    mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
+    tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    cd apfel-${apfelver}
     ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
 
     if [[ $? != 0 ]]
@@ -535,10 +551,6 @@ else
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
-    cmake3='cmake3'
-    if [ -x "command -v cmake3" ]; then
-        cmake3='cmake'
-    fi
     $cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
     make -j 8 >> $CURRENTDIR/install.log  2>&1
     make -j 8 install >> $CURRENTDIR/install.log  2>&1
