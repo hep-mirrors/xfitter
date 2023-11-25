@@ -473,27 +473,13 @@ else
     $cmake3 --build BUILD >> $CURRENTDIR/install.log  2>&1
     $cmake3 --install BUILD >> $CURRENTDIR/install.log  2>&1
     cd - >& /dev/null
-
-
-
-    mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
-    tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    cd apfel-${apfelver}
-    ./configure --prefix=$CURRENTDIR/deps/apfel --disable-lhapdf >> $CURRENTDIR/install.log  2>&1
-
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
         exit
     fi
     cd - >& /dev/null
- # setup paths for apfel:
+    # setup paths for apfel:
     export PATH=$CURRENTDIR/deps/apfel/bin/:$PATH
 
 #Importing tables for Small-x resummation studies
