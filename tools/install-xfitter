@@ -469,7 +469,7 @@ else
     mv ${apfelver}.tar.gz apfel-${apfelver}.tar.gz
     tar xfvz apfel-${apfelver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     cd apfel-${apfelver}
-    $cmake3 -S . -D BUILD -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfel -DAPFEL_ENABLE_PYTHON=OFF -DAPFEL_DOWNLOAD_PDFS=OFF -DAPFEL_ENABLE_LHAPDF=OFF >> $CURRENTDIR/install.log  2>&1
+    $cmake3 -S . -B BUILD -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfel -DAPFEL_ENABLE_PYTHON=OFF -DAPFEL_DOWNLOAD_PDFS=OFF -DAPFEL_ENABLE_LHAPDF=OFF >> $CURRENTDIR/install.log  2>&1
     $cmake3 --build BUILD >> $CURRENTDIR/install.log  2>&1
     $cmake3 --install BUILD >> $CURRENTDIR/install.log  2>&1
     cd - >& /dev/null
