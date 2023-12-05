@@ -173,7 +173,7 @@ int main(int argc, char **argv)
           it++;
         }
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
@@ -212,7 +212,7 @@ int main(int argc, char **argv)
               }
         }
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2 * opts.resolution, (*it)->GetWindowHeight());
       (*it)->DrawClonePad();
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
@@ -246,7 +246,7 @@ int main(int argc, char **argv)
             it++;
           }
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
@@ -255,7 +255,7 @@ int main(int argc, char **argv)
   for (it = chi2scangausscanvaslist.begin(); it != chi2scangausscanvaslist.end();)
     {
       char numb[25];
-      sprintf(numb, "chi2scan_gauss_%ld", it - chi2scangausscanvaslist.begin());
+      snprintf(numb, sizeof(numb), "chi2scan_gauss_%ld", it - chi2scangausscanvaslist.begin());
       TCanvas * pagecnv;
       pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
       pagecnv->Divide(2, 2);
@@ -267,7 +267,7 @@ int main(int argc, char **argv)
 	    it++;
 	  }
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
   
@@ -341,7 +341,7 @@ int main(int argc, char **argv)
   string inputfiles = "";
   for (int n = 1; n <= pgn; n++)
     {
-      sprintf(pgnum, "%d", n);
+      snprintf(pgnum, sizeof(pgnum), "%d", n);
       inputfiles = inputfiles + " " + opts.outdir + "plots_" + pgnum + ".eps";
     }
 
