@@ -304,9 +304,11 @@ void chi2_scan_()
           if (source.size() == 0)
             {
               char cid[10];
-              sprintf(cid, "%d", *dit);
+	      snprintf(cid, sizeof(cid), "%d", *dit);
+	      //              sprintf(cid, "%d", *dit);
               char vl[10];
-              sprintf(vl, "%.3f", *vit);
+              //sprintf(vl, "%.3f", *vit);
+	      snprintf(vl, sizeof(vl), "%.3f", *vit);
               string msg = (string)"S: Error in chi2scan namelist: source not found for value, "  + vl + ", dataset " + cid + ", term " + (*tit);
               hf_errlog_(16012001, msg.c_str(), msg.size());
             }
@@ -1270,11 +1272,14 @@ void chi2_scan_()
                   if (MonteCarloPDFErr)
                     sprintf (tag, "mc%03d", isys); // Monte Carlo prefix "mc"
                   else if (SymmHessPDFErr)
-                    sprintf (tag, "s%02d", isys); // Hessian prefix "s"
+		    snprintf(tag, sizeof(tag), "s%02d", isys); // Hessian prefix "s"
+		  //                    sprintf (tag, "s%02d", isys); // Hessian prefix "s"
                   else if (AsymHessPDFErr)
-                    sprintf (tag, "s%02d", isys); // Hessian prefix "s"
+		    //                    sprintf (tag, "s%02d", isys); // Hessian prefix "s"
+                    snprintf(tag, sizeof(tag), "s%02d", isys); // Hessian prefix "s"                                           
                   else if (ModPDFErr)
-                    sprintf (tag, "m%02d", isys); // Model prefix "m"
+		    //  sprintf (tag, "m%02d", isys); // Model prefix "m"
+		    snprintf(tag, sizeof(tag), "m%02d", isys); // Model prefix "m"
                   else if (ParPDFErr)
                     sprintf (tag, "p%02d", isys); // Parameter prefix "p"
                   filename += tag;
@@ -1312,7 +1317,8 @@ void chi2_scan_()
 
   //Pick up the value closest to the minimum
   char vl[10];
-  sprintf(vl, "%.3f", closestval);
+  //  sprintf(vl, "%.3f", closestval);
+  snprintf(vl, sizeof(vl), "%.3f", closestval);
   bool cp = system(((string)"cp " + outdir + "/fittedresults_" + vl + ".txt "
                     + outdir + "/fittedresults.txt").c_str());
   cp = system(((string)"cp " + outdir + "/Results_" + vl + ".txt "
@@ -1398,8 +1404,8 @@ void chi2_scan_()
         {
           int idx = p+systema_.nsys;
           char statname[100];
-          sprintf(statname, "stat_%d", p);
-
+          //sprintf(statname, "stat_%d", p);
+	  snprintf(statname, sizeof(statname), "stat_%d", p);
           string statlabel = string(statname);
 
           //cout << statlabel << "\t" << deltapi[idx] << "\t" << deltami[idx] << endl;
@@ -1779,10 +1785,12 @@ void decompose_fits(map <int, map <int, map <double, double> > > systchi2, doubl
     {
       double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
       char chi2name[200];
-      sprintf(chi2name, "chi2scan_syst_%d_p.txt", s);
+      //      sprintf(chi2name, "chi2scan_syst_%d_p.txt", s);
+      snprintf(chi2name, sizeof(chi2name), "chi2scan_syst_%d_p.txt", s);
       fitchi2_and_store (systchi2[0][s], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
 
-      sprintf(chi2name, "chi2scan_syst_%d_m.txt", s);
+      //      sprintf(chi2name, "chi2scan_syst_%d_m.txt", s);
+      snprintf(chi2name, sizeof(chi2name), "chi2scan_syst_%d_m.txt", s);
       fitchi2_and_store (systchi2[1][s], min_i_m, deltap_i, deltam_i, chi2min_i, chi2name);
 
       deltapi.push_back(min_i_p - min);
@@ -1797,10 +1805,13 @@ void decompose_fits(map <int, map <int, map <double, double> > > systchi2, doubl
       int idx = p+systema_.nsys;
       double min_i_p, min_i_m, deltap_i, deltam_i, chi2min_i;
       char chi2name[200];
-      sprintf(chi2name, "chi2scan_syst_%d_p.txt", idx);
+
+      //sprintf(chi2name, "chi2scan_syst_%d_p.txt", idx);
+      snprintf(chi2name, sizeof(chi2name), "chi2scan_syst_%d_p.txt", idx);
       fitchi2_and_store (systchi2[0][idx], min_i_p, deltap_i, deltam_i, chi2min_i, chi2name);
 
-      sprintf(chi2name, "chi2scan_syst_%d_m.txt", idx);
+      //      sprintf(chi2name, "chi2scan_syst_%d_m.txt", idx);
+      snprintf(chi2name, sizeof(chi2name), "chi2scan_syst_%d_m.txt", idx);
       fitchi2_and_store (systchi2[1][idx], min_i_m, deltap_i, deltam_i, chi2min_i, chi2name);
 
       deltapi.push_back(min_i_p - min);

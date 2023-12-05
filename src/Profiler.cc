@@ -82,24 +82,28 @@ namespace xfitter
 
     if (imember>0) {
       if (type == "hessian") {
-	sprintf (tag, "s%02d", (imember+1) / 2);
+	//sprintf (tag, "s%02d", (imember+1) / 2);
+	snprintf(tag, sizeof(tag), "s%02d", (imember+1) / 2);
 	filename +=  tag;
 	filename +=  imember%2 == 1 ? "p_" : "m_";
       }
       else if ( type == "symmhessian") {
-	sprintf (tag, "s%02d", imember );
+	//sprintf (tag, "s%02d", imember );
+	snprintf(tag, sizeof(tag), "s%02d", imember);
 	filename +=  tag;
 	filename +=  "s_";
       }
       else if ( type == "replicas") {
-	sprintf (tag, "mc%03d", imember );
+	snprintf(tag, sizeof(tag), "mc%03d", imember);
+	//sprintf (tag, "mc%03d", imember );
 	filename +=  tag;
 	filename +=  "s_";
       }
     }
     writefittedpoints_();
     store_pdfs_(filename.c_str(),filename.size());
-    sprintf (tag, "_%04d", imember);
+    snprintf(tag, sizeof(tag), "_%04d", imember);
+    //sprintf (tag, "_%04d", imember);
     bool cp = system(((string)"cp " + _outputDir + "/fittedresults.txt "
 		 + _outputDir + "/fittedresults.txt_set" + tag).c_str());
 

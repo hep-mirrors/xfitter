@@ -682,8 +682,8 @@ extern "C" {
     //Make file name
     string filename;
     filename.reserve(outdir.size() + name.size() + 10);
-    sprintf(const_cast<char*>(filename.c_str()), "%s/%s_%04i.dat", outdir.c_str(), name.c_str(), memberID);
-
+    //sprintf(const_cast<char*>(filename.c_str()), "%s/%s_%04i.dat", outdir.c_str(), name.c_str(), memberID);
+    snprintf(const_cast<char*>(filename.c_str()), sizeof(filename), "%s/%s_%04i.dat", outdir.c_str(), name.c_str(), memberID);
     FILE* f = fopen(filename.c_str(), "w");
     if (f == nullptr) {
       cerr << "[ERROR] Failed to open file \"" << filename << "\" for lhapdf6 output" << endl;
