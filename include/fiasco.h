@@ -24,7 +24,7 @@ public:
   Fiasco(const char* fmt,...) {
 	  va_list apt;
 		va_start(apt,fmt);
-		vsprintf(msg,fmt,apt);
+		vsnprintf(msg, sizeof(msg), fmt, apt);
 		va_end(apt); 
 	}
 	

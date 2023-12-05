@@ -73,7 +73,8 @@ public:
     VECTOR v;
     for(int mu = -nCosy; mu <= nCosy; mu++) {
       if(mu) {
-        sprintf(ts,"%03d%c.txt",abs(mu), mu > 0? 'p' : 'm');
+	snprintf(ts, sizeof(ts), "%03d%c.txt", abs(mu), mu > 0 ? 'p' : 'm');
+	//        sprintf(ts,"%03d%c.txt",abs(mu), mu > 0? 'p' : 'm');
         // for(n=0; n < nVarPar; n++) dat >> fitpar[mu][n];
       }
       else {

@@ -835,7 +835,7 @@ BaseMinimizer* get_minimizer() {
   bool HasMinimizers = ( XFITTER_PARS::gParametersVS.find("Minimizers" ) != XFITTER_PARS::gParametersVS.end() );
 
   if ( HasMinimizers && HasMinimizer ) {
-    hf_errlog(2203060601,"F: Both Minimizer and Minimizers present in parameters.yaml. Keep only one");
+    hf_errlog((int) 2203060601, "F: Both Minimizer and Minimizers present in parameters.yaml. Keep only one");
   }
 
   std::string name("");

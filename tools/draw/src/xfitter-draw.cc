@@ -157,7 +157,8 @@ int main(int argc, char **argv)
         }
 
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
+      //      sprintf(pgnum, "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
   for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
@@ -173,7 +174,8 @@ int main(int argc, char **argv)
           it++;
         }
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
+      //      sprintf(pgnum, "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
@@ -212,7 +214,8 @@ int main(int argc, char **argv)
               }
         }
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
+      //      sprintf(pgnum, "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
@@ -225,7 +228,8 @@ int main(int argc, char **argv)
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2 * opts.resolution, (*it)->GetWindowHeight());
       (*it)->DrawClonePad();
       pgn++;
-      sprintf(pgnum, "%d", pgn);
+      snprintf(pgnum, sizeof(pgnum), "%d", pgn);
+      //      sprintf(pgnum, "%d", pgn);
       pagecnv->Print((opts.outdir + "plots_" + pgnum + ".eps").c_str());
     }
 
