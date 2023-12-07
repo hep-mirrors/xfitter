@@ -1,0 +1,5 @@
+set(TARGET reactionDummy)
+add_library(${TARGET} MODULE ReactionDummy.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES Dummy.yaml DESTINATION ${DEST_YAML}/reactions)
