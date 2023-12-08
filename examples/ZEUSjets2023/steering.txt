@@ -1,0 +1,343 @@
+*  Namelist to control input data
+*
+
+&InFiles
+  ! Number of intput files
+    NInputFiles = 10
+ 
+  ! Input files:
+
+    InputFileNames = 
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
+
+      'datafiles/hera/zeus/jets/0208037/ZEUS_IncJets_HighQ2_96-97-NNLO.dat',
+      'datafiles/hera/zeus/jets/1010.6167/ZEUS_Dijets_HighQ2_98-07-NNLO.dat',
+      'datafiles/hera/zeus/jets/2309.02889/ZEUS_IncJets_HighQ2_04-07-NNLO.dat',
+&End
+
+&InCorr
+  ! Number of correlation (statistical, systematical or full) files
+    NCorrFiles = 2
+
+  ! Correlation files:
+    CorrFileNames = 
+      'datafiles/hera/zeus/jets/2309.02889/ZEUS_IncJets_HighQ2_04-07.corr',
+      'datafiles/hera/zeus/jets/2309.02889/ZEUS_IncJets_HighQ2_04-07___ZEUS_Dijets_HighQ2_98-07.corr',
+&End
+
+&ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
+  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
+  tolerance = 0.0
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
+  useBlas = .false.
+&End
+
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .False.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+
+   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
+  LSubtractStat = .false.
+
+   ! The following lines allow to adjust error scaling properties (default: :M)
+  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
+  DataSystType = ':A', ':A'
+&End
+
+&QCDNUM
+   ! do not re-compute QCDNUM tables if they are present and match grid definition
+  Read_QCDNUM_Tables = .true.
+&End 
+
+
+&OutDir
+  ! Name of the directory where output will be stored (max 255 characters)
+    OutDirName = 'output'
+&End
+*
+* (Optional) Modify renormalisation/factorisation scales, dataset
+* dependently. The numbering follows sequential numbering of input files
+*
+&Scales 
+    DataSetMuR  = 25*1.0     ! Set muR scale to 1 for all 4 datasets
+    DataSetMuF  = 25*1.0     ! Set muF scale to 1 for all 4 datasets
+ !   DataSetTheoryOrder = 7*'NNLO',"NLO",'NNLO'
+ !   DataSetMaxNF(2) = 4    ! Enable the H-VFNS (requires APFEL)
+ !   DataSetMaxNF = 9*5
+&End
+
+*
+* (Optional) List systematic sources, modify their scaling properties:
+*
+&Systematics
+ !C      List sources, Results.txt file would list them first. Use the usual :A, :P, 
+ !C      qualifiers to change the scalling properties
+ !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
+ !C      Modify the prior in chi2 definition (1.0 is default):
+ !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
+ !  PriorScaleFactor = 0.0, 0.0 
+&End
+
+
+*
+* Main steering cards
+*
+&xFitter 
+                ! 'Fit'             -- standard MINUIT-minimization of PDF and other parameters
+                ! 'LHAPDF Analysis' -- Evalutate input LHAPDF set uncertaitnies, chi2, profiling or reweighting
+                !                      Requires &LHAPDF namelist to specify the set name. If PDFSTYLE is not
+                !                      set to LHAPDFQ0, LHAPDF or LHAPDFNATIVE, sets it to LHAPDF
+                ! 'PDF Rotate'      -- performs PDF re-diagonalization. Requires theo.in files to operate properly  
+
+                       ! 'DGLAP_APFEL'      -- collinear evolution with APFEL
+                       ! 'DGLAP_QEDEVOL'    -- collinear evolution with QEDEVOL
+                       ! 'DGLAP_APFEL_QED'  -- collinear evolution with APFEL with QED corrections
+                       ! 'DIPOLE' -- dipole model 
+                       ! 'uPDF'   -- un-integrated PDFs
+                                !uPDF1 fit with kernel ccfm-grid.dat file
+                                !uPDF2 fit evolved uPDF, fit just normalisation
+                                !uPDF3 fit using precalculated grid of sigma_hat
+                                !uPDF4 fit calculating kernel on fly, grid of sigma_hat
+
+ ! --- Scheme for heavy flavors 
+                                       ! (Any of the FONLL schemes at LO is equivalent to the ZM-VFNS)
+
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
+
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2ExtraParam = 'PoissonCorr'
+
+ ! Flag to define if native APPLgrid CKM values should be kept.
+
+ ! Debug flag
+  LDEBUG     = False
+
+
+ ! Quadratic approximation for asymmetric uncertainties
+ ! AsymErrorsIterations = 10
+&End
+
+
+*
+* Output steering cards
+*
+&Output 
+  ! -- Q2 values at which the pdfs & errors are done (up to 20)
+  Q2VAL = 1.9, 4.0, 7.0, 10., 100., 1000., 30000.
+
+  ! How many x points to write (standard = 101)
+  OUTNX = 101
+
+  ! x-range of output (standard = 1E-4 1.0)
+  OUTXRANGE = 1E-4, 0.9999
+
+  ! Write out LHAPDF5 output
+  ! WriteLHAPDF5 = false
+&End
+
+
+
+*
+* Process dependent cuts
+*
+&Cuts
+
+  !--------------------- NC ep  --------------------------
+
+  ! Rule #1: Q2 cuts
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 3.5
+   CutValueMax(1)     = 1000000.0
+
+  ! Rule #2: x cuts
+   ProcessName(2)     = 'NC e+-p'
+   Variable(2)        = 'x'
+   CutValueMin(2)     = 0.000001 
+   CutValueMax(2)     = 1.0
+
+  !---------------------  CC ep  ------------------
+
+   ProcessName(3)     = 'CC e+-p'
+   Variable(3)        = 'Q2'
+   CutValueMin(3)     = 3.5
+   CutValueMax(3)     = 1000000.0
+
+   ProcessName(4)     = 'CC e+-p'
+   Variable(4)        = 'x'
+   CutValueMin(4)     = 0.000001 
+   CutValueMax(4)     = 1.0
+
+  !-------------------- DY pp  ----------------------
+
+   ProcessName(5)     = 'CC pp'
+   Variable(5)        = 'eta1'
+   CutValueMin(5)     = -1.
+   CutValueMax(5)     = 100.
+
+  !------------------- Jets ---------------------------
+   
+   ProcessName(6)     = 'pp jets APPLGRID'
+   Variable(6)        = 'pt1'
+   CutValueMin(6)     = 20.
+   CutValueMax(6)     = 1000000.
+
+  !--------------------- Fixed target --------------------------
+
+  ! Rule #7: Whad2 cut
+   ProcessName(7)     = 'muon p'
+   Variable(7)        = 'Whad2'
+   CutValueMin(7)     = 15.   
+
+  !--------------------- Fastnlo jets ----------------------
+
+   ProcessName(8)     = 'FastNLO ep jets'
+   Variable(8)        = 'kfac'
+   CutValueMin(8)     = 0.0
+   CutValueMax(8)     = 2.5
+
+  !--------------------- NC ep charm ----------------
+
+   ProcessName(9)     = 'NC e+-p charm'
+   Variable(9)        = 'Q2'
+   CutValueMin(9)     = 3.5 
+   CutValueMax(9)     = 10000.0
+
+   ProcessName(10)     = 'NC e+-p charm'
+   Variable(10)        = 'x'
+   CutValueMin(10)     = 0.000001 
+   CutValueMax(10)     = 1.0
+
+  !--------------------- Exclude unused points ----------------------
+
+   ProcessName(11)     = 'FastNLO ep jets'
+   Variable(11)        = 'use'
+   CutValueMin(11)     = 0.99
+   CutValueMax(11)     = 1.01
+
+  !--------------------- by Dataset index ----------------
+
+   ! applied to any (including unspecified) reaction by Dataset indices
+   ! e.g. cut pTmax < 15.0 will be applied to datasets 996 and 996
+   ! ProcessName must be 'DUMMY'
+   !
+   !ProcessName(11)     = 'DUMMY'
+   !Dataset( 1,11)      = 995
+   !Dataset( 1,11)      = 996
+   !Variable(11)        = 'pTmax'
+   !CutValueMin(11)     = 0.0
+   !CutValueMax(11)     = 15.0
+   
+&End
+
+*
+* (Optional) MC errors steering cards
+*
+&MCErrors
+  ! Activate MC method for error estimation if lRand = True
+  lRAND   = False
+  
+  ! Use data (true, default) or theory (false) for the central values of the MC replica
+  lRANDDATA = True
+
+  ! MC method Seed
+  ISeedMC = 123456 
+
+  ! --- Choose what distribution for the random number generator 
+  ! STATYPE (SYS_TYPE)  =   1  gauss
+  ! STATYPE (SYS_TYPE)  =   2  uniform
+  ! STATYPE (SYS_TYPE)  =   3  lognormal
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  STATYPE =  1
+  SYSTYPE =  1
+&End
+
+*
+* (Optional) Chebyshev study namelist
+*
+&Cheb
+  ! Set following > 0 to turn on:
+   NCHEBGLU = 0   ! number of parameters for the gluon (max 15)
+   NCHEBSEA = 0   ! number of parameters for the sea   (max 15)
+
+  ! Cheb. polynomial type: multiply by (1-x) (1) or not (0)  
+   ichebtypeGlu = 1 
+   ichebtypeSea = 1 
+
+  ! Starting point in x:
+   chebxmin = 1.E-5
+
+   ILENPDF  = 0   ! use pdf length constraint
+
+  ! PDF length constraint strength for different PDFs:
+   PDFLenWeight = 1., 1., 1., 1., 1.     
+
+  ! Range in W where length constraint is applied:
+   WMNLen =  20.
+   WMXLen = 320.
+
+&End
+
+*
+* (Optional) pure polynomial parameterisation for valence quarks
+*
+&Poly
+  ! Set to > zero to activate
+  NPolyVal = 0 
+  IZPOPOLY = 1  ! ( times (1-x) for 0 and (1-x)^2 for 1) 
+  IPOLYSQR = 0  ! ( ensure positivity of PDFs by squaring them )
+&End
+
+*
+* (Optional) choose the factorisation scale for HQs
+* tuned via parameters:    mu_f^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2
+* Available for 'FF', 'FF ABM' options (heavy quarks scale)
+* Also defines scale for 'ZMVFNS'.'ACOT Full' and 'ACOT Chi' options ( for these options scale is being set for heavy quarks and light quarks).  
+&HQScale
+   scalea1    =  1. 
+   scaleb1    =  0.  
+   MassHQ = 'mc' ! (available: mc, mb), relevant for 'FF', 'ZMVFNS', 'ACOT Full' and  'ACOT chi'
+&End
+
+*
+* (Optional) LHAPDF steering card
+*
+&lhapdf
+  ! LHAPDFVARSET = 'HERAPDF20_NLO_VAR' ! Add a PDF set with model and parametrisation uncertainties
+  ! NPARVAR = 3                        ! Number of parametrisation uncertainties in the LHAPDFVARSET set
+  ! LHAPDFPROFILE = False              ! run only on the set specified by ILHAPDFSET
+  ! LHASCALEPROFILE = True             ! Add QCD scale variations as nuisance parameters
+  ! SCALE68 = false                    ! Scale PDF uncertainties by a factor 1/1.645
+  ! WriteAlphaSToMemberPDF = false
+  ! NREMOVEPRIORS = 0                  ! Remove prior from the last n PDF nuisance parameters
+  ! DataToTheo = True                  ! reset data to predictions corresponding to member 0, for sensitivity studies
+&End
