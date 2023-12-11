@@ -529,7 +529,7 @@ Data::Data(string dirname, string label)
           //Read subplot index
           TString temp(line.c_str());
           TObjArray* array = temp.Tokenize("@");
-	  temp.Form(((TObjString*)  array->At(0))->GetString().Data());
+	  temp.Form(((TObjString*)  array->At(0))->GetString().Data(),"");
 	  //snprintf(temp,sizeof(temp),"%s",((TObjString*)  array->At(0))->GetString().Data());
 	  delete array;
           temp.ReplaceAll("Plot","");
