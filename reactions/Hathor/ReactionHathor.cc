@@ -104,7 +104,8 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   int o;
   if (!steering_.ldebug) {
     o = dup(fileno(stdout));
-    freopen("/dev/null", "a", stdout);
+    if (freopen("/dev/null", "a", stdout)) {
+    }
   }
   
   //_hathor->getXsection(_mtop, _mr, _mf);
