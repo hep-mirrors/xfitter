@@ -4,9 +4,9 @@ MINUIT:
     set str 2
     set print 3
     call fcn 3
-  #migrad 200000
-  #hesse
-  #call fcn 3
+  # migrad 200000
+  # hesse
+  # call fcn 3
   doErrors : None # Pumplin # Hesse # None
 
 Parameters:
@@ -87,12 +87,6 @@ byReaction:
   RT_DISNC:
     ? !include reactions/RT_DISNC.yaml
     additive: 1
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
-  APPLgrid:
-    ? !include reactions/APPLgrid.yaml
   fastNLO:
     #ScaleChoiceMuR: kQuadraticMean # NLO
     #ScaleChoiceMuF: kScale1        # NLO
