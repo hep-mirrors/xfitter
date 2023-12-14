@@ -15,6 +15,7 @@ dyturbover=1.3.2
 pineapplver="0.6.0-alpha.17"
 rustver=1.66.0
 cargocver=0.9.14
+PLOUGHSHARE_VERSION="0.0.20"
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
@@ -23,6 +24,7 @@ skip_rust=1
 skip_pineappl=1
 # fetch precompiled files for pineappl if possible, avoiding heavy rust deps
 pineappl_lite=1
+skip_ploughshare=0
 
 ## Optional manual configurations
 #MANUALCONF=1
@@ -690,6 +692,55 @@ else
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
     fi
+
+
+    if [[ $skip_ploughshare == 0 ]]; then
+	# Define the download URL
+	PLOUGHSHARE_URL="https://ploughshare.hepforge.org/downloads/ploughshare-${PLOUGHSHARE_VERSION}.tgz"
+
+	# Move to the temporary directory
+	cd "${TMP_DIR}" || exit
+
+	# Download the Ploughshare archive
+	wget "${PLOUGHSHARE_URL}"
+
+	if [[ $http == "curl" ]]
+	then
+            curl "${PLOUGHSHARE_URL}" > ploughshare-${PLOUGHSHARE_VERSION}.tgz 2>> $CURRENTDIR/install.log
+	else
+            wget --no-check-certificate "${PLOUGHSHARE_URL}" >> $CURRENTDIR/install.log 2>&1
+	fi
+
+	# Extract the archive
+	tar -xzf "ploughshare-${PLOUGHSHARE_VERSION}.tgz"
+
+	# Move into the extracted directory
+	cd "ploughshare-${PLOUGHSHARE_VERSION}" || exit
+
+	# Build and install Ploughshare
+	./configure --prefix=$CURRENTDIR/deps/ploughshare  >> $CURRENTDIR/install.log  2>&1
+	make   >> $CURRENTDIR/install.log  2>&1
+	make install  >> $CURRENTDIR/install.log  2>&1
+
+
+	export PATH=$CURRENTDIR/deps/ploughshare/bin/:$PATH
+
+	if [[ $? != 0 ]]
+	then
+	    echo "Error, check install.log for details"
+	    exit
+	fi
+	make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+	if [[ $? != 0 ]]
+	then
+	    echo "Error, check install.log for details"
+	    exit
+	fi
+	cd - >& /dev/null
+
+	echo "Ploughshare ${PLOUGHSHARE_VERSION} has been installed."
+
+    fi
 fi
 cd $CURRENTDIR
 
@@ -760,6 +811,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> set
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
+echo export PATH=$CURRENTDIR/deps/ploughshare/bin:\$PATH >> $CURRENTDIR/setup.sh
 
 
 if [[ $MODE == "cern" ]]
