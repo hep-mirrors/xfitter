@@ -81,24 +81,6 @@ alphas : 0.118
 
 ? !include constants.yaml
 
-
-
-byReaction:
-  # RT DIS scheme settings:
-  RT_DISNC:
-    ? !include reactions/RT_DISNC.yaml
-
-# Specify HF scheme used for DIS NC processes:
-hf_scheme_DISNC :
-  defaultValue : 'RT_DISNC'        # global specification
-
-# Specify HF scheme used for DIS CC processes:
-hf_scheme_DISCC :
-  defaultValue : 'BaseDISCC'       # global specification
-
-#
-# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
-#
 Profiler:
   Parameters:
     alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
