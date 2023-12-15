@@ -959,7 +959,7 @@ void chi2_scan_()
             tothess_s = pit->second.th_hess_s.size();
           if (tothess_s > 0)
             {
-              char num[10];
+              char num[12];
               sprintf (num, "%d", tothess_s);
               string msg = (string) "I: Found " + num + " Symmetric hessian PDF uncertainties variations";
               hf_errlog_(25051405, msg.c_str(), msg.size());
@@ -992,7 +992,7 @@ void chi2_scan_()
             totpar = pit->second.th_par.size();
           if (totpar > 0)
             {
-              char num[10];
+              char num[12];
               sprintf (num, "%d", totpar);
               string msg = (string) "I: Found " + num + " Parametrisation uncertainties";
               hf_errlog_(25051406, msg.c_str(), msg.size());
@@ -1243,7 +1243,7 @@ void chi2_scan_()
               c_alphas_.alphas = evol->getAlphaS(boson_masses_.Mz);
 
               double chi2tot = chi2data_theory_(2);
-              char tag[10];
+              char tag[16];
               sprintf (tag, "%04d", cset);
               writefittedpoints_(); //write out fittedresults.txt file
               bool mv = system(((string)"mv " + outdir + "/fittedresults.txt "
