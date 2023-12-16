@@ -1,0 +1,105 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    set str 2
+    set print 3
+    call fcn 3
+  # migrad 200000
+  # hesse
+  # call fcn 3
+  doErrors : None # Pumplin # Hesse # None
+
+Parameters:
+  Ag   :  DEPENDENT
+  Bg   : [ -0.08494,  0.07396 ]
+  Cg   : [  6.94720,  0.74731 ]
+  Agp  : [  0.18453,  0.17931 ]
+  Bgp  : [ -0.38777,  0.06612 ]
+  Cgp  : [ 25.00000, 0.000000 ]
+  Auv  :  DEPENDENT
+  Buv  : [  0.77202,  0.03230 ]
+  Cuv  : [  4.87889,  0.09266 ]
+  Euv  : [ 10.31100,  1.41688 ]
+  Adv  :  DEPENDENT
+  Bdv  : [  0.97586,  0.08801 ]
+  Cdv  : [  4.85535,  0.38407 ]
+  CUbar: [  7.52440,  1.49180 ]
+  DUbar: [  3.58453,  2.59419 ]
+  ADbar: [  0.25533,  0.01121 ]
+  BDbar: [ -0.13230,  0.00522 ]
+  CDbar: [  9.39529,  1.83468 ]
+  alphas: [  0.11426,  0.00166 ]
+  fs   : [  0.4, 0 ]
+  ZERO : [  0.0, 0 ]
+  fd   : "=1-fs"
+  AUbar: "=(1-fs)*ADbar"
+
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,ZERO,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv]
+  par_Ubar: # = ubar
+    class: HERAPDF
+    parameters: [AUbar,BDbar,CUbar,DUbar]
+  par_Dbar: # = dbar + sbar
+    class: HERAPDF
+    parameters: [ADbar,BDbar,CDbar]
+  par_dbar: # = (1-fs) Dbar
+    class: Factor
+    input: par_Dbar
+    factor: fd
+  par_s: # = sbar = fs Dbar
+    class: Factor
+    input: par_Dbar
+    factor: fs
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_Ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    EvolutionCopy: "proton-APFELff"   # NNLO
+  proton-APFELff:                     # NNLO
+    ? !include evolutions/APFEL.yaml  # NNLO
+    qLimits : [1.0, 20000.0]          # NNLO
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+? !include constants.yaml
+
+byReaction:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+    additive: 1
+  fastNLO:
+    #ScaleChoiceMuR: kQuadraticMean # NLO
+    #ScaleChoiceMuF: kScale1        # NLO
+    ScaleChoiceMuR: kQuadraticSum   # NNLO
+    ScaleChoiceMuF: kQuadraticSum   # NNLO
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+
+#WriteLHAPDF6:
+#  name: "proton"
