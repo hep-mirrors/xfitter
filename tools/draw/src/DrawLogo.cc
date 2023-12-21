@@ -62,6 +62,7 @@ TPad * DrawLogo(string pos)
   if (opts.version)
     {
 
+#ifdef BUGFIXEDROOT
       TString font = FontToUse();
       struct stat st;
       //      cout << font << endl;
@@ -84,6 +85,18 @@ TPad * DrawLogo(string pos)
 	}
       logo->DrawText(170, 510, ver.c_str(), 80, 0, 
 		     font, TImage::kShadeBelow);
+#else
+      auto text = new TText(0,0,ver.c_str());
+      if (opts.resolution>1000) {
+	text->SetTextSize(0.04);
+      }
+      else {
+	text->SetTextSize(0.12);
+      }
+      text->SetTextFont(42);
+      logo->DrawText( text, 170,590);
+
+#endif
     }
 
   float dx = 0.0768 * 1.5;
