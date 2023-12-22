@@ -52,7 +52,7 @@ void ReactionAPPLgrid::initTerm(TermData*td){
 #ifdef PLOUGHSHARE_FOUND
     string PSdataset = td->getParamS("PloughShare");
     ploughshare p;
-    p.verbose( true );
+    p.verbose(false);
     p.fetch(PSdataset);
     namePrefix = p.path(PSdataset)+"/grids/";
 #else
@@ -78,8 +78,7 @@ void ReactionAPPLgrid::initTerm(TermData*td){
       }else{//a real grid
         appl::grid*g=new appl::grid(namePrefix+token);
         g->trim();
-        TFile file(token.c_str());
-        TH1D*reference=(TH1D*)file.Get("grid/reference");
+	TH1D* reference =  convert(g->getReference());
         if(!reference)//TODO: maybe do not load reference histogram when !flagUseReference?
           hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
         else
