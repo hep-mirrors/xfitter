@@ -1,11 +1,17 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter"
 
-before_script:
-  - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
-  #eigen3-devel gflags-devel glog-devel
-  - ln -s /usr/bin/cmake3 /usr/bin/cmake 
+stages:
+ - test
+ - package
+
+.install_dependencies:
+  before_script:
+    - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+    - ln -s /usr/bin/cmake3 /usr/bin/cmake 
   
 job-install-minimal:
+  stage: test
+  extends: .install_dependencies
   only: 
     - merge_requests
     - schedules
@@ -15,6 +21,8 @@ job-install-minimal:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
 
 job-install-full:
+  stage: test
+  extends: .install_dependencies
   only: 
     - merge_requests
     - schedules
@@ -45,6 +53,8 @@ job-install-full:
     expire_in: 2 day
 
 job-ceres-fit:
+  stage: test
+  extends: .install_dependencies
   only: 
     - merge_requests
     - schedules
@@ -67,6 +77,8 @@ job-ceres-fit:
     expire_in: 2 day
 
 job-ceres-parallel:
+  stage: test
+  extends: .install_dependencies
   only: 
     - merge_requests
     - schedules
@@ -89,6 +101,8 @@ job-ceres-parallel:
     expire_in: 2 day
 
 job-scanmin:
+  stage: test
+  extends: .install_dependencies
   only: 
     - merge_requests
     - schedules
@@ -110,6 +124,8 @@ job-scanmin:
     expire_in: 2 day
 
 job-dyturbo:
+  stage: test
+  extends: .install_dependencies
   only: 
     - merge_requests
     - schedules
@@ -143,3 +159,20 @@ job-dyturbo:
       - temp/**/xfitter.log
       - temp/**/output
     expire_in: 2 day
+
+
+job-docker:
+  stage: package
+  tags:
+    - docker-privileged-xl
+  image: docker
+  services:
+    - docker:dind
+  only: 
+    - schedules
+  timeout: 120m
+  script:
+    - docker info
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build -t gitlab-registry.cern.ch/fitters/xfitter:master .
+    - docker push gitlab-registry.cern.ch/fitters/xfitter:master
