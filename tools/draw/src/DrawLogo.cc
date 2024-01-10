@@ -65,7 +65,6 @@ TPad * DrawLogo(string pos)
 #ifdef BUGFIXEDROOT
       TString font = FontToUse();
       struct stat st;
-      //      cout << font << endl;
 
       if (stat(font,&st) != 0)
 	{
