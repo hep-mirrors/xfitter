@@ -7,10 +7,39 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(SEND_ERROR "In-source builds are not allowed. The recommended way to use cmake is:\nmkdir build; cd build; cmake .. -DCMAKE_INSTALL_PREFIX=../install")
 endif()
 
+# default version
 set(xFitter_VERSION_MAJOR 2)
 set(xFitter_VERSION_MINOR 2)
 set(xFitter_VERSION_PATCH 1)
-set(xFitter_VERSION "${xFitter_VERSION_MAJOR}.${xFitter_VERSION_MINOR}.${xFitter_VERSION_PATCH}")
+
+# however, we might be using a master branch
+# Find Git
+find_package(Git)
+
+# Check if this is a git repository and get commit hash
+if(GIT_FOUND)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --is-inside-work-tree
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE IS_GIT_REPOSITORY
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+    # set version based on the short commit hash:
+    if(IS_GIT_REPOSITORY)
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE xFitter_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+    else()
+        set(xFitter_VERSION "${xFitter_VERSION_MAJOR}.${xFitter_VERSION_MINOR}.${xFitter_VERSION_PATCH}")
+    endif()
+else()
+    set(xFitter_VERSION "${xFitter_VERSION_MAJOR}.${xFitter_VERSION_MINOR}.${xFitter_VERSION_PATCH}")
+endif()
+
+
 message(STATUS "Configuring xFitter ${xFitter_VERSION}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
