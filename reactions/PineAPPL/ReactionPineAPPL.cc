@@ -26,8 +26,11 @@ struct DatasetData {
     int Nbins;
     int Nord;
     int Nlumi;
+    double energyRescale;
     vector<bool> ordervec;
     vector<bool> lumivec;
+    vector<std::string> GridNames;
+    std::vector<std::vector<int> > rebin;
 };
 
 const double ONE=1;
@@ -70,17 +73,26 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         istringstream ss(GridName);
         string token;
         while (getline(ss, token, ',')) {
-            pineappl_grid* g = pineappl_grid_read(token.c_str());             
+            pineappl_grid* g = nullptr;
+            const auto& find = _initialized.find(token);
+            if(find == _initialized.end()) {
+                g = pineappl_grid_read(token.c_str());             
+                _initialized.insert(std::make_pair(token, g));
+                hf_errlog(22122901, "I: read PineAPPL grids with "
+                                    +to_string(pineappl_grid_bin_count(g))
+                                    +" bins");
+            }
+            else {
+                g = find->second;
+            }
             data->grids.push_back(g);
+            data->GridNames.push_back(token);
         }
         // Init dimensions
         data->Nbins = pineappl_grid_bin_count(data->grids[0]);
         data->Nord  = pineappl_grid_order_count(data->grids[0]);
         auto* lumi  = pineappl_grid_lumi(data->grids[0]);
         data->Nlumi = pineappl_lumi_count(lumi);
-        hf_errlog(22122901, "I: read PineAPPL grids with "
-                            +to_string(data->Nbins)
-                            +" bins");
     } catch ( const exception& e ) {
         hf_errlog(22121301, "E: Unhandled exception while trying to read PineAPPL grid(s) "+GridName);
         throw e;
@@ -128,6 +140,130 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     }
     size_t Ngrids = data->grids.size();
 
+    // Get CMS energy (by default the one used to create the grid is used)
+    if(td->hasParam("energyRescale")) {
+        data->energyRescale = *td->getParamD("energyRescale");
+    }
+    else {
+        data->energyRescale = 1.0;
+    }
+
+    // rebin
+    if (td->hasParam("rebin")) {
+        std::vector<std::string> rebin_vars;
+        std::vector<double> rebin_vars_bound;
+        string rebin_str = td->getParamS("rebin");
+        istringstream ss(rebin_str);
+        string token;
+        while (getline(ss, token, ',')) {
+            auto start = token.find("[");
+            if (start != std::string::npos) {
+                rebin_vars.push_back(std::string(token.data(), start));
+                auto start2 = token.find(",");
+                if (token[token.length()-1] != ']')
+                    hf_errlog(23060601, "F: wrong format of rebin: " + rebin_str);
+                auto bound_str = std::string(token.data() + start + 1);
+                bound_str = std::string(bound_str.data(), bound_str.length()-1);
+                rebin_vars_bound.push_back(atof(bound_str.data()));
+            }
+            else
+                rebin_vars.push_back(token);
+                rebin_vars_bound.push_back(std::numeric_limits<double>::quiet_NaN());
+        }
+        //for(size_t ivar = 0; ivar < rebin_vars.size(); ivar++)
+        //    printf("rebin[%ld] = %s %f\n", ivar, rebin_vars[ivar].data(), rebin_vars_bound[ivar]);
+        if (data->grids.size() == 0)
+            hf_errlog(23060501, "F: cannot rebin without grids");
+        size_t np = 0;
+        int ndim = -1;
+        for (size_t ig = 0; ig < data->grids.size(); ig++) {
+            if (data->grids[ig]) {
+                np += pineappl_grid_bin_count(data->grids[ig]);
+                auto thisdim = pineappl_grid_bin_dimensions(data->grids[ig]);
+                if (ndim == -1)
+                ndim = thisdim;
+                else if (ndim != thisdim)
+                hf_errlog(23060502, "F: Dimension mismatch for grid " + data->GridNames[ig]);
+            }
+        }
+        //printf("ndim = %d, np = %ld\n", ndim, np);
+        if (rebin_vars.size() != (ndim * 2))
+            hf_errlog(23060502, "F: rebin [" + std::to_string(rebin_vars.size()) + "] and grid dimension [" + std::to_string(ndim) + "] mismatch");
+        std::vector<std::vector<double> > binsl(ndim);
+        std::vector<std::vector<double> > binsr(ndim);
+        for (int idim = 0; idim < ndim; idim++){
+            binsl[idim].resize(np);
+            binsr[idim].resize(np);
+        }
+        unsigned int pos = 0;
+        for (size_t igrid = 0; igrid < data->grids.size(); igrid++) {
+            pineappl_grid* grid = data->grids[igrid];
+            if (grid) {//real, non-dummy grid
+                for (int idim = 0; idim < ndim; idim++){
+                    pineappl_grid_bin_limits_left(grid, idim, binsl[idim].data() + pos);
+                    pineappl_grid_bin_limits_right(grid, idim, binsr[idim].data() + pos);
+                }
+                pos += pineappl_grid_bin_count(grid);
+            }
+        }
+        std::vector<std::vector<double> > bins_data(rebin_vars.size());
+        for (size_t ivar = 0; ivar < rebin_vars.size(); ivar++) {
+            const auto& thisbins = *(const_cast<std::valarray<double>*>(td->getBinColumnOrNull(rebin_vars[ivar])));
+            bins_data[ivar].resize(thisbins.size());
+            std::copy(&thisbins[0], &thisbins[0] + thisbins.size(), bins_data[ivar].begin());
+        }
+        auto compare = [](double b1, double b2) {
+            const double eps = 1e-6;
+            auto diff = b2 - b1;
+            auto reldiff = (b1 == 0.) ? ( (b2 == 0.) ? 0. : 1. ) : diff / b1;
+            if (fabs(diff) < eps || fabs(reldiff) < eps) return 0;
+            else if (diff > 0) return 1;
+            else return -1;
+        };
+        auto& rebin = data->rebin;
+        rebin.resize(bins_data[0].size());
+        for(size_t bin = 0; bin < bins_data[0].size(); bin++) {
+            //printf("bin = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bin, bins_data[2][bin], bins_data[3][bin], bins_data[0][bin], bins_data[1][bin]);
+            for (int idim = 0; idim < ndim; idim++) {
+                if (!std::isnan(rebin_vars_bound[0+idim*2]) && bins_data[0+idim*2][bin] <= rebin_vars_bound[0+idim*2])
+                    bins_data[0+idim*2][bin] = binsl[idim][0];
+                if (!std::isnan(rebin_vars_bound[1+idim*2]) && bins_data[1+idim*2][bin] <= rebin_vars_bound[1+idim*2])
+                    bins_data[1+idim*2][bin] = binsr[idim][binsr[idim].size()-1];
+            }
+            rebin[bin].resize(binsl[0].size());
+            std::vector<int> match_l(ndim, 0);
+            std::vector<int> match_r(ndim, 0);
+            for(size_t bingrid = 0; bingrid < binsl[0].size(); bingrid++) {
+                //printf("bingrid = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bingrid, binsl[1][bingrid],binsr[1][bingrid],binsl[0][bingrid],binsr[0][bingrid]);
+                rebin[bin][bingrid] = 0;
+                std::vector<int> flag(ndim);
+                for (size_t idim = 0; idim < ndim; idim++) {
+                    flag[idim] = 0;
+                    auto l = compare(bins_data[0+idim*2][bin], binsl[idim][bingrid]);
+                    if (l == -1) continue;
+                    else {
+                        if (l == 0) match_l[idim] = 1;
+                        auto r = compare(bins_data[1+idim*2][bin], binsr[idim][bingrid]);
+                        if (r == 1) continue;
+                        if (r == 0) match_r[idim] = 1;
+                        flag[idim] = 1;
+                    }
+                }
+                if (std::all_of(flag.begin(), flag.end(), [](bool v) { return v; }))
+                    rebin[bin][bingrid] = 1;
+            }
+            for (size_t idim = 0; idim < ndim; idim++) {
+                //printf("%d %d\n", match_l[idim], match_r[idim]);
+                if (match_l[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[0+idim*2] + " " + std::to_string(bins_data[0+idim*2][bin]));
+                if (match_r[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[1+idim*2] + " " + std::to_string(bins_data[1+idim*2][bin]));
+            }
+            //printf("match_l, match_r, match_l2, match_r2 = %d %d %d %d\n", match_l, match_r, match_l2, match_r2);
+            //if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin " + std::to_string((*mttmin)[bin]));
+            //if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax " + std::to_string((*mttmax)[bin]));
+            //if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin " + std::to_string((*yttmin)[bin]));
+            //if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax " + std::to_string((*yttmax)[bin]));
+        }
+    }
 } //initTerm
 
 void ReactionPineAPPL::freeTerm(TermData*td) {
@@ -137,8 +273,13 @@ void ReactionPineAPPL::freeTerm(TermData*td) {
     delete data;
 }
 
+void ReactionPineAPPL::atIteration() {
+    _convolved.clear();
+}
+
 void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err) {
     const DatasetData& data = *(DatasetData*)td->reactionData;
+    //DatasetData& data = *(DatasetData*)td->reactionData;
     const double muR = *data.muR;
     const double muF = *data.muF;
     unsigned int pos = 0;
@@ -151,16 +292,26 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     size_t np=0;
     for (pineappl_grid* grid : data.grids) if (grid) np += pineappl_grid_bin_count(grid);
     val.resize(np);
+    //err.resize(np);
 
     // Fix PDG ID to p, avoiding double charge conjugation in case pbar is used,
     // as this is already done elsewhere before passing PDFs to PineAPPL
     int32_t PDGID = 2212;  //DO NOT MODIFY
-    
-    for (pineappl_grid* grid : data.grids) {
+
+    //for (pineappl_grid* grid : data.grids) {
+    for (size_t igrid = 0; igrid < data.grids.size(); igrid++) {
+        pineappl_grid* grid = data.grids[igrid];
         vector<double> gridVals;
         gridVals.resize(data.Nbins);
 
-        if (grid) {//real, non-dummy grid
+        std::string grid_name_and_energy = data.GridNames[igrid] + std::string("_energy_") + std::to_string(data.energyRescale);
+        if(td->hasParam("evolution")) {
+            grid_name_and_energy += "_" + td->getParamS("evolution");
+        }
+        if(td->hasParam("evolution2")) {
+            grid_name_and_energy += "_" + td->getParamS("evolution2");
+        }
+        if (grid && _convolved.find(grid_name_and_energy) == _convolved.end()) {//real, non-dummy grid
             td->actualizeWrappers();
 
             //Pineappl assumes PDF and alphaS wrapper function pointers
@@ -171,30 +322,64 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
             auto xfx = [](int32_t id_in, double x, double q2, void *state) {
                 double pdfs[13];
                 int32_t id = id_in==21 ? 6 : id_in+6;
-                pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
+                double energyRescale = *((double*)state);
+                pdf_xfxq_wrapper_(x*energyRescale, sqrt(q2), pdfs);
+                return pdfs[id];
+            };
+            auto xfx1 = [](int32_t id_in, double x, double q2, void *state) {
+                double pdfs[13];
+                int32_t id = id_in==21 ? 6 : id_in+6;
+                double energyRescale = *((double*)state);
+                pdf_xfxq_wrapper1_(x*energyRescale, sqrt(q2), pdfs);
                 return pdfs[id];
             };
             auto alphas = [](double q2, void *state) {
+                //printf("SZ alphas q2 = %f\n", q2);
                 return alphas_wrapper_(sqrt(q2));
             };
 
             //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
-            pineappl_grid_convolute_with_one(grid, PDGID, 
-                                             xfx, alphas, 
-                                             nullptr,//"state" provided to wrappers, redundant in xFitter
+            pineappl_grid_convolute_with_two(grid, 
+                                             PDGID, xfx, 
+                                             PDGID, xfx1, 
+                                             alphas, 
+                                             (void*)&data.energyRescale,//"state" is energyRescale
                                              data.Nord>0 ? order_mask : nullptr,
                                              data.Nlumi>0 ? lumi_mask : nullptr,
                                              muR, muF, gridVals.data());
-          //scale by bin width
-          if (data.flagNorm) for(size_t i=0; i<gridVals.size(); i++) {
-              vector<double> bin_sizes;
-              bin_sizes.resize(pineappl_grid_bin_count(grid));
-              pineappl_grid_bin_normalizations(grid, bin_sizes.data());
-              gridVals[i] *= bin_sizes[i];
-          }
+            //scale by bin width
+            if (data.flagNorm) for(size_t i=0; i<gridVals.size(); i++) {
+                vector<double> bin_sizes;
+                bin_sizes.resize(pineappl_grid_bin_count(grid));
+                pineappl_grid_bin_normalizations(grid, bin_sizes.data());
+                gridVals[i] *= bin_sizes[i]*std::pow(data.energyRescale, 2.);
+            }
+            _convolved.insert(std::make_pair(grid_name_and_energy, gridVals));
         }
+        else {
+            gridVals = _convolved[grid_name_and_energy];
+        }
+        //for(size_t i=0; i<gridVals.size(); i++) {
+        //    printf("i = %ld xsec = %f\n", i, gridVals[i]);
+        //}
         // insert values from this grid into output array
         copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
         pos += pineappl_grid_bin_count(grid);
+    }
+    // rebin
+    if (data.rebin.size() > 0) {
+        const auto& rebin = data.rebin;
+        auto val_orig = val;
+        val.resize(rebin.size());
+        //auto err_orig = err;
+        //err.resize(rebin.size());
+        for(size_t i1 = 0; i1 < rebin.size(); i1++) {
+            val[i1] = 0.;
+            //err[i1] = 0.;
+            for (size_t i2 = 0; i2 < rebin[i1].size(); i2++) {
+                val[i1] += val_orig[i2] * rebin[i1][i2];
+                //err[i1] += err_orig[i2] * rebin[i1][i2];
+            }
+        }
     }
 } //compute

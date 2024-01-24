@@ -59,8 +59,9 @@ namespace xfitter
     void compute_parallel(int NALL, int NPRED, int first, int iPdfSet,
 			std::vector< std::valarray<double> >& preds,
 			std::vector< double >& chi2vals,
-			  YAML::Node gNode, BaseEvolution* evol, const std::string& errorType);
-    
+			  YAML::Node gNode, BaseEvolution* evol, const std::string& errorType, 
+        const int i, YAML::Node parametersNode);
+
     /// continuous nuisance parameter number for PDFs (if several are used)
     int _ipdf{0};
 
