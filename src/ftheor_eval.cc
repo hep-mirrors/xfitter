@@ -63,7 +63,7 @@ tNameReactionmap gNameReaction;
 const size_t NTERMMAX      =128;
 const size_t TERMNAME_LEN  =32;
 const size_t TERMTYPE_LEN  =80;
-const size_t TERMINFO_LEN  =4096;
+const size_t TERMINFO_LEN  =8192;
 const size_t TERMSOURCE_LEN=256;
 const size_t THEOREXPR_LEN =10000;
 extern struct thexpr_cb {

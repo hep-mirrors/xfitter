@@ -6,7 +6,7 @@ C> Common block for theory expression
       integer NTerms
       character*32 TermName(NTermsMax)
       character*80 TermType(NTermsMax)
-      character*4096 TermInfo(NTermsMax)
+      character*8192 TermInfo(NTermsMax)
       character*256 TermSource(NTermsMax)
       character*10000 TheorExpr
       integer normalised
