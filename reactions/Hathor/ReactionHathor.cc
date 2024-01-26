@@ -92,6 +92,29 @@ void ReactionHathor::initTerm(TermData *td)
 // Main function to compute results at an iteration
 void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
 {
+  // avoid calculating the same cross section again
+  std::string calc_name = "";
+  std::vector<std::string> v_double_pars = {"SqrtS", "convFac", "mtp", "muR", "muF"};
+  for (auto& p : v_double_pars) {
+    if(td->hasParam(p)) {
+      calc_name += "_" + p + std::to_string(*td->getParamD(p));
+    }
+  }
+  calc_name += "_Order" + std::string(td->getParamS("Order"));
+  if(td->hasParam("precisionLevel")) {
+    calc_name += "_precisionLevel" + std::to_string(td->getParamI("precisionLevel"));
+  }
+  if(td->hasParam("MS_MASS")) {
+    calc_name += "_MS_MASS";
+  }
+  if(td->hasParam("ppbar")) {
+    calc_name += "_ppbar";
+  }
+  if (_convolved.find(calc_name) != _convolved.end()) {
+    val = _convolved[calc_name];
+    return;
+  }
+
   td->actualizeWrappers();
   int dataSetID = td->id;
   _pdf->IsValid = true;
@@ -218,4 +241,10 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   //printf("mt,mr,mf,xsec: %f %f %f %f\n", mt, mr, mf, xsec);
   val = xsec;
   //printf("VAL ************ %f\n", val[0]);
+  _convolved.insert(std::make_pair(calc_name, xsec));
+}
+
+void ReactionHathor::atIteration() {
+    printf("clearing %ld Hathor saved xsecs\n", _convolved.size());
+    _convolved.clear();
 }

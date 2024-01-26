@@ -34,6 +34,7 @@ public:
   virtual void initTerm(TermData *td) override final;
   virtual void atStart();
   virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err);
+  virtual void atIteration();
 protected:
   virtual int parseOptions(){ return 0;};
 
@@ -52,5 +53,6 @@ protected:
   std::map<int, std::shared_ptr<double> > _mfPerInstance;
   // store term data for later access (never used)
   //map<unsigned, TermData*> _tdDS;
+  std::map<std::string, double> _convolved;
 };
 
