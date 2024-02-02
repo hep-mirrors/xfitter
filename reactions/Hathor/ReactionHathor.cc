@@ -234,6 +234,12 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : mtop;
   double mr = *_mrPerInstance[dataSetID];
   double mf = *_mfPerInstance[dataSetID];
+  if (mr<0.) {
+    mr = mr*-1./mt;
+  }
+  if (mf<0.) {
+    mf = mf*-1./mt;
+  }
   _hathor->getXsection(mt, mr, mf);
   double dum = 0.0;
   double xsec = 0.0;
