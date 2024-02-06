@@ -502,19 +502,26 @@ void ReactionBaseDISNC::sred BASE_PARS
   if (GetDataType(td->id) != dataType::sigred_nof3) {
     xF3(td, xf3, err);
   }
-  //xf3 = 0;
-  //fl = 0;
 
   valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
   valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
-  //val = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
-  auto *xp = GetBinValues(td, "x");
-  auto x = *xp;
-  auto *q2p = GetBinValues(td, "Q2");
-  auto q2 = *q2p;
-  double mp = 0.938272;
-  auto s = q2/x/y;
-  auto val = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  int tmc = 0;
+  if (td->hasParam("tmc")) {
+    tmc = *td->getParamD("tmc");
+  }
+  if (tmc == 0) {
+    val = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
+  }
+  else {
+    // mass dependent expression
+    auto *xp = GetBinValues(td, "x");
+    auto& x = *xp;
+    auto *q2p = GetBinValues(td, "Q2");
+    auto& q2 = *q2p;
+    double mp = *td->getParamD("mpr");
+    auto s = q2/x/y;
+    val = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  }
 }
 
 void ReactionBaseDISNC::GetF2ud(TermData *td, valarray<double> &f2u, valarray<double> &f2d)
