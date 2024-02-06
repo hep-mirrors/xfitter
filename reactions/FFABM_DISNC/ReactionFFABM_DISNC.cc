@@ -218,6 +218,8 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                       ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
         if(_flag_tmc) {
+          //if ((_tdDS[dataSetID]->id < 104 || _tdDS[dataSetID]->id > 107) && _tdDS[dataSetID]->id != 60 && _tdDS[dataSetID]->id != 65 && _tdDS[dataSetID]->id != 333) {
+            //printf("_tdDS[dataSetID]->id = %d\n", _tdDS[dataSetID]->id);
           //printf("Q2,x = %6.1f x = %6.4f  c,b/l[%%] = %+5.2f[%+5.2f] %+5.2f[%+5.2f]\n", q2[i], x[i], f2c/f2*100, flc/fl*100, f2b/f2*100, flb/fl*100);
           // target mass corrections
           auto diff = apply_tmc(f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
@@ -226,6 +228,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           //auto diff_c = apply_tmc(f2c, flc, f3c, 2, q2, x, ncflag, charge, polarity, cos2thw, i);
           //auto diff_b = apply_tmc(f2b, flb, f3b, 3, q2, x, ncflag, charge, polarity, cos2thw, i);
           //printf("TMC Q2,x = %6.1f x = %6.4f l,c,b[%%] = %+5.1f %+5.1f %+5.1f\n", q2[i], x[i], diff*100, diff_c*100, diff_b*100);
+          //}
         }
         if (_flag_ht[td->id]) {
           double q02 = 1.;
@@ -261,7 +264,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           break;
       }
     }
-    printf("maxdiff = %f\n", maxdiff);
+    //printf("maxdiff = %f\n", maxdiff);
   }
 }
 
@@ -372,7 +375,6 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   double I = result;
   //I = sim38;
   //I = 0;
-  //I *= 5;
   double f20 = f2;
   //f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2 + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
   pars.order = -1;
@@ -405,6 +407,6 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   ft_at_xi = f2_at_xi - fl_at_xi;
   ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
   fl = f2-ft;*/
-  printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
+  //printf("TMC [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
   return f2/f20-1;
 }
