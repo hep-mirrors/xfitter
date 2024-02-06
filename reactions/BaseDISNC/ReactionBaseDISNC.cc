@@ -520,7 +520,8 @@ void ReactionBaseDISNC::sred BASE_PARS
     auto& q2 = *q2p;
     double mp = *td->getParamD("mpr");
     auto s = q2/x/y;
-    val = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+    valarray<double> one(1., x.size());
+    val = ((one-y-x*y*mp*mp/s)*f2+(y*y/2)*(f2-fl))/(one-y+y*y/2) + (yminus / yplus) * xf3;
   }
 }
 
