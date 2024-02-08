@@ -12,6 +12,7 @@
 #include "cstring"
 #include "xfitter_cpp.h"
 #include <unistd.h>
+#include "TRandom3.h"
 
 // the class factories
 extern "C" ReactionHathor* create()
@@ -143,6 +144,14 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   double mtop = 0;
   if(td->hasParam("mtp"))
     mtop = *td->getParamD("mtp");
+  
+  //blinding
+  //if (blind)
+  //{
+  int seed = 4576;
+  TRandom3 r(seed);
+  mtop += -5 + r.Rndm()*10;
+  //}
   
   // here local value is preferred over global one (to allow calculations with several mass values, e.g. for translation into MSbar mass scheme)
   _mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(mtop));
