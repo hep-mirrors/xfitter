@@ -277,7 +277,7 @@ string hessestat(string dir)
 
 std::vector<std::pair<double,double>> pumplin_errors(const std::string& dir) {
   std::vector<std::pair<double,double>> pars;
-  
+
   string fname = dir + "/minuit.out.txt";
   ifstream ff(fname.c_str());
   if (!ff.good())
@@ -312,11 +312,8 @@ std::vector<std::pair<double,double>> pumplin_errors(const std::string& dir) {
       iss1 >> deltaUp;
       istringstream iss2(line.substr(pos2+1,pos3));
       iss2 >> deltaDown;
-      std::cout << deltaUp << " " << deltaDown << std::endl;
-
       pars.push_back(std::pair<double,double>(sqrt(deltaUp)*errSym,sqrt(deltaDown)*errSym));
     }
   }
-  // now find 
   return pars;
 }
