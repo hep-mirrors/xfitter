@@ -78,15 +78,15 @@ Evolutions:
   proton-APFELff:
     ? !include evolutions/APFEL.yaml
     decomposition: proton
-  proton-QCDNUM:
-    ? !include evolutions/QCDNUM.yaml
-    decomposition: proton #this could be omitted, as the default decomposition is set
+  #proton-QCDNUM:
+  #  ? !include evolutions/QCDNUM.yaml
+  #  decomposition: proton #this could be omitted, as the default decomposition is set
   proton-APFELxx:
     ? !include evolutions/APFELxx.yaml
     decomposition: proton
 
 # QCD parameters
-Order: NNLO
+Order: NNNLO
 NFlavour: 5
 isFFNS: 0
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
@@ -104,10 +104,13 @@ byReaction:
     ? !include reactions/FONLL_DISCC.yaml
   N3LO_DISCC:
     ? !include reactions/N3LO_DISCC.yaml
+  N3LO_DISNC:
+    ? !include reactions/N3LO_DISNC.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-  defaultValue : 'FONLL_DISNC'     # global specification
+  #defaultValue : 'FONLL_DISNC'     # global specification
+  defaultValue : 'N3LO_DISNC'     # global specification
 
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
