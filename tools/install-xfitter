@@ -540,6 +540,7 @@ else
         cmake3='cmake'
     fi
     $cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
+    export CXXFLAGS="${CXXFLAGS} -std=c++11"
     make -j 8 >> $CURRENTDIR/install.log  2>&1
     make -j 8 install >> $CURRENTDIR/install.log  2>&1
     
