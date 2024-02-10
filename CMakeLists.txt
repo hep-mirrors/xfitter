@@ -191,6 +191,7 @@ add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
 add_subdirectory(reactions/PineAPPL)
 add_subdirectory(reactions/N3LO_DISCC)
+add_subdirectory(reactions/N3LO_DISNC)
 
 #Tools
 add_subdirectory(tools/draw/src)
