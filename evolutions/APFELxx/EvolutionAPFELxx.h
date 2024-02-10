@@ -43,6 +43,9 @@ namespace xfitter
     virtual double getAlphaS(double Q)override final;
     virtual std::vector<double> getXgrid() override final;
     virtual std::vector<double> getQgrid() override final;
+
+    apfel::TabulateObject<apfel::Set<apfel::Distribution>> GetTabulatedPDFs();
+    std::function<double(double const& Q)>                 GetAlphaQCD();
     ///@}
 
   private:

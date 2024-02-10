@@ -81,6 +81,9 @@ namespace xfitter
           QGrid[2].as<double>(),
           QGrid[3].as<int>()});
   }
+  apfel::TabulateObject<apfel::Set<apfel::Distribution>> EvolutionAPFELxx::GetTabulatedPDFs() {return *_TabulatedPDFs;};
+  std::function<double(double const& Q)>                 EvolutionAPFELxx::GetAlphaQCD() {return _AlphaQCD;};
+  
   std::map<int,double>EvolutionAPFELxx::xfxQmap(double x,double Q){
     return apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x,Q));
   }
