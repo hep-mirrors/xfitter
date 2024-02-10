@@ -75,6 +75,7 @@ Evolutions:
     decomposition: proton
     kmc : 1.2 # ratio between charm quark threshold and mass
     nllxResummation : "On"
+    qLimits : [1.6, 10000.0]
 
 # QCD parameters
 Order: NNLO
