@@ -437,6 +437,7 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
 !     endif
 
       do i=1,mne
+         parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
 
 C
@@ -533,6 +534,7 @@ C store the optimal values
 
       open (71,file=TRIM(OutDirName)//'/parseout_opt',status='unknown')
       do i=1,mne
+         parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then

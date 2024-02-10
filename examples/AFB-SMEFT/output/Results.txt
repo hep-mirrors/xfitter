@@ -1,0 +1,10 @@
+ First iteration    987.89426061366146              116   8.5163298328763926     
+After minimisation     987.89   116     8.516
+
+  Partial chi2s 
+Dataset    1    987.89   120  DY AFB                                          
+
+ Correlated Chi2    0.0000000000000000     
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

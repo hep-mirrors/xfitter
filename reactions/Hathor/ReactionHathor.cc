@@ -11,6 +11,7 @@
 #include "Hathor.h"
 #include "cstring"
 #include "xfitter_cpp.h"
+#include <unistd.h>
 
 // the class factories
 extern "C" ReactionHathor* create()
@@ -98,8 +99,14 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   rlxd_reset(_rndStore);
 
   //Suppress Hathor output
-  if (!steering_.ldebug)
-    freopen("/dev/null", "a", stdout);
+  // SZ 2023.11.11 freopen breaks pipe redicrection, see https://c-faq.com/stdio/undofreopen.html
+  // Solution from https://stackoverflow.com/questions/1908687/how-to-redirect-the-output-back-to-the-screen-after-freopenout-txt-a-stdo
+  int o;
+  if (!steering_.ldebug) {
+    o = dup(fileno(stdout));
+    if (freopen("/dev/null", "a", stdout)) {
+    }
+  }
   
   //_hathor->getXsection(_mtop, _mr, _mf);
 
@@ -189,7 +196,11 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
 
   //Resume standard output
   if (!steering_.ldebug)
-    freopen ("/dev/tty", "a", stdout);
+  {
+    //freopen ("/dev/tty", "a", stdout);
+    dup2(o,fileno(stdout));
+    close(o);
+  }
 
   if (steering_.ldebug)
     {

@@ -177,6 +177,7 @@ namespace XFITTER_PARS {
   map <string, int>    gParametersI;
   map <string, string> gParametersS;
   map <string, vector<double> > gParametersV; ///< Vectors of double parameters
+  map <string, vector<string> > gParametersVS; ///< Vectors of string (not double) parameters
   map <string, YAML::Node > gParametersY;      ///< Store complete nodes for complex cases
 
   // Also keep list of loaded evolutions here:
@@ -433,6 +434,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
                   std::map<string,int>& iMap,
                   std::map<string,string>& sMap,
                   std::map<string,vector<double> >& vMap,
+		  std::map<string,vector<string> >& vsMap,
                   std::map<string,YAML::Node> & yMap ){
     for ( YAML::const_iterator it = node.begin(); it != node.end(); ++it) {
       YAML::Node key = it->first;
@@ -465,16 +467,23 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
           yMap[p_name]=value;
         } else if (value.IsSequence() ) {
           size_t len = value.size();
-          vector<double> v(len);
-          try{
-            for (size_t i=0; i<len; i++) {
-              v[i] = value[i].as<double>();
-            }
-          }catch(const YAML::TypedBadConversion<double>&ex){
-            cerr<<"[ERROR] parse_node_ failed to parse vector-parameter \""<<p_name<<"\":"<<value<<endl;
-            hf_errlog(18112100,"F: parse_node_ failed to parse sequence with non-double elements, see stderr");
-          }
-          vMap[p_name] = v;
+	  vector<double> v(len);
+	  try{
+	    for (size_t i=0; i<len; i++)
+	      v[i] = value[i].as<double>();
+	    vMap[p_name] = v;
+	  }catch(const YAML::TypedBadConversion<double>&ex){
+	    try {
+	      vector<string> v(len);
+	      for (size_t i=0; i<len; i++)
+		v[i] =  value[i].as<string>();
+	      vsMap[p_name] = v;
+	    }
+	    catch(const YAML::TypedBadConversion<double>&ex){
+	      cerr<<"[ERROR] parse_node_ failed to parse vector-parameter \""<<p_name<<"\":"<<value<<endl;
+	      hf_errlog(18112100,"F: parse_node_ failed to parse sequence with non-double/string elements, see stderr");
+	    };
+	  }
         }
       }
     }
@@ -812,24 +821,47 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
   {
     if(node[name].IsDefined())
       return node[name].as<string>();
-    else
+    else {
       hf_errlog(19052019, "F: Undefined parameter \"" + name + "\" in node \"" + "\" requested as string");
+      return "";
+    }
   }
-
 }
 
 namespace xfitter{
 
 BaseMinimizer* get_minimizer() {
-  std::string name = XFITTER_PARS::getParamS("Minimizer");
+  bool HasMinimizer  = ( XFITTER_PARS::gParametersS.find("Minimizer" ) != XFITTER_PARS::gParametersS.end() );
+  bool HasMinimizers = ( XFITTER_PARS::gParametersVS.find("Minimizers" ) != XFITTER_PARS::gParametersVS.end() );
+
+  if ( HasMinimizers && HasMinimizer ) {
+    hf_errlog(2203060601,"F: Both Minimizer and Minimizers present in parameters.yaml. Keep only one");
+  }
+
+  std::string name("");
+
+  if (HasMinimizer)
+    name = XFITTER_PARS::getParamS("Minimizer");
+  else
+    if ( XFITTER_PARS::gParametersS.find("__currentMinimizer" ) != XFITTER_PARS::gParametersS.end() )
+      name = XFITTER_PARS::getParamS("__currentMinimizer" );
+    else{
+      name = XFITTER_PARS::gParametersVS.at("Minimizers")[0];
+      XFITTER_PARS::gParametersS["__currentMinimizer"] = name;
+    }
 
   // Check if already present
-  if (XFITTER_PARS::gMinimizer != nullptr ) {
+  if ( XFITTER_PARS::gMinimizer && XFITTER_PARS::gMinimizer->getName() == name ) {
     return  XFITTER_PARS::gMinimizer;  //already loaded
   }
 
+  // copy original
+  auto previousMinimizer =  XFITTER_PARS::gMinimizer;
+
   // else load, initialize and return
   XFITTER_PARS::gMinimizer =(BaseMinimizer*) createDynamicObject("minimizer", name);
+  if (previousMinimizer)
+    XFITTER_PARS::gMinimizer->CopyStateFromMinimizer(previousMinimizer);
   XFITTER_PARS::gMinimizer->atStart();
   return XFITTER_PARS::gMinimizer;
 }
@@ -882,7 +914,7 @@ void parse_params_(){
   ensureMapValidity("Decompositions");
   ensureMapValidity("Evolutions");
   ensureMapValidity("byReaction");
-  parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersY);
+  parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersVS,gParametersY);
   ParsToFortran();
   createParameters();
   createParameterisations();
@@ -893,7 +925,10 @@ void parse_params_(){
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:
 void add_to_param_map_(map<std::string,double*> *map, double &value, int& global, char *name, int len) {
   string nam = name;
-  nam.erase(nam.find(" "));
+  const auto pos = nam.find(" ");
+  if (pos < nam.size()) {
+    nam.erase(pos);
+  }
 
   if ( global>0 ) {
     XFITTER_PARS::gParameters[nam] = &value;

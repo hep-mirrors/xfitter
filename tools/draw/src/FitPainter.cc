@@ -169,7 +169,7 @@ bool FitPainter()
   fprintf(ftab,"\\begin{table}\n");
   fprintf(ftab,"  \\begin{center}\n");
   fprintf(ftab,"  \\rowcolors{2}{lightgray}{}\n");
-  if (height >= width)
+  if (height < width)
     fprintf(ftab,"  \\resizebox*{!}{\\textwidth}{\n");
   else
     fprintf(ftab,"  \\resizebox*{\\textwidth}{!}{\n");
@@ -290,7 +290,9 @@ bool FitPainter()
     + opts.outdir + "chi2.out " 
     + opts.outdir + "chi2.snm " 
     + opts.outdir + "chi2.toc ";
-  system(clean.c_str());
+  if (system(clean.c_str())) {
+    cout << "Failed to remove some temporary files\n";
+  }
 
   return latexcmd;
 }

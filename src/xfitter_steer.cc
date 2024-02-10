@@ -9,6 +9,10 @@
 #include"BasePdfDecomposition.h"
 #include"BaseEvolution.h"
 #include"BaseMinimizer.h"
+#include "BasePdfParam.h"
+#include <unistd.h>
+
+
 using std::string;
 using std::cerr;
 
@@ -43,6 +47,51 @@ BaseEvolution*get_evolution(string name){
   }
 }
 
+  pid_t xf_fork(int NCPU) {
+    auto out = fork();
+    if (out == 0) {
+      // Get currently availiable number of CPUs
+      auto it=XFITTER_PARS::gParametersI.find("NCPUmax");
+      if(it != XFITTER_PARS::gParametersI.end()){
+	int nCPUmax = XFITTER_PARS::gParametersI.at("NCPUmax");
+	if (nCPUmax>0) {
+	  nCPUmax = nCPUmax / NCPU;
+	  if (nCPUmax == 0) {
+	    nCPUmax = 1;
+	  }
+	  XFITTER_PARS::gParametersI.at("NCPUmax") = nCPUmax;
+	}
+      }
+    }
+    return out;
+  }
+  
+  const int xf_ncpu(int NCPU) {
+    if (NCPU == 0) return 0;
+    
+    auto it=XFITTER_PARS::gParametersI.find("NCPUmax");
+    if(it != XFITTER_PARS::gParametersI.end()){
+    
+      int nCPUmax = XFITTER_PARS::gParametersI.at("NCPUmax");
+
+      // determine automatically
+      if (nCPUmax < 0) {
+	nCPUmax = sysconf(_SC_NPROCESSORS_ONLN);
+	hf_errlog(2023111601,"I: Will use "+std::to_string(nCPUmax)+" maximum nCPU");
+	XFITTER_PARS::gParametersI.at("NCPUmax") = nCPUmax;
+      }
+      
+      if (nCPUmax > 0) {
+	return min(NCPU,nCPUmax);
+      }
+      else {
+	return NCPU;
+      }
+    }
+    else {
+      return NCPU;
+    }
+  }
 }
 
 
@@ -68,14 +117,39 @@ void init_minimizer_() {
   auto mini = xfitter::get_minimizer();
 }
 
+bool updateMinimizer() {
+  if ( XFITTER_PARS::gParametersVS.find("Minimizers" ) == XFITTER_PARS::gParametersVS.end() )
+    return false;
+  auto currentMinimizer =std::find( XFITTER_PARS::gParametersVS["Minimizers"].begin(),
+				    XFITTER_PARS::gParametersVS["Minimizers"].end(),
+				    XFITTER_PARS::gParametersS["__currentMinimizer"]);
+
+  if (std::next(currentMinimizer) == XFITTER_PARS::gParametersVS["Minimizers"].end())
+    return false;
+  else {
+    XFITTER_PARS::gParametersS["__currentMinimizer"] = *std::next(currentMinimizer);
+    // update it and init
+    auto mini = xfitter::get_minimizer();
+    // We need to re-initialize parameterisations (since parameters may moved)
+    for(const auto& pdfparam : XFITTER_PARS::gParameterisations){
+      pdfparam.second->atStart();
+    }
+    return true;
+  }
+}
+
+
 void run_minimizer_() {
-  auto mini = xfitter::get_minimizer();
   /// get profiler too
   auto *prof = new xfitter::Profiler();
 
   prof->doProfiling();
 
-  mini->doMinimization();
+  do {
+    auto mini = xfitter::get_minimizer();
+    mini->doMinimization();
+  }
+  while ( updateMinimizer() );
 }
 
 void report_convergence_status_(){
@@ -133,3 +207,4 @@ void updateAtConfigurationChange(){
   }
 }
 }
+

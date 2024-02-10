@@ -6,12 +6,12 @@
 lhapdfver=6.5.4
 hathorver=2.0
 hoppetver=1.2.0
-applgridver=1.6.32
+applgridver=1.6.35
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.0.0
-dyturbover=1.3.0
+dyturbover=1.3.2
 pineapplver="0.6.0-alpha.17"
 rustver=1.66.0
 cargocver=0.9.14
@@ -535,7 +535,11 @@ else
     tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     cd apfelxx-${apfelxxver}
-    cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
+    cmake3='cmake3'
+    if [ -x "command -v cmake3" ]; then
+        cmake3='cmake'
+    fi
+    $cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
     make -j 8 >> $CURRENTDIR/install.log  2>&1
     make -j 8 install >> $CURRENTDIR/install.log  2>&1
     
