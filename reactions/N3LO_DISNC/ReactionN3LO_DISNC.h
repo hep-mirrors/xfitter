@@ -33,8 +33,6 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   map <unsigned,valarray<double>> _f2fonll;
   map <unsigned,valarray<double>> _flfonll;
   map <unsigned,valarray<double>> _f3fonll;
-  //! Allow for non-apfelxx evolution:
-  bool _non_apfel_evol{false};
 
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2Obj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObj;

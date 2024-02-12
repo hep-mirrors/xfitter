@@ -34,8 +34,6 @@ class ReactionN3LO_DISCC : public ReactionBaseDISCC
   map <unsigned,valarray<double>> _flfonll;
   map <unsigned,valarray<double>> _f3fonll;
   map <unsigned,TermData*> _dsIDs;
-  //! Allow for non-apfelxx evolution:
-  bool _non_apfel_evol{false};
 
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2PlusCCObj  ;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2MinusCCObj ;

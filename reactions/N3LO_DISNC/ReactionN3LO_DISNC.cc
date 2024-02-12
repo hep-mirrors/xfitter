@@ -51,7 +51,6 @@ void ReactionN3LO_DISNC::initTerm(TermData *td)
   xfitter::BaseEvolution* pdf = td->getPDF();
   if (pdf->getClassName() != string("APFELxx") ) {
     hf_errlog(19051815,"I: Reaction "+getReactionName()+ " uses non-APFELxx evolution. Make sure that APFELxx evolution is included");
-    _non_apfel_evol = true;
 
     // We want to check if apfelxx was initialized:
     bool foundApfel = false;
@@ -65,9 +64,6 @@ void ReactionN3LO_DISNC::initTerm(TermData *td)
       hf_errlog(21122901,"F: Include APFELxx evolution to Evolutions: list (even if it is not used) to initialize N3LO DIS modules");
     }
   }
-  else {
-    _non_apfel_evol = false;
-  }    
 }
 
 // Compute all predictions in here and store them to be returned
@@ -94,24 +90,16 @@ void ReactionN3LO_DISNC::atIteration()
   {
     TermData *td = GetTermData(termID);
 
-    // Non-apfelFF evolution
-    if (_non_apfel_evol) {
-      td -> actualizeWrappers();
-      //APFEL::SetPDFSet("external1");
-    }
-
     // Initialize coefficient functions
     const auto F2Obj = InitializeF2NCObjectsZM(g, Thresholds);
     const auto FLObj = InitializeFLNCObjectsZM(g, Thresholds);
     const auto F3Obj = InitializeF3NCObjectsZM(g, Thresholds);
     
-    xfitter::EvolutionAPFELxx* pdf = (xfitter::EvolutionAPFELxx*) td->getPDF();
-    const apfel::TabulateObject<apfel::Set<apfel::Distribution>> TabulatedPDFs = pdf->GetTabulatedPDFs();
-    const std::function<double(double const& Q)> as = pdf->GetAlphaQCD();
-
-    // Evolved PDFs
-    const auto PDFs = [&] (double const& x, double const& Q) -> std::map<int, double> { return TabulatedPDFs.EvaluateMapxQ(x, Q); };
-
+    // Evolved PDFs and alphas from BaseEvolution
+    xfitter::BaseEvolution* basepdf = (xfitter::EvolutionAPFELxx*) td->getPDF();
+    const auto PDFs = [&] (double const& x, double const& Q) -> std::map<int, double> { return apfel::PhysToQCDEv(basepdf->xfxQmap(x, Q)); };
+    const auto as = [&] (double const& Q) -> double { return basepdf->getAlphaS(Q); };
+    
     // Initialize structure functions
     const auto F2 = BuildStructureFunctions(F2Obj, PDFs, PerturbativeOrder, as, fBq);
     const auto FL = BuildStructureFunctions(FLObj, PDFs, PerturbativeOrder, as, fBq);
