@@ -34,10 +34,11 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   map <unsigned,valarray<double>> _flfonll;
   map <unsigned,valarray<double>> _f3fonll;
 
+  std::unique_ptr<const apfel::Grid> Grid;
+  std::vector<double>                Thresholds;
+  
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2Obj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F3Obj;
-
-  std::vector<double> Thresholds;
 };
 
