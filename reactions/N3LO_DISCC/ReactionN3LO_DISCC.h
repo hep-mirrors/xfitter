@@ -35,6 +35,9 @@ class ReactionN3LO_DISCC : public ReactionBaseDISCC
   map <unsigned,valarray<double>> _f3fonll;
   map <unsigned,TermData*> _dsIDs;
 
+  std::unique_ptr<const apfel::Grid> Grid;
+  std::vector<double>                Thresholds;
+  
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2PlusCCObj  ;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2MinusCCObj ;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLPlusCCObj  ;
@@ -42,6 +45,5 @@ class ReactionN3LO_DISCC : public ReactionBaseDISCC
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F3PlusCCObj  ;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F3MinusCCObj ;
 
-  std::vector<double> Thresholds;
 };
 
