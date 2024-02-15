@@ -36,6 +36,7 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
 
   std::unique_ptr<const apfel::Grid> Grid;
   std::vector<double>                Thresholds;
+  std::vector<double>                Masses;
   
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2Obj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObj;
