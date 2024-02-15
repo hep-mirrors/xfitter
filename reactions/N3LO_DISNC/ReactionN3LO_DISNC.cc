@@ -44,6 +44,12 @@ void ReactionN3LO_DISNC::atStart()
   F2Obj = InitializeF2NCObjectsZM(*Grid, Thresholds);
   FLObj = InitializeFLNCObjectsZM(*Grid, Thresholds);
   F3Obj = InitializeF3NCObjectsZM(*Grid, Thresholds);
+
+  // Initialize coefficient functions
+  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds);
+  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds);
+  F2ObjM0 = InitializeF2NCObjectsMassiveZero(*Grid, Thresholds);
+  FLObjM0 = InitializeFLNCObjectsMassiveZero(*Grid, Thresholds);
 }
 
 void ReactionN3LO_DISNC::initTerm(TermData *td)
@@ -72,6 +78,9 @@ void ReactionN3LO_DISNC::initTerm(TermData *td)
 // by the specific functions.
 void ReactionN3LO_DISNC::atIteration()
 {
+  bool massive = false;
+  massive = true;
+
   ReactionBaseDISNC::atIteration();
 
   // Perturbative order
@@ -90,50 +99,130 @@ void ReactionN3LO_DISNC::atIteration()
   const auto F2 = BuildStructureFunctions(F2Obj, PDFs, PerturbativeOrder, as, fBq);
   const auto FL = BuildStructureFunctions(FLObj, PDFs, PerturbativeOrder, as, fBq);
   const auto F3 = BuildStructureFunctions(F3Obj, PDFs, PerturbativeOrder, as, fDq);
-
-  //ZM+M-M0
-    
-  // Tabulate Structure functions
-  const apfel::TabulateObject<apfel::Distribution> F2total {[&] (double const& Q) -> apfel::Distribution{ return F2.at(0).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
-  const apfel::TabulateObject<apfel::Distribution> FLtotal {[&] (double const& Q) -> apfel::Distribution{ return FL.at(0).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
-  const apfel::TabulateObject<apfel::Distribution> F3total {[&] (double const& Q) -> apfel::Distribution{ return F3.at(0).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
-
-  // Loop over the data sets.
-  for (auto termID : _dsIDs)
+  
+  if (!massive)
     {
-      TermData *td = GetTermData(termID);
+      // Tabulate Structure functions
+      const apfel::TabulateObject<apfel::Distribution> F2total {[&] (double const& Q) -> apfel::Distribution{ return F2.at(0).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLtotal {[&] (double const& Q) -> apfel::Distribution{ return FL.at(0).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3total {[&] (double const& Q) -> apfel::Distribution{ return F3.at(0).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
 
-      if (GetDataFlav(termID) != dataFlav::incl)
-	continue;
-    
-      // Get evolution boundary:
-      double gridLowQLimit = td->getPDF()->getQgrid()[0];
-
-      // Charge of the projectile.
-      const double charge = GetCharge(termID);
-
-      // Get x,Q2 arrays.
-      auto *q2p = GetBinValues(td, "Q2");
-      auto *xp = GetBinValues(td, "x");
-      auto q2 = *q2p;
-      auto x = *xp;
-
-      const size_t Np = GetNpoint(termID);
-      // Resize arrays.
-      _f2fonll[termID].resize(Np);
-      _flfonll[termID].resize(Np);
-      _f3fonll[termID].resize(Np);
-
-      for (size_t i = 0; i < Np; i++)
+      // Loop over the data sets.
+      for (auto termID : _dsIDs)
 	{
-	  // Skip all points with Q2 below starting scale
-	  if (q2[i] < gridLowQLimit*gridLowQLimit)
+	  TermData *td = GetTermData(termID);
+
+	  if (GetDataFlav(termID) != dataFlav::incl)
 	    continue;
+    
+	  // Get evolution boundary:
+	  double gridLowQLimit = td->getPDF()->getQgrid()[0];
+
+	  // Charge of the projectile.
+	  const double charge = GetCharge(termID);
+
+	  // Get x,Q2 arrays.
+	  auto *q2p = GetBinValues(td, "Q2");
+	  auto *xp = GetBinValues(td, "x");
+	  auto q2 = *q2p;
+	  auto x = *xp;
+
+	  const size_t Np = GetNpoint(termID);
+	  // Resize arrays.
+	  _f2fonll[termID].resize(Np);
+	  _flfonll[termID].resize(Np);
+	  _f3fonll[termID].resize(Np);
+
+	  for (size_t i = 0; i < Np; i++)
+	    {
+	      // Skip all points with Q2 below starting scale
+	      if (q2[i] < gridLowQLimit*gridLowQLimit)
+		continue;
 	
-	  // Compute structure functions by interpolation in x and Q
-	  _f2fonll[termID][i] = F2total.EvaluatexQ(x[i], sqrt(q2[i]));
-	  _flfonll[termID][i] = FLtotal.EvaluatexQ(x[i], sqrt(q2[i]));
-	  _f3fonll[termID][i] = -charge * F3total.EvaluatexQ(x[i], sqrt(q2[i]));
+	      // Compute structure functions by interpolation in x and Q
+	      _f2fonll[termID][i] = F2total.EvaluatexQ(x[i], sqrt(q2[i]));
+	      _flfonll[termID][i] = FLtotal.EvaluatexQ(x[i], sqrt(q2[i]));
+	      _f3fonll[termID][i] = -charge * F3total.EvaluatexQ(x[i], sqrt(q2[i]));
+	    }
+	}
+    }
+  else //general mass VFN -> FONLL
+    {
+      // Initialize structure functions
+      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, std::min(PerturbativeOrder,2), as, fBq);
+      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, std::min(PerturbativeOrder,2), as, fBq);
+      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, std::min(PerturbativeOrder,2), as, fBq);
+      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, std::min(PerturbativeOrder,2), as, fBq);
+
+      // Tabulate Structure functions
+      const apfel::TabulateObject<apfel::Distribution> F2light {[&] (double const& Q) -> apfel::Distribution{ return F2.at(1).Evaluate(Q) + F2.at(2).Evaluate(Q) + F2.at(3).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLlight {[&] (double const& Q) -> apfel::Distribution{ return FL.at(1).Evaluate(Q) + FL.at(2).Evaluate(Q) + FL.at(3).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3light {[&] (double const& Q) -> apfel::Distribution{ return F3.at(1).Evaluate(Q) + F3.at(2).Evaluate(Q) + F3.at(3).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+
+      const apfel::TabulateObject<apfel::Distribution> F2charmZM {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(4).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(4).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmZM {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM  {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(4).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM0 {[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(4).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3charmZM {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+
+      const apfel::TabulateObject<apfel::Distribution> F2bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(5).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM0{[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(5).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomZM{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(5).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM0{[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(5).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F3.at(5).Evaluate(Q); }, 50, 1, 200, 3, Thresholds};
+
+      // Loop over the data sets.
+      for (auto termID : _dsIDs)
+	{
+	  TermData *td = GetTermData(termID);
+
+	  if (GetDataFlav(termID) != dataFlav::incl)
+	    continue;
+    
+	  // Get evolution boundary:
+	  double gridLowQLimit = td->getPDF()->getQgrid()[0];
+
+	  // Charge of the projectile.
+	  const double charge = GetCharge(termID);
+
+	  // Get x,Q2 arrays.
+	  auto *q2p = GetBinValues(td, "Q2");
+	  auto *xp = GetBinValues(td, "x");
+	  auto q2 = *q2p;
+	  auto x = *xp;
+
+	  const size_t Np = GetNpoint(termID);
+	  // Resize arrays.
+	  _f2fonll[termID].resize(Np);
+	  _flfonll[termID].resize(Np);
+	  _f3fonll[termID].resize(Np);
+
+	  for (size_t i = 0; i < Np; i++)
+	    {
+	      // Skip all points with Q2 below starting scale
+	      if (q2[i] < gridLowQLimit*gridLowQLimit)
+		continue;
+	
+	      // Compute structure functions by interpolation in x and Q
+	      //ZM+switch(Q/m)*(M-M0)
+	      double mc2 = pow(Thresholds[3],2);
+	      double fthrc = q2[i] > mc2 ? pow(1.-mc2/q2[i],2): 0.;
+	      double mb2 = pow(Thresholds[4],2);
+	      double fthrb = q2[i] > mb2 ? pow(1.-mb2/q2[i],2): 0.;
+	      _f2fonll[termID][i] =           (+ F2light.EvaluatexQ(x[i], sqrt(q2[i]))
+					       + fthrc*F2charmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + F2charmM.EvaluatexQ(x[i], sqrt(q2[i]))  - fthrc*F2charmM0.EvaluatexQ(x[i], sqrt(q2[i]))
+					       + fthrb*F2bottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + F2bottomM.EvaluatexQ(x[i], sqrt(q2[i])) - fthrb*F2bottomM0.EvaluatexQ(x[i], sqrt(q2[i]))
+					       );
+	      _flfonll[termID][i] =           (+ FLlight.EvaluatexQ(x[i], sqrt(q2[i]))
+					       + fthrc*FLcharmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + FLcharmM.EvaluatexQ(x[i], sqrt(q2[i]))  - fthrc*FLcharmM0.EvaluatexQ(x[i], sqrt(q2[i]))
+					       + fthrb*FLbottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + FLbottomM.EvaluatexQ(x[i], sqrt(q2[i])) - fthrb*FLbottomM0.EvaluatexQ(x[i], sqrt(q2[i]))
+					       );
+	      _f3fonll[termID][i] = -charge * (F3light.EvaluatexQ(x[i], sqrt(q2[i])) + F3charmZM.EvaluatexQ(x[i], sqrt(q2[i])) + F3bottomZM.EvaluatexQ(x[i], sqrt(q2[i])));
+	    }
 	}
     }
 

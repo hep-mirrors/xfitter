@@ -40,5 +40,11 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2Obj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F3Obj;
+
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM0;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM0;
+  
 };
 
