@@ -1,33 +1,24 @@
-#Minimizer: MINUIT
-#MINUIT:
-#  Commands: |
-#    set str 2
-#    call fcn 3
-#    #migrad 10000
-
-Minimizer: CERES
-
-CERES:
-  offset: 2
-  tolerance: 1e-5
-  strategy: 0
-  covariance: 1
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
 
 Parameters:
-  Adbar: [ 0.091855, 0.009200 ]
-  Agp: [ 4.346536, 1.770509 ]
-  Bdbar: [ -0.206039, 0.015100 ]
-  Bdv: [ 0.927002, 0.077950 ]
-  Bg: [ -0.126292, 0.037906 ]
-  Bgp: [ 0.098213, 0.066198 ]
-  Buv: [ 0.765780, 0.026367 ]
-  Cdbar: [ 5.286205, 1.273760 ]
-  Cdv: [ 4.555094, 0.303116 ]
-  Cg: [ 6.799477, 0.922559 ]
-  Cubar: [ 6.888716, 1.348560 ]
-  Cuv: [ 4.854042, 0.068817 ]
-  Dubar: [ 6.233717, 3.540699 ]
-  Euv: [ 11.817940, 1.494857 ]
+  Adbar: [ 0.129973, 0.000000 ]
+  Agp: [ 3.963897, 0.000000 ]
+  Bdbar: [ -0.169519, 0.000000 ]
+  Bdv: [ 0.966903, 0.000000 ]
+  Bg: [ -0.149451, 0.000000 ]
+  Bgp: [ 0.218869, 0.000000 ]
+  Buv: [ 0.778527, 0.000000 ]
+  Cdbar: [ 8.181011, 0.000000 ]
+  Cdv: [ 4.580556, 0.000000 ]
+  Cg: [ 4.994431, 0.000000 ]
+  Cubar: [ 6.654761, 0.000000 ]
+  Cuv: [ 4.877383, 0.000000 ]
+  Dubar: [ 2.173793, 0.000000 ]
+  Euv: [ 11.746431, 0.000000 ]
   Ag   :  DEPENDENT
   Auv  :  DEPENDENT
   Duv  : [    0     ]
@@ -70,17 +61,9 @@ Decompositions:
     xs: par_s
     xg: par_g
 
-#DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-APFELff
 DefaultEvolution: proton-APFELxx
 
 Evolutions:
-  #proton-APFELff:
-  #  ? !include evolutions/APFEL.yaml
-  #  decomposition: proton
-  #proton-QCDNUM:
-  #  ? !include evolutions/QCDNUM.yaml
-  #  decomposition: proton #this could be omitted, as the default decomposition is set
   proton-APFELxx:
     ? !include evolutions/APFELxx.yaml
     decomposition: proton
@@ -97,25 +80,17 @@ alphas : 0.118
 
 
 byReaction:
-  # FONLL scheme settings:
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
   N3LO_DISCC:
     ? !include reactions/N3LO_DISCC.yaml
-    xGrid: [[100, 1e-5, 3], [60, 1e-1, 3], [50, 6e-1, 3], [50, 8e-1, 3]]
   N3LO_DISNC:
     ? !include reactions/N3LO_DISNC.yaml
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-  #defaultValue : 'FONLL_DISNC'     # global specification
   defaultValue : 'N3LO_DISNC'     # global specification
 
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
-  #defaultValue : 'FONLL_DISCC'     # global specification
   defaultValue : 'N3LO_DISCC'     # global specification
 
 WriteLHAPDF6:
