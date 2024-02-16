@@ -24,6 +24,8 @@ extern "C" ReactionN3LO_DISCC *create()
 // Initialize at the start of the computation
 void ReactionN3LO_DISCC::atStart()
 {
+  apfel::SetVerbosityLevel(0);
+
   // x-space grid
   const YAML::Node Node     = XFITTER_PARS::rootNode["byReaction"];
   const YAML::Node yamlNode = Node["N3LO_DISCC"];
