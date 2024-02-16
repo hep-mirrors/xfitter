@@ -78,6 +78,8 @@ void ReactionN3LO_DISCC::initTerm(TermData *td)
 // by the specific functions.
 void ReactionN3LO_DISCC::atIteration()
 {
+  bool tabulate = true;
+  
   ReactionBaseDISCC::atIteration();
 
   // CKM matrix elements --> should read from yaml
@@ -160,6 +162,14 @@ void ReactionN3LO_DISCC::atIteration()
 	  _f2fonll[termID][i] =          F2totalp.EvaluatexQ(x[i], sqrt(q2[i])) + charge*F2totalm.EvaluatexQ(x[i], sqrt(q2[i]));
 	  _flfonll[termID][i] =          FLtotalp.EvaluatexQ(x[i], sqrt(q2[i])) + charge*FLtotalm.EvaluatexQ(x[i], sqrt(q2[i]));
 	  _f3fonll[termID][i] = charge * F3totalp.EvaluatexQ(x[i], sqrt(q2[i])) +        F3totalm.EvaluatexQ(x[i], sqrt(q2[i]));
+
+	  //non tabulated version
+	  if (!tabulate)
+	    {
+	      _f2fonll[termID][i] =          F2p.at(0).Evaluate(x[i], sqrt(q2[i])) + charge*F2m.at(0).Evaluate(x[i], sqrt(q2[i]));
+	      _flfonll[termID][i] =          FLp.at(0).Evaluate(x[i], sqrt(q2[i])) + charge*FLm.at(0).Evaluate(x[i], sqrt(q2[i]));
+	      _f3fonll[termID][i] = charge * F3p.at(0).Evaluate(x[i], sqrt(q2[i])) +        F3m.at(0).Evaluate(x[i], sqrt(q2[i]));
+	    }
 	}
     }
 

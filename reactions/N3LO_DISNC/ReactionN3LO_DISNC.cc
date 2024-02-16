@@ -80,8 +80,8 @@ void ReactionN3LO_DISNC::initTerm(TermData *td)
 // by the specific functions.
 void ReactionN3LO_DISNC::atIteration()
 {
-  bool massive = false;
-  massive = true;
+  bool tabulate = true;
+  bool massive = true;
 
   //Q grid parameters
   const YAML::Node Node     = XFITTER_PARS::rootNode["byReaction"];
@@ -176,7 +176,7 @@ void ReactionN3LO_DISNC::atIteration()
       const apfel::TabulateObject<apfel::Distribution> F2light {[&] (double const& Q) -> apfel::Distribution{ return F2.at(1).Evaluate(Q) + F2.at(2).Evaluate(Q) + F2.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> FLlight {[&] (double const& Q) -> apfel::Distribution{ return FL.at(1).Evaluate(Q) + FL.at(2).Evaluate(Q) + FL.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F3light {[&] (double const& Q) -> apfel::Distribution{ return F3.at(1).Evaluate(Q) + F3.at(2).Evaluate(Q) + F3.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
-
+      
       const apfel::TabulateObject<apfel::Distribution> F2charmZM {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
@@ -184,7 +184,7 @@ void ReactionN3LO_DISNC::atIteration()
       const apfel::TabulateObject<apfel::Distribution> FLcharmM  {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> FLcharmM0 {[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F3charmZM {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
-
+      
       const apfel::TabulateObject<apfel::Distribution> F2bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F2bottomM0{[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
@@ -235,14 +235,27 @@ void ReactionN3LO_DISNC::atIteration()
 	      double etab = q2[i] / ( q2[i] + 4 * Masses[4] * Masses[4] );
 	      
 	      _f2fonll[termID][i] =           (+ F2light.EvaluatexQ(x[i], sqrt(q2[i]))
-					       + fthrc*F2charmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + F2charmM.EvaluatexQ(x[i]/etac, sqrt(q2[i]))  - fthrc*F2charmM0.EvaluatexQ(x[i], sqrt(q2[i]))
-					       + fthrb*F2bottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + F2bottomM.EvaluatexQ(x[i]/etab, sqrt(q2[i])) - fthrb*F2bottomM0.EvaluatexQ(x[i], sqrt(q2[i]))
-					       );
+	      				       + fthrc*F2charmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + F2charmM.EvaluatexQ(x[i]/etac, sqrt(q2[i]))  - fthrc*F2charmM0.EvaluatexQ(x[i], sqrt(q2[i]))
+	      				       + fthrb*F2bottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + F2bottomM.EvaluatexQ(x[i]/etab, sqrt(q2[i])) - fthrb*F2bottomM0.EvaluatexQ(x[i], sqrt(q2[i]))
+	      				       );
 	      _flfonll[termID][i] =           (+ FLlight.EvaluatexQ(x[i], sqrt(q2[i]))
-					       + fthrc*FLcharmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + FLcharmM.EvaluatexQ(x[i]/etac, sqrt(q2[i]))  - fthrc*FLcharmM0.EvaluatexQ(x[i], sqrt(q2[i]))
-					       + fthrb*FLbottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + FLbottomM.EvaluatexQ(x[i]/etab, sqrt(q2[i])) - fthrb*FLbottomM0.EvaluatexQ(x[i], sqrt(q2[i]))
-					       );
+	      				       + fthrc*FLcharmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + FLcharmM.EvaluatexQ(x[i]/etac, sqrt(q2[i]))  - fthrc*FLcharmM0.EvaluatexQ(x[i], sqrt(q2[i]))
+	      				       + fthrb*FLbottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + FLbottomM.EvaluatexQ(x[i]/etab, sqrt(q2[i])) - fthrb*FLbottomM0.EvaluatexQ(x[i], sqrt(q2[i]))
+	      				       );
 	      _f3fonll[termID][i] = -charge * (F3light.EvaluatexQ(x[i], sqrt(q2[i])) + F3charmZM.EvaluatexQ(x[i], sqrt(q2[i])) + F3bottomZM.EvaluatexQ(x[i], sqrt(q2[i])));
+	      if (!tabulate)
+		{
+		  _f2fonll[termID][i] =           (+ F2.at(1).Evaluate(x[i], sqrt(q2[i])) + F2.at(2).Evaluate(x[i], sqrt(q2[i])) + F2.at(3).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrc*F2.at(4).Evaluate(x[i], sqrt(q2[i]))  + F2M.at(4).Evaluate(x[i]/etac, sqrt(q2[i]))  - fthrc*F2M0.at(4).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrb*F2.at(5).Evaluate(x[i], sqrt(q2[i])) + F2M.at(5).Evaluate(x[i]/etab, sqrt(q2[i])) - fthrb*F2M0.at(5).Evaluate(x[i], sqrt(q2[i]))
+						   );
+		  _flfonll[termID][i] =           (+ FL.at(1).Evaluate(x[i], sqrt(q2[i])) + FL.at(2).Evaluate(x[i], sqrt(q2[i])) + FL.at(3).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrc*FL.at(4).Evaluate(x[i], sqrt(q2[i]))  + FLM.at(4).Evaluate(x[i]/etac, sqrt(q2[i]))  - fthrc*FLM0.at(4).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrb*FL.at(5).Evaluate(x[i], sqrt(q2[i])) + FLM.at(5).Evaluate(x[i]/etab, sqrt(q2[i])) - fthrb*FLM0.at(5).Evaluate(x[i], sqrt(q2[i]))
+						   );
+		  _f3fonll[termID][i] = -charge * (F3.at(1).Evaluate(x[i], sqrt(q2[i])) + F3.at(2).Evaluate(x[i], sqrt(q2[i])) + F3.at(3).Evaluate(x[i], sqrt(q2[i])) + F3.at(4).Evaluate(x[i], sqrt(q2[i])) + F3.at(5).Evaluate(x[i], sqrt(q2[i])));
+		}
+
 	    }
 	}
     }
