@@ -24,8 +24,9 @@ extern "C" ReactionN3LO_DISNC *create()
 // Initialize at the start of the computation
 void ReactionN3LO_DISNC::atStart()
 {
-  // x-space grid (the grid parameters should be in parameters.yaml
-  const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode("proton-APFELxx");
+  // x-space grid
+  const YAML::Node Node     = XFITTER_PARS::rootNode["byReaction"];
+  const YAML::Node yamlNode = Node["N3LO_DISNC"];
   const YAML::Node xGrid = yamlNode["xGrid"];
 
   vector<apfel::SubGrid> sgv;
@@ -82,12 +83,28 @@ void ReactionN3LO_DISNC::atIteration()
   bool massive = false;
   massive = true;
 
+  //Q grid parameters
+  const YAML::Node Node     = XFITTER_PARS::rootNode["byReaction"];
+  const YAML::Node yamlNode = Node["N3LO_DISNC"];
+  const YAML::Node QGrid    = yamlNode["QGrid"];
+
+  int n = QGrid[0].as<int>();
+  double qmin = QGrid[1].as<double>();
+  double qmax = QGrid[2].as<double>();
+  int ord = QGrid[3].as<int>();
+
   ReactionBaseDISNC::atIteration();
 
   // Perturbative order
   const int PerturbativeOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
 
-  // Effective charges
+  // Effective charges --> could read from yaml
+  //const double sin2thw = *(XFITTER_PARS::getParamD("sin2thW"));
+  //const double gf = *(XFITTER_PARS::getParamD("gf"));
+  //const double Mz = *(XFITTER_PARS::getParamD("Mz"));
+  //const double Mw = *(XFITTER_PARS::getParamD("Mw"));
+  //const double Wz = *(XFITTER_PARS::getParamD("Wz"));
+  //const double Ww = *(XFITTER_PARS::getParamD("Ww"));
   std::function<std::vector<double>(double const&)> fBq = [=] (double const& Q) -> std::vector<double> { return apfel::ElectroWeakCharges(Q, false); };
   std::function<std::vector<double>(double const&)> fDq = [=] (double const& Q) -> std::vector<double> { return apfel::ParityViolatingElectroWeakCharges(Q, false); };
 
@@ -104,9 +121,9 @@ void ReactionN3LO_DISNC::atIteration()
   if (!massive)
     {
       // Tabulate Structure functions
-      const apfel::TabulateObject<apfel::Distribution> F2total {[&] (double const& Q) -> apfel::Distribution{ return F2.at(0).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLtotal {[&] (double const& Q) -> apfel::Distribution{ return FL.at(0).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F3total {[&] (double const& Q) -> apfel::Distribution{ return F3.at(0).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2total {[&] (double const& Q) -> apfel::Distribution{ return F2.at(0).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLtotal {[&] (double const& Q) -> apfel::Distribution{ return FL.at(0).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3total {[&] (double const& Q) -> apfel::Distribution{ return F3.at(0).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
 
       // Loop over the data sets.
       for (auto termID : _dsIDs)
@@ -156,25 +173,25 @@ void ReactionN3LO_DISNC::atIteration()
       const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, std::min(PerturbativeOrder,2), as, fBq);
 
       // Tabulate Structure functions
-      const apfel::TabulateObject<apfel::Distribution> F2light {[&] (double const& Q) -> apfel::Distribution{ return F2.at(1).Evaluate(Q) + F2.at(2).Evaluate(Q) + F2.at(3).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLlight {[&] (double const& Q) -> apfel::Distribution{ return FL.at(1).Evaluate(Q) + FL.at(2).Evaluate(Q) + FL.at(3).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F3light {[&] (double const& Q) -> apfel::Distribution{ return F3.at(1).Evaluate(Q) + F3.at(2).Evaluate(Q) + F3.at(3).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2light {[&] (double const& Q) -> apfel::Distribution{ return F2.at(1).Evaluate(Q) + F2.at(2).Evaluate(Q) + F2.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLlight {[&] (double const& Q) -> apfel::Distribution{ return FL.at(1).Evaluate(Q) + FL.at(2).Evaluate(Q) + FL.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3light {[&] (double const& Q) -> apfel::Distribution{ return F3.at(1).Evaluate(Q) + F3.at(2).Evaluate(Q) + F3.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
 
-      const apfel::TabulateObject<apfel::Distribution> F2charmZM {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLcharmZM {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLcharmM  {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLcharmM0 {[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F3charmZM {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmZM {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmZM {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM  {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM0 {[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3charmZM {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
 
-      const apfel::TabulateObject<apfel::Distribution> F2bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2bottomM0{[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLbottomZM{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLbottomM {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLbottomM0{[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F3bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F3.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM0{[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomZM{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM0{[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F3.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
 
       // Loop over the data sets.
       for (auto termID : _dsIDs)
@@ -237,9 +254,9 @@ void ReactionN3LO_DISNC::atIteration()
 
   if (initcharm)
     {
-      const apfel::TabulateObject<apfel::Distribution> F2charm {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLcharm {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F3charm {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charm {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharm {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3charm {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
 
       // Loop over the data sets.
       for (auto termID : _dsIDs)
@@ -289,9 +306,9 @@ void ReactionN3LO_DISNC::atIteration()
 
   if (initbottom)
     {
-      const apfel::TabulateObject<apfel::Distribution> F2bottom{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLbottom{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F3bottom{[&] (double const& Q) -> apfel::Distribution{ return F3.at(5).Evaluate(Q); }, 50, 1, 500, 3, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottom{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottom{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F3bottom{[&] (double const& Q) -> apfel::Distribution{ return F3.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
 
       // Loop over the data sets.
       for (auto termID : _dsIDs)
