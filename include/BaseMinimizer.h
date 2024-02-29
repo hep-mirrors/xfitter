@@ -30,6 +30,9 @@ namespace xfitter
     /// default constructor
     BaseMinimizer(const std::string& name):_name(name),_allParameterNames(){}
 
+    /// Copy state from the other mimimizer:
+    void CopyStateFromMinimizer(const BaseMinimizer* origin);
+
     /// Initialization
     virtual void atStart() = 0;
 
@@ -65,6 +68,17 @@ namespace xfitter
 
     /// Set parameters:
     void setPars(double const* pars) const;
+
+
+    /// Get priors:
+    const std::vector<const double* >* getPriors() const {
+      return &_priors;
+    }
+
+    /// GEt name:
+    const std::string getName() const {
+      return _name;
+    }
   protected:
 
     /// name to ID minimizer
@@ -72,6 +86,12 @@ namespace xfitter
 
     /// names of the parameters
     std::vector<std::string> _allParameterNames;
+    
+    /// Priors:
+    std::vector< const double* > _priors;
+
+    /// Bounds:
+    std::vector< const double* > _bounds;
 
   };
 

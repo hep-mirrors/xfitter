@@ -153,6 +153,9 @@ byReaction:
   # APPLgrid settings:
   APPLgrid:
     ? !include reactions/APPLgrid.yaml
+  # APPLgrid settings:
+  # (optional) APFELgrid module settings:
+  #  ? !include reactions/APFELgrid.yaml
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
@@ -204,3 +207,13 @@ WriteLHAPDF6:
   #Qrange: [1,1000]
   #Xnpoints: 200
   #Qnpoints: 120
+
+#
+# Possible levels to stop program execution:
+#  1 - will stop on warnings
+#  2 - will stop on errors (default)
+#  3 - will stop on severe errors
+#  4 - will stop on fatal
+#  5 - will not stop on any error
+
+MaxErrAllowed: 2

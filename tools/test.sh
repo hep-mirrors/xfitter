@@ -59,10 +59,10 @@ function tolerateDiff()
 checkFile()
 {
   printf "$diff $1 $2 ... "
-  if [ $diff = 'diff' ]; then
-      $diff  $1 $2 > /dev/null
-  else
+  if [[ $diff == *'numdiff'* ]]; then
       $diff -s ' \t\n,' $1 $2 > /dev/null
+  else
+      $diff  $1 $2 > /dev/null
   fi
   exitcode=$?
   
@@ -149,6 +149,7 @@ runTest()
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
+  #echo -e "run \n bt" | gdb ${xfitter} | tee ${xflogfile}
   ${xfitter} >& ${xflogfile}
   cd - > /dev/null
 

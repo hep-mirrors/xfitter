@@ -56,7 +56,8 @@ void BasePdfParam::atStart(){
     hf_errlog(18092420,"F: Bad parameters in parameterisation, see stderr");
   }
   Npars=parsNode.size();
-  pars=new double*[Npars];
+  if (pars == nullptr)
+    pars=new double*[Npars];
   for(unsigned int i=0;i<Npars;++i){
     try{
       pars[i]=XFITTER_PARS::gParameters.at(parsNode[i].as<string>());

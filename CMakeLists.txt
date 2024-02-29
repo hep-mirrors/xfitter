@@ -39,6 +39,17 @@ find_package(Hathor)
 find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
+find_package(PineAPPL)
+
+set(CMAKE_CXX_FLAGS "-O ${CMAKE_CXX_FLAGS}")
+set(CMAKE_Fortran_FLAGS "-O ${CMAKE_Fortran_FLAGS}")
+set(CMAKE_C_FLAGS "-O ${CMAKE_C_FLAGS}")
+
+if(OPENMP)
+  set(CMAKE_CXX_FLAGS "-fopenmp ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_Fortran_FLAGS "-fopenmp ${CMAKE_Fortran_FLAGS}")
+  set(CMAKE_C_FLAGS "-fopenmp ${CMAKE_C_FLAGS}")
+endif()
 
 if(ROOT_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
@@ -57,17 +68,17 @@ endif()
 #Use c preprocessor with fortran
 
 if(UNIX AND NOT APPLE)
-  set(CMAKE_Fortran_FLAGS "-cpp -Wno-argument-mismatch")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp -Wno-argument-mismatch")
 endif()
 
 if(APPLE)
-  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp -fallow-argument-mismatch")
 endif()
 
 
 if (CMAKE_MAJOR_VERSION VERSION_GREATER_EQUAL "3")
 if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10")
-  set(CMAKE_Fortran_FLAGS "-cpp -fallow-argument-mismatch")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp -fallow-argument-mismatch")
 endif()
 endif()
 
@@ -86,10 +97,16 @@ endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fbounds-check -ffpe-trap='invalid,overflow,zero'")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ggdb")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
   elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -check bounds -fpe0")
   endif()
 endif()
+
+# For semaphore in multithreading
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
 
 #When linking, set rpath to install directories
 #This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
@@ -172,6 +189,7 @@ add_subdirectory(reactions/HathorSingleTop)
 add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
+add_subdirectory(reactions/PineAPPL)
 
 #Tools
 add_subdirectory(tools/draw/src)

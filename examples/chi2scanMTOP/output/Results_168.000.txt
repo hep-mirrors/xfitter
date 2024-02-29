@@ -3,8 +3,8 @@ After minimisation      10.34     1    10.345
   Partial chi2s 
 Dataset    1      6.89( -0.27)     1  ATLAS total ttbar 7TeV mt=173.3 GeV             
 
- Correlated Chi2    3.7231158119147119     
- Log penalty Chi2  -0.26779616953863800     
+ Correlated Chi2    3.7231137760694661     
+ Log penalty Chi2  -0.26779610065355697     
  Systematic shifts           27
   
                                 Name          Shift   +/-    Error          Type

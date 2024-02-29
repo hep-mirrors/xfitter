@@ -96,6 +96,12 @@ void MINUITMinimizer::atStart() {
   // Call fortran interface
   generate_io_filenames_();
   minuit_ini_();
+  // set vars needed for fortran
+  auto node =  XFITTER_PARS::gParametersY["MINUIT"];
+  if (node["threads"]) {
+    XFITTER_PARS::gParametersI["NCPUPumplin"] = node["threads"].as<int>();
+    hf_errlog(2023061550,"I: Using fork() for minuit Jon Pumplin's error computation.");
+  }    
   return;
 }
 
@@ -177,7 +183,6 @@ ConvergenceStatus MINUITMinimizer::convergenceStatus(){
 /// parameters
 void MINUITMinimizer::addParameter(double par, std::string const &name, double step, double const* bounds , double  const* priors  )
 {
-  BaseMinimizer::addParameter(par,name,step,bounds,priors);
   double minv    =0;
   double maxv    =0;
   double priorVal=0;
@@ -193,6 +198,7 @@ void MINUITMinimizer::addParameter(double par, std::string const &name, double s
     priorUnc = priors[1];
   }
   addexternalparam_(name.c_str(),par,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,name.size());
+  BaseMinimizer::addParameter(par,name,step,bounds,priors);
 
   return;
 }

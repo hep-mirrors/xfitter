@@ -15,6 +15,8 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <semaphore.h>
+#include <fcntl.h>
 
 extern "C" {
   void update_theory_iteration_();
@@ -158,6 +160,10 @@ namespace xfitter
 
     if (node["threads"]) {
       _ncpu =  node["threads"].as<int>();
+      if (_ncpu == -1) {
+        _ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+        hf_errlog(2023061401,"I: Will use "+std::to_string(_ncpu)+" threads");
+      }
     }
     
     //rescaling  PDF eigenvectors
@@ -273,7 +279,14 @@ namespace xfitter
 				  YAML::Node gNode,
 				  BaseEvolution* evol, const std::string& errorType)
   {
-    
+
+    // Semaphore for critical code section (writing fittedresults.txt_set_???? via intermidiate fittedresults.txt)
+    std::string semname = "pSem" + std::to_string(getpid());
+    sem_t* sem = sem_open(semname.c_str(), O_CREAT | O_EXCL, 0644, 1);
+    if (!sem) {
+      hf_errlog(2023061501,"F: Failed to initialize semaphore");
+    }
+
     // Shared memory for predictions
     int shmid;
     double* sharedArray;
@@ -311,9 +324,10 @@ namespace xfitter
 
     // define Chunks
 
+
+    int NCPU = xf_ncpu(_ncpu);
     std::cout << "N CPU: " << _ncpu << std::endl;
 
-    int NCPU = _ncpu;
     int chunkSize = NALL / NCPU;
     int reminder  = NALL % NCPU; 
     int startIndex = 0;
@@ -326,7 +340,7 @@ namespace xfitter
       if (icpu < reminder) {
 	endIndex += 1;
       }
-      pid_t pid = fork();
+      pid_t pid = xf_fork(NCPU);
       if ( pid == 0) {       
 	for (int imember = first+startIndex; imember < first+endIndex; imember++) {
 	  
@@ -343,7 +357,9 @@ namespace xfitter
 	  sharedArray2[imember-first] = pred.second;
 
 	  if (_storePdfs) {
+      sem_wait(sem);
 	    storePdfFiles(imember,iPdfSet,errorType);
+      sem_post(sem);
 	  }
 	      
 	}
@@ -375,6 +391,8 @@ namespace xfitter
     shmctl(shmid, IPC_RMID, NULL);
     shmdt(sharedArray2);
     shmctl(shmid2, IPC_RMID, NULL);
+    sem_unlink(semname.c_str());
+    sem_close(sem);
     
   }
 
