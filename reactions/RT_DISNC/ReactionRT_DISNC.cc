@@ -186,7 +186,6 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
 
   int threads = xfitter::xf_ncpu( td->getParamI("threads") );
-  std::cout << "threads " << threads << "\n";
   if (threads < 2)
     {
       for (size_t i = 0; i < Np; i++)
