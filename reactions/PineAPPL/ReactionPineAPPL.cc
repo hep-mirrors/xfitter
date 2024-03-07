@@ -103,12 +103,12 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         string ordS = td->getParamS("OrderMask");
         data->ordervec = maskParser(ordS);
         hf_errlog(23010305, "I: PineAPPL order mask: "+ordS);
-        if (data->Nord!=data->ordervec.size()) {
+        /*if (data->Nord!=data->ordervec.size()) {
             hf_errlog(23010301, "F: PineAPPL grid order count: "
                                 +to_string(data->Nord)
                                 +" disagrees with order mask size: "
                                 +to_string(data->ordervec.size()));
-        }
+        }*/
     } else data->Nord = 0;
     if (data->Nord==0) hf_errlog(23010302, "I: PineAPPL order mask unspecified, using all in grid");
 
@@ -186,7 +186,6 @@ void ReactionPineAPPL::initTerm(TermData*td) {
                 hf_errlog(23060502, "F: Dimension mismatch for grid " + data->GridNames[ig]);
             }
         }
-        //printf("ndim = %d, np = %ld\n", ndim, np);
         if (rebin_vars.size() != (ndim * 2))
             hf_errlog(23060502, "F: rebin [" + std::to_string(rebin_vars.size()) + "] and grid dimension [" + std::to_string(ndim) + "] mismatch");
         std::vector<std::vector<double> > binsl(ndim);
@@ -223,7 +222,6 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         auto& rebin = data->rebin;
         rebin.resize(bins_data[0].size());
         for(size_t bin = 0; bin < bins_data[0].size(); bin++) {
-            //printf("bin = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bin, bins_data[2][bin], bins_data[3][bin], bins_data[0][bin], bins_data[1][bin]);
             for (int idim = 0; idim < ndim; idim++) {
                 if (!std::isnan(rebin_vars_bound[0+idim*2]) && bins_data[0+idim*2][bin] <= rebin_vars_bound[0+idim*2])
                     bins_data[0+idim*2][bin] = binsl[idim][0];
@@ -234,7 +232,6 @@ void ReactionPineAPPL::initTerm(TermData*td) {
             std::vector<int> match_l(ndim, 0);
             std::vector<int> match_r(ndim, 0);
             for(size_t bingrid = 0; bingrid < binsl[0].size(); bingrid++) {
-                //printf("bingrid = %ld mttmin,mttmax,yttmin,yttmax = %f %f %f %f\n", bingrid, binsl[1][bingrid],binsr[1][bingrid],binsl[0][bingrid],binsr[0][bingrid]);
                 rebin[bin][bingrid] = 0;
                 std::vector<int> flag(ndim);
                 for (size_t idim = 0; idim < ndim; idim++) {
@@ -253,11 +250,9 @@ void ReactionPineAPPL::initTerm(TermData*td) {
                     rebin[bin][bingrid] = 1;
             }
             for (size_t idim = 0; idim < ndim; idim++) {
-                //printf("%d %d\n", match_l[idim], match_r[idim]);
                 if (match_l[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[0+idim*2] + " " + std::to_string(bins_data[0+idim*2][bin]));
                 if (match_r[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[1+idim*2] + " " + std::to_string(bins_data[1+idim*2][bin]));
             }
-            //printf("match_l, match_r, match_l2, match_r2 = %d %d %d %d\n", match_l, match_r, match_l2, match_r2);
             //if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin " + std::to_string((*mttmin)[bin]));
             //if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax " + std::to_string((*mttmax)[bin]));
             //if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin " + std::to_string((*yttmin)[bin]));
@@ -306,10 +301,13 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
 
         std::string grid_name_and_energy = data.GridNames[igrid] + std::string("_energy_") + std::to_string(data.energyRescale);
         if(td->hasParam("evolution")) {
-            grid_name_and_energy += "_" + td->getParamS("evolution");
+            grid_name_and_energy += "_evolution_" + td->getParamS("evolution");
+        }
+        if(td->hasParam("evolution1")) {
+            grid_name_and_energy += "_evolution1_" + td->getParamS("evolution1");
         }
         if(td->hasParam("evolution2")) {
-            grid_name_and_energy += "_" + td->getParamS("evolution2");
+            grid_name_and_energy += "_evolution2_" + td->getParamS("evolution2");
         }
         if (grid && _convolved.find(grid_name_and_energy) == _convolved.end()) {//real, non-dummy grid
             td->actualizeWrappers();
@@ -334,7 +332,6 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
                 return pdfs[id];
             };
             auto alphas = [](double q2, void *state) {
-                //printf("SZ alphas q2 = %f\n", q2);
                 return alphas_wrapper_(sqrt(q2));
             };
 
