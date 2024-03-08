@@ -14,6 +14,7 @@
 #include <sys/wait.h>
 #include <gsl/gsl_integration.h>
 #include "xfitter_cpp.h"
+#include "xfitter_steer.h"
 
 using namespace std;
 
@@ -1758,7 +1759,10 @@ void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valar
     double AFB_result = AFB ((*Minv_min)[i], (*Minv_max)[i]);
     return AFB_result;
   };
-  if (_ncpu == 1) {
+
+  int ncpu =  xfitter::xf_ncpu(_ncpu);
+  
+  if (ncpu == 1) {
     for (int i = 0; i < Npnt_min; i++) {
       val[i] = calc_point(i);
     }
@@ -1776,19 +1780,19 @@ void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valar
       hf_errlog(2023060201,"F: Failed to attach shared memory segment");
     }
     // define Chunks
-    int chunkSize = Npnt_min / _ncpu;
-    int reminder  = Npnt_min % _ncpu; 
+    int chunkSize = Npnt_min / ncpu;
+    int reminder  = Npnt_min % ncpu; 
     int first = 0;
     int startIndex = 0;
     int endIndex = 0;
     // loop over all
-    for (int icpu = 0; icpu < min(_ncpu, Npnt_min); icpu++) {
+    for (int icpu = 0; icpu < min(ncpu, Npnt_min); icpu++) {
       startIndex = endIndex;
       endIndex   = startIndex + chunkSize;
       if (icpu < reminder) {
 	      endIndex += 1;
       }
-      pid_t pid = fork();
+      pid_t pid = xfitter::xf_fork( min(ncpu, Npnt_min)  );
       if ( pid == 0) {       
         // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
         int fdlimit = (int)sysconf(_SC_OPEN_MAX);

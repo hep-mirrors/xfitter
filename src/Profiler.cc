@@ -324,9 +324,10 @@ namespace xfitter
 
     // define Chunks
 
+
+    int NCPU = xf_ncpu(_ncpu);
     std::cout << "N CPU: " << _ncpu << std::endl;
 
-    int NCPU = _ncpu;
     int chunkSize = NALL / NCPU;
     int reminder  = NALL % NCPU; 
     int startIndex = 0;
@@ -339,7 +340,7 @@ namespace xfitter
       if (icpu < reminder) {
 	endIndex += 1;
       }
-      pid_t pid = fork();
+      pid_t pid = xf_fork(NCPU);
       if ( pid == 0) {       
 	for (int imember = first+startIndex; imember < first+endIndex; imember++) {
 	  

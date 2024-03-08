@@ -199,7 +199,9 @@ bool Chi2scanUnc()
     + opts.outdir + "unc_summary.out " 
     + opts.outdir + "unc_summary.snm " 
     + opts.outdir + "unc_summary.toc ";
-  system(clean.c_str());
+  if (system(clean.c_str())) {
+    cout << "Error removing temporary files\n";
+  }
 
   //return latexcmd;
   return false;
