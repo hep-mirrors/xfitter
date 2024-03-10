@@ -13,8 +13,14 @@
 #include"appl_grid/appl_grid.h"
 #include<memory>
 #include"BaseEvolution.h"
-using namespace std;
+
+#ifdef PLOUGHSHARE_FOUND
+#include "ploughshare/ploughshare.h"
+#endif
+
 using namespace xfitter;
+using namespace std;
+
 struct GridData{
   unique_ptr<appl::grid>grid=nullptr;
   TH1D*reference=nullptr;//used if flagUseReference=true
@@ -40,12 +46,27 @@ extern "C" ReactionAPPLgrid* create() {
 void ReactionAPPLgrid::initTerm(TermData*td){
   DatasetData*data=new DatasetData;
   td->reactionData=(void*)data;
+
+  string namePrefix="";
+  if (td->hasParam("PloughShare")) {
+#ifdef PLOUGHSHARE_FOUND
+    string PSdataset = td->getParamS("PloughShare");
+    ploughshare p;
+    p.verbose(false);
+    p.fetch(PSdataset);
+    namePrefix = p.path(PSdataset)+"/grids/";
+#else
+    hf_errlog(1312202301,"F:Ploughshare not found, please install");
+#endif
+  }
+
   //Split entries in GridName and load grids
   string GridName=td->getParamS("GridName");
+
   try{
-    std::istringstream ss(GridName);
-    std::string token;
-    while(std::getline(ss, token, ',')){
+    istringstream ss(GridName);
+    string token;
+    while(getline(ss, token, ',')){
       data->grids.push_back(GridData());
       GridData&gd=data->grids.back();
       if(beginsWith(token,"DUMMY")){//a dummy grid
@@ -55,10 +76,9 @@ void ReactionAPPLgrid::initTerm(TermData*td){
         //WIP
         gd.Ndummysize=atoi(token.c_str() + 5);//TODO: handle errors
       }else{//a real grid
-        appl::grid*g=new appl::grid(token);
+        appl::grid*g=new appl::grid(namePrefix+token);
         g->trim();
-        TFile file(token.c_str());
-        TH1D*reference=(TH1D*)file.Get("grid/reference");
+	TH1D* reference =  convert(g->getReference());
         if(!reference)//TODO: maybe do not load reference histogram when !flagUseReference?
           hf_errlog(17033000, "W: no reference histogram grid/reference in " + token);
         else
@@ -68,7 +88,7 @@ void ReactionAPPLgrid::initTerm(TermData*td){
       }
     }
   }
-  catch ( const std::exception& e ) {
+  catch ( const exception& e ) {
     cerr<<"[FATAL] Unhandled exception while trying to read APPLgrid file(s) \""<<GridName<<"\"; rethrowing exception"<<endl;
     throw e;
   }
@@ -86,7 +106,7 @@ void ReactionAPPLgrid::initTerm(TermData*td){
     if(norm==1){
       data->flagNorm=true;
     }else if(norm!=0){
-      hf_errlog(17102102, "F: unrecognised norm = " + std::to_string(norm));
+      hf_errlog(17102102, "F: unrecognised norm = " + to_string(norm));
       //      hf_errlog(17102102, "F: unrecognised norm = " + norm);
     }
   }
@@ -175,7 +195,7 @@ void ReactionAPPLgrid::compute(TermData*td,valarray<double>&val,map<string,valar
 	if (grid_ckm.size()>0) // the grid is for W
 	  {
 	    // When setting CKM, keep ellements that are zero in the grid zeros (important for V_{tx})
-	    std::vector< vector<double> > loc_ckm{ {1,0,0}, {0.,1.,0}, {0.,0.,1} };
+	    vector< vector<double> > loc_ckm{ {1,0,0}, {0.,1.,0}, {0.,0.,1} };
 	    for ( int irow=0; irow<3; irow+=1)
 	      for ( int icol=0; icol<3; icol+=1)
 		loc_ckm[irow][icol] =  grid_ckm[irow][icol] == 0 ? 0 : _ckm[irow][icol];

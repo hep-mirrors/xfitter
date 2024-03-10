@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dyturbover=1.3.2
+dyturbover=1.3.3
 
 #Check for dummies
 if [[ $0 == bash || $0 = csh ]]

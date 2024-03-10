@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include "xfitter_steer.h"
 
 // the class factories
 extern "C" ReactionRT_DISNC *create()
@@ -184,8 +185,8 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0);
 
-  int threads = td->getParamI("threads");
-  if (threads == 0)
+  int threads = xfitter::xf_ncpu( td->getParamI("threads") );
+  if (threads < 2)
     {
       for (size_t i = 0; i < Np; i++)
 	{
@@ -228,7 +229,7 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
   //std::cout << " Np " << Np << " Npr " << Npr << std::endl;
   for (int P = 0; P < threads; P++)
     {
-      pid_t id = fork();
+      pid_t id = xfitter::xf_fork(threads);
       if (id == 0)
 	{
 	  close(fd[0]);
