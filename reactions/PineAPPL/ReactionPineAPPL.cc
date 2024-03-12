@@ -141,6 +141,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     size_t Ngrids = data->grids.size();
 
     // Get CMS energy (by default the one used to create the grid is used)
+    // energyRescale = energy of grid / actual energy
     if(td->hasParam("energyRescale")) {
         data->energyRescale = *td->getParamD("energyRescale");
     }
