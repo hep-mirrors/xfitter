@@ -223,14 +223,45 @@ C-------------------------------------------------------
 #include "ntot.inc"
 #include "datasets.inc"
 #include "steering.inc"
+      integer i, nf
+      character*(80) cMsg
 C Namelist for statistical correlations to read
       namelist/InCorr/NCorrFiles,CorrFileNames
 C----------------------------------------------------------
 C
 C  Read statistical correlations namelist:
 C
+C reset defaults:
+      NCorrFiles = 0
+      do i = 1,NSET
+         CorrFileNames(i) = ''
+      enddo
+C
       open (51,file='steering.txt',status='old')
       read (51,NML=InCorr,END=76,ERR=77)
+C Determine how many files to process. First count them:
+      nf = 0
+      do i =1, NSET
+         if (CorrFileNames(i).ne.'') then
+            nf = nf + 1
+         endif
+      enddo
+
+      if ( NCorrFiles.eq.0) then
+         NCorrFiles = nf       ! by default use all files
+      else
+         if (NCorrFiles.gt.nf) then
+            write (cMsg,
+     $ '(''W: NCorrFiles='',i4
+     $ ,'' exceeds actual number of correlation files='',i4,'', reset'')')
+     $           NCorrFiles, nf
+            call hf_errlog(24031201,cMsg)
+     $
+            NCorrFiles = nf
+         endif
+      endif
+      print '(''Will read '',I4,'' correlation files'')',NCorrFiles
+C---------------------
       print '(''Read '',I4,'' correlation files'')',NCorrFiles
  136  continue
       close (51)
