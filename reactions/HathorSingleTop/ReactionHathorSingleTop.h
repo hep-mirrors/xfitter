@@ -59,7 +59,9 @@ protected:
     int msMass;  //0=POLE scheme, 1=MSBAR scheme
 
     //Flags for which processes to include in the computation
-    int tchannel, schannel, Wtchannel;
+    std::map<int, int> tchannel;
+    std::map<int, int> schannel;
+    std::map<int, int> Wtchannel;
 
 
     // constants

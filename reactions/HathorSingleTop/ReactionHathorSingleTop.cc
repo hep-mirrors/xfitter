@@ -172,18 +172,18 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     }
 
     // read enabled processes. By default, enable everything
-    tchannel=1;
-    schannel=1;
-    Wtchannel=1;
-    if(td->hasParam("tSgTop") ) tchannel  = td->getParamI("tSgTop");
-    if(td->hasParam("sSgTop") ) schannel  = td->getParamI("sSgTop");
-    if(td->hasParam("WtSgTop")) Wtchannel = td->getParamI("WtSgTop");
-    if (tchannel!=1 && schannel!=1 && Wtchannel!=1) {
+    tchannel[dataSetID]=1;
+    schannel[dataSetID]=1;
+    Wtchannel[dataSetID]=1;
+    if(td->hasParam("tSgTop") ) tchannel[dataSetID]  = td->getParamI("tSgTop");
+    if(td->hasParam("sSgTop") ) schannel[dataSetID]  = td->getParamI("sSgTop");
+    if(td->hasParam("WtSgTop")) Wtchannel[dataSetID] = td->getParamI("WtSgTop");
+    if (tchannel[dataSetID]!=1 && schannel[dataSetID]!=1 && Wtchannel[dataSetID]!=1) {
         hf_errlog(21121001,"F: ERROR all channels disabled in ReactionHathorSingleTop");
 	} else {
-        if (tchannel ==0) hf_errlog(21121002,"I: Disabled t-channel processes in ReactionHathorSingleTop");
-        if (schannel ==0) hf_errlog(21121003,"I: Disabled s-channel processes in ReactionHathorSingleTop");
-        if (Wtchannel==0) hf_errlog(21121004,"I: Disabled W+t final state processes in ReactionHathorSingleTop");
+        if (tchannel[dataSetID] ==0) hf_errlog(21121002,"I: Disabled t-channel processes in ReactionHathorSingleTop");
+        if (schannel[dataSetID] ==0) hf_errlog(21121003,"I: Disabled s-channel processes in ReactionHathorSingleTop");
+        if (Wtchannel[dataSetID]==0) hf_errlog(21121004,"I: Disabled W+t final state processes in ReactionHathorSingleTop");
 	}
     
     // instantiate Hathor objects for different processes
@@ -191,15 +191,15 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     HathorSgTopS*  hathorS;
     HathorSgTopWt* hathorWt;
     vector<SgTop*> hathorChannels;
-    if (tchannel) {
+    if (tchannel[dataSetID]) {
         hathorT  = new HathorSgTopT( *_pdf);
         hathorChannels.push_back(hathorT);
     }
-    if (schannel) {
+    if (schannel[dataSetID]) {
         hathorS  = new HathorSgTopS( *_pdf);
         hathorChannels.push_back(hathorS);
     }
-    if (Wtchannel) {
+    if (Wtchannel[dataSetID]) {
         hathorWt = new HathorSgTopWt(*_pdf);
         hathorChannels.push_back(hathorWt);
     }
@@ -322,15 +322,15 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     }
 
     // done
-    if (tchannel) {
+    if (tchannel[dataSetID]) {
         hathorT->PrintOptions(); 
         _hathorTArray[dataSetID] = hathorT;
 	}
-    if (schannel) {
+    if (schannel[dataSetID]) {
         hathorS->PrintOptions(); 
         _hathorSArray[dataSetID] = hathorS;    
     }
-    if (Wtchannel) {
+    if (Wtchannel[dataSetID]) {
         hathorWt->PrintOptions();
         _hathorWtArray[dataSetID] = hathorWt;
     }
@@ -361,15 +361,15 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
     HathorSgTopWt* hathorWt;
     vector<SgTop*> hathorChannels;
 
-    if (tchannel ) {
+    if (tchannel[dataSetID] ) {
 		hathorT = _hathorTArray.at(dataSetID);
 		hathorChannels.push_back(hathorT);
 	}
-    if (schannel ) {
+    if (schannel[dataSetID] ) {
 		hathorS = _hathorSArray.at(dataSetID);
 		hathorChannels.push_back(hathorS);
 	}
-    if (Wtchannel) {
+    if (Wtchannel[dataSetID]) {
 		hathorWt = _hathorWtArray.at(dataSetID);
 		hathorChannels.push_back(hathorWt);
     }
