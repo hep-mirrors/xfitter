@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <sys/types.h>
+
 /**
      @class xfitter_steer
 
@@ -38,5 +40,9 @@ namespace xfitter
 
   //When fortran code accesses pdfs, it accesses this default evolution
   //extern BaseEvolution*defaultEvolution;
-  BaseEvolution* defaultEvolutionInstance(); 
+  BaseEvolution* defaultEvolutionInstance();
+
+  // Fork keeping track of present CPUs
+  pid_t xf_fork(int NCPU); //perform a fork, reduce the pull of CPUs (changes gParametersI["NCPUmax"])
+  const int xf_ncpu(int NCPU); // get number of CPUs which can be used, does not modify enviroment. 
 }

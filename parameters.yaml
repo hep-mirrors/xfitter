@@ -151,8 +151,8 @@ byReaction:
   APPLgrid:
     ? !include reactions/APPLgrid.yaml
   # APPLgrid settings:
-  APFELgrid:
-    ? !include reactions/APFELgrid.yaml
+  # (optional) APFELgrid module settings:
+  #  ? !include reactions/APFELgrid.yaml
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml

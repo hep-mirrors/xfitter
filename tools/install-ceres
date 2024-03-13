@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ceresver=2.1.0
+ceresver=2.2.0
 
 CURRENTDIR=`pwd`
 

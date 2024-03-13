@@ -122,7 +122,10 @@ int main(int argc, char **argv)
   
   //--------------------------------------------------
   //Create output directory
-  system(((string)"mkdir -p " + opts.outdir).c_str());
+  if (system(((string)"mkdir -p " + opts.outdir).c_str())) {
+    cout << "Failed to create output directory\n";
+    exit(1);
+  }
 
   //--------------------------------------------------
   //Fit and parameters results plots
@@ -162,7 +165,7 @@ int main(int argc, char **argv)
     }
   for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end();)
     {
-      char numb[25];
+      char numb[30];
       sprintf(numb, "ratio_%ld", it - pdfscanvasratiolist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution *opts.plotsperpage, opts.resolution * opts.plotsperpage);
       pagecnv->Divide(opts.plotsperpage, opts.plotsperpage);
@@ -184,7 +187,7 @@ int main(int argc, char **argv)
   it = datapullscanvaslist.begin();
   for (it = datapullscanvaslist.begin(); it != datapullscanvaslist.end();)
     {
-      char numb[25];
+      char numb[30];
       sprintf(numb, "data_%ld", it - datapullscanvaslist.begin());
       TCanvas * pagecnv;
       if (opts.twopanels || opts.threepanels)
@@ -220,7 +223,7 @@ int main(int argc, char **argv)
   it = shiftcanvaslist.begin();
   for (it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
     {
-      char numb[25];
+      char numb[30];
       sprintf(numb, "shift_%ld", it - shiftcanvaslist.begin());
       TCanvas * pagecnv = new TCanvas(numb, "", 0, 0, 2 * opts.resolution, (*it)->GetWindowHeight());
       (*it)->DrawClonePad();
@@ -233,7 +236,7 @@ int main(int argc, char **argv)
   it = chi2scancanvaslist.begin();
   for (it = chi2scancanvaslist.begin(); it != chi2scancanvaslist.end();)
     {
-      char numb[25];
+      char numb[30];
       sprintf(numb, "chi2scan_%ld", it - chi2scancanvaslist.begin());
       TCanvas * pagecnv;
       pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
@@ -254,7 +257,7 @@ int main(int argc, char **argv)
   it = chi2scangausscanvaslist.begin();
   for (it = chi2scangausscanvaslist.begin(); it != chi2scangausscanvaslist.end();)
     {
-      char numb[25];
+      char numb[40];
       sprintf(numb, "chi2scan_gauss_%ld", it - chi2scangausscanvaslist.begin());
       TCanvas * pagecnv;
       pagecnv = new TCanvas(numb, "", 0, 0, opts.resolution * 2, opts.resolution * 2);
@@ -294,16 +297,21 @@ int main(int argc, char **argv)
 
       if (opts.ext == "pdf")
         {
+	  int pdf1, pdf2, pdf3, pdf4, pdf5;
           for (vector <TCanvas*>::iterator it = pdfscanvaslist.begin(); it != pdfscanvaslist.end(); it++)
-            system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+            pdf1 = system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
           for (vector <TCanvas*>::iterator it = pdfscanvasratiolist.begin(); it != pdfscanvasratiolist.end(); it++)
-            system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+            pdf2 = system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
           for (vector <TCanvas*>::iterator it = datapullscanvaslist.begin(); it != datapullscanvaslist.end(); it++)
-            system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+            pdf3 = system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
           for (vector <TCanvas*>::iterator it = shiftcanvaslist.begin(); it != shiftcanvaslist.end(); it++)
-            system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+            pdf4 = system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
           for (vector <TCanvas*>::iterator it = chi2scancanvaslist.begin(); it != chi2scancanvaslist.end(); it++)
-            system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+            pdf5 = system(((string)"ps2pdf -dEPSCrop " + opts.outdir + (*it)->GetName() + ".eps " + opts.outdir + (*it)->GetName() + ".pdf").c_str());
+
+	  if (pdf1+pdf2+pdf3+pdf4+pdf5>0) {
+	    cout << "Failed some of ps2pdf conversions \n";
+	  }
         }
       cout << "Multiple " << opts.ext << " plots saved in: " << (opts.outdir + "*." + opts.ext) << endl;
     }
@@ -370,7 +378,9 @@ int main(int argc, char **argv)
   //cleanup pages
   if (!opts.splitplots)
     if (pgn > 0)
-      system(("rm " + inputfiles).c_str());
+      if (system(("rm " + inputfiles).c_str())) {
+	cout << "Failed to clean some of the temporary files\n";
+      };
 
   return 0;
 }

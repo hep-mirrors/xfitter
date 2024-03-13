@@ -9,8 +9,12 @@
 #include "ReactionAFB.h"
 #include "iostream"
 #include "cstring"
+#include <unistd.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
 #include <gsl/gsl_integration.h>
 #include "xfitter_cpp.h"
+#include "xfitter_steer.h"
 
 using namespace std;
 
@@ -27,6 +31,7 @@ double ReactionAFB::odd_photon_up, ReactionAFB::odd_photon_down, ReactionAFB::od
 
 double ReactionAFB::epsabs = 0;
 double ReactionAFB::epsrel = 1e-2;
+
 
 size_t ReactionAFB::alloc_space = 1000;
 int ReactionAFB::key_param = 6;
@@ -244,7 +249,7 @@ double ReactionAFB::uubarOF_funct (double yreduced, void * params) {
   double x2 = sqrt(z)*exp(-y);
   double dsigma_temp = pow(Minv,2)/(96*PI);
   double dsigma = GeVtofb_param*dsigma_temp*(2*Minv/pow(energy_param,2))*(-(1.0/2.0)*log(z));
-
+	
   // Partons PDFs
   std::valarray<double> pdfx1(14);
   std::valarray<double> pdfx2(14);
@@ -1609,7 +1614,7 @@ void ReactionAFB::initTerm(TermData *td)
   PI = 3.14159265;
 
   // Read default parameters
-  GeVtofb_param = pow(10, -3) * *td->getParamD("convFac");
+  GeVtofb_param = pow(10, 3) * *td->getParamD("convFac");
   alphaEM_param = *td->getParamD("alphaem");
   stheta2W_param = *td->getParamD("sin2thW");
   MZ_param = *td->getParamD("Mz");
@@ -1635,6 +1640,24 @@ void ReactionAFB::initTerm(TermData *td)
   photon_Vl = e_param*(-1.0);
   photon_Al = 0;
 
+  // parallel
+  _ncpu = td->getParamI("threads");
+  if (_ncpu == -1) {
+    _ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+    hf_errlog(2023061401,"I: Will use "+std::to_string(_ncpu)+" threads");
+  }
+}
+
+// Main function to compute results at an iteration
+void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
+{
+  td->actualizeWrappers();
+
+  auto *Minv_min  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_min"));
+  auto *Minv_max  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_max"));
+  auto *y_min  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("y_min"));
+  auto *y_max  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("y_max"));
+  
   // Z-boson couplings
   Z_Vu = (1.0/2.0)*gsm_param*(1.0/6.0)*(3*cos(smangle_param)+8*sin(smangle_param));
   Z_Au = (1.0/2.0)*gsm_param*(cos(smangle_param)/2.0);
@@ -1642,6 +1665,53 @@ void ReactionAFB::initTerm(TermData *td)
   Z_Ad = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
   Z_Vl = (1.0/2.0)*gsm_param*((-cos(smangle_param)/2.0)+(-2*sin(smangle_param)));
   Z_Al = (1.0/2.0)*gsm_param*(-cos(smangle_param)/2.0);
+  
+  // non-SM variations (as right, left)
+  double delta_Z_Ru = 0, delta_Z_Lu = 0, delta_Z_Rd = 0, delta_Z_Ld = 0; 
+  
+  if (td->hasParam("delta_Z_Ru")) {
+    delta_Z_Ru  = *td->getParamD("delta_Z_Ru");
+  }
+  
+  if (td->hasParam("delta_Z_Lu")) {
+    delta_Z_Lu  = *td->getParamD("delta_Z_Lu");   
+  }
+  
+  if (td->hasParam("delta_Z_Rd")) {
+    delta_Z_Rd  = *td->getParamD("delta_Z_Rd");
+  }
+  
+  if (td->hasParam("delta_Z_Ld")) {
+    delta_Z_Ld  = *td->getParamD("delta_Z_Ld");
+  }
+  
+  double Z_Ru = 1.0/2.0*(Z_Vu + Z_Au) + delta_Z_Ru;
+  double Z_Lu = 1.0/2.0*(Z_Vu - Z_Au) + delta_Z_Lu;
+  double Z_Rd = 1.0/2.0*(Z_Vd + Z_Ad) + delta_Z_Rd;
+  double Z_Ld = 1.0/2.0*(Z_Vd - Z_Ad) + delta_Z_Ld;
+
+  Z_Vu = Z_Ru + Z_Lu;
+  Z_Au = Z_Ru - Z_Lu;
+  Z_Vd = Z_Rd + Z_Ld;
+  Z_Ad = Z_Rd - Z_Ld;
+
+  // non-SM variations (as vector, axial)
+  if (td->hasParam("delta_Z_Vu")) {
+    double delta_Z_Vu  = *td->getParamD("delta_Z_Vu");
+    Z_Vu += delta_Z_Vu;
+  }  
+  if (td->hasParam("delta_Z_Au")) {
+    double delta_Z_Au  = *td->getParamD("delta_Z_Au");   
+    Z_Au += delta_Z_Au;
+  }
+  if (td->hasParam("delta_Z_Vd")) {
+    double delta_Z_Vd  = *td->getParamD("delta_Z_Vd");
+    Z_Vd += delta_Z_Vd;
+  }
+  if (td->hasParam("delta_Z_Ad")) {
+    double delta_Z_Ad  = *td->getParamD("delta_Z_Ad");
+    Z_Ad += delta_Z_Ad;
+  }
 
   // Even combination of couplings
   even_photon_up = (pow(photon_Vu,2)+pow(photon_Au,2))*(pow(photon_Vl,2)+pow(photon_Al,2));
@@ -1658,40 +1728,96 @@ void ReactionAFB::initTerm(TermData *td)
   odd_interf_down = (photon_Vd*Z_Ad+photon_Ad*Z_Vd)*(photon_Vl*Z_Al+photon_Al*Z_Vl);
   odd_Z_up = 4*Z_Vu*Z_Au*Z_Vl*Z_Al;
   odd_Z_down = 4*Z_Vd*Z_Ad*Z_Vl*Z_Al;
-}
-
-// Main function to compute results at an iteration
-void ReactionAFB::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
-{
-  td->actualizeWrappers();
-  
-  auto *Minv_min  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_min"));
-  auto *Minv_max  = const_cast<std::valarray<double>*>(td->getBinColumnOrNull("Minv_max"));
   
   if (Minv_min == nullptr || Minv_max == nullptr) {
     hf_errlog(19050500, "F: AFB code requires Invariant mass bins to be present");
   }
 
-  auto min = *Minv_min, max = *Minv_max;
-
-  int Npnt_min = min.size();
-  int Npnt_max = max.size();
+  int Npnt_min = Minv_min->size();
+  int Npnt_max = Minv_max->size();
 
   // check on the rapidity cut
   if (y_min_param  >= eta_cut_param) {
     hf_errlog(19050500, "F: The chosen lower rapidity cut is not compatible with acceptance cuts");
   }
-  if (y_min_param / log(energy_param/max[Npnt_max-1]) > 1) {
+  if (y_min_param / log(energy_param/(*Minv_max)[Npnt_max-1]) > 1) {
     hf_errlog(19050500, "F: The chosen lower rapidity cut is too high in this invariant mass range");
   }
 
   if (Npnt_min != Npnt_max) {
     hf_errlog(19050500, "F: uneven number of Invariant mass min and max");
-  }
+  }	
 
   // Fill the array "val[i]" with the result of the AFB function
-  for (int i = 0; i < Npnt_min; i++) {
-    double AFB_result = AFB (min[i], max[i]);
-    val[i] = AFB_result;
+  auto calc_point = [&](int i) {
+    if (y_min) {
+      y_min_param = (*y_min)[i];
+    }		
+    if (y_max) {
+      y_max_param = (*y_max)[i];
+    }
+    double AFB_result = AFB ((*Minv_min)[i], (*Minv_max)[i]);
+    return AFB_result;
+  };
+
+  int ncpu =  xfitter::xf_ncpu(_ncpu);
+  
+  if (ncpu == 1) {
+    for (int i = 0; i < Npnt_min; i++) {
+      val[i] = calc_point(i);
+    }
+  }
+  else {
+    // Shared memory for predictions
+    int shmid;
+    double* sharedArray;
+    shmid = shmget(IPC_PRIVATE, sizeof(double) * Npnt_min, IPC_CREAT | 0666);
+    if (shmid < 0) {
+      hf_errlog(2023060200,"F: Failed to create shared memory segment");
+    }
+	  sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+    if (sharedArray == reinterpret_cast<double*>(-1)) {
+      hf_errlog(2023060201,"F: Failed to attach shared memory segment");
+    }
+    // define Chunks
+    int chunkSize = Npnt_min / ncpu;
+    int reminder  = Npnt_min % ncpu; 
+    int first = 0;
+    int startIndex = 0;
+    int endIndex = 0;
+    // loop over all
+    for (int icpu = 0; icpu < min(ncpu, Npnt_min); icpu++) {
+      startIndex = endIndex;
+      endIndex   = startIndex + chunkSize;
+      if (icpu < reminder) {
+	      endIndex += 1;
+      }
+      pid_t pid = xfitter::xf_fork( min(ncpu, Npnt_min)  );
+      if ( pid == 0) {       
+        // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
+        int fdlimit = (int)sysconf(_SC_OPEN_MAX);
+        for (int i = STDERR_FILENO + 1; i < fdlimit; i++) {
+          close(i);
+        }
+        for (int i = first+startIndex; i < first+endIndex; i++) {
+          //printf("CPU %d computing %d\n", icpu, i);
+          sharedArray[i] = calc_point(i);      
+        }
+        exit(0);	    
+      }
+      else if (pid<0) {
+      	hf_errlog(2023060204,"F: Failed to create a fork process");	
+      }
+    }	
+    // Wait ...
+    int status;
+    while (wait(&status) > 0);    
+    // Store result
+    for (size_t i = 0; i<Npnt_min; i++) {
+      val[i] = sharedArray[i];
+    }    
+    // Detach and remove shared memory segments
+    shmdt(sharedArray);
+    shmctl(shmid, IPC_RMID, NULL);
   }
 }

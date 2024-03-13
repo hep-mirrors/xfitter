@@ -8,6 +8,7 @@
 #include <tuple>
 #include <algorithm>
 #include <hf_errlog.h>
+#include "xfitter_steer.h"
 
 extern "C" {
   void fcall_(double* FSHERE, double* amin, double* x0best, const double (*FCN)(double*), const double (*FUTIL)(double*));
@@ -78,6 +79,8 @@ void compute_hessian_(const int& npar,
                       const double (*FCN)(double*),
                       const double (*FUTIL)(double*))
 {
+  int ncpu = xfitter::xf_ncpu(NCPU);
+  
   const bool debug = false;
   
   const double cmult = dstep / std::sqrt(2.0);
@@ -109,7 +112,7 @@ void compute_hessian_(const int& npar,
 
 
   // we also want to save accidently found better minimum
-  int shmid5 = shmget(IPC_PRIVATE, (npar + 1) * NCPU * sizeof(double), IPC_CREAT | 0666);
+  int shmid5 = shmget(IPC_PRIVATE, (npar + 1) * ncpu * sizeof(double), IPC_CREAT | 0666);
   if (shmid5 < 0) {
     hf_errlog(202301505,"F: Shared memory allocation failed.");
   }
@@ -119,11 +122,11 @@ void compute_hessian_(const int& npar,
   double x[npar];
 
   // diagonal part, 2 calls per parameter. Loop over separately, as in iterate.
-  int chunkSize = npar / NCPU;
-  int reminder  = npar % NCPU;
+  int chunkSize = npar / ncpu;
+  int reminder  = npar % ncpu;
   int startIndex = 0;
   int endIndex = 0;
-  for (int cpu = 0; cpu < std::min(NCPU, npar); cpu++) {
+  for (int cpu = 0; cpu < std::min(ncpu, npar); cpu++) {
 
     int startIndex = endIndex;
     endIndex   = startIndex + chunkSize;
@@ -132,7 +135,7 @@ void compute_hessian_(const int& npar,
     }
 
     pid_t pid;
-    pid = fork();
+    pid = xfitter::xf_fork(ncpu);
 
     if (pid == 0) {
       for (int ipar = startIndex; ipar < endIndex; ipar += 1) {
@@ -179,7 +182,7 @@ void compute_hessian_(const int& npar,
   }
 
   // (potentially) update best minimum
-  for (int cpu = 0; cpu < std::min(NCPU, npar); cpu += 1) {
+  for (int cpu = 0; cpu < std::min(ncpu, npar); cpu += 1) {
     if (x0bestCPU[cpu * (npar + 1) + 0] < amin4) {
       if (debug) std::cout << " BETTER AMIN " << amin4 << " " << amin4 - x0bestCPU[cpu * (npar + 1) + 0] << std::endl;
       amin4 = x0bestCPU[cpu * (npar + 1) + 0];
@@ -206,12 +209,12 @@ void compute_hessian_(const int& npar,
   //  std::cout << ntot << " " <<  idN.size() << std::endl;
   ntot = idN.size();
 
-  chunkSize = ntot / NCPU;
-  reminder  = ntot % NCPU;
+  chunkSize = ntot / ncpu;
+  reminder  = ntot % ncpu;
   startIndex = 0;
   endIndex = 0;
 
-  for (int cpu = 0; cpu < std::min(NCPU, ntot); cpu++) {
+  for (int cpu = 0; cpu < std::min(ncpu, ntot); cpu++) {
 
     int startIndex = endIndex;
     endIndex   = startIndex + chunkSize;
@@ -220,7 +223,7 @@ void compute_hessian_(const int& npar,
     }
 
     pid_t pid;
-    pid = fork();
+    pid = xfitter::xf_fork(ncpu);
 
     if (pid == 0) {
       for (int idx = startIndex; idx < endIndex; idx += 1) {
@@ -280,7 +283,7 @@ void compute_hessian_(const int& npar,
   while (wait(&status) > 0);
 
   // (potentially) update best minimum
-  for (int cpu = 0; cpu < std::min(NCPU, ntot); cpu += 1) {
+  for (int cpu = 0; cpu < std::min(ncpu, ntot); cpu += 1) {
     if (x0bestCPU[cpu * (npar + 1) + 0] < amin4) {
       if (debug) std::cout << " BETTER AMIN " << amin4 << " " << amin4 - x0bestCPU[cpu * (npar + 1) + 0] << std::endl;
       amin4 = x0bestCPU[cpu * (npar + 1) + 0];
@@ -330,6 +333,9 @@ void step_method_one_(const int& npar,
                       const double (*FUTIL)(double*)
                      )
 {
+  
+  int ncpu = xfitter::xf_ncpu(NCPU);
+
   const bool debug = false;
   
   double tmp, tmpst1, tmpst2, fs1, fs2, rat1, rat2;
@@ -343,18 +349,18 @@ void step_method_one_(const int& npar,
   double* scaleShared = (double*)shmat(shmid, NULL, 0);
 
   // we also want to save accidently found better minimum
-  int shmid2 = shmget(IPC_PRIVATE, (npar + 1) * NCPU * sizeof(double), IPC_CREAT | 0666);
+  int shmid2 = shmget(IPC_PRIVATE, (npar + 1) * ncpu * sizeof(double), IPC_CREAT | 0666);
   if (shmid2 < 0) {
     hf_errlog(202301507,"F: Shared memory allocation failed.");
   }
   // npar+1 to stor amin first
   double* x0bestCPU = (double*)shmat(shmid2, NULL, 0);
 
-  int chunkSize = npar / NCPU;
-  int reminder  = npar % NCPU;
+  int chunkSize = npar / ncpu;
+  int reminder  = npar % ncpu;
   int startIndex = 0;
   int endIndex = 0;
-  for (int cpu = 0; cpu < std::min(NCPU, npar); cpu++) {
+  for (int cpu = 0; cpu < std::min(ncpu, npar); cpu++) {
 
     int startIndex = endIndex;
     endIndex   = startIndex + chunkSize;
@@ -363,7 +369,7 @@ void step_method_one_(const int& npar,
     }
 
     pid_t pid;
-    pid = fork();
+    pid = xfitter::xf_fork(ncpu);
 
     if (pid == 0) {
       for (int ipar = startIndex; ipar < endIndex; ipar += 1) {
@@ -432,7 +438,7 @@ void step_method_one_(const int& npar,
     for (int j = 0; j < npar; j++)
       scaleUmat(j, ipar, scaleShared[ipar]);
   // also update minimum, if better is found
-  for (int cpu = 0; cpu < std::min(NCPU, npar); cpu += 1) {
+  for (int cpu = 0; cpu < std::min(ncpu, npar); cpu += 1) {
     if (x0bestCPU[cpu * (npar + 1) + 0] < amin4) {
       if (debug) std::cout << " BETTER AMIN " << amin4 << " " << amin4 - x0bestCPU[cpu * (npar + 1) + 0] << std::endl;
       amin4 = x0bestCPU[cpu * (npar + 1) + 0];
@@ -461,6 +467,7 @@ void step_method_two_(const int& npar,
                       const double (*FUTIL)(double*)
                      )
 {
+  int ncpu = xfitter::xf_ncpu(NCPU);
   bool const debug = false;
   double tmvec[2];
   double x[npar];
@@ -472,18 +479,18 @@ void step_method_two_(const int& npar,
   double* scaleShared = (double*)shmat(shmid, NULL, 0);
 
   // we also want to save accidently found better minimum
-  int shmid2 = shmget(IPC_PRIVATE, (npar + 1) * NCPU * sizeof(double), IPC_CREAT | 0666);
+  int shmid2 = shmget(IPC_PRIVATE, (npar + 1) * ncpu * sizeof(double), IPC_CREAT | 0666);
   if (shmid2 < 0) {
     hf_errlog(202301509,"F: Shared memory allocation failed.");
   }
   // npar+1 to stor amin first
   double* x0bestCPU = (double*)shmat(shmid2, NULL, 0);
 
-  int chunkSize = npar / NCPU;
-  int reminder  = npar % NCPU;
+  int chunkSize = npar / ncpu;
+  int reminder  = npar % ncpu;
   int startIndex = 0;
   int endIndex = 0;
-  for (int cpu = 0; cpu < std::min(NCPU, npar); cpu++) {
+  for (int cpu = 0; cpu < std::min(ncpu, npar); cpu++) {
 
     int startIndex = endIndex;
     endIndex   = startIndex + chunkSize;
@@ -492,7 +499,7 @@ void step_method_two_(const int& npar,
     }
 
     pid_t pid;
-    pid = fork();
+    pid = xfitter::xf_fork(ncpu);
 
     if (pid == 0) {
       for (int ipar = startIndex; ipar < endIndex; ipar += 1) {
@@ -639,7 +646,7 @@ label_850:
     for (int j = 0; j < npar; j++)
       scaleUmat(j, ipar, scaleShared[ipar]);
   // also update minimum, if better is found
-  for (int cpu = 0; cpu < std::min(NCPU, npar); cpu += 1) {
+  for (int cpu = 0; cpu < std::min(ncpu, npar); cpu += 1) {
     if (x0bestCPU[cpu * (npar + 1) + 0] < amin4) {
       if (debug) std::cout << " BETTER AMIN " << amin4 << " " << amin4 - x0bestCPU[cpu * (npar + 1) + 0] << std::endl;
       amin4 = x0bestCPU[cpu * (npar + 1) + 0];

@@ -1,0 +1,71 @@
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    call fcn 1
+    set str 2
+    !migrad
+    !hesse
+    call fcn 3
+
+DefaultEvolution: proton-LHAPDF
+
+Parameters:
+  # right, left couplings
+  #delta_Z_Ru: [0.0,0.1]
+  #delta_Z_Lu: [0.0,0.1]
+  #delta_Z_Rd: [0.0,0.1]
+  #delta_Z_Ld: [0.0,0.1]
+  # one can use also vector, axial couplings
+  #delta_Z_Au: [0.0,0.1]
+  #delta_Z_Vu: [0.0,0.1]
+  #delta_Z_Ad: [0.0,0.1]
+  #delta_Z_Vd: [0.0,0.1]
+  # non-zero couplings to test that the code uses them appropriately
+  delta_Z_Ru: [0.001,0.1]
+  delta_Z_Lu: [-0.002,0.1]
+  delta_Z_Rd: [-0.003,0.1]
+  delta_Z_Ld: [0.004,0.1]
+  
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    #set: "HERAPDF20_NNLO_EIG"
+    set: "ABMP16_5_nnlo"
+    #set: "MMHT2014nnlo68cl"
+    #set: "CT18NNLO"
+    #set: "MSHT20nnlo_as118"
+    #set: "NNPDF40_nnlo_as_01180"
+    member: 0
+    
+Profiler:
+  Evolutions:
+    proton-LHAPDF:
+      #sets: [HERAPDF20_NNLO_EIG, HERAPDF20_NNLO_VAR, HERAPDF20_NNLO_VAR]
+      #members: [,[0,1,10],[0,11,13]] # when omitted, default members is [0,1,end]
+      #error_type_override: [None,hessian,symmhessian] # treat parametrisation variations (members 11-13 from HERAPDF20_NNLO_VAR) as symmetric hessian
+      #sets: [ABMP16_5_nnlo]
+      #sets: [CT18NNLO]
+      #sets: [MSHT20nnlo_as118]
+      #sets: [NNPDF40_nnlo_as_01180]
+      #members: [0,1,99]
+  #scalePdfs: 1.64
+  Status: "Off"               # "Off" to turn off profiler
+  WriteTheo: "Asymmetric"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "On"              # determine and report chi2 for each variation
+  enableExternalProfiler: "On"
+  threads: -1
+
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+
+? !include constants.yaml
+
+byReaction:
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB.yaml
+    eta_cut: 5.0
+    #threads: -1

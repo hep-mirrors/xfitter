@@ -10,6 +10,9 @@
 #include"BaseEvolution.h"
 #include"BaseMinimizer.h"
 #include "BasePdfParam.h"
+#include <unistd.h>
+
+
 using std::string;
 using std::cerr;
 
@@ -44,6 +47,51 @@ BaseEvolution*get_evolution(string name){
   }
 }
 
+  pid_t xf_fork(int NCPU) {
+    auto out = fork();
+    if (out == 0) {
+      // Get currently availiable number of CPUs
+      auto it=XFITTER_PARS::gParametersI.find("NCPUmax");
+      if(it != XFITTER_PARS::gParametersI.end()){
+	int nCPUmax = XFITTER_PARS::gParametersI.at("NCPUmax");
+	if (nCPUmax>0) {
+	  nCPUmax = nCPUmax / NCPU;
+	  if (nCPUmax == 0) {
+	    nCPUmax = 1;
+	  }
+	  XFITTER_PARS::gParametersI.at("NCPUmax") = nCPUmax;
+	}
+      }
+    }
+    return out;
+  }
+  
+  const int xf_ncpu(int NCPU) {
+    if (NCPU == 0) return 0;
+    
+    auto it=XFITTER_PARS::gParametersI.find("NCPUmax");
+    if(it != XFITTER_PARS::gParametersI.end()){
+    
+      int nCPUmax = XFITTER_PARS::gParametersI.at("NCPUmax");
+
+      // determine automatically
+      if (nCPUmax < 0) {
+	nCPUmax = sysconf(_SC_NPROCESSORS_ONLN);
+	hf_errlog(2023111601,"I: Will use "+std::to_string(nCPUmax)+" maximum nCPU");
+	XFITTER_PARS::gParametersI.at("NCPUmax") = nCPUmax;
+      }
+      
+      if (nCPUmax > 0) {
+	return min(NCPU,nCPUmax);
+      }
+      else {
+	return NCPU;
+      }
+    }
+    else {
+      return NCPU;
+    }
+  }
 }
 
 
@@ -159,3 +207,4 @@ void updateAtConfigurationChange(){
   }
 }
 }
+

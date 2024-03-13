@@ -40,6 +40,7 @@ find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
 find_package(PineAPPL)
+find_package(Ploughshare)
 
 set(CMAKE_CXX_FLAGS "-O ${CMAKE_CXX_FLAGS}")
 set(CMAKE_Fortran_FLAGS "-O ${CMAKE_Fortran_FLAGS}")

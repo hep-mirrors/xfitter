@@ -2196,8 +2196,9 @@ c$$$      COMMON/GAUS96/XI(96),WI(96),NTERMS,XX(97)
       XI(I+48)=X(I)
       WI(I+48)=W(I)
     1 CONTINUE
-      DO 2 I=1,96
-    2 XX(I)=0.5*(XI(I)+1.)
+      do I=1,96
+         XX(I)=0.5*(XI(I)+1.)
+      enddo
       XX(97)=1.0
 c$$$      EXPON=1.5D0
       EXPON=2.D0                ! G.W. 04/07/2007

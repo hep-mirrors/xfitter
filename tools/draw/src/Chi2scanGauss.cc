@@ -101,7 +101,7 @@ vector<TCanvas*> Chi2scanGauss()
 
 	      char text[200];
 	      //sprintf(text, "%s %.2f #pm %.2f", (*itl).c_str(), fg->GetParameter(1), fg->GetParameter(2));
-	      sprintf(text, "%s %s #pm %s", Round(fg->GetParameter(1), fg->GetParameter(2))[0].c_str(), Round(fg->GetParameter(1), fg->GetParameter(2))[1].c_str());
+	      sprintf(text, "%s %s #pm %s", Round(fg->GetParameter(1), fg->GetParameter(2))[0].c_str(), Round(fg->GetParameter(1), fg->GetParameter(2))[1].c_str()," ");
 	      leg->AddEntry(hg, text);
 
 	      leg1->AddEntry(hg, (*itl).c_str(), "p");

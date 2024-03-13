@@ -213,7 +213,10 @@ bool ParPainter()
     + opts.outdir + "par.out " 
     + opts.outdir + "par.snm " 
     + opts.outdir + "par.toc ";
-  system(clean.c_str());
+  if (system(clean.c_str())) {
+    cout << "Failed to remove some of the temporary files\n"; 
+  };
 
+  
   return latexcmd;
 }

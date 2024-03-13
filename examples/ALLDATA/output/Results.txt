@@ -1,4 +1,4 @@
-After minimisation    5345.67  3024     1.768
+After minimisation    5345.68  3025     1.767
 
   Partial chi2s 
 Dataset    1    547.11   377  HERA1+2 NCep 920                                
@@ -18,7 +18,7 @@ Dataset   14     17.36    27  HERA b
 Dataset   15    106.81    83  BCDMS F2p 100GeV                                
 Dataset   16     86.54    91  BCDMS F2p 120GeV                                
 Dataset   17    114.34    79  BCDMS F2p 200GeV                                
-Dataset   18     77.91    75  BCDMS F2p 280GeV                                
+Dataset   18     77.92    76  BCDMS F2p 280GeV                                
 Dataset   19     19.09    10  E866, low mass                                  
 Dataset   20     17.64    14  E866, mid mass                                  
 Dataset   21     26.94    15  E866, high mass                                 
@@ -87,7 +87,7 @@ Dataset   83      1.56     1  ATLAS 7 TeV single top t-channel, top antiquark
 Dataset   84      2.08     1  CMS 8 TeV single top t-channel, top quark       
 Dataset   85      1.56     1  CMS 8 TeV single top t-channel, top antiquark   
 
- Correlated Chi2    799.92082476480061     
+ Correlated Chi2    799.91927554138238     
  Systematic shifts          909
   
                                 Name          Shift   +/-    Error          Type
@@ -443,16 +443,16 @@ Dataset   85      1.56     1  CMS 8 TeV single top t-channel, top antiquark
   350  sysHERAcb1165                          1.6041   +/-   0.8256        :N:M:D
   351  sysHERAcb1166                         -0.9185   +/-   0.8393        :N:M:D
   352  sysHERAcb1167                          0.6638   +/-   0.9041        :N:M:D
-  353  bcdms_b                                0.9824   +/-   0.8171        :N:M:D
-  354  bcdms_s                                1.1320   +/-   0.4367        :N:M:D
-  355  bcdms_r                               -1.5343   +/-   0.2632        :N:M:D
-  356  bcdms_d                               -0.2956   +/-   0.3554        :N:M:D
-  357  bcdms_nt                              -0.4282   +/-   0.3661        :N:M:D
-  358  bcdms_na                              -0.7102   +/-   0.3708        :N:M:D
+  353  bcdms_b                                0.9810   +/-   0.8168        :N:M:D
+  354  bcdms_s                                1.1329   +/-   0.4364        :N:M:D
+  355  bcdms_r                               -1.5341   +/-   0.2632        :N:M:D
+  356  bcdms_d                               -0.2955   +/-   0.3554        :N:M:D
+  357  bcdms_nt                              -0.4281   +/-   0.3661        :N:M:D
+  358  bcdms_na                              -0.7101   +/-   0.3708        :N:M:D
   359  bcdms_nr1                              0.2917   +/-   0.3026        :N:M:D
   360  bcdms_nr2                              0.5992   +/-   0.3029        :N:M:D
-  361  bcdms_nr3                             -0.0728   +/-   0.3239        :N:M:D
-  362  bcdms_sh                              -0.3649   +/-   0.2827        :N:M:D
+  361  bcdms_nr3                             -0.0725   +/-   0.3238        :N:M:D
+  362  bcdms_sh                              -0.3651   +/-   0.2827        :N:M:D
   363  rate_dependence                       -1.1174   +/-   0.5649        :N:M:D
   364  target_length                         -0.3248   +/-   0.9789        :N:M:D
   365  beam_intensity                        -0.1624   +/-   0.9948        :N:M:D

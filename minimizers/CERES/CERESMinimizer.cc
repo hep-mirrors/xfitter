@@ -250,7 +250,7 @@ class CostFuntionrDataAndDerivative : public ceres::CostFunction {
 
         std::cout << "N CPU: " << _nCPU << std::endl;
 
-        int NCPU = _nCPU;
+        int NCPU = xf_ncpu(_nCPU);
         int chunkSize = npar / NCPU;
         int reminder  = npar % NCPU;
         int startIndex = 0;
@@ -263,7 +263,7 @@ class CostFuntionrDataAndDerivative : public ceres::CostFunction {
           if (icpu < reminder) {
             endIndex += 1;
           }
-          pid_t pid = fork();
+          pid_t pid = xf_fork(NCPU);
           if ( pid == 0) {
             for (int ipar = startIndex; ipar < endIndex; ipar += 1) {
               auto res = derivative<FUNCTORDATA>(parameters,residuals, ipar, npar, nres, result.data());

@@ -47,6 +47,8 @@ private:
   static double even_photon_up, even_photon_down, even_interf_up, even_interf_down, even_Z_up, even_Z_down;
   static double odd_photon_up, odd_photon_down, odd_interf_up, odd_interf_down, odd_Z_up, odd_Z_down;
 
+  int _ncpu;
+
   static double *propagators (double);
 
 

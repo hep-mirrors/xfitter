@@ -1,0 +1,38 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'delta_Z_Ld'   0.40000E-02  0.10000         no limits
+     2 'delta_Z_Lu'  -0.20000E-02  0.10000         no limits
+     3 'delta_Z_Rd'  -0.30000E-02  0.10000         no limits
+     4 'delta_Z_Ru'   0.10000E-02  0.10000         no limits
+ **********
+ **    1 **CALL FCN    1.000    
+ **********
+
+ FCN=   987.8943     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1  delta_Z_Ld   0.40000E-02   0.10000    
+   2  delta_Z_Lu  -0.20000E-02   0.10000    
+   3  delta_Z_Rd  -0.30000E-02   0.10000    
+   4  delta_Z_Ru   0.10000E-02   0.10000    
+ **********
+ **    2 **SET STR    2.000    
+ **********
+
+ NOW USING STRATEGY  2: MAKE SURE MINIMUM TRUE, ERRORS CORRECT  
+
+ **********
+ **    3 **!MIGRAD 
+ **********
+           UNKNOWN COMMAND IGNORED:!MIGRAD 
+ **********
+ **    4 **!HESSE 
+ **********
+           UNKNOWN COMMAND IGNORED:!HESSE 
+ **********
+ **    5 **CALL FCN    3.000    
+ **********

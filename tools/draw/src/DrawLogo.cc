@@ -27,7 +27,8 @@ string FontToUse() {
 
   process = popen("fc-match --format=%{file} LiberationSans-Regular.ttf", "r");
   if (process != NULL) {
-    fgets(buff, sizeof(buff), process);
+    if (fgets(buff, sizeof(buff), process)) {
+    }
   }
   pclose(process);
   // Reprot if found other font

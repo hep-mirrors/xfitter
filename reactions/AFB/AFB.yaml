@@ -5,3 +5,4 @@
   y_min : 0.0
   y_max : 0.0 # if set to 0 no upper y_cut
   integration : QNG
+  threads : 1
