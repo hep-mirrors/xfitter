@@ -298,7 +298,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   //graphical settings
   mg->SetTitle(((string)" ; x  ; x" + pdflabels[ipdf] + "(x," + opts.q2label + ")").c_str());
 
-  mg->Draw("A"); //need to draw with A option to create axis
+  mg->Draw("ALX"); //need to draw with A option to create axis
 
   //Set maximum and minimum
   if (mx != 0 || mn != 0)
@@ -640,7 +640,7 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   cnvr->SetTopMargin(tmarg);
 
   //graphical settings
-  mg_ratio->Draw("A"); //Create axis
+  mg_ratio->Draw("ALX"); //Create axis
   if ((opts.abserror && (mx != 0 || mn != 0)) || (!opts.abserror && (mx != 1 || mn != 1)))
     {
       mg_ratio->SetMaximum(mx);
