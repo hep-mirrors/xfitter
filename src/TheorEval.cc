@@ -379,6 +379,28 @@ void TheorEval::initReactionTerm(int iterm, valarray<double> *val, bool change_s
   else
     term_datas.push_back(term_data);
   rt->initTerm(term_data);
+  // data normalisation factor via "DATANORM" parameter
+  if (term_data->hasParam("DATANORM")) {
+    const auto& str_datanorm = term_data->getParamS("DATANORM");
+    printf("str_datanorm = %s\n", str_datanorm.c_str());
+    if (term_data->hasParam(str_datanorm)) {
+      _data_normalisation = unique_ptr<double>(new double(*term_data->getParamD(str_datanorm)));
+      string msg = "I: normalizing dataset \"" + _ds_name + "\" with \"" + str_datanorm + "\" parameter";
+      hf_errlog(24032800 + _dsId, msg);
+    }
+    else {
+      try {
+        //double val_datanorm = stod(str_datanorm);
+        _data_normalisation = unique_ptr<double>(new double(stod(str_datanorm)));
+        string msg = "I: normalizing dataset \"" + _ds_name + "\" with " + str_datanorm + " constant value";
+        hf_errlog(24032800 + _dsId, msg);
+      }
+      catch (const std::invalid_argument&) {
+        string msg = "F: data normalization factor \"" + str_datanorm + "\" is not a parameter name or double";
+        hf_errlog(24032800 + _dsId, msg);
+      }
+    }
+  }
 }
 
 void TheorEval::setBins(int nBinDim, int nPoints, int *binFlags, double *allBins,map<string,size_t>&_columnNameMap){
@@ -565,6 +587,10 @@ void TheorEval::Evaluate(valarray<double> &vte )
           for (int bin = 0; bin < _binFlags.size(); bin++)
             vte[bin] *= _normalisation/integral;
       }
+  }
+  // rescale predictions, if "DATANORM" parameter is provided
+  if (_data_normalisation) {
+    vte = vte / *_data_normalisation;
   }
 }
 
