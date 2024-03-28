@@ -319,17 +319,28 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
             //rearranging parameter list & return value to suit pineappl 
             //convolution function.
             auto xfx = [](int32_t id_in, double x, double q2, void *state) {
+                if(x >= 1.) {
+                    return 0.;
+                }
                 double pdfs[13];
                 int32_t id = id_in==21 ? 6 : id_in+6;
                 double energyRescale = *((double*)state);
-                pdf_xfxq_wrapper_(x*energyRescale, sqrt(q2), pdfs);
+                auto x_actual = x*energyRescale;
+                if(x_actual >= 1.) {
+                    return 0.;
+                }
+                pdf_xfxq_wrapper_(x_actual, sqrt(q2), pdfs);
                 return pdfs[id];
             };
             auto xfx1 = [](int32_t id_in, double x, double q2, void *state) {
                 double pdfs[13];
                 int32_t id = id_in==21 ? 6 : id_in+6;
                 double energyRescale = *((double*)state);
-                pdf_xfxq_wrapper1_(x*energyRescale, sqrt(q2), pdfs);
+                auto x_actual = x*energyRescale;
+                if(x_actual >= 1.) {
+                    return 0.;
+                }
+                pdf_xfxq_wrapper1_(x_actual, sqrt(q2), pdfs);
                 return pdfs[id];
             };
             auto alphas = [](double q2, void *state) {
