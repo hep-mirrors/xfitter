@@ -45,5 +45,7 @@ private:
   double _Qmin, _Qmax;
   /// pointer to alphas parameter
   double* _alphas;
+  /// Evolution starting scale for alphas:
+  const double* _alphas_q0;
 };
 } // namespace xfitter

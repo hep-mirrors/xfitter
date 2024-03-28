@@ -194,7 +194,11 @@ void APFEL_Evol::atStart()
   }
 
 
-  APFEL::SetAlphaQCDRef(*_alphas, *Mz);
+  _alphas_q0 = XFITTER_PARS::getParamD((_yAPFEL["alphas_Q0"]) ? _yAPFEL["alphas_Q0"].as<string>() : "alphas_Q0");
+  if (!_alphas_q0) {
+    _alphas_q0 = Mz;
+  }
+  APFEL::SetAlphaQCDRef(*_alphas, *_alphas_q0);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
   if (fragmen == "On")
   {
@@ -274,7 +278,7 @@ void APFEL_Evol::atIteration()
 {
   _Qlast = -1.;
   const double *Mz = XFITTER_PARS::getParamD("Mz");
-  APFEL::SetAlphaQCDRef(*_alphas, *Mz);
+  APFEL::SetAlphaQCDRef(*_alphas, *_alphas_q0);
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atIteration();
 }

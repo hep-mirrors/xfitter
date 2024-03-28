@@ -59,5 +59,7 @@ namespace xfitter
     double* _alphas;
     /// Evolution starting scale:
     double _Q0;
+    /// Evolution starting scale for alphas:
+    const double* _alphas_q0;
   };
 };

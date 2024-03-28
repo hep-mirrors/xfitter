@@ -120,6 +120,10 @@ namespace xfitter {
     _Q0 = *XFITTER_PARS::getParamD((yQCDNUM["Q0"]) ? yQCDNUM["Q0"].as<string>() : "Q0");
     double q20 = _Q0 * _Q0;
     _alphas = XFITTER_PARS::getParamD((yQCDNUM["alphas"]) ? yQCDNUM["alphas"].as<string>() : "alphas");
+    _alphas_q0 = XFITTER_PARS::getParamD((yQCDNUM["alphas_Q0"]) ? yQCDNUM["alphas_Q0"].as<string>() : "alphas_Q0");
+    if (!_alphas_q0) {
+      _alphas_q0 = Mz;
+    }
 
     _icheck      = yQCDNUM["ICheck"].as<int>();
     _splineOrder = yQCDNUM["SplineOrder"].as<int>();
@@ -248,8 +252,7 @@ namespace xfitter {
         hf_errlog(19070500, "W: alphas = NaN in QCDNUM, see stderr");
       }
 
-      const double MZ = *Mz;
-      QCDNUM::setalf( alS, MZ * MZ );
+      QCDNUM::setalf( alS, (*_alphas_q0) * (*_alphas_q0) );
 
       QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
     }
