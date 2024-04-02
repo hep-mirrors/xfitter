@@ -1,7 +1,7 @@
 class: QCDNUM
 xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
 xGridW  :   [1,       2,     4,   8,  16]
-Q2Grid  :   [0.99999999999,  2.05e8 ]
+Q2Grid  :   [0.99999999999,  2.05e10 ]
 Q2GridW :   [1.,     1.]
 NQ2bins :   120
 NXbins  :   200
