@@ -111,6 +111,15 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   if(td->hasParam("ppbar")) {
     calc_name += "_ppbar";
   }
+  if(td->hasParam("evolution")) {
+    calc_name += "_evolution_" + td->getParamS("evolution");
+  }
+  if(td->hasParam("evolution1")) {
+    calc_name += "_evolution1_" + td->getParamS("evolution1");
+  }
+  if(td->hasParam("evolution2")) {
+    calc_name += "_evolution2_" + td->getParamS("evolution2");
+  }
   if (_convolved.find(calc_name) != _convolved.end()) {
     val = _convolved[calc_name];
     return;
@@ -198,6 +207,9 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   if(msMass)
     scheme = scheme | Hathor::MS_MASS;
   _hathor->setScheme(scheme);
+  // number of massless flavours
+  int nf = td->hasParam("NFlavour") ? td->getParamI("NFlavour") : 5;
+  _hathor->setNf(nf);
 
   // set precision level
   // read precision level from provided dataset parameters
