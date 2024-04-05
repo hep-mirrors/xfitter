@@ -27,6 +27,7 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(ROOT)
 find_package(QCDNUM)
 find_package(LHAPDF)
 find_package(APPLgrid)
@@ -34,7 +35,6 @@ find_package(APFELgrid)
 find_package(APFEL)
 find_package(APFELxx)
 find_package(Ceres)
-include(find_package_ROOT)
 find_package(Hathor)
 find_package(DYTurbo)
 find_package(yaml)
@@ -53,17 +53,19 @@ if(OPENMP)
 endif()
 
 if(ROOT_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CFLAGS}")
+  message("ROOT FOUND")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ROOT_CC_FLAGS}")
 else()
 
-#Use c++11
-if(CMAKE_VERSION VERSION_LESS "3.1")
-  #workaround for older versions of cmake
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-else()
-  set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_STANDARD_REQUIRED YES)
-endif()
+  #Use c++11
+  if(CMAKE_VERSION VERSION_LESS "3.1")
+    #workaround for older versions of cmake
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  else()
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED YES)
+  endif()
 endif()
 
 #Use c preprocessor with fortran
