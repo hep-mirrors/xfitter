@@ -29,7 +29,7 @@ target_include_directories(xfitter-draw PRIVATE
 target_compile_definitions(xfitter-draw PRIVATE
   -DVERSION="${xFitter_VERSION}"
 )
-target_link_libraries(xfitter-draw xfitter ROOT)
+target_link_libraries(xfitter-draw xfitter  ROOT::Graf ROOT::Core ROOT::RIO ROOT::Gpad ROOT::Hist)
 #Disable warning "deprecated conversion from string constant to ‘char*’" for one source file
 #set_property(SOURCE DrawLogo.cc PROPERTY COMPILE_FLAGS "-Wnowrite-strings")
 install(TARGETS xfitter-draw DESTINATION ${DEST_BIN})

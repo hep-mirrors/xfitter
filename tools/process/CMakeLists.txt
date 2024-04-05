@@ -29,7 +29,7 @@ add_executable(xfitter-process
   ${xfitter-process_SOURCES}
   )
 
-target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml)
+target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml  ROOT::Graf ROOT::Core ROOT::RIO ROOT::Gpad ROOT::Hist)
   
 if(LHAPDF_FOUND)
   target_link_libraries(xfitter-process PRIVATE LHAPDF)
