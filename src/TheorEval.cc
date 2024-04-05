@@ -227,6 +227,67 @@ TheorEval::assignTokens(list<tToken> &sl)
         }
         continue;
       }
+      if ( term == string("concatenate") ) {
+        // concatenate all terms
+        // exemplary syntax: concatenate[T1,T2,T3]
+        t.opr = 9;
+        t.name = "concatenate";
+        t.ownsVal = false;
+        // push concatenate
+        sl.push_back(t);
+        int& narg_concatenate = sl.back().narg;
+
+        // process arguments
+        t.narg = 0;
+        t.opr = 0;
+        // format: concatenate[T1,T2,T3,...]
+        strexpr.get(c);
+        if(c != '[')
+          hf_errlog(24040500, "F: Theory expression syntax error: expected [");
+        narg_concatenate = 0;
+        bool flagDone = false;
+        while(true)
+        {
+          strexpr.get(c);
+          int nsymbols = 0;
+          term.assign(1,c);
+          while(strexpr.get(c))
+          {
+            if(c == ',' || c == ']')
+            {
+              if(nsymbols == 0)
+                hf_errlog(24040503, "F: Theory expression syntax error: error reading arguments");
+              if(c == ']')
+                flagDone = true;
+              break;
+            }
+            if (!isalnum(c))
+              hf_errlog(24040504, "F: Theory expression syntax error: error reading arguments");
+            term.append(1,c);
+            nsymbols++;
+          }
+
+          // have read new argument: push it
+          if(nsymbols > 0)
+          {
+            initReactionToken(t,term);
+            sl.push_back(t);
+            narg_concatenate++;
+            // finish reading concatenate arguments
+            if(flagDone)
+              break;
+          }
+          else
+          {
+            if(!flagDone)
+              // should not be here
+              //assert(0);
+              hf_errlog(24040501, "F: Theory expression syntax error reading concatenate arguments");
+            break;
+          }
+        }
+        continue;
+      }
       if ( term == string("norm") )
       {
         // special case for normalised expression: norm(A)=A/sum(A)
@@ -492,6 +553,26 @@ void TheorEval::Evaluate(valarray<double> &vte )
           result[p] = spline(x0[0], 1);
         }
       }
+      stk.push(result);
+    }
+    else if ( it->name == string("concatenate") )
+    {
+      // concatenate the terms
+      int narg = it->narg;
+      printf("SZ concat narg = %d\n", narg);
+      std::valarray<double> result;
+      for (int i = 0; i < narg; i++) 
+      {
+        auto term = stk.top();
+        stk.pop();
+        //std::valarray<double> result_new = std::valarray<double>(result.size() + term.size());
+        std::valarray<double> result_new = std::valarray<double>(result.size() + 1);
+        result_new[std::slice(0, result.size(), 1)] = result;
+        //result_new[std::slice(result.size(), result_new.size(), 1)] = term;
+        result_new[std::slice(result.size(), 1, 1)] = term[0];
+        result = result_new;
+      }
+      std::reverse(std::begin(result), std::end(result));
       stk.push(result);
     }
     else if ( it->name == string("norm") )
