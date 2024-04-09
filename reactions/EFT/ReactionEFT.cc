@@ -47,15 +47,25 @@ void ReactionEFT::initTerm(TermData* td) {
   if ( td->hasParam("MixedInput") ) {
     if (find_input_Q > 0) 
       hf_errlog(23052301, "F: there can be only one input in Filename/Filenames/MixedInput");
-    find_input_Q = 2;
+    find_input_Q = 2; // =1/2 for fixed/mixed input
 
     const std::string filename = td->getParamS("MixedInput");
     hf_errlog(23032801,"I: Reading EFT file "+filename);
     fname_list.push_back(filename);
   }
 
+  if ( td->hasParam("FileName") ) {
+    if (find_input_Q > 0) 
+      hf_errlog(23052301, "F: there can be only one input of Filename/Filenames/MixedInput/FileName");
+    find_input_Q = 2; // =1/2 for fixed/mixed input
+
+    const std::string filename = td->getParamS("FileName");
+    hf_errlog(23032801,"I: Reading EFT file "+filename);
+    fname_list.push_back(filename);
+  }
+
   if (find_input_Q == 0)
-    hf_errlog(23032803,"F:No EFT file specified. Input one of 'Filename/Filenames/MixedInput' for EFT terms.");
+    hf_errlog(23032803,"F:No EFT file specified. Input one of 'Filename/Filenames/MixedInput/FileName' for EFT terms.");
   else if (find_input_Q == 1)
     EFT_terms.insert(std::make_pair(ID, new EFTReader(fname_list, "fixed", this) ));
   else
