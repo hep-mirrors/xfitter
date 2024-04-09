@@ -259,74 +259,113 @@ void RawVec::FR2FA(vector<double> val_list_C) {
   }
 }
 
+///////////////////////////////////////////////////////
+#ifdef WITH_PINEAPPL
+void RawVec::convolute_PineAPPL() {
+  // 1. read the grids if necessary
+  // todo: follow Toni's code to deal with exceptions
+  if ( ! save_grid_in_memory ) {
+    for (string grid_file_name: grid_file_list) {
+      pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
+      pgrid_list.push_back(g);
+      hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
+    }
+  }
+  ////////////////////////////////////////////
+  // 2. convolute
+  // PDFs can be called with wrappers within xFitter
+  // Here we follow Toni's strategy to deal with PDFs
+  auto xfx = [](int32_t id_in, double x, double q2, void *state) {
+    double pdfs[13];
+    int32_t id = id_in==21 ? 6 : id_in+6;
+    pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
+    return pdfs[id];
+  };
+  auto alphas = [](double q2, void *state) {
+    return alphas_wrapper_(sqrt(q2));
+  };
+
+  //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
+  int shift_bins = 0;
+
+  for (auto pgrid: pgrid_list) {
+    pineappl_grid_convolute_with_one(
+				     pgrid, pdg_id,
+				     xfx, alphas,
+				     nullptr, //"state" provided to wrappers, redundant in xFitter
+				     nullptr, // order mask
+				     nullptr, // lumi mask
+				     xi_ren, xi_fac,
+				     value_list.data() + shift_bins);
+
+    shift_bins += pineappl_grid_bin_count(pgrid);
+  } // end of loop over all grid files
+
+  // 3. free the grids if necessary
+  if (! save_grid_in_memory) {
+    for (auto p: pgrid_list)
+      pineappl_grid_delete(p);
+    pgrid_list.clear();
+  }
+}
+#endif
+///////////////////////////////////////////////////////
+void RawVec::convolute_APPLgrid() {
+  // 1. read the grids if necessary
+  if ( ! save_grid_in_memory ) {
+    for (string grid_file_name: grid_file_list) {    
+	appl::grid* g = new appl::grid(grid_file_name);
+	g->trim(); // XMS: why we need this?
+	p_APPLgrid_list.push_back(g);
+	hf_errlog(24040902, "I: read APPLgrid from " + grid_file_name);
+    }
+  }
+  // 2. convolute
+  int shift_bins = 0;
+
+  td->actualizeWrappers(); // XMS: do we need this?
+  for (auto pgrid: p_APPLgrid_list) {
+    // convolute with all the APPLgrid grids, 
+    // and save the results in value_list
+    std::vector<double> result = pgrid->vconvolute(
+				   pdf_xfxq_wrapper_,
+				   pdf_xfxq_wrapper1_,
+				   alphas_wrapper_);
+    // alphas_wrapper_,
+    // order-1,muR,muF,eScale);
+    if (shift_bins + result.size() <= value_list.size()) {
+      for (size_t i = 0; i < result.size(); ++i)
+	value_list[shift_bins + i] = result[i];
+    }
+    else {
+      // error message
+    }
+
+  }
+  // 3. free the grids if necessary
+  if (! save_grid_in_memory) {
+  }
+}
+///////////////////////////////////////////////////////
 void RawVec::convolute() {
   /*
     convolute the grids with PDFs.
-    if save_grid_in_memory == False, then the grids have to be read into memory 
-    before every convolution.
-   */
+    if save_grid_in_memory == False, then the grids have to be read into memory
+    before every convolution and freed after the convolution.
 
-  // if (format != "PineAPPL") {
-  //   hf_errlog(23061201, "S: Grids other than PineAPPL are not supported yet");
-  // }
-  /////////////////////////////////////////////////////////////////////////////
-  // for PineAPPL
-  /////////////////////////////////////////////////////////////////////////////
+    results are stored in `value_list`
+   */
   if (format == "PineAPPL") {
 #ifdef WITH_PINEAPPL
-    // read the grids
-    // todo: follow Toni's code to deal with exceptions
-    if ( ! save_grid_in_memory ) {
-      for (string grid_file_name: grid_file_list) {
-	pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
-	pgrid_list.push_back(g);
-	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
-      }
-    }
-    ////////////////////////////////////////////
-    // convolute
-    ////////////////////////////////////////////
-    // PDFs can be called with wrappers within xFitter
-    // Here we follow Toni's strategy to deal with PDFs
-    auto xfx = [](int32_t id_in, double x, double q2, void *state) {
-      double pdfs[13];
-      int32_t id = id_in==21 ? 6 : id_in+6;
-      pdf_xfxq_wrapper_(x, sqrt(q2), pdfs);
-      return pdfs[id];
-    };
-    auto alphas = [](double q2, void *state) {
-      return alphas_wrapper_(sqrt(q2));
-    };
-
-    //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
-    int shift_bins = 0;
-
-    for (auto pgrid: pgrid_list) {
-      pineappl_grid_convolute_with_one(
-                         pgrid, pdg_id,
-                         xfx, alphas,
-                         nullptr, //"state" provided to wrappers, redundant in xFitter
-                         nullptr, // order mask
-                         nullptr, // lumi mask
-                         xi_ren, xi_fac,
-                         value_list.data() + shift_bins);
-
-      shift_bins += pineappl_grid_bin_count(pgrid);
-    } // end of loop over all grid files
-
-    // free the grids
-    if (! save_grid_in_memory) {
-      for (auto p: pgrid_list)
-	pineappl_grid_delete(p);
-      pgrid_list.clear();
-    }
+    convolute_PineAPPL();
 #endif
-  } // end of PineAPPL
-  /////////////////////////////////////////////////////////////////////////////
-  // for APPLgrid
-  /////////////////////////////////////////////////////////////////////////////
+  }
   else if (format == "APPLgrid") {
-    
+    hf_errlog(24040904, "S: EFT.convolute: grid format not support.");
+    convolute_APPLgrid();
+  }
+  else {
+    hf_errlog(24040904, "S: EFT.convolute: grid format not support.");
   }
 }
 
