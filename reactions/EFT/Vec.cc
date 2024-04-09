@@ -105,9 +105,8 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
   if (node["pdg_id"]) 
     setPDGId(node["pdg_id"].as<int>());
 
-
   ///////////////////////////////////////////////////////
-  // read xsec
+  // read xsec (numbers or filenames of grids)
   if (node["format"]) {
     format = node["format"].as<string>();
   }
@@ -126,7 +125,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 
       for (size_t i=0; i<num_bin; i++)
 	value_list.push_back(0.0);
-    }
+    } // FR
     else if (format == "FA") {
       value_list = node["xsec"].as<vector<double> >();
 
@@ -135,7 +134,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	cout << value_list.size() << " v.s. " <<  num_bin  << endl;
 	hf_errlog(23061521, "S: length of xsec does not match info:num_bin for entry " + key);
       }
-    }
+    } // FA
     else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid") {
       for (size_t i=0; i<num_bin; i++)
 	value_list.push_back(0.0);
@@ -154,13 +153,15 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	  hf_errlog(23091201, "S: grid file does not exist.");
 	}
       }
-    }
-    else
+    } // various grids
+    else {
       hf_errlog(23061503, "S: grid format not support for entry " + key);
+    }
   }
-  else
+  else {
     hf_errlog(23061502, "S: cross section(grids) for fixed input(mixed) not given for entry " + key);
-  // end of read cross section
+  }
+  // end of reading cross section
   ///////////////////////////////////////////////////////      
   // read grids
   // todo: check if num_bin matches
@@ -168,9 +169,12 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     for (string grid_file_name: grid_file_list) {
 
       if (format == "APPLgrid") {
-	// todo
-	// unique_ptr<appl::grid >
-	hf_errlog(24040902, "S: EFT reaction: APPLgrid support not realized");	
+	// XM: simply mimic ReactionAPPLgrid.cc without fully understand the code
+	// not tested!
+	appl::grid* g = new appl::grid(grid_file_name);
+	g->trim();
+	p_APPLgrid_list.push_back(g);
+	hf_errlog(24040902, "I: read APPLgrid from " + grid_file_name);
       }
       else if (format == "PineAPPL") {
 #ifdef WITH_PINEAPPL
@@ -181,7 +185,12 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	hf_errlog(24040901, "S: PineAPPL support is not installed");	
 #endif
       }
-
+      else if (format == "fastNLO") {
+	hf_errlog(24040903, "S: EFT reaction: fastNLO support not realized");		
+      }
+      else {
+	hf_errlog(24040904, "S: EFT reaction: grid format not supported");		
+      }
     }
   }  
   ///////////////////////////////////////////////////////      
@@ -251,14 +260,20 @@ void RawVec::FR2FA(vector<double> val_list_C) {
 }
 
 void RawVec::convolute() {
-  if (format != "PineAPPL") {
-    hf_errlog(23061201, "S: Grids other than PineAPPL are not supported yet");
-  }
-#ifdef WITH_PINEAPPL
+  /*
+    convolute the grids with PDFs.
+    if save_grid_in_memory == False, then the grids have to be read into memory 
+    before every convolution.
+   */
+
+  // if (format != "PineAPPL") {
+  //   hf_errlog(23061201, "S: Grids other than PineAPPL are not supported yet");
+  // }
   /////////////////////////////////////////////////////////////////////////////
   // for PineAPPL
   /////////////////////////////////////////////////////////////////////////////
   if (format == "PineAPPL") {
+#ifdef WITH_PINEAPPL
     // read the grids
     // todo: follow Toni's code to deal with exceptions
     if ( ! save_grid_in_memory ) {
@@ -305,12 +320,13 @@ void RawVec::convolute() {
 	pineappl_grid_delete(p);
       pgrid_list.clear();
     }
-  }
 #endif
+  } // end of PineAPPL
   /////////////////////////////////////////////////////////////////////////////
   // for APPLgrid
   /////////////////////////////////////////////////////////////////////////////
-  if (format == "APPLgrid") {
+  else if (format == "APPLgrid") {
+    
   }
 }
 

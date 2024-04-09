@@ -41,7 +41,8 @@ class RawVec {
 #ifdef WITH_PINEAPPL
   vector<pineappl_grid* > pgrid_list;
 #endif
-  vector<unique_ptr<appl::grid> > p_APPLgrid_list;
+  // vector<unique_ptr<appl::grid> > p_APPLgrid_list;
+  vector<appl::grid* > p_APPLgrid_list;
 
   ///////////////////////////////////////////////////////
   RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir, 
