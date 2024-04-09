@@ -160,24 +160,28 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
   }
   else
     hf_errlog(23061502, "S: cross section(grids) for fixed input(mixed) not given for entry " + key);
-
+  // end of read cross section
   ///////////////////////////////////////////////////////      
   // read grids
   // todo: check if num_bin matches
   if ( save_grid_in_memory ) {
-    // todo check format type
     for (string grid_file_name: grid_file_list) {
 
       if (format == "APPLgrid") {
-	
+	// todo
+	// unique_ptr<appl::grid >
+	hf_errlog(24040902, "S: EFT reaction: APPLgrid support not realized");	
       }
-#ifdef WITH_PINEAPPL
       else if (format == "PineAPPL") {
+#ifdef WITH_PINEAPPL
 	pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
 	pgrid_list.push_back(g);
 	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
-      }
+#else
+	hf_errlog(24040901, "S: PineAPPL support is not installed");	
 #endif
+      }
+
     }
   }  
   ///////////////////////////////////////////////////////      
