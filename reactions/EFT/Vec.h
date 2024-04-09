@@ -11,7 +11,9 @@
 #include <cassert>
 #include "yaml-cpp/yaml.h"
 // for fast grids
+#ifdef WITH_PINEAPPL
 #include "pineappl_capi.h"
+#endif
 #include "appl_grid/appl_grid.h"
 //--------------------------------------------------------------
 using namespace std;
@@ -36,7 +38,9 @@ class RawVec {
   double param_val1;
   double param_val2;
   vector<double> value_list; // cross sections in each bin
+#ifdef WITH_PINEAPPL
   vector<pineappl_grid* > pgrid_list;
+#endif
   vector<unique_ptr<appl::grid> > p_APPLgrid_list;
 
   ///////////////////////////////////////////////////////

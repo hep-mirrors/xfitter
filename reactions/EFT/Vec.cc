@@ -16,7 +16,9 @@
 #include "appl_grid/appl_grid.h"
 #include "TermData.h" // needed by the PDF wrappers
 // from Toni's script:
+#ifdef WITH_PINEAPPL
 #include "pineappl_capi.h"
+#endif
 #include <sstream>
 
 
@@ -165,14 +167,17 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
   if ( save_grid_in_memory ) {
     // todo check format type
     for (string grid_file_name: grid_file_list) {
-      if (format == "PineAPPL") {
+
+      if (format == "APPLgrid") {
+	
+      }
+#ifdef WITH_PINEAPPL
+      else if (format == "PineAPPL") {
 	pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
 	pgrid_list.push_back(g);
 	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
       }
-      else if (format == "APPLgrid") {
-	
-      }
+#endif
     }
   }  
   ///////////////////////////////////////////////////////      
@@ -245,6 +250,7 @@ void RawVec::convolute() {
   if (format != "PineAPPL") {
     hf_errlog(23061201, "S: Grids other than PineAPPL are not supported yet");
   }
+#ifdef WITH_PINEAPPL
   /////////////////////////////////////////////////////////////////////////////
   // for PineAPPL
   /////////////////////////////////////////////////////////////////////////////
@@ -296,8 +302,10 @@ void RawVec::convolute() {
       pgrid_list.clear();
     }
   }
+#endif
   /////////////////////////////////////////////////////////////////////////////
   // for APPLgrid
+  /////////////////////////////////////////////////////////////////////////////
   if (format == "APPLgrid") {
   }
 }
