@@ -22,7 +22,7 @@ void ReactionEFT::initTerm(TermData* td) {
   int find_input_Q = 0;
 
   //------------------------------------------------------------------
-  // construct EFTReaders
+  // construct EFTTerms
   if ( td->hasParam("FixedInput") ) {
     find_input_Q = 1;
 
@@ -62,13 +62,13 @@ void ReactionEFT::initTerm(TermData* td) {
   if (find_input_Q == 0)
     hf_errlog(23032803,"F:No EFT file specified -> FileName");
   else if (find_input_Q == 1)
-    EFT_terms.insert(std::make_pair(ID, new EFTReader(fname_list, "fixed", this) ));
+    EFT_terms.insert(std::make_pair(ID, new EFTTerm(fname_list, "fixed", this) ));
   else
-    EFT_terms.insert(std::make_pair(ID, new EFTReader(fname_list, "mixed", this) ));
+    EFT_terms.insert(std::make_pair(ID, new EFTTerm(fname_list, "mixed", this) ));
 
 
   //------------------------------------------------------------------
-  // read the list of EFT parameters
+  // read the list of EFT parameter names
   if (! td->hasParam("ListEFTParam") ) 
     hf_errlog(23061603,"S: ListEFTParam not provided");
 
@@ -112,6 +112,8 @@ void ReactionEFT::initTerm(TermData* td) {
       EFT_terms[ID]->no_central = false;
   }
 
+  // todo: xiF, xiR, LinearOnly
+
   //------------------------------------------------------------------
   // read the filenames of coefficients
   EFT_terms[ID]->readInput();
@@ -125,7 +127,7 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
 
   td->actualizeWrappers();
 
-  EFTReader* EFT_term = EFT_terms[td->id];
+  EFTTerm* EFT_term = EFT_terms[td->id];
   valarray<double> val_EFT_param(100);  
 
   int i=0;

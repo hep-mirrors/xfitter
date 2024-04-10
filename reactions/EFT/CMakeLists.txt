@@ -3,7 +3,7 @@ option(WITH_PINEAPPL "Include pineappl library support" ON)
 set(TARGET reactionEFT)
 add_library(${TARGET} MODULE 
   ReactionEFT.cc
-  EFTReader.cc
+  EFTTerm.cc
   Vec.cc
 )
 

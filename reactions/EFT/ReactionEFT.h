@@ -5,7 +5,7 @@
 
 #include "TermData.h"
 #include "ReactionTheory.h"
-#include "EFTReader.h"
+#include "EFTTerm.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -24,11 +24,11 @@
      @date 2023-05
   */
 
-// class EFTReaction : public EFTReader {
+// class EFTReaction : public EFTTerm {
 // public:
-//  EFTReaction(vector<string> fname_list, ReactionTheory* reaction) : EFTReader(fname_list, reaction) {};
+//  EFTReaction(vector<string> fname_list, ReactionTheory* reaction) : EFTTerm(fname_list, reaction) {};
 // protected:
-//   EFTReaction(vector<string> fname_list) : EFTReader(fname_list) {}; // not public!
+//   EFTReaction(vector<string> fname_list) : EFTTerm(fname_list) {}; // not public!
 // };
 
 
@@ -37,7 +37,7 @@ public:
   ReactionEFT(){};
 
 public:
-  std::map<int, EFTReader* > EFT_terms;
+  std::map<int, EFTTerm* > EFT_terms;
   //
   virtual string getReactionName() const override { return  "EFT" ;};
   virtual void initTerm(TermData* td) override final;
