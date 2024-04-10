@@ -14,6 +14,7 @@
 #ifdef WITH_PINEAPPL
 #include "pineappl_capi.h"
 #endif
+
 #include "appl_grid/appl_grid.h"
 //--------------------------------------------------------------
 using namespace std;

@@ -28,7 +28,7 @@ using namespace std;
 Vec::Vec(int type_in) {
   type = type_in;
   if (type > 3 || type < 1) {
-    hf_errlog(23051602, "S: valid type = 1,2,3 for l,q,m");
+    hf_errlog(23051602, "S: EFT: valid type = 1,2,3 for l,q,m");
   }
 }
 

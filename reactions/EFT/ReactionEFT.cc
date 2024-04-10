@@ -1,6 +1,7 @@
    /*
      @file ReactionEFT.cc
-     @date 2023-05
+     @date 2023-03
+     @author X.M. Shen
    */
 
 #include "ReactionEFT.h"
@@ -22,14 +23,17 @@ void ReactionEFT::initTerm(TermData* td) {
 
   //------------------------------------------------------------------
   // construct EFTReaders
-  if ( td->hasParam("Filename") ) {
+  if ( td->hasParam("FixedInput") ) {
     find_input_Q = 1;
 
-    const std::string filename = td->getParamS("Filename");
+    const std::string filename = td->getParamS("FixedInput");
     hf_errlog(23032801,"I: Reading EFT file "+filename);
     fname_list.push_back(filename);
   }
 
+  /* 
+  // allow for concatenation of bins in several files
+  // 2024-04-10 X.M. Shen: practically never beneficial
   if ( td->hasParam("Filenames") ) {
     if (find_input_Q > 0) 
       hf_errlog(23052301, "F: there can be only one input in Filename/Filenames/MixedInput");
@@ -43,20 +47,11 @@ void ReactionEFT::initTerm(TermData* td) {
       fname_list.push_back(filename);
     }
   }
-
-  if ( td->hasParam("MixedInput") ) {
-    if (find_input_Q > 0) 
-      hf_errlog(23052301, "F: there can be only one input in Filename/Filenames/MixedInput");
-    find_input_Q = 2; // =1/2 for fixed/mixed input
-
-    const std::string filename = td->getParamS("MixedInput");
-    hf_errlog(23032801,"I: Reading EFT file "+filename);
-    fname_list.push_back(filename);
-  }
+  */
 
   if ( td->hasParam("FileName") ) {
     if (find_input_Q > 0) 
-      hf_errlog(23052301, "F: there can be only one input of Filename/Filenames/MixedInput/FileName");
+      hf_errlog(23052301, "F: expect only one of FileName");
     find_input_Q = 2; // =1/2 for fixed/mixed input
 
     const std::string filename = td->getParamS("FileName");
@@ -65,7 +60,7 @@ void ReactionEFT::initTerm(TermData* td) {
   }
 
   if (find_input_Q == 0)
-    hf_errlog(23032803,"F:No EFT file specified. Input one of 'Filename/Filenames/MixedInput/FileName' for EFT terms.");
+    hf_errlog(23032803,"F:No EFT file specified -> FileName");
   else if (find_input_Q == 1)
     EFT_terms.insert(std::make_pair(ID, new EFTReader(fname_list, "fixed", this) ));
   else
