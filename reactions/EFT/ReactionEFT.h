@@ -46,7 +46,7 @@ public:
 protected:
   virtual int parseOptions(){ return 0;};
 private:
-  long int num_comp = 0;
+  long int num_comp = 0; // number of iterations; used for debugging and profiling
   double time_comp = 0.0;  
 };
 

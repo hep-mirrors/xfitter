@@ -64,10 +64,10 @@ void EFTTerm::readFixedInput() {
 	else {
 	  coeff.insert(std::make_pair(i, new vector<double>(coeff_node[param_name].as<std::vector<double> >() )));
 
-	  if (debug > 0) {
-	    std::cout << "=======================================================" << std::endl;
-	    std::cout << "EFTTerm.init: size of map coeff: " << coeff.size() << std::endl;
-	  }
+	  // if (debug > 0) {
+	  //   std::cout << "=======================================================" << std::endl;
+	  //   std::cout << "EFTTerm.init: size of map coeff: " << coeff.size() << std::endl;
+	  // }
 	}
       } 
       else {
@@ -116,8 +116,6 @@ void EFTTerm::readMixedInput(){
 
   // the info entry
   string grid_dir = "/";
-  double xi_ren = 1.0;
-  double xi_fac = 1.0;
   bool save_grid_Q = true;
 
   if (node["info"]) {
@@ -129,11 +127,11 @@ void EFTTerm::readMixedInput(){
     if (node["info"]["grid_dir"])
       grid_dir = node["info"]["grid_dir"].as<string>();
 
-    if (node["info"]["xi_ren"])
-      xi_ren = node["info"]["xi_ren"].as<double>();
+    // if (node["info"]["xi_ren"])
+    //   xi_ren = node["info"]["xi_ren"].as<double>();
 
-    if (node["info"]["xi_fac"])
-      xi_fac = node["info"]["xi_fac"].as<double>();
+    // if (node["info"]["xi_fac"])
+    //   xi_fac = node["info"]["xi_fac"].as<double>();
 
     if (node["info"]["save_grid_in_memory"]) {
       // char tmp = (node["info"]["save_grid_in_meomry"].as<string>())[0];
@@ -179,9 +177,10 @@ void EFTTerm::readMixedInput(){
 	hf_errlog(23070301, "S: scaling xsec asked, but array `scaling2` not provided");
     }
     ///////////////////////////////////////////////////////
-    if (node["info"]["normQ"]) {
-      normQ = node["info"]["normQ"].as<bool>();      
-    }
+    // normQ is defined in TermInfo
+    // if (node["info"]["normQ"]) {
+    //   normQ = node["info"]["normQ"].as<bool>();      
+    // }
     if (normQ) {
       if (node["info"]["binning_for_norm"]) {
 	vector<double> vecN = node["info"]["binning_for_norm"].as<vector<double> >();
@@ -199,22 +198,24 @@ void EFTTerm::readMixedInput(){
       }
     }
 
+    ///////////////////////////////////////////////////////
+    // noly available throught TermInfo now
+    // if (node["info"]["debug"])
+    //   debug = node["info"]["debug"].as<int>();
 
-    if (node["info"]["debug"])
-      debug = node["info"]["debug"].as<int>();
+    // if (node["info"]["no_central"])
+    //   no_central = node["info"]["no_central"].as<bool>();
 
-    if (node["info"]["no_central"])
-      no_central = node["info"]["no_central"].as<bool>();
-
-    if (node["info"]["abs_output"])
-      abs_output = node["info"]["abs_output"].as<bool>();
-
+    // if (node["info"]["abs_output"])
+    //   abs_output = node["info"]["abs_output"].as<bool>();
 
   }
-  else
+  else {
     hf_errlog(23060101, "F: please provide the `info` entry in the mixed input file");
+  } // end of info node
 
 
+  /////////////////////////////////////////////////////////////////////////////
   // check all other entries
   for (YAML::const_iterator it=node.begin(); it!=node.end(); ++it ) {
 
@@ -487,6 +488,7 @@ void EFTTerm::initrvec(){
 
 //------------------------------------------------------------------------------------
 void EFTTerm::initIter(valarray<double>& list_val){
+  // initialization for each term
   setValEFT(list_val);
   
   if (input_type == "mixed") {
@@ -555,9 +557,9 @@ void EFTTerm::setValEFT(valarray<double>& list_val) {
 
   if (debug > 2) {
     std::cout << "=======================================================" << std::endl;
-    std::cout << "EFTTerm.setValEFT" << std::endl;
+    std::cout << "EFTTerm.setValEFT: current values of EFT param:" << std::endl;
     for (size_t i=0; i<num_param; i++) {
-      std::cout << name_EFT_param[i] << "=" <<  val_EFT_param[i] << std::endl;
+      std::cout << name_EFT_param[i] << " = " <<  val_EFT_param[i] << std::endl;
     }
   }
 };
@@ -642,11 +644,6 @@ void EFTTerm::calcXSecMixed(valarray<double>& xsec) {
 //------------------------------------------------------------------------------------
 void EFTTerm::calcXSecFixed(valarray<double>& xsec) {
 
-  if (debug > 0) {
-    std::cout << "=======================================================" << std::endl;
-    std::cout << "EFTTerm.calcXSec: size of map coeff: " << coeff.size() << std::endl;
-  }
-
   // C
   if (no_central) {
     xsec = 0.0;
@@ -663,15 +660,15 @@ void EFTTerm::calcXSecFixed(valarray<double>& xsec) {
 	xsec[k] += (*(coeff[i+1]))[k] * val_EFT_param[i];
       }
       /////////////////////////////////
-      if (debug > 0) {
-	std::cout << "=======================================================" << std::endl;
-	std::cout << "EFTTerm.calcXSec: l:" + name_EFT_param[i] + " = " << val_EFT_param[i] << std::endl;
-	std::cout << "EFTTerm.calcXSec: new xsec=" << std::endl;
-	for (double v : xsec) {
-	  std::cout << v << ", ";
-	}
-	std::cout << std::endl;
-      }
+      // if (debug > 10) {
+      // 	std::cout << "=======================================================" << std::endl;
+      // 	std::cout << "EFTTerm.calcXSec: l:" + name_EFT_param[i] + " = " << val_EFT_param[i] << std::endl;
+      // 	std::cout << "EFTTerm.calcXSec: new xsec=" << std::endl;
+      // 	for (double v : xsec) {
+      // 	  std::cout << v << ", ";
+      // 	}
+      // 	std::cout << std::endl;
+      // }
       /////////////////////////////////
     } 
     else {
@@ -689,16 +686,16 @@ void EFTTerm::calcXSecFixed(valarray<double>& xsec) {
 	for (size_t k=0; k < num_bin; k++)
 	  xsec[k] += (*pvec)[k] * val_EFT_param[i] * val_EFT_param[j];
 	/////////////////////////////////
-	if (debug > 0) {
-	  std::cout << "=======================================================" << std::endl;
-	  std::cout << "EFTTerm.calcXSec: q/m: " << name_EFT_param[i] +  "*" + name_EFT_param[j] 
-		    << " = " << val_EFT_param[i] * val_EFT_param[j] << std::endl;
-	  std::cout << "EFTTerm.calcXSec:" << std::endl;
-	  for (double v : xsec) {
-	    std::cout << v << ", ";
-	  }
-	  std::cout << std::endl;
-	}
+	// if (debug > 10) {
+	//   std::cout << "=======================================================" << std::endl;
+	//   std::cout << "EFTTerm.calcXSec: q/m: " << name_EFT_param[i] +  "*" + name_EFT_param[j] 
+	// 	    << " = " << val_EFT_param[i] * val_EFT_param[j] << std::endl;
+	//   std::cout << "EFTTerm.calcXSec:" << std::endl;
+	//   for (double v : xsec) {
+	//     std::cout << v << ", ";
+	//   }
+	//   std::cout << std::endl;
+	// }
 	/////////////////////////////////
       }
     }

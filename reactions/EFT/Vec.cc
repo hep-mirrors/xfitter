@@ -169,12 +169,11 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     for (string grid_file_name: grid_file_list) {
 
       if (format == "APPLgrid") {
-	// XM: simply mimic ReactionAPPLgrid.cc without fully understand the code
-	// not tested!
 	appl::grid* g = new appl::grid(grid_file_name);
 	g->trim();
 	p_APPLgrid_list.push_back(g);
 	hf_errlog(24040902, "I: read APPLgrid from " + grid_file_name);
+	hf_errlog(24041104, "I: EFT: support for APPLgrid not fully tested");
       }
       else if (format == "PineAPPL") {
 #ifdef WITH_PINEAPPL
@@ -182,14 +181,15 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	pgrid_list.push_back(g);
 	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
 #else
-	hf_errlog(24040901, "S: PineAPPL support is not installed");	
+	hf_errlog(24040901, "S: PineAPPL support not available");	
 #endif
       }
       else if (format == "fastNLO") {
 	hf_errlog(24040903, "S: EFT reaction: fastNLO support not realized");		
+	hf_errlog(24041105, "I: EFT: support for fastNLO not fully tested");
       }
       else {
-	hf_errlog(24040904, "S: EFT reaction: grid format not supported");		
+	hf_errlog(24040904, "S: EFT: grid of type " + format + " not supported");
       }
     }
   }  
@@ -309,6 +309,7 @@ void RawVec::convolute_PineAPPL() {
   }
 }
 #endif
+
 ///////////////////////////////////////////////////////
 void RawVec::convolute_APPLgrid() {
   // 1. read the grids if necessary
@@ -323,22 +324,28 @@ void RawVec::convolute_APPLgrid() {
   // 2. convolute
   int shift_bins = 0;
 
-  td->actualizeWrappers(); // XMS: do we need this?
   for (auto pgrid: p_APPLgrid_list) {
     // convolute with all the APPLgrid grids, 
     // and save the results in value_list
     std::vector<double> result = pgrid->vconvolute(
 				   pdf_xfxq_wrapper_,
 				   pdf_xfxq_wrapper1_,
-				   alphas_wrapper_);
-    // alphas_wrapper_,
-    // order-1,muR,muF,eScale);
+				   alphas_wrapper_,
+				   1,xi_ren,xi_fac,1.0); // order-1,xi_ren,xi_fac,eScale);
+    /* 
+       XMS: about order, here 1=NLO(with LO)
+       ref:  xfitter/deps/applgrid-1.6.32/src/appl_grid.cxx
+             xfitter/src/xfitter_cpp_base.cc:OrderMap()
+
+       order=-1 in xfitter by default; but for APPLgrid -1=corrections_at_NLO(w/o LO)
+       otherwise LO=1 in xfitter, while for APPLgrid LO=0
+    */
     if (shift_bins + result.size() <= value_list.size()) {
       for (size_t i = 0; i < result.size(); ++i)
 	value_list[shift_bins + i] = result[i];
     }
     else {
-      // error message
+      hf_errlog(24041101, "S: EFT: number of bins larger than expected.");
     }
 
   }
@@ -346,6 +353,12 @@ void RawVec::convolute_APPLgrid() {
   if (! save_grid_in_memory) {
   }
 }
+
+///////////////////////////////////////////////////////
+void RawVec::convolute_fastNLO() {
+  // todo
+}
+
 ///////////////////////////////////////////////////////
 void RawVec::convolute() {
   /*
@@ -361,8 +374,10 @@ void RawVec::convolute() {
 #endif
   }
   else if (format == "APPLgrid") {
-    hf_errlog(24040904, "S: EFT.convolute: grid format not support.");
     convolute_APPLgrid();
+  }
+  else if (format == "fastNLO") {
+    convolute_fastNLO();
   }
   else {
     hf_errlog(24040904, "S: EFT.convolute: grid format not support.");

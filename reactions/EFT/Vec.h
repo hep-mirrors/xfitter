@@ -16,6 +16,8 @@
 #endif
 
 #include "appl_grid/appl_grid.h"
+
+// #include "fastnlotk/fastNLOReader.h" // need the fastnlotk directory under the current dir.
 //--------------------------------------------------------------
 using namespace std;
 
@@ -39,12 +41,17 @@ class RawVec {
   double param_val1;
   double param_val2;
   vector<double> value_list; // cross sections in each bin
+
+  // PinePPL grids
 #ifdef WITH_PINEAPPL
   vector<pineappl_grid* > pgrid_list;
 #endif
+  // APPLgrid grids
   // vector<unique_ptr<appl::grid> > p_APPLgrid_list;
   vector<appl::grid* > p_APPLgrid_list;
-
+  // fastNLO grids
+  // todo
+  // vector< *> p_fastNLO_list;
   ///////////////////////////////////////////////////////
   RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir, 
           double xi_ren_in, double xi_fac_in, bool save_grid_Q);
@@ -62,6 +69,9 @@ class RawVec {
   void FR2FA(vector<double> val_list_C);
 
   void convolute();
+  void convolute_PineAPPL();
+  void convolute_APPLgrid();
+  void convolute_fastNLO();
 
   void setCoeff(double val) { coeff = val; }
 

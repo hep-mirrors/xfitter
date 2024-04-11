@@ -25,6 +25,8 @@ public:
   vector<string> filename_list;
   string input_type;
 
+  double xi_ren = 1.0, xi_fac = 1.0;
+
   int debug = -1;
   bool abs_output = false;
   bool no_central = false;
