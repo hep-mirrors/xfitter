@@ -11,7 +11,7 @@ void EFTTerm::initParamName(vector<string> name_EFT_param_in){
   num_param = name_EFT_param_in.size();
 
   if (num_param > MAX_NUM_PARAM)
-    hf_errlog(23040302, "E: too many EFT parameters");
+    hf_errlog(23040302, "F: too many EFT parameters");
 
   for (string name : name_EFT_param_in) {
     name_EFT_param.push_back(name);
@@ -89,7 +89,7 @@ void EFTTerm::readFixedInput() {
 	  pvd = new vector<double>(coeff_node[param_name2].as<std::vector<double> >());
 	  found = true;
 	} else {
-	  hf_errlog(23032901, "I: EFT coefficients missing for: " + param_name1);
+	  hf_errlog(23032904, "I: EFT coefficients missing for: " + param_name1);
 	}
 
 	if (found) {
@@ -114,24 +114,20 @@ void EFTTerm::readMixedInput(){
 
   assert (node.Type() == YAML::NodeType::Map);
 
-  // the info entry
   string grid_dir = "/";
   bool save_grid_Q = true;
 
+  // the info entry
   if (node["info"]) {
+    // mandatory
     if (node["info"]["num_bin"])
       num_bin = node["info"]["num_bin"].as<size_t>();
     else
       hf_errlog(23060102, "F: please provide `num_bin` in the `info` entry");
-    
+
+    // optional:
     if (node["info"]["grid_dir"])
       grid_dir = node["info"]["grid_dir"].as<string>();
-
-    // if (node["info"]["xi_ren"])
-    //   xi_ren = node["info"]["xi_ren"].as<double>();
-
-    // if (node["info"]["xi_fac"])
-    //   xi_fac = node["info"]["xi_fac"].as<double>();
 
     if (node["info"]["save_grid_in_memory"]) {
       // char tmp = (node["info"]["save_grid_in_meomry"].as<string>())[0];
@@ -164,7 +160,7 @@ void EFTTerm::readMixedInput(){
 	std::copy(vec.begin(), vec.end(), std::begin(scaling1));
       }
       else 
-	hf_errlog(23061901, "S: scaling xsec asked, but array `scaling1` not provided");
+	hf_errlog(23061901, "F: scaling xsec asked, but array `scaling1` not provided");
     }
 
     if (scaleQ2) {
@@ -174,7 +170,7 @@ void EFTTerm::readMixedInput(){
 	std::copy(vec.begin(), vec.end(), std::begin(scaling2));
       }
       else 
-	hf_errlog(23070301, "S: scaling xsec asked, but array `scaling2` not provided");
+	hf_errlog(23070301, "F: scaling xsec asked, but array `scaling2` not provided");
     }
     ///////////////////////////////////////////////////////
     // normQ is defined in TermInfo
@@ -194,12 +190,12 @@ void EFTTerm::readMixedInput(){
 	  binning_for_norm = 1.0;
 	}
 	else
-	  hf_errlog(23062602, "S: please define `num_bin` before `normQ`.");
+	  hf_errlog(23062602, "F: num_bin should > 0.");
       }
     }
 
     ///////////////////////////////////////////////////////
-    // noly available throught TermInfo now
+    // only available through TermInfo now
     // if (node["info"]["debug"])
     //   debug = node["info"]["debug"].as<int>();
 
@@ -211,9 +207,8 @@ void EFTTerm::readMixedInput(){
 
   }
   else {
-    hf_errlog(23060101, "F: please provide the `info` entry in the mixed input file");
+    hf_errlog(23060101, "F: `info` entry missing in the EFT YAML file");
   } // end of info node
-
 
   /////////////////////////////////////////////////////////////////////////////
   // check all other entries
@@ -247,8 +242,14 @@ void EFTTerm::readMixedInput(){
     else if (type=="l" || type=="L" || type=="q" || type=="Q") {
       if (entry["param"]) {
 	param_name = entry["param"].as<string>();
-	if (find_EFT_param_id1.count(param_name) == 0) 
+
+	if (find_EFT_param_id1.count(param_name) == 0) {
+	  if (type == "l" || type == "L") {
+	    hf_errlog(24041108, "I: EFT reaction: " + param_name + " is not fitted" );
+	  }
 	  continue;
+	}
+
 	size_t id = find_EFT_param_id1[param_name];
 	if (basis.count(id) == 0) {
 	  basis.insert(make_pair(id, new Vec(1)));
@@ -290,15 +291,12 @@ void EFTTerm::readMixedInput(){
       }
     } // end of m, M
     else {
-      hf_errlog(23052402, "F: type not supported for entry " + entry_name );
+      hf_errlog(23052402, "F: EFT: unknown type for entry: " + entry_name );
     }
   } // end of loop over entries
-  //-------------------------------------------------------
-  // initialize each vec
-  //-------------------------------------------------------
-  if (prvec_C == nullptr)
-    hf_errlog(23053104, "F: central value not found in the mixed input file ");
 
+  //-------------------------------------------------------
+  // initialize each vec and raw vec
   for (size_t i=1; i<=num_param; ++i) {
     if (basis.count(i) == 0) {
       hf_errlog(23052601, "F: linear term not found for " + name_EFT_param[i-1]);
@@ -393,10 +391,11 @@ void EFTTerm::solveNol(Vec* pvecl, Vec* pvecq, RawVec* prvec1, RawVec* prvec2) {
 
   double det = c1[1]*c2[2] - c2[1]*c1[2];
   if (det == 0.0)
-    hf_errlog(23053101, "F: can not solve l/q for parameter.");
-  else if (det < 0.0001 && det > -0.0001 )
-    hf_errlog(23053102, "W: small det in solving l/q for parameter.");
+    hf_errlog(23053101, "F: EFT: can not solve l/q for " + prvec1->param_name1);
   else {
+    if (det < 0.0001 && det > -0.0001 ) {
+      hf_errlog(23053102, "W: small det in solving l/q for " + prvec1->param_name1);
+    }
     pvecl->addIng(prvec_C, (-c2[2]*c1[0] + c1[2]*c2[0]) / det );
     pvecl->addIng(prvec1, c2[2]/det);
     pvecl->addIng(prvec2, -c1[2]/det);
@@ -473,7 +472,8 @@ int EFTTerm::initm(size_t i1, size_t i2){
 //------------------------------------------------------------------------------------
 void EFTTerm::initrvec(){
 
-  assert(prvec_C != nullptr);
+  if (prvec_C == nullptr)
+    hf_errlog(23053104, "F: central value not found in the mixed input file ");
 
   if (prvec_C->format == "FA") {
     for (auto prvec: raw_basis) {

@@ -42,7 +42,7 @@ class RawVec {
   double param_val2;
   vector<double> value_list; // cross sections in each bin
 
-  // PinePPL grids
+  // PineAPPL grids
 #ifdef WITH_PINEAPPL
   vector<pineappl_grid* > pgrid_list;
 #endif
@@ -57,14 +57,6 @@ class RawVec {
           double xi_ren_in, double xi_fac_in, bool save_grid_Q);
 
   /* RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir); */
-
-  /* RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir,  */
-  /*         double xi_ren_in, double xi_fac_in, bool save_grid_Q) { */
-  /*   xi_ren = xi_ren_in; */
-  /*   xi_fac = xi_fac_in; */
-  /*   save_grid_in_memory = save_grid_Q; */
-  /*   RawVec(node, key, num_bin, grid_dir); */
-  /* } */
 
   void FR2FA(vector<double> val_list_C);
 
@@ -98,7 +90,7 @@ class Vec {
  public:
   ///////////////////////////////////////////////////////
   int type = 0;
-  // vector<ingredient> ingredients;
+
   vector<ingredient*> ingredients;
 
   ///////////////////////////////////////////////////////
