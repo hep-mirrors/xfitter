@@ -123,9 +123,9 @@ void EFTTerm::readMixedInput(){
     if (node["info"]["num_bin"])
       num_bin = node["info"]["num_bin"].as<size_t>();
     else
-      hf_errlog(23060102, "F: please provide `num_bin` in the `info` entry");
+      hf_errlog(23060102, "F: EFT: `num_bin` not found in the `info` entry");
 
-    // optional:
+    // optional arguements:
     if (node["info"]["grid_dir"])
       grid_dir = node["info"]["grid_dir"].as<string>();
 
@@ -133,9 +133,9 @@ void EFTTerm::readMixedInput(){
       // char tmp = (node["info"]["save_grid_in_meomry"].as<string>())[0];
       save_grid_Q = node["info"]["save_grid_in_memory"].as<bool>();
       if (save_grid_Q)
-	hf_errlog(23061507, "I: save grids in memory");
+	hf_errlog(23061507, "I: EFT: save grids in memory");
       else
-	hf_errlog(23061508, "I: do not save grids in memory");
+	hf_errlog(23061508, "I: EFT: read grids for each iteration");
     }
     
     if (node["info"]["rows_before_transpose"]) {
@@ -145,6 +145,7 @@ void EFTTerm::readMixedInput(){
     }
 
     ///////////////////////////////////////////////////////
+    // more optional arguements:
     if (node["info"]["scaleQ1"]) {
       scaleQ1 = node["info"]["scaleQ1"].as<bool>();      
     }
@@ -172,11 +173,9 @@ void EFTTerm::readMixedInput(){
       else 
 	hf_errlog(23070301, "F: scaling xsec asked, but array `scaling2` not provided");
     }
+
     ///////////////////////////////////////////////////////
-    // normQ is defined in TermInfo
-    // if (node["info"]["normQ"]) {
-    //   normQ = node["info"]["normQ"].as<bool>();      
-    // }
+    // more optional arguements:
     if (normQ) {
       if (node["info"]["binning_for_norm"]) {
 	vector<double> vecN = node["info"]["binning_for_norm"].as<vector<double> >();
@@ -198,12 +197,6 @@ void EFTTerm::readMixedInput(){
     // only available through TermInfo now
     // if (node["info"]["debug"])
     //   debug = node["info"]["debug"].as<int>();
-
-    // if (node["info"]["no_central"])
-    //   no_central = node["info"]["no_central"].as<bool>();
-
-    // if (node["info"]["abs_output"])
-    //   abs_output = node["info"]["abs_output"].as<bool>();
 
   }
   else {

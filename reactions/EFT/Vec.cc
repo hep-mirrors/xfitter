@@ -28,7 +28,7 @@ using namespace std;
 Vec::Vec(int type_in) {
   type = type_in;
   if (type > 3 || type < 1) {
-    hf_errlog(23051602, "S: EFT: valid type = 1,2,3 for l,q,m");
+    hf_errlog(23051602, "F: EFT: dev: unknown Vec type");
   }
 }
 
@@ -91,10 +91,10 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     else if (typeS == "M")
       type = -3;
     else
-      hf_errlog(23061505, "S: invalid type for entry " + key);
+      hf_errlog(23061505, "F: invalid type for entry " + key);
   }
   else {
-    hf_errlog(23061505, "S: type not given for entry " + key);
+    hf_errlog(23061505, "F: type not given for entry " + key);
   }
   ///////////////////////////////////////////////////////
   // read xiF, xiR, pdg_id
@@ -111,7 +111,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     format = node["format"].as<string>();
   }
   else
-    hf_errlog(23061504, "S: format not given for entry " + key);
+    hf_errlog(23061504, "F: format not given for entry " + key);
 
   if (node["xsec"]) {
     if (format == "FR") {
@@ -119,10 +119,12 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 
       if (ratio_list.size() != num_bin) {
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << ratio_list.size() << " v.s. " <<  num_bin  << endl;
-	hf_errlog(23061501, "S: length of xsec does not match info:num_bin for entry " + key);
+	cout << "Error: EFT:" << ratio_list.size() << " v.s. " <<  num_bin  << endl;
+	hf_errlog(23061501, "F: length of xsec does not match info:num_bin for entry " + key);
       }
 
+      // https://cplusplus.com/reference/vector/vector/resize/
+      // value_list.resize(num_bin, 0.0); // XMS: not tested
       for (size_t i=0; i<num_bin; i++)
 	value_list.push_back(0.0);
     } // FR
@@ -131,11 +133,12 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 
       if (value_list.size() != num_bin) {
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-	cout << value_list.size() << " v.s. " <<  num_bin  << endl;
-	hf_errlog(23061521, "S: length of xsec does not match info:num_bin for entry " + key);
+	cout << "Error: EFT:" << value_list.size() << " v.s. " <<  num_bin  << endl;
+	hf_errlog(23061521, "F: length of xsec does not match info:num_bin for entry " + key);
       }
     } // FA
     else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid") {
+      // value_list.resize(num_bin, 0.0); // XMS: not tested
       for (size_t i=0; i<num_bin; i++)
 	value_list.push_back(0.0);
 
@@ -150,16 +153,16 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 		    << grid_dir << std::endl
 		    << filename << std::endl
 		    << std::endl;
-	  hf_errlog(23091201, "S: grid file does not exist.");
+	  hf_errlog(23091201, "F: grid file does not exist.");
 	}
       }
     } // various grids
     else {
-      hf_errlog(23061503, "S: grid format not support for entry " + key);
+      hf_errlog(23061503, "F: grid format not support for entry " + key);
     }
   }
   else {
-    hf_errlog(23061502, "S: cross section(grids) for fixed input(mixed) not given for entry " + key);
+    hf_errlog(23061502, "F: cross section(grids) for fixed input(mixed) not given for entry " + key);
   }
   // end of reading cross section
   ///////////////////////////////////////////////////////      
@@ -181,15 +184,15 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	pgrid_list.push_back(g);
 	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
 #else
-	hf_errlog(24040901, "S: PineAPPL support not available");	
+	hf_errlog(24040901, "F: PineAPPL support not available");	
 #endif
       }
       else if (format == "fastNLO") {
-	hf_errlog(24040903, "S: EFT reaction: fastNLO support not realized");		
+	hf_errlog(24040903, "F: EFT reaction: fastNLO support not realized");		
 	hf_errlog(24041105, "I: EFT: support for fastNLO not fully tested");
       }
       else {
-	hf_errlog(24040904, "S: EFT: grid of type " + format + " not supported");
+	hf_errlog(24040904, "F: EFT: grid of type " + format + " not supported");
       }
     }
   }  
@@ -200,14 +203,14 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     if (node["param"]) {
       vector<string> params = node["param"].as<vector<string> >();
       if (params.size() != 2) 
-	hf_errlog(23061510, "S: check `param` for entry:" +entry);
+	hf_errlog(23061510, "F: check `param` for entry:" +entry);
       else {
 	param_name1 = params[0];
 	param_name2 = params[1];
       }
     } 
     else
-      hf_errlog(23061511, "S: `param` not found for entry:" +entry);
+      hf_errlog(23061511, "F: `param` not found for entry:" +entry);
 
     if (type == -3) {
       // value of parameters
@@ -215,14 +218,14 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	vector<double> param_vals = node["param_value"].as<vector<double> >();
 
 	if (param_vals.size() != 2) 
-	  hf_errlog(23061513, "S: `param_value` for entry:" +entry);
+	  hf_errlog(23061513, "F: `param_value` for entry:" +entry);
 	else {
 	  param_val1 = param_vals[0];
 	  param_val2 = param_vals[1];
 	}
       } 
       else
-	hf_errlog(23061511, "S: `param_value` not found for entry:" +entry);
+	hf_errlog(23061511, "F: `param_value` not found for entry:" +entry);
     }
   } // end of 3,-3
   else if (type != 0) {
@@ -230,14 +233,14 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     if (node["param"])
       param_name1 = node["param"].as<string>();
     else
-      hf_errlog(23061511, "S: `param` not found for entry:" +entry);
+      hf_errlog(23061511, "F: `param` not found for entry:" +entry);
 
     if (type < 0) {
       // value of parameter
       if (node["param_value"])
 	param_val1 = node["param_value"].as<double>();
       else
-	hf_errlog(23061511, "S: `param_value` not found for entry:" +entry);
+	hf_errlog(23061511, "F: `param_value` not found for entry:" +entry);
     }
   }
 
@@ -252,7 +255,7 @@ void RawVec::FR2FA(vector<double> val_list_C) {
   assert(format == "FR");
 
   if (value_list.size() != val_list_C.size()) 
-    hf_errlog(23061515, "S: size does not match");
+    hf_errlog(23061515, "F: size does not match");
   else {
     for (size_t i=0; i<val_list_C.size(); i++)
       value_list[i] = ratio_list[i] * val_list_C[i];
@@ -316,7 +319,7 @@ void RawVec::convolute_APPLgrid() {
   if ( ! save_grid_in_memory ) {
     for (string grid_file_name: grid_file_list) {    
 	appl::grid* g = new appl::grid(grid_file_name);
-	g->trim(); // XMS: why we need this?
+	g->trim(); // todo XMS: Do and why we need this?
 	p_APPLgrid_list.push_back(g);
 	hf_errlog(24040902, "I: read APPLgrid from " + grid_file_name);
     }
@@ -327,6 +330,7 @@ void RawVec::convolute_APPLgrid() {
   for (auto pgrid: p_APPLgrid_list) {
     // convolute with all the APPLgrid grids, 
     // and save the results in value_list
+    // XMS: todo: a new order parameter may be helpful?
     std::vector<double> result = pgrid->vconvolute(
 				   pdf_xfxq_wrapper_,
 				   pdf_xfxq_wrapper1_,
@@ -345,7 +349,7 @@ void RawVec::convolute_APPLgrid() {
 	value_list[shift_bins + i] = result[i];
     }
     else {
-      hf_errlog(24041101, "S: EFT: number of bins larger than expected.");
+      hf_errlog(24041101, "F: EFT: number of bins larger than expected.");
     }
 
   }
@@ -380,14 +384,14 @@ void RawVec::convolute() {
     convolute_fastNLO();
   }
   else {
-    hf_errlog(24040904, "S: EFT.convolute: grid format not support.");
+    hf_errlog(24040904, "F: EFT.convolute: grid format not support.");
   }
 }
 
 /////////////////////////////////
 void RawVec::increaseXSecInPlace(valarray<double>& xsec) {
   if (xsec.size() != value_list.size())
-    hf_errlog(23061516, "S: size does not match");
+    hf_errlog(23061516, "F: size does not match");
   else {
     for (size_t i=0; i<value_list.size(); i++) {
       xsec[i] += value_list[i] * coeff;

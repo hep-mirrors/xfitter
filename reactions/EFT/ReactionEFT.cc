@@ -28,7 +28,7 @@ void ReactionEFT::initTerm(TermData* td) {
   // 2024-04-10 X.M. Shen: practically never beneficial
   if ( td->hasParam("Filenames") ) {
     if (find_input_Q > 0) 
-      hf_errlog(23052301, "F: there can be only one input in Filename/Filenames/MixedInput");
+      hf_errlog(23052301, "F: there can be only one input in Filename/FileName/Filenames");
     find_input_Q = 1;
 
     const std::string filenames = td->getParamS("Filenames");
@@ -54,7 +54,7 @@ void ReactionEFT::initTerm(TermData* td) {
   }
   else if ( td->hasParam("FileName") ) {
     // if (find_input_Q > 0) 
-    //   hf_errlog(23052301, "F: expect only one of FileName");
+    //   hf_errlog(23052304, "F: expect only one of FileName");
     // find_input_Q = 2; // =1/2 for fixed/mixed input
     const std::string filename = td->getParamS("FileName");
     hf_errlog(23032801,"I: Reading EFT file "+filename);
@@ -64,7 +64,7 @@ void ReactionEFT::initTerm(TermData* td) {
     std::cout << "EFT reaction: FileName found" << std::endl;
   }
   else {
-    hf_errlog(23032803,"F:No EFT file specified -> FileName");
+    hf_errlog(23032803,"F: EFT file should be specified with FileName in TermInfo");
   }
 
   //------------------------------------------------------------------
@@ -74,7 +74,7 @@ void ReactionEFT::initTerm(TermData* td) {
     vector<string> name_EFT_param;
 
     if (list_EFT_param.size() == 0) {
-      hf_errlog(23040601,"I: list of EFT parameters is empty");
+      hf_errlog(23040601,"I: list of EFT parameters is empty. Not tested!");
     } else {
       stringstream ss(list_EFT_param);
       string param_name;
@@ -87,7 +87,7 @@ void ReactionEFT::initTerm(TermData* td) {
     std::cout << "EFT reaction: ListEFTParam found" << std::endl;
   }
   else {
-    hf_errlog(23061603,"S: ListEFTParam not provided");
+    hf_errlog(23061603,"F: ListEFTParam should be defined in TermInfo");
   }
 
   //-------------------------------------------------------
@@ -162,6 +162,7 @@ void ReactionEFT::initTerm(TermData* td) {
   EFT_terms[ID]->readInput();
 
   std::cout << "EFT reaction: initialization completed for term " << ID << std::endl;
+  std::cout << "======================================================="<< std::endl;
 }
 
 //______________________________________________________________________________
@@ -210,6 +211,7 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
 	      << duration2 << ", " 
 	      << time_comp / num_comp
 	      << std::endl;
+    std::cout << "=======================================================" << std::endl;
   } // end debug
       
 }

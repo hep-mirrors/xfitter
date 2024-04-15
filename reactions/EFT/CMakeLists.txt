@@ -1,6 +1,9 @@
-option(WITH_PINEAPPL "Include pineappl library support" ON)
-# if the PineAPPL library is not installed together with xFitter, you can still compile and use the EFT reaction partially with:
-# option(WITH_PINEAPPL "Include pineappl library support" OFF)
+if(NOT PineAPPL_FOUND)
+  option(WITH_PINEAPPL "Include pineappl library support" ON)
+else()
+  message(STATUS "PineAPPL library not found, you can still compile and use the EFT reaction partially")
+  option(WITH_PINEAPPL "Include pineappl library support" OFF)
+endif()
 
 set(TARGET reactionEFT)
 add_library(${TARGET} MODULE 
