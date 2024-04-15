@@ -1,3 +1,9 @@
+   /*
+     @file Vec.cc
+     @date 2023-03
+     @author X.M. Shen <xmshen137@gmail.com>
+   */
+
 // #include <vector>
 // #include <string>
 // #include <cstring>
@@ -14,7 +20,7 @@
 #include "BaseEvolution.h"
 
 #include "appl_grid/appl_grid.h"
-#include "TermData.h" // needed by the PDF wrappers
+#include "TermData.h" // needed by PDF wrappers
 // from Toni's script:
 #ifdef WITH_PINEAPPL
 #include "pineappl_capi.h"
@@ -121,6 +127,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
       if (num_bin <= 0) {
 	num_bin_term = ratio_list.size();
 	num_bin = num_bin_term;
+	std::cout << "EFT reaction: num_bin = " << num_bin << std::endl;
       }
       else if (ratio_list.size() != num_bin) {
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -138,6 +145,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
       if (num_bin <= 0) {
 	num_bin_term = value_list.size();
 	num_bin = num_bin_term;
+	std::cout << "EFT reaction: num_bin = " << num_bin << std::endl;
       }
       else if (value_list.size() != num_bin) {
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
@@ -167,6 +175,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
       int num_bin_grids = 0;
       for (string grid_file_name: grid_file_list) {
 	if (format == "APPLgrid") {
+	  // todo XMS: help needed. I am not familiar with APPLgrid. Why TH1D and reference?
 	  appl::grid* g = new appl::grid(grid_file_name);
 	  g->trim();
 	  num_bin_grids += g->Nobs();
@@ -177,7 +186,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
 	    hf_errlog(24041104, "I: EFT: support for APPLgrid not fully tested");
 	  }
 	  else {
-	    // todo: how to free the memory?
+	    // todo: XMS how to free the memory?
 	  }
 	}
 	else if (format == "PineAPPL") {
@@ -190,7 +199,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
 	    hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
 	  }
 	  else {
-	    // todo: free the memory
+	    pineappl_grid_delete(g);
 	  }
 #else
 	  hf_errlog(24040901, "F: PineAPPL support not available");	
@@ -207,6 +216,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
       if (num_bin <= 0) {
 	num_bin_term = num_bin_grids;
 	num_bin = num_bin_term;
+	std::cout << "EFT reaction: num_bin = " << num_bin << std::endl;
       }
       else if (num_bin_grids != num_bin) {
  	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;

@@ -41,6 +41,7 @@ public:
   //
   virtual string getReactionName() const override { return  "EFT" ;};
   virtual void initTerm(TermData* td) override final;
+  virtual void freeTerm(TermData*) override final;
   virtual void atStart() override {};
   virtual void compute(TermData*, valarray<double> &val, map<string, valarray<double> > &err) override;
 protected:

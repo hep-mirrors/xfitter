@@ -1,3 +1,9 @@
+   /*
+     @file EFTTerm.cc
+     @date 2023-03
+     @author X.M. Shen <xmshen137@gmail.com>
+   */
+
 #include <string>
 #include <cstring>
 #include "yaml-cpp/yaml.h"
@@ -75,6 +81,8 @@ void EFTTerm::readFixedInput() {
       }
     } // end of reading linear coeff.
 
+    std::cout << "EFT reaction: num_bin (from fixed input) = " << num_bin << std::endl;
+
     // read quadratic coefficients
     for (size_t i=1; i <= num_param; i++) {
       for (size_t j=i; j <= num_param; j++) {
@@ -102,7 +110,7 @@ void EFTTerm::readFixedInput() {
       }
     } // end of reading quadratic coeff.
 
-  }
+  } // loop over files
 }
 
 //------------------------------------------------------------------------------------
@@ -119,13 +127,16 @@ void EFTTerm::readMixedInput(){
 
   // the info entry
   if (node["info"]) {
-    // mandatory
-    // if (node["info"]["num_bin"])
-    //   num_bin = node["info"]["num_bin"].as<size_t>();
+
+    // num_bin is now optional, can be inferred from the xsec entry (arrays or grids)
+    if (node["info"]["num_bin"]) {
+      num_bin = node["info"]["num_bin"].as<size_t>();
+      std::cout << "EFT reaction: num_bin (from YAML file) = " << num_bin << std::endl;
+    }
     // else
     //   hf_errlog(23060102, "F: EFT: `num_bin` not found in the `info` entry");
 
-    // optional arguments:
+    // more arguments:
     if (node["info"]["grid_dir"])
       grid_dir = node["info"]["grid_dir"].as<string>();
 
@@ -139,12 +150,12 @@ void EFTTerm::readMixedInput(){
     
     if (node["info"]["rows_before_transpose"]) {
       rows_before_transpose = node["info"]["rows_before_transpose"].as<int>();
-      if ( num_bin % rows_before_transpose != 0 )
-	hf_errlog(23062001, "S: rows_before_transpose does not divide num_bin");	
+      // if ( num_bin % rows_before_transpose != 0 )
+      // 	hf_errlog(23062001, "S: rows_before_transpose does not divide num_bin");	
     }
 
     ///////////////////////////////////////////////////////
-    // more optional arguements:
+    // more arguments:
     if (node["info"]["scaleQ1"]) {
       scaleQ1 = node["info"]["scaleQ1"].as<bool>();      
     }

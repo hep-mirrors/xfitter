@@ -1,7 +1,7 @@
    /*
      @file ReactionEFT.cc
      @date 2023-03
-     @author X.M. Shen
+     @author X.M. Shen <xmshen137@gmail.com>
    */
 
 #include "ReactionEFT.h"
@@ -164,6 +164,16 @@ void ReactionEFT::initTerm(TermData* td) {
   std::cout << "EFT reaction: initialization completed for term " << ID << std::endl;
   std::cout << "======================================================="<< std::endl;
 }
+
+
+
+//______________________________________________________________________________
+void ReactionEFT::freeTerm(TermData* td) {
+  // todo
+  // pineappl_grid_delete(data->grids[i]);
+}
+
+
 
 //______________________________________________________________________________
 // Main function to compute results at an iteration
