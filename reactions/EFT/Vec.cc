@@ -63,15 +63,16 @@ void Vec::book(double val) {
 /////////////////////////////////////////////////////////////////////////////
 // RawVec
 /////////////////////////////////////////////////////////////////////////////
-RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir, 
+RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_dir, 
           double xi_ren_in, double xi_fac_in, bool save_grid_Q) {
   // key: tag for the current entry; only used for issuing errors
+  // num_bin_term: the number of bins of the EFT term. if = 0, then it should be determined here, otherwise, it serves as a check.
 
   xi_ren = xi_ren_in;
   xi_fac = xi_fac_in;
   save_grid_in_memory = save_grid_Q;
   entry = key;
-  num_bin = num_bin_in;
+  num_bin = num_bin_term;
   ///////////////////////////////////////////////////////
   // read type
   if (node["type"]) {
@@ -103,7 +104,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
   if (node["xi_fac"]) 
     setScaleFac(node["xi_fac"].as<double>());
   if (node["pdg_id"]) 
-    setPDGId(node["pdg_id"].as<int>());
+    setPDGId(node["pdg_id"].as<int>()); // todo: proton(2212) by default. not realized yet. does it support by APPLgrid?
 
   ///////////////////////////////////////////////////////
   // read xsec (numbers or filenames of grids)
@@ -117,85 +118,111 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     if (format == "FR") {
       ratio_list = node["xsec"].as<vector<double> >();
 
-      if (ratio_list.size() != num_bin) {
+      if (num_bin <= 0) {
+	num_bin_term = ratio_list.size();
+	num_bin = num_bin_term;
+      }
+      else if (ratio_list.size() != num_bin) {
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 	cout << "Error: EFT:" << ratio_list.size() << " v.s. " <<  num_bin  << endl;
-	hf_errlog(23061501, "F: length of xsec does not match info:num_bin for entry " + key);
+	hf_errlog(23061501, "F: number of bins does not match for entry " + key);
       }
 
       // https://cplusplus.com/reference/vector/vector/resize/
-      // value_list.resize(num_bin, 0.0); // XMS: not tested
-      for (size_t i=0; i<num_bin; i++)
-	value_list.push_back(0.0);
+      value_list.resize(num_bin, 0.0);
+      // for (size_t i=0; i<num_bin; i++) value_list.push_back(0.0);
     } // FR
     else if (format == "FA") {
       value_list = node["xsec"].as<vector<double> >();
 
-      if (value_list.size() != num_bin) {
+      if (num_bin <= 0) {
+	num_bin_term = value_list.size();
+	num_bin = num_bin_term;
+      }
+      else if (value_list.size() != num_bin) {
 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 	cout << "Error: EFT:" << value_list.size() << " v.s. " <<  num_bin  << endl;
-	hf_errlog(23061521, "F: length of xsec does not match info:num_bin for entry " + key);
+	hf_errlog(23061521, "F: number of bins does not match for entry " + key);
       }
     } // FA
     else if (format == "PineAPPL" || format == "fastNLO" || format == "APPLgrid") {
-      // value_list.resize(num_bin, 0.0); // XMS: not tested
-      for (size_t i=0; i<num_bin; i++)
-	value_list.push_back(0.0);
 
       for (string filename: node["xsec"].as<vector<string> >()) {
 	std::string filepath = grid_dir + "/" + filename;
 	std::ifstream file_stream(filepath);
 	if (file_stream.good()) {
 	  grid_file_list.push_back(filepath);
-	} else {
+	} 
+	else {
 	  std::cout << "grid file does not exist:"  << std::endl
 		    << filepath << std::endl
 		    << grid_dir << std::endl
 		    << filename << std::endl
 		    << std::endl;
-	  hf_errlog(23091201, "F: grid file does not exist.");
+	  hf_errlog(23091201, "F: grid file does not exist:" + filepath);
 	}
+      } // read grid filename
+
+      // check/determine num_bin; read in all the grids if save_grid_in_memory is true
+      int num_bin_grids = 0;
+      for (string grid_file_name: grid_file_list) {
+	if (format == "APPLgrid") {
+	  appl::grid* g = new appl::grid(grid_file_name);
+	  g->trim();
+	  num_bin_grids += g->Nobs();
+
+	  if (save_grid_in_memory) {
+	    p_APPLgrid_list.push_back(g);
+	    hf_errlog(24040902, "I: read APPLgrid from " + grid_file_name);
+	    hf_errlog(24041104, "I: EFT: support for APPLgrid not fully tested");
+	  }
+	  else {
+	    // todo: how to free the memory?
+	  }
+	}
+	else if (format == "PineAPPL") {
+#ifdef WITH_PINEAPPL
+	  pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
+	  num_bin_grids += pineappl_grid_bin_count(g);
+
+	  if (save_grid_in_memory) {
+	    pgrid_list.push_back(g);
+	    hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
+	  }
+	  else {
+	    // todo: free the memory
+	  }
+#else
+	  hf_errlog(24040901, "F: PineAPPL support not available");	
+#endif
+	} // pineappl
+	else if (format == "fastNLO") {
+	  hf_errlog(24040903, "F: EFT reaction: fastNLO support not realized");		
+	}
+	else {
+	  hf_errlog(24040904, "F: EFT: grid of type " + format + " not supported");
+	}
+      } // loop over grid_file_name
+
+      if (num_bin <= 0) {
+	num_bin_term = num_bin_grids;
+	num_bin = num_bin_term;
       }
+      else if (num_bin_grids != num_bin) {
+ 	cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	hf_errlog(24041501, "F: number of bins does not match for entry " + key);
+      }
+
+      value_list.resize(num_bin, 0.0);
     } // various grids
     else {
       hf_errlog(23061503, "F: grid format not support for entry " + key);
     }
-  }
+  } // node["xsec"]
   else {
-    hf_errlog(23061502, "F: cross section(grids) for fixed input(mixed) not given for entry " + key);
-  }
-  // end of reading cross section
-  ///////////////////////////////////////////////////////      
-  // read grids
-  // todo: check if num_bin matches
-  if ( save_grid_in_memory ) {
-    for (string grid_file_name: grid_file_list) {
+    hf_errlog(23061502, "F: EFT: xsec(grids) not given for entry " + key);
+  } // end of reading cross section
 
-      if (format == "APPLgrid") {
-	appl::grid* g = new appl::grid(grid_file_name);
-	g->trim();
-	p_APPLgrid_list.push_back(g);
-	hf_errlog(24040902, "I: read APPLgrid from " + grid_file_name);
-	hf_errlog(24041104, "I: EFT: support for APPLgrid not fully tested");
-      }
-      else if (format == "PineAPPL") {
-#ifdef WITH_PINEAPPL
-	pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
-	pgrid_list.push_back(g);
-	hf_errlog(23061202, "I: read PineAPPL grid from " + grid_file_name);
-#else
-	hf_errlog(24040901, "F: PineAPPL support not available");	
-#endif
-      }
-      else if (format == "fastNLO") {
-	hf_errlog(24040903, "F: EFT reaction: fastNLO support not realized");		
-	hf_errlog(24041105, "I: EFT: support for fastNLO not fully tested");
-      }
-      else {
-	hf_errlog(24040904, "F: EFT: grid of type " + format + " not supported");
-      }
-    }
-  }  
   ///////////////////////////////////////////////////////      
   // read EFT parameters
   if (type == -3 || type == 3) {
@@ -203,14 +230,14 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
     if (node["param"]) {
       vector<string> params = node["param"].as<vector<string> >();
       if (params.size() != 2) 
-	hf_errlog(23061510, "F: check `param` for entry:" +entry);
+	hf_errlog(23061510, "F: EFT: check `param` for entry:" +entry);
       else {
 	param_name1 = params[0];
 	param_name2 = params[1];
       }
     } 
     else
-      hf_errlog(23061511, "F: `param` not found for entry:" +entry);
+      hf_errlog(23061511, "F: EFT: `param` not found for entry:" +entry);
 
     if (type == -3) {
       // value of parameters
@@ -243,7 +270,6 @@ RawVec::RawVec (YAML::Node node, string key, size_t num_bin_in, string grid_dir,
 	hf_errlog(23061511, "F: `param_value` not found for entry:" +entry);
     }
   }
-
 
 } // end of constructor
 

@@ -30,6 +30,7 @@ class RawVec {
   double xi_ren = 1.0; // renom. scale
   double xi_fac = 1.0; // fact. scale
   size_t num_bin;
+  // size_t* p_num_bin = &num_bin;
   bool save_grid_in_memory = true;
 
  public:
@@ -53,7 +54,7 @@ class RawVec {
   // todo
   // vector< *> p_fastNLO_list;
   ///////////////////////////////////////////////////////
-  RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir, 
+  RawVec (YAML::Node node, string key, size_t & num_bin, string grid_dir, 
           double xi_ren_in, double xi_fac_in, bool save_grid_Q);
 
   /* RawVec (YAML::Node node, string key, size_t num_bin, string grid_dir); */

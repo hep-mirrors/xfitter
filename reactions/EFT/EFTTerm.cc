@@ -120,17 +120,16 @@ void EFTTerm::readMixedInput(){
   // the info entry
   if (node["info"]) {
     // mandatory
-    if (node["info"]["num_bin"])
-      num_bin = node["info"]["num_bin"].as<size_t>();
-    else
-      hf_errlog(23060102, "F: EFT: `num_bin` not found in the `info` entry");
+    // if (node["info"]["num_bin"])
+    //   num_bin = node["info"]["num_bin"].as<size_t>();
+    // else
+    //   hf_errlog(23060102, "F: EFT: `num_bin` not found in the `info` entry");
 
-    // optional arguements:
+    // optional arguments:
     if (node["info"]["grid_dir"])
       grid_dir = node["info"]["grid_dir"].as<string>();
 
     if (node["info"]["save_grid_in_memory"]) {
-      // char tmp = (node["info"]["save_grid_in_meomry"].as<string>())[0];
       save_grid_Q = node["info"]["save_grid_in_memory"].as<bool>();
       if (save_grid_Q)
 	hf_errlog(23061507, "I: EFT: save grids in memory");
@@ -183,13 +182,14 @@ void EFTTerm::readMixedInput(){
 	std::copy(vecN.begin(), vecN.end(), std::begin(binning_for_norm));
       }
       else {
-	hf_errlog(23062601, "I: `binning_for_norm` not provided, assumed to be 1.");
-	if (num_bin > 0) {
-	  binning_for_norm.resize(num_bin);
-	  binning_for_norm = 1.0;
-	}
-	else
-	  hf_errlog(23062602, "F: num_bin should > 0.");
+	hf_errlog(24041503, "F: `binning_for_norm` is mandatory if normQ = True");
+	// hf_errlog(23062601, "I: `binning_for_norm` not provided, assumed to be 1.");
+	// if (num_bin > 0) {
+	//   binning_for_norm.resize(num_bin);
+	//   binning_for_norm = 1.0;
+	// }
+	// else
+	//   hf_errlog(23062602, "F: num_bin should > 0.");
       }
     }
 
@@ -224,6 +224,11 @@ void EFTTerm::readMixedInput(){
       type = entry["type"].as<string>(); // use string instead of char for future extension
     else
       hf_errlog(23052303, "F: type not given for entry " + entry_name );
+
+    // 
+    // if (num_bin <= 0) {
+    //   num_bin = readNumBin(entry, entry_name);
+    // }
 
     // C term
     if (type == "C") {
@@ -696,3 +701,4 @@ void EFTTerm::calcXSecFixed(valarray<double>& xsec) {
 
   // return xsec;
 }
+
