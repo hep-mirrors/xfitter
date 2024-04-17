@@ -21,6 +21,11 @@ endif()
 
 if (ROOT_FOUND)
   list(APPEND xfitter-process_SOURCES rootplot.cc)
+  if (ROOT_VERSION VERSION_GREATER 6.30.05)
+    target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml  ROOT::Graf ROOT::Core ROOT::RIO ROOT::Gpad ROOT::Hist)
+  else()
+    target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml  ROOT)
+  endif()
 else()
   list(APPEND xfitter-process_SOURCES rootplot_dummy.cc)
 endif()
@@ -28,12 +33,6 @@ endif()
 add_executable(xfitter-process
   ${xfitter-process_SOURCES}
   )
-
-if (ROOT_VERSION VERSION_GREATER 6.30.05)
-  target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml  ROOT::Graf ROOT::Core ROOT::RIO ROOT::Gpad ROOT::Hist)
-else()
-  target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml  ROOT)
-endif()
 
 if(LHAPDF_FOUND)
   target_link_libraries(xfitter-process PRIVATE LHAPDF)
