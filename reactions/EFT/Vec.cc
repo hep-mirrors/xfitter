@@ -383,14 +383,17 @@ void RawVec::convolute_APPLgrid() {
     if (shift_bins + result.size() <= value_list.size()) {
       for (size_t i = 0; i < result.size(); ++i)
 	value_list[shift_bins + i] = result[i];
+      shift_bins += pgrid->Nobs();
     }
     else {
       hf_errlog(24041101, "F: EFT: number of bins larger than expected.");
     }
 
   }
+
   // 3. free the grids if necessary
   if (! save_grid_in_memory) {
+    // todo
   }
 }
 

@@ -186,6 +186,7 @@ void EFTTerm::readMixedInput(){
 
     ///////////////////////////////////////////////////////
     // more optional arguements:
+    // to be deprecated; use sum() + KFactor reaction instead
     if (normQ) {
       if (node["info"]["binning_for_norm"]) {
 	vector<double> vecN = node["info"]["binning_for_norm"].as<vector<double> >();
@@ -203,12 +204,6 @@ void EFTTerm::readMixedInput(){
 	//   hf_errlog(23062602, "F: num_bin should > 0.");
       }
     }
-
-    ///////////////////////////////////////////////////////
-    // only available through TermInfo now
-    // if (node["info"]["debug"])
-    //   debug = node["info"]["debug"].as<int>();
-
   }
   else {
     hf_errlog(23060101, "F: `info` entry missing in the EFT YAML file");
@@ -236,11 +231,6 @@ void EFTTerm::readMixedInput(){
     else
       hf_errlog(23052303, "F: type not given for entry " + entry_name );
 
-    // 
-    // if (num_bin <= 0) {
-    //   num_bin = readNumBin(entry, entry_name);
-    // }
-
     // C term
     if (type == "C") {
       assert (prvec_C == nullptr);
@@ -254,7 +244,8 @@ void EFTTerm::readMixedInput(){
 
 	if (find_EFT_param_id1.count(param_name) == 0) {
 	  if (type == "l" || type == "L") {
-	    hf_errlog(24041108, "I: EFT reaction: " + param_name + " is not fitted" );
+	    hf_errlog(24041108, "I: EFT reaction: " + param_name + " not fitted" );
+	    std::cout << "EFT reaction: warning: " + param_name + " will not be fitted" << std::endl;
 	  }
 	  continue;
 	}
@@ -440,6 +431,9 @@ int EFTTerm::initm(size_t i1, size_t i2){
   if (basis.count(im) == 0) {
     hf_errlog(23052603, "I: mixed term not found: " 
 	      + name_EFT_param[i1-1] + "*" + name_EFT_param[i2-1]);
+
+    std::cout << "EFT reaction: info: mixed term not found: " + name_EFT_param[i1-1] + "*" + name_EFT_param[i2-1] << endl;
+
     return 0;
   }
 

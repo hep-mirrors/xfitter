@@ -135,13 +135,14 @@ void ReactionEFT::initTerm(TermData* td) {
     string s1 = td->getParamS("Norm");
     if (s1[0] == 'T' || s1[0] == 't') {
       EFT_terms[ID]->normQ = true;
-      std::cout << "EFT reaction: set Normalization = true" << std::endl; 
+      // std::cout << "EFT reaction: set Normalization = true" << std::endl; 
+      std::cout << "EFT reaction: Warning: deprecated: normalization can be done with sum() (+KFactor)" << std::endl; 
     }
-    else
-      std::cout << "EFT reaction: set Normalization = false" << std::endl; 
+    // else
+    //   std::cout << "EFT reaction: set Normalization = false" << std::endl; 
   }
-  else
-    std::cout << "EFT reaction: Norm not set, = false by default" << std::endl;    
+  // else
+  //  std::cout << "EFT reaction: Norm not set, = false by default" << std::endl;    
 
   if ( td->hasParam("xiR") ) {
     EFT_terms[ID]->xi_ren = *(td->getParamD("xiR"));
@@ -162,7 +163,7 @@ void ReactionEFT::initTerm(TermData* td) {
   EFT_terms[ID]->readInput();
 
   std::cout << "EFT reaction: initialization completed for term " << ID << std::endl;
-  std::cout << "======================================================="<< std::endl;
+  std::cout << "=================================================================="<< std::endl;
 }
 
 
