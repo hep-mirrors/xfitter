@@ -24,7 +24,7 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 #Find packages
 #see cmake/FindXXX.cmake for find scripts
 #TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
-find_package(ROOT REQUIRED)
+find_package(ROOT)
 if (ROOT_VERSION VERSION_GREATER 6.30.05)
   message(STATUS "Using ROOT package")
 else()
