@@ -25,12 +25,10 @@ else()
   list(APPEND xfitter-process_SOURCES rootplot_dummy.cc)
 endif()
 
-if (ROOT_FOUND)
-  if (ROOT_VERSION VERSION_GREATER 6.30.05)
-    target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml  ROOT::Graf ROOT::Core ROOT::RIO ROOT::Gpad ROOT::Hist)
-  else()
-    target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml  ROOT)
-  endif()
+if ((ROOT_FOUND) AND (ROOT_VERSION VERSION_GREATER 6.30.05))
+    target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml ROOT::Graf ROOT::Core ROOT::RIO ROOT::Gpad ROOT::Hist)
+else()
+  target_link_libraries(xfitter-process PRIVATE xfitter pdf2yaml yaml)
 endif()
 
 add_executable(xfitter-process
