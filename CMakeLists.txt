@@ -24,10 +24,17 @@ set(DEST_YAML share/xfitter) #YAML configuration files
 #Find packages
 #see cmake/FindXXX.cmake for find scripts
 #TODO: rewrite find modules to use cmake caching to speed up subsequent configuration
+find_package(ROOT REQUIRED)
+if (ROOT_VERSION VERSION_GREATER 6.30.05)
+  message(STATUS "Using ROOT package")
+else()
+  # Include custom find_package_ROOT module
+  include(find_package_ROOT)
+  message(STATUS "Using custom ROOT setup")
+endif()
 find_package(GSL REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(yaml-cpp REQUIRED)
-find_package(ROOT)
 find_package(QCDNUM)
 find_package(LHAPDF)
 find_package(APPLgrid)
