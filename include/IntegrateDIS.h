@@ -1,6 +1,8 @@
 #ifndef __INTEGRATEDIS_H
 #define __INTEGRATEDIS_H
 #include <valarray>
+#include <string>
+class TermData;
 
 // Class used by ReactionBaseDISNC and ReactionBaseDISCC for integrating DIS cross sections
 // and providing them over Q2, y, x ranges.
@@ -24,14 +26,16 @@ class IntegrateDIS
     std::valarray<double> _deltaq2;
     std::valarray<double> _deltax;
 
-  public:
-    //IntegrateDIS();
-
-    // initialise integrated cross section for one dataset, return number of subbins
-    int init(const double s,
+    int _init(const std::valarray<double>* sp,
              const std::valarray<double>* q2minp, const std::valarray<double>* q2maxp,
              const std::valarray<double>* yminp, const std::valarray<double>* ymaxp,
              const std::valarray<double>* xminp, const std::valarray<double>* xmaxp);
+
+  public:
+    //IntegrateDIS();
+
+    // try to initialise integrated cross section for one dataset, return true on success
+    bool init_from_td(TermData* td, bool isReduced, std::string& msg);
 
     // calculate integrated cross sections by integrating over subbins
     std::valarray<double> compute(const std::valarray<double>& val);
@@ -40,5 +44,8 @@ class IntegrateDIS
     std::valarray<double>* getBinValuesQ2() { return &_q2; }
     std::valarray<double>* getBinValuesX() { return &_x; }
     std::valarray<double>* getBinValuesY() { return &_y; }
+
+    // get number of bins
+    size_t getNPoints() {return _q2.size();};
 };
 #endif

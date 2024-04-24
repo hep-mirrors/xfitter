@@ -2,14 +2,69 @@
 #include <xfitter_cpp_base.h>
 #include <cassert>
 #include <iostream>
+#include <TermData.h>
 using std::cerr;
 using std::endl;
 
-int IntegrateDIS::init(const double s,
+//IntegrateDIS* IntegrateDIS::init_from_td(TermData* td, string& msg) {
+bool IntegrateDIS::init_from_td(TermData* td, bool isReduced, std::string& msg) {
+  // bins
+  // if Q2min, Q2max, ymin and ymax (and optionally xmin, xmax) are provided, integrated cross sections are calculated
+  auto *q2minp = td->getBinColumnOrNull("Q2min");
+  auto *q2maxp = td->getBinColumnOrNull("Q2max");
+  // also try small first letter for Q2 (for backward compatibility)
+  if (!q2minp)
+    q2minp = td->getBinColumnOrNull("q2min");
+  if (!q2maxp)
+    q2maxp = td->getBinColumnOrNull("q2max");
+  auto *yminp = td->getBinColumnOrNull("ymin");
+  auto *ymaxp = td->getBinColumnOrNull("ymax");
+  // optional xmin, xmax for integrated cross sections
+  auto *xminp = td->getBinColumnOrNull("xmin");
+  auto *xmaxp = td->getBinColumnOrNull("xmax");
+  // check if centre-of-mass energy is provided
+  //double s = -1.0;
+  auto *sp = td->getBinColumnOrNull("s");
+  bool sp_delete = 0;
+  if (!sp) {
+    if (td->hasParam("energy"))
+    {
+      double energy = *td->getParamD("energy");
+      sp = new valarray<double>(energy * energy, td->getNbins());
+      sp_delete = 1;
+    }
+    else if (td->hasParam("mh") && td->hasBinColumn("beam_energy")) {
+      sp = new valarray<double>(2.*(*td->getParamD("mh"))*(*td->getBinColumnOrNull("beam_energy")));
+      sp_delete = 1;
+    }
+  }
+
+  if (q2minp)
+  {
+    // integrated cross section
+    if (!sp)
+      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS term " + std::to_string(td->id));
+    if (isReduced)
+      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, term " + std::to_string(td->id));
+    if(!q2maxp) {
+      q2maxp = new valarray<double>((*sp)); // TODO fix memory leak
+    }
+    this->_init(sp, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
+    if(sp_delete) {
+      delete sp;
+    }
+    msg += " (integrated)";
+    return true;
+  }
+  return false;
+}
+
+int IntegrateDIS::_init(const std::valarray<double>* sp,
                         const std::valarray<double>* q2minp, const std::valarray<double>* q2maxp,
                         const std::valarray<double>* yminp, const std::valarray<double>* ymaxp,
                         const std::valarray<double>* xminp, const std::valarray<double>* xmaxp)
 {
+  for (size_t i = 0; i < sp->size(); i++) {printf("s[%ld] = %f\n", i, (*sp)[i]);}
   // prepare number of bins and arrays
   const int npoints = q2minp->size();
   _nSubBins.resize(npoints);
@@ -23,11 +78,13 @@ int IntegrateDIS::init(const double s,
 
   for(size_t i = 0; i < q2minp->size(); i++)
   {
+    const double s = (*sp)[i];
     const double q2min = (*q2minp)[i];
     const double q2max = (*q2maxp)[i];
     // if ymin is not provided, assume there is no lower boundary on y
     double ymin = (yminp) ? (*yminp)[i] : (q2min / s);
-    const double ymax = (*ymaxp)[i];
+    // if ymax is not provided, assume there is no upper boundary on y
+    const double ymax = (ymaxp) ? (*ymaxp)[i] : 1.;
 
     // just copy previous entry, if binning is the same
     // Actually, what is the point of having two points with the same binning? Why do we have this check? --Ivan
@@ -35,7 +92,7 @@ int IntegrateDIS::init(const double s,
       && q2min == (*q2minp)[i - 1]
       && q2max == (*q2maxp)[i - 1]
       && (!yminp || ymin == (*yminp)[i - 1])
-      && ymax == (*ymaxp)[i - 1]
+      && (!ymaxp || ymax == (*ymaxp)[i - 1])
       //Check that xmin and xmax are the same as in previous bin
       //But only if xmin and xmax columns exist
       && (
@@ -57,7 +114,7 @@ int IntegrateDIS::init(const double s,
     // avoid division by zero
     if (ymin == 0.) {
       cerr<<"[ERROR] In IntegrateDIS: ymin==0 would lead to division by zero, please edit your datafile."
-      " Bin id="<<i<<"; q2min="<<q2min<<"; q2max="<<q2max<<"; ymax="<<ymax<<";";
+      " Bin id="<<i<<"; q2min="<<q2min<<"; q2max="<<q2max<<";";
       if(xminp)cerr<<" xmin="<<(*xminp)[i]<<";";
       else cerr<<" no xmin given;";
       if(xmaxp)cerr<<" xmax="<<(*xmaxp)[i]<<";";
@@ -77,6 +134,7 @@ int IntegrateDIS::init(const double s,
       xmax = 0.999999;
       //hf_errlog(18060101, "xmaxCalc > 1.0");
 
+    //printf("DIS integrated q2min = %f q2max = %f xmin = %f xmax = %f ymin = %f ymax = %f\n", q2min, q2max, xmin, xmax, ymin, ymax);
     // do integration in log space for Q2 and x
     int j = 0;
     double q2_1 = -1.0;
@@ -111,11 +169,13 @@ int IntegrateDIS::init(const double s,
             _y[currentSubBin] = y;
             currentSubBin++;
           }
+          //printf("bin %ld  _q2 = %f  x = %f  y = %f\n", i, _q2[i], _x[i], _y[i]);
         }
       }
     }
     assert(nSubBins == j);
     _nSubBins[i] = nSubBins;
+    printf("bin %ld  q2 = %f %f  x = %f %f  y = %f %f\n", i, q2min, q2max, xmin, xmax, ymin, ymax);
   }
   return currentSubBin;
 }
