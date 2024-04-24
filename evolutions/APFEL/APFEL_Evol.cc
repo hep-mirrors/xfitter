@@ -194,7 +194,12 @@ void APFEL_Evol::atStart()
   }
 
 
-  _alphas_q0 = XFITTER_PARS::getParamD((_yAPFEL["alphas_Q0"]) ? _yAPFEL["alphas_Q0"].as<string>() : "alphas_Q0");
+  try {
+    _alphas_q0 = XFITTER_PARS::getParamD((_yAPFEL["alphas_Q0"]) ? _yAPFEL["alphas_Q0"].as<string>() : "alphas_Q0");
+  }
+  catch(std::out_of_range&ex) {
+    _alphas_q0 = nullptr;
+  }
   if (!_alphas_q0) {
     _alphas_q0 = Mz;
   }

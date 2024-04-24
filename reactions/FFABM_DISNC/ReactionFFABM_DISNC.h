@@ -62,5 +62,5 @@ private:
     int flag_flavour;
     int order;
   };
-  int _flag_tmc;
+  map<int, int> _flag_tmc;
 };

@@ -179,6 +179,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   _dataFlav[termID] = dataFlav::incl;
   string msg = "I: Calculating DIS NC reduced cross section";
 
+  isReduced = true;
   if (td->hasParam("type"))
   {
     string type = td->getParamS("type");
@@ -186,6 +187,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     {
       _dataType[termID] = dataType::signonred;
       msg = "I: Calculating DIS NC double-differential (non-reduced) cross section";
+      isReduced = false;
     }
     else if (type == "sigred")
     {
@@ -249,41 +251,16 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     }
   }
 
-  // check if centre-of-mass energy is provided
-  double s = -1.0;
-  if (td->hasParam("energy"))
-    s = pow(*td->getParamD("energy"), 2.0);
-
-  // bins
-  // if Q2min, Q2max, ymin and ymax (and optionally xmin, xmax) are provided, calculate integrated cross sections
-  auto *q2minp = td->getBinColumnOrNull("Q2min");
-  auto *q2maxp = td->getBinColumnOrNull("Q2max");
-  // also try small first letter for Q2 (for backward compatibility)
-  if (!q2minp)
-    q2minp = td->getBinColumnOrNull("q2min");
-  if (!q2maxp)
-    q2maxp = td->getBinColumnOrNull("q2max");
-  auto *yminp = td->getBinColumnOrNull("ymin");
-  auto *ymaxp = td->getBinColumnOrNull("ymax");
-  // optional xmin, xmax for integrated cross sections
-  auto *xminp = td->getBinColumnOrNull("xmin");
-  auto *xmaxp = td->getBinColumnOrNull("xmax");
-
-  if (q2minp && q2maxp)
-  {
-    // integrated cross section
-    if (s < 0)
-      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS dataset " + std::to_string(termID));
-    if (_dataType[termID] != dataType::signonred)
-      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, dataset " + std::to_string(termID));
-    IntegrateDIS *iDIS = new IntegrateDIS();
-    _npoints[termID] = iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
+  IntegrateDIS* iDIS = new IntegrateDIS();
+  if (iDIS->init_from_td(td, isReduced, msg)) {
     _integrated[termID] = iDIS;
-    msg += " (integrated)";
+    //rd->_integrated = iDIS;
+    _npoints[termID] = iDIS->getNPoints();
   }
   else
   {
     // cross section at (Q2,x) points
+    _npoints[termID] = td->getNbins();
     auto *q2p = td->getBinColumnOrNull("Q2"), *xp = td->getBinColumnOrNull("x"), *yp = td->getBinColumnOrNull("y");
 
     // if Q2 and x bins and centre-of-mass energy provided, calculate y = Q2 / (s * x)
@@ -328,11 +305,11 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   _ipdfSet[termID] = static_cast<xfitter::EvolutionQCDNUM*> (td->getPDF())->getPdfType();
 
   // higher twist spline knots
-  _ht_x = {    0.,    0.1,    0.3,   0.5,   0.7,   0.9, 1.};
-  _ht_2 = { 0.023, -0.032, -0.005, 0.025, 0.051, 0.003, 0.};
-  _ht_t = {-0.319, -0.134, -0.052, 0.071, 0.030, 0.003, 0.};
-  _ht_alpha_2 = 0.;
-  _ht_alpha_t = 0.05;
+  //_ht_x = {    0.,    0.1,    0.3,   0.5,   0.7,   0.9, 1.};
+  //_ht_2 = { 0.023, -0.032, -0.005, 0.025, 0.051, 0.003, 0.};
+  //_ht_t = {-0.319, -0.134, -0.052, 0.071, 0.030, 0.003, 0.};
+  //_ht_alpha_2 = 0.;
+  //_ht_alpha_t = 0.05;
 }
 
 void ReactionBaseDISNC::reinitTerm(TermData *td)

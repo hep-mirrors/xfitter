@@ -153,9 +153,9 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
 
   // target mass correction
   if (td->hasParam("tmc"))
-    _flag_tmc = *td->getParamD("tmc");
+    _flag_tmc[termID] = td->getParamI("tmc");
   else
-    _flag_tmc = 0;
+    _flag_tmc[termID] = 0;
 }
 
 //
@@ -217,7 +217,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                       ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
-        if(_flag_tmc) {
+        if(_flag_tmc[dataSetID]) {
           //printf("Q2,x = %6.1f x = %6.4f  c,b/l[%%] = %+5.2f[%+5.2f] %+5.2f[%+5.2f]\n", q2[i], x[i], f2c/f2*100, flc/fl*100, f2b/f2*100, flb/fl*100);
           // target mass corrections
           auto diff = apply_tmc(f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
@@ -291,6 +291,9 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   //printf("xi = %f\n", xi);
   if (xi>1) {throw 42;}
   auto integrate = [](double xip, void* params) {
+    if(xip >= 1.) {
+      return 0.;
+    }
     const integration_params& integrationParams = *(integration_params*)params;
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     if (integrationParams.order == -1)

@@ -33,6 +33,7 @@ public:
    virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &err) override;
 
 protected:
+   bool isReduced;
    enum class dataType
    {
       signonred,

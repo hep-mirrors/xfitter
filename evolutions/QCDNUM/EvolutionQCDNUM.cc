@@ -120,7 +120,12 @@ namespace xfitter {
     _Q0 = *XFITTER_PARS::getParamD((yQCDNUM["Q0"]) ? yQCDNUM["Q0"].as<string>() : "Q0");
     double q20 = _Q0 * _Q0;
     _alphas = XFITTER_PARS::getParamD((yQCDNUM["alphas"]) ? yQCDNUM["alphas"].as<string>() : "alphas");
-    _alphas_q0 = XFITTER_PARS::getParamD((yQCDNUM["alphas_Q0"]) ? yQCDNUM["alphas_Q0"].as<string>() : "alphas_Q0");
+    try {
+      _alphas_q0 = XFITTER_PARS::getParamD((yQCDNUM["alphas_Q0"]) ? yQCDNUM["alphas_Q0"].as<string>() : "alphas_Q0");
+    }
+    catch(std::out_of_range&ex){
+      _alphas_q0 = nullptr;
+    }
     if (!_alphas_q0) {
       _alphas_q0 = Mz;
     }

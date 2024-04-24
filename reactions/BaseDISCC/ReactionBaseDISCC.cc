@@ -268,42 +268,15 @@ void ReactionBaseDISCC::initTerm(TermData *td)
       hf_errlog(18042502, "F: Unknown \"flavor\" given to reaction, see stderr");
     }
   }
-  // check if centre-of-mass energy is provided
-  double s = -1.0;
-  if (td->hasParam("energy"))
-  {
-    double energy = *td->getParamD("energy");
-    s = energy * energy;
-  }
-  // bins
-  // if Q2min, Q2max, ymin and ymax (and optionally xmin, xmax) are provided, integrated cross sections are calculated
-  auto *q2minp = td->getBinColumnOrNull("Q2min");
-  auto *q2maxp = td->getBinColumnOrNull("Q2max");
-  // also try small first letter for Q2 (for backward compatibility)
-  if (!q2minp)
-    q2minp = td->getBinColumnOrNull("q2min");
-  if (!q2maxp)
-    q2maxp = td->getBinColumnOrNull("q2max");
-  auto *yminp = td->getBinColumnOrNull("ymin");
-  auto *ymaxp = td->getBinColumnOrNull("ymax");
-  // optional xmin, xmax for integrated cross sections
-  auto *xminp = td->getBinColumnOrNull("xmin");
-  auto *xmaxp = td->getBinColumnOrNull("xmax");
-
-  if (q2minp && q2maxp)
-  {
-    // integrated cross section
-    if (s < 0)
-      hf_errlog(18060100, "F: centre-of-mass energy is required for integrated DIS term " + std::to_string(td->id));
-    if (_isReduced)
-      hf_errlog(18060200, "F: integrated DIS can be calculated only for non-reduced cross sections, term " + std::to_string(td->id));
-    IntegrateDIS *iDIS = new IntegrateDIS();
-    _npoints = iDIS->init(s, q2minp, q2maxp, yminp, ymaxp, xminp, xmaxp);
+  IntegrateDIS* iDIS = new IntegrateDIS();
+  if (iDIS->init_from_td(td, rd->_isReduced, msg)) {
+    //_integrated[termID] = iDIS;
     rd->_integrated = iDIS;
-    msg += " (integrated)";
+    _npoints = rd->_integrated->getNPoints();
   }
-  else
+  else {
     _npoints = td->getNbins();
+  }
   hf_errlog(17041001, msg);
 }
 
