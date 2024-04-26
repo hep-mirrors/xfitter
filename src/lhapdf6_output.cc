@@ -316,6 +316,55 @@ struct QX_Grid {
   vector<Q_Subgrid> subgrids;
 };
 
+
+// Store xf(x) for PDFs at the starting scale at the evolution grid points.
+void StorePdfsAtq0(FILE* f, BaseEvolution* ev) {
+
+  // Evolution parameters:
+  using XFITTER_PARS::getParamD;
+  using XFITTER_PARS::getParamS;
+  std::string order = getParamS("Order");
+  double q0 = *getParamD("Q0");
+  fprintf(f, "Order: %s\n",order.c_str());
+  fprintf(f, "Q0: %3.15f\n", q0);
+  fprintf(f, "Mz: %3.15f\n",*getParamD("Mz"));
+  fprintf(f, "alphas: %3.15f\n",*getParamD("alphas"));
+  fprintf(f, "mch: %3.15f\n",*getParamD("mch"));
+  fprintf(f, "mbt: %3.15f\n",*getParamD("mbt"));
+  fprintf(f, "mtp: %3.15f\n",*getParamD("mtp"));
+
+  auto xGrid = ev->getXgrid();
+  fprintf(f, "xGrid: [");
+  bool first = true;
+  for (const auto x : xGrid) {
+    if (first) {
+      fprintf(f, "%g", x);
+      first = false;
+    }
+    else {
+      fprintf(f, ", %g", x);
+    }
+  }
+  fprintf (f,"]\n");
+  auto const& pdfMap = ev->xfxQmap(xGrid[0], q0);
+  for (const auto& entry : pdfMap ) {
+    int iPDF = entry.first;
+    fprintf (f, "%i: [",iPDF);
+    bool first = true;
+    for (const auto x : xGrid) {
+      auto const& pdfMap = ev->xfxQmap(x, q0);
+      if (first) {
+	first = false;
+	fprintf(f,"%g", pdfMap.at(iPDF));
+      }
+      else {
+	fprintf(f,", %g", pdfMap.at(iPDF));
+      }
+    }
+    fprintf (f,"]\n");
+  }
+}
+
 void WriteLHAPDF6(FILE* f, BaseEvolution* ev, const QX_Grid& qx_grid, const char* const PdfType = "central")
 {
   fprintf(f, "PdfType: %s\n", PdfType);
@@ -338,6 +387,7 @@ struct LHAPDF6_Options {
   size_t Nx = 0, Nq = 0;
   int nmembers = 1;
   bool prefer_internal_grid; //if true, try to use internal grid of evolution, if it can provide one
+  bool store_pdfs_atq0;   // if true, provide additional file with grids at the starting point
   static LHAPDF6_Options fromYAML(YAML::Node);
 };
 
@@ -509,7 +559,10 @@ LHAPDF6_Options LHAPDF6_Options::fromYAML(YAML::Node node)
                << endl;
           hf_errlog(19063001, "W: WriteLHAPDF6: ignoring value of option preferInternalGrid, see stderr");
         }
-      } else {
+      } else if (key == "storePDfsAt0") {
+	info.store_pdfs_atq0 = true;
+      }
+      else {
         cerr << "[WARN] WriteLHAPDF6: Ignoring unknown option \"" << key << ": " << it.second << "\"" << endl;
         hf_errlog(19063000, "W: WriteLHAPDF6: ignoring unknown option, see stderr");
       }
@@ -707,6 +760,13 @@ extern "C" {
       }
       WriteLHAPDF6info(f, options, *qx_grid);
       fclose(f);
+      // also store at PDFs the starting scale, if requested
+      if (options.store_pdfs_atq0) {
+	filename = outdir + '/' + name + "_starting_scale.dat";
+	f = fopen(filename.c_str(), "w");
+	StorePdfsAtq0(f,options.pdf);
+	fclose(f);
+      }
     }
   }
 
