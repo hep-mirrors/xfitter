@@ -11,6 +11,7 @@
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_integration.h>
 #include <spline.h>
+#include "cubature.h"
 
 // the class factories
 extern "C" ReactionFFABM_DISNC *create()
@@ -153,7 +154,20 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
 
   // target mass correction
   if (td->hasParam("tmc"))
+  {
     _flag_tmc[termID] = td->getParamI("tmc");
+    if (td->hasParam("tmc_integration_method"))
+    {
+      auto s = td->getParamS("tmc_integration_method");
+      if (s == "gsl")
+        _tmc_integration_method[termID] = 0;
+      else if (s == "simpson")
+        _tmc_integration_method[termID] = 1;
+    }
+    else
+      _tmc_integration_method[termID] = 0; // "gsl"
+    _tmc_mpr = td->getParamD("mpr");
+  }
   else
     _flag_tmc[termID] = 0;
 }
@@ -220,7 +234,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         if(_flag_tmc[dataSetID]) {
           //printf("Q2,x = %6.1f x = %6.4f  c,b/l[%%] = %+5.2f[%+5.2f] %+5.2f[%+5.2f]\n", q2[i], x[i], f2c/f2*100, flc/fl*100, f2b/f2*100, flb/fl*100);
           // target mass corrections
-          auto diff = apply_tmc(f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
+          auto diff = apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
           if (fabs(diff) >  maxdiff)
             maxdiff = fabs(diff);
           //auto diff_c = apply_tmc(f2c, flc, f3c, 2, q2, x, ncflag, charge, polarity, cos2thw, i);
@@ -270,12 +284,11 @@ void ReactionFFABM_DISNC::xF3 BASE_PARS
   val = _f3abm[td->id];
 }
 
-double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
+double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
     const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i) {
-  double mn = 0.938272;
+  double mn = *_tmc_mpr;
   double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]);
   double xi = 2*x[i]/(1+gam);
-  //printf("xi = %f\n", xi);
   if (xi>1) {throw 42;}
   auto integrate = [](double xip, void* params) {
     if(xip >= 1.) {
@@ -294,7 +307,6 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
     if (integrationParams.flag_calc_fl == 0) {
       if (integrationParams.flag_flavour == 1)
         return f2/xip/xip;
-        //return f2/xip;
       else if (integrationParams.flag_flavour == 2)
         return f2c/xip/xip;
       else if (integrationParams.flag_flavour == 3)
@@ -305,7 +317,6 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
     else if (integrationParams.flag_calc_fl == 1) {
       if (integrationParams.flag_flavour == 1)
         return fl/xip/xip;
-        //return fl/xip;
       else if (integrationParams.flag_flavour == 2)
         return flc/xip/xip;
       else if (integrationParams.flag_flavour == 3)
@@ -316,7 +327,6 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
     else if (integrationParams.flag_calc_fl == 2) {
       if (integrationParams.flag_flavour == 1)
         return f3/xip/xip;
-        //return fl/xip;
       else if (integrationParams.flag_flavour == 2)
         return f3c/xip/xip;
       else if (integrationParams.flag_flavour == 3)
@@ -338,28 +348,49 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   pars.flag_calc_fl = 0;
   pars.flag_flavour = flag_flavour;
   pars.order = 0;
-  // numerical integration
-  gsl_function F;
-  F.function = integrate;
-  F.params = &pars;
-  size_t alloc_space = 1000;
-  gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-  double epsabs = 0;
-  double epsrel = 1e-3;
-  int key_param = 6;
-  double result, error;
-  gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-  //gsl_integration_qag (&F, x[i], 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-  gsl_integration_workspace_free (w);
+  double I;
+  // gsl integration
+  if (method == 0) {
+    gsl_function F;
+    F.function = integrate;
+    F.params = &pars;
+    size_t alloc_space = 1000;
+    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    double epsabs = 0;
+    double epsrel = 1e-3;
+    int key_param = 6;
+    double result, error;
+    gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    //gsl_integration_qag (&F, x[i], 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    gsl_integration_workspace_free (w);
+    I = result;
+  }
   // Simpson 3/8 integration
-  double a = xi;
-  //double b = log10(1/xi);
-  double b = a*5;
-  if (b > 0.999) 
-    b = 0.999;
-  double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
-  //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
-  double I = result;
+  else if (method == 1) {
+    double a = xi;
+    //double b = log10(1/xi);
+    double b = a*5;
+    if (b > 0.999) 
+      b = 0.999;
+    double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
+    //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
+    I = sim38;
+  }
+  // cuba integration
+  else if (method == 2) {
+    double epsrel = 1e-3;
+    hcubature(1, integrate, &pars, 1, xi, 1.0, 0, 0, epsrel, ERROR_INDIVIDUAL, &val, &err);
+
+    double a = xi;
+    //double b = log10(1/xi);
+    double b = a*5;
+    if (b > 0.999) 
+      b = 0.999;
+    double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
+    //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
+    I = sim38;
+  }
+  //double I = result;
   //I = sim38;
   //I = 0;
   //I *= 5;
@@ -395,6 +426,6 @@ double ReactionFFABM_DISNC::apply_tmc(double& f2, double& fl, double& f3, const 
   ft_at_xi = f2_at_xi - fl_at_xi;
   ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
   fl = f2-ft;*/
-  printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
+  //printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
   return f2/f20-1;
 }
