@@ -294,11 +294,63 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     _flag_ht[termID] = true;
     // for arrays, expect comma-separated strings
     // each item should be either double or parameter name
-    _ht_x[termID] = ReadArray(td, "ht_x");
-    _ht_2[termID] = ReadArray(td, "ht_vals_f2");
-    _ht_t[termID] = ReadArray(td, "ht_vals_ft");
-    _ht_alpha_2[termID] = ReadDouble(td, "ht_val_alpha_f2");
-    _ht_alpha_t[termID] = ReadDouble(td, "ht_val_alpha_ft");
+    auto read_array = [td](const std::string& parname) {
+      std::istringstream ss(td->getParamS(parname));
+      std::string token;
+      int counter = 0;
+      std::vector<std::unique_ptr<double> > result;
+      while(std::getline(ss, token, ','))
+      {
+        if (td->hasParam(token)) {
+          result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
+          //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as xfitter parameter";
+          //hf_errlog(24051700+counter, msg);
+        }
+        else {
+          try {
+            result.push_back(unique_ptr<double>(new double(stod(token))));
+            //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as constant value";
+            //hf_errlog(24051701+counter, msg);
+          }
+          catch (const std::invalid_argument&) {
+            string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" is not a parameter name or double";
+            hf_errlog(24051702, msg);
+          }
+        }
+        counter++;
+      }
+      return result;
+    };
+    auto read_double = [td](const std::string& parname) {
+      std::istringstream ss(td->getParamS(parname));
+      std::string token;
+      std::unique_ptr<double> result;
+      while(std::getline(ss, token, ','))
+      {
+        if (td->hasParam(token)) {
+          //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as xfitter parameter";
+          //hf_errlog(24051700, msg);
+          result = unique_ptr<double>(new double(*td->getParamD(token)));
+        }
+        else {
+          try {
+            //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as constant value";
+            //hf_errlog(24051701, msg);
+            result = unique_ptr<double>(new double(stod(token)));
+          }
+          catch (const std::invalid_argument&) {
+            string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" is not a parameter name or double";
+            hf_errlog(24051702, msg);
+          }
+        }
+      }
+      return result;
+    };
+    _ht_x[termID] = read_array("ht_x");
+    _ht_2[termID] = read_array("ht_vals_f2");
+    _ht_t[termID] = read_array("ht_vals_ft");
+    _ht_alpha_2[termID] = read_double("ht_val_alpha_f2");
+    _ht_alpha_t[termID] = read_double("ht_val_alpha_ft");
   }
   else {
     _flag_ht[termID] = false;
@@ -670,58 +722,4 @@ void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarra
       val[ip] += pow(x[ip], *_ht_alpha_2[termID]) * spline(x[ip]) * q02 / q2[ip];
     }
   }
-}
-
-std::vector<std::unique_ptr<double> > ReactionBaseDISNC::ReadArray(TermData *td, const std::string& parname) {
-  std::istringstream ss(td->getParamS(parname));
-  std::string token;
-  int counter = 0;
-  std::vector<std::unique_ptr<double> > result;
-  while(std::getline(ss, token, ','))
-  {
-    if (td->hasParam(token)) {
-      result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
-      //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as xfitter parameter";
-      //hf_errlog(24051700+counter, msg);
-    }
-    else {
-      try {
-        result.push_back(unique_ptr<double>(new double(stod(token))));
-        //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as constant value";
-        //hf_errlog(24051701+counter, msg);
-      }
-      catch (const std::invalid_argument&) {
-        string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" is not a parameter name or double";
-        hf_errlog(24051702, msg);
-      }
-    }
-    counter++;
-  }
-  return result;
-}
-
-std::unique_ptr<double> ReactionBaseDISNC::ReadDouble(TermData *td, const std::string& parname) {
-  std::istringstream ss(td->getParamS(parname));
-  std::string token;
-  std::unique_ptr<double> result;
-  while(std::getline(ss, token, ','))
-  {
-    if (td->hasParam(token)) {
-      //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as xfitter parameter";
-      //hf_errlog(24051700, msg);
-      result = unique_ptr<double>(new double(*td->getParamD(token)));
-    }
-    else {
-      try {
-        //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as constant value";
-        //hf_errlog(24051701, msg);
-        result = unique_ptr<double>(new double(stod(token)));
-      }
-      catch (const std::invalid_argument&) {
-        string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" is not a parameter name or double";
-        hf_errlog(24051702, msg);
-      }
-    }
-  }
-  return result;
 }

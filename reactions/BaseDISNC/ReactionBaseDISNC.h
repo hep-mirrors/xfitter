@@ -143,6 +143,4 @@ protected:
    map<unsigned, std::unique_ptr<double> > _ht_alpha_2;
    map<unsigned, std::unique_ptr<double> > _ht_alpha_t;
    void ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err, valarray<double>* f2 = nullptr);
-   std::vector<std::unique_ptr<double> > ReadArray(TermData *td, const std::string& parname);
-   std::unique_ptr<double> ReadDouble(TermData *td, const std::string& parname);
 };
