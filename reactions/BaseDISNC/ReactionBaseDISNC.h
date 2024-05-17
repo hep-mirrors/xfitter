@@ -132,10 +132,17 @@ protected:
    virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
    // higher twist
    map<unsigned, bool> _flag_ht;
-   std::vector<double> _ht_x;
-   std::vector<double> _ht_2;
-   std::vector<double> _ht_t;
-   double _ht_alpha_2;
-   double _ht_alpha_t;
-   void ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err);
+   //std::vector<double> _ht_x;
+   //std::vector<double> _ht_2;
+   //std::vector<double> _ht_t;
+   //double _ht_alpha_2;
+   //double _ht_alpha_t;
+   map<unsigned, std::vector<std::unique_ptr<double> > > _ht_x;
+   map<unsigned, std::vector<std::unique_ptr<double> > > _ht_2;
+   map<unsigned, std::vector<std::unique_ptr<double> > > _ht_t;
+   map<unsigned, std::unique_ptr<double> > _ht_alpha_2;
+   map<unsigned, std::unique_ptr<double> > _ht_alpha_t;
+   void ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err, valarray<double>* f2 = nullptr);
+   std::vector<std::unique_ptr<double> > ReadArray(TermData *td, const std::string& parname);
+   std::unique_ptr<double> ReadDouble(TermData *td, const std::string& parname);
 };

@@ -227,19 +227,6 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           //auto diff_b = apply_tmc(f2b, flb, f3b, 3, q2, x, ncflag, charge, polarity, cos2thw, i);
           //printf("TMC Q2,x = %6.1f x = %6.4f l,c,b[%%] = %+5.1f %+5.1f %+5.1f\n", q2[i], x[i], diff*100, diff_c*100, diff_b*100);
         }
-        if (_flag_ht[td->id]) {
-          double q02 = 1.;
-          double ft = f2 - fl;
-          tk::spline spline_2;
-          spline_2.set_points(_ht_x, _ht_2);
-          //printf("%f", ft);
-          f2 += pow(x[i], _ht_alpha_2) * spline_2(x[i]) * q02 / q2[i];
-          tk::spline spline_t;
-          spline_t.set_points(_ht_x, _ht_t);
-          ft += pow(x[i], _ht_alpha_t) * spline_t(x[i]) * q02 / q2[i];
-          fl = f2 - ft;
-          //printf("  %f\n", ft);
-        }
       }
 
       switch (GetDataFlav(dataSetID))

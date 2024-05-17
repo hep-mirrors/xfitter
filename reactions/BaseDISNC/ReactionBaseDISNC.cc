@@ -88,13 +88,16 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
     break;
   case dataType::f2:
     F2(td, val, err);
-    if (_flag_ht[termID] && 0) 
+    if (_flag_ht[termID] && 1) 
       ApplyHigherTwist(td, 2, val, err);
     break;
   case dataType::fl:
     FL(td, val, err);
-    if (_flag_ht[termID] && 0) 
-      ApplyHigherTwist(td, 1, val, err);
+    if (_flag_ht[termID] && 1) {
+      valarray<double> f2;
+      F2(td, f2, err);
+      ApplyHigherTwist(td, 1, val, err, &f2);
+    }
     break;
   case dataType::f3:
     xF3(td, val, err);
@@ -288,7 +291,17 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     _npoints[termID] = (*q2p).size();
   }
   if (td->hasParam("ht")) {
-    _flag_ht[termID] = td->getParamI("ht");
+    _flag_ht[termID] = true;
+    // for arrays, expect comma-separated strings
+    // each item should be either double or parameter name
+    _ht_x[termID] = ReadArray(td, "ht_x");
+    _ht_2[termID] = ReadArray(td, "ht_vals_f2");
+    _ht_t[termID] = ReadArray(td, "ht_vals_ft");
+    _ht_alpha_2[termID] = ReadDouble(td, "ht_val_alpha_f2");
+    _ht_alpha_t[termID] = ReadDouble(td, "ht_val_alpha_ft");
+  }
+  else {
+    _flag_ht[termID] = false;
   }
 
   hf_errlog(17041001, msg);
@@ -466,13 +479,13 @@ void ReactionBaseDISNC::sred BASE_PARS
 
   valarray<double> f2(_npoints[termID]);
   F2(td, f2, err);
-  if (_flag_ht[termID] && 0) 
+  if (_flag_ht[termID] && 1) 
     ApplyHigherTwist(td, 2, f2, err);
 
   valarray<double> fl(_npoints[termID]);
   FL(td, fl, err);
-  if (_flag_ht[termID] && 0) 
-    ApplyHigherTwist(td, 1, fl, err);
+  if (_flag_ht[termID] && 1) 
+    ApplyHigherTwist(td, 1, fl, err, &f2);
 
   valarray<double> xf3(_npoints[termID]);
   xf3 = 0;
@@ -624,32 +637,91 @@ void ReactionBaseDISNC::kappa(TermData *td, valarray<double> &k)
   k = 1. / (4 * _sin2thetaW * cos2thetaW) * (*q2p) / ((*q2p) + _Mz * _Mz);
 }
 
-void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err)
+void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err, valarray<double>* f2)
 {
-  throw 42;
-  double q02 = 1.;
+  unsigned termID = td->id;
+  const double q02 = 1.;
+  auto &x = *GetBinValues(td, "x");
+  auto &q2 = *GetBinValues(td, "Q2");
+  std::vector<double> ht_x(_ht_x[termID].size());
+  std::vector<double> ht_f2(_ht_x[termID].size());
+  std::vector<double> ht_ft(_ht_x[termID].size());
+  for (size_t i = 0; i < ht_x.size(); i++)
+  {
+    ht_x[i] = *_ht_x[termID][i];
+    ht_f2[i] = *_ht_2[termID][i];
+    ht_ft[i] = *_ht_t[termID][i];
+  }
+  tk::spline spline;
   if (f_type == 1) {
-    // F_t = F_2 - F_L
-    valarray<double> f2;
-    F2(td, f2, err);
-    valarray<double> ft = f2 - val;
-    tk::spline spline;
-    spline.set_points(_ht_x, _ht_t);
+    valarray<double> ft = *f2 - val;
+    spline.set_points(ht_x, ht_ft);
     auto &x = *GetBinValues(td, "x");
     auto &q2 = *GetBinValues(td, "Q2");
     for (size_t ip = 0; ip < ft.size(); ip++) {
-      ft[ip] += pow(x[ip], _ht_alpha_t) * spline(x[ip]) * q02 / q2[ip];
+      ft[ip] += pow(x[ip], *_ht_alpha_t[termID]) * spline(x[ip]) * q02 / q2[ip];
     }
     // F_L = F_2 - F_T
-    val = f2 - ft;
+    val = *f2 - ft;
   }
   else if (f_type == 2) {
-    tk::spline spline;
-    spline.set_points(_ht_x, _ht_2);
-    auto &x = *GetBinValues(td, "x");
-    auto &q2 = *GetBinValues(td, "Q2");
+    spline.set_points(ht_x, ht_f2);
     for (size_t ip = 0; ip < val.size(); ip++) {
-      val[ip] += pow(x[ip], _ht_alpha_2) * spline(x[ip]) * q02 / q2[ip];
+      val[ip] += pow(x[ip], *_ht_alpha_2[termID]) * spline(x[ip]) * q02 / q2[ip];
     }
   }
+}
+
+std::vector<std::unique_ptr<double> > ReactionBaseDISNC::ReadArray(TermData *td, const std::string& parname) {
+  std::istringstream ss(td->getParamS(parname));
+  std::string token;
+  int counter = 0;
+  std::vector<std::unique_ptr<double> > result;
+  while(std::getline(ss, token, ','))
+  {
+    if (td->hasParam(token)) {
+      result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
+      //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as xfitter parameter";
+      //hf_errlog(24051700+counter, msg);
+    }
+    else {
+      try {
+        result.push_back(unique_ptr<double>(new double(stod(token))));
+        //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as constant value";
+        //hf_errlog(24051701+counter, msg);
+      }
+      catch (const std::invalid_argument&) {
+        string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" is not a parameter name or double";
+        hf_errlog(24051702, msg);
+      }
+    }
+    counter++;
+  }
+  return result;
+}
+
+std::unique_ptr<double> ReactionBaseDISNC::ReadDouble(TermData *td, const std::string& parname) {
+  std::istringstream ss(td->getParamS(parname));
+  std::string token;
+  std::unique_ptr<double> result;
+  while(std::getline(ss, token, ','))
+  {
+    if (td->hasParam(token)) {
+      //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as xfitter parameter";
+      //hf_errlog(24051700, msg);
+      result = unique_ptr<double>(new double(*td->getParamD(token)));
+    }
+    else {
+      try {
+        //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as constant value";
+        //hf_errlog(24051701, msg);
+        result = unique_ptr<double>(new double(stod(token)));
+      }
+      catch (const std::invalid_argument&) {
+        string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" is not a parameter name or double";
+        hf_errlog(24051702, msg);
+      }
+    }
+  }
+  return result;
 }
