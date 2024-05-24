@@ -298,17 +298,21 @@ void ReactionBaseDISNC::initTerm(TermData *td)
       std::istringstream ss(td->getParamS(parname));
       std::string token;
       int counter = 0;
-      std::vector<std::unique_ptr<double> > result;
+      //std::vector<std::unique_ptr<double> > result;
+      std::vector<const double* > result;
       while(std::getline(ss, token, ','))
       {
         if (td->hasParam(token)) {
-          result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
+          //result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
+          result.push_back(td->getParamD(token));
           //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as xfitter parameter";
           //hf_errlog(24051700+counter, msg);
         }
         else {
           try {
-            result.push_back(unique_ptr<double>(new double(stod(token))));
+            //result.push_back(unique_ptr<double>(new double(stod(token))));
+            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
+            result.push_back(new double(stod(token)));
             //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as constant value";
             //hf_errlog(24051701+counter, msg);
           }
@@ -324,19 +328,23 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     auto read_double = [td](const std::string& parname) {
       std::istringstream ss(td->getParamS(parname));
       std::string token;
-      std::unique_ptr<double> result;
+      //std::unique_ptr<double> result;
+      const double* result;
       while(std::getline(ss, token, ','))
       {
         if (td->hasParam(token)) {
           //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as xfitter parameter";
           //hf_errlog(24051700, msg);
-          result = unique_ptr<double>(new double(*td->getParamD(token)));
+          //result = unique_ptr<double>(new double(*td->getParamD(token)));
+          result = td->getParamD(token);
         }
         else {
           try {
             //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as constant value";
             //hf_errlog(24051701, msg);
-            result = unique_ptr<double>(new double(stod(token)));
+            //result = unique_ptr<double>(new double(stod(token)));
+            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
+            result = new double(stod(token));
           }
           catch (const std::invalid_argument&) {
             string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" is not a parameter name or double";

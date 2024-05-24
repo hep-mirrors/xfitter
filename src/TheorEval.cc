@@ -445,14 +445,17 @@ void TheorEval::initReactionTerm(int iterm, valarray<double> *val, bool change_s
     const auto& str_datanorm = term_data->getParamS("DATANORM");
     printf("str_datanorm = %s\n", str_datanorm.c_str());
     if (term_data->hasParam(str_datanorm)) {
-      _data_normalisation = unique_ptr<double>(new double(*term_data->getParamD(str_datanorm)));
+      //_data_normalisation = unique_ptr<double>(new double(*term_data->getParamD(str_datanorm)));
+      _data_normalisation = term_data->getParamD(str_datanorm);
       string msg = "I: normalizing dataset \"" + _ds_name + "\" with \"" + str_datanorm + "\" parameter";
       hf_errlog(24032800 + _dsId, msg);
     }
     else {
       try {
         //double val_datanorm = stod(str_datanorm);
-        _data_normalisation = unique_ptr<double>(new double(stod(str_datanorm)));
+        //_data_normalisation = unique_ptr<double>(new double(stod(str_datanorm)));
+        //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
+        _data_normalisation = new double(stod(str_datanorm));
         string msg = "I: normalizing dataset \"" + _ds_name + "\" with " + str_datanorm + " constant value";
         hf_errlog(24032800 + _dsId, msg);
       }

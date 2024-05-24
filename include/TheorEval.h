@@ -27,7 +27,7 @@
 #include <string>
 #include <valarray>
 #include <vector>
-#include <memory>
+//#include <memory>
 
 
 class ReactionTheory;
@@ -171,7 +171,8 @@ class TheorEval{
   vector<TermData*>term_datas;
 
   /// Data normalisation
-  std::unique_ptr<double> _data_normalisation=nullptr;
+  //std::unique_ptr<double> _data_normalisation=nullptr;
+  const double* _data_normalisation=nullptr;
 public:
   /// also keep some dataset information:
   string _ds_name;///Name
