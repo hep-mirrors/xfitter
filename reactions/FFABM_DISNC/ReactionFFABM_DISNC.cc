@@ -11,7 +11,44 @@
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_integration.h>
 #include <spline.h>
-#include "cubature.h"
+#include "cuba.h"
+//#include "cubature.h"
+
+static int Integrand(const int *ndim, const cubareal xx[],
+  const int *ncomp, cubareal ff[], void *userdata) {
+
+#ifndef FUN
+#define FUN 1
+#endif
+
+#define rsq (Sq(x) + Sq(y) + Sq(z))
+
+#if FUN == 1
+  ff[0] = sin(xx[0])*cos(xx[1])*exp(xx[2]);
+#elif FUN == 2
+  f = 1/(Sq(x + y) + .003)*cos(y)*exp(z);
+#elif FUN == 3
+  f = 1/(3.75 - cos(M_PI*x) - cos(M_PI*y) - cos(M_PI*z));
+#elif FUN == 4
+  f = fabs(rsq - .125);
+#elif FUN == 5
+  f = exp(-rsq);
+#elif FUN == 6
+  f = 1/(1 - x*y*z + 1e-10);
+#elif FUN == 7
+  f = sqrt(fabs(x - y - z));
+#elif FUN == 8
+  f = exp(-x*y*z);
+#elif FUN == 9
+  f = Sq(x)/(cos(x + y + z + 1) + 5);
+#elif FUN == 10
+  f = (x > .5) ? 1/sqrt(x*y*z + 1e-5) : sqrt(x*y*z);
+#else
+  f = (rsq < 1) ? 1 : 0;
+#endif
+
+  return 0;
+}
 
 // the class factories
 extern "C" ReactionFFABM_DISNC *create()
@@ -161,11 +198,31 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
       auto s = td->getParamS("tmc_integration_method");
       if (s == "gsl")
         _tmc_integration_method[termID] = 0;
-      else if (s == "simpson")
+      else if (s == "simpson13")
         _tmc_integration_method[termID] = 1;
+      else if (s == "power_simpson13")
+        _tmc_integration_method[termID] = -1;
+      else if (s == "simpson38")
+        _tmc_integration_method[termID] = 2;
+      else if (s == "boole")
+        _tmc_integration_method[termID] = 3;
+      else if (s == "cuba")
+        _tmc_integration_method[termID] = 4;
+      else {
+        string msg = "F: unknown tmc_integration_method = " + td->getParamS("tmc_integration_method");
+        hf_errlog(24052201, msg);
+      }
     }
     else
       _tmc_integration_method[termID] = 0; // "gsl"
+    if (td->hasParam("tmc_xmin"))
+      _tmc_xmin[termID] = *td->getParamD("tmc_xmin");
+    else
+      _tmc_xmin[termID] = 0.;
+    if (td->hasParam("tmc_logxlogq2min"))
+      _tmc_logxlogq2min[termID] = *td->getParamD("tmc_logxlogq2min");
+    else
+      _tmc_logxlogq2min[termID] = 0.;
     _tmc_mpr = td->getParamD("mpr");
   }
   else
@@ -222,24 +279,16 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     double cos2thw = 1.0 - *_sin2thwPtr;
 
-    double maxdiff = -1.;
     for (size_t i = 0; i < Np; i++)
     {
       if (q2[i] > 1.0)
       {
-
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                       ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
         if(_flag_tmc[dataSetID]) {
-          //printf("Q2,x = %6.1f x = %6.4f  c,b/l[%%] = %+5.2f[%+5.2f] %+5.2f[%+5.2f]\n", q2[i], x[i], f2c/f2*100, flc/fl*100, f2b/f2*100, flb/fl*100);
-          // target mass corrections
-          auto diff = apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
-          if (fabs(diff) >  maxdiff)
-            maxdiff = fabs(diff);
-          //auto diff_c = apply_tmc(f2c, flc, f3c, 2, q2, x, ncflag, charge, polarity, cos2thw, i);
-          //auto diff_b = apply_tmc(f2b, flb, f3b, 3, q2, x, ncflag, charge, polarity, cos2thw, i);
-          //printf("TMC Q2,x = %6.1f x = %6.4f l,c,b[%%] = %+5.1f %+5.1f %+5.1f\n", q2[i], x[i], diff*100, diff_c*100, diff_b*100);
+          if ((_tmc_xmin[i] == 0. || _tmc_xmin[i] < x[i]) && (_tmc_logxlogq2min[i] == 0. || _tmc_logxlogq2min[i] < log(x[i])*log(q2[i])))
+            apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
         }
       }
 
@@ -262,7 +311,6 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           break;
       }
     }
-    printf("maxdiff = %f\n", maxdiff);
   }
 }
 
@@ -348,6 +396,27 @@ double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, 
   pars.flag_calc_fl = 0;
   pars.flag_flavour = flag_flavour;
   pars.order = 0;
+  if (1==0) {
+    double x0 = 0.01;
+    double x1 = 1.;
+    std::vector<double> q2s = {2., 5., 10., 100.};
+    double q20 = 10.;
+    printf("%10s%10s%15s%15s\n", "q2", "x", "f2", "fl");
+    for (auto& q20 : q2s) {
+      pars.q2 = q20;
+      pars.flag_flavour = 1;
+      for(int ii=0; ii<=100; ii++) {
+        double xx = x0+ii*(x1-x0)/100.;
+        pars.flag_calc_fl = 1;
+        double fl = integrate(xx, &pars);
+        pars.flag_calc_fl = 0;
+        double f2 = integrate(xx, &pars);
+        printf("%10.1f%10.6f%15.6e%15.6e\n", q20, xx, f2, fl);
+      }
+    }
+    fflush(stdout);
+    throw 42;
+  }
   double I;
   // gsl integration
   if (method == 0) {
@@ -365,30 +434,92 @@ double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, 
     gsl_integration_workspace_free (w);
     I = result;
   }
-  // Simpson 3/8 integration
+  // Simpson 1/3 integration
   else if (method == 1) {
     double a = xi;
-    //double b = log10(1/xi);
     double b = a*5;
     if (b > 0.999) 
       b = 0.999;
-    double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
-    //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
-    I = sim38;
+    double sim13 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
+    I = sim13;
   }
-  // cuba integration
+  // Simpson 1/3 integration with power approximation
+  else if (method == -1) {
+    double a = xi;
+    double b = a*5;
+    if (b > 0.999) 
+      b = 0.999;
+    double f1 = integrate(a, &pars);
+    double alpha = log(f1)/log(xi);
+    double f1pr = f1 - pow(a, alpha);
+    double f2 = integrate((a+b)/2., &pars);
+    double f2pr = f2 - pow((a+b)/2., alpha);
+    double f3 = integrate(b, &pars);
+    double f3pr = f3 - pow(b, alpha);
+    double sim13 = (b-a)/6.*(f1pr+4*f2pr+f3pr);
+    double part_power = (1-pow(xi, alpha+1))/(alpha+1);
+    I = sim13 + part_power;
+  }
+  // Simpson 3/8 integration
   else if (method == 2) {
-    double epsrel = 1e-3;
-    hcubature(1, integrate, &pars, 1, xi, 1.0, 0, 0, epsrel, ERROR_INDIVIDUAL, &val, &err);
-
     double a = xi;
     //double b = log10(1/xi);
     double b = a*5;
     if (b > 0.999) 
       b = 0.999;
     double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
-    //printf("%f %f %f %f\n", integrate(a, &pars), integrate((2*a+b)/3., &pars), integrate((a+2*b)/3., &pars), integrate(b, &pars));
     I = sim38;
+  }
+  // Boole integration
+  else if (method == 3) {
+    double a = xi;
+    //double b = log10(1/xi);
+    //double b = a*5;
+    //double maxfrac = (xi>0.25) ? 0.9 : 0.5;
+    //double maxfrac = 0.5 + 0.4 * xi;
+    double maxfrac = 0.4 + 0.6 * xi;
+    //double maxfrac = sqrt(xi);
+    double b = xi+(1-xi)*maxfrac;
+    //if (b > 0.999) 
+    //  b = 0.999;
+    double h = (b-a)/4.;
+    double boole = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
+    I = boole;
+  }
+  // cuba integration
+  else if (method == 4) {
+    const int NDIM = 2;
+    const int NCOMP = 1;
+    /*integrand_t Integrand = [&](const int* ndim, const cubareal* xip, const int *ncomp, cubareal ff[], void *userdata) {
+      double x = xi + (1. - xi) * (*xip);
+      ff[0] = (1.-xi)*integrate(x, userdata);
+      return 0;
+    };*/
+    pars.xi = xi;
+    void* USERDATA = &pars;
+    const int NVEC = 1;
+    const double EPSREL = 1e-3;
+    //const double EPSABS = 1e-12;
+    const double EPSABS = 0;
+    const int FLAGS = 0;
+    const int MINEVAL = 0;
+    const int MAXEVAL = 10000;
+    const int KEY = 0;
+    const char* STATEFILE = nullptr;
+    void* SPIN = nullptr;
+    int nregions = 0;
+    int neval = 0;
+    int fail = 0;
+    cubareal cuba_integral[1], cuba_error[1], prob[1];
+    //Cuhre(NDIM, NCOMP, Integrand, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, integral, error, prob);
+    Cuhre(NDIM, NCOMP, ReactionFFABM_DISNC::Integrand_Cuhre, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
+    //Cuhre(NDIM, NCOMP, Integrand, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
+    /*printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n",
+    nregions, neval, fail);
+    for(int comp = 0; comp < NCOMP; ++comp )
+      printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
+        (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);*/
+    I = cuba_integral[0];
   }
   //double I = result;
   //I = sim38;
@@ -426,6 +557,81 @@ double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, 
   ft_at_xi = f2_at_xi - fl_at_xi;
   ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
   fl = f2-ft;*/
+  //printf("SZ [x,q2 = %f %f] gsl = %f +- %f [%f] cuba = %f +- %f [%f] sim38 = %f [%f] TMC [%f]\n", x[i], q2[i], result, error, error/result, cuba_integral[0], cuba_error[0], cuba_integral[0]/result-1, sim38, sim38/result-1, f2/f20-1);
   //printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
   return f2/f20-1;
 }
+
+int ReactionFFABM_DISNC::Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata) {
+  double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
+  const integration_params& integrationParams = *(integration_params*)userdata;
+  double xi = integrationParams.xi;
+  double xip = xi + (1. - xi) * (x[0]);
+  //printf("ReactionFFABM_DISNC::Integrand_Cuhre ndim = %d x[0] = %f ncomp = %d ff[0] = %f\n", *ndim, x[0], *ncomp, ff[0]);
+  if(xip >= 1.) {
+    ff[0] = 0.;
+  }
+  if (integrationParams.order == -1)
+    sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
+              f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
+              integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
+  else
+    sf_abkm_wrap_order_(xip, integrationParams.q2[integrationParams.i],
+              f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
+              integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.order);
+  if (integrationParams.flag_calc_fl == 0) {
+    if (integrationParams.flag_flavour == 1) {
+      ff[0] = f2/xip/xip*(1.-xi);
+      return 0;
+    }
+    else if (integrationParams.flag_flavour == 2) {
+      ff[0] = f2c/xip/xip*(1.-xi);
+      return 0;
+    }
+    else if (integrationParams.flag_flavour == 3) {
+      ff[0] = f2b/xip/xip*(1.-xi);
+      return 0;
+    }
+    else {
+      ff[0] = 0.;
+      return 0;
+    }
+  }
+  else if (integrationParams.flag_calc_fl == 1) {
+    if (integrationParams.flag_flavour == 1) {
+      ff[0] = fl/xip/xip*(1.-xi);
+      return 0;
+    }
+    else if (integrationParams.flag_flavour == 2) {
+      ff[0] = flc/xip/xip*(1.-xi);
+      return 0;
+    }
+    else if (integrationParams.flag_flavour == 3) {
+      ff[0] = flb/xip/xip*(1.-xi);
+      return 0;
+    }
+    else {
+      ff[0] = 0.;
+      return 0;
+    }
+  }
+  else if (integrationParams.flag_calc_fl == 2) {
+    if (integrationParams.flag_flavour == 1) {
+      ff[0] = f3/xip/xip*(1.-xi);
+      return 0;
+    }
+    else if (integrationParams.flag_flavour == 2) {
+      ff[0] = f3c/xip/xip*(1.-xi);
+      return 0;
+    }
+    else if (integrationParams.flag_flavour == 3) {
+      ff[0] = f3b/xip/xip*(1.-xi);
+      return 0;
+    }
+    else {
+      ff[0] = 0.;
+      return 0;
+    }
+  }
+  throw 1;
+};

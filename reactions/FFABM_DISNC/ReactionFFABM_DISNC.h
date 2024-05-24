@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ReactionBaseDISNC.h"
+#include "cuba.h"
 
 /**
   @class' ReactionFFABM_DISNC
@@ -49,6 +50,7 @@ private:
 
   double apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
     const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i);
+  static int Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
   struct integration_params {
     std::valarray<double> q2;
     int i;
@@ -61,8 +63,11 @@ private:
     int flag_calc_fl;
     int flag_flavour;
     int order;
+    double xi;
   };
   map<int, int> _flag_tmc;
   map<int, int> _tmc_integration_method;
+  map<int, double> _tmc_xmin;
+  map<int, double> _tmc_logxlogq2min;
   const double* _tmc_mpr;
 };
