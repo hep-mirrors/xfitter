@@ -61,7 +61,9 @@ C !> Also store for each fcn=3 call:
 
 C     Print MINUIT extra parameters
 c which are actually all parameters
-      call printminuitextrapars(iflag)
+      !if (iflag.ne.4) then
+         call printminuitextrapars(iflag)
+      !endif
 C Copy new parameter values from MINUIT to whereever parameterisations
 c will take them from
       call copy_minuit_extrapars(parminuit)
@@ -398,9 +400,10 @@ c a minimizer would treat it as very bad
 
 c Print time, number of calls, chi2
          call cpu_time(time3)
-         print '(''cpu_time'',3F10.2)', time1, time3, time3-time1
-         write(6,'(A20,i6,F12.2,i6,F12.2)') '
-     $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out,
+C         print '(''cpu_time = '',3F12.2)', time1, time3, time3-time1
+         print '(A,2F12.2)', 'cpu_time total,after last GetTheoryForDataset = ',time3, time3-time1
+         write(6,'(A,i8,F12.2,i6,F12.2)') 
+     $        'xfitter chi2out,ndf,chi2out/ndf = ',ifcncount, chi2out,
      $        ndf, chi2out/ndf
       call flush
 ! ----------------  RESULTS OUTPUT ---------------------------------
