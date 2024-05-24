@@ -70,4 +70,5 @@ private:
   map<int, double> _tmc_xmin;
   map<int, double> _tmc_logxlogq2min;
   const double* _tmc_mpr;
+  map<int, int> _ncpu;
 };

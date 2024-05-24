@@ -13,6 +13,10 @@
 #include <spline.h>
 #include "cuba.h"
 //#include "cubature.h"
+#include <unistd.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
+#include "xfitter_steer.h"
 
 static int Integrand(const int *ndim, const cubareal xx[],
   const int *ncomp, cubareal ff[], void *userdata) {
@@ -227,6 +231,17 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   }
   else
     _flag_tmc[termID] = 0;
+
+  // parallel
+  _ncpu[td->id] = 1;
+  //printf("td->hasParam(threads) = %d\n", td->hasParam("threads"));
+  if (td->hasParam("threads")) 
+    _ncpu[td->id] = td->getParamI("threads");
+  if (_ncpu[td->id] == -1) {
+    _ncpu[td->id] = sysconf(_SC_NPROCESSORS_ONLN);
+    hf_errlog(2023061401,"I: Will use "+std::to_string(_ncpu[td->id])+" threads");
+  }
+  //printf("_ncpu = %d\n", _ncpu[td->id]);
 }
 
 //
@@ -279,8 +294,11 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     double cos2thw = 1.0 - *_sin2thwPtr;
 
-    for (size_t i = 0; i < Np; i++)
-    {
+    // Calculate i-th data point, return values f2, fl, f3
+    auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
+      f2out = 0.;
+      flout = 0.;
+      f3out = 0.;
       if (q2[i] > 1.0)
       {
         sf_abkm_wrap_(x[i], q2[i],
@@ -291,25 +309,99 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
             apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
         }
       }
-
       switch (GetDataFlav(dataSetID))
       {
         case dataFlav::incl:
-          _f2abm[dataSetID][i] = f2 + f2c + f2b;
-          _flabm[dataSetID][i] = fl + flc + flb;
-          _f3abm[dataSetID][i] = x[i] * (f3 + f3c + f3b);
+          f2out = f2 + f2c + f2b;
+          flout = fl + flc + flb;
+          f3out = x[i] * (f3 + f3c + f3b);
           break;
         case dataFlav::c:
-          _f2abm[dataSetID][i] = f2c;
-          _flabm[dataSetID][i] = flc;
-          _f3abm[dataSetID][i] = x[i] * f3c;
+          f2out = f2c;
+          flout = flc;
+          f3out = x[i] * f3c;
           break;
         case dataFlav::b:
-          _f2abm[dataSetID][i] = f2b;
-          _flabm[dataSetID][i] = flb;
-          _f3abm[dataSetID][i] = x[i] * f3b;
+          f2out = f2b;
+          flout = flb;
+          f3out = x[i] * f3b;
           break;
       }
+    };
+
+    //printf("FFABM _ncpu = %d\n", _ncpu[dataSetID]);
+    int ncpu =  xfitter::xf_ncpu(_ncpu[dataSetID]);
+    //printf("FFABM ncpu = %d\n", ncpu);
+
+
+    if (ncpu == 1) {
+      for (size_t i = 0; i < Np; i++) {
+        double f2, fl, f3;
+        calc_point(i, f2, fl, f3);
+        _f2abm[dataSetID][i] = f2;
+        _flabm[dataSetID][i] = fl;
+        _f3abm[dataSetID][i] = f3;
+      }
+    }
+    else {
+      // Shared memory for predictions
+      int shmid;
+      double* sharedArray;
+      shmid = shmget(IPC_PRIVATE, sizeof(double) * Np * 3, IPC_CREAT | 0666);
+      if (shmid < 0) {
+        hf_errlog(2023060200,"F: Failed to create shared memory segment");
+      }
+      sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+      if (sharedArray == reinterpret_cast<double*>(-1)) {
+        hf_errlog(2023060201,"F: Failed to attach shared memory segment");
+      }
+      // define Chunks
+      int chunkSize = Np / ncpu;
+      int reminder  = Np % ncpu; 
+      int first = 0;
+      int startIndex = 0;
+      int endIndex = 0;
+      // loop over all
+      for (int icpu = 0; icpu < std::min(ncpu, int(Np)); icpu++) {
+        startIndex = endIndex;
+        endIndex   = startIndex + chunkSize;
+        if (icpu < reminder) {
+          endIndex += 1;
+        }
+        pid_t pid = xfitter::xf_fork( std::min(ncpu, int(Np))  );
+        if ( pid == 0) {       
+          // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
+          int fdlimit = (int)sysconf(_SC_OPEN_MAX);
+          for (int i = STDERR_FILENO + 1; i < fdlimit; i++) {
+            close(i);
+          }
+          for (int i = first+startIndex; i < first+endIndex; i++) {
+            //printf("CPU %d computing %d\n", icpu, i);
+            double f2, fl, f3;
+            calc_point(i, f2, fl, f3);
+            //printf("CPU %d computing %d f2,fl,f3 = %f %f %f\n", icpu, i, f2,fl,f3);
+            sharedArray[i] = f2;
+            sharedArray[i+Np] = fl;
+            sharedArray[i+2*Np] = f3;
+          }
+          exit(0);	    
+        }
+        else if (pid<0) {
+          hf_errlog(2023060204,"F: Failed to create a fork process");	
+        }
+      }	
+      // Wait ...
+      int status;
+      while (wait(&status) > 0);    
+      // Store result
+      for (size_t i = 0; i<Np; i++) {
+        _f2abm[dataSetID][i] = sharedArray[i];
+        _flabm[dataSetID][i] = sharedArray[i+Np];
+        _f3abm[dataSetID][i] = sharedArray[i+2*Np];
+      }    
+      // Detach and remove shared memory segments
+      shmdt(sharedArray);
+      shmctl(shmid, IPC_RMID, NULL);
     }
   }
 }
