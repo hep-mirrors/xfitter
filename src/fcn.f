@@ -155,6 +155,7 @@ C--------------------------------------------------------------
 *     ---------------------------------------------------------
 
       double precision time1,time2,time3
+      integer realtime0,realtime1,realtime2,realtime3
       logical od !to check if a unit is open with INQUIRE
 
 *     ---------------------------------------------------------
@@ -272,6 +273,11 @@ C--------------------------------------------------------------
       endif
 
       call cpu_time(time1)
+      if (ifcncount.eq.1) then
+        call system_clock(realtime0)
+      endif
+      call system_clock(realtime1)
+C      call getrusage(RUSAGE_CHILDREN, time1)
 
       !Count datapoints in each dataset?
       if(iflag.eq.3)then
@@ -400,8 +406,10 @@ c a minimizer would treat it as very bad
 
 c Print time, number of calls, chi2
          call cpu_time(time3)
+         call system_clock(realtime3)
 C         print '(''cpu_time = '',3F12.2)', time1, time3, time3-time1
-         print '(A,2F12.2)', 'cpu_time total,after last GetTheoryForDataset = ',time3, time3-time1
+         print '(A,3F12.2)', 'time real,cpu,after last GetTheoryForDataset = ',
+     $        (realtime3-realtime0)/1000.,time3, time3-time1
          write(6,'(A,i8,F12.2,i6,F12.2)') 
      $        'xfitter chi2out,ndf,chi2out/ndf = ',ifcncount, chi2out,
      $        ndf, chi2out/ndf
@@ -560,6 +568,7 @@ C Trigger reactions:
          call fcn3action
 
          call cpu_time(time2)
+         call system_clock(realtime2)
          print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
 
 
