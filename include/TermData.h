@@ -45,7 +45,15 @@ public:
   size_t getNbins(){return parent->getNbins();}
   bool                   hasBinColumn(const string&columnName){return parent->hasBinColumn(columnName);}
   const valarray<double>&getBinColumn(const string&columnName);
-  const valarray<double>*getBinColumnOrNull(const string&columnName){return parent->getBinColumn(columnName);}//same, but return nullptr instead of issuing an error if the column does not exist
+  const valarray<double>*getBinColumnOrNull(const string&columnName){
+    auto bins = parent->getBinColumn(columnName);
+    if (!bins) {
+      if (this->hasParam(columnName)) {
+        return new valarray<double>(*this->getParamD(columnName), this->getNbins()); // TODO fix memory leak
+      }
+    }
+    return parent->getBinColumn(columnName);
+  }//same, but return nullptr instead of issuing an error if the column does not exist // UPDATE SZ 26.10.2023 try to get bin values from parameter value
   const vector<int>&     getBinFlags(){return*parent->getBinFlags();}//0 means bin is disabled, 1 means enabled. Disabled bins are excluded from the fit
   //The following pointer can be used by ReactionTheory to store some additional data
   //for each reaction term. It should be managed by ReactioTheory only, do not touch it from elsewhere
@@ -55,6 +63,7 @@ public:
   //val might be moved somewhre else in the future, please do not use it outside of TheorEval
   //this is a "weak" pointer, the actual valarray is owned by TheorEval
   valarray<double>*val=nullptr;
+  int _ncpu; // number of parallel threads
 private:
   TheorEval*parent;//The instance of TheorEval that manages this instance of TermData
   map<string,string>term_info;//Map key->value
