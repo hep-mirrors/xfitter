@@ -272,11 +272,12 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   if (mf<0.) {
     mf = mf*-1./mt;
   }
+  //printf("getXsection\n");
   _hathor->getXsection(mt, mr, mf);
   double dum = 0.0;
   double xsec = 0.0;
   _hathor->getResult(0, xsec, dum);
-  //printf("mt,mr,mf,xsec: %f %f %f %f\n", mt, mr, mf, xsec);
+  //printf("mt,mr,mf,xsec,err: %f %f %f %f %f [%.3f%%]\n", mt, mr, mf, xsec, dum, dum/xsec*100.);
   val = xsec;
   //printf("VAL ************ %f\n", val[0]);
   _convolved.insert(std::make_pair(calc_name, xsec));

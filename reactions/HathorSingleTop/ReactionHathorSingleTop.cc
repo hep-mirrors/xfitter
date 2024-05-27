@@ -403,17 +403,17 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
             // all order result
             hathor->getXsection(_mtop[dataSetID],_mtop[dataSetID],_mf[dataSetID]);
             hathor->getResult(0,valtclo,err1,chi1);
-            printf("xsec,err LO: %f %f [%.3f%%]\n", valtclo, err1, err1/valtclo*100.);
+            //printf("xsec,err LO: %f %f [%.3f%%]\n", valtclo, err1, err1/valtclo*100.);
     
             if (orderI > 0) {
                 // LO derivatives
                 hathor->setScheme(Hathor::LO);
                 hathor->getXsection(_mtop[dataSetID]+dmtms,_mtop[dataSetID],_mf[dataSetID]);
                 hathor->getResult(0,valtclop,err1,chi1);    
-                printf("xsec,err LOp: %f %f [%.3f%%]\n", valtclop, err1, err1/valtclop*100.);
+                //printf("xsec,err LOp: %f %f [%.3f%%]\n", valtclop, err1, err1/valtclop*100.);
                 hathor->getXsection(_mtop[dataSetID]-dmtms,_mtop[dataSetID],_mf[dataSetID]);
                 hathor->getResult(0,valtclom,err1,chi1);
-                printf("xsec,err LOm: %f %f [%.3f%%]\n", valtclom, err1, err1/valtclom*100.);
+                //printf("xsec,err LOm: %f %f [%.3f%%]\n", valtclom, err1, err1/valtclom*100.);
     
                 // NLO
                 //hathor->setScheme(Hathor::NLO);
@@ -427,10 +427,10 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
                 hathor->setScheme(Hathor::NLO);
                 hathor->getXsection(_mtop[dataSetID]+dmtms,_mtop[dataSetID],_mf[dataSetID]);
                 hathor->getResult(0,valtcnlop,err1,chi1);
-                printf("xsec,err NLOp: %f %f [%.3f%%]\n", valtcnlop, err1, err1/valtcnlop*100.);
+                //printf("xsec,err NLOp: %f %f [%.3f%%]\n", valtcnlop, err1, err1/valtcnlop*100.);
                 hathor->getXsection(_mtop[dataSetID]-dmtms,_mtop[dataSetID],_mf[dataSetID]);
                 hathor->getResult(0,valtcnlom,err1,chi1);
-                printf("xsec,err NLOm: %f %f [%.3f%%]\n", valtcnlom, err1, err1/valtcnlom*100.);
+                //printf("xsec,err NLOm: %f %f [%.3f%%]\n", valtcnlom, err1, err1/valtcnlom*100.);
     
                 // NNLO
                 //hathor->setScheme(Hathor::NNLO);
