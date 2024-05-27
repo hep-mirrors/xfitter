@@ -16,11 +16,14 @@
 #dynamically loaded modules go to ./lib/xfitter
 
 CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Release"
+#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=RelWithDebInfo"
+#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Debug"
 
 #Uncommect to disable some some of the optional packages
 #CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_APFEL=TRUE"
 #CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_APFELxx=TRUE"
 #CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_Ceres=TRUE"
+#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_DYTurbo=TRUE"
 
 SOURCE_DIR=`pwd` #absolute path to directory of this script
 BUILD_DIR=$SOURCE_DIR/build
@@ -67,6 +70,7 @@ elif [ "$cmd" == "reconfigure" ] || [ "$cmd" == "install" ] || [ "$cmd" == "run"
   fi
   if [ "$cmd" == "install" ] || [ "$cmd" == "run" ];then
     make -j$(nproc) install || exit
+    #VERBOSE=1 make -j$(nproc) install || exit
   else
     make -j$(nproc) || exit
   fi
