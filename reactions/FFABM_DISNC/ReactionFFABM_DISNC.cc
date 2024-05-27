@@ -11,48 +11,13 @@
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_integration.h>
 #include <spline.h>
-#include "cuba.h"
+//#include "cuba.h"
 //#include "cubature.h"
 #include <unistd.h>
 #include <sys/shm.h>
 #include <sys/wait.h>
 #include "xfitter_steer.h"
 
-static int Integrand(const int *ndim, const cubareal xx[],
-  const int *ncomp, cubareal ff[], void *userdata) {
-
-#ifndef FUN
-#define FUN 1
-#endif
-
-#define rsq (Sq(x) + Sq(y) + Sq(z))
-
-#if FUN == 1
-  ff[0] = sin(xx[0])*cos(xx[1])*exp(xx[2]);
-#elif FUN == 2
-  f = 1/(Sq(x + y) + .003)*cos(y)*exp(z);
-#elif FUN == 3
-  f = 1/(3.75 - cos(M_PI*x) - cos(M_PI*y) - cos(M_PI*z));
-#elif FUN == 4
-  f = fabs(rsq - .125);
-#elif FUN == 5
-  f = exp(-rsq);
-#elif FUN == 6
-  f = 1/(1 - x*y*z + 1e-10);
-#elif FUN == 7
-  f = sqrt(fabs(x - y - z));
-#elif FUN == 8
-  f = exp(-x*y*z);
-#elif FUN == 9
-  f = Sq(x)/(cos(x + y + z + 1) + 5);
-#elif FUN == 10
-  f = (x > .5) ? 1/sqrt(x*y*z + 1e-5) : sqrt(x*y*z);
-#else
-  f = (rsq < 1) ? 1 : 0;
-#endif
-
-  return 0;
-}
 
 // the class factories
 extern "C" ReactionFFABM_DISNC *create()
@@ -583,13 +548,8 @@ double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, 
   }
   // cuba integration
   else if (method == 4) {
-    const int NDIM = 2;
+    /*const int NDIM = 2;
     const int NCOMP = 1;
-    /*integrand_t Integrand = [&](const int* ndim, const cubareal* xip, const int *ncomp, cubareal ff[], void *userdata) {
-      double x = xi + (1. - xi) * (*xip);
-      ff[0] = (1.-xi)*integrate(x, userdata);
-      return 0;
-    };*/
     pars.xi = xi;
     void* USERDATA = &pars;
     const int NVEC = 1;
@@ -606,15 +566,13 @@ double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, 
     int neval = 0;
     int fail = 0;
     cubareal cuba_integral[1], cuba_error[1], prob[1];
-    //Cuhre(NDIM, NCOMP, Integrand, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, integral, error, prob);
     Cuhre(NDIM, NCOMP, ReactionFFABM_DISNC::Integrand_Cuhre, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
-    //Cuhre(NDIM, NCOMP, Integrand, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
-    /*printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n",
-    nregions, neval, fail);
-    for(int comp = 0; comp < NCOMP; ++comp )
-      printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
-        (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);*/
-    I = cuba_integral[0];
+    //printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n",
+    //nregions, neval, fail);
+    //for(int comp = 0; comp < NCOMP; ++comp )
+    //  printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
+    //    (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
+    I = cuba_integral[0];*/
   }
   //double I = result;
   //I = sim38;
@@ -657,7 +615,7 @@ double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, 
   return f2/f20-1;
 }
 
-int ReactionFFABM_DISNC::Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata) {
+/*int ReactionFFABM_DISNC::Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata) {
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
   const integration_params& integrationParams = *(integration_params*)userdata;
   double xi = integrationParams.xi;
@@ -729,4 +687,4 @@ int ReactionFFABM_DISNC::Integrand_Cuhre(const int* ndim, const cubareal* x, con
     }
   }
   throw 1;
-};
+};*/
