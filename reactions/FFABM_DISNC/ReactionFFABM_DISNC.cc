@@ -375,6 +375,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           for (int i = STDERR_FILENO + 1; i < fdlimit; i++) {
             close(i);
           }
+          //printf("CPU %d will compute %d -- %d\n", icpu, first+startIndex, first+endIndex-1);
           for (int i = first+startIndex; i < first+endIndex; i++) {
             //printf("CPU %d computing %d\n", icpu, i);
             double f2, fl, f3;
@@ -393,6 +394,8 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       // Wait ...
       int status;
       while (wait(&status) > 0);    
+      //struct rusage usage;
+      //while (wait3(&status, 0, &usage) > 0);    
       // Store result
       for (size_t i = 0; i<Np; i++) {
         _f2abm[dataSetID][i] = sharedArray[i];
