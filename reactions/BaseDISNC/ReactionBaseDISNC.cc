@@ -574,7 +574,7 @@ void ReactionBaseDISNC::sred BASE_PARS
   auto s = q2/x/y;
   //val = ((1-y-x*y*mp*mp/s)*f2+y*y/2*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
   //auto val_nmc = ((1-y-x*y*mp*mp/s)*f2+(y*y/2+2*x*y*mp*mp/s)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  auto val_sa = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3; // best
+  auto val_sa = ((-y-x*y*mp*mp/s+1)*f2+(y*y/2)*(-2*rmu2/q2+1)*(f2-fl))/(-y+y*y+1/2) + (yminus / yplus) * xf3; // best
   //auto val_sa = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(1+2*x*y*mp*mp/s)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
   /*//auto r = (val_nmc-val)/val;
   //auto r = (val_nmc-val0)/val0;
