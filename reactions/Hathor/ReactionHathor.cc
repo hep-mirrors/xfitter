@@ -284,6 +284,6 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
 }
 
 void ReactionHathor::atIteration() {
-    printf("clearing %ld Hathor saved xsecs\n", _convolved.size());
+    //printf("clearing %ld Hathor saved xsecs\n", _convolved.size());
     _convolved.clear();
 }
