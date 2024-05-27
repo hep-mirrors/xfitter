@@ -11,9 +11,13 @@
 #include "xfitter_steer.h"
 #include "xfitter_cpp_base.h"
 #include <memory>
+#include <unistd.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
 #include "BaseEvolution.h"
 #include "TermData.h"
 #include <sstream>
+#include <numeric>
 
 using namespace std;
 using namespace xfitter;
@@ -23,14 +27,30 @@ struct DatasetData {
     int order;
     const double *muR, *muF; // !> renormalisation and factorisation scales
     bool flagNorm;  // !> if true, multiply by bin width
-    int Nbins;
+    //int Nbins;
     int Nord;
     int Nlumi;
     double energyRescale;
     vector<bool> ordervec;
     vector<bool> lumivec;
+    std::string evolution;
+    std::string evolution1;
+    std::string evolution2;
     vector<std::string> GridNames;
     std::vector<std::vector<int> > rebin;
+    //static const std::string& get_key(const pineappl_grid* g, double energyRescale, double* muR_ptr, double* muF_ptr, int Nord, const vector<bool>& ordervec, int Nlumi, const vector<bool>& lumivec) {
+    const std::string get_pars_as_str() const {
+        auto ordervec_rev = ordervec;
+        reverse(ordervec_rev.begin(), ordervec_rev.end());
+        auto order_key = accumulate(ordervec_rev.rbegin(), ordervec_rev.rend(), 0, [](int x, int y) { return (x << 1) + y; });
+        auto lumivec_rev = ordervec;
+        reverse(lumivec_rev.begin(), lumivec_rev.end());
+        auto lumi_key = accumulate(lumivec_rev.rbegin(), lumivec_rev.rend(), 0, [](int x, int y) { return (x << 1) + y; });
+        const std::string key = std::to_string(energyRescale) + "_" + std::to_string((unsigned long long)(void**)muR) + "_" + std::to_string((unsigned long long)(void**)muF) +
+            "_" + std::to_string(Nord) + "_" + std::to_string(order_key) + "_" + std::to_string(Nlumi) + "_" + std::to_string(lumi_key) + 
+            "_" + std::to_string(flagNorm) + "_" + evolution + "_" + evolution1 + "_" + evolution2;
+        return key;
+    }
 };
 
 const double ONE=1;
@@ -65,6 +85,7 @@ vector<bool> maskParser(string mask) {
 }
 
 void ReactionPineAPPL::initTerm(TermData*td) {
+    super::initTerm(td);
     DatasetData* data = new DatasetData;
     td->reactionData = (void*)data;
     // Load grids
@@ -89,7 +110,8 @@ void ReactionPineAPPL::initTerm(TermData*td) {
             data->GridNames.push_back(token);
         }
         // Init dimensions
-        data->Nbins = pineappl_grid_bin_count(data->grids[0]);
+        //data->Nbins = pineappl_grid_bin_count(data->grids[0]);
+        //printf("data->Nbins = %d\n", data->Nbins);
         data->Nord  = pineappl_grid_order_count(data->grids[0]);
         auto* lumi  = pineappl_grid_lumi(data->grids[0]);
         data->Nlumi = pineappl_lumi_count(lumi);
@@ -148,6 +170,20 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     else {
         data->energyRescale = 1.0;
     }
+
+    // evolution
+    if(td->hasParam("evolution")) 
+        data->evolution = td->getParamS("evolution");
+    else
+        data->evolution = "";
+    if(td->hasParam("evolution1"))
+        data->evolution1 = td->getParamS("evolution1");
+    else
+        data->evolution1 = "";
+    if(td->hasParam("evolution2"))
+        data->evolution2 = td->getParamS("evolution2");
+    else
+        data->evolution2 = "";
 
     // rebin
     if (td->hasParam("rebin")) {
@@ -260,6 +296,17 @@ void ReactionPineAPPL::initTerm(TermData*td) {
             //if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax " + std::to_string((*yttmax)[bin]));
         }
     }
+
+    // store all grids to convolute them in atIteration
+    const std::string key_pars = data->get_pars_as_str();
+    for (const auto&  g : data->grids) {
+        //const std::string key = std::to_string((unsigned long long)(void**)g) + "_" + data->get_key(g, data->energyRescale, data->muR, data->muF, data->Nord, data->ordervec, data->Nlumi, data->lumivec);
+        std::string key = std::to_string((unsigned long long)(void**)g) + "_" + key_pars;
+        if (_convolved.find(key) == _convolved.end()) {
+            _convolved[key] = std::make_pair(vector<double>(), td);
+            _convolved_vector_of_keys.push_back(key);
+        }
+    }
 } //initTerm
 
 void ReactionPineAPPL::freeTerm(TermData*td) {
@@ -270,7 +317,166 @@ void ReactionPineAPPL::freeTerm(TermData*td) {
 }
 
 void ReactionPineAPPL::atIteration() {
-    _convolved.clear();
+    //_convolved.clear();
+
+    //Pineappl assumes PDF and alphaS wrapper function pointers
+    //are given a pointer "state", e.g. an LHAPDF object, if the 
+    //values were read from there. Here, call existing wrappers 
+    //rearranging parameter list & return value to suit pineappl 
+    //convolution function.
+    //printf("atIteration _pacount = %d\n", _pacount);
+    _pacount = 0;
+    auto xfx = [](int32_t id_in, double x, double q2, void *state) {
+        if(x >= 1.) {
+            return 0.;
+        }
+        double pdfs[13];
+        int32_t id = id_in==21 ? 6 : id_in+6;
+        double energyRescale = *((double*)state);
+        auto x_actual = x*energyRescale;
+        if(x_actual >= 1.) {
+            return 0.;
+        }
+        pdf_xfxq_wrapper_(x_actual, sqrt(q2), pdfs);
+        return pdfs[id];
+    };
+    auto xfx1 = [](int32_t id_in, double x, double q2, void *state) {
+        double pdfs[13];
+        int32_t id = id_in==21 ? 6 : id_in+6;
+        double energyRescale = *((double*)state);
+        auto x_actual = x*energyRescale;
+        if(x_actual >= 1.) {
+            return 0.;
+        }
+        pdf_xfxq_wrapper1_(x_actual, sqrt(q2), pdfs);
+        return pdfs[id];
+    };
+    auto alphas = [](double q2, void *state) {
+        return alphas_wrapper_(sqrt(q2));
+    };
+    // Fix PDG ID to p, avoiding double charge conjugation in case pbar is used,
+    // as this is already done elsewhere before passing PDFs to PineAPPL
+    int32_t PDGID = 2212;  //DO NOT MODIFY
+
+    auto calc_one = [&](int i, std::vector<double>& gridVals) {
+        const std::string& key = _convolved_vector_of_keys[i];
+        auto& it = _convolved[_convolved_vector_of_keys[i]];
+        TermData* td = it.second;
+        td->actualizeWrappers();
+        const DatasetData& data = *(DatasetData*)td->reactionData;
+        bool order_mask[data.Nord];
+        bool lumi_mask[data.Nlumi];
+        for (int i=0; i<data.Nord; ++i) order_mask[i] = data.ordervec[i];
+        for (int i=0; i<data.Nlumi; ++i) lumi_mask[i] = data.lumivec[i];
+        pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
+        gridVals.resize(pineappl_grid_bin_count(grid));
+        //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
+        _pacount++;
+        //printf("_pacount = %d\n", _pacount);
+        pineappl_grid_convolute_with_two(grid, 
+                                            PDGID, xfx, 
+                                            PDGID, xfx1, 
+                                            alphas, 
+                                            (void*)&data.energyRescale,//"state" is energyRescale
+                                            data.Nord>0 ? order_mask : nullptr,
+                                            data.Nlumi>0 ? lumi_mask : nullptr,
+                                            *data.muR, *data.muF, gridVals.data());
+        //scale by bin width
+        if (data.flagNorm) for(size_t i=0; i<gridVals.size(); i++) {
+            vector<double> bin_sizes;
+            bin_sizes.resize(pineappl_grid_bin_count(grid));
+            pineappl_grid_bin_normalizations(grid, bin_sizes.data());
+            gridVals[i] *= bin_sizes[i]*std::pow(data.energyRescale, 2.);
+        }
+    };
+
+    int ngrids = _convolved.size();
+    int ncpu =  xfitter::xf_ncpu(_ncpu);
+    //printf("_ncpu = %d\n", _ncpu);
+    //printf("ncpu = %d\n", ncpu);
+    if (ncpu == 1) {
+        for (int i = 0; i < ngrids; i++) {
+            calc_one(i, _convolved[_convolved_vector_of_keys[i]].first);
+        }
+    }
+    else {
+        std::vector<int> positions(ngrids);
+        int nbins = 0;
+        //printf("_convolved = %ld _convolved_vector_of_keys.size() = %ld\n", _convolved.size(), _convolved_vector_of_keys.size());fflush(stdout);
+        for (size_t igrid = 0; igrid < _convolved_vector_of_keys.size(); igrid++) {
+            positions[igrid] = nbins;
+            const std::string& key = _convolved_vector_of_keys[igrid];
+            pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
+            nbins += pineappl_grid_bin_count(grid);
+            //printf("igrid,nbins = %ld,%d\n", igrid, nbins);
+        }
+        //printf("nbins = %d\n", nbins);
+        // Shared memory for predictions
+        int shmid;
+        double* sharedArray;
+        shmid = shmget(IPC_PRIVATE, sizeof(double) * nbins, IPC_CREAT | 0666);
+        if (shmid < 0) {
+        hf_errlog(2023060200,"F: Failed to create shared memory segment");
+        }
+        sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+        if (sharedArray == reinterpret_cast<double*>(-1)) {
+        hf_errlog(2023060201,"F: Failed to attach shared memory segment");
+        }
+        // define Chunks
+        int chunkSize = ngrids / ncpu;
+        int reminder  = ngrids % ncpu; 
+        int first = 0;
+        int startIndex = 0;
+        int endIndex = 0;
+        // loop over all
+        for (int icpu = 0; icpu < min(ncpu, ngrids); icpu++) {
+            startIndex = endIndex;
+            endIndex   = startIndex + chunkSize;
+            if (icpu < reminder) {
+                endIndex += 1;
+            }
+            pid_t pid = xfitter::xf_fork( min(ncpu, ngrids)  );
+            if ( pid == 0) {       
+                    // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
+                    int fdlimit = (int)sysconf(_SC_OPEN_MAX);
+                    for (int i = STDERR_FILENO + 1; i < fdlimit; i++) {
+                    close(i);
+                }
+                for (int i = first+startIndex; i < first+endIndex; i++) {
+                    //printf("CPU %d computing %d\n", icpu, i);
+                    std::vector<double> gridVals = std::vector<double>();
+                    calc_one(i, gridVals);
+                    //printf("computed\n");
+                    const std::string& key = _convolved_vector_of_keys[i];
+                    pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
+                    //nbins = pineappl_grid_bin_count(grid);
+                    //for (int ibin = 0; ibin < nbins; ibin++)
+                    for (size_t ibin = 0; ibin < gridVals.size(); ibin++)
+                        sharedArray[positions[i] + ibin] = gridVals[ibin];
+                }
+                exit(0);	    
+            }
+            else if (pid<0) {
+                hf_errlog(2023060204,"F: Failed to create a fork process");	
+            }
+        }	
+        // Wait ...
+        int status;
+        while (wait(&status) > 0);    
+        // Store result
+        for (size_t i = 0; i<ngrids; i++) {
+            const std::string& key = _convolved_vector_of_keys[i];
+            pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
+            nbins = pineappl_grid_bin_count(grid);
+            _convolved[_convolved_vector_of_keys[i]].first.resize(nbins);
+            for(int ibin = 0; ibin < nbins; ibin++) {
+                _convolved[_convolved_vector_of_keys[i]].first[ibin] = sharedArray[positions[i] + ibin];
+            }
+        }    
+        // Detach and remove shared memory segments
+        shmdt(sharedArray);
+        shmctl(shmid, IPC_RMID, NULL);
+    }
 }
 
 void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valarray<double> >&err) {
@@ -290,14 +496,13 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
     val.resize(np);
     //err.resize(np);
 
-    // Fix PDG ID to p, avoiding double charge conjugation in case pbar is used,
-    // as this is already done elsewhere before passing PDFs to PineAPPL
-    int32_t PDGID = 2212;  //DO NOT MODIFY
-
-    //for (pineappl_grid* grid : data.grids) {
+    const std::string key_pars = data.get_pars_as_str();
     for (size_t igrid = 0; igrid < data.grids.size(); igrid++) {
         pineappl_grid* grid = data.grids[igrid];
-        vector<double> gridVals;
+        std::string key = std::to_string((unsigned long long)(void**)grid) + "_" + key_pars;
+        vector<double> gridVals = _convolved[key].first;
+
+        /*vector<double> gridVals;
         gridVals.resize(data.Nbins);
 
         std::string grid_name_and_energy = data.GridNames[igrid] + std::string("_energy_") + std::to_string(data.energyRescale);
@@ -367,7 +572,7 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
         }
         else {
             gridVals = _convolved[grid_name_and_energy];
-        }
+        }*/
         //for(size_t i=0; i<gridVals.size(); i++) {
         //    printf("i = %ld xsec = %f\n", i, gridVals[i]);
         //}
