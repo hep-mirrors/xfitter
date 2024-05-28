@@ -567,7 +567,7 @@ void ReactionBaseDISNC::sred BASE_PARS
   //double rmu2 = 0.105658*0.105658;
   //double rmu2 = 0;
   //val = ((1-y-x*y*mp*mp/(q2/x/y))*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  val = ((1-y-x*y*mp2/(q2/x/y))*f2+(y*y/2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  val = ((1.0-y-x*y*mp2/(q2/x/y))*f2+(y*y/2)*(f2-fl))/(1.0-y+y*y/2) + (yminus / yplus) * xf3;
 }
 
 void ReactionBaseDISNC::GetF2ud(TermData *td, valarray<double> &f2u, valarray<double> &f2d)
