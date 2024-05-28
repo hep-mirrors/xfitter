@@ -31,6 +31,9 @@ mmo : 0.1056583715
 mtn : 1e-10
 mta : 1.77682
 
+# proton mass
+mpr : 0.938272088
+
 # light quark masses:
 mup : 0.06983
 mdn : 0.06983

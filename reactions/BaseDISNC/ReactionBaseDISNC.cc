@@ -552,41 +552,22 @@ void ReactionBaseDISNC::sred BASE_PARS
   if (GetDataType(td->id) != dataType::sigred_nof3) {
     xF3(td, xf3, err);
   }
-  //xf3 = 0;
-  //fl = 0;
 
   valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
   valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
-  valarray<double> one(1.0 , yplus.size());
-  valarray<double> oneovertwo(0.5 , yplus.size());
   //val = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
-  //auto val0 = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
+  // take into account proton mass
   auto *xp = GetBinValues(td, "x");
   auto x = *xp;
   auto *q2p = GetBinValues(td, "Q2");
   auto q2 = *q2p;
-  double mp = 0.938272;
-  //mp = 0.;
-  //mp *= 2.;
-  //mp = 1.;
-  //mp = 1./mp;
+  double mp = (*td->getParamD("mpr"));
+  double mp2 = mp*mp;
+  // lepton mass is neglected
   //double rmu2 = 0.105658*0.105658;
-  double rmu2 = 0;
-  //val = ((1-y-mp*mp*x*x*y*y/q2)*f2+(1-2*rmu2/q2)*y*y/2*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  auto s = q2/x/y;
-  //val = ((1-y-x*y*mp*mp/s)*f2+y*y/2*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  //auto val_nmc = ((1-y-x*y*mp*mp/s)*f2+(y*y/2+2*x*y*mp*mp/s)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  //auto val_sa = ((-y-x*y*mp*mp/s+1)*f2+(y*y/2)*(-2*rmu2/q2+1)*(f2-fl))/(-y+y*y+1/2) + (yminus / yplus) * xf3; // best
-  auto val_sa = ((-y-x*y*mp*mp/s+one)*f2+(y*y/2)*(-2*rmu2/q2+one)*(f2-fl))/(-y+y*y+oneovertwo) + (yminus / yplus) * xf3; // best
-  //auto val_sa = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(1+2*x*y*mp*mp/s)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  /*//auto r = (val_nmc-val)/val;
-  //auto r = (val_nmc-val0)/val0;
-  auto val_m = ((1-y-x*y*mp*mp/s)*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  auto val_p = ((1-y+x*y*mp*mp/s)*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
-  auto r = (val_p-val_m)/val_m;
-  val = r;*/
-  val = val_sa;
-  //val = val_nmc;
+  //double rmu2 = 0;
+  //val = ((1-y-x*y*mp*mp/(q2/x/y))*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
+  val = ((1-y-x*y*mp2/(q2/x/y))*f2+(y*y/2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
 }
 
 void ReactionBaseDISNC::GetF2ud(TermData *td, valarray<double> &f2u, valarray<double> &f2d)
