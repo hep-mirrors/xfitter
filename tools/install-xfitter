@@ -216,9 +216,9 @@ then
 	    #. /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos7-gcc10-opt/setup.sh
 
 	    #setup older gcc
-	    . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+	    #. /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
 	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
-            echo "Using gcc version = 4.9.3"
+        #    echo "Using gcc version = 4.9.3"
         else
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
