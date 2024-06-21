@@ -6,6 +6,7 @@
 #include<fstream>
 #include <yaml-cpp/yaml.h>
 #include <Profiler.h>
+#include <PartonSens.h>
 #include"BasePdfDecomposition.h"
 #include"BaseEvolution.h"
 #include"BaseMinimizer.h"
@@ -144,6 +145,10 @@ void run_minimizer_() {
   auto *prof = new xfitter::Profiler();
 
   prof->doProfiling();
+
+  // PDF sensitivity
+  auto *partonsens = new xfitter::PartonSens();
+  partonsens->doPartonSens();
 
   do {
     auto mini = xfitter::get_minimizer();

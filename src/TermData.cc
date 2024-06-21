@@ -6,17 +6,34 @@
 #include "xfitter_pars.h"
 #include "xfitter_steer.h"
 #include "BaseEvolution.h"
+#include "PartonSens.h"
 using namespace std;
 using xfitter::BaseEvolution;
 //Wrappers
 BaseEvolution *wrappedPDFs[2];
+void partonsens(const double &x, double *r, int i) {
+  const std::vector<int>& partons = xfitter::PartonSens::getPartons(i);
+  if(partons.size() > 0) {
+    double x1 = xfitter::PartonSens::getX1();
+    double x2 = xfitter::PartonSens::getX2();
+    for (int i = 0; i < 13; i++) {
+      for(const auto& p : partons) {
+        if(x < x1 || x > x2 || std::find(partons.begin(), partons.end(), i) == partons.end()) {
+          r[i] = 0.;
+        }
+      }
+    }
+  }
+}
 extern "C"
 {
   void pdf_xfxq_wrapper_(const double &x, const double &Q, double *r) {
     wrappedPDFs[0]->xfxQarray(x, Q, r);
+    partonsens(x, r, 1);
   }
   void pdf_xfxq_wrapper1_(const double &x, const double &Q, double *r) {
     wrappedPDFs[1]->xfxQarray(x, Q, r);
+    partonsens(x, r, 2);
   }
 
   double alphas_wrapper_(const double &Q) {

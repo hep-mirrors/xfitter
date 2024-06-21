@@ -29,6 +29,7 @@ set(xfitter_SOURCES
   #offset_fns.f
   prep_corr.f
   Profiler.cc
+  PartonSens.cc
   ReactionTheory.cc
   read_data.f
   read_steer.f
