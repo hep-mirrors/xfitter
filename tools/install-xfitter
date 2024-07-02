@@ -159,6 +159,12 @@ then
         rusttag="apple-darwin"
         # TODO is there a mac command to check "arch" as in "Ubuntu" case below? Needed for rust.
         MODE=local
+    elif [[ `uname -r` == *"el9"* ]]
+    then
+        echo "Detected EL9 Linux distribution"
+        MODE=local
+        #skip_rust=0
+        #skip_pineappl=0
     else
         SYS=$(echo `lsb_release -i |cut -d: -f2`)
         ver=$(echo `lsb_release -r |cut -d: -f2`)
