@@ -846,6 +846,7 @@ C
       integer IR(2*NSysMax)
 
       double precision time1, time2
+
 C--------------------------------------------------------------------------------------------
 C Reset the matricies:
       do i=1,nsys
@@ -1959,7 +1960,7 @@ C
       double precision UncorNew(NTot),UncorConstNew(NTot),
      $     StatNew(NTot), StatConstNew(NTot), UncorPoissonNew(Ntot)
 
-      integer isys_scaling, isys
+      integer isys_scaling, isys, nExternal
 
       double precision, allocatable :: C(:,:)    ! covariance matrix
       double precision, allocatable :: S(:,:,:)  ! nuisance param representation of it.
@@ -1978,7 +1979,7 @@ C
       double precision tolerance
       logical lfirst
       data lfirst/.true./
-      namelist/ReduceSyst/do_reduce,tolerance, useBlas
+      namelist/ReduceSyst/do_reduce,tolerance, useBlas, nExternal
 
 C------------------------------------------------
       useBlas = .false.
@@ -1986,6 +1987,7 @@ C------------------------------------------------
          lfirst = .false.
          Tolerance = 0.
          do_reduce = .false.
+         nExternal = 0
          open (51,file='steering.txt',status='old')
          read (51,NML=ReduceSyst,end=19,err=17)
  19      continue
@@ -1994,7 +1996,9 @@ C------------------------------------------------
 
       if (.not. do_reduce) return
 
-      LConvertCovToNui = .true.
+      if (nExternal .eq. 0) then
+         LConvertCovToNui = .true.
+      endif
 
       ! Allocate covariance matrix for the data
       Allocate(C(npoints,npoints))
@@ -2055,7 +2059,11 @@ c         endif
             elseif (isys.lt.1000) then
                write (name_n,'(i3)') isys
             endif
-            name_s = 'reduced_'//name_n
+            if (isys .le. nExternal) then
+               name_s = 'reduced_'//name_n//':E'
+            else
+               name_s = 'reduced_'//name_n
+            endif
             call AddSystematics(trim(name_s)//name_t(isys_scaling))
             do i=1,NPoints
                n_syst_meas(NSYS) = n_syst_meas(NSYS) + 1

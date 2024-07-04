@@ -27,11 +27,12 @@
 
 &ReduceSyst
     ! even with tolerance =0 the following flag may speed up calculations
-  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+  do_reduce = .true.  ! turn-on to simplify/speedup chi2 calculation.
     ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
   tolerance = 0.0
     ! depending on blas library, toggling the following flag may improve chi2 computation speed:
-  useBlas = .false.
+  useBlas = .true.
+  nExternal = 1
 &End
 
 &CovarToNuisance
@@ -59,7 +60,8 @@
  !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
  !C      Modify the prior in chi2 definition (1.0 is default):
  !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
- !  PriorScaleFactor = 0.0, 0.0 
+ !  PriorScaleFactor = 0.0, 0.0
+ ! ListOfSources = 'reduced_001:E'
 &End
 
 
