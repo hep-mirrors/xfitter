@@ -1,0 +1,28 @@
+&Data 
+  Name = "ttbar" 
+  IndexDataset = 1
+
+  TermName = 'R1', 'SMEFT'
+  TermSource = 'Hathor', 'EFT'
+  TermInfo = 'SqrtS=13000:MS_MASS=1:mtp=164.5:evolution1=proton-LHAPDF-nnpdf31:evolution2=proton-LHAPDF-nnpdf31',
+	     'ListEFTParam=c1,c3:FileName=inc-ttbar.YAML:NoCentral=False:AbsOutput=True'
+  TheorExpr = 'SMEFT'
+  
+  NData =   3
+  NColumn =   3
+  ColumnType = 1*"Bin","Sigma", 1*"Error"
+  ColumnName = "Bin","Sigma", "stat"
+  Percent = 1*true
+&End 
+&PlotDesc
+   PlotN = 1
+   PlotDefColumn = 'Bin'
+   PlotDefValue = 0,10
+   PlotVarColumn = 'Bin'
+   PlotOptions(1)  = 
+ 'Experiment:CMS-TOP-17-001@ExtraLabel:pp #rightarrow t#bar{t}@XTitle: @YTitle: #sigma [fb] @Title:'
+&End
+* Bin sigma stat
+    1 815.0 4.3
+    1 815.0 4.3
+    1 815.0 4.3

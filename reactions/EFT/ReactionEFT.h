@@ -16,21 +16,13 @@
   /**
      @class' ReactionEFT
 
-     @brief A wrapper class for EFT reaction 
+     @brief A wrapper class for EFT reaction
 
      Based on the ReactionTheory class
 
      @version 0.1
-     @date 2023-05
+     @date 2023-03
   */
-
-// class EFTReaction : public EFTTerm {
-// public:
-//  EFTReaction(vector<string> fname_list, ReactionTheory* reaction) : EFTTerm(fname_list, reaction) {};
-// protected:
-//   EFTReaction(vector<string> fname_list) : EFTTerm(fname_list) {}; // not public!
-// };
-
 
 class ReactionEFT : public ReactionTheory {
 public:
@@ -48,7 +40,7 @@ protected:
   virtual int parseOptions(){ return 0;};
 private:
   long int num_comp = 0; // number of iterations; used for debugging and profiling
-  double time_comp = 0.0;  
+  double time_comp = 0.0;
 };
 
 #endif

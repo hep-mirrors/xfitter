@@ -1,3 +1,8 @@
+   /*
+     @file EFTTerm.h
+     @date 2023-03
+     @author X.M. Shen <xmshen137@gmail.com>
+   */
 #ifndef EFT_H
 #define EFT_H
 
@@ -22,32 +27,37 @@ using namespace std;
 class EFTTerm {
 
 public:
-  vector<string> filename_list;
   string input_type;
+  vector<string> filename_list;
 
-  double xi_ren = 1.0, xi_fac = 1.0;
-
-  int debug = -1;
-  bool abs_output = false;
-  bool no_central = false;
-  int rows_before_transpose = -1; // do not tranpose xsec if <= 0
-
-  vector<string> name_EFT_param; 
-  size_t num_param; // number of EFT paramters; should be less than 99
+  //
+  vector<string> name_EFT_param;
+  size_t num_param; // number of EFT parameters; should be less than 99
   map<string, size_t> find_EFT_param_id1; // , find_EFT_param_id0;
 
+  //
+  bool abs_output = false;
+  bool no_central = false;
+  double xi_ren = 1.0, xi_fac = 1.0;
+  int debug = -1;
+
+  //
   size_t num_bin; // number of bins
 
+  //
+  int rows_before_transpose = -1; // do not transpose xsec if <= 0
   bool normQ = false;
+  valarray<double> binning_for_norm; // use valarray to simplify multiplication
+
   bool scaleQ1 = false;
   bool scaleQ2 = false;
   valarray<double> scaling1; // use valarray to simplify multiplication
   valarray<double> scaling2; // use valarray to simplify multiplication
 
-  valarray<double> binning_for_norm; // use valarray to simplify multiplication
-
+  //
   std::map<size_t, std::vector<double>* > coeff; // linear and quadratic coefficients of all EFT parameters; for fixed input
   std::map<size_t, Vec* > basis; // for mixed input
+  vector<Vec* > pvec_list;
 
   RawVec* prvec_C = nullptr;
   vector<RawVec* > raw_basis;
@@ -59,9 +69,10 @@ public:
   EFTTerm(vector<string> fname_list, string input_type_in) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
+
     input_type = input_type_in;
   }
-    
+
   EFTTerm(vector<string> fname_list, string input_type_in, ReactionTheory* reaction) {
     for (string fname : fname_list)
       filename_list.push_back(fname);
@@ -76,7 +87,7 @@ public:
   int  initm(size_t, size_t);
   void initrvec();
   void initIter(valarray<double>& list_val);
-  void updatervec();  
+  void updatervec();
   void book();
   void setValEFT(valarray<double>& list_val);
 
@@ -86,7 +97,7 @@ public:
 private:
   // commons
   ReactionTheory* _reactionTheory;
-  const size_t MAX_NUM_PARAM = 99;
+  const size_t MAX_NUM_PARAM = 99; // todo
   void solvelq(Vec*, Vec*, RawVec*, RawVec*);
   void solvelQ(Vec*, Vec*, RawVec*, RawVec*);
   void solveNol(Vec*, Vec*, RawVec*, RawVec*);

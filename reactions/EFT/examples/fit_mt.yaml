@@ -1,0 +1,18 @@
+mt=172.5: # the name of entry is arbitrary as long as not conflicted with other entries
+  type: C
+  format: xsec
+  xsec: [ xxx, xxx, xxx, ...] # values of the theoretical predictions in each bin
+
+mt=173.5:
+  type: Q
+  param: delta_mt # we fit delta_mt(=mt-172.5GeV) instead of mt itself
+  param_value: 1.0 # value of delta_mt
+  format: xsec
+  xsec: [ xxx, xxx, xxx, ...] # values of the theoretical predictions in each bin
+
+mt=170.0:
+  type: Q
+  param: delta_mt # we fit delta_mt(=mt-172.5GeV) instead of mt itself
+  param_value: -2.5 # value of delta_mt
+  format: xsec
+  xsec: [ xxx, xxx, xxx, ...] # values of the theoretical predictions in each bin  

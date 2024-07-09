@@ -16,18 +16,17 @@ extern "C" ReactionEFT* create() {
 //______________________________________________________________________________
 // Initialise for a given dataset:
 void ReactionEFT::initTerm(TermData* td) {
-  vector<string> fname_list;
 
+  vector<string> fname_list;
   int ID = td->id;  // ID=dataSetID -> updated to termdata td
-  // int find_input_Q = 0;
 
   //------------------------------------------------------------------
   // construct EFTTerms
-  /* 
-  // allow for concatenation of bins in several files
-  // 2024-04-10 X.M. Shen: practically never beneficial
+  /*
+  // allow for concatenation of bins from several files
+  // 2024-Apr-10 X.M. Shen: practically never beneficial
   if ( td->hasParam("Filenames") ) {
-    if (find_input_Q > 0) 
+    if (find_input_Q > 0)
       hf_errlog(23052301, "F: there can be only one input in Filename/FileName/Filenames");
     find_input_Q = 1;
 
@@ -43,19 +42,17 @@ void ReactionEFT::initTerm(TermData* td) {
   std::cout << "==================================================================" << std::endl;
   std::cout << "EFT reaction: initialization for term " << ID << std::endl;
 
+  // construct a new EFTTerm
   if ( td->hasParam("FixedInput") ) {
-    // find_input_Q = 1;
     const std::string filename = td->getParamS("FixedInput");
     hf_errlog(23032801,"I: Reading EFT file "+filename);
     fname_list.push_back(filename);
     EFT_terms.insert(std::make_pair(ID, new EFTTerm(fname_list, "fixed", this) ));
 
-    std::cout << "EFT reaction: FixedInput found. AbsOutput is not supported in this mode." << std::endl;
+    std::cout << "EFT reaction: FixedInput found. AbsOutput is not supported in this mode."
+              << std::endl;
   }
   else if ( td->hasParam("FileName") ) {
-    // if (find_input_Q > 0) 
-    //   hf_errlog(23052304, "F: expect only one of FileName");
-    // find_input_Q = 2; // =1/2 for fixed/mixed input
     const std::string filename = td->getParamS("FileName");
     hf_errlog(23032801,"I: Reading EFT file "+filename);
     fname_list.push_back(filename);
@@ -64,7 +61,7 @@ void ReactionEFT::initTerm(TermData* td) {
     std::cout << "EFT reaction: FileName found" << std::endl;
   }
   else {
-    hf_errlog(23032803,"F: EFT file should be specified with FileName in TermInfo");
+    hf_errlog(23032803,"F: BSM YAML file not specified");
   }
 
   //------------------------------------------------------------------
@@ -79,7 +76,7 @@ void ReactionEFT::initTerm(TermData* td) {
       stringstream ss(list_EFT_param);
       string param_name;
       while(getline(ss, param_name, ',')) {
-	name_EFT_param.push_back(param_name);
+        name_EFT_param.push_back(param_name);
       }
     }
 
@@ -87,7 +84,7 @@ void ReactionEFT::initTerm(TermData* td) {
     std::cout << "EFT reaction: ListEFTParam found" << std::endl;
   }
   else {
-    hf_errlog(23061603,"F: ListEFTParam should be defined in TermInfo");
+    hf_errlog(23061603,"F: ListEFTParam not given");
   }
 
   //-------------------------------------------------------
@@ -103,78 +100,77 @@ void ReactionEFT::initTerm(TermData* td) {
     if (s1[0] == 'T' || s1[0] == 't') {
       EFT_terms[ID]->abs_output = true;
       if ( EFT_terms[ID]->input_type == "fixed" )
-	hf_errlog(23052302, "F: for fixed input, absolute output is not supported");
+        hf_errlog(23052302, "F: for fixed input, absolute output is not supported");
 
       std::cout << "EFT reaction: set AbsOutput = true "  << std::endl;
       if ( td->hasParam("FixedInput") ) {
-	hf_errlog(24041107,"S: EFT reaction: AbsOutput is not supported in FixedInput mode");
+        hf_errlog(24041107,"S: EFT reaction: AbsOutput is not supported in FixedInput mode");
       }
-    } 
+    }
     else
-      std::cout << "EFT reaction: set AbsOutput = false " << std::endl;    
+      std::cout << "EFT reaction: set AbsOutput = false " << std::endl;
   }
   else
-    std::cout << "EFT reaction: AbsOutput not set, = false by default" << std::endl;    
+    std::cout << "EFT reaction: AbsOutput not set, = false by default" << std::endl;
 
   if ( td->hasParam("NoCentral") ) {
     string s1 = td->getParamS("NoCentral");
 
     if (s1[0] == 'T' || s1[0] == 't') {
       EFT_terms[ID]->no_central = true;
-      std::cout << "EFT reaction: set NoCentral = true" << std::endl; 
+      std::cout << "EFT reaction: set NoCentral = true" << std::endl;
     }
     else {
       EFT_terms[ID]->no_central = false;
-      std::cout << "EFT reaction: set NoCentral = false" << std::endl; 
+      std::cout << "EFT reaction: set NoCentral = false" << std::endl;
     }
   }
   else
-    std::cout << "EFT reaction: NoCentral not set, = false by default" << std::endl;    
-
-  if ( td->hasParam("Norm") ) {
-    string s1 = td->getParamS("Norm");
-    if (s1[0] == 'T' || s1[0] == 't') {
-      EFT_terms[ID]->normQ = true;
-      // std::cout << "EFT reaction: set Normalization = true" << std::endl; 
-      std::cout << "EFT reaction: Warning: deprecated: normalization can be done with sum() (+KFactor)" << std::endl; 
-    }
-    // else
-    //   std::cout << "EFT reaction: set Normalization = false" << std::endl; 
-  }
-  // else
-  //  std::cout << "EFT reaction: Norm not set, = false by default" << std::endl;    
+    std::cout << "EFT reaction: NoCentral not set, = false by default" << std::endl;
 
   if ( td->hasParam("xiR") ) {
     EFT_terms[ID]->xi_ren = *(td->getParamD("xiR"));
-    std::cout << "EFT reaction: set renormalization scale factor = " << EFT_terms[ID]->xi_ren << std::endl; 
+    std::cout << "EFT reaction: set renormalization scale factor = "
+              << EFT_terms[ID]->xi_ren << std::endl;
   }
   else
-    std::cout << "EFT reaction: renormalization scale factor not set, = 1.0 by default" << std::endl; 
+    std::cout << "EFT reaction: renormalization scale factor not set, = 1.0 by default"
+              << std::endl;
 
   if ( td->hasParam("xiF") ) {
     EFT_terms[ID]->xi_fac = *(td->getParamD("xiF"));
-    std::cout << "EFT reaction: set factorization scale factor = " << EFT_terms[ID]->xi_fac << std::endl; 
+    std::cout << "EFT reaction: set factorization scale factor = "
+              << EFT_terms[ID]->xi_fac << std::endl;
   }
   else
-    std::cout << "EFT reaction: factorization scale factor not set, = 1.0 by default" << std::endl; 
-  
+    std::cout << "EFT reaction: factorization scale factor not set, = 1.0 by default" << std::endl;
 
-  //------------------------------------------------------------------
+  // to be deprecated
+  // if ( td->hasParam("Norm") ) {
+  //   string s1 = td->getParamS("Norm");
+  //   if (s1[0] == 'T' || s1[0] == 't') {
+  //     EFT_terms[ID]->normQ = true;
+  //     // std::cout << "EFT reaction: set Normalization = true" << std::endl;
+  //     std::cout << "EFT reaction: Warning: deprecated: normalization can be done with sum() (+KFactor)" << std::endl;
+  //   }
+  //   // else
+  //   //   std::cout << "EFT reaction: set Normalization = false" << std::endl;
+  // }
+  // else
+  //  std::cout << "EFT reaction: Norm not set, = false by default" << std::endl;
+
+
   EFT_terms[ID]->readInput();
 
   std::cout << "EFT reaction: initialization completed for term " << ID << std::endl;
   std::cout << "=================================================================="<< std::endl;
 }
 
-
-
 //______________________________________________________________________________
 void ReactionEFT::freeTerm(TermData* td) {
   // todo
   // pineappl_grid_delete(data->grids[i]);
 }
-
-
 
 //______________________________________________________________________________
 // Main function to compute results at an iteration
@@ -185,7 +181,7 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
   td->actualizeWrappers();
 
   EFTTerm* EFT_term = EFT_terms[td->id];
-  valarray<double> val_EFT_param(100);  
+  valarray<double> val_EFT_param(99); // NMAX
 
   int i=0;
   for (string EFT_param : EFT_term->name_EFT_param) {
@@ -217,12 +213,12 @@ void ReactionEFT::compute(TermData* td, valarray<double> &val, map<string, valar
       std::cout << std::endl;
     }
 
-    std::cout << "Time cost(milliseconds)[term=" << td->id << "] [init, calc, total/num_comp]=" 
-	      << duration1 << ", " 
-	      << duration2 << ", " 
+    std::cout << "Time cost(milliseconds)[term=" << td->id << "] [init, calc, total/num_comp]="
+	      << duration1 << ", "
+	      << duration2 << ", "
 	      << time_comp / num_comp
 	      << std::endl;
     std::cout << "=======================================================" << std::endl;
   } // end debug
-      
+
 }

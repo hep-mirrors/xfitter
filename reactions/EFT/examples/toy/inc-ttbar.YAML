@@ -1,0 +1,55 @@
+CA: # the central (SM) prediction
+  format: xsection
+  type: C
+  xsec: [1000.0, 1000.0, 1000.0]
+
+e1:
+  mask: false
+  format: ratio
+  type: l
+  param: c1
+  xsec: [0.001, 0.0, 0.0] # coefficients of c1, divided by central values (SM) in CA
+
+e21:
+  mask: false
+  format: xsection
+  type: l
+  param: c2
+  xsec: [0.0, 1.0, 0.0] # coefficients of c2
+
+e22:
+  mask: false
+  format: xsection
+  type: q
+  param: c2
+  xsec: [0.0, -0.3, 0.0] # coefficients of c2^2
+
+e121:
+  mask: false
+  format: xsection
+  type: m
+  param: [c1, c2]
+  xsec: [0.0, 0.0, 1.0]  # coefficients of c1 * c2
+
+e31:
+  mask: false
+  format: xsection
+  type: l
+  param: c3
+  xsec: [0.0, 0.0, 1.0]  
+
+e32:
+  mask: false
+  format: ratio
+  type: monomial
+  param: [c3, c2]
+  power: [3, 1]
+  xsec: [0.0, 0.0, -0.001]  # coefficients (in 3 bins) of c2 * c3^3, divided by central values (in the CA term)
+
+e131:
+  mask: false
+  format: xsection
+  type: monomial
+  param: [c1, c3]
+  power: [2, 1]
+  xsec: [1.0, 0.0, -1.0]  # coefficients (in 3 bins) of c1^2 * c3

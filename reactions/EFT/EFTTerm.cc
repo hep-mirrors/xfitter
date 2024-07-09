@@ -25,13 +25,13 @@ void EFTTerm::initParamName(vector<string> name_EFT_param_in){
     find_EFT_param_id1.insert(std::make_pair(name, ++i));
   }
 
-  assert(i == num_param);
+  // assert(i == num_param);
 }
 
 //------------------------------------------------------------------------------------
 void EFTTerm::readInput(){
-  num_bin = 0;  
-  if (input_type == "fixed") 
+  num_bin = 0;
+  if (input_type == "fixed")
     readFixedInput();
   else
     readMixedInput();
@@ -86,27 +86,27 @@ void EFTTerm::readFixedInput() {
     // read quadratic coefficients
     for (size_t i=1; i <= num_param; i++) {
       for (size_t j=i; j <= num_param; j++) {
-	string param_name1 = name_EFT_param[i-1] + "*" + name_EFT_param[j-1];
-	string param_name2 = name_EFT_param[j-1] + "*" + name_EFT_param[i-1];
-	vector<double>* pvd;
-	bool found = false;
-	if (coeff_node[param_name1]) {
-	  pvd = new vector<double>(coeff_node[param_name1].as<std::vector<double> >());
-	  found = true;
-	} else if (coeff_node[param_name2]) {
-	  pvd = new vector<double>(coeff_node[param_name2].as<std::vector<double> >());
-	  found = true;
-	} else {
-	  hf_errlog(23032904, "I: EFT coefficients missing for: " + param_name1);
-	}
+        string param_name1 = name_EFT_param[i-1] + "*" + name_EFT_param[j-1];
+        string param_name2 = name_EFT_param[j-1] + "*" + name_EFT_param[i-1];
+        vector<double>* pvd;
+        bool found = false;
+        if (coeff_node[param_name1]) {
+          pvd = new vector<double>(coeff_node[param_name1].as<std::vector<double> >());
+          found = true;
+        } else if (coeff_node[param_name2]) {
+          pvd = new vector<double>(coeff_node[param_name2].as<std::vector<double> >());
+          found = true;
+        } else {
+          hf_errlog(23032904, "I: EFT coefficients missing for: " + param_name1);
+        }
 
-	if (found) {
-	  if (coeff.count(i*100 + j) > 0) {
-	    for (double val : (*pvd)) (*coeff[i*100 + j]).push_back(val);
-	  } else {
-	    coeff.insert(std::make_pair(i*100+j, pvd));
-	  }
-	}
+        if (found) {
+          if (coeff.count(i*100 + j) > 0) {
+            for (double val : (*pvd)) (*coeff[i*100 + j]).push_back(val);
+          } else {
+            coeff.insert(std::make_pair(i*100+j, pvd));
+          }
+        }
       }
     } // end of reading quadratic coeff.
 
@@ -128,85 +128,72 @@ void EFTTerm::readMixedInput(){
   // the info entry
   if (node["info"]) {
 
-    // num_bin is now optional, can be inferred from the xsec entry (arrays or grids)
-    if (node["info"]["num_bin"]) {
-      num_bin = node["info"]["num_bin"].as<size_t>();
-      std::cout << "EFT reaction: num_bin (from YAML file) = " << num_bin << std::endl;
-    }
-    // else
-    //   hf_errlog(23060102, "F: EFT: `num_bin` not found in the `info` entry");
+    // num_bin is now inferred from the xsec entry (arrays or grids)
+    // if (node["info"]["num_bin"]) {
+    //   num_bin = node["info"]["num_bin"].as<size_t>();
+    //   std::cout << "EFT reaction: num_bin (from YAML file) = " << num_bin << std::endl;
+    // }
 
-    // more arguments:
     if (node["info"]["grid_dir"])
       grid_dir = node["info"]["grid_dir"].as<string>();
 
     if (node["info"]["save_grid_in_memory"]) {
       save_grid_Q = node["info"]["save_grid_in_memory"].as<bool>();
       if (save_grid_Q)
-	hf_errlog(23061507, "I: EFT: save grids in memory");
+        hf_errlog(23061507, "I: EFT: save grids in memory");
       else
-	hf_errlog(23061508, "I: EFT: read grids for each iteration");
+        hf_errlog(23061508, "I: EFT: read grids for each iteration");
     }
-    
+
     if (node["info"]["rows_before_transpose"]) {
       rows_before_transpose = node["info"]["rows_before_transpose"].as<int>();
       // if ( num_bin % rows_before_transpose != 0 )
-      // 	hf_errlog(23062001, "S: rows_before_transpose does not divide num_bin");	
+      // 	hf_errlog(23062001, "S: rows_before_transpose does not divide num_bin");
     }
 
-    ///////////////////////////////////////////////////////
-    // more arguments:
     if (node["info"]["scaleQ1"]) {
-      scaleQ1 = node["info"]["scaleQ1"].as<bool>();      
+      scaleQ1 = node["info"]["scaleQ1"].as<bool>();
     }
 
     if (node["info"]["scaleQ2"]) {
-      scaleQ2 = node["info"]["scaleQ2"].as<bool>();      
+      scaleQ2 = node["info"]["scaleQ2"].as<bool>();
     }
 
     if (scaleQ1) {
       if (node["info"]["scaling1"]) {
-	vector<double> vec = node["info"]["scaling1"].as<vector<double> >();
-	scaling1.resize(vec.size());
-	std::copy(vec.begin(), vec.end(), std::begin(scaling1));
+        vector<double> vec = node["info"]["scaling1"].as<vector<double> >();
+        scaling1.resize(vec.size());
+        std::copy(vec.begin(), vec.end(), std::begin(scaling1));
       }
-      else 
-	hf_errlog(23061901, "F: scaling xsec asked, but array `scaling1` not provided");
+      else
+        hf_errlog(23061901, "F: scaling xsec asked, but array `scaling1` not provided");
     }
 
     if (scaleQ2) {
       if (node["info"]["scaling2"]) {
-	vector<double> vec = node["info"]["scaling2"].as<vector<double> >();
-	scaling2.resize(vec.size());
-	std::copy(vec.begin(), vec.end(), std::begin(scaling2));
+        vector<double> vec = node["info"]["scaling2"].as<vector<double> >();
+        scaling2.resize(vec.size());
+        std::copy(vec.begin(), vec.end(), std::begin(scaling2));
       }
-      else 
-	hf_errlog(23070301, "F: scaling xsec asked, but array `scaling2` not provided");
+      else
+        hf_errlog(23070301, "F: scaling xsec asked, but array `scaling2` not provided");
     }
-
-    ///////////////////////////////////////////////////////
-    // more optional arguements:
     // to be deprecated; use sum() + KFactor reaction instead
-    if (normQ) {
-      if (node["info"]["binning_for_norm"]) {
-	vector<double> vecN = node["info"]["binning_for_norm"].as<vector<double> >();
-	binning_for_norm.resize(vecN.size());
-	std::copy(vecN.begin(), vecN.end(), std::begin(binning_for_norm));
-      }
-      else {
-	hf_errlog(24041503, "F: `binning_for_norm` is mandatory if normQ = True");
-	// hf_errlog(23062601, "I: `binning_for_norm` not provided, assumed to be 1.");
+    // if (normQ) {
+    //   if (node["info"]["binning_for_norm"]) {
+	// vector<double> vecN = node["info"]["binning_for_norm"].as<vector<double> >();
+	// binning_for_norm.resize(vecN.size());
+	// std::copy(vecN.begin(), vecN.end(), std::begin(binning_for_norm));
+    //   }
+    //   else
+	// hf_errlog(24041503, "F: `binning_for_norm` is mandatory if normQ = True");
 	// if (num_bin > 0) {
 	//   binning_for_norm.resize(num_bin);
 	//   binning_for_norm = 1.0;
 	// }
 	// else
 	//   hf_errlog(23062602, "F: num_bin should > 0.");
-      }
-    }
-  }
-  else {
-    hf_errlog(23060101, "F: `info` entry missing in the EFT YAML file");
+    // }
   } // end of info node
 
   /////////////////////////////////////////////////////////////////////////////
@@ -214,6 +201,7 @@ void EFTTerm::readMixedInput(){
   for (YAML::const_iterator it=node.begin(); it!=node.end(); ++it ) {
 
     string entry_name = it->first.as<string>() ;
+
     if (entry_name == "info")
       continue;
 
@@ -222,74 +210,124 @@ void EFTTerm::readMixedInput(){
 
     if (entry["mask"])
       if (entry["mask"].as<bool>() == true)
-	continue;
+        continue;
 
     string type;
-    string param_name;
     if (entry["type"])
-      type = entry["type"].as<string>(); // use string instead of char for future extension
+      type = entry["type"].as<string>();
     else
-      hf_errlog(23052303, "F: type not given for entry " + entry_name );
+      hf_errlog(23052303, "F: EFT reaction: `type` not found:" + entry_name );
 
     // C term
     if (type == "C") {
-      assert (prvec_C == nullptr);
-      prvec_C = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
-
-      assert (prvec_C->format != "FR");
+      if (prvec_C == nullptr) {
+        prvec_C = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
+        if (prvec_C->format == FRstr)
+          hf_errlog(24070502, "F: EFT: C term of format "+FRstr+" doesn't make sense");
+      }
+      else
+        hf_errlog(24070501, "F: EFT: should have exactly one C entry)");
     }
     else if (type=="l" || type=="L" || type=="q" || type=="Q") {
+      string param_name;
       if (entry["param"]) {
-	param_name = entry["param"].as<string>();
-
-	if (find_EFT_param_id1.count(param_name) == 0) {
-	  if (type == "l" || type == "L") {
-	    hf_errlog(24041108, "I: EFT reaction: " + param_name + " not fitted" );
-	    std::cout << "EFT reaction: warning: " + param_name + " will not be fitted" << std::endl;
-	  }
-	  continue;
-	}
-
-	size_t id = find_EFT_param_id1[param_name];
-	if (basis.count(id) == 0) {
-	  basis.insert(make_pair(id, new Vec(1)));
-	}
-
-	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
-
-	raw_basis.push_back(prvec);
-	basis[id]->addIng(prvec, 1.0);
+        param_name = entry["param"].as<string>();
       }
       else {
-	hf_errlog(23052401, "F: param name not given for " + entry_name );
+        hf_errlog(23052401, "F: EFT: param name not given for " + entry_name );
       }
+      // check if this parameter is fitted
+      if (find_EFT_param_id1.count(param_name) == 0) {
+        // if (type == "l" || type == "L") // show warning even if it consists of two Q terms
+        hf_errlog(24041108, "I: EFT reaction: " + param_name + " not fitted" );
+        std::cout << "EFT reaction: warning: " + param_name + "  not fitted"
+                  << " though inputs are available" << std::endl;
+        continue;
+      }
+
+      RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
+      raw_basis.push_back(prvec);
+
+      size_t id = find_EFT_param_id1[param_name];
+      if (basis.count(id) == 0) {
+        basis.insert(make_pair(id, new Vec(typel)));
+      }
+      basis[id]->addIng(prvec, 1.0);
+
     } // end of l, q
     else if (type=="m" || type=="M") {
+      vector<string> param_names;
       if (entry["param"]) {
-	vector<string> param_names = entry["param"].as<vector<string> >();
-	
-	assert (param_names.size() == 2);
-	if (find_EFT_param_id1.count(param_names[0]) * find_EFT_param_id1.count(param_names[1]) == 0 ) 
-	  continue;
-
-	size_t i1 = find_EFT_param_id1[param_names[0]];
-	size_t i2 = find_EFT_param_id1[param_names[1]];
-
-	if (i1 > i2) {
-	  i1 += i2;
-	  i2 = i1 - i2;
-	  i1 -= i1;
-	}
-
-	assert(basis.count(i1*100+i2) == 0);
-	basis.insert(make_pair(i1*100+i2, new Vec(2)));
-	
-	RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
-
-	raw_basis.push_back(prvec);
-	basis[i1*100+i2]->addIng(prvec, 1.0);
+        param_names = entry["param"].as<vector<string> >();
       }
+      else {
+        hf_errlog(23052401, "F: EFT: `param` not given for " + entry_name );
+      }        
+      if (param_names.size() != 2) 
+        hf_errlog(23061510, "F: EFT: check `param` for entry:" + entry_name);
+      //
+      if (find_EFT_param_id1.count(param_names[0]) * find_EFT_param_id1.count(param_names[1]) == 0 ){
+        std::cout << "EFT reaction: warning: entry not used since some parameter does not present: " + entry_name
+		  << std::endl;
+        continue;
+
+      }
+      //
+      RawVec* prvec = new RawVec(entry, entry_name, num_bin, grid_dir, xi_ren, xi_fac, save_grid_Q);
+      raw_basis.push_back(prvec);
+      //
+      size_t i1 = find_EFT_param_id1[param_names[0]];
+      size_t i2 = find_EFT_param_id1[param_names[1]];
+
+      if (i1 > i2) {
+        i1 += i2;
+        i2 = i1 - i2;
+        i1 -= i2;
+      }
+
+      if (basis.count(i1*100+i2) != 0) {
+        hf_errlog(24070504, "F: EFT: two m/M terms found for " + param_names[0] + param_names[1] );
+      }
+      basis.insert(make_pair(i1*100+i2, new Vec(typem)));
+
+      basis[i1*100+i2]->addIng(prvec, 1.0);
+
     } // end of m, M
+    else if (type=="monomial" || type=="Monomial") {
+      vector<string> param_names;
+      if (entry["param"]) {
+        param_names = entry["param"].as<vector<string> >();
+      }      
+      else {
+        hf_errlog(23052401, "F: EFT: `param` not given for " + entry_name );
+      }
+
+      int usedQ = 1;
+      for (auto param_name : param_names) {
+	usedQ *= find_EFT_param_id1.count(param_name);
+      }
+      if ( usedQ == 0 ) {
+	// If you want to fix a parameter to some non-zero value,
+	// put this parameter in `ListEFTParam` in TermInfo, and
+	// assign to it a non-positive step in parameters.yaml
+        std::cout << "EFT reaction: warning: entry not used since some parameter does not present: " + entry_name
+		  << std::endl;
+        continue;
+      }
+      //
+      RawVec* prvec = new RawVec(entry, entry_name, num_bin, 
+                                 grid_dir, xi_ren, xi_fac, save_grid_Q);
+      raw_basis.push_back(prvec);
+      //
+      Vec* pvec = new Vec(typeMonomial);
+      pvec_list.push_back(pvec);
+      pvec->addIng(prvec, 1.0);
+      for (int i=0; i < prvec->param_name_list.size(); i++) {
+        int id = find_EFT_param_id1[prvec->param_name_list[i]] - 1;
+        int power = prvec->power_list[i];
+        pvec->param_id_power_list.push_back(std::make_pair(id, power));
+      }
+    } // end of monomials
     else {
       hf_errlog(23052402, "F: EFT: unknown type for entry: " + entry_name );
     }
@@ -299,7 +337,7 @@ void EFTTerm::readMixedInput(){
   // initialize each vec and raw vec
   for (size_t i=1; i<=num_param; ++i) {
     if (basis.count(i) == 0) {
-      hf_errlog(23052601, "F: linear term not found for " + name_EFT_param[i-1]);
+      hf_errlog(23052601, "F: EFT: linear correction cann't be determined for " + name_EFT_param[i-1]);
     }
     initlq(i);
   }
@@ -325,7 +363,7 @@ void EFTTerm::initlq(size_t i){
     ingredient* ing = pvecl->ingredients[0];
 
     assert (ing->prvec->type == 1 || ing->prvec->type == -1);
-    
+
     if (ing->prvec->type == -1) {
       double val = ing->prvec->param_val1;
       ing->coeff = 1.0 / val;
@@ -478,11 +516,10 @@ void EFTTerm::initrvec(){
   if (prvec_C == nullptr)
     hf_errlog(23053104, "F: central value not found in the mixed input file ");
 
-  if (prvec_C->format == "FA") {
+  if (prvec_C->format == FAstr) {
     for (auto prvec: raw_basis) {
-
-      if (prvec->format == "FR") {
-	prvec->FR2FA(prvec_C->value_list);
+      if (prvec->format == FRstr) {
+	      prvec->FR2FA(prvec_C->value_list);
       }
     }
   }
@@ -493,29 +530,32 @@ void EFTTerm::initrvec(){
 void EFTTerm::initIter(valarray<double>& list_val){
   // initialization for each term
   setValEFT(list_val);
-  
+
   if (input_type == "mixed") {
-    updatervec();
     book();
+    updatervec();
   }
 }
 
 //------------------------------------------------------------------------------------
 void EFTTerm::updatervec() {
   // FR -> FA
-  if (prvec_C->format != "FR" && prvec_C->format != "FA") {
+  if (prvec_C->format != FRstr && prvec_C->format != FAstr) {
     prvec_C->convolute();
 
     for (auto prvec: raw_basis) {
-      if (prvec->format == "FR") {
-	prvec->FR2FA(prvec_C->value_list);
+      if (prvec->format == FRstr) {
+	      prvec->FR2FA(prvec_C->value_list);
       }
     }
   }
 
   // convolution
   for (auto prvec: raw_basis) {
-    if (prvec->format != "FR" && prvec->format != "FA") {
+    // if (prvec->coeff == 0.0) // it's private
+    //   continue;
+
+    if (prvec->format != FRstr && prvec->format != FAstr) {
       prvec->convolute();
     }
   }
@@ -541,13 +581,17 @@ void EFTTerm::book() {
     if (basis.count((i+1)*101) > 0)  {
       basis[(i+1)*101]->book(vi*vi);
     }
-    
+
     // m
     for (size_t j=i+1; j < num_param; ++j) {
       if (basis.count((i+1)*100+j+1) > 0) {
-	basis[100*(i+1)+j+1]->book(vi * val_EFT_param[j]);
+	      basis[100*(i+1)+j+1]->book(vi * val_EFT_param[j]);
       }
     }
+  }
+
+  for (auto pvec: pvec_list) {
+    pvec->bookMonomial(val_EFT_param);
   }
 }
 
@@ -556,7 +600,7 @@ void EFTTerm::setValEFT(valarray<double>& list_val) {
   // executed for each computation
 
   for (size_t i=0; i<num_param; i++)
-    val_EFT_param[i] = list_val[i];
+    val_EFT_param[i] = list_val[i]; // double[] <- valarray<double>
 
   if (debug > 2) {
     std::cout << "=======================================================" << std::endl;
@@ -583,8 +627,9 @@ void EFTTerm::calcXSec(valarray<double>& xsec) {
   if (scaleQ2)
     scaleXSec2(xsec);
 
-  if (normQ)
-    normXSec(xsec);
+  // deprecated
+  // if (normQ)
+  //   normXSec(xsec);
 
   if (rows_before_transpose > 1) {
     transpose(xsec);
