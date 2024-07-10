@@ -21,6 +21,7 @@
 
 #include "appl_grid/appl_grid.h"
 #include "TermData.h" // needed by PDF wrappers
+
 // from Toni's script:
 #ifdef WITH_PINEAPPL
 #include "pineappl_capi.h"
@@ -30,7 +31,9 @@
 
 //--------------------------------------------------------------
 using namespace std;
-
+/////////////////////////////////////////////////////////////////////////////
+// class Vec()
+/////////////////////////////////////////////////////////////////////////////
 Vec::Vec(int type_in) {
   type = type_in;
   if (type <= 0) {
@@ -80,7 +83,7 @@ void Vec::addParamPower(int param_id, int power) {
 };
 
 /////////////////////////////////////////////////////////////////////////////
-// RawVec
+// class RawVec()
 /////////////////////////////////////////////////////////////////////////////
 RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_dir, 
           double xi_ren_in, double xi_fac_in, bool save_grid_Q) {
@@ -122,8 +125,26 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
 
   if (node["format"]) {
     format = node["format"].as<string>();
-    // todo: test if format is valid
-    // todo: issue warning if format = grids for monomials
+    // check if the format is valid
+    if (format == FAstr) { // use case/select
+    }
+    else if (format == FRstr) {
+      if (type == typeC) 
+        hf_errlog(24071001, "W: EFT: central values should not be ratios");
+    }
+    else if (format == PineAPPL) {
+      if (type == typeMonomial)
+        hf_errlog(24071003, "W: EFT: monomial input by grids? Please check " + key);
+    } 
+    else if (format != APPLgrid) {
+        hf_errlog(24071002, "W: EFT: support for APPLgrid is not fully tested.");
+        std::cout << "EFT reaction: Warning! "
+                  << "Support for APPLgrid is not fully tested. "
+                  << "We suggest convert APPLgrid into PineAPPL grids using PineAPPL."
+                  << std::endl;
+    }
+    else 
+        hf_errlog(24071004, "F: format " + format + " not supported:" + key);
   }
   else
     hf_errlog(23061504, "F: format not given for entry " + key);
@@ -201,7 +222,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
     // load all the grids if save_grid_in_memory is true
     int num_bin_grids = 0;
     for (string grid_file_name: grid_file_list) {
-      if (format == "APPLgrid") {
+      if (format == APPLgrid) {
         // todo: not tested. Do we need TH1D and reference?
         appl::grid* g = new appl::grid(grid_file_name);
         g->trim();
@@ -216,7 +237,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
           // todo: free the memory?
         }
       }
-      else if (format == "PineAPPL") {
+      else if (format == PineAPPL) {
 #ifdef WITH_PINEAPPL
         pineappl_grid* g = pineappl_grid_read(grid_file_name.c_str());
         num_bin_grids += pineappl_grid_bin_count(g);
@@ -267,7 +288,7 @@ void RawVec::initReadEFTParam(YAML::Node node){
       hf_errlog(23061511, "F: EFT: `param` not found for entry:" +entry);
   }
   else {
-    // todo: issue warning
+    hf_errlog(24071007, "F: assumed to be visible for developers only");
   }
 
   if (type == typem || type == typeM) {
@@ -301,10 +322,23 @@ void RawVec::initReadEFTParam(YAML::Node node){
     // read powers
     if (node["power"]) {
       power_list = node["power"].as<vector<int> >();
-      // todo issue error if the total power >= self.typeMonoMin
     }
     else
       hf_errlog(24070701, "F: `power` not found for entry:" +entry);
+
+    // check if the powers are valid
+    int total_power = 0;
+    for (auto power: power_list) {
+      total_power += power;
+      if (power <= 0) {
+        std::cout << "EFT reaction: Warning! non-positive power found in an monomial entry: " +entry
+                  << std::endl;
+      }
+    }
+    if (total_power <= 2) {
+      std::cout << "EFT reaction: Warning! linear/quadratic entries should have type `l` or `q`, not `monomial`!" +entry
+                << std::endl;
+    }
 
     if (power_list.size() != param_name_list.size()) {
       hf_errlog(24070702, "F: sizes of `power` and `param` do not match:" +entry);
@@ -407,14 +441,14 @@ void RawVec::convolute_APPLgrid() {
   for (auto pgrid: p_APPLgrid_list) {
     // convolute with all the APPLgrid grids, 
     // and save the results in value_list
-    // XMS: todo: a new order parameter may be helpful?
+    // XMS: todo: add a new order parameter?
     std::vector<double> result = pgrid->vconvolute(
 				   pdf_xfxq_wrapper_,
 				   pdf_xfxq_wrapper1_,
 				   alphas_wrapper_,
 				   1,xi_ren,xi_fac,1.0); // order-1,xi_ren,xi_fac,eScale);
     /* 
-       XMS: about order, here 1=NLO(with LO)
+       XMS: about QCD order, here 1=NLO(with LO)
        ref:  xfitter/deps/applgrid-1.6.32/src/appl_grid.cxx
              xfitter/src/xfitter_cpp_base.cc:OrderMap()
 
@@ -447,12 +481,12 @@ void RawVec::convolute() {
 
     results are stored in `value_list`
    */
-  if (format == "PineAPPL") {
+  if (format == PineAPPL) {
 #ifdef WITH_PINEAPPL
     convolute_PineAPPL();
 #endif
   }
-  else if (format == "APPLgrid") {
+  else if (format == APPLgrid) {
     convolute_APPLgrid();
   }
   else {
