@@ -70,7 +70,10 @@ void Vec::book(double val) {
 
 // void Vec::bookMonomial(valarray<double>& val) {
 void Vec::bookMonomial(double val[99]) {
-  assert (type == typeMonomial);
+  if (type != typeMonomial) {
+    hf_errlog(24071108, "F: EFT: bug found. please report it to the developer");
+  };
+
   double coeff = 1.0;
   for (const auto& p : param_id_power_list) {
     coeff *= pow(val[p.first], p.second);

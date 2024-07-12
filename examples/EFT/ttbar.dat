@@ -1,0 +1,34 @@
+* xmshen137@gmail.com
+* This example demonstrates the extraction of mt from inclusvie ttbar production rates at 7, 8, and 13 TeV.
+* Please to do take the results of this illustrative example seriously. For example,
+*  - scale and PDF uncertainties (and other error sources) are not included for simplicity;
+* Ref:
+* https://arxiv.org/abs/2205.13830
+* https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO
+&Data 
+  Name = "ttbar" 
+  IndexDataset = 1
+  TermName = 'SMNNLO'
+  TermSource = 'EFT'
+  TermInfo =
+    'ListEFTParam=deltamt:FileName=fit_mt.yaml:NoCentral=False:AbsOutput=True',
+  TheorExpr = 'SMNNLO'
+  
+  NData =   3
+  NColumn =   3
+  ColumnType = 1*"Bin","Sigma", 1*"Error"
+  ColumnName = "Bin","Sigma", "stat"
+  Percent = 1*true
+&End 
+&PlotDesc
+   PlotN = 1
+   PlotDefColumn = 'Bin'
+   PlotDefValue = 0,10
+   PlotVarColumn = 'Bin'
+   PlotOptions(1)  = 
+ 'Experiment:inclusive_ttbar_xsec@ExtraLabel:pp #rightarrow t#bar{t}@XTitle: @YTitle: #sigma [fb] @Title:'
+&End
+* Bin sigma stat
+    1 178.5 2.6
+    1 243.3 2.5
+    0 815.0 4.3

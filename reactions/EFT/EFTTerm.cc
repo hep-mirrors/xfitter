@@ -25,7 +25,6 @@ void EFTTerm::initParamName(vector<string> name_EFT_param_in){
     find_EFT_param_id1.insert(std::make_pair(name, ++i));
   }
 
-  // assert(i == num_param);
 }
 
 //------------------------------------------------------------------------------------
@@ -116,14 +115,19 @@ void EFTTerm::readFixedInput() {
 //------------------------------------------------------------------------------------
 void EFTTerm::readMixedInput(){
 
-  assert (filename_list.size() == 1);
+  if (filename_list.size() != 1) {
+    hf_errlog(24071111, "F: EFT: only exactly one EFT YAML file is allowed");
+  };
   string fname = filename_list[0];
   YAML::Node node = YAML::LoadFile(fname);
 
-  assert (node.Type() == YAML::NodeType::Map);
+  if (node.Type() != YAML::NodeType::Map) {
+    hf_errlog(24071109, "I: EFT: suspicious. readMixedInput");
+  };
 
   string grid_dir = "/";
   bool save_grid_Q = true;
+  vector<string> mask_entry_list;
 
   // the info entry
   if (node["info"]) {
@@ -143,6 +147,9 @@ void EFTTerm::readMixedInput(){
         hf_errlog(23061507, "I: EFT: save grids in memory");
       else
         hf_errlog(23061508, "I: EFT: read grids for each iteration");
+    }
+    if (node["info"]["mask_entries"]) {
+      mask_entry_list = node["info"]["mask_entries"].as<vector<string> >();
     }
 
     if (node["info"]["rows_before_transpose"]) {
@@ -205,8 +212,21 @@ void EFTTerm::readMixedInput(){
     if (entry_name == "info")
       continue;
 
+    bool maskQ = false;
+    for (auto entry: mask_entry_list) {
+      if (entry_name == entry) {
+	std::cout << "EFT Reaction: We have omitted the entry " + entry_name << std::endl;
+	maskQ = true;
+	break;
+      }
+    }
+    if (maskQ)
+      continue;
+
     YAML::Node entry = it->second;
-    assert (entry.Type() == YAML::NodeType::Map);
+    if (entry.Type() != YAML::NodeType::Map) {
+      hf_errlog(24071109, "I: EFT: suspicious1372");
+    };
 
     if (entry["mask"])
       if (entry["mask"].as<bool>() == true)
@@ -356,22 +376,27 @@ void EFTTerm::readMixedInput(){
 
 void EFTTerm::initlq(size_t i){
   Vec* pvecl = basis[i];
-  assert (pvecl->ingredients.size() == 1 || pvecl->ingredients.size() == 2);
+
+  if (pvecl->ingredients.size() > 2) {
+    hf_errlog(24071105, "E: EFT: too many linear/quadratic input for parameter "+name_EFT_param[i-1]);
+  };
 
   if (pvecl->ingredients.size() == 1) {
     hf_errlog(23052602, "I: quadrtic term for " + name_EFT_param[i-1] + " not found");
     ingredient* ing = pvecl->ingredients[0];
 
-    assert (ing->prvec->type == 1 || ing->prvec->type == -1);
+    if (ing->prvec->type != typel && ing->prvec->type != typeL) {
+      hf_errlog(24071108, "F: EFT: bug found. please report it to the developer");
+    };
 
-    if (ing->prvec->type == -1) {
+    if (ing->prvec->type == typeL) {
       double val = ing->prvec->param_val1;
       ing->coeff = 1.0 / val;
       pvecl->addIng(prvec_C, -1.0/val);
     }
   }
   else { // len==2
-    Vec* pvecq = new Vec(2);
+    Vec* pvecq = new Vec(typeq);
     basis.insert(make_pair(100*i+i, pvecq));
 
     RawVec* prvec1 = pvecl->ingredients[0]->prvec;
@@ -382,16 +407,16 @@ void EFTTerm::initlq(size_t i){
     int type2 = prvec2->type;
 
     // assert (solvablelq(type1, type2));
-    if (type1 == 1) {
-      if (type2 == 2)
+    if (type1 == typel) {
+      if (type2 == typeq)
 	solvelq(pvecl, pvecq, prvec1, prvec2);
-      else if (type2 == -2) 
+      else if (type2 == typeQ) 
 	solvelQ(pvecl, pvecq, prvec1, prvec2);
     }
-    else if (type2 == 1) {
-      if (type1 == 2)
+    else if (type2 == typel) {
+      if (type1 == typeq)
 	solvelq(pvecl, pvecq, prvec2, prvec1);
-      else if (type1 == -2) 
+      else if (type1 == typeQ) 
 	solvelQ(pvecl, pvecq, prvec2, prvec1);
     }
     else
@@ -428,6 +453,7 @@ void EFTTerm::solveNol(Vec* pvecl, Vec* pvecq, RawVec* prvec1, RawVec* prvec2) {
   lqQCoeff(c2, type2, val2);
 
   double det = c1[1]*c2[2] - c2[1]*c1[2];
+
   if (det == 0.0)
     hf_errlog(23053101, "F: EFT: can not solve l/q for " + prvec1->param_name1);
   else {
@@ -445,20 +471,23 @@ void EFTTerm::solveNol(Vec* pvecl, Vec* pvecq, RawVec* prvec1, RawVec* prvec2) {
 }
 
 void EFTTerm::lqQCoeff(vector<double>& c, int type, double val){
-  if (type == -1) {
+  if (type == typeL) {
     c.push_back(1.0);
     c.push_back(val);
     c.push_back(0.0);
   }
-  else if (type == 2){
+  else if (type == typeq){
     c.push_back(0.0);
     c.push_back(0.0);
-    c.push_back(val*val);
+    c.push_back(1.0); // val takes its default value 0 for q term
   }
-  else if (type == -2){
+  else if (type == typeQ){
     c.push_back(1.0);
     c.push_back(val);
     c.push_back(val*val);
+  }
+  else {
+    hf_errlog(23071103, "F: EFT: error for developers in lqQCoeff()");
   }
 }
 
@@ -476,7 +505,7 @@ int EFTTerm::initm(size_t i1, size_t i2){
   }
 
   Vec* pvecm = basis[im];
-  if (pvecm->ingredients[0]->prvec->type == 3)
+  if (pvecm->ingredients[0]->prvec->type == typem)
     return 1;
 
   if (basis.count(i1*101) * basis.count(i2*101) == 0) {
@@ -614,7 +643,9 @@ void EFTTerm::setValEFT(valarray<double>& list_val) {
 //------------------------------------------------------------------------------------
 void EFTTerm::calcXSec(valarray<double>& xsec) {
 
-  assert (xsec.size() == num_bin);
+  if (xsec.size() != num_bin) {
+    hf_errlog(24071114, "F: EFT: size of observables not match");
+  };
 
   if (input_type == "fixed")
     calcXSecFixed(xsec);
@@ -654,20 +685,26 @@ void EFTTerm::transpose(valarray<double>& xsec) {
 
 //------------------------------------------------------------------------------------
 void EFTTerm::scaleXSec1(valarray<double>& xsec) {
-  assert (scaling1.size() == num_bin);
+  if (scaling1.size() != num_bin) {
+    hf_errlog(24071115, "F: EFT: size not match");
+  };
 
   xsec = xsec * scaling1;
 }
 
 void EFTTerm::scaleXSec2(valarray<double>& xsec) {
-  assert (scaling2.size() == num_bin);
+  if (scaling2.size() != num_bin) {
+    hf_errlog(24071115, "F: EFT: size not match");
+  };
 
   xsec = xsec * scaling2;
 }
 
 //------------------------------------------------------------------------------------
 void EFTTerm::normXSec(valarray<double>& xsec) {
-  assert (binning_for_norm.size() == num_bin);
+  if (binning_for_norm.size() != num_bin) {
+    hf_errlog(24071115, "F: EFT: size not match");
+  };
 
   xsec /= (xsec * binning_for_norm).sum();
 }

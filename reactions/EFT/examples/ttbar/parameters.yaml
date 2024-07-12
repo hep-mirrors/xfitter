@@ -1,0 +1,29 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+    migrad 80000
+    hesse
+    call fcn 3
+
+Parameters:
+  alphas : [0.118, 0.0] # value=0.118. step=0.0 is not positive, so alphas will not be fitted.
+  mtp    : [173.0, 1.0] # the top quark pole mass.
+  deltamt: "=mtp-172.5" # deltamt is defined by mtp, and is fitted using the EFT reaction
+
+# set PDF; formally indispensable even if we do not really need it
+DefaultEvolution: proton-LHAPDF-nnpdf31
+
+Evolutions:
+  proton-LHAPDF-nnpdf31:
+    class: LHAPDF
+    set: "NNPDF31_nnlo_as_0118"
+    member: 0
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+
+? !include constants.yaml
