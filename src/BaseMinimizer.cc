@@ -3,6 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 
 namespace xfitter {
 
@@ -23,13 +24,30 @@ namespace xfitter {
     // names for minimized parameters only
     if ( step > 0) {
       _allParameterNames.push_back(name);
+      _bounds.push_back(bounds);
+      _priors.push_back(priors);    
     }
-    
+
     // store it on the global map too. Will replace pointer if already present. 
     //    std::unique_ptr<double[]> parval( new double );
-    double*parval = new double;
-    *parval = par;    
-    XFITTER_PARS::gParameters[name] = parval;
+
+    if ( XFITTER_PARS::gParameters.find(name) !=  XFITTER_PARS::gParameters.end() ) 
+      *XFITTER_PARS::gParameters[name] = par;
+    else {    
+      double*parval = new double;
+      *parval = par;    
+      XFITTER_PARS::gParameters[name] = parval;
+    }
+  }
+
+  void BaseMinimizer::CopyStateFromMinimizer(const BaseMinimizer* origin){
+    for (int ipar=0; ipar<origin->_allParameterNames.size(); ipar += 1) {
+      std::string name = origin->_allParameterNames[ipar];
+      double value = *XFITTER_PARS::gParameters[name];
+      const double* bounds = origin->_bounds[ipar];
+      const double* priors = origin->_priors[ipar];
+      addParameter(value, name, fabs(value)*1.e-2, bounds, priors);
+    }
   }
 
   double** BaseMinimizer::getPars() const

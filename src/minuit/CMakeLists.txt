@@ -71,6 +71,7 @@ add_library(MINUIT STATIC
   stand.F
   wrumat.F
   xrange.F
+  ComputeHessian.cc
 )
 #libMINUIT.a will be included in xfitter.so, so we need the position-independent code
 set_target_properties(MINUIT PROPERTIES POSITION_INDEPENDENT_CODE 1)

@@ -290,7 +290,9 @@ bool FitPainter()
     + opts.outdir + "chi2.out " 
     + opts.outdir + "chi2.snm " 
     + opts.outdir + "chi2.toc ";
-  system(clean.c_str());
+  if (system(clean.c_str())) {
+    cout << "Failed to remove some temporary files\n";
+  }
 
   return latexcmd;
 }

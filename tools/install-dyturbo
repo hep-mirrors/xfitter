@@ -1,0 +1,79 @@
+#!/bin/bash
+
+dyturbover=1.3.3
+
+#Check for dummies
+if [[ $0 == bash || $0 = csh ]]
+then
+    echo "Please don't source me, I am an executable!"
+    echo "Give me attributes with:"
+    echo "chmod +x install-xfitter"
+    echo "and run me with:"
+    echo "./install-xfitter"
+    return 2
+fi
+
+if [[ $mode != "deps" && -e xfitter-${version} ]]
+then
+    echo
+    echo "xfitter-${version} already exists, remove it first"
+    echo "To reinstall only dependences, run:"
+    echo "$0 deps"
+    echo
+    exit
+fi
+
+which wget >& /dev/null
+if [[ $? == 0 ]]
+then
+    http=wget
+else
+    which curl >& /dev/null
+    if [[ $? == 0 ]]
+    then
+        http=curl
+    else
+        echo "Error, wget or curl not found"
+        exit
+    fi
+fi
+
+#directory:
+CURRENTDIR=`pwd`
+
+source ./setup.sh
+
+mkdir -p deps
+cd deps
+
+echo "Installing DYTurbo ${dyturbover}..."
+if [[ $http == "curl" ]]
+then
+    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz #2>> $CURRENTDIR/install.log
+else
+    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz #>> $CURRENTDIR/install.log 2>&1
+fi
+tar xfz dyturbo-${dyturbover}.tar.gz  #>> $CURRENTDIR/install.log  2>&1
+cd dyturbo-${dyturbover}
+
+export CXXFLAGS="${CXXFLAGS} -std=c++0x"
+./configure --enable-Ofast --disable-tlsopt #>> $CURRENTDIR/install.log  2>&1
+export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
+
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+make -j 8 install  #>> $CURRENTDIR/install.log  2>&1
+if [[ $? != 0 ]]
+then
+    echo "Error, check install.log for details"
+    exit
+fi
+    
+cd $CURRENTDIR
+
+echo "export CURRENTDIR=`pwd`" >> setup.sh
+echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh

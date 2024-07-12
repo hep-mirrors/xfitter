@@ -11,6 +11,12 @@
 #include <algorithm>
 #include <string.h>
 #include <numeric>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <semaphore.h>
+#include <fcntl.h>
 
 extern "C" {
   void update_theory_iteration_();
@@ -152,7 +158,14 @@ namespace xfitter
       _getChi2 = node["getChi2"].as<string>() == "On";
     }
 
-
+    if (node["threads"]) {
+      _ncpu =  node["threads"].as<int>();
+      if (_ncpu == -1) {
+        _ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+        hf_errlog(2023061401,"I: Will use "+std::to_string(_ncpu)+" threads");
+      }
+    }
+    
     //rescaling  PDF eigenvectors
     if (node["scalePdfs"]) {
       _scalePdfs = node["scalePdfs"].as<float>();
@@ -259,6 +272,131 @@ namespace xfitter
     }
   }
 
+
+  void Profiler::compute_parallel(int NALL, int NPRED, int first, int iPdfSet,
+			std::vector< std::valarray<double> >& preds,
+			std::vector< double >& chi2vals,
+				  YAML::Node gNode,
+				  BaseEvolution* evol, const std::string& errorType)
+  {
+
+    // Semaphore for critical code section (writing fittedresults.txt_set_???? via intermidiate fittedresults.txt)
+    std::string semname = "pSem" + std::to_string(getpid());
+    sem_t* sem = sem_open(semname.c_str(), O_CREAT | O_EXCL, 0644, 1);
+    if (!sem) {
+      hf_errlog(2023061501,"F: Failed to initialize semaphore");
+    }
+
+    // Shared memory for predictions
+    int shmid;
+    double* sharedArray;
+    int ARRAY_SIZE = preds.size() * NPRED;
+	
+    // Create shared memory segment
+    shmid = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE, IPC_CREAT | 0666);
+    if (shmid < 0) {
+      hf_errlog(2023060200,"F: Failed to create shared memory segment");
+    }
+	
+    // Attach shared memory segment
+    sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+    if (sharedArray == reinterpret_cast<double*>(-1)) {
+      hf_errlog(2023060201,"F: Failed to attach shared memory segment");
+    }
+
+    // Shared memory for chi2s
+    int shmid2;
+    double* sharedArray2;
+    int ARRAY_SIZE2 = chi2vals.size();
+	
+    // Create shared memory segment
+    shmid2 = shmget(IPC_PRIVATE, sizeof(double) * ARRAY_SIZE2, IPC_CREAT | 0666);
+    if (shmid < 0) {
+      hf_errlog(2023060202,"F: Failed to create shared memory segment");
+    }
+	
+    // Attach shared memory segment
+    sharedArray2 = static_cast<double*>(shmat(shmid2, nullptr, 0));
+    if (sharedArray == reinterpret_cast<double*>(-1)) {
+      hf_errlog(2023060203,"F: Failed to attach shared memory segment");
+    }
+
+
+    // define Chunks
+
+
+    int NCPU = xf_ncpu(_ncpu);
+    std::cout << "N CPU: " << _ncpu << std::endl;
+
+    int chunkSize = NALL / NCPU;
+    int reminder  = NALL % NCPU; 
+    int startIndex = 0;
+    int endIndex = 0;
+    
+    // loop over all
+    for (int icpu = 0; icpu<min(NCPU,NALL); icpu++) {
+      startIndex = endIndex;
+      endIndex   = startIndex + chunkSize;
+      if (icpu < reminder) {
+	endIndex += 1;
+      }
+      pid_t pid = xf_fork(NCPU);
+      if ( pid == 0) {       
+	for (int imember = first+startIndex; imember < first+endIndex; imember++) {
+	  
+	  gNode["member"] = imember;
+	  evol->atConfigurationChange();
+	  auto pred = evaluatePredictions();
+	  
+	  // store in shared memory
+	  int idxOff = (imember-first)*NPRED;
+	  for (size_t idx = 0; idx<NPRED; idx++) {
+	    sharedArray[idxOff+idx] = pred.first[idx];
+	  }
+	      
+	  sharedArray2[imember-first] = pred.second;
+
+	  if (_storePdfs) {
+      sem_wait(sem);
+	    storePdfFiles(imember,iPdfSet,errorType);
+      sem_post(sem);
+	  }
+	      
+	}
+	exit(0);	    
+      }
+      else if (pid<0) {
+	hf_errlog(2023060204,"F: Failed to create a fork process");	
+      }
+    }
+	
+    // Wait ...
+    int status;
+    while (wait(&status) > 0);
+    
+    // Store in vectors
+    for (size_t imember = 0; imember<NALL; imember++) {
+      chi2vals[imember] = sharedArray2[imember];
+      
+      std::valarray<double> temp;
+      temp.resize(NPRED);
+      for (size_t ipred = 0; ipred < NPRED; ipred++) {	    
+	temp[ipred] = sharedArray[imember*NPRED+ipred];
+      }
+      preds[imember+1] = temp;
+    }
+    
+    // Detach and remove shared memory segments
+    shmdt(sharedArray);
+    shmctl(shmid, IPC_RMID, NULL);
+    shmdt(sharedArray2);
+    shmctl(shmid2, IPC_RMID, NULL);
+    sem_unlink(semname.c_str());
+    sem_close(sem);
+    
+  }
+
+  
   void Profiler::profilePDF( std::string const& evolName, YAML::Node const& node) {
     // get evolution
     auto evol=get_evolution(evolName);
@@ -349,16 +487,6 @@ namespace xfitter
         // all predictions
         std::vector< std::valarray<double> > preds;
 	std::vector< double > chi2vals;
-	
-        auto pred = evaluatePredictions();
-        preds.push_back(pred.first );
-
-	/// DO NOT store the central chi2:
-	/// chi2vals.push_back(pred.second);
-	
-	if (_storePdfs) {
-	  storePdfFiles(0,i);
-	}
 
         if ( last == 0) {
           // auto determine XXXXXXXXXXXXXXXX
@@ -377,23 +505,43 @@ namespace xfitter
             hf_errlog(2018082432,"S: Profiler: hessian error members should start from odd number. Check your inputs");
           }
         }
-                
-        // loop over all
-        for (int imember = first; imember<=last; imember++) {
-          gNode["member"] = imember;
-          evol->atConfigurationChange();
-	  auto pred = evaluatePredictions();
-          preds.push_back( pred.first );
-	  chi2vals.push_back( pred.second );
-          //              for ( double th : preds[imember] ) {
-          //std::cout << th << std::endl;
-          //}
-          //std::cout << imember << std::endl;
-	  if (_storePdfs) {
-	    storePdfFiles(imember,i,errorType);
-	  }
-        }
 
+	// Central+all PDFs
+	preds.resize(last-first+2);
+	// All PDFs only
+	chi2vals.resize(last-first+1);
+	
+        auto pred = evaluatePredictions();
+        preds[0] = pred.first;
+
+	int NPRED = pred.first.size();
+	int NALL = last-first+1;
+	
+	/// DO NOT store the central chi2:
+	/// chi2vals.push_back(pred.second);
+	
+	if (_storePdfs) {
+	  storePdfFiles(0,i);
+	}
+
+	if (_ncpu>0) {
+	  // Use multiprocessing
+	  compute_parallel(NALL, NPRED, first, i, preds, chi2vals, gNode, evol, errorType);
+	}
+	else {
+	  // loop over all
+	  for (int imember = first; imember<=last; imember++) {
+	    gNode["member"] = imember;
+	    evol->atConfigurationChange();
+	    auto pred = evaluatePredictions();
+	    preds[imember-first+1] = pred.first;
+	    chi2vals[imember-first] = pred.second;
+	    if (_storePdfs) {
+	      storePdfFiles(imember,i,errorType);
+	    }
+	  }	  
+	}
+	
         // Restore original
 
 	if ( oSet && oMember ) {
@@ -401,8 +549,6 @@ namespace xfitter
 	  gNode["member"]=oMember;
 	  evol->atConfigurationChange();
 	}
-
-
 
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
@@ -440,8 +586,7 @@ namespace xfitter
         }
         else {
           hf_errlog(2018082441,"S: Profiler Unsupported PDF error type : "+errorType);
-        }
-        
+        }        
     }
   }
   

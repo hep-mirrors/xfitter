@@ -162,12 +162,12 @@ c        open(82,file=h1name)
 
 
             chm = 0.0d0
-            if (q2.gt.qc) then
+            if (q2.gt.qc.and.abs(pdf(-4)).gt.1D-50) then
                chm=pdf(-4)
             endif
 
             bot = 0.d0
-            if (q2.gt.qb) then
+            if (q2.gt.qb.and.abs(pdf(-5)).gt.1D-50) then
                bot=pdf(-5)
             endif
 
@@ -292,6 +292,10 @@ C--------------------------------------------------
 
       PreviousPlots = 0
 C Update theory errors, sum up what is already in and theory sources
+      do i=1,NPoints
+         THEO_TOT_UP(i) = 0
+         THEO_TOT_DOWN(i) = 0
+      enddo
       do i=1,NPoints
          do j=1,NSys
             if (ISystType(j).eq.iTheorySyst) then
@@ -433,6 +437,7 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
 !     endif
 
       do i=1,mne
+         parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
 
 C
@@ -529,6 +534,7 @@ C store the optimal values
 
       open (71,file=TRIM(OutDirName)//'/parseout_opt',status='unknown')
       do i=1,mne
+         parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then

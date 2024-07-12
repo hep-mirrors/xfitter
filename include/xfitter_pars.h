@@ -46,8 +46,11 @@ namespace XFITTER_PARS {
   /// Global map of string parameters. Initialized based on parameters.yaml.
   extern map<string,string> gParametersS;
 
-  /// Global map of vector parameters. Initialized based on parameters.yaml.
+  /// Global map of vector double parameters. Initialized based on parameters.yaml.
   extern map<string,vector<double> > gParametersV;
+
+  /// Global map of vector string parameters. Initialized based on parameters.yaml.
+  extern map<string,vector<string> > gParametersVS;
 
   /// Global map of Yaml nodes parameters.. Initialized based on parameters.yaml.
   extern map<string,YAML::Node> gParametersY;
@@ -91,11 +94,12 @@ namespace XFITTER_PARS {
 
   /// Parse @param node and return maps
   void parse_node(const YAML::Node& node,
-      std::map<string,double*>& dMap,
-      std::map<string,int>& iMap,
-      std::map<string,string>& sMap,
-      std::map<string,vector<double> >& vMap,
-      std::map<string,YAML::Node> & yMap );
+		  std::map<string,double*>& dMap,
+		  std::map<string,int>& iMap,
+		  std::map<string,string>& sMap,
+		  std::map<string,vector<double> >& vMap,
+		  std::map<string,vector<string> >& vsMap,
+		  std::map<string,YAML::Node> & yMap );
   /// Allocate memory for a new double*-typed parameter, record it in gParameters and return it
   /// This kind of parameter is not passed to minimizer
   const double*createConstantParameter(const string&name,double value);
