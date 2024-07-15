@@ -1,0 +1,75 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'alphas    '   0.11800      constant
+     2 'deltamt   '    1.0000      constant
+     3 'mtp       '    173.00       1.0000         no limits
+ **********
+ **    1 **SET STR    2.000    
+ **********
+
+ NOW USING STRATEGY  2: MAKE SURE MINIMUM TRUE, ERRORS CORRECT  
+
+ **********
+ **    2 **CALL FCN    3.000    
+ **********
+
+ FCN=   2.262325     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 2      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1   alphas      0.11800       constant   
+   2   deltamt      1.0000       constant   
+   3   mtp          173.00        1.0000    
+ **********
+ **    3 **MIGRAD   0.8000E+05
+ **********
+ START MIGRAD MINIMIZATION.  STRATEGY 2.  CONVERGENCE WHEN EDM .LT. 0.10E-03
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+
+ FCN=   2.262325     FROM HESSE     STATUS=OK             7 CALLS        8 TOTAL
+                     EDM=  0.72E+00    STRATEGY= 2      ERROR MATRIX ACCURATE 
+
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME        VALUE          ERROR          SIZE      DERIVATIVE 
+   1   alphas      0.11800       constant   
+   2   deltamt      1.0000       constant   
+   3   mtp          173.00       0.56279       0.15883E-01   -3.0193    
+
+ MIGRAD MINIMIZATION HAS CONVERGED.
+
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+
+ FCN=   1.538563     FROM MIGRAD    STATUS=CONVERGED     18 CALLS       19 TOTAL
+                     EDM=  0.42E-09    STRATEGY= 2      ERROR MATRIX ACCURATE 
+
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME        VALUE          ERROR          SIZE      DERIVATIVE 
+   1   alphas      0.11800       constant   
+   2   deltamt      1.0000       constant   
+   3   mtp          173.48       0.56512       0.43964E-03  -0.51085E-04
+
+ EXTERNAL ERROR MATRIX.    NDIM=  50    NPAR=  1    ERR DEF=  1.00    
+  0.319E+00
+ **********
+ **    4 **HESSE 
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+
+ FCN=   1.538563     FROM HESSE     STATUS=OK             5 CALLS       24 TOTAL
+                     EDM=  0.42E-09    STRATEGY= 2      ERROR MATRIX ACCURATE 
+
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME        VALUE          ERROR       STEP SIZE       VALUE   
+   1   alphas      0.11800       constant   
+   2   deltamt      1.0000       constant   
+   3   mtp          173.48       0.56512       0.87928E-04    173.48    
+
+ EXTERNAL ERROR MATRIX.    NDIM=  50    NPAR=  1    ERR DEF=  1.00    
+  0.319E+00
+ **********
+ **    5 **CALL FCN    3.000    
+ **********

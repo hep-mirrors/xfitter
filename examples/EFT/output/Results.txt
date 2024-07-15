@@ -1,0 +1,20 @@
+After minimisation       2.26     2     1.131
+
+  Partial chi2s 
+Dataset    1      2.23( +0.04)     3  ttbar                                           
+
+ Correlated Chi2    0.0000000000000000     
+ Log penalty Chi2    3.6507339123908925E-002
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type
+After minimisation       1.54     2     0.769
+
+  Partial chi2s 
+Dataset    1      1.54( -0.01)     3  ttbar                                           
+
+ Correlated Chi2    0.0000000000000000     
+ Log penalty Chi2   -5.0907995776367475E-003
+ Systematic shifts            0
+  
+                                Name          Shift   +/-    Error          Type

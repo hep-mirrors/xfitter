@@ -19,7 +19,10 @@
 #include <memory>
 #include "BaseEvolution.h"
 
+#ifdef WITH_APPLGRID
 #include "appl_grid/appl_grid.h"
+#endif
+
 #include "TermData.h" // needed by PDF wrappers
 
 // from Toni's script:
@@ -226,6 +229,7 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
     int num_bin_grids = 0;
     for (string grid_file_name: grid_file_list) {
       if (format == APPLgrid) {
+#ifdef WITH_APPLGRID
         // todo: not tested. Do we need TH1D and reference?
         appl::grid* g = new appl::grid(grid_file_name);
         g->trim();
@@ -239,6 +243,9 @@ RawVec::RawVec (YAML::Node node, string key, size_t &num_bin_term, string grid_d
         else {
           // todo: free the memory?
         }
+#else
+	      hf_errlog(24040903, "F: APPLgrid support not available");	
+#endif        
       }
       else if (format == PineAPPL) {
 #ifdef WITH_PINEAPPL
@@ -428,6 +435,7 @@ void RawVec::convolute_PineAPPL() {
 #endif
 
 ///////////////////////////////////////////////////////
+#ifdef WITH_APPLGRID
 void RawVec::convolute_APPLgrid() {
   // 1. read the grids if necessary
   if ( ! save_grid_in_memory ) {
@@ -474,6 +482,7 @@ void RawVec::convolute_APPLgrid() {
     // todo
   }
 }
+#endif
 
 ///////////////////////////////////////////////////////
 void RawVec::convolute() {
@@ -490,7 +499,9 @@ void RawVec::convolute() {
 #endif
   }
   else if (format == APPLgrid) {
+#ifdef WITH_APPLGRID
     convolute_APPLgrid();
+#endif
   }
   else {
     hf_errlog(24040904, "F: EFT.convolute: grid format not support.");

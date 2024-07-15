@@ -21,7 +21,9 @@
 #include "pineappl_capi.h"
 #endif
 
+#ifdef WITH_APPLGRID
 #include "appl_grid/appl_grid.h"
+#endif
 
 // #include "fastnlotk/fastNLOReader.h" // need the fastnlotk directory under the current dir.
 //--------------------------------------------------------------
@@ -73,8 +75,10 @@ class RawVec {
   vector<pineappl_grid* > pgrid_list;
 #endif
   // APPLgrid grids
+#ifdef WITH_APPLGRID
   // vector<unique_ptr<appl::grid> > p_APPLgrid_list;
   vector<appl::grid* > p_APPLgrid_list;
+#endif
   // fastNLO grids
   // todo
   // vector< *> p_fastNLO_list;
