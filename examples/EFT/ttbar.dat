@@ -11,7 +11,7 @@
   TermName = 'SMNNLO'
   TermSource = 'EFT'
   TermInfo =
-    'ListEFTParam=deltamt:FileName=fit_mt.dat:NoCentral=False:AbsOutput=True',
+    'ListEFTParam=deltamt,ctg:FileName=fit_mt_ctg.dat:NoCentral=False:AbsOutput=True',
   TheorExpr = 'SMNNLO'
   
   NData =   3

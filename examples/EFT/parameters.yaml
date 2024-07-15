@@ -11,6 +11,7 @@ Parameters:
   alphas : [0.118, 0.0] # value=0.118. step=0.0 is not positive, so alphas will not be fitted.
   mtp    : [173.0, 1.0] # the top quark pole mass.
   deltamt: "=mtp-172.5" # deltamt is defined by mtp, and is fitted using the EFT reaction
+  ctg    : [0.1, 1.0]   # the SMEFT Wilson coefficient c_{tg}
 
 # set PDF; formally indispensable even if we do not really need it
 DefaultEvolution: proton-LHAPDF-nnpdf31

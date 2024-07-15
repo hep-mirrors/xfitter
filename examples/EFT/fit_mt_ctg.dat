@@ -1,3 +1,6 @@
+# Alert:
+#    the dependence of inclusive ttbar x-section on `ctg` is artificial and is only 
+#    used to illustrate how to fit top quark mass and SMEFT parameters simultaneously.
 info:
   # make some of the entries invisible to xFitter.
   # since any two of (Kmt1, Kmt2, l_mt, q_mt) are sufficient (and equivalent) to determine the
@@ -43,3 +46,34 @@ Kmt2:
   param_value: -2.5 # value of deltamt
   format: ratio
   xsec: [1.0783125, 1.0781875, 1.07025 ] # theoretical predictions (divided by those for mt=172.5) in each bin
+
+# `ctg1`, and `ctg2`, together with `mt=172.5` can be used to determine linear/quadratic corrections of ctg
+ctg1: # inclusive cross sections corresponding to mt=172.5GeV and ctg=3.0TeV^-2
+  type: Q
+  param: ctg
+  param_value: 3.0
+  format: xsection
+  xsec: [ 217.316,  317.44 , 1434.308] # artificial
+
+ctg2: # inclusive cross sections corresponding to mt=172.5GeV and ctg=-3.0TeV^-2
+  type: Q
+  param: ctg
+  param_value: -3.0
+  format: xsection
+  xsec: [174.212, 240.64 , 683.798] # artificial
+
+# Given linear/quadratic corrections of deltamt and ctg, determined by the above inputs,
+# `ctg_mt` further provides information of correction proportional to ctg*mt.
+ctg_mt: # inclusive cross sections corresponding to mt=172.5+1.0GeV and ctg=3.0TeV^-2
+  type: M
+  param: [ deltamt, ctg ]
+  param_value: [ 1.0, 3.0 ]
+  format: xsection
+  xsec: [205.52369748,  300.3986944 , 1371.19577952] # artificial
+  
+# ctg2_mt: # include K factor proportional to ctg^2*deltamt
+#   type: monomial
+#   param: [ deltamt, ctg ]
+#   power: [ 1, 2 ] # powers of deltamt and ctg, respectively. should be integers.
+#   format: ratio
+#   xsec: [-1e-3,  -1.2e-3, -3.0e-3] # artificial

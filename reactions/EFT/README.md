@@ -16,28 +16,28 @@ Given xFitter properly installed, the EFT reaction may be added by:
   ./make.sh install .
 
 ## Example:
-Please check examples/ttbar, which fits top quark mass to inclusive
+Please check examples/EFT, which fits top quark mass to inclusive
 ttbar production rates.  Here we highlight details relevant for the
 `EFT` reaction.
 
-1. Let xFitter know how the theoretical prediction depends on `mt`. 
+1. Let xFitter know how the theoretical prediction depends on `mt` and `ctg`. 
 
   TermName = 'SMNNLO'
   TermSource = 'EFT'
   TermInfo =
-    'ListEFTParam=deltamt:FileName=fit_mt.yaml:NoCentral=False:AbsOutput=True',
+    'ListEFTParam=deltamt,ctg:FileName=fit_mt_ctg.yaml:NoCentral=False:AbsOutput=True',
   TheorExpr = 'SMNNLO'
 
 Here the observable (inclusive ttbar x-xsection) is calculated by the
 `EFT` reaction.  The argument `ListEFTParam` tells xFitter that only
-one parameter `deltamt` is involved.  Details of how `SMNNLO` depends
-on `deltamt` is given in another YAML file given by the `FileName`
-argument (`fit_mt.yaml` in this case).
+two parameters `deltamt` and `ctg` are involved.  Details of how
+`SMNNLO` depends on `deltamt` and `ctg` are given in another YAML file
+given by the `FileName` argument (`fit_mt_ctg.yaml` in this case).
 
-2. The YAML file `fit_mt.yaml` provides necessary inputs such that
-xFitter knows how to calculate `SMNNLO` for any top quark mass.
+2. The YAML file `fit_mt_ctg.yaml` provides necessary inputs such that
+xFitter knows how to calculate `SMNNLO` for any top quark mass and `ctg`.
 
-3. Provide the initial values of `deltamt` in `parameters.yaml`.
+3. Provide the initial values of `deltamt` and `ctg` in `parameters.yaml`.
 
   Parameters:
     mtp    : [173.0, 1.0] # the top quark pole mass.
