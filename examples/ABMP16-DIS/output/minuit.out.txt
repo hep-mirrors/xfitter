@@ -1,0 +1,97 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'ABMP_ds_A '   0.14080      0.76000E-02     no limits
+     2 'ABMP_ds_a '  -0.17310      0.11000E-01     no limits
+     3 'ABMP_ds_b '    8.4100      0.34000         no limits
+     4 'ABMP_ds_g1'    13.300       1.7000         no limits
+     5 'ABMP_dv_A '    1.0000      constant
+     6 'ABMP_dv_a '   0.37200      0.68000E-01     no limits
+     7 'ABMP_dv_b '    4.4700      0.55000         no limits
+     8 'ABMP_dv_g1'   -3.2000      0.77000         no limits
+     9 'ABMP_dv_g2'  -0.61000       1.9600         no limits
+    10 'ABMP_dv_g3'    0.0000      0.10000E-02     no limits
+    11 'ABMP_g_A  '    1.0000      constant
+    12 'ABMP_g_a  '  -0.15340      0.94000E-02     no limits
+    13 'ABMP_g_b  '    6.4200      0.83000         no limits
+    14 'ABMP_g_g1 '   -11.800       3.7000         no limits
+    15 'ABMP_ss_A '   0.59400E-01  0.42000E-02     no limits
+    16 'ABMP_ss_a '  -0.34450      0.19000E-01     no limits
+    17 'ABMP_ss_b '    6.5200      0.27000         no limits
+    18 'ABMP_us_A '   0.70300E-01  0.81000E-02     no limits
+    19 'ABMP_us_a '  -0.41550      0.31000E-01     no limits
+    20 'ABMP_us_b '    7.7500      0.39000         no limits
+    21 'ABMP_us_g1'    4.4400      0.95000         no limits
+    22 'ABMP_us_gm'   0.37300E-01  0.32000E-02     no limits
+    23 'ABMP_uv_A '    1.0000      constant
+    24 'ABMP_uv_a '   0.61300      0.33000E-01     no limits
+    25 'ABMP_uv_b '    3.4430      0.64000E-01     no limits
+    26 'ABMP_uv_g1'  -0.22000      0.33000         no limits
+    27 'ABMP_uv_g2'   -2.8800      0.46000         no limits
+    28 'ABMP_uv_g3'    2.6700      0.80000         no limits
+    29 'DATANORM_N'    1.0110      0.10000E-01     no limits
+    30 'DATANORM_N'    1.0220      0.10000E-01     no limits
+    31 'DATANORM_N'    1.0120      0.10000E-01     no limits
+    32 'DATANORM_N'   0.99300      0.10000E-01     no limits
+    33 'DATANORM_S'    1.0010      0.10000E-01     no limits
+    34 'DATANORM_S'    1.0100      0.10000E-01     no limits
+    35 'DATANORM_S'    1.0120      0.10000E-01     no limits
+    36 'DATANORM_S'    1.0000      0.10000E-01     no limits
+    37 'ZERO      '    0.0000      constant
+    38 'mbt       '    3.8380      0.10000E-01     no limits
+    39 'mch       '    1.2520      0.10000E-01     no limits
+ **********
+ **    1 **SET STR    2.000    
+ **********
+
+ NOW USING STRATEGY  2: MAKE SURE MINIMUM TRUE, ERRORS CORRECT  
+
+ **********
+ **    2 **CALL FCN    3.000    
+ **********
+
+ FCN=   2748.797     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 2      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1  ABMP_ds_A    0.14080       0.76000E-02
+   2  ABMP_ds_a   -0.17310       0.11000E-01
+   3  ABMP_ds_b     8.4100       0.34000    
+   4  ABMP_ds_g1    13.300        1.7000    
+   5  ABMP_dv_A     1.0000       constant   
+   6  ABMP_dv_a    0.37200       0.68000E-01
+   7  ABMP_dv_b     4.4700       0.55000    
+   8  ABMP_dv_g1   -3.2000       0.77000    
+   9  ABMP_dv_g2  -0.61000        1.9600    
+  10  ABMP_dv_g3    0.0000       0.10000E-02
+  11  ABMP_g_A      1.0000       constant   
+  12  ABMP_g_a    -0.15340       0.94000E-02
+  13  ABMP_g_b      6.4200       0.83000    
+  14  ABMP_g_g1    -11.800        3.7000    
+  15  ABMP_ss_A    0.59400E-01   0.42000E-02
+  16  ABMP_ss_a   -0.34450       0.19000E-01
+  17  ABMP_ss_b     6.5200       0.27000    
+  18  ABMP_us_A    0.70300E-01   0.81000E-02
+  19  ABMP_us_a   -0.41550       0.31000E-01
+  20  ABMP_us_b     7.7500       0.39000    
+  21  ABMP_us_g1    4.4400       0.95000    
+  22  ABMP_us_gm   0.37300E-01   0.32000E-02
+  23  ABMP_uv_A     1.0000       constant   
+  24  ABMP_uv_a    0.61300       0.33000E-01
+  25  ABMP_uv_b     3.4430       0.64000E-01
+  26  ABMP_uv_g1  -0.22000       0.33000    
+  27  ABMP_uv_g2   -2.8800       0.46000    
+  28  ABMP_uv_g3    2.6700       0.80000    
+  29  DATANORM_N    1.0110       0.10000E-01
+  30  DATANORM_N    1.0220       0.10000E-01
+  31  DATANORM_N    1.0120       0.10000E-01
+  32  DATANORM_N   0.99300       0.10000E-01
+  33  DATANORM_S    1.0010       0.10000E-01
+  34  DATANORM_S    1.0100       0.10000E-01
+  35  DATANORM_S    1.0120       0.10000E-01
+  36  DATANORM_S    1.0000       0.10000E-01
+  37  ZERO          0.0000       constant   
+  38  mbt           3.8380       0.10000E-01
+  39  mch           1.2520       0.10000E-01

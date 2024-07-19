@@ -38,7 +38,9 @@ protected:
       signonred,
       sigred,
       f2,
-      fl
+      fl,
+      f3,
+      sigred_nof3
    }; //!< Define compute output.
    enum class dataFlav
    {
@@ -127,4 +129,12 @@ protected:
    // method is based on legacy subroutine GetIntegratedDisXsection
    map<unsigned, IntegrateDIS *> _integrated;
    virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
+   // higher twist
+   map<unsigned, bool> _flag_ht;
+   std::vector<double> _ht_x;
+   std::vector<double> _ht_2;
+   std::vector<double> _ht_t;
+   double _ht_alpha_2;
+   double _ht_alpha_t;
+   void ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err);
 };
