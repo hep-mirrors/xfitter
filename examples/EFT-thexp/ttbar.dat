@@ -11,9 +11,6 @@
   TermName = 'c','lmt','qmt','deltamt','ctgp3','ctgm3','ctg','lctgmt'
   TermSource = 'KFactor','KFactor','KFactor','KFactor','KFactor','KFactor','KFactor','KFactor'
   TermInfo = 'DataColumn=c','DataColumn=l_mt','DataColumn=q_mt','Parameter=deltamt','DataColumn=y1','DataColumn=y3','Parameter=ctg','DataColumn=lctgmt'
-  !TheorExpr = 'c'
-  !TheorExpr = 'c*(1+(lctgmt-c)/c*(ctg/3)*(deltamt/1))'
-  !TheorExpr = 'c*(1+lmt*deltamt+(lctgmt-c-lmt*1-qmt*1*1)/c*(ctg/3)*(deltamt/1))'
   TheorExpr = 'c*(1
   +lmt*deltamt
   +qmt*deltamt*deltamt
@@ -26,11 +23,12 @@
   +(0-3*(1-ctgp3/c)+3*(ctgm3/c-1))/54*3*3
   ))/c*(ctg/3)*(deltamt/1)
   )'
-! x1 = 3, x2 = 0 (y2 = c), x3 = -3
-! y = A*x*x+B*x+C
+! ctg dependence is given via xsec values for different values of ctg -> need to solve quadratic equation
+! y1 at x1 = 3, y2(=c) at x2 = 0, y3 at x3 = -3
+! y = A * x * x + B * x + C
 ! denom = (x1 - x2) * (x1 - x3) * (x2 - x3) = 3*3*6 = 54
 ! double A     = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / denom;
-! double B     = (x3 * x3 * (y1 - y2) + x2*x2 * (y3 - y1) + x1*x1 * (y2 - y3)) / denom;
+! double B     = (x3 * x3 * (y1 - y2) + x2 * x2 * (y3 - y1) + x1 * x1 * (y2 - y3)) / denom;
 ! double C     = (x2 * x3 * (x2 - x3) * y1 + x3 * x1 * (x3 - x1) * y2 + x1 * x2 * (x1 - x2) * y3) / denom;
 
   
