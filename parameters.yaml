@@ -91,23 +91,26 @@ Decompositions:
     xg: par_g
 
 #DefaultEvolution: proton-APFELff
-DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
+#DefaultEvolution: proton-QCDNUM
+DefaultEvolution: Hoppet
 
 Evolutions:
   #proton-APFELff:
     #? !include evolutions/APFEL.yaml
     #decomposition: proton
-  proton-QCDNUM:
-    ? !include evolutions/QCDNUM.yaml
-    decomposition: proton #this could be omitted, as the default decomposition is set
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    #EvolutionCopy: "proton-LHAPDF"
+#  proton-QCDNUM:
+#    ? !include evolutions/QCDNUM.yaml
+#    decomposition: proton #this could be omitted, as the default decomposition is set
+#    # The following allows QCDNUM to read PDFs from other evolutions:
+#    #EvolutionCopy: "proton-LHAPDF"
   proton-LHAPDF:
     class: LHAPDF
     set: "NNPDF30_nlo_as_0118"
     #set: "CT10nlo"
     member: 0
+  Hoppet:
+    class: Hoppet
+
 #  proton-APFEL:
 #    ? !include evolutions/APFELxx.yaml
 #    decomposition: proton

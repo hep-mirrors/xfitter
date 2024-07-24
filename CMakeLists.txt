@@ -41,6 +41,7 @@ find_package(yaml)
 find_package(ZLIB)
 find_package(PineAPPL)
 find_package(Ploughshare)
+find_package(Hoppet)
 
 set(CMAKE_CXX_FLAGS "-O ${CMAKE_CXX_FLAGS}")
 set(CMAKE_Fortran_FLAGS "-O ${CMAKE_Fortran_FLAGS}")
@@ -163,6 +164,7 @@ add_subdirectory(evolutions/APFELxx)
 add_subdirectory(evolutions/FlipCharge)
 add_subdirectory(evolutions/FlipUD)
 add_subdirectory(evolutions/LHAPDF)
+add_subdirectory(evolutions/Hoppet)
 
 #Reactions
 add_subdirectory(reactions/NC_SIA)
