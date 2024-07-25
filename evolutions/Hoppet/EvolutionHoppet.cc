@@ -5,19 +5,61 @@
 
 #include "hoppet_v1.h"
 
+// Global var to hold current pdfDecomposition
+xfitter::BasePdfDecomposition *gPdfDecomp = nullptr;
+
 namespace xfitter
 {
+
   // the class factories
   extern "C" EvolutionHoppet*create(const char*name){
     return new EvolutionHoppet(name);
   }
   const char*EvolutionHoppet::getClassName()const{return "Hoppet";}
 
+ void  heralhc_init(const double & x,
+                    const double & Q,
+                    double * pdf)                  
+ {
+/*
+  double uv, dv;
+  double ubar, dbar;
+  double N_g=1.7, N_ls=0.387975;
+  double N_uv=5.107200, N_dv=3.064320;
+  double N_db=N_ls/2;
 
-  //_________________________________________________________________________________
+  uv = N_uv * pow(x,0.8) * pow((1-x),3);
+  dv = N_dv * pow(x,0.8) * pow((1-x),4);
+  dbar = N_db * pow(x,-0.1) * pow(1-x,6);
+  ubar = dbar * (1-x);
+
+  pdf[ 0+6] = N_g * pow(x,-0.1) * pow(1-x,5);
+  pdf[-3+6] = 0.2*(dbar + ubar);
+  pdf[ 3+6] = pdf[-3+6];
+  pdf[ 2+6] = uv + ubar;
+  pdf[-2+6] = ubar;
+  pdf[ 1+6] = dv + dbar;
+  pdf[-1+6] = dbar;
+
+  pdf[ 4+6] = 0;
+  pdf[ 5+6] = 0;
+  pdf[ 6+6] = 0;
+  pdf[-4+6] = 0;
+  pdf[-5+6] = 0;
+  pdf[-6+6] = 0;
+*/	
+  const std::map<int, int> ip =
+      {{-5, -5},{-4, -4},{-3, -3}, {-2, -2}, {-1, -1}, {0, 21}, {1, 1}, {2, 2}, {3, 3},{4, 4},{5, 5}};
+  for (auto &i : ip)
+  {
+    pdf[i.first + 6] = gPdfDecomp->xfxMap(x)[i.second]; 
+    //double t = gPdfDecomp->xfxMap(x)[i.second]; 
+    //std::cout << " from decomposition: " << i.first << " " << i.second << "  " << t << std::endl;
+  }
+ } 
+
   void EvolutionHoppet::atStart()
   {
-    std::cout << " HERE WE ARE in HOPPET " << std::endl;
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
     // Retrieve parameters needed to initialize APFEL++.
@@ -25,18 +67,23 @@ namespace xfitter
     const double* MBottom  = XFITTER_PARS::getParamD("mbt");
     const double* MTop     = XFITTER_PARS::getParamD("mtp");
     const YAML::Node xGrid = yamlNode["xGrid"];
-
-    // Add hoppetStart
-    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
-    double dy = 0.1;
-    hoppetStart(dy, PtOrder);
     
+    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
+    double dy = 0.01;
+    hoppetStart(dy, PtOrder);
+    //    hoppetSetVFN(*MCharm, *MBottom, *MTop);
     atConfigurationChange();
   }
 
-  //_________________________________________________________________________________
-  void EvolutionHoppet::atIteration()
+  
+    void EvolutionHoppet::atIteration()
   {
+    // use  https://github.com/hoppet-code/hoppet/blob/master/example_f77/cpp_tabulation_example.cc
+
+    
+    std::cout << " HERE WE ARE in HOPPET " << std::endl;
+    //exit(0);
+    
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
@@ -44,21 +91,50 @@ namespace xfitter
     const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
     const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");
     const YAML::Node QGrid   = yamlNode["QGrid"];
-
+    gPdfDecomp = _inPDFs;
     // add hoppetEvolve
+     //double asQ0 = 0.118;
+     
+     hoppetEvolve( *Alphas_ref, *Q_ref, PtOrder, 1.0, heralhc_init, *Q0);
+    std::cout << " HERE WE ARE OUT OF HOPPET " << std::endl;
   }
+  
+  
   std::map<int,double>EvolutionHoppet::xfxQmap(double x,double Q){
+    std::cout << " HERE WE ARE in HOPPET A " << std::endl;
+    double pdfs[14];
+    xfxQarray(x, Q, pdfs);
+    std::map<int, double> res;
+    
+    const int npdfMax = 6;
+
+    for (int ipdf = -6; ipdf <= npdfMax; ipdf++)
+      {
+	int ii = (ipdf == 0) ? 21 : ipdf;
+	// photon PDF:
+	if (ipdf == 7)
+	  ii = 22;
+	res[ii] = pdfs[ipdf+6];
+      }
+    return res;
   }
 
   double EvolutionHoppet::xfxQ(int i,double x,double Q){
+    double pdfs[14];
+    xfxQarray(x, Q, pdfs);
+    return pdfs[i+6];
   }
 
   void EvolutionHoppet::xfxQarray(double x,double Q,double*pdfs){
+    hoppetEval(x, Q, pdfs);
   }
 
   double EvolutionHoppet::getAlphaS(double Q){
+    return hoppetAlphaS(Q);
   }
 
+
+  // Optional (can be done later):
   vector<double> EvolutionHoppet::getXgrid() {
   }
 
