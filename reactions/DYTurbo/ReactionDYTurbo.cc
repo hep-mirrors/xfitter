@@ -86,6 +86,9 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
 
   //opts.silent      = td->getParamI("debug");
   opts.makehistos  = false;
+
+  if (td->hasParam("pdfset"))
+    opts.LHAPDFset = td->getParamS("pdfset");
   
   if (td->hasParam("blim"))
     opts.blim = *(td->getParamD("blim"));
