@@ -69,9 +69,9 @@ namespace xfitter
     const YAML::Node xGrid = yamlNode["xGrid"];
     
     const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
-    double dy = 0.01;
+    double dy = 0.1;
     hoppetStart(dy, PtOrder);
-    //    hoppetSetVFN(*MCharm, *MBottom, *MTop);
+    hoppetSetVFN(*MCharm, *MBottom, *MTop);
     atConfigurationChange();
   }
 
