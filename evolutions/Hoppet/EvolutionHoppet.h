@@ -46,4 +46,7 @@ namespace xfitter
     std::vector<double>                                                     _Thresholds;
     std::function<double(double const& Q)>                                  _AlphaQCD;
   };
+  
+  
+
 }

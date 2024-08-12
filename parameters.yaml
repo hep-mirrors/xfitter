@@ -95,8 +95,8 @@ Decompositions:
 DefaultEvolution: Hoppet
 
 Evolutions:
-  #proton-APFELff:
-    #? !include evolutions/APFEL.yaml
+ # proton-APFELff:
+  #  ? !include evolutions/APFEL.yaml
     #decomposition: proton
 #  proton-QCDNUM:
 #    ? !include evolutions/QCDNUM.yaml
@@ -132,6 +132,9 @@ byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
     ? !include reactions/RT_DISNC.yaml
+  _DISNC_Hoppet:
+    ? !include reactions/_DISNC_Hoppet.yaml
+    blalabla : 10
     # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
     #evolution: proton-QCDNUM
   # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
@@ -169,7 +172,9 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
-  defaultValue : 'RT_DISNC'        # global specification
+ defaultValue : '_DISNC_Hoppet'
+ #defaultValue : 'HOPPET_DISNC'
+# defaultValue : 'RT_DISNC'        # global specification
 #  defaultValue : 'BaseDISNC'       # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'
@@ -198,22 +203,9 @@ Profiler:
   getChi2: "Off"                # determine and report chi2 for each variation
   enableExternalProfiler: "Off" # enable creation of additional files, needed for xfitter draw
 
-OutputDirectory: "output" #Can be omitted, default is "output"
+OutputDirectory: "Hoppet" #Can be omitted, default is "output"
+#OutputDirectory: "ApfelFF" #Can be omitted, default is "output"
 
-WriteLHAPDF6:
-  name: "proton"
-  description: "..."
-  authors: "..."
-  reference: "..."
-    # use DefaultEvolution
-  #evolution: proton-QCDNUM
-    # take internal grid
-  preferInternalGrid:
-    # or define grid
-  #Xrange: [1e-4, 1]
-  #Qrange: [1,1000]
-  #Xnpoints: 200
-  #Qnpoints: 120
 
 #
 # Possible levels to stop program execution:

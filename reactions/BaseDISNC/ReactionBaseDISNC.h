@@ -77,7 +77,7 @@ protected:
    // Helper functions:
    void kappa(TermData *td, valarray<double> &k);
 
-private:
+protected:
    map<unsigned, int> _npoints;         //!< Number of points in a dataset.
    map<unsigned, double> _polarisation; //!< longitudinal polarisation
    map<unsigned, double> _charge;       //!< lepton beam charge
@@ -112,7 +112,7 @@ protected:
    virtual void GetFLud(TermData *td, valarray<double> &flu, valarray<double> &fld);
    virtual void GetxF3ud(TermData *td, valarray<double> &xf3u, valarray<double> &xf3d);
 
-private:
+protected:
    // Some buffering mechanism to avoid double calls
    map<unsigned, valarray<double>> _f2u; //!< F2 for u-type quarks
    map<unsigned, valarray<double>> _f2d; //!< F2 for d-type quarks

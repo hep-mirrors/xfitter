@@ -2,8 +2,10 @@
 *
 
 &InFiles
-  ! Input files:
-    InputFileNames = 'examples/ploughshare/wplus-thexp.dat'
+!  ! Input files:
+ !   InputFileNames = 'examples/ploughshare/wplus-thexp.dat'
+  InputFileNames = 
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
 &End
 
 &InCorr
