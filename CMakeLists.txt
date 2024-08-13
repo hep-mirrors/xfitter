@@ -193,7 +193,7 @@ add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
 add_subdirectory(reactions/PineAPPL)
-add_subdirectory(reactions/_DISNC_Hoppet)
+add_subdirectory(reactions/HOPPET_DISNC)
 
 
 #Tools

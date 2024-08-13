@@ -132,9 +132,8 @@ byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
     ? !include reactions/RT_DISNC.yaml
-  _DISNC_Hoppet:
-    ? !include reactions/_DISNC_Hoppet.yaml
-    blalabla : 10
+  HOPPET_DISNC:
+    ? !include reactions/HOPPET_DISNC.yaml
     # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
     #evolution: proton-QCDNUM
   # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
@@ -172,8 +171,7 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
- defaultValue : '_DISNC_Hoppet'
- #defaultValue : 'HOPPET_DISNC'
+ defaultValue : 'HOPPET_DISNC'
 # defaultValue : 'RT_DISNC'        # global specification
 #  defaultValue : 'BaseDISNC'       # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
