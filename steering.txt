@@ -5,7 +5,8 @@
 !  ! Input files:
  !   InputFileNames = 'examples/ploughshare/wplus-thexp.dat'
   InputFileNames = 
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+    ! 'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+      'test_data.dat'
 &End
 
 &InCorr
