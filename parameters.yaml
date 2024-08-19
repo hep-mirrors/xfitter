@@ -1,12 +1,11 @@
 Minimizer: MINUIT # CERES
 MINUIT:
   Commands: |
-    call fcn 1
     set str 2
     call fcn 3
-#    migrad
-#    hesse
-#    call fcn 3
+ #   migrad
+ #   hesse
+ #   call fcn 3
     
 #  doErrors :  Hesse # None
 
@@ -201,7 +200,7 @@ Profiler:
   getChi2: "Off"                # determine and report chi2 for each variation
   enableExternalProfiler: "Off" # enable creation of additional files, needed for xfitter draw
 
-OutputDirectory: "Hoppet" #Can be omitted, default is "output"
+OutputDirectory: "fittedresults" #Can be omitted, default is "output"
 #OutputDirectory: "ApfelFF" #Can be omitted, default is "output"
 
 

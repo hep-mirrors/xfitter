@@ -60,7 +60,7 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
     const double mt = *XFITTER_PARS::getParamD("mtp");
     cout<<"61"<<endl;
     
-    //hoppetSetPoleMassVFN(mc, mb, mt);
+    hoppetSetPoleMassVFN(mc, mb, mt);
 
     const bool param_coefs = true;
     const double xmuR = 1.;
@@ -77,7 +77,7 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
     double maxQval = max(xmuF * Qmax, Qmax);
 
     // Initialize HOPPET
-    hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
+   // hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
     
     int nflav = -5;
     int order_max = 4;
@@ -85,17 +85,17 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
     double zmass = 91.1876;
     double wmass = 80.377;
     
-    hoppetStartStrFctExtended(order_max, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
+   // hoppetStartStrFctExtended(order_max, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
 
     double asQ = 0.35;
     double Q0 = sqrt(2.0);
     double muR_Q = 1.0;
 
     // Evolve the PDF
-   hoppetEvolve(asQ, Q0, nloop, muR_Q, lha_unpolarized_dummy_pdf, Q0);
+  //  hoppetEvolve(asQ, Q0, nloop, muR_Q, lha_unpolarized_dummy_pdf, Q0);
 
     // Initialize structure functions
-   hoppetInitStrFct(order_max, param_coefs, xmuR, xmuF);
+  //  hoppetInitStrFct(order_max, param_coefs, xmuR, xmuF);
 
     // Obtain parameters
     const auto _convfac = *XFITTER_PARS::getParamD("convFac");
@@ -140,11 +140,11 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
          
         // cout<<"141"<<endl;
         // Evaluate PDFs at (x, Q)
-     //  hoppetEval(x, Q, pdf);
-       //  cout<<"144"<<endl;
+       // hoppetEval(x, Q, pdf);
+         cout<<"144"<<endl;
         // Evaluate structure functions at (x, Q)
         hoppetStrFct(x, Q, Q, Q, &StrFct[0]);
-        // cout<<"147"<<endl;
+         cout<<"147"<<endl;
         // Extract individual structure functions
         const double F1EM = StrFct[iF1EM];
         const double F2EM = StrFct[iF2EM];

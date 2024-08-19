@@ -140,7 +140,7 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
     double minQval = min(xmuF * Qmin, Qmin);
     double maxQval = max(xmuF * Qmax, Qmax);
   
-   //hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
+    hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
     
     int nflav = -5;
     int order_max = 4;
@@ -148,7 +148,7 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
     double zmass = 91.1876;
     double wmass = 80.377;
     
-   // hoppetStartStrFctExtended(order_max, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
+    hoppetStartStrFctExtended(order_max, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
    
     hoppetEvolve( *Alphas_ref, *Q_ref, PtOrder, 1.0, heralhc_init, *Q0);
     std::cout << " HERE WE ARE OUT OF HOPPET " << std::endl;
@@ -163,10 +163,10 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
     double muR_Q = 1.0;
       
     // Evolve the PDF
-   //hoppetEvolve(asQ, QH, nloop, muR_Q, lha_unpolarized_dummy_pdf, QH);
+   hoppetEvolve(asQ, QH, nloop, muR_Q, lha_unpolarized_dummy_pdf, QH);
 
     // Initialize structure functions(we dk need it or not)
-   // hoppetInitStrFct(order_max, param_coefs, xmuR, xmuF);
+    hoppetInitStrFct(order_max, param_coefs, xmuR, xmuF);
     
   }
   
