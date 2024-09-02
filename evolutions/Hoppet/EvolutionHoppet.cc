@@ -2,6 +2,7 @@
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 #include <iostream>
+#include <cmath>
 #include "hoppet_v1.h"
 
 using namespace std;
