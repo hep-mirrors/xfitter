@@ -13,6 +13,7 @@
 #include "xfitter_pars.h"
 #include <BaseEvolution.h>
 #include <hf_errlog.h>
+#include "xfitter_cpp_base.h"
 
 using namespace hoppetv1;
 using namespace std;
@@ -55,11 +56,16 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
 // Main function to compute results at an iteration
 void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal)
 {
+    td->actualizeWrappers();
+
+    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;//here was -1
     const double mc = *XFITTER_PARS::getParamD("mch");
     const double mb = *XFITTER_PARS::getParamD("mbt");
     const double mt = *XFITTER_PARS::getParamD("mtp");
-    cout<<"61"<<endl;
-    
+
+    hoppetStart(dy, OrderMap(XFITTER_PARS::getParamS("Order")) - 1);
+    hoppetSetVFN(mc, mb, mt);
+
     //hoppetSetPoleMassVFN(mc, mb, mt);
 
     const bool param_coefs = true;
@@ -77,7 +83,7 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
     double maxQval = max(xmuF * Qmax, Qmax);
 
     // Initialize HOPPET
-    hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
+    //hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
     
     int nflav = -5;
     int order_max = 4;
@@ -92,7 +98,12 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
     double muR_Q = 1.0;
 
     // Evolve the PDF
-   hoppetEvolve(asQ, Q0, nloop, muR_Q, lha_unpolarized_dummy_pdf, Q0);
+   //hoppetEvolve(asQ, Q0, nloop, muR_Q, lha_unpolarized_dummy_pdf, Q0);
+    hoppetAssign(pdf_xfxq_wrapper_);
+    printf("HOPPET assigned\n");
+    double f[13];
+    hoppetEval(0.001,10.,f);
+    printf("f[6] = %f\n", f[6]);
 
     // Initialize structure functions
    hoppetInitStrFct(order_max, param_coefs, xmuR, xmuF);

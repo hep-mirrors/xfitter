@@ -152,6 +152,9 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
    // hoppetStartStrFctExtended(order_max, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
    
     hoppetEvolve( *Alphas_ref, *Q_ref, PtOrder, 1.0, heralhc_init, *Q0);
+    double f[13];
+    hoppetEval(0.001,10.,f);
+    printf("f[6] = %f\n", f[6]);
     std::cout << " HERE WE ARE OUT OF HOPPET " << std::endl;
     
     
