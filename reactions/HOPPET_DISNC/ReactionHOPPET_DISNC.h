@@ -22,6 +22,8 @@ public:
 
   private:
 	 void F2(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
+	 void FL(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
+	 void xF3(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
     void atIteration();
 };
 
