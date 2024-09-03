@@ -100,7 +100,8 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
     const double* MTop     = XFITTER_PARS::getParamD("mtp");
     const YAML::Node xGrid = yamlNode["xGrid"];
     
-    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1; // here was -1
+    //const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1; // here was -1
+    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")); // here was -1
     double dy = 0.1;
     hoppetStart(dy, PtOrder);
     hoppetSetVFN(*MCharm, *MBottom, *MTop);
@@ -119,7 +120,8 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
     
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
-    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;//here was -1
+    //const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;//here was -1
+    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order"));//here was -1
     const double* Q0         = XFITTER_PARS::getParamD("Q0");
     const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
     const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");

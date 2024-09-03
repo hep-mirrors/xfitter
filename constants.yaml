@@ -42,6 +42,7 @@ mbt : 4.50
 mtp : 173.0
 
 # QCD parameters
-Order: NNLO
+#Order: NNLO
+Order: LO
 NFlavour: 5
 isFFNS: 0 # 0 (default): VFNS with number of flavours changing from 3 to NFlavour, 1: FFNS with number of flavours = NFlavour at any scale

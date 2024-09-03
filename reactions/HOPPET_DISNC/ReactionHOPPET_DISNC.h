@@ -14,16 +14,26 @@
 
 class ReactionHOPPET_DISNC : public ReactionBaseDISNC
 {
+private:
+    typedef ReactionBaseDISNC Super;
+
 public:
-   ReactionHOPPET_DISNC(){};
+    ReactionHOPPET_DISNC(){};
 
 public:
     virtual string getReactionName() const override { return "HOPPET_DISNC"; };
-
-  private:
-	 void F2(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
-	 void FL(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
-	 void xF3(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
+    void virtual atStart() override final;
+    virtual void initTerm(TermData *td) override final;
     void atIteration();
-};
 
+protected:
+	  void F2(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
+	  void FL(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
+	  void xF3(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
+
+private:
+    void calcF2FLF3(unsigned dataSetID);
+    map<int, valarray<double>> _f2;
+    map<int, valarray<double>> _fl;
+    map<int, valarray<double>> _f3;
+};

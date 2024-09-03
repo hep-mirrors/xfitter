@@ -117,27 +117,78 @@ void example() {
   }
 }
 
-// Main function to compute results at an iteration
-void ReactionHOPPET_DISNC::FL(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal) {
-    auto &xvals = *GetBinValues(td, "x");
-    for (size_t i = 0; i < xvals.size(); i++) {
-        valExternal[i] = 0.;
+
+// Initialize at the start of the computation
+// (copied from FFABM)
+void ReactionHOPPET_DISNC::atStart()
+{
+  // do not call parent atStart(): it initialises QCDNUM
+  // Super::atStart();
+}
+
+void ReactionHOPPET_DISNC::initTerm(TermData *td)
+{
+  Super::initTerm(td);
+
+  unsigned termID = td->id;
+  auto nBins = td->getNbins();
+  if(_integrated.find(termID) != _integrated.end()) {
+    nBins = _integrated[termID]->getBinValuesQ2()->size();
+  }
+  _f2[termID].resize(nBins);
+  _fl[termID].resize(nBins);
+  _f3[termID].resize(nBins);
+}
+
+void ReactionHOPPET_DISNC::atIteration()
+{
+    // Make sure to call the parent class initialization:
+    super::atIteration();
+
+    // Reset internal arrays
+    for (auto ds : _dsIDs)
+    {
+        (_f2[ds])[0] = -100.;
+        (_fl[ds])[0] = -100.;
+        (_f3[ds])[0] = -100.;
     }
 }
-void ReactionHOPPET_DISNC::xF3(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal) {
-    auto &xvals = *GetBinValues(td, "x");
-    for (size_t i = 0; i < xvals.size(); i++) {
-        valExternal[i] = 0.;
-    }
-}
+
 void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal)
 {
+    //for (size_t i = 0; i < GetBinValues(td, "x")->size(); i++) {valExternal[i] = 0.;}
+    calcF2FLF3(td->id);
+    valExternal = _f2[td->id];
+    printf("F2 valExternal = %f %f\n", valExternal[0], valExternal[1]);
+}
+void ReactionHOPPET_DISNC::FL(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal) {
+    //for (size_t i = 0; i < GetBinValues(td, "x")->size(); i++) {valExternal[i] = 0.;}
+    calcF2FLF3(td->id);
+    valExternal = _fl[td->id];
+    printf("FL valExternal = %f %f\n", valExternal[0], valExternal[1]);
+}
+void ReactionHOPPET_DISNC::xF3(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal) {
+    //for (size_t i = 0; i < GetBinValues(td, "x")->size(); i++) {valExternal[i] = 0.;}
+    calcF2FLF3(td->id);
+    valExternal = _f3[td->id];
+    printf("F3 valExternal = %f %f\n", valExternal[0], valExternal[1]);
+}
+
+void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
+    // skip if already calculated, e.g. for calls from FL(), xF3() after F2()
+    if ((_f2[dataSetID][0] > -99.)) {
+        return;
+    }
+
+    // otherwise do actual calculations
+    auto td = _tdDS[dataSetID];
     td->actualizeWrappers();
 
     //example();
     //return;
 
-    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;//here was -1
+    //const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;//here was -1
+    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order"));//here was -1
     const double mc = *XFITTER_PARS::getParamD("mch");
     const double mb = *XFITTER_PARS::getParamD("mbt");
     const double mt = *XFITTER_PARS::getParamD("mtp");
@@ -145,34 +196,29 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
 
     //double dy = 0.05;
     double dy = 0.1;
-    //hoppetStart(dy, OrderMap(XFITTER_PARS::getParamS("Order")) - 1);
+    hoppetStart(dy, PtOrder);
     //hoppetSetVFN(mc, mb, mt);
 
-
+    //double Qmax = 13000.0;
+    //double Qmin = 1.0;
+    //int order = -6;
+    //double ymax = 16.0;
+    //double ymax = 12.0; // this works
+    //double dlnlnQ = dy / 4.0;
+    //int nloop = 3;
+    //double minQval = min(xmuF * Qmin, Qmin);
+    //double maxQval = max(xmuF * Qmax, Qmax);
+    // Initialize HOPPET
+    //hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
+    
+    int nflav = -5; // negative nflav to use a variable-flavour number scheme
+    //int sc_choice = scale_choice_Q;
+    const double zmass = *XFITTER_PARS::getParamD("Mz");
+    const double wmass = *XFITTER_PARS::getParamD("Wz");
     const bool param_coefs = true;
     const double xmuR = 1.;
-    const double xmuF = 1.;
-
-    double Qmax = 13000.0;
-    double Qmin = 1.0;
-    int order = -6;
-    //double ymax = 16.0;
-    double ymax = 12.0;
-    double dlnlnQ = dy / 4.0;
-    int nloop = 3;
-    double minQval = min(xmuF * Qmin, Qmin);
-    double maxQval = max(xmuF * Qmax, Qmax);
-
-    // Initialize HOPPET
-    hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
-    
-    int nflav = -5;
-    int order_max = 4;
-    int sc_choice = scale_choice_Q;
-    double zmass = 91.1876;
-    double wmass = 80.377;
-    
-    hoppetStartStrFctExtended(order_max, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
+    const double xmuF = 1.;    
+    hoppetStartStrFctExtended(PtOrder, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
 
     //double asQ = 0.35;
     //double Q0 = sqrt(2.0);
@@ -194,7 +240,7 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
     printf("f[6] = %f  as = %f\n", f[6], hoppetAlphaS(10.));
 
     // Initialize structure functions
-   hoppetInitStrFct(order_max, param_coefs, xmuR, xmuF);
+    hoppetInitStrFct(PtOrder, param_coefs, xmuR, xmuF);
 
     // Obtain parameters
     const auto _convfac = *XFITTER_PARS::getParamD("convFac");
@@ -269,16 +315,13 @@ void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<s
         const double FLNCh = F2NCh - 2.0 * x * F1NCh;
 
         // Store F2NCh as the output
-        valExternal[i] = F2NCh + F3NCh + FLNCh;
+        _f2[dataSetID][i] = F2NCh;
+        _fl[dataSetID][i] = FLNCh;
+        _f3[dataSetID][i] = F3NCh;
+        //valExternal[i] = F2NCh + F3NCh + FLNCh;
 
         // Print the results		
-        printf("%7.5f  %7.3f  %10.6f  %10.6f  %10.6f  %10.6f  -->>  %f\n",
-               x, Q, F1NCh, F2NCh, F3NCh, FLNCh, valExternal[i]);
+        //printf("%7.5f  %7.3f  %10.6f  %10.6f  %10.6f  %10.6f  -->>  %f\n", x, Q, F1NCh, F2NCh, F3NCh, FLNCh, valExternal[i]);
+        printf("%7.5f  %7.3f  %10.6f  %10.6f  %10.6f  %10.6f  -->>  %f\n", x, Q, F1NCh, F2NCh, F3NCh, FLNCh, F2NCh + F3NCh + FLNCh);
     }
-}
-
-void ReactionHOPPET_DISNC::atIteration()
-{
-    // Make sure to call the parent class initialization:
-    super::atIteration();
 }
