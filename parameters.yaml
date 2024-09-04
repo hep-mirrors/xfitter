@@ -106,7 +106,7 @@ Evolutions:
     #set: "CT10nlo"
     member: 0
   proton-Hoppet:
-    class: Hoppet
+    ? !include evolutions/Hoppet.yaml
 
 #  proton-APFEL:
 #    ? !include evolutions/APFELxx.yaml
@@ -168,8 +168,8 @@ byReaction:
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
- defaultValue : 'BaseDISNC'
-# defaultValue : 'RT_DISNC'        # global specification
+ #defaultValue : 'BaseDISNC'
+ defaultValue : 'HOPPET_DISNC'        # global specification
   #defaultValue : 'BaseDISNC'       # global specification
 #  defaultValue : 'FONLL_DISNC'     # global specification
 #  defaultValue : 'FFABM_DISNC'

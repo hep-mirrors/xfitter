@@ -12,15 +12,10 @@ def get_steering(fname='steering.txt'):
 
 &InFiles
 !  ! Input files:
- !   InputFileNames = 'examples/ploughshare/wplus-thexp.dat'
- 
-  InputFileNames = 
-     !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
-     !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
-     !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
-     !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
-     !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
-     !'test_data.dat'
+    InputFileNames = '''
+  for data in InputFileNames:
+    out += f"\n      '{data}',"
+  out += f'''
 &End
 
 &InCorr
@@ -300,17 +295,6 @@ MINUIT:
   Commands: |
     set str 2
     call fcn 3
- #   migrad
- #   hesse
- #   call fcn 3
-    
-#  doErrors :  Hesse # None
-
-CERES:
-  offset: 2
-  tolerance: 1e-5
-  strategy: 0
-  covariance: 1
 
 Parameters:
   Ag   :  DEPENDENT
@@ -364,16 +348,6 @@ Parameterisations:
   par_g:
     class: NegativeGluon
     parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
-  #par_s:
-    #class: HERAPDF
-    #parameters: [As,Bs,Cs]
-  #par_s:
-    #class: Expression
-    #expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
-  # Another example for Expression parameterisation
-  #par_g:
-    #class: Expression
-    #expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
 
 DefaultDecomposition: proton
 Decompositions:
@@ -389,119 +363,40 @@ Decompositions:
 DefaultEvolution: proton-{DefaultEvolution}
 
 Evolutions:
-  proton-APFEL:
-    ? !include evolutions/APFELxx.yaml
-  proton-APFELff:
-    ? !include evolutions/APFEL.yaml
-    #qLimits : [1.0, 50000.0]
-    FONLLVariant: {FONLLVariant}
-  proton-QCDNUM:
-    ? !include evolutions/QCDNUM.yaml
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    #EvolutionCopy: "proton-LHAPDF"
-  proton-LHAPDF:
-    class: LHAPDF
-    set: "NNPDF30_nlo_as_0118"
-    #set: "CT10nlo"
-    member: 0
-  proton-Hoppet:
-    class: Hoppet
-
-#  proton-APFEL:
-#    ? !include evolutions/APFELxx.yaml
-#    decomposition: proton
-  antiproton:
-    class: FlipCharge
-    #input: proton-QCDNUM
-    input: proton-LHAPDF
-#  neutron:
-#    class: FlipUD
-#    input: proton-QCDNUM
+  proton-{DefaultEvolution}:'''
+  if DefaultEvolution in evolutions_with_yaml_file:
+    out += f'''
+    ? !include evolutions/{DefaultEvolution}.yaml'''
+  else:
+    out += f'''
+    class: {DefaultEvolution}'''
+  out += f'''
 
 Q0 : {Q0} # Initial scale =sqrt(1.9)
 
 ? !include constants.yaml
 
 alphas : {alphas}
-
+'''
+  if hf_scheme_DISNC in reactions_with_yaml_file:
+    out += f'''
 byReaction:
-  # RT DIS scheme settings:
-  RT_DISNC:
-    ? !include reactions/RT_DISNC.yaml
-  HOPPET_DISNC:
-    ? !include reactions/HOPPET_DISNC.yaml
-    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-    #evolution: proton-QCDNUM
-  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-  #BaseDISCC:
-  #  evolution: proton-QCDNUM
-  # FONLL scheme settings:
-  FONLL_DISNC:
-    ? !include reactions/FONLL_DISNC.yaml
-    FONLLVariant: {FONLLVariant}
-  FONLL_DISCC:
-    ? !include reactions/FONLL_DISCC.yaml
-    FONLLVariant: {FONLLVariant}
-  # FF ABM scheme settings:
-  FFABM_DISNC:
-    ? !include reactions/FFABM_DISNC.yaml
-  FFABM_DISCC:
-    ? !include reactions/FFABM_DISCC.yaml
-  # AFB settings:
-  AFB:
-    ? !include reactions/AFB.yaml
-  # APPLgrid settings:
-  APPLgrid:
-    ? !include reactions/APPLgrid.yaml
-  # APPLgrid settings:
-  # (optional) APFELgrid module settings:
-  #  ? !include reactions/APFELgrid.yaml
-  # (optional) Fractal module settings:
-  Fractal_DISNC:
-    ? !include reactions/Fractal_DISNC.yaml
-#  DYTurbo:
-#    ? !include reactions/DYTurbo.yaml
-
-#byDataset: #Here one can redefine some parameters for specific datasets
-#  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
-#  "HERA1+2 NCep 920":
-#    epolarity: 2
-
+  {hf_scheme_DISNC}:
+    ? !include reactions/{hf_scheme_DISNC}.yaml
+'''
+  if hf_scheme_DISCC in reactions_with_yaml_file:
+    out += f'''
+byReaction:
+  {hf_scheme_DISCC}:
+    ? !include reactions/{hf_scheme_DISCC}.yaml
+'''
+  out += f'''
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
  defaultValue : '{hf_scheme_DISNC}'
-# defaultValue : 'RT_DISNC'        # global specification
-  #defaultValue : 'BaseDISNC'       # global specification
-#  defaultValue : 'FONLL_DISNC'     # global specification
-#  defaultValue : 'FFABM_DISNC'
-#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
-#  1 : BaseDISNC
-#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
-
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
   defaultValue : '{hf_scheme_DISCC}'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
-
-#
-# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
-#
-Profiler:
-  Parameters:
-    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
-  #Evolutions:
-  #  proton-LHAPDF:
-  #    sets:    [CT10]
-  #    members: [[0,1,end]]
-  Status: "Off"                 # "Off" to turn off profiler
-  WriteTheo: "Off"              # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
-  getChi2: "Off"                # determine and report chi2 for each variation
-  enableExternalProfiler: "Off" # enable creation of additional files, needed for xfitter draw
-
-OutputDirectory: "output" #Can be omitted, default is "output"
-#OutputDirectory: "ApfelFF" #Can be omitted, default is "output"
-
 
 #
 # Possible levels to stop program execution:
@@ -540,20 +435,59 @@ def recreate_dir(dirname, cd=False, cwd=None):
   if cd:
     os.chdir(dirname)
 
+def benchmark_run(suffix=None):
+  #hf_scheme_DISNC = {'QCDNUM': 'BaseDISNC', 'APFEL': 'FONLL_DISNC', 'APFELxx': 'N3LO_DISNC', 'Hoppet': 'HOPPET_DISNC'}[DefaultEvolution]
+  if suffix is None:
+    suffix = f'DefaultEvolution{DefaultEvolution}_hf_scheme_DISNC{hf_scheme_DISNC}_hf_scheme_DISCC{hf_scheme_DISCC}'
+  recreate_dir(f'{dirname}/{suffix}', cd=True, cwd=startdir)
+  get_steering()
+  get_constants()
+  get_parameters()
+  os.symlink(datafiles, './datafiles')
+  os.symlink(xfitter, './xfitter')
+  if DefaultEvolution == 'APFEL' and Order == 'NNNLO':
+    os.remove('./xfitter')
+    os.symlink(xfitter_n3lo, './xfitter')
+  run_cmd(f'./xfitter')
+  return suffix
+
+def benchmark_plot(outputs, labels, extraopts):
+  if len(outputs) == 0: return
+  os.chdir(startdir)
+  os.chdir(dirname)
+  os.symlink(xfitterdraw, './xfitter-draw')
+  run_cmd(f'./xfitter-draw {xfitterdraw_opts} {extraopts} --outdir plots ' + ' '.join(f'{outputs[ioutput]}/output:{labels[ioutput]}' for ioutput in range(len(outputs))))
+  print(f'All plots stored in {os.getcwd()}/plots/plots.pdf')
+  os.chdir('plots')
+  if len(outputs) > 1:
+    for q2 in ['1.9', '8317']:
+      run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs_{q2}.pdf')
+      run_cmd(f'pdfjam --nup 4x2 pdfs_{q2}.pdf --outfile pdfs_compact_{q2}.pdf --papersize {{24cm,12cm}}')
+      print(f'Compact PDF plots stored in {os.getcwd()}/pdfs_compact_{q2}.pdf')
+
+
 if __name__ == '__main__':
   fname_coms = 'bench_coms.txt'
+  #run_cmd('ls bin ')
+  #aaa
+  reactions_with_yaml_file = ['FFABM_DISCC', 'FONLL_DISCC', 'HOPPET_DISNC', 'FFABM_DISNC', 'FONLL_DISNC', 'RT_DISNC']
+  evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'Hoppet', 'QCDNUM']
 
-  #evolutions = ['APFELff', 'APFEL', 'QCDNUM', 'Hoppet']
+  #evolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'Hoppet']
+  #evolutions = ['QCDNUM', 'Hoppet']
   #evolutions = ['QCDNUM']
   #evolutions = ['APFELff', 'QCDNUM', 'Hoppet']
   #evolutions = ['APFEL']
   #evolutions = ['APFELff', 'APFEL']
-  evolutions = ['APFEL', 'Hoppet']
+  #evolutions = ['APFEL', 'Hoppet']
+  DefaultEvolutions = []
+
+  hf_scheme_DISNCs = ['BaseDISNC', 'HOPPET_DISNC']
 
   #Orders = ['LO']
   #Orders = ['LO', 'NLO', 'NNLO']
-  #Orders = ['NNLO']
-  Orders = ['NNNLO']
+  Orders = ['NNLO']
+  #Orders = ['NNNLO']
   isFFNSs = [0]
   NFlavours = [5]
   #isFFNSs = [1]
@@ -568,42 +502,38 @@ if __name__ == '__main__':
   hf_scheme_DISCC = 'BaseDISCC'
   basedirname = 'runs_bench'
   xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
+  xfitter_n3lo = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter_n3lo'
   xfitterdraw = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter-draw'
   datafiles = '/home/zenaiev/soft/xfitter-datafiles'
   xfitterdraw_opts = '--no-logo'
-  xfitterdraw_opts += ' --q2all'
+  #xfitterdraw_opts += ' --q2all'
   xfitterdraw_opts += ' --splitplots-pdf'
-  xfitterdraw_opts += ' --ratiorange 0.99:1.01'
+  #xfitterdraw_opts += ' --ratiorange 0.99:1.01'
   #xfitterdraw_opts += ' --ratiorange 0.999:1.001'
   xfitterdraw_opts += ' --no-shifts'
-  xfitterdraw_opts += ' --no-tables'
+  #xfitterdraw_opts += ' --no-tables'
 
-  cwd = os.getcwd()
+  startdir = os.getcwd()
   for Order in Orders:
     FONLLVariant = 'B' if Order == 'NLO' else 'C'
     for isFFNS in isFFNSs:
       for NFlavour in NFlavours:
         if isFFNS == 0 and NFlavour != 5: continue
-        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}'
-        recreate_dir(dirname, cd=True, cwd=cwd)
-        for DefaultEvolution in evolutions:
-          hf_scheme_DISNC = {'QCDNUM': 'BaseDISNC', 'APFELff': 'FONLL_DISNC', 'APFEL': 'FONLL_DISNC', 'Hoppet': 'HOPPET_DISNC'}[DefaultEvolution]
-          #hf_scheme_DISCC = {'QCDNUM': 'BaseDISCC', 'APFELff': 'FONLL_DISCC', 'APFEL': 'FONLL_DISCC', 'Hoppet': 'HOPPET_DISCC'}[DefaultEvolution]
-          recreate_dir(f'{dirname}/{DefaultEvolution}', cd=True, cwd=cwd)
-          get_steering()
-          get_constants()
-          get_parameters()
-          os.symlink(datafiles, './datafiles')
-          os.symlink(xfitter, './xfitter')
-          if DefaultEvolution == 'APFEL' and Order == 'NNNLO':
-            os.remove('./xfitter')
-            os.symlink('/home/zenaiev/soft/xfitter-n3lo/bin/xfitter', './xfitter')
-          run_cmd(f'./xfitter')
-        os.chdir(cwd)
-        os.chdir(dirname)
-        os.symlink(xfitterdraw, './xfitter-draw')
-        run_cmd(f'./xfitter-draw {xfitterdraw_opts} --outdir plots ' + ' '.join(f'{ev}/output' for ev in evolutions))
-        os.chdir('plots')
-        for q2 in ['1.9', '8317']:
-          run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs{q2}comb.pdf')
-          run_cmd(f'pdfjam --nup 4x2 pdfs{q2}comb.pdf --outfile pdfs{q2}.pdf --papersize {{24cm,12cm}}')
+        outputs = []
+        # loop over evolutions
+        InputFileNames = None
+        hf_scheme_DISNC = None
+        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/evolutions'
+        recreate_dir(dirname, cd=True, cwd=startdir)
+        for DefaultEvolution in DefaultEvolutions:
+          outputs.append(benchmark_run(suffix=DefaultEvolutions))
+        benchmark_plot(outputs, DefaultEvolutions, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
+        # loop over reactions
+        DefaultEvolution = 'QCDNUM'
+        InputFileNames = ['datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat']
+        outputs = []
+        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
+        recreate_dir(dirname, cd=True, cwd=startdir)
+        for hf_scheme_DISNC in hf_scheme_DISNCs:
+          outputs.append(benchmark_run(suffix=hf_scheme_DISNC))
+        benchmark_plot(outputs, hf_scheme_DISNCs, extraopts='--no-pdfs --only-theory')

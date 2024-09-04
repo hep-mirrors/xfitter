@@ -42,9 +42,9 @@ namespace xfitter
 
   private:
     BasePdfDecomposition*                                                   _inPDFs;
-    std::vector<double>                                                     _Masses;
-    std::vector<double>                                                     _Thresholds;
-    std::function<double(double const& Q)>                                  _AlphaQCD;
+    //std::vector<double>                                                     _Masses;
+    //std::vector<double>                                                     _Thresholds;
+    //std::function<double(double const& Q)>                                  _AlphaQCD;
   };
   
   
