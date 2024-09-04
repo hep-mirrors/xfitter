@@ -1,3 +1,4 @@
+
 *  Namelist to control input data
 *
 
@@ -225,4 +226,3 @@
   STATYPE =  1
   SYSTYPE =  1
 &End
-

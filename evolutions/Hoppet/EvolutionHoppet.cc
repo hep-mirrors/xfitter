@@ -94,17 +94,29 @@ void lha_unpolarized_dummy_pdf(const double &x, const double &Q, double *pdf)
   {
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
-    // Retrieve parameters needed to initialize APFEL++.
-    const double* MCharm   = XFITTER_PARS::getParamD("mch");
-    const double* MBottom  = XFITTER_PARS::getParamD("mbt");
-    const double* MTop     = XFITTER_PARS::getParamD("mtp");
     const YAML::Node xGrid = yamlNode["xGrid"];
     
     //const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1; // here was -1
     const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")); // here was -1
     double dy = 0.1;
     hoppetStart(dy, PtOrder);
-    hoppetSetVFN(*MCharm, *MBottom, *MTop);
+    int isFFNS = 0; // VFNS by default
+    if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end())
+      isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
+    if(isFFNS == 1) {
+      int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+      hoppetSetFFN(nflavour);
+    }
+    else if(isFFNS == 0) {
+      const double* MCharm   = XFITTER_PARS::getParamD("mch");
+      const double* MBottom  = XFITTER_PARS::getParamD("mbt");
+      const double* MTop     = XFITTER_PARS::getParamD("mtp");
+      hoppetSetVFN(*MCharm, *MBottom, *MTop);
+    }
+    else
+    {
+      hf_errlog(20240903, "F: Unsupported isFFNS = " + std::to_string(isFFNS));
+    }
     atConfigurationChange();
     
   }

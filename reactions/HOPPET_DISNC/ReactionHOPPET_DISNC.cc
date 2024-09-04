@@ -199,17 +199,18 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     hoppetStart(dy, PtOrder);
     //hoppetSetVFN(mc, mb, mt);
 
-    //double Qmax = 13000.0;
-    //double Qmin = 1.0;
-    //int order = -6;
-    //double ymax = 16.0;
+    /*double Qmax = 13000.0;
+    double Qmin = 1.0;
+    int order = -6;
+    double ymax = 16.0;
     //double ymax = 12.0; // this works
-    //double dlnlnQ = dy / 4.0;
-    //int nloop = 3;
-    //double minQval = min(xmuF * Qmin, Qmin);
-    //double maxQval = max(xmuF * Qmax, Qmax);
+    double dlnlnQ = dy / 4.0;
+    int nloop = 3;
+    double xmuF   = 1.0;
+    double minQval = min(xmuF * Qmin, Qmin);
+    double maxQval = max(xmuF * Qmax, Qmax);
     // Initialize HOPPET
-    //hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
+    hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);*/
     
     int nflav = -5; // negative nflav to use a variable-flavour number scheme
     //int sc_choice = scale_choice_Q;

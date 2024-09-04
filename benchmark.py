@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+ 
 import os
 import subprocess
 import shutil
+import sys
 
 def get_steering(fname='steering.txt'):
   out = '''
@@ -13,7 +16,7 @@ def get_steering(fname='steering.txt'):
  
   InputFileNames = 
      !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
-     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
      !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
      !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
      !'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
@@ -107,7 +110,9 @@ def get_steering(fname='steering.txt'):
 *
 &Output 
   ! -- Q2 values at which the pdfs & errors are done (up to 20)
-  Q2VAL = 1.9, 2., 3.0, 4.0, 5., 10., 100., 6464, 8317 
+  !Q2VAL = 1.9, 2., 3.0, 4.0, 5., 10., 100., 6464, 8317 
+  !Q2VAL = 1.9, 2., 10., 8317 
+  Q2VAL = 1.9, 8317 
 !  Q2VAL = 1.9, 4., 10., 100., 6464, 8317 
 
   ! How many x points to write (standard = 101)
@@ -384,9 +389,12 @@ Decompositions:
 DefaultEvolution: proton-{DefaultEvolution}
 
 Evolutions:
+  proton-APFEL:
+    ? !include evolutions/APFELxx.yaml
   proton-APFELff:
     ? !include evolutions/APFEL.yaml
-    qLimits : [1.0, 50000.0]
+    #qLimits : [1.0, 50000.0]
+    FONLLVariant: {FONLLVariant}
   proton-QCDNUM:
     ? !include evolutions/QCDNUM.yaml
     # The following allows QCDNUM to read PDFs from other evolutions:
@@ -430,8 +438,10 @@ byReaction:
   # FONLL scheme settings:
   FONLL_DISNC:
     ? !include reactions/FONLL_DISNC.yaml
+    FONLLVariant: {FONLLVariant}
   FONLL_DISCC:
     ? !include reactions/FONLL_DISCC.yaml
+    FONLLVariant: {FONLLVariant}
   # FF ABM scheme settings:
   FFABM_DISNC:
     ? !include reactions/FFABM_DISNC.yaml
@@ -508,40 +518,92 @@ MaxErrAllowed: 2
 
 def run_cmd(cmd):
   print(cmd)
-  subprocess.call(cmd.split())
+  logfile = cmd.split()[0] + '.log'
+  with open(logfile, 'w') as fout:
+    proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    for line in proc.stdout:
+      sys.stdout.write(line.decode('utf-8'))
+      fout.write(line.decode('utf-8'))
+    for line in proc.stderr:
+      sys.stderr.write(line.decode('utf-8'))
+      fout.write(line.decode('utf-8'))
+    proc.wait()
+  if proc.returncode != 0:
+    sys.exit(1)
+
+def recreate_dir(dirname, cd=False, cwd=None):
+  if cwd is not None:
+    os.chdir(cwd)
+  if os.path.exists(dirname):
+    shutil.rmtree(dirname)
+  os.makedirs(dirname)
+  if cd:
+    os.chdir(dirname)
 
 if __name__ == '__main__':
-  evolutions = ['APFELff']#, 'QCDNUM', 'Hoppet']
+  fname_coms = 'bench_coms.txt'
 
-  Orders = ['LO']
+  #evolutions = ['APFELff', 'APFEL', 'QCDNUM', 'Hoppet']
+  #evolutions = ['QCDNUM']
+  #evolutions = ['APFELff', 'QCDNUM', 'Hoppet']
+  #evolutions = ['APFEL']
+  #evolutions = ['APFELff', 'APFEL']
+  evolutions = ['APFEL', 'Hoppet']
+
+  #Orders = ['LO']
+  #Orders = ['LO', 'NLO', 'NNLO']
+  #Orders = ['NNLO']
+  Orders = ['NNNLO']
   isFFNSs = [0]
   NFlavours = [5]
+  #isFFNSs = [1]
+  #NFlavours = [3]
+  #isFFNSs = [0,1]
+  #NFlavours = [3,4,5]
   
   alphas = 0.118
   Q0 = 1.378404875209
-  hf_scheme_DISNC = 'HOPPET_DISNC'
+  #hf_scheme_DISNC = 'HOPPET_DISNC'
+  #hf_scheme_DISNC = 'BaseDISNC'
   hf_scheme_DISCC = 'BaseDISCC'
-  basedirname = 'bench'
+  basedirname = 'runs_bench'
   xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
   xfitterdraw = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter-draw'
   datafiles = '/home/zenaiev/soft/xfitter-datafiles'
+  xfitterdraw_opts = '--no-logo'
+  xfitterdraw_opts += ' --q2all'
+  xfitterdraw_opts += ' --splitplots-pdf'
+  xfitterdraw_opts += ' --ratiorange 0.99:1.01'
+  #xfitterdraw_opts += ' --ratiorange 0.999:1.001'
+  xfitterdraw_opts += ' --no-shifts'
+  xfitterdraw_opts += ' --no-tables'
 
   cwd = os.getcwd()
   for Order in Orders:
+    FONLLVariant = 'B' if Order == 'NLO' else 'C'
     for isFFNS in isFFNSs:
       for NFlavour in NFlavours:
+        if isFFNS == 0 and NFlavour != 5: continue
+        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}'
+        recreate_dir(dirname, cd=True, cwd=cwd)
         for DefaultEvolution in evolutions:
-          dirname = f'{basedirname}/run_Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/{DefaultEvolution}'
-          os.chdir(cwd)
-          if os.path.exists(dirname):
-            shutil.rmtree(dirname)
-          os.makedirs(dirname)
-          os.chdir(dirname)
+          hf_scheme_DISNC = {'QCDNUM': 'BaseDISNC', 'APFELff': 'FONLL_DISNC', 'APFEL': 'FONLL_DISNC', 'Hoppet': 'HOPPET_DISNC'}[DefaultEvolution]
+          #hf_scheme_DISCC = {'QCDNUM': 'BaseDISCC', 'APFELff': 'FONLL_DISCC', 'APFEL': 'FONLL_DISCC', 'Hoppet': 'HOPPET_DISCC'}[DefaultEvolution]
+          recreate_dir(f'{dirname}/{DefaultEvolution}', cd=True, cwd=cwd)
           get_steering()
           get_constants()
           get_parameters()
           os.symlink(datafiles, './datafiles')
           os.symlink(xfitter, './xfitter')
+          if DefaultEvolution == 'APFEL' and Order == 'NNNLO':
+            os.remove('./xfitter')
+            os.symlink('/home/zenaiev/soft/xfitter-n3lo/bin/xfitter', './xfitter')
           run_cmd(f'./xfitter')
-          #os.symlink(xfitter, './xfitter')
-          #run_cmd(f'./{xfitterdraw}')
+        os.chdir(cwd)
+        os.chdir(dirname)
+        os.symlink(xfitterdraw, './xfitter-draw')
+        run_cmd(f'./xfitter-draw {xfitterdraw_opts} --outdir plots ' + ' '.join(f'{ev}/output' for ev in evolutions))
+        os.chdir('plots')
+        for q2 in ['1.9', '8317']:
+          run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs{q2}comb.pdf')
+          run_cmd(f'pdfjam --nup 4x2 pdfs{q2}comb.pdf --outfile pdfs{q2}.pdf --papersize {{24cm,12cm}}')
