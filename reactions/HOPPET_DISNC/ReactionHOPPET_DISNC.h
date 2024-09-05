@@ -49,6 +49,7 @@ private:
     double* _Mz;
     double* _Mw;
     double* _sin2thetaW;
+
     // temporary, needed for alphaS evolution
     double* _alphas;
     double _Q0;

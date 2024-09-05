@@ -190,7 +190,6 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
         switch (GetDataFlav(td->id))
         {
         case dataFlav::incl:
-            // f2g - (_ve + charge * pol * _ae) * k * f2gZ + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * f2Z;
             _f2[dataSetID][i] = StrFct[iF2EM] - (_ve + charge * pol * _ae) * k * StrFct[iF2gZ] + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * StrFct[iF2Z];
             _fl[dataSetID][i] = _f2[dataSetID][i] - 2 * x * (StrFct[iF1EM] - (_ve + charge * pol * _ae) * k * StrFct[iF1gZ] + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * StrFct[iF1Z]);
             _f3[dataSetID][i] = (_ae * charge + pol * _ve) * k * x * StrFct[iF3gZ] + (-2 * _ae * _ve * charge - pol * (_ve * _ve + _ae * _ae)) * k * k * x * StrFct[iF3Z];
