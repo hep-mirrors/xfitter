@@ -458,12 +458,13 @@ def benchmark_plot(outputs, labels, extraopts):
   os.symlink(xfitterdraw, './xfitter-draw')
   run_cmd(f'./xfitter-draw {xfitterdraw_opts} {extraopts} --outdir plots ' + ' '.join(f'{outputs[ioutput]}/output:{labels[ioutput]}' for ioutput in range(len(outputs))))
   print(f'All plots stored in {os.getcwd()}/plots/plots.pdf')
-  os.chdir('plots')
-  if len(outputs) > 1:
-    for q2 in ['1.9', '8317']:
-      run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs_{q2}.pdf')
-      run_cmd(f'pdfjam --nup 4x2 pdfs_{q2}.pdf --outfile pdfs_compact_{q2}.pdf --papersize {{24cm,12cm}}')
-      print(f'Compact PDF plots stored in {os.getcwd()}/pdfs_compact_{q2}.pdf')
+  if '--no-pdfs' not in f'{xfitterdraw_opts} {extraopts}':
+    os.chdir('plots')
+    if len(outputs) > 1:
+      for q2 in ['1.9', '8317']:
+        run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs_{q2}.pdf')
+        run_cmd(f'pdfjam --nup 4x2 pdfs_{q2}.pdf --outfile pdfs_compact_{q2}.pdf --papersize {{24cm,12cm}}')
+        print(f'Compact PDF plots stored in {os.getcwd()}/pdfs_compact_{q2}.pdf')
 
 
 if __name__ == '__main__':
@@ -485,9 +486,10 @@ if __name__ == '__main__':
   hf_scheme_DISNCs = ['BaseDISNC', 'HOPPET_DISNC']
 
   #Orders = ['LO']
-  #Orders = ['LO', 'NLO', 'NNLO']
+  #Orders = ['NLO']
   Orders = ['NNLO']
   #Orders = ['NNNLO']
+  #Orders = ['LO', 'NLO', 'NNLO']
   isFFNSs = [0]
   NFlavours = [5]
   #isFFNSs = [1]
@@ -530,10 +532,17 @@ if __name__ == '__main__':
         benchmark_plot(outputs, DefaultEvolutions, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
         # loop over reactions
         DefaultEvolution = 'QCDNUM'
-        InputFileNames = ['datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat']
+        InputFileNames = [
+          'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+          'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+          'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+          'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+          'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+        ]
         outputs = []
         dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
         recreate_dir(dirname, cd=True, cwd=startdir)
         for hf_scheme_DISNC in hf_scheme_DISNCs:
           outputs.append(benchmark_run(suffix=hf_scheme_DISNC))
         benchmark_plot(outputs, hf_scheme_DISNCs, extraopts='--no-pdfs --only-theory')
+        #benchmark_plot(outputs, hf_scheme_DISNCs, extraopts='--no-pdfs')

@@ -63,8 +63,7 @@ void example() {
   double Qmax   = 13000.0;
   double Qmin   = 1.0;
   int order      = -6; 
-  //double ymax    = 16.0;
-  double ymax    = 12.0;
+  double ymax    = 16.0;
   double dy      = 0.05;
   double dlnlnQ  = dy/4.0;
   int    nloop   = 3;
@@ -84,10 +83,25 @@ void example() {
 
   hoppetStartStrFctExtended(order_max, nflav,sc_choice,zmass,param_coefs,wmass,zmass);
     
-  double asQ      = 0.35;
-  double Q0       = sqrt(2.0);
+  //double asQ      = 0.35;
+  //double Q0       = sqrt(2.0);
+  double asQ      = 0.118;
+  double Q0       = zmass;
   double muR_Q    = 1.0;
-  
+
+  double _convfac = *XFITTER_PARS::getParamD("convFac");
+  double _alphaem = *XFITTER_PARS::getParamD("alphaem");
+  double _Mz = *XFITTER_PARS::getParamD("Mz");
+  double _Mw = *XFITTER_PARS::getParamD("Mw");
+  double _sin2thetaW = *XFITTER_PARS::getParamD("sin2thW");
+
+  double _ve = -0.5 + 2. * _sin2thetaW; // !
+  double _ae = -0.5;                    // !
+  double _au = 0.5;
+  double _ad = -0.5;
+  double _vu = _au - (4. / 3.) * _sin2thetaW;
+  double _vd = _ad + (2. / 3.) * _sin2thetaW;
+
   hoppetEvolve(asQ, Q0, nloop, muR_Q, lha_unpolarized_dummy_pdf, Q0);
   hoppetAssign(pdf_xfxq_wrapper_);
 
@@ -95,15 +109,26 @@ void example() {
     
   // output the results
   double pdf[13];
-  double xvals[9]={1e-5,1e-4,1e-3,1e-2,0.1,0.3,0.5,0.7,0.9};
-  double Q = 100;
+  //double xvals[9]={1e-5,1e-4,1e-3,1e-2,0.1,0.3,0.5,0.7,0.9};
+  double xvals[2]={0.4, 0.65};
+  //double Q = 100;
+  double Q = 173.205;
   double StrFct[14];
   printf("                                Evaluating PDFs and structure functions at Q = %8.3f GeV\n",Q);
-  printf("    x      u-ubar      d-dbar    2(ubr+dbr)    c+cbar       gluon       F1γ         F2γ         F1Z         F2Z         F3Z\n");
-  for (int ix = 0; ix < 9; ix++) {
+  printf("    x      u-ubar      d-dbar    2(ubr+dbr)    c+cbar       gluon       F1γ         F2γ         F1Z         F2Z         F3Z -->> val\n");
+  //for (int ix = 0; ix < 9; ix++) {
+  for (int ix = 0; ix < 2; ix++) {
     hoppetEval(xvals[ix], Q, pdf);
     hoppetStrFct(xvals[ix],Q,Q,Q,StrFct);
-    printf("%7.1E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E\n",xvals[ix],
+    double f2g = StrFct[iF2EM];
+    double f2gZ = StrFct[iF2gZ ];
+    double f2Z = StrFct[iF2Z ];
+    int charge = +1;
+    double pol = 0.;
+    double cos2thetaW = 1 - _sin2thetaW;
+    double k = 1. / (4 * _sin2thetaW * cos2thetaW) * (Q*Q) / ((Q*Q) + _Mz * _Mz);
+    double val = f2g - (_ve + charge * pol * _ae) * k * f2gZ + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * f2Z;
+    printf("%7.1E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E %11.4E -->> %11.4E\n",xvals[ix],
            pdf[6+2]-pdf[6-2], 
            pdf[6+1]-pdf[6-1], 
            2*(pdf[6-1]+pdf[6-2]),
@@ -113,7 +138,8 @@ void example() {
 	   StrFct[iF2EM],
 	   StrFct[iF1Z],
 	   StrFct[iF2Z ],
-	   StrFct[iF3Z ]);
+	   StrFct[iF3Z ],
+       val);
   }
 }
 
@@ -187,6 +213,22 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     //example();
     //return;
 
+    const double _convfac = *XFITTER_PARS::getParamD("convFac");
+    const double _alphaem = *XFITTER_PARS::getParamD("alphaem");
+    const double _Mz = *XFITTER_PARS::getParamD("Mz");
+    const double _Mw = *XFITTER_PARS::getParamD("Mw");
+    const double _sin2thetaW = *XFITTER_PARS::getParamD("sin2thW");
+    const int charge = GetCharge(td->id);
+    const double pol = GetPolarisation(td->id);
+
+    const double _ve = -0.5 + 2. * _sin2thetaW; // !
+    const double _ae = -0.5;                    // !
+    const double _au = 0.5;
+    const double _ad = -0.5;
+    const double _vu = _au - (4. / 3.) * _sin2thetaW;
+    const double _vd = _ad + (2. / 3.) * _sin2thetaW;
+    const double cos2thetaW = 1 - _sin2thetaW;
+
     //const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;//here was -1
     const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order"));//here was -1
     const double mc = *XFITTER_PARS::getParamD("mch");
@@ -199,7 +241,7 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     hoppetStart(dy, PtOrder);
     //hoppetSetVFN(mc, mb, mt);
 
-    /*double Qmax = 13000.0;
+    double Qmax = 13000.0;
     double Qmin = 1.0;
     int order = -6;
     double ymax = 16.0;
@@ -210,16 +252,16 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     double minQval = min(xmuF * Qmin, Qmin);
     double maxQval = max(xmuF * Qmax, Qmax);
     // Initialize HOPPET
-    hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);*/
+    //hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
     
     int nflav = -5; // negative nflav to use a variable-flavour number scheme
     //int sc_choice = scale_choice_Q;
-    const double zmass = *XFITTER_PARS::getParamD("Mz");
-    const double wmass = *XFITTER_PARS::getParamD("Wz");
+    //const double zmass = *XFITTER_PARS::getParamD("Mz");
+    //const double wmass = *XFITTER_PARS::getParamD("Ww");
     const bool param_coefs = true;
     const double xmuR = 1.;
-    const double xmuF = 1.;    
-    hoppetStartStrFctExtended(PtOrder, nflav, scale_choice_Q, zmass, param_coefs, wmass, zmass);
+    //const double xmuF = 1.;    
+    hoppetStartStrFctExtended(PtOrder, nflav, scale_choice_Q, _Mz, param_coefs, _Mw, _Mz);
 
     //double asQ = 0.35;
     //double Q0 = sqrt(2.0);
@@ -243,24 +285,6 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     // Initialize structure functions
     hoppetInitStrFct(PtOrder, param_coefs, xmuR, xmuF);
 
-    // Obtain parameters
-    const auto _convfac = *XFITTER_PARS::getParamD("convFac");
-    const auto _alphaem = *XFITTER_PARS::getParamD("alphaem");
-    const auto MZ = *XFITTER_PARS::getParamD("Mz");
-    const auto MW = *XFITTER_PARS::getParamD("Mw");
-
-    const double MW2 = MW * MW;
-    const double MZ2 = MZ * MZ;
-
-    // Construct structure functions
-    const double s2tw = 1 - MW2 / MZ2;
-    const double VD = -0.5 + 2 * s2tw / 3;
-    const double VU = +0.5 - 4 * s2tw / 3;
-    const double AD = -0.5;
-    const double AU = +0.5;
-    const double Ve = -0.5 + 2 * s2tw;
-    const double Ae = -0.5;
-
     auto &xvals = *GetBinValues(td, "x");
     auto &Q2vals = *GetBinValues(td, "Q2");
     double pdf[13];
@@ -275,16 +299,20 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     {
 		
         const double x = xvals[i];
-         cout<<"x="<<x<<endl;
          //cout<<Q2vals.size()<<endl;
-        const double Q = (sqrt(Q2vals[i]));
+        const double Q = sqrt(Q2vals[i]);
+         //cout<<"x="<<x<<" Q="<<Q<<endl;
+        if(Q<1.) {
+            _f2[dataSetID][i] = _f2[dataSetID][i] = _f2[dataSetID][i] = 9e99;
+            continue;
+        }
         //if(Q<10.) continue;
         //cout<<Q2vals.size()<<endl;
   
         // Compute propagator factors
-        const double Q2 = Q * Q;
-        const double PZ = Q2 / (Q2 + MZ2) / (4.0 * s2tw * (1.0 - s2tw));
-        const double PZ2 = PZ * PZ;
+        //const double Q2 = Q * Q;
+        //const double PZ = Q2 / (Q2 + MZ2) / (4.0 * s2tw * (1.0 - s2tw));
+        //const double PZ2 = PZ * PZ;
          
         // cout<<"141"<<endl;
         // Evaluate PDFs at (x, Q)
@@ -299,7 +327,7 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
         printf("\n");
         // cout<<"147"<<endl;
         // Extract individual structure functions
-        const double F1EM = StrFct[iF1EM];
+        /*const double F1EM = StrFct[iF1EM];
         const double F2EM = StrFct[iF2EM];
         const double F3EM = 0.0;           // Electromagnetic interactions are parity conserving
         const double F1Z = StrFct[iF1Z];
@@ -313,16 +341,34 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
         const double F1NCh = F1EM + F1Z * (Ve * Ve + Ae * Ae) * PZ2 - F1gZ * Ve * PZ;
         const double F2NCh = F2EM + F2Z * (Ve * Ve + Ae * Ae) * PZ2 - F2gZ * Ve * PZ;
         const double F3NCh = 2.0 * F3Z * Ae * Ve * PZ2 - F3gZ * Ae * PZ;
-        const double FLNCh = F2NCh - 2.0 * x * F1NCh;
+        const double FLNCh = F2NCh - 2.0 * x * F1NCh;*/
 
         // Store F2NCh as the output
-        _f2[dataSetID][i] = F2NCh;
-        _fl[dataSetID][i] = FLNCh;
-        _f3[dataSetID][i] = F3NCh;
+        double k = 1. / (4 * _sin2thetaW * cos2thetaW) * (Q*Q) / ((Q*Q) + _Mz * _Mz);
+        switch (GetDataFlav(td->id))
+        {
+        case dataFlav::incl:
+            // f2g - (_ve + charge * pol * _ae) * k * f2gZ + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * f2Z;
+            _f2[dataSetID][i] = StrFct[iF2EM] - (_ve + charge * pol * _ae) * k * StrFct[iF2gZ] + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * StrFct[iF2Z];
+            _fl[dataSetID][i] = _f2[dataSetID][i] - 2 * x * (StrFct[iF1EM] - (_ve + charge * pol * _ae) * k * StrFct[iF1gZ] + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * StrFct[iF1Z]);
+            _f3[dataSetID][i] = (_ae * charge + pol * _ve) * k * x * StrFct[iF3gZ] + (-2 * _ae * _ve * charge - pol * (_ve * _ve + _ae * _ae)) * k * k * x * StrFct[iF3Z];
+            break;
+        case dataFlav::c:
+            _f2[dataSetID][i] = _fl[dataSetID][i] = _f3[dataSetID][i] = 0.;
+            break;
+        case dataFlav::b:
+            _f2[dataSetID][i] = _fl[dataSetID][i] = _f3[dataSetID][i] = 0.;
+            break;
+        }
+        //_f2[dataSetID][i] = F2NCh;
+        //_fl[dataSetID][i] = FLNCh;
+        //_f3[dataSetID][i] = F3NCh*x;
+        //_f3[dataSetID][i] = 0.;
+        //_fl[dataSetID][i] = 0.;
         //valExternal[i] = F2NCh + F3NCh + FLNCh;
 
         // Print the results		
         //printf("%7.5f  %7.3f  %10.6f  %10.6f  %10.6f  %10.6f  -->>  %f\n", x, Q, F1NCh, F2NCh, F3NCh, FLNCh, valExternal[i]);
-        printf("%7.5f  %7.3f  %10.6f  %10.6f  %10.6f  %10.6f  -->>  %f\n", x, Q, F1NCh, F2NCh, F3NCh, FLNCh, F2NCh + F3NCh + FLNCh);
+        //printf("%7.5f  %7.3f  %10.6f  %10.6f  %10.6f  %10.6f  -->>  %f\n", x, Q, F1NCh, F2NCh, F3NCh, FLNCh, F2NCh + F3NCh + FLNCh);
     }
 }
