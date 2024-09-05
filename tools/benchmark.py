@@ -464,6 +464,7 @@ def calc_max_dif(thpreds, thpreds_ref, eps=None):
     else:
       reldif = thpreds[ith]
     maxthpred = max(abs(thpreds[ith]), abs(thpreds_ref[ith]))
+    # ignore differences if numbers are smaller than eps
     if eps is None or maxthpred > eps:
       dif = reldif
     else:
@@ -472,36 +473,53 @@ def calc_max_dif(thpreds, thpreds_ref, eps=None):
     maxdif = max(maxdif, dif)
   return maxdif
 
+def read_pdfs(fname):
+  thpreds = []
+  for fname in sorted(glob.glob(f'{fname}/output/pdfs_q2val_*.txt')):
+    with open(fname) as f:
+      for l in f.readlines():
+        if len(l.split()) == 16 and l.split()[0] != 'x':
+          #thpreds += [float(v) for v in l.split()]
+          # check PDFs only in a stable range of x
+          x = float(l.split()[0])
+          if x > 1e-4 and x < 0.1:
+            thpreds += [float(v) for v in l.split()[1:]]
+  return thpreds
+
+def read_thpreds(fname):
+  with open(fname) as f:
+    thpreds = [float(l.split()[6]) for l in f.readlines() if len(l.split()) == 13]
+  return thpreds
+
+def make_plots(outputs, labels, extraopts):
+  os.symlink(xfitterdraw, './xfitter-draw')
+  run_cmd(f'./xfitter-draw {xfitterdraw_opts} {extraopts} --outdir plots ' + ' '.join(f'{outputs[ioutput]}/output:{labels[ioutput]}' for ioutput in range(len(outputs))))
+  print(f'All plots stored in {os.getcwd()}/plots/plots.pdf')
+  # make compact PDF plots for Q2 = 1.9, 8317 GeV2
+  if '--no-pdfs' not in f'{xfitterdraw_opts} {extraopts}':
+    if all(shutil.which(com) for com in ['pdfunite', 'pdfjam']):
+      os.chdir('plots')
+      if len(outputs) > 1:
+        for q2 in ['1.9', '8317']:
+          run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs_{q2}.pdf')
+          run_cmd(f'pdfjam --nup 4x2 pdfs_{q2}.pdf --outfile pdfs_compact_{q2}.pdf --papersize {{30cm,15cm}}')
+          print(f'Compact PDF plots stored in {os.getcwd()}/pdfs_compact_{q2}.pdf')
+    else:
+      print(f'skipping production of compact PDF plots because commands "pdfunite" or "pdfjam" are not available')
+
 def benchmark_results(outputs, labels, extraopts):
   if len(outputs) == 0: return
   os.chdir(startdir + '/' + dirname)
   # calculate max. differences
   if len(outputs) >= 2:
     # max. difference in PDFs
-    def read_pdfs(fname):
-      thpreds = []
-      for fname in sorted(glob.glob(f'{fname}/output/pdfs_q2val_*.txt')):
-        with open(fname) as f:
-          for l in f.readlines():
-            if len(l.split()) == 16 and l.split()[0] != 'x':
-              #thpreds += [float(v) for v in l.split()]
-              # check PDFs only in a stable range of x
-              x = float(l.split()[0])
-              if x > 1e-4 and x < 0.1:
-                thpreds += [float(v) for v in l.split()[1:]]
-      return thpreds
     thpreds_ref = read_pdfs(outputs[0])
-    #print(thpreds_ref)
     maxdiffs = [0] * len(outputs)
     for ioutput in range(1, len(outputs)):
       thpreds = read_pdfs(outputs[ioutput])
       maxdiffs[ioutput] = calc_max_dif(thpreds, thpreds_ref, eps = 1e-2)
     print(f'max. difference in PDFs ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
     # max. difference in theory predictions
-    def read_thpreds(fname):
-      with open(fname) as f:
-        thpreds = [float(l.split()[6]) for l in f.readlines() if len(l.split()) == 13]
-      return thpreds
     thpreds_ref = read_thpreds(f'{outputs[0]}/output/fittedresults.txt')
     if len(thpreds_ref) > 0:
       maxdiffs = [0] * len(outputs)
@@ -511,20 +529,7 @@ def benchmark_results(outputs, labels, extraopts):
       print(f'max. difference in theory predictions ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
   # make plots
   if args.plot:
-    os.symlink(xfitterdraw, './xfitter-draw')
-    run_cmd(f'./xfitter-draw {xfitterdraw_opts} {extraopts} --outdir plots ' + ' '.join(f'{outputs[ioutput]}/output:{labels[ioutput]}' for ioutput in range(len(outputs))))
-    print(f'All plots stored in {os.getcwd()}/plots/plots.pdf')
-    # make compact PDF plots
-    if '--no-pdfs' not in f'{xfitterdraw_opts} {extraopts}':
-      if all(shutil.which(com) for com in ['pdfunite', 'pdfjam']):
-        os.chdir('plots')
-        if len(outputs) > 1:
-          for q2 in ['1.9', '8317']:
-            run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs_{q2}.pdf')
-            run_cmd(f'pdfjam --nup 4x2 pdfs_{q2}.pdf --outfile pdfs_compact_{q2}.pdf --papersize {{30cm,15cm}}')
-            print(f'Compact PDF plots stored in {os.getcwd()}/pdfs_compact_{q2}.pdf')
-      else:
-        print(f'skipping production of compact PDF plots because commands "pdfunite" or "pdfjam" are not available')
+    make_plots(outputs, labels, extraopts)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Benchamark xFitter evolutions and/or reactions')
@@ -574,7 +579,7 @@ if __name__ == '__main__':
       for NFlavour in NFlavours:
         if isFFNS == 0 and NFlavour != 5: continue # skip VFNS with nf<5 
         
-        # loop over evolutions
+        # benchmark evolutions
         InputFileNames = []
         hf_scheme_DISNC = None
         hf_scheme_DISCC = None
@@ -585,7 +590,7 @@ if __name__ == '__main__':
           outputs.append(benchmark_run(suffix=DefaultEvolution))
         benchmark_results(outputs, DefaultEvolutions, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
         
-        # loop over reactions
+        # benchmark reactions
         DefaultEvolution = 'QCDNUM'
         InputFileNames = [
           'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
