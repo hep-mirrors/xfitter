@@ -33,7 +33,23 @@ protected:
 
 private:
     void calcF2FLF3(unsigned dataSetID);
+
     map<int, valarray<double>> _f2;
     map<int, valarray<double>> _fl;
     map<int, valarray<double>> _f3;
+
+    int _order;
+    double _xmuR;
+    double _xmuF;
+    double _muR_Q;
+    double _dy;
+    int _param_coefs;
+    double* _convfac;
+    double* _alphaem;
+    double* _Mz;
+    double* _Mw;
+    double* _sin2thetaW;
+    // temporary, needed for alphaS evolution
+    double* _alphas;
+    double _Q0;
 };

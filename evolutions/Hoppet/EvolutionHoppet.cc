@@ -26,9 +26,7 @@ namespace xfitter
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
     //const YAML::Node xGrid = yamlNode["xGrid"];
     
-    //const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")) - 1; // here was -1
-    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order")); // here was -1
-    //double dy = *XFITTER_PARS::getParamD("dy");
+    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order"));
     double dy = yamlNode["dy"].as<double>();
     hoppetStart(dy, PtOrder);
     int isFFNS = 0; // VFNS by default

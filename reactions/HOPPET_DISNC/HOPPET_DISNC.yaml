@@ -1,1 +1,5 @@
-  blalabla : 10
+  dy: 0.1
+  xmuR: 1.0
+  xmuF: 1.0
+  muR_Q: 1.0 # accoding to the HOPPET manual it is the renormalisation to factorisation scale ratio (needed for hoppetEvolve() call)
+  param_coefs: 1 # 1: NNLO and N3LO parametrisations are used which have a relative precision of a few permille; 0: the exact versions are used
