@@ -454,31 +454,61 @@ def benchmark_run(suffix=None):
   run_cmd(f'./xfitter')
   return suffix
 
+def calc_max_dif(thpreds, thpreds_ref, eps=None):
+  maxdif = 0
+  for ith in range(len(thpreds)):
+    if thpreds_ref[ith] != 0.:
+      reldif = abs(thpreds[ith] / thpreds_ref[ith] - 1.)
+    elif thpreds[ith] == 0.:
+      reldif = 0.
+    else:
+      reldif = thpreds[ith]
+    maxthpred = max(abs(thpreds[ith]), abs(thpreds_ref[ith]))
+    if eps is None or maxthpred > eps:
+      dif = reldif
+    else:
+      dif = 0
+      #dif = maxthpred
+    maxdif = max(maxdif, dif)
+  return maxdif
+
 def benchmark_results(outputs, labels, extraopts):
   if len(outputs) == 0: return
   os.chdir(startdir + '/' + dirname)
   # calculate max. differences
   if len(outputs) >= 2:
+    # max. difference in PDFs
+    def read_pdfs(fname):
+      thpreds = []
+      for fname in sorted(glob.glob(f'{fname}/output/pdfs_q2val_*.txt')):
+        with open(fname) as f:
+          for l in f.readlines():
+            if len(l.split()) == 16 and l.split()[0] != 'x':
+              #thpreds += [float(v) for v in l.split()]
+              # check PDFs only in a stable range of x
+              x = float(l.split()[0])
+              if x > 1e-4 and x < 0.1:
+                thpreds += [float(v) for v in l.split()[1:]]
+      return thpreds
+    thpreds_ref = read_pdfs(outputs[0])
+    #print(thpreds_ref)
+    maxdiffs = [0] * len(outputs)
+    for ioutput in range(1, len(outputs)):
+      thpreds = read_pdfs(outputs[ioutput])
+      maxdiffs[ioutput] = calc_max_dif(thpreds, thpreds_ref, eps = 1e-2)
+    print(f'max. difference in PDFs ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
+    # max. difference in theory predictions
     def read_thpreds(fname):
       with open(fname) as f:
         thpreds = [float(l.split()[6]) for l in f.readlines() if len(l.split()) == 13]
       return thpreds
     thpreds_ref = read_thpreds(f'{outputs[0]}/output/fittedresults.txt')
-    maxdiffs = [0] * len(outputs)
-    for ioutput in range(1, len(outputs)):
-      thpreds = read_thpreds(f'{outputs[ioutput]}/output/fittedresults.txt')
-      for ith in range(len(thpreds)):
-        if thpreds_ref[ith] != 0.:
-          reldif = abs(thpreds[ith] / thpreds_ref[ith] - 1.)
-        elif thpreds[ith] == 0.:
-          reldif = 0.
-        else:
-          reldif = thpreds[ith]
-        minpred = max(abs(thpreds[ith]), abs(thpreds_ref[ith]))
-        #dif = min(minpred, reldif)
-        dif = reldif
-        maxdiffs[ioutput] = max(maxdiffs[ioutput], dif)
-    print(f'max. difference in theory predictions ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]}' for ioutput in range(1, len(outputs))))
+    if len(thpreds_ref) > 0:
+      maxdiffs = [0] * len(outputs)
+      for ioutput in range(1, len(outputs)):
+        thpreds = read_thpreds(f'{outputs[ioutput]}/output/fittedresults.txt')
+        maxdiffs[ioutput] = calc_max_dif(thpreds, thpreds_ref)
+      print(f'max. difference in theory predictions ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
   # make plots
   if args.plot:
     os.symlink(xfitterdraw, './xfitter-draw')
@@ -506,10 +536,12 @@ if __name__ == '__main__':
   evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
 
   #DefaultEvolutions = ['QCDNUM']
-  #DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
-  DefaultEvolutions = []
+  DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
+  #DefaultEvolutions = ['APFELxx', 'HOPPET']
+  #DefaultEvolutions = []
 
   hf_scheme_DISNCs = ['BaseDISNC', 'HOPPET_DISNC']
+  #hf_scheme_DISNCs = []
 
   Orders = ['LO']
   #Orders = ['NLO']
