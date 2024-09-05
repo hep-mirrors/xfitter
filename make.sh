@@ -15,9 +15,7 @@
 #main library             goes to ./lib
 #dynamically loaded modules go to ./lib/xfitter
 
-#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Release"
-CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Debug"
-#CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=RelWithDebInfo"
+CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_BUILD_TYPE=Release"
 
 #Uncommect to disable some some of the optional packages
 #CMAKE_FLAGS=$CMAKE_FLAGS" -DCMAKE_DISABLE_FIND_PACKAGE_APFEL=TRUE"
