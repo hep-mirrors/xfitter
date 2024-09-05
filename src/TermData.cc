@@ -13,10 +13,7 @@ BaseEvolution *wrappedPDFs[2];
 extern "C"
 {
   void pdf_xfxq_wrapper_(const double &x, const double &Q, double *r) {
-    //printf("pdf_xfxq_wrapper_ x = %f Q = %f r = %p\n", x, Q, r);
-    //printf("r[6] = %f\n", r[6]);
     wrappedPDFs[0]->xfxQarray(x, Q, r);
-    //printf("r[6] = %f\n", r[6]);
   }
   void pdf_xfxq_wrapper1_(const double &x, const double &Q, double *r) {
     wrappedPDFs[1]->xfxQarray(x, Q, r);
