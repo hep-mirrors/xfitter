@@ -1,5 +1,5 @@
 /*
-   @file Reaction_DISNC_Hoppet.cc
+   @file Reaction_DISNC_HOPPET.cc
    @date 2017-04-08
    @author  AddReaction.py
    Created by  AddReaction.py on 2017-04-08
