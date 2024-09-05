@@ -4,6 +4,8 @@ import os
 import subprocess
 import shutil
 import sys
+import argparse
+import glob
 
 def get_steering(fname='steering.txt'):
   out = '''
@@ -412,16 +414,18 @@ MaxErrAllowed: 2
     fout.write(out)
 
 def run_cmd(cmd):
-  print(cmd)
+  print(f'running command: {cmd} [cwd={os.getcwd()}]')
   logfile = cmd.split()[0] + '.log'
   with open(logfile, 'w') as fout:
     proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     for line in proc.stdout:
-      sys.stdout.write(line.decode('utf-8'))
       fout.write(line.decode('utf-8'))
+      if args.verbose:
+        sys.stdout.write(line.decode('utf-8'))
     for line in proc.stderr:
-      sys.stderr.write(line.decode('utf-8'))
       fout.write(line.decode('utf-8'))
+      if args.verbose:
+        sys.stderr.write(line.decode('utf-8'))
     proc.wait()
   if proc.returncode != 0:
     sys.exit(1)
@@ -436,7 +440,6 @@ def recreate_dir(dirname, cd=False, cwd=None):
     os.chdir(dirname)
 
 def benchmark_run(suffix=None):
-  #hf_scheme_DISNC = {'QCDNUM': 'BaseDISNC', 'APFEL': 'FONLL_DISNC', 'APFELxx': 'N3LO_DISNC', 'Hoppet': 'HOPPET_DISNC'}[DefaultEvolution]
   if suffix is None:
     suffix = f'DefaultEvolution{DefaultEvolution}_hf_scheme_DISNC{hf_scheme_DISNC}_hf_scheme_DISCC{hf_scheme_DISCC}'
   recreate_dir(f'{dirname}/{suffix}', cd=True, cwd=startdir)
@@ -451,43 +454,66 @@ def benchmark_run(suffix=None):
   run_cmd(f'./xfitter')
   return suffix
 
-def benchmark_plot(outputs, labels, extraopts):
+def benchmark_results(outputs, labels, extraopts):
   if len(outputs) == 0: return
-  os.chdir(startdir)
-  os.chdir(dirname)
-  os.symlink(xfitterdraw, './xfitter-draw')
-  run_cmd(f'./xfitter-draw {xfitterdraw_opts} {extraopts} --outdir plots ' + ' '.join(f'{outputs[ioutput]}/output:{labels[ioutput]}' for ioutput in range(len(outputs))))
-  print(f'All plots stored in {os.getcwd()}/plots/plots.pdf')
-  if '--no-pdfs' not in f'{xfitterdraw_opts} {extraopts}':
-    os.chdir('plots')
-    if len(outputs) > 1:
-      for q2 in ['1.9', '8317']:
-        run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs_{q2}.pdf')
-        run_cmd(f'pdfjam --nup 4x2 pdfs_{q2}.pdf --outfile pdfs_compact_{q2}.pdf --papersize {{24cm,12cm}}')
-        print(f'Compact PDF plots stored in {os.getcwd()}/pdfs_compact_{q2}.pdf')
-
+  os.chdir(startdir + '/' + dirname)
+  # calculate max. differences
+  if len(outputs) >= 2:
+    def read_thpreds(fname):
+      with open(fname) as f:
+        thpreds = [float(l.split()[6]) for l in f.readlines() if len(l.split()) == 13]
+      return thpreds
+    thpreds_ref = read_thpreds(f'{outputs[0]}/output/fittedresults.txt')
+    maxdiffs = [0] * len(outputs)
+    for ioutput in range(1, len(outputs)):
+      thpreds = read_thpreds(f'{outputs[ioutput]}/output/fittedresults.txt')
+      for ith in range(len(thpreds)):
+        if thpreds_ref[ith] != 0.:
+          reldif = abs(thpreds[ith] / thpreds_ref[ith] - 1.)
+        elif thpreds[ith] == 0.:
+          reldif = 0.
+        else:
+          reldif = thpreds[ith]
+        minpred = max(abs(thpreds[ith]), abs(thpreds_ref[ith]))
+        #dif = min(minpred, reldif)
+        dif = reldif
+        maxdiffs[ioutput] = max(maxdiffs[ioutput], dif)
+    print(f'max. difference in theory predictions ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]}' for ioutput in range(1, len(outputs))))
+  # make plots
+  if args.plot:
+    os.symlink(xfitterdraw, './xfitter-draw')
+    run_cmd(f'./xfitter-draw {xfitterdraw_opts} {extraopts} --outdir plots ' + ' '.join(f'{outputs[ioutput]}/output:{labels[ioutput]}' for ioutput in range(len(outputs))))
+    print(f'All plots stored in {os.getcwd()}/plots/plots.pdf')
+    # make compact PDF plots
+    if '--no-pdfs' not in f'{xfitterdraw_opts} {extraopts}':
+      if all(shutil.which(com) for com in ['pdfunite', 'pdfjam']):
+        os.chdir('plots')
+        if len(outputs) > 1:
+          for q2 in ['1.9', '8317']:
+            run_cmd(f'pdfunite q2_{q2}_pdf_uv.pdf q2_{q2}_pdf_dv.pdf q2_{q2}_pdf_g.pdf q2_{q2}_pdf_Sea.pdf q2_{q2}_pdf_uv_ratio.pdf q2_{q2}_pdf_dv_ratio.pdf q2_{q2}_pdf_g_ratio.pdf q2_{q2}_pdf_Sea_ratio.pdf pdfs_{q2}.pdf')
+            run_cmd(f'pdfjam --nup 4x2 pdfs_{q2}.pdf --outfile pdfs_compact_{q2}.pdf --papersize {{30cm,15cm}}')
+            print(f'Compact PDF plots stored in {os.getcwd()}/pdfs_compact_{q2}.pdf')
+      else:
+        print(f'skipping production of compact PDF plots because commands "pdfunite" or "pdfjam" are not available')
 
 if __name__ == '__main__':
-  fname_coms = 'bench_coms.txt'
-  #run_cmd('ls bin ')
-  #aaa
-  reactions_with_yaml_file = ['FFABM_DISCC', 'FONLL_DISCC', 'HOPPET_DISNC', 'FFABM_DISNC', 'FONLL_DISNC', 'RT_DISNC']
-  evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'Hoppet', 'QCDNUM']
+  parser = argparse.ArgumentParser(description='Benchamark xFitter evolutions and/or reactions')
+  parser.add_argument('-v', '--verbose', action='store_true', help='Verbose (print output of commands)')
+  parser.add_argument('-p', '--plot', action='store_true', help='Produce plots')
+  args = parser.parse_args()
 
-  #evolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'Hoppet']
-  #evolutions = ['QCDNUM', 'Hoppet']
-  #evolutions = ['QCDNUM']
-  #evolutions = ['APFELff', 'QCDNUM', 'Hoppet']
-  #evolutions = ['APFEL']
-  #evolutions = ['APFELff', 'APFEL']
-  #evolutions = ['APFEL', 'Hoppet']
+  reactions_with_yaml_file = ['FFABM_DISCC', 'FONLL_DISCC', 'HOPPET_DISNC', 'FFABM_DISNC', 'FONLL_DISNC', 'RT_DISNC']
+  evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
+
+  #DefaultEvolutions = ['QCDNUM']
+  #DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
   DefaultEvolutions = []
 
   hf_scheme_DISNCs = ['BaseDISNC', 'HOPPET_DISNC']
 
-  #Orders = ['LO']
+  Orders = ['LO']
   #Orders = ['NLO']
-  Orders = ['NNLO']
+  #Orders = ['NNLO']
   #Orders = ['NNNLO']
   #Orders = ['LO', 'NLO', 'NNLO']
   isFFNSs = [0]
@@ -499,37 +525,34 @@ if __name__ == '__main__':
   
   alphas = 0.118
   Q0 = 1.378404875209
-  #hf_scheme_DISNC = 'HOPPET_DISNC'
-  #hf_scheme_DISNC = 'BaseDISNC'
-  hf_scheme_DISCC = 'BaseDISCC'
   basedirname = 'runs_bench'
   xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
-  xfitter_n3lo = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter_n3lo'
+  xfitter_n3lo = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter_n3lo' # currently this is in a separate branch
   xfitterdraw = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter-draw'
   datafiles = '/home/zenaiev/soft/xfitter-datafiles'
   xfitterdraw_opts = '--no-logo'
-  #xfitterdraw_opts += ' --q2all'
   xfitterdraw_opts += ' --splitplots-pdf'
-  #xfitterdraw_opts += ' --ratiorange 0.99:1.01'
-  #xfitterdraw_opts += ' --ratiorange 0.999:1.001'
   xfitterdraw_opts += ' --no-shifts'
   #xfitterdraw_opts += ' --no-tables'
 
   startdir = os.getcwd()
   for Order in Orders:
-    FONLLVariant = 'B' if Order == 'NLO' else 'C'
+    FONLLVariant = 'B' if Order == 'NLO' else 'C' # needed for APFELff, otherwise it complains
     for isFFNS in isFFNSs:
       for NFlavour in NFlavours:
-        if isFFNS == 0 and NFlavour != 5: continue
-        outputs = []
+        if isFFNS == 0 and NFlavour != 5: continue # skip VFNS with nf<5 
+        
         # loop over evolutions
-        InputFileNames = None
+        InputFileNames = []
         hf_scheme_DISNC = None
+        hf_scheme_DISCC = None
         dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/evolutions'
         recreate_dir(dirname, cd=True, cwd=startdir)
+        outputs = []
         for DefaultEvolution in DefaultEvolutions:
-          outputs.append(benchmark_run(suffix=DefaultEvolutions))
-        benchmark_plot(outputs, DefaultEvolutions, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
+          outputs.append(benchmark_run(suffix=DefaultEvolution))
+        benchmark_results(outputs, DefaultEvolutions, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
+        
         # loop over reactions
         DefaultEvolution = 'QCDNUM'
         InputFileNames = [
@@ -539,10 +562,10 @@ if __name__ == '__main__':
           'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
           'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
         ]
-        outputs = []
         dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
         recreate_dir(dirname, cd=True, cwd=startdir)
+        outputs = []
         for hf_scheme_DISNC in hf_scheme_DISNCs:
           outputs.append(benchmark_run(suffix=hf_scheme_DISNC))
-        benchmark_plot(outputs, hf_scheme_DISNCs, extraopts='--no-pdfs --only-theory')
-        #benchmark_plot(outputs, hf_scheme_DISNCs, extraopts='--no-pdfs')
+        #benchmark_results(outputs, hf_scheme_DISNCs, extraopts='--no-pdfs')
+        benchmark_results(outputs, hf_scheme_DISNCs, extraopts='--no-pdfs --only-theory')
