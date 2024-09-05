@@ -164,7 +164,7 @@ add_subdirectory(evolutions/APFELxx)
 add_subdirectory(evolutions/FlipCharge)
 add_subdirectory(evolutions/FlipUD)
 add_subdirectory(evolutions/LHAPDF)
-add_subdirectory(evolutions/Hoppet)
+add_subdirectory(evolutions/HOPPET)
 
 #Reactions
 add_subdirectory(reactions/NC_SIA)

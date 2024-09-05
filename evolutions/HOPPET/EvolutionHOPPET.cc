@@ -1,4 +1,4 @@
-#include "EvolutionHoppet.h"
+#include "EvolutionHOPPET.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 #include <iostream>
@@ -15,12 +15,12 @@ namespace xfitter
 {
 
   // the class factories
-  extern "C" EvolutionHoppet*create(const char*name){
-    return new EvolutionHoppet(name);
+  extern "C" EvolutionHOPPET*create(const char*name){
+    return new EvolutionHOPPET(name);
   }
-  const char*EvolutionHoppet::getClassName()const{return "Hoppet";}
+  const char*EvolutionHOPPET::getClassName()const{return "HOPPET";}
 
-  void EvolutionHoppet::atStart()
+  void EvolutionHOPPET::atStart()
   {
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
@@ -63,7 +63,7 @@ void  heralhc_init(const double & x,
   }
  } 
   
-    void EvolutionHoppet::atIteration()
+    void EvolutionHOPPET::atIteration()
   {
     // use  https://github.com/hoppet-code/hoppet/blob/master/example_f77/cpp_tabulation_example.cc
     //std::cout << " HERE WE ARE in HOPPET " << std::endl;
@@ -86,7 +86,7 @@ void  heralhc_init(const double & x,
   }
   
   
-  std::map<int,double>EvolutionHoppet::xfxQmap(double x,double Q){
+  std::map<int,double>EvolutionHOPPET::xfxQmap(double x,double Q){
     //std::cout << " HERE WE ARE in HOPPET A " << std::endl;
     double pdfs[14];
     xfxQarray(x, Q, pdfs);
@@ -105,28 +105,28 @@ void  heralhc_init(const double & x,
     return res;
   }
 
-  double EvolutionHoppet::xfxQ(int i,double x,double Q){
+  double EvolutionHOPPET::xfxQ(int i,double x,double Q){
     double pdfs[14];
     xfxQarray(x, Q, pdfs);
     return pdfs[i+6];
   }
 
-  void EvolutionHoppet::xfxQarray(double x,double Q,double*pdfs){
+  void EvolutionHOPPET::xfxQarray(double x,double Q,double*pdfs){
     hoppetEval(x, Q, pdfs);
   }
 
-  double EvolutionHoppet::getAlphaS(double Q){
+  double EvolutionHOPPET::getAlphaS(double Q){
     return hoppetAlphaS(Q);
   }
 
 
   // Optional (can be done later):
-  vector<double> EvolutionHoppet::getXgrid() {
+  vector<double> EvolutionHOPPET::getXgrid() {
     hf_errlog(2024090401, "F: HOPPET getXgrid is not implemented yet");
     return vector<double>();
   }
 
-  vector<double> EvolutionHoppet::getQgrid() {
+  vector<double> EvolutionHOPPET::getQgrid() {
     hf_errlog(2024090402, "F: HOPPET getQgrid is not implemented yet");
     return vector<double>();
   }

@@ -17,10 +17,10 @@ namespace xfitter
      @version 0.2
      @date 2018-09-29
   */
-  class EvolutionHoppet: public BaseEvolution
+  class EvolutionHOPPET: public BaseEvolution
   {
   public:
-    EvolutionHoppet(const char*name):BaseEvolution{name}{}
+    EvolutionHOPPET(const char*name):BaseEvolution{name}{}
     virtual const char*getClassName()const final override;
 
     /**
