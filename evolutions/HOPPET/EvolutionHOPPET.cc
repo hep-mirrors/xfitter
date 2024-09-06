@@ -26,7 +26,12 @@ namespace xfitter
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
     //const YAML::Node xGrid = yamlNode["xGrid"];
     
-    const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order"));
+    int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order"));
+    // temporary: allow different orders in evolution and DIS SFs
+    if (XFITTER_PARS::gParametersS.find("Order_HOPPET_Evolution") != XFITTER_PARS::gParametersS.end()) {
+      PtOrder = OrderMap(XFITTER_PARS::getParamS("Order_HOPPET_Evolution"));
+    }
+
     double dy = yamlNode["dy"].as<double>();
     hoppetStart(dy, PtOrder);
     int isFFNS = 0; // VFNS by default
@@ -37,6 +42,7 @@ namespace xfitter
       hoppetSetFFN(nflavour);
     }
     else if(isFFNS == 0) {
+      // TODO: check what will happen if these are free parameters (atConfigurationChange)
       const double* MCharm   = XFITTER_PARS::getParamD("mch");
       const double* MBottom  = XFITTER_PARS::getParamD("mbt");
       const double* MTop     = XFITTER_PARS::getParamD("mtp");

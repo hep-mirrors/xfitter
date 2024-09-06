@@ -90,7 +90,7 @@ void ReactionHOPPET_DISNC::atIteration() {
     // if these parameters are not changed at iteration)
     static int init = 0;
     if (init == 0) {
-        hoppetStart(_dy, _order);
+        hoppetStart(_dy, _order_HOPPET_Evolution);
 
         // Extended HOPPET Initialization (from example): seems to be not needed
         //double Qmax = 13000.0;
@@ -104,6 +104,11 @@ void ReactionHOPPET_DISNC::atIteration() {
         //double maxQval = max(xmuF * Qmax, Qmax);
         //hoppetStartExtended(ymax, dy, minQval, maxQval, dlnlnQ, nloop, order, factscheme_MSbar);
         
+        // temporary: allow different orders in evolution and DIS SFs
+        if (XFITTER_PARS::gParametersS.find("Order_HOPPET_Evolution") != XFITTER_PARS::gParametersS.end()) {
+            _order_HOPPET_Evolution = OrderMap(XFITTER_PARS::getParamS("Order_HOPPET_Evolution"));
+        }
+
         int nflav = -1 * XFITTER_PARS::getParamI("NFlavour"); // negative nflav to use a variable-flavour number scheme
         hoppetStartStrFctExtended(_order, nflav, scale_choice_Q, *_Mz, _param_coefs, *_Mw, *_Mz);
 
@@ -140,7 +145,7 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     // TODO: it seems that still one needs to call hoppetEvolve() in order to get alphaS evolution
     // how to get alphaS assigned via hoppetAssign()?
     const double Q_for_alphaS = *_Mz;
-    hoppetEvolve( *_alphas, Q_for_alphaS, _order, _muR_Q, pdf_xfxq_wrapper1_, _Q0);
+    hoppetEvolve( *_alphas, Q_for_alphaS, _order_HOPPET_Evolution, _muR_Q, pdf_xfxq_wrapper1_, _Q0);
     //double f[13];
     //hoppetEval(0.001,10.,f);
     //printf("f[6] = %f  as = %f\n", f[6], hoppetAlphaS(10.));
