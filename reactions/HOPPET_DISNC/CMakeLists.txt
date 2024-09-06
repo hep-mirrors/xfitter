@@ -1,0 +1,10 @@
+if(NOT HOPPET_FOUND)
+  message(STATUS "Skipping optional evolution HOPPET since HOPPET library was not found")
+  return()
+endif()
+
+set(TARGET reactionHOPPET_DISNC)
+add_library(${TARGET} MODULE ReactionHOPPET_DISNC.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter HOPPET reactionBaseDISNC)
+install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+install(FILES HOPPET_DISNC.yaml DESTINATION ${DEST_YAML}/reactions)
