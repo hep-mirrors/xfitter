@@ -7,6 +7,7 @@ import sys
 import argparse
 import glob
 import time
+import numpy as np
 
 def get_steering(fname='steering.txt'):
   out = '''
@@ -425,13 +426,17 @@ MaxErrAllowed: 2
   with open(fname, 'w') as fout:
     fout.write(out)
 
-def make_datafile_dis(fname, Q2s, xs, sqrts, nx, nq2, charge):
+def make_datafile_dis(fname, Q2s, xs, sqrts, charge):
   charge_title = {1: '+', -1: '-'}[charge]
-  out = f'''
+  out = f'''* PSEUDODATA for DIS SF benchmark
 &Data 
   Name = "PSEUDODATA" 
   Reaction = "NC e+-p"
-  NData = {len(Q2s) * len(xs)}
+  TermName = 'R'
+  TermSource = 'use:hf_scheme_DISNC'
+  TermInfo = 'type=sigred:flav=incl:echarge={charge}:epolarity=0'
+  TheorExpr = 'R'
+  NData = {sum(len(xs[v]) for v in Q2s)}
   NColumn =   5
   ColumnType = 3*"Bin","Sigma", 1*"Error"
   ColumnName = "Q2","x","y","Sigma", "stat"
@@ -440,22 +445,22 @@ def make_datafile_dis(fname, Q2s, xs, sqrts, nx, nq2, charge):
 &PlotDesc
    PlotN = {len(Q2s)}
    PlotDefColumn = 'Q2'
-   PlotDefValue = {','.join(Q2s)}
+   PlotDefValue = {','.join([str(v-0.001) for v in Q2s] + [str(Q2s[-1]+0.001)])}
    PlotVarColumn = \'x\''''
-  for iq2 in Q2s:
+  for iq2 in range(len(Q2s)):
     out += f'''
-   PlotOptions({iq2+1})  = 'Experiment:PSEUDO @ExtraLabel:e^{{{charge_title}}}p #rightarrow e^{{{charge_title}}}X (NC) Q^{{2}} = {Q2s[iq2]} #sqrt{{s}} = {sqrts} GeV @XTitle: x @YTitle: #sigma_{{red}}  @Title: @Xlog\''''
+   PlotOptions({iq2+1})  = 'Experiment:PSEUDO @ExtraLabel:e^{{{charge_title}}}p #rightarrow e^{{{charge_title}}}X (NC) Q^{{2}} = {str(Q2s[iq2])} GeV^{{2}} #sqrt{{s}} = {sqrts:.0f} GeV @XTitle: x @YTitle: #sigma_{{red}}  @Title: @Xlog\''''
   out += f'''
 &End'''
   out += f'''
-*{"Q2":10s}{"x":10s}{"y":10s}{"Sigma":10s}{"stat":10s}'''
+*{"Q2":>12s}{"x":>12s}{"y":>12s}{"Sigma":>12s}{"stat":>12s}'''
   for q2 in Q2s:
-    for x in xs:
+    for x in xs[q2]:
       y = sqrts**2/(q2*x)
       sigma = 1.0
-      stat = 1.0
+      stat = 50.0
       out += f'''
- {q2:10.4e}{x:10.4e}{y:10.4e}{sigma:10.4e}{stat:10.4e}'''
+ {q2:12.4e}{x:12.4e}{y:12.4e}{sigma:12.4e}{stat:12.4e}'''
   with open(fname, 'w') as fout:
     fout.write(out)
 
@@ -599,12 +604,12 @@ if __name__ == '__main__':
   # extraEvolutionLines: string to be appended to node "Evolutions" (None if nothing to append)
   # extraReactionLines: string to be appended to node "<scheme>:" (None if nothing to append)
   hf_scheme_DISNCs = [
-    ['HOPPET_DISNC_N3LO', 'HOPPET_DISNC', None, 'Order_HOPPET_Evolution: NNLO'],
-    ['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder_HOPPET_Evolution: NNLO'],
+    #['HOPPET_DISNC_N3LO', 'HOPPET_DISNC', None, 'Order_HOPPET_Evolution: NNLO'],
+    #['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder_HOPPET_Evolution: NNLO'],
     ['HOPPET_DISNC_N2LO', 'HOPPET_DISNC', None, 'Order: NNLO'],
     ['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder: NNLO'],
-    #['FONLL_DISNC_ZMVFNS', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    MassScheme: \'ZM-VFNS\'', None],
-    #['BaseDISNC', 'BaseDISNC', None, None],
+    ['FONLL_DISNC_ZMVFNS', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    MassScheme: \'ZM-VFNS\'', None],
+    ['BaseDISNC', 'BaseDISNC', None, None],
     ##['FFABM_DISNC', 'FFABM_DISNC', None, None],
     ##['FONLL_DISNC', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml', None],
   ]
@@ -612,8 +617,8 @@ if __name__ == '__main__':
 
   #Orders = ['LO']
   #Orders = ['NLO']
-  #Orders = ['NNLO']
-  Orders = ['NNNLO']
+  Orders = ['NNLO']
+  #Orders = ['NNNLO']
   #Orders = ['LO', 'NLO', 'NNLO']
   isFFNSs = [0]
   NFlavours = [5]
@@ -625,7 +630,8 @@ if __name__ == '__main__':
   alphas = 0.118
   Q0 = 1.378404875209
   basedirname = 'runs_bench'
-  xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
+  #xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
+  xfitter = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter'
   xfitter_n3lo = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter' # currently this is in a separate branch
   xfitterdraw = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter-draw'
   datafiles = '/home/zenaiev/soft/xfitter-datafiles'
@@ -657,21 +663,31 @@ if __name__ == '__main__':
         #DefaultEvolution = 'APFELxx'
         if Order == 'NNNLO':
           DefaultEvolution = 'HOPPET'
-        #Q2s = 
-        #make_datafile_dis('NCep.dat', )
+        xs = {
+          5: np.logspace(np.log10(5e-5), np.log10(0.65), 50),
+          50: np.logspace(np.log10(5e-4), np.log10(0.65), 50),
+          500: np.logspace(np.log10(5e-3), np.log10(0.65), 50),
+          30000: np.logspace(np.log10(0.3), np.log10(0.75), 50),
+        }
+        Q2s = list(xs.keys())
+        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
+        recreate_dir(dirname, cd=True, cwd=startdir)
+        make_datafile_dis('NCep.dat', Q2s, xs, 318., +1)
+        make_datafile_dis('NCem.dat', Q2s, xs, 318., -1)
         InputFileNames = [
+          '../NCep.dat',
+          '../NCem.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
         ]
-        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
-        recreate_dir(dirname, cd=True, cwd=startdir)
         outputs = []
         for entry in hf_scheme_DISNCs:
           hf_scheme_DISNC = entry[1]
           extraEvolutionLines = entry[2]
           extraReactionLines = entry[3]
           outputs.append(benchmark_run(label=entry[0]))
-        benchmark_results(outputs, extraopts='--no-pdfs --only-theory')
+        #benchmark_results(outputs, extraopts='--no-pdfs --only-theory')
+        benchmark_results(outputs, extraopts='--no-pdfs --only-theory --no-tables')
