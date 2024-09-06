@@ -53,4 +53,7 @@ private:
     // temporary, needed for alphaS evolution
     double* _alphas;
     double _Q0;
+
+    // temporary: allow different orders in evolution and DIS SFs
+    int _order_HOPPET_Evolution;
 };
