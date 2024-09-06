@@ -90,6 +90,12 @@ void ReactionN3LO_DISNC::atIteration()
   const YAML::Node yamlNode = Node["N3LO_DISNC"];
   const YAML::Node QGrid    = yamlNode["QGrid"];
 
+	// SZ 2024.09.06 for zero-mass scheme: read "massive" from yaml
+	if (yamlNode["massive"]) 
+	{
+		massive = yamlNode["massive"].as<int>();
+	}
+
   int n = QGrid[0].as<int>();
   double qmin = QGrid[1].as<double>();
   double qmax = QGrid[2].as<double>();
