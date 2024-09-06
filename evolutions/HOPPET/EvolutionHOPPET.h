@@ -42,10 +42,10 @@ namespace xfitter
 
   private:
     int _order;
+    double _Qmin;
+    double _Qmax;
+    double _ymax;
     BasePdfDecomposition*                                                   _inPDFs;
-    //std::vector<double>                                                     _Masses;
-    //std::vector<double>                                                     _Thresholds;
-    //std::function<double(double const& Q)>                                  _AlphaQCD;
   };
   
   
