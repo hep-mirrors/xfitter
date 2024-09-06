@@ -41,6 +41,7 @@ namespace xfitter
     ///@}
 
   private:
+    int _order;
     BasePdfDecomposition*                                                   _inPDFs;
     //std::vector<double>                                                     _Masses;
     //std::vector<double>                                                     _Thresholds;

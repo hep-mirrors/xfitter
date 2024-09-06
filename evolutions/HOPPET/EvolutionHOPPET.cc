@@ -26,14 +26,14 @@ namespace xfitter
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
     //const YAML::Node xGrid = yamlNode["xGrid"];
     
-    int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order"));
+    _order = OrderMap(XFITTER_PARS::getParamS("Order"));
     // temporary: allow different orders in evolution and DIS SFs
     if (XFITTER_PARS::gParametersS.find("Order_HOPPET_Evolution") != XFITTER_PARS::gParametersS.end()) {
-      PtOrder = OrderMap(XFITTER_PARS::getParamS("Order_HOPPET_Evolution"));
+      _order = OrderMap(XFITTER_PARS::getParamS("Order_HOPPET_Evolution"));
     }
 
     double dy = yamlNode["dy"].as<double>();
-    hoppetStart(dy, PtOrder);
+    hoppetStart(dy, _order);
     int isFFNS = 0; // VFNS by default
     if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end())
       isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
@@ -77,14 +77,13 @@ void  heralhc_init(const double & x,
     
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
-    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order"));
     const double* Q0         = XFITTER_PARS::getParamD("Q0");
     const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
     const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");
     //const YAML::Node QGrid   = yamlNode["QGrid"];
     gPdfDecomp = _inPDFs;
 
-    hoppetEvolve( *Alphas_ref, *Q_ref, PtOrder, 1.0, heralhc_init, *Q0);
+    hoppetEvolve( *Alphas_ref, *Q_ref, _order, 1.0, heralhc_init, *Q0);
     //double f[13];
     //hoppetEval(0.001,10.,f);
     //printf("f[6] = %f  as = %f\n", f[6], hoppetAlphaS(10.));
