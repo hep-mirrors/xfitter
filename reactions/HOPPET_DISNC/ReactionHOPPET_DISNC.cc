@@ -91,6 +91,7 @@ void ReactionHOPPET_DISNC::atIteration() {
     static int init = 0;
     if (init == 0) {
         // temporary: allow different orders in evolution and DIS SFs
+        _order_HOPPET_Evolution = _order;
         if (XFITTER_PARS::gParametersS.find("Order_HOPPET_Evolution") != XFITTER_PARS::gParametersS.end()) {
             _order_HOPPET_Evolution = OrderMap(XFITTER_PARS::getParamS("Order_HOPPET_Evolution"));
         }

@@ -1,2 +1,7 @@
 class: HOPPET
 dy: 0.1
+dy_over_dlnlnQ: 4.0
+ymax: 12
+Qmin: 1.
+Qmax: 28000.
+order_interpol: -6 # polynomial interpolation order

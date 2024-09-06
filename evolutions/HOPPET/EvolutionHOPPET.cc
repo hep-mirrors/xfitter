@@ -33,7 +33,14 @@ namespace xfitter
     }
 
     double dy = yamlNode["dy"].as<double>();
-    hoppetStart(dy, _order);
+    //hoppetStart(dy, _order);
+    double dy_over_dlnlnQ = yamlNode["dy_over_dlnlnQ"].as<double>();
+    double dlnlnQ = dy/dy_over_dlnlnQ;
+    _ymax = yamlNode["ymax"].as<double>();
+    _Qmin = yamlNode["Qmin"].as<double>();
+    _Qmax = yamlNode["Qmax"].as<double>();
+    int order_interpol = yamlNode["order_interpol"].as<int>();
+    hoppetStartExtended(_ymax, dy, _Qmin, _Qmax, dlnlnQ, _order, order_interpol, factscheme_MSbar);
     int isFFNS = 0; // VFNS by default
     if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end())
       isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
@@ -125,15 +132,20 @@ void  heralhc_init(const double & x,
   }
 
 
-  // Optional (can be done later):
   vector<double> EvolutionHOPPET::getXgrid() {
-    hf_errlog(2024090401, "F: HOPPET getXgrid is not implemented yet");
-    return vector<double>();
+    vector<double> qx;
+    qx.resize(2);
+    qx[0] = exp(-1 * _ymax);
+    qx[1] = 1.0;
+    return qx;
   }
 
   vector<double> EvolutionHOPPET::getQgrid() {
-    hf_errlog(2024090402, "F: HOPPET getQgrid is not implemented yet");
-    return vector<double>();
+    vector<double> qGrid;
+    qGrid.resize(2);
+    qGrid[0] = _Qmin;
+    qGrid[1] = _Qmax;
+    return qGrid;
   }
   
 }
