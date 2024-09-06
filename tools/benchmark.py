@@ -6,6 +6,7 @@ import shutil
 import sys
 import argparse
 import glob
+import time
 
 def get_steering(fname='steering.txt'):
   out = '''
@@ -414,7 +415,8 @@ MaxErrAllowed: 2
     fout.write(out)
 
 def run_cmd(cmd):
-  print(f'running command: {cmd} [cwd={os.getcwd()}]')
+  start = time.time()
+  print(f'running command: {cmd} [cwd={os.getcwd()}] ... ', end = '', flush = True)
   logfile = cmd.split()[0] + '.log'
   with open(logfile, 'w') as fout:
     proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -427,6 +429,7 @@ def run_cmd(cmd):
       if args.verbose:
         sys.stderr.write(line.decode('utf-8'))
     proc.wait()
+  print(f'[took {time.time()-start:.2f}s]')
   if proc.returncode != 0:
     sys.exit(1)
 
@@ -518,7 +521,7 @@ def benchmark_results(outputs, labels, extraopts):
     for ioutput in range(1, len(outputs)):
       thpreds = read_pdfs(outputs[ioutput])
       maxdiffs[ioutput] = calc_max_dif(thpreds, thpreds_ref, eps = 1e-2)
-    print(f'max. difference in PDFs ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
+    print(f'max. relative difference in PDFs ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
     # max. difference in theory predictions
     thpreds_ref = read_thpreds(f'{outputs[0]}/output/fittedresults.txt')
     if len(thpreds_ref) > 0:
@@ -526,7 +529,7 @@ def benchmark_results(outputs, labels, extraopts):
       for ioutput in range(1, len(outputs)):
         thpreds = read_thpreds(f'{outputs[ioutput]}/output/fittedresults.txt')
         maxdiffs[ioutput] = calc_max_dif(thpreds, thpreds_ref)
-      print(f'max. difference in theory predictions ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
+      print(f'max. relative difference in theory predictions ' + ', '.join(f'{labels[0]} vs {labels[ioutput]} = {maxdiffs[ioutput]:.1e}' for ioutput in range(1, len(outputs))))
   # make plots
   if args.plot:
     make_plots(outputs, labels, extraopts)
