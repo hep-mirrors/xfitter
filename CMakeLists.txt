@@ -196,6 +196,7 @@ add_subdirectory(reactions/PineAPPL)
 add_subdirectory(reactions/N3LO_DISCC)
 add_subdirectory(reactions/N3LO_DISNC)
 add_subdirectory(reactions/HOPPET_DISNC)
+add_subdirectory(reactions/HOPPET_DISCC)
 
 #Tools
 add_subdirectory(tools/draw/src)
