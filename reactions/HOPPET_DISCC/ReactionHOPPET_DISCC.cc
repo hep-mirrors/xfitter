@@ -55,7 +55,7 @@ void ReactionHOPPET_DISCC::atStart()
 void ReactionHOPPET_DISCC::initTerm(TermData *td)
 {
     Super::initTerm(td);
-    BaseDISCC::ReactionData *rd = new BaseDISCC::ReactionData();
+    BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData*) td->reactionData;
     unsigned termID = td->id;
     if(rd->_dataFlav != BaseDISCC::dataFlav::incl) {
         hf_errlog(20240905, "F: HOPPET supports only inclusive DIS structure functions");
@@ -148,7 +148,7 @@ void ReactionHOPPET_DISCC::calcF2FLF3(unsigned dataSetID) {
     // setup HOPPET evolution - try to copy it from our evolution
     auto td = _tdDS[dataSetID];
     td->actualizeWrappers();
-    BaseDISCC::ReactionData *rd = new BaseDISCC::ReactionData();
+    BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData*) td->reactionData;
     // TODO: it seems that still one needs to call hoppetEvolve() in order to get alphaS evolution
     // how to get alphaS assigned via hoppetAssign()?
     const double Q_for_alphaS = *_Mz;
@@ -164,7 +164,7 @@ void ReactionHOPPET_DISCC::calcF2FLF3(unsigned dataSetID) {
     // Initialize structure functions
     hoppetInitStrFct(_order, _param_coefs, _xmuR, _xmuF);
 
-    const int charge = rd->_charge;
+    const double charge = rd->_charge;
 
     // Initialize structure functions
     hoppetInitStrFct(_order, _param_coefs, _xmuR, _xmuF);
@@ -188,15 +188,15 @@ void ReactionHOPPET_DISCC::calcF2FLF3(unsigned dataSetID) {
         switch (rd->_dataFlav)
         {
         case BaseDISCC::dataFlav::incl:
-            if (charge == 1) {
+            if (charge > 0) {
                 _f2[dataSetID][i] = StrFct[iF2Wp];
-                _fl[dataSetID][i] = StrFct[iF2Wp] - 2 * x * StrFct[iF1Wp];
-                _f3[dataSetID][i] = StrFct[iF3Wp] * x;
+                _fl[dataSetID][i] = (StrFct[iF2Wp]) - 2 * x * (StrFct[iF1Wp]);
+                _f3[dataSetID][i] = (charge * StrFct[iF3Wp] + StrFct[iF3Wm]) * x;
             }
             else {
                 _f2[dataSetID][i] = StrFct[iF2Wm];
                 _fl[dataSetID][i] = StrFct[iF2Wm] - 2 * x * StrFct[iF1Wm];
-                _f3[dataSetID][i] = StrFct[iF3Wm] * x;
+                _f3[dataSetID][i] = StrFct[iF3Wm];
             }
             break;
         // should not be here
