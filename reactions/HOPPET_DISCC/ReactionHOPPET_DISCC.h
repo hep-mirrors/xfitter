@@ -1,35 +1,35 @@
 #include "ReactionTheory.h"
-#include "ReactionBaseDISNC.h"
+#include "ReactionBaseDISCC.h"
 #include <IntegrateDIS.h>
 #include <hoppet_v1.h>
 
 /**
-  @class' ReactionHOPPET_DISNC
+  @class' ReactionHOPPET_DISCC
 
-  @brief HOPPET DISNC reaction
+  @brief HOPPET DISCC reaction
 
   @version 0.1
   @date 2024-08-13
   */
 
-class ReactionHOPPET_DISNC : public ReactionBaseDISNC
+class ReactionHOPPET_DISCC : public ReactionBaseDISCC
 {
 private:
-    typedef ReactionBaseDISNC Super;
+    typedef ReactionBaseDISCC Super;
 
 public:
-    ReactionHOPPET_DISNC(){};
+    ReactionHOPPET_DISCC(){};
 
 public:
-    virtual string getReactionName() const override { return "HOPPET_DISNC"; };
+    virtual string getReactionName() const override { return "HOPPET_DISCC"; };
     void virtual atStart() override final;
     virtual void initTerm(TermData *td) override final;
     void atIteration();
 
 protected:
-	  void F2(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
-	  void FL(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
-	  void xF3(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal);
+    virtual valarray<double> F2(TermData *td) override final;
+    virtual valarray<double> FL(TermData *td) override final;
+    virtual valarray<double> xF3(TermData *td) override final;
 
 private:
     void calcF2FLF3(unsigned dataSetID);

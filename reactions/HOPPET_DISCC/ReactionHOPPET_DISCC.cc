@@ -1,14 +1,14 @@
 /*
-   @file Reaction_DISNC_HOPPET.cc
+   @file Reaction_DISCC_HOPPET.cc
    @date 2017-04-08
    @author  AddReaction.py
    Created by  AddReaction.py on 2017-04-08
 */
 #include "ReactionTheory.h"
-#include "ReactionHOPPET_DISNC.h"
+#include "ReactionHOPPET_DISCC.h"
 #include <iostream>
 #include <cstdio>
-#include "ReactionBaseDISNC.h"
+#include "ReactionBaseDISCC.h"
 #include "hoppet_v1.h" // Include the HOPPET header
 #include "xfitter_pars.h"
 #include <BaseEvolution.h>
@@ -19,13 +19,13 @@ using namespace hoppetv1;
 using namespace std;
 
 // The class factories
-extern "C" ReactionHOPPET_DISNC *create()
+extern "C" ReactionHOPPET_DISCC *create()
 {
-    return new ReactionHOPPET_DISNC();
+    return new ReactionHOPPET_DISCC();
 }
 
 // Initialize at the start of the computation
-void ReactionHOPPET_DISNC::atStart()
+void ReactionHOPPET_DISCC::atStart()
 {
     // do not call parent atStart(): it initialises QCDNUM
     // Super::atStart();
@@ -43,21 +43,26 @@ void ReactionHOPPET_DISNC::atStart()
     hoppetSetPoleMassVFN(mc, mb, mt);
     //hoppetSetVFN(mc, mb, mt);
 
+    const bool exact_nfthreshold = true;
+    const bool exact_splitting = false;
+    hoppetSetExactDGLAP(exact_nfthreshold,exact_splitting);
+
     // temporary, needed for alphaS evolution
     _alphas = XFITTER_PARS::getParamD("alphas");
     _Q0 = *XFITTER_PARS::getParamD("Q0");
 }
 
-void ReactionHOPPET_DISNC::initTerm(TermData *td)
+void ReactionHOPPET_DISCC::initTerm(TermData *td)
 {
     Super::initTerm(td);
+    BaseDISCC::ReactionData *rd = new BaseDISCC::ReactionData();
     unsigned termID = td->id;
-    if(GetDataFlav(termID) != dataFlav::incl) {
+    if(rd->_dataFlav != BaseDISCC::dataFlav::incl) {
         hf_errlog(20240905, "F: HOPPET supports only inclusive DIS structure functions");
     }
     auto nBins = td->getNbins();
-    if(_integrated.find(termID) != _integrated.end()) {
-        nBins = _integrated[termID]->getBinValuesQ2()->size();
+    if(rd->_integrated) {
+        nBins = rd->_integrated->getBinValuesQ2()->size();
     }
     _f2[termID].resize(nBins);
     _fl[termID].resize(nBins);
@@ -71,7 +76,7 @@ void ReactionHOPPET_DISNC::initTerm(TermData *td)
     _param_coefs = td->getParamI("param_coefs");
 }
 
-void ReactionHOPPET_DISNC::atIteration() {
+void ReactionHOPPET_DISCC::atIteration() {
     // Make sure to call the parent class initialization:
     super::atIteration();
 
@@ -117,24 +122,24 @@ void ReactionHOPPET_DISNC::atIteration() {
     }
 }
 
-void ReactionHOPPET_DISNC::F2(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal)
+valarray<double> ReactionHOPPET_DISCC::F2(TermData *td)
 {
     //for (size_t i = 0; i < GetBinValues(td, "x")->size(); i++) {valExternal[i] = 0.;}
     calcF2FLF3(td->id);
-    valExternal = _f2[td->id];
+    return _f2[td->id];
 }
-void ReactionHOPPET_DISNC::FL(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal) {
+valarray<double> ReactionHOPPET_DISCC::FL(TermData *td) {
     //for (size_t i = 0; i < GetBinValues(td, "x")->size(); i++) {valExternal[i] = 0.;}
     calcF2FLF3(td->id);
-    valExternal = _fl[td->id];
+    return _fl[td->id];
 }
-void ReactionHOPPET_DISNC::xF3(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal) {
+valarray<double> ReactionHOPPET_DISCC::xF3(TermData *td) {
     //for (size_t i = 0; i < GetBinValues(td, "x")->size(); i++) {valExternal[i] = 0.;}
     calcF2FLF3(td->id);
-    valExternal = _f3[td->id];
+    return _f3[td->id];
 }
 
-void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
+void ReactionHOPPET_DISCC::calcF2FLF3(unsigned dataSetID) {
     // skip if already calculated, e.g. for calls from FL(), xF3() after F2()
     if ((_f2[dataSetID][0] > -99.)) {
         return;
@@ -143,6 +148,7 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     // setup HOPPET evolution - try to copy it from our evolution
     auto td = _tdDS[dataSetID];
     td->actualizeWrappers();
+    BaseDISCC::ReactionData *rd = new BaseDISCC::ReactionData();
     // TODO: it seems that still one needs to call hoppetEvolve() in order to get alphaS evolution
     // how to get alphaS assigned via hoppetAssign()?
     const double Q_for_alphaS = *_Mz;
@@ -158,17 +164,7 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     // Initialize structure functions
     hoppetInitStrFct(_order, _param_coefs, _xmuR, _xmuF);
 
-    const int charge = GetCharge(dataSetID);
-    const double pol = GetPolarisation(dataSetID);
-
-    const double _ve = -0.5 + 2. * (*_sin2thetaW); // !
-    const double _ae = -0.5;                    // !
-    const double _au = 0.5;
-    const double _ad = -0.5;
-    const double _vu = _au - (4. / 3.) * (*_sin2thetaW);
-    const double _vd = _ad + (2. / 3.) * (*_sin2thetaW);
-    const double cos2thetaW = 1 - *_sin2thetaW;
-    const double MZ2 = *_Mz * *_Mz;
+    const int charge = rd->_charge;
 
     // Initialize structure functions
     hoppetInitStrFct(_order, _param_coefs, _xmuR, _xmuF);
@@ -189,16 +185,19 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
         }
 
         hoppetStrFct(x, Q, _xmuR * Q, _xmuF * Q, &StrFct[0]);
-        //printf("StrFct = ");
-        //for(size_t ii = 0; ii < 14; ii++) printf("  %f", StrFct[ii]);
-        //printf("\n");
-        double k = 1. / (4 * *_sin2thetaW * cos2thetaW) * Q2 / (Q2 + MZ2);
-        switch (GetDataFlav(td->id))
+        switch (rd->_dataFlav)
         {
-        case dataFlav::incl:
-            _f2[dataSetID][i] = StrFct[iF2EM] - (_ve + charge * pol * _ae) * k * StrFct[iF2gZ] + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * StrFct[iF2Z];
-            _fl[dataSetID][i] = _f2[dataSetID][i] - 2 * x * (StrFct[iF1EM] - (_ve + charge * pol * _ae) * k * StrFct[iF1gZ] + (_ae * _ae + _ve * _ve + 2 * charge * pol * _ae * _ve) * k * k * StrFct[iF1Z]);
-            _f3[dataSetID][i] = (_ae * charge + pol * _ve) * k * x * StrFct[iF3gZ] + (-2 * _ae * _ve * charge - pol * (_ve * _ve + _ae * _ae)) * k * k * x * StrFct[iF3Z];
+        case BaseDISCC::dataFlav::incl:
+            if (charge == 1) {
+                _f2[dataSetID][i] = StrFct[iF2Wp];
+                _fl[dataSetID][i] = StrFct[iF2Wp] - 2 * x * StrFct[iF1Wp];
+                _f3[dataSetID][i] = StrFct[iF3Wp] * x;
+            }
+            else {
+                _f2[dataSetID][i] = StrFct[iF2Wm];
+                _fl[dataSetID][i] = StrFct[iF2Wm] - 2 * x * StrFct[iF1Wm];
+                _f3[dataSetID][i] = StrFct[iF3Wm] * x;
+            }
             break;
         // should not be here
         //case dataFlav::c:

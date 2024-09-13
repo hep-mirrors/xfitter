@@ -30,44 +30,6 @@ def get_steering(fname='steering.txt'):
   !  CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
 &End
 
-&ReduceSyst
-    ! even with tolerance =0 the following flag may speed up calculations
-  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
-    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
-  tolerance = 0.0
-    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
-  useBlas = .false.
-&End
-
-&CovarToNuisance
-   ! Global switch for using nuisance param representation for covariance mat.
-  LConvertCovToNui = .False.
-
-   ! Tolerance -- zero means exact transformation
-  Tolerance = 0.0
-
-   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
-  LSubtractStat = .false.
-
-   ! The following lines allow to adjust error scaling properties (default: :M)
-  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
-  DataSystType = ':A', ':A'
-&End
-
-
-*
-* (Optional) List systematic sources, modify their scaling properties:
-*
-&Systematics
- !C      List sources, Results.txt file would list them first. Use the usual :A, :P, 
- !C      qualifiers to change the scalling properties
- !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
- !C      Modify the prior in chi2 definition (1.0 is default):
- !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
- !  PriorScaleFactor = 0.0, 0.0 
-&End
-
-
 *
 * Main steering cards
 *
@@ -102,8 +64,6 @@ def get_steering(fname='steering.txt'):
  ! Quadratic approximation for asymmetric uncertainties
  ! AsymErrorsIterations = 10
 &End
-
-
 *
 * Output steering cards
 *
@@ -119,12 +79,7 @@ def get_steering(fname='steering.txt'):
 
   ! x-range of output (standard = 1E-4 1.0)
   OUTXRANGE = 1E-4, 0.9999
-  ! Write out LHAPDF5 output
-  ! WriteLHAPDF5 = true
 &End
-
-
-
 *
 * Process dependent cuts
 *
@@ -195,45 +150,6 @@ def get_steering(fname='steering.txt'):
    Variable(10)        = 'x'
    CutValueMin(10)     = 0.000001 
    CutValueMax(10)     = 1.0
-
-  !--------------------- by Dataset index ----------------
-
-   ! applied to any (including unspecified) reaction by Dataset indices
-   ! e.g. cut pTmax < 15.0 will be applied to datasets 996 and 996
-   ! ProcessName must be 'DUMMY'
-   !
-   !ProcessName(11)     = 'DUMMY'
-   !Dataset( 1,11)      = 995
-   !Dataset( 1,11)      = 996
-   !Variable(11)        = 'pTmax'
-   !CutValueMin(11)     = 0.0
-   !CutValueMax(11)     = 15.0
-   
-&End
-
-*
-* (Optional) MC errors steering cards
-*
-&MCErrors
-  ! Activate MC method for error estimation if lRand = True
-  lRAND   = False
-  
-  ! Use data (true, default) or theory (false) for the central values of the MC replica
-  lRANDDATA = True
-
-  ! MC method Seed
-  ISeedMC = 123456 
-
-  ! --- Choose what distribution for the random number generator 
-  ! STATYPE (SYS_TYPE)  =   1  gauss
-  ! STATYPE (SYS_TYPE)  =   2  uniform
-  ! STATYPE (SYS_TYPE)  =   3  lognormal
-  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
-  !
-  ! STATYPE = SYS_TYPE = 0 with lRANDDATA = False and lRAND   = True yeilds in substitution of data by theory (useful for sensitivity tests)
-  !
-  STATYPE =  1
-  SYSTYPE =  1
 &End
 '''
   with open(fname, 'w') as fout:
@@ -393,13 +309,9 @@ alphas : {alphas}
     out += f'''
 byReaction:
   {hf_scheme_DISNC}:
-    ? !include reactions/{hf_scheme_DISNC}.yaml
-'''
-    if extraReactionLines is not None:
-      out += extraReactionLines
+    ? !include reactions/{hf_scheme_DISNC}.yaml'''
   if hf_scheme_DISCC in reactions_with_yaml_file:
     out += f'''
-byReaction:
   {hf_scheme_DISCC}:
     ? !include reactions/{hf_scheme_DISCC}.yaml
 '''
@@ -408,7 +320,7 @@ byReaction:
   out += f'''
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
- defaultValue : '{hf_scheme_DISNC}'
+  defaultValue : '{hf_scheme_DISNC}'
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
   defaultValue : '{hf_scheme_DISCC}'       # global specification
@@ -426,14 +338,14 @@ MaxErrAllowed: 2
   with open(fname, 'w') as fout:
     fout.write(out)
 
-def make_datafile_dis(fname, Q2s, xs, sqrts, charge):
+def make_datafile_dis(fname, current, Q2s, xs, sqrts, charge):
   charge_title = {1: '+', -1: '-'}[charge]
   out = f'''* PSEUDODATA for DIS SF benchmark
 &Data 
   Name = "PSEUDODATA" 
-  Reaction = "NC e+-p"
+  Reaction = "{current} e+-p"
   TermName = 'R'
-  TermSource = 'use:hf_scheme_DISNC'
+  TermSource = 'use:hf_scheme_DIS{current}'
   TermInfo = 'type=sigred:flav=incl:echarge={charge}:epolarity=0'
   TheorExpr = 'R'
   NData = {sum(len(xs[v]) for v in Q2s)}
@@ -449,7 +361,7 @@ def make_datafile_dis(fname, Q2s, xs, sqrts, charge):
    PlotVarColumn = \'x\''''
   for iq2 in range(len(Q2s)):
     out += f'''
-   PlotOptions({iq2+1})  = 'Experiment:PSEUDO @ExtraLabel:e^{{{charge_title}}}p #rightarrow e^{{{charge_title}}}X (NC) Q^{{2}} = {str(Q2s[iq2])} GeV^{{2}} #sqrt{{s}} = {sqrts:.0f} GeV @XTitle: x @YTitle: #sigma_{{red}}  @Title: @Xlog\''''
+   PlotOptions({iq2+1})  = 'Experiment:PSEUDO @ExtraLabel:e^{{{charge_title}}}p #rightarrow e^{{{charge_title}}}X ({current}) Q^{{2}} = {str(Q2s[iq2])} GeV^{{2}} #sqrt{{s}} = {sqrts:.0f} GeV @XTitle: x @YTitle: #sigma_{{red}}  @Title: @Xlog\''''
   out += f'''
 &End'''
   out += f'''
@@ -479,9 +391,16 @@ def run_cmd(cmd):
       if args.verbose:
         sys.stderr.write(line.decode('utf-8'))
     proc.wait()
-  print(f'[took {time.time()-start:.2f}s]')
+  print(f'[took {time.time()-start:.2f}s]', end = '', flush = True)
   if proc.returncode != 0:
+    print(f' FAILED')
     sys.exit(1)
+  with open(logfile) as fout:
+    if any('******** HF_STOP forced program termination ********' in l for l in open(logfile).readlines()):
+      print(f' FAILED')
+      sys.exit(1)
+  print(f'')
+
 
 def recreate_dir(dirname, cd=False, cwd=None):
   if cwd is not None:
@@ -501,9 +420,9 @@ def benchmark_run(label=None):
   get_parameters()
   os.symlink(datafiles, './datafiles')
   os.symlink(xfitter, './xfitter')
-  if DefaultEvolution == 'APFELxx' and Order == 'NNNLO' or hf_scheme_DISNC == 'N3LO_DISNC' or hf_scheme_DISCC == 'N3LO_DISCC':
-    os.remove('./xfitter')
-    os.symlink(xfitter_n3lo, './xfitter')
+  #if DefaultEvolution == 'APFELxx' and Order == 'NNNLO' or hf_scheme_DISNC == 'N3LO_DISNC' or hf_scheme_DISCC == 'N3LO_DISCC':
+  #  os.remove('./xfitter')
+  #  os.symlink(xfitter_n3lo, './xfitter')
   run_cmd(f'./xfitter')
   return label
 
@@ -590,7 +509,7 @@ if __name__ == '__main__':
   parser.add_argument('-p', '--plot', action='store_true', help='Produce plots')
   args = parser.parse_args()
 
-  reactions_with_yaml_file = ['FFABM_DISCC', 'FONLL_DISCC', 'HOPPET_DISNC', 'FFABM_DISNC', 'FONLL_DISNC', 'RT_DISNC', 'N3LO_DISNC', 'N3LO_DISCC']
+  reactions_with_yaml_file = ['FFABM_DISNC', 'FFABM_DISCC', 'FONLL_DISNC', 'FONLL_DISCC', 'HOPPET_DISNC', 'HOPPET_DISCC', 'RT_DISNC', 'N3LO_DISNC', 'N3LO_DISCC']
   evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
 
   #DefaultEvolutions = ['QCDNUM']
@@ -604,20 +523,21 @@ if __name__ == '__main__':
   # extraEvolutionLines: string to be appended to node "Evolutions" (None if nothing to append)
   # extraReactionLines: string to be appended to node "<scheme>:" (None if nothing to append)
   hf_scheme_DISNCs = [
-    #['HOPPET_DISNC_N3LO', 'HOPPET_DISNC', None, 'Order_HOPPET_Evolution: NNLO'],
+    #['HOPPET_N3LO', 'HOPPET_DISNC', None, 'Order_HOPPET_Evolution: NNLO'],
     #['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder_HOPPET_Evolution: NNLO'],
-    ['HOPPET_DISNC_N2LO', 'HOPPET_DISNC', None, 'Order: NNLO'],
-    ['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder: NNLO'],
-    ['FONLL_DISNC_ZMVFNS', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    MassScheme: \'ZM-VFNS\'', None],
-    ['BaseDISNC', 'BaseDISNC', None, None],
-    ##['FFABM_DISNC', 'FFABM_DISNC', None, None],
-    ##['FONLL_DISNC', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml', None],
+    #['HOPPET_N2LO', 'HOPPET_DISNC', None, 'Order: NNLO'],
+    #['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder: NNLO'],
+    ['HOPPET', 'HOPPET_DISNC', None, None],
+    ['FONLL_ZMVFNS', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\'', None],
+    ['Base', 'BaseDISNC', None, None],
+    ##['FFABM', 'FFABM_DISNC', None, None],
+    ##['FONLL', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml', None],
   ]
   #hf_scheme_DISNCs = []
 
   #Orders = ['LO']
-  #Orders = ['NLO']
-  Orders = ['NNLO']
+  Orders = ['NLO']
+  #Orders = ['NNLO']
   #Orders = ['NNNLO']
   #Orders = ['LO', 'NLO', 'NNLO']
   isFFNSs = [0]
@@ -630,9 +550,9 @@ if __name__ == '__main__':
   alphas = 0.118
   Q0 = 1.378404875209
   basedirname = 'runs_bench'
-  #xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
-  xfitter = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter'
-  xfitter_n3lo = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter' # currently this is in a separate branch
+  xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
+  #xfitter = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter'
+  #xfitter_n3lo = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter' # currently this is in a separate branch
   xfitterdraw = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter-draw'
   datafiles = '/home/zenaiev/soft/xfitter-datafiles'
   xfitterdraw_opts = '--no-logo'
@@ -663,20 +583,29 @@ if __name__ == '__main__':
         #DefaultEvolution = 'APFELxx'
         if Order == 'NNNLO':
           DefaultEvolution = 'HOPPET'
-        xs = {
+        xs_NC = {
           5: np.logspace(np.log10(5e-5), np.log10(0.65), 50),
           50: np.logspace(np.log10(5e-4), np.log10(0.65), 50),
           500: np.logspace(np.log10(5e-3), np.log10(0.65), 50),
           30000: np.logspace(np.log10(0.3), np.log10(0.75), 50),
         }
-        Q2s = list(xs.keys())
+        xs_CC = {
+          5: np.logspace(np.log10(5e-5), np.log10(0.15), 50),
+          50: np.logspace(np.log10(5e-4), np.log10(0.15), 50),
+          500: np.logspace(np.log10(5e-3), np.log10(0.15), 50),
+          30000: np.logspace(np.log10(0.3), np.log10(0.75), 50),
+        }
         dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
         recreate_dir(dirname, cd=True, cwd=startdir)
-        make_datafile_dis('NCep.dat', Q2s, xs, 318., +1)
-        make_datafile_dis('NCem.dat', Q2s, xs, 318., -1)
+        make_datafile_dis('NCep.dat', 'NC', list(xs_NC.keys()), xs_NC, 318., +1)
+        make_datafile_dis('NCem.dat', 'NC', list(xs_NC.keys()), xs_NC, 318., -1)
+        make_datafile_dis('CCep.dat', 'CC', list(xs_CC.keys()), xs_CC, 318., +1)
+        make_datafile_dis('CCem.dat', 'CC', list(xs_CC.keys()), xs_CC, 318., -1)
         InputFileNames = [
           '../NCep.dat',
           '../NCem.dat',
+          '../CCep.dat',
+          '../CCem.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
           #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
@@ -686,7 +615,10 @@ if __name__ == '__main__':
         outputs = []
         for entry in hf_scheme_DISNCs:
           hf_scheme_DISNC = entry[1]
+          hf_scheme_DISCC = hf_scheme_DISNC.replace('NC', 'CC')
           extraEvolutionLines = entry[2]
+          if extraEvolutionLines is not None:
+            extraEvolutionLines = extraEvolutionLines.format(FONLLVariant=FONLLVariant)
           extraReactionLines = entry[3]
           outputs.append(benchmark_run(label=entry[0]))
         #benchmark_results(outputs, extraopts='--no-pdfs --only-theory')
