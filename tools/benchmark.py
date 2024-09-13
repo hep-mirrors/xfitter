@@ -309,7 +309,10 @@ alphas : {alphas}
     out += f'''
 byReaction:
   {hf_scheme_DISNC}:
-    ? !include reactions/{hf_scheme_DISNC}.yaml'''
+    ? !include reactions/{hf_scheme_DISNC}.yaml
+'''
+    if extraReactionLines is not None:
+      out += extraReactionLines
   if hf_scheme_DISCC in reactions_with_yaml_file:
     out += f'''
   {hf_scheme_DISCC}:
@@ -335,6 +338,8 @@ hf_scheme_DISCC :
 
 MaxErrAllowed: 2
 '''
+  if extraConstants is not None:
+    out += extraConstants
   with open(fname, 'w') as fout:
     fout.write(out)
 
@@ -513,33 +518,35 @@ if __name__ == '__main__':
   evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
 
   #DefaultEvolutions = ['QCDNUM']
-  #DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
+  DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
   #DefaultEvolutions = ['APFELxx', 'HOPPET']
-  DefaultEvolutions = []
+  #DefaultEvolutions = []
 
-  # hf_scheme_DISNCs is a list where every entry is [label, hf_scheme_DISNC, extraEvolutionLines, extraReactionLines]
+  # hf_scheme_DISNCs is a list where every entry is [label, hf_scheme_DISNC, extraEvolutionLines, extraReactionLines, extraConstants]
   # label: directory name and plotting label
   # hf_scheme_DISNC: name for parameters.yaml
-  # extraEvolutionLines: string to be appended to node "Evolutions" (None if nothing to append)
-  # extraReactionLines: string to be appended to node "<scheme>:" (None if nothing to append)
+  # extraEvolutionLines: string to be appended to node "Evolutions" (can be skipped)
+  # extraReactionLines: string to be appended to node "<scheme>:" (can be skipped)
+  # extraConstants: string to be added in the end of parameters.yaml (e.g. to override some pars) (can be skipped)
   hf_scheme_DISNCs = [
-    #['HOPPET_N3LO', 'HOPPET_DISNC', None, 'Order_HOPPET_Evolution: NNLO'],
-    #['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder_HOPPET_Evolution: NNLO'],
-    #['HOPPET_N2LO', 'HOPPET_DISNC', None, 'Order: NNLO'],
-    #['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0\nOrder: NNLO'],
-    ['HOPPET', 'HOPPET_DISNC', None, None],
-    ['FONLL_ZMVFNS', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\'', None],
-    ['Base', 'BaseDISNC', None, None],
-    ##['FFABM', 'FFABM_DISNC', None, None],
-    ##['FONLL', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml', None],
+    ### Compare N2LO vs N3LO (HOPPET and APFELxx)
+    #['HOPPET_N2LO', 'HOPPET_DISNC', None, None, 'Order: NNLO'],
+    #['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order: NNLO'],
+    #['HOPPET_N3LO', 'HOPPET_DISNC', None, None, 'Order_HOPPET_Evolution: NNLO'],
+    #['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order_HOPPET_Evolution: NNLO'],
+    ### Compare all codes at LO, NLO or NNLO
+    #['APFELxx', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0'],
+    #['HOPPET', 'HOPPET_DISNC'],
+    #['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
+    #['QCDNUM', 'BaseDISNC'],
   ]
   #hf_scheme_DISNCs = []
 
   #Orders = ['LO']
-  Orders = ['NLO']
+  #Orders = ['NLO']
   #Orders = ['NNLO']
   #Orders = ['NNNLO']
-  #Orders = ['LO', 'NLO', 'NNLO']
+  Orders = ['LO', 'NLO', 'NNLO']
   isFFNSs = [0]
   NFlavours = [5]
   #isFFNSs = [1]
@@ -550,11 +557,12 @@ if __name__ == '__main__':
   alphas = 0.118
   Q0 = 1.378404875209
   basedirname = 'runs_bench'
-  xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
+  xfitter = os.getcwd() + '/bin/xfitter'
+  #xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
   #xfitter = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter'
   #xfitter_n3lo = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter' # currently this is in a separate branch
-  xfitterdraw = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter-draw'
-  datafiles = '/home/zenaiev/soft/xfitter-datafiles'
+  xfitterdraw = os.getcwd() + '/bin/xfitter-draw'
+  datafiles = os.getcwd() + '/xfitter-datafiles'
   xfitterdraw_opts = '--no-logo'
   xfitterdraw_opts += ' --splitplots-pdf'
   xfitterdraw_opts += ' --no-shifts'
@@ -571,10 +579,15 @@ if __name__ == '__main__':
         InputFileNames = []
         hf_scheme_DISNC = None
         hf_scheme_DISCC = None
+        extraEvolutionLines = None
+        extraReactionLines = None
+        extraConstants = None
         dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/evolutions'
         recreate_dir(dirname, cd=True, cwd=startdir)
         outputs = []
         for DefaultEvolution in DefaultEvolutions:
+          if Order == 'NLO' and DefaultEvolution == 'APFEL':
+            extraEvolutionLines = f'\n    FONLLVariant: {FONLLVariant}'
           outputs.append(benchmark_run(label=DefaultEvolution))
         benchmark_results(outputs, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
         
@@ -616,10 +629,20 @@ if __name__ == '__main__':
         for entry in hf_scheme_DISNCs:
           hf_scheme_DISNC = entry[1]
           hf_scheme_DISCC = hf_scheme_DISNC.replace('NC', 'CC')
-          extraEvolutionLines = entry[2]
-          if extraEvolutionLines is not None:
-            extraEvolutionLines = extraEvolutionLines.format(FONLLVariant=FONLLVariant)
-          extraReactionLines = entry[3]
+          if len(entry) > 2:
+            extraEvolutionLines = entry[2]
+            if extraEvolutionLines is not None:
+              extraEvolutionLines = extraEvolutionLines.format(FONLLVariant=FONLLVariant)
+          else:
+            extraEvolutionLines = None
+          if len(entry) > 3:
+            extraReactionLines = entry[3]
+          else:
+            extraReactionLines = None
+          if len(entry) > 4:
+            extraConstants = entry[4]
+          else:
+            extraConstants = None
           outputs.append(benchmark_run(label=entry[0]))
         #benchmark_results(outputs, extraopts='--no-pdfs --only-theory')
         benchmark_results(outputs, extraopts='--no-pdfs --only-theory --no-tables')
