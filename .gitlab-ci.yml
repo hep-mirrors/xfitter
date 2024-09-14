@@ -1,4 +1,6 @@
-image: "gitlab-registry.cern.ch/fitters/xfitter"
+image: "gitlab-registry.cern.ch/fitters/xfitter:with_docker"
+# image: "gitlab-registry.cern.ch/fitters/xfitter"
+
 
 stages:
  - test
@@ -6,9 +8,10 @@ stages:
 
 .install_dependencies:
   before_script:
-    - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
-    - ln -s /usr/bin/cmake3 /usr/bin/cmake 
-  
+#    - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+#    - ln -s /usr/bin/cmake3 /usr/bin/cmake 
+    - echo "ha"
+
 job-install-minimal:
   stage: test
   extends: .install_dependencies
@@ -135,7 +138,7 @@ job-dyturbo:
     - yum -y install git tar
     - ls /cvmfs
     #- . /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc12-opt/setup.sh
-    - . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+    #- . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
     - ./tools/install-qcdnum
     - ./tools/install-lhapdf
     - ./tools/install-dyturbo
