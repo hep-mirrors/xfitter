@@ -67,6 +67,8 @@ private:
 extern "C"{
 void pdf_xfxq_wrapper_ (const double& x, const double& Q,double* results);
 void pdf_xfxq_wrapper1_(const double& x, const double& Q,double* results);
+double pdf_ixfxq_wrapper_ (const int& id, const double& x, const double& Q);
+double pdf_ixfxq_wrapper1_(const int& id, const double& x, const double& Q);
 
 double alphas_wrapper_(const double& Q);
 }
