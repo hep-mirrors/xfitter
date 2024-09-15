@@ -532,15 +532,15 @@ else
     fi
     
  #apfel
-    echo "Installing APFELxx $apfelxxver..."
-    #if [[ $http == "curl" ]]
-    #then
-    #	curl https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz > ${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
-    #else
-    #	wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-    #fi
-    #mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
-    #tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    if [[ $http == "curl" ]]
+    then
+        curl https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz > ${apfelxxver}.tar.gz 2 >> $CURRENTDIR/install.log
+    else
+        wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
+    fi
+
+    mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
+    tar xfvz apfelxx-${apfelxxver}.tar.gz >> $CURRENTDIR/install.log 2>&1
 
     #take master version
     git clone https://github.com/vbertone/apfelxx.git
@@ -818,6 +818,7 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/lhapdf/lib/:\$LD_LIBRARY_PATH   >>
 echo export HATHOR_DIR=$CURRENTDIR/deps/Hathor-${hathorver}       >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfel/lib/:\$LD_LIBRARY_PATH >> setup.sh
+echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfelxx/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/mela/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/apfelxx/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> setup.sh
