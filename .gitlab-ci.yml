@@ -33,6 +33,7 @@ job-install-full:
   script: 
     #- yum -y install gcc-gfortran git tar root libgfortran-static
     - yum -y install git tar root
+    - cpan English # needed for HOPPET master compilation
     - ./tools/install-xfitter deps
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
