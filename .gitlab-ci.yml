@@ -32,9 +32,9 @@ job-install-full:
   timeout: 120m
   script: 
     #- yum -y install gcc-gfortran git tar root libgfortran-static
-    - yum -y install git tar root
-    #- cpan English # needed for HOPPET master compilation
-    - cpanm English # needed for HOPPET master compilation
+    - yum -y install git tar root perl-CPAN
+    - cpan English # needed for HOPPET master compilation
+    #- cpanm English # needed for HOPPET master compilation
     - perl -v
     - perl -e 'print join("\n", @INC)'
     - ./tools/install-xfitter deps
