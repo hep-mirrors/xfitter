@@ -33,7 +33,7 @@ job-install-full:
   script: 
     #- yum -y install gcc-gfortran git tar root libgfortran-static
     - yum -y install git tar root
-    - cpan English # needed for HOPPET master compilation
+    #- cpan English # needed for HOPPET master compilation
     - cpanm English # needed for HOPPET master compilation
     - perl -v
     - perl -e 'print join("\n", @INC)'
