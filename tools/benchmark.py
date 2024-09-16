@@ -518,7 +518,8 @@ if __name__ == '__main__':
   evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
 
   #DefaultEvolutions = ['QCDNUM']
-  DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
+  DefaultEvolutions = ['HOPPET', 'QCDNUM', 'APFEL']
+  #DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
   #DefaultEvolutions = ['APFELxx', 'HOPPET']
   #DefaultEvolutions = []
 
@@ -536,9 +537,9 @@ if __name__ == '__main__':
     #['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order_HOPPET_Evolution: NNLO'],
     ### Compare all codes at LO, NLO or NNLO
     #['APFELxx', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0'],
-    #['HOPPET', 'HOPPET_DISNC'],
-    #['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
-    #['QCDNUM', 'BaseDISNC'],
+    ['HOPPET', 'HOPPET_DISNC'],
+    ['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
+    ['QCDNUM', 'BaseDISNC'],
   ]
   #hf_scheme_DISNCs = []
 
