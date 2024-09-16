@@ -5,7 +5,8 @@
 ## Programs versions
 lhapdfver=6.5.4
 hathorver=2.0
-hoppetver=1.2.0
+#hoppetver=1.2.0
+hoppetver=master # needed for HOPPET structure functions (to be replaced with upcoming 1.3.0 version)
 applgridver=1.6.35
 qcdnumver=18-00-00
 apfelver=3.0.6
@@ -395,14 +396,22 @@ else
 
  #hoppet:
     echo "Installing HOPPET $hoppetver..."
-    if [[ $http == "curl" ]]
-    then
-        curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
+    if [[ $hoppetver == "1.2.0" ]]; then
+        if [[ $http == "curl" ]]
+        then
+            curl http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz > hoppet-${hoppetver}.tgz 2>> $CURRENTDIR/install.log
+        else
+            wget --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+        fi
+        tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
+        cd hoppet-${hoppetver}
+    elif  [[ $hoppetver == "master" ]]; then
+        git clone https://github.com/hoppet-code/hoppet ./hoppet-master >> $CURRENTDIR/install.log 2>&1
+        cd hoppet-master
     else
-        wget --no-check-certificate http://hoppet.hepforge.org/downloads/hoppet-${hoppetver}.tgz >> $CURRENTDIR/install.log 2>&1
+        echo "ERROR: HOPPET version $hoppetver not supported"
+        exit
     fi
-    tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
-    cd hoppet-${hoppetver}
     ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
     then
@@ -413,7 +422,7 @@ else
     if [[ $? != 0 ]]
     then
         echo "Error, check install.log for details"
-#       exit
+       exit
     fi
     cd - >& /dev/null
 
