@@ -30,7 +30,7 @@
  **    1 **CALL FCN    3.000    
  **********
 
- FCN=   12373.48     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+ FCN=   1742.771     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
                      EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
 
   EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       

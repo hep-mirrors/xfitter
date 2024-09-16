@@ -190,13 +190,13 @@ void ReactionHOPPET_DISCC::calcF2FLF3(unsigned dataSetID) {
         case BaseDISCC::dataFlav::incl:
             if (charge > 0) {
                 _f2[dataSetID][i] = StrFct[iF2Wp];
-                _fl[dataSetID][i] = (StrFct[iF2Wp]) - 2 * x * (StrFct[iF1Wp]);
-                _f3[dataSetID][i] = (charge * StrFct[iF3Wp] + StrFct[iF3Wm]) * x;
+                _fl[dataSetID][i] = StrFct[iF2Wp] - 2 * x * (StrFct[iF1Wp]);
+                _f3[dataSetID][i] = StrFct[iF3Wp] * x;
             }
             else {
                 _f2[dataSetID][i] = StrFct[iF2Wm];
                 _fl[dataSetID][i] = StrFct[iF2Wm] - 2 * x * StrFct[iF1Wm];
-                _f3[dataSetID][i] = StrFct[iF3Wm];
+                _f3[dataSetID][i] = StrFct[iF3Wm] * x;
             }
             break;
         // should not be here
