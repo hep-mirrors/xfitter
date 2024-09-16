@@ -1,14 +1,10 @@
 Minimizer: MINUIT # CERES
 MINUIT:
   Commands: |
-    call fcn 1
     set str 2
+    call fcn 1
+    migrad
     call fcn 3
-#    migrad
-#    hesse
-#    call fcn 3
-    
-#  doErrors :  Hesse # None
 
 CERES:
   offset: 2
@@ -123,17 +119,24 @@ Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 
 ? !include constants.yaml
 
+
+# QCD parameters
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+
+# the two parameters below are not used: why one needs them with the present setup?
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9) 
 alphas : 0.118
 
 byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
     ? !include reactions/RT_DISNC.yaml
-    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-    #evolution: proton-QCDNUM
-  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-  #BaseDISCC:
-  #  evolution: proton-QCDNUM
+    evolution: proton
+  BaseDISCC:
+    # BaseDISCC works only with QCDNUM evolution, need to specify it explicitly (in this case it is copied from LHAPDF, while default evloution is LHAPDF)
+    evolution: proton
   # FONLL scheme settings:
   FONLL_DISNC:
     ? !include reactions/FONLL_DISNC.yaml
@@ -156,13 +159,6 @@ byReaction:
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
-#  DYTurbo:
-#    ? !include reactions/DYTurbo.yaml
-
-#byDataset: #Here one can redefine some parameters for specific datasets
-#  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
-#  "HERA1+2 NCep 920":
-#    epolarity: 2
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
