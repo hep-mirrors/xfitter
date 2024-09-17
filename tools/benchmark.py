@@ -294,6 +294,9 @@ Decompositions:
 DefaultEvolution: proton-{DefaultEvolution}
 
 Evolutions:'''
+  # if using other than QCDNUM evolution
+  #out += enable_evolution('QCDNUM')
+  #out += '\n    EvolutionCopy: "proton-HOPPET"'
   out += enable_evolution(DefaultEvolution)
   if extraEvolutionLines is not None:
     out += extraEvolutionLines
@@ -305,29 +308,42 @@ Q0 : {Q0} # Initial scale =sqrt(1.9)
 
 alphas : {alphas}
 '''
-  if hf_scheme_DISNC in reactions_with_yaml_file:
-    out += f'''
+  out += f'''
 byReaction:
+  DUMMY:
+    dummy: 0.0''' # dummy reaction and parameter to prevent empty YAML map
+  if hf_scheme_DISNC is not None:
+    out += f'''
   {hf_scheme_DISNC}:
+    dummy: 0.0''' # dummy parameter to prevent empty YAML map
+    if hf_scheme_DISNC in reactions_with_yaml_file:
+      out += f'''
     ? !include reactions/{hf_scheme_DISNC}.yaml
 '''
     if extraReactionLines is not None:
       out += extraReactionLines
-  if hf_scheme_DISCC in reactions_with_yaml_file:
+  if hf_scheme_DISCC is not None:
     out += f'''
   {hf_scheme_DISCC}:
+    dummy: 0.0''' # dummy parameter to prevent empty YAML map
+    if hf_scheme_DISCC in reactions_with_yaml_file:
+      out += f'''
     ? !include reactions/{hf_scheme_DISCC}.yaml
 '''
     if extraReactionLines is not None:
       out += extraReactionLines
   out += f'''
-# Specify HF scheme used for DIS NC processes:
+# Specify HF scheme used for DIS NC processes:'''
+  if hf_scheme_DISNC is not None:
+    out += f"""
 hf_scheme_DISNC :
-  defaultValue : '{hf_scheme_DISNC}'
+  defaultValue : '{hf_scheme_DISNC}'"""
+  if hf_scheme_DISCC is not None:
+    out += f"""
 # Specify HF scheme used for DIS CC processes:
 hf_scheme_DISCC :
-  defaultValue : '{hf_scheme_DISCC}'       # global specification
-
+  defaultValue : '{hf_scheme_DISCC}'"""
+  out += f'''
 #
 # Possible levels to stop program execution:
 #  1 - will stop on warnings
@@ -344,6 +360,10 @@ MaxErrAllowed: 2
     fout.write(out)
 
 def make_datafile_dis(fname, current, Q2s, xs, sqrts, charge):
+  YminR = YmaxR = None
+  if args.yratio != 0.:
+    YminR = 1 - args.yratio
+    YmaxR = 1 + args.yratio
   IndexDataset = 1001 + {'NC':0, 'CC': 1}[current] + charge
   charge_title = {1: '+', -1: '-'}[charge]
   out = f'''* PSEUDODATA for DIS SF benchmark
@@ -368,20 +388,43 @@ def make_datafile_dis(fname, current, Q2s, xs, sqrts, charge):
    PlotVarColumn = \'x\''''
   for iq2 in range(len(Q2s)):
     out += f'''
-   PlotOptions({iq2+1})  = 'Experiment:PSEUDO @ExtraLabel:e^{{{charge_title}}}p #rightarrow e^{{{charge_title}}}X ({current}) Q^{{2}} = {str(Q2s[iq2])} GeV^{{2}} #sqrt{{s}} = {sqrts:.0f} GeV @XTitle: x @YTitle: #sigma_{{red}}  @Title: @Xlog\''''
+   PlotOptions({iq2+1})  = 'Experiment:PSEUDO @ExtraLabel:e^{{{charge_title}}}p #rightarrow e^{{{charge_title}}}X ({current}) Q^{{2}} = {str(Q2s[iq2])} GeV^{{2}} #sqrt{{s}} = {sqrts:.0f} GeV @XTitle: x @YTitle: #sigma_{{red}}  @Title: @Xlog'''
+    if YminR is not None:
+      out += f"@YminR:{YminR}"
+    if YmaxR is not None:
+      out += f"@YmaxR:{YmaxR}"
+    out += "'"
   out += f'''
 &End'''
   out += f'''
 *{"Q2":>12s}{"x":>12s}{"y":>12s}{"Sigma":>12s}{"stat":>12s}'''
   for q2 in Q2s:
     for x in xs[q2]:
-      y = sqrts**2/(q2*x)
+      y = q2/(sqrts**2*x)
       sigma = 1.0
       stat = 50.0
       out += f'''
  {q2:12.4e}{x:12.4e}{y:12.4e}{sigma:12.4e}{stat:12.4e}'''
   with open(fname, 'w') as fout:
     fout.write(out)
+
+def make_DIS_pseudodata():
+  xs_NC = {
+    5: np.logspace(np.log10(5e-5), np.log10(0.65), 50),
+    50: np.logspace(np.log10(5e-4), np.log10(0.65), 50),
+    500: np.logspace(np.log10(5e-3), np.log10(0.65), 50),
+    30000: np.logspace(np.log10(0.3), np.log10(0.75), 50),
+  }
+  xs_CC = {
+    5: np.logspace(np.log10(5e-5), np.log10(0.15), 50),
+    50: np.logspace(np.log10(5e-4), np.log10(0.15), 50),
+    500: np.logspace(np.log10(5e-3), np.log10(0.15), 50),
+    30000: np.logspace(np.log10(0.3), np.log10(0.75), 50),
+  }
+  make_datafile_dis('NCep.dat', 'NC', list(xs_NC.keys()), xs_NC, 318., +1)
+  make_datafile_dis('NCem.dat', 'NC', list(xs_NC.keys()), xs_NC, 318., -1)
+  make_datafile_dis('CCep.dat', 'CC', list(xs_CC.keys()), xs_CC, 318., +1)
+  make_datafile_dis('CCem.dat', 'CC', list(xs_CC.keys()), xs_CC, 318., -1)
 
 def run_cmd(cmd):
   start = time.time()
@@ -510,144 +553,172 @@ def benchmark_results(outputs, extraopts):
   if args.plot:
     make_plots(outputs, extraopts)
 
+# Exemplary commands:
+# benchmark 4 evolution codes at LO/NLO/NNLO and benchmark 4 reaction codes:
+# ./tools/benchmark.py -m 1 2 -p
+# benchmark 2 reaction codes at NNNLO:
+# ./tools/benchmark.py -m 3 -o NNNLO -y 0 -p
+# benchmark reaction codes at NNLO with real data:
+# ./tools/benchmark.py -m 2 -p -o NNLO -d -y 0 -s _realdata
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Benchamark xFitter evolutions and/or reactions')
+  parser.add_argument('-m', '--mode', type=int, nargs='+', required=True, help='mode\n  1: compare 4 evolutions\n  2: compare four reactions\n  3: compare two reactions\n  0: custom mode (to be set in the script)')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose (print output of commands)')
   parser.add_argument('-p', '--plot', action='store_true', help='Produce plots')
+  parser.add_argument('-d', '--data', action='store_true', help='Use real HERA data (instead of pseudodata)')
+  parser.add_argument('-y', '--yratio', type=float, default=0.02, help='min/max value for data ratio plots')
+  parser.add_argument('-o', '--order', type=str, default='LO,NLO,NNLO', help='order(s) (multiple values are comma separated)')
+  parser.add_argument('-s', '--suffix', type=str, default='', help='run directory suffix')
+  parser.add_argument('--isffns', type=str, default='0', help='isFFNS parameter (multiple values are comma separated)')
+  parser.add_argument('--nflavour', type=str, default='5', help='NFlavour parameter (multiple values are comma separated)')
   args = parser.parse_args()
+  realdata = args.data
+  Orders = args.order.split(',')
+  isFFNSs = args.isffns
+  NFlavours = args.nflavour
+  suffix = args.suffix
 
-  reactions_with_yaml_file = ['FFABM_DISNC', 'FFABM_DISCC', 'FONLL_DISNC', 'FONLL_DISCC', 'HOPPET_DISNC', 'HOPPET_DISCC', 'RT_DISNC', 'N3LO_DISNC', 'N3LO_DISCC']
-  evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
+  for mode in args.mode:
+    # NB mode does not enter the name of the run directory (only order, isffns, nflavour): make sure it is not overridden
+    if mode == 1:
+      DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
+      hf_scheme_DISNCs = []
+      hf_scheme_DISNC = None
+    elif mode == 2:
+      DefaultEvolutions = []
+      DefaultEvolution = 'QCDNUM'
+      hf_scheme_DISNCs = [
+        ### Compare all codes at LO, NLO or NNLO
+        ['APFELxx', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0'],
+        ['HOPPET', 'HOPPET_DISNC'],
+        ['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
+        ['QCDNUM', 'BaseDISNC'],
+        #['QCDNUM', 'BaseDISNC', None, '\n    evolution: proton-QCDNUM'], # if using other than QCDNUM evolution
+      ]
+    elif mode == 3:
+      DefaultEvolutions = []
+      DefaultEvolution = 'HOPPET'
+      hf_scheme_DISNCs = [
+        ### Compare N2LO vs N3LO (HOPPET and APFELxx)
+        ['HOPPET_N2LO', 'HOPPET_DISNC', None, None, 'Order: NNLO'],
+        ['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order: NNLO'],
+        ['HOPPET_N3LO', 'HOPPET_DISNC', None, None, 'Order_HOPPET_Evolution: NNLO'],
+        ['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order_HOPPET_Evolution: NNLO'],
+      ]
+    elif mode == 0:
+      hf_scheme_DISNC = None
+      #DefaultEvolutions = ['QCDNUM']
+      #DefaultEvolutions = ['HOPPET', 'QCDNUM', 'APFEL']
+      DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
+      #DefaultEvolutions = ['APFELxx', 'HOPPET']
+      DefaultEvolutions = []
 
-  #DefaultEvolutions = ['QCDNUM']
-  #DefaultEvolutions = ['HOPPET', 'QCDNUM', 'APFEL']
-  DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
-  #DefaultEvolutions = ['APFELxx', 'HOPPET']
-  DefaultEvolutions = []
-
-  # hf_scheme_DISNCs is a list where every entry is [label, hf_scheme_DISNC, extraEvolutionLines, extraReactionLines, extraConstants]
-  # label: directory name and plotting label
-  # hf_scheme_DISNC: name for parameters.yaml
-  # extraEvolutionLines: string to be appended to node "Evolutions" (can be skipped)
-  # extraReactionLines: string to be appended to node "<scheme>:" (can be skipped)
-  # extraConstants: string to be added in the end of parameters.yaml (e.g. to override some pars) (can be skipped)
-  hf_scheme_DISNCs = [
-    ### Compare N2LO vs N3LO (HOPPET and APFELxx)
-    #['HOPPET_N2LO', 'HOPPET_DISNC', None, None, 'Order: NNLO'],
-    #['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order: NNLO'],
-    #['HOPPET_N3LO', 'HOPPET_DISNC', None, None, 'Order_HOPPET_Evolution: NNLO'],
-    #['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order_HOPPET_Evolution: NNLO'],
-    ### Compare all codes at LO, NLO or NNLO
-    #['APFELxx', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0'],
-    ['HOPPET', 'HOPPET_DISNC'],
-    ['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
-    #['QCDNUM', 'BaseDISNC'],
-    ['QCDNUM', 'BaseDISNC'],
-  ]
-  #hf_scheme_DISNCs = []
-
-  Orders = ['LO']
-  #Orders = ['NLO']
-  #Orders = ['NNLO']
-  #Orders = ['NNNLO']
-  #Orders = ['LO', 'NLO', 'NNLO']
-  isFFNSs = [0]
-  NFlavours = [5]
-  #isFFNSs = [1]
-  #NFlavours = [3]
-  #isFFNSs = [0,1]
-  #NFlavours = [3,4,5]
+      # hf_scheme_DISNCs is a list where every entry is [label, hf_scheme_DISNC, extraEvolutionLines, extraReactionLines, extraConstants]
+      # label: directory name and plotting label
+      # hf_scheme_DISNC: name for parameters.yaml
+      # extraEvolutionLines: string to be appended to node "Evolutions" (can be skipped)
+      # extraReactionLines: string to be appended to node "<scheme>:" (can be skipped)
+      # extraConstants: string to be added in the end of parameters.yaml (e.g. to override some pars) (can be skipped)
+      hf_scheme_DISNCs = [
+        ### Compare N2LO vs N3LO (HOPPET and APFELxx)
+        ['HOPPET_N2LO', 'HOPPET_DISNC', None, None, 'Order: NNLO'],
+        ['APFELxx_ZMVFNS_N2LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order: NNLO'],
+        ['HOPPET_N3LO', 'HOPPET_DISNC', None, None, 'Order_HOPPET_Evolution: NNLO'],
+        ['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order_HOPPET_Evolution: NNLO'],
+        ### Compare all codes at LO, NLO or NNLO
+        #['APFELxx', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0'],
+        #['HOPPET', 'HOPPET_DISNC'],
+        #['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
+        #['QCDNUM', 'BaseDISNC'],
+        #['QCDNUM', 'BaseDISNC', None, '\n    evolution: proton-QCDNUM'], # if using other than QCDNUM evolution
+      ]
+      DefaultEvolution = 'HOPPET'
+      #DefaultEvolution = 'QCDNUM'
+      #hf_scheme_DISNCs = []
   
-  alphas = 0.118
-  Q0 = 1.378404875209
-  basedirname = 'runs_bench'
-  xfitter = os.getcwd() + '/bin/xfitter'
-  #xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
-  #xfitter = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter'
-  #xfitter_n3lo = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter' # currently this is in a separate branch
-  xfitterdraw = os.getcwd() + '/bin/xfitter-draw'
-  datafiles = os.getcwd() + '/xfitter-datafiles'
-  xfitterdraw_opts = '--no-logo'
-  xfitterdraw_opts += ' --splitplots-pdf'
-  xfitterdraw_opts += ' --no-shifts'
-  #xfitterdraw_opts += ' --no-tables'
+    alphas = 0.118
+    Q0 = 1.378404875209
+    reactions_with_yaml_file = ['FFABM_DISNC', 'FFABM_DISCC', 'FONLL_DISNC', 'FONLL_DISCC', 'HOPPET_DISNC', 'HOPPET_DISCC', 'RT_DISNC', 'N3LO_DISNC', 'N3LO_DISCC']
+    evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
+    basedirname = f'runs_bench{suffix}'
+    xfitter = os.getcwd() + '/bin/xfitter'
+    #xfitter = '/home/zenaiev/soft/xfitter-hoppet/bin/xfitter'
+    #xfitter = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter'
+    #xfitter_n3lo = '/home/zenaiev/soft/xfitter-n3lo/bin/xfitter' # currently this is in a separate branch
+    xfitterdraw = os.getcwd() + '/bin/xfitter-draw'
+    datafiles = os.getcwd() + '/datafiles'
+    xfitterdraw_opts = '--no-logo'
+    xfitterdraw_opts += ' --splitplots-pdf'
+    xfitterdraw_opts += ' --no-shifts'
+    if not realdata: # produce table with chi2 only if real HERA data are used
+      xfitterdraw_opts += ' --no-tables'
 
-  startdir = os.getcwd()
-  for Order in Orders:
-    FONLLVariant = 'B' if Order == 'NLO' else 'C' # needed for APFELff, otherwise it complains
-    for isFFNS in isFFNSs:
-      for NFlavour in NFlavours:
-        if isFFNS == 0 and NFlavour != 5: continue # skip VFNS with nf<5 
-        
-        # benchmark evolutions
-        InputFileNames = []
-        hf_scheme_DISNC = None
-        hf_scheme_DISCC = None
-        extraEvolutionLines = None
-        extraReactionLines = None
-        extraConstants = None
-        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/evolutions'
-        recreate_dir(dirname, cd=True, cwd=startdir)
-        outputs = []
-        for DefaultEvolution in DefaultEvolutions:
-          if Order == 'NLO' and DefaultEvolution == 'APFEL':
-            extraEvolutionLines = f'\n    FONLLVariant: {FONLLVariant}'
-          outputs.append(benchmark_run(label=DefaultEvolution))
-        benchmark_results(outputs, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
-        
-        # benchmark reactions
-        #DefaultEvolution = 'QCDNUM'
-        DefaultEvolution = 'HOPPET'
-        #DefaultEvolution = 'APFELxx'
-        if Order == 'NNNLO':
-          DefaultEvolution = 'HOPPET' # need PDF and alphaS evolution at NNLO, because HOPPET SF can use only HOPPET alphaS evolution
-        xs_NC = {
-          5: np.logspace(np.log10(5e-5), np.log10(0.65), 50),
-          50: np.logspace(np.log10(5e-4), np.log10(0.65), 50),
-          500: np.logspace(np.log10(5e-3), np.log10(0.65), 50),
-          30000: np.logspace(np.log10(0.3), np.log10(0.75), 50),
-        }
-        xs_CC = {
-          5: np.logspace(np.log10(5e-5), np.log10(0.15), 50),
-          50: np.logspace(np.log10(5e-4), np.log10(0.15), 50),
-          500: np.logspace(np.log10(5e-3), np.log10(0.15), 50),
-          30000: np.logspace(np.log10(0.3), np.log10(0.75), 50),
-        }
-        dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
-        recreate_dir(dirname, cd=True, cwd=startdir)
-        make_datafile_dis('NCep.dat', 'NC', list(xs_NC.keys()), xs_NC, 318., +1)
-        make_datafile_dis('NCem.dat', 'NC', list(xs_NC.keys()), xs_NC, 318., -1)
-        make_datafile_dis('CCep.dat', 'CC', list(xs_CC.keys()), xs_CC, 318., +1)
-        make_datafile_dis('CCem.dat', 'CC', list(xs_CC.keys()), xs_CC, 318., -1)
-        InputFileNames = [
-          '../NCep.dat',
-          '../NCem.dat',
-          '../CCep.dat',
-          '../CCem.dat',
-          #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
-          #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
-          #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
-          #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
-          #'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
-        ]
-        outputs = []
-        for entry in hf_scheme_DISNCs:
-          hf_scheme_DISNC = entry[1]
-          hf_scheme_DISCC = hf_scheme_DISNC.replace('NC', 'CC')
-          if len(entry) > 2:
-            extraEvolutionLines = entry[2]
-            if extraEvolutionLines is not None:
-              extraEvolutionLines = extraEvolutionLines.format(FONLLVariant=FONLLVariant)
-          else:
+    startdir = os.getcwd()
+    for Order in Orders:
+      FONLLVariant = 'B' if Order == 'NLO' else 'C' # needed for APFELff, otherwise it complains
+      for isFFNS in isFFNSs:
+        for NFlavour in NFlavours:
+          if isFFNS == 0 and NFlavour != 5: continue # skip VFNS with nf<5 
+          
+          # benchmark evolutions
+          if len(DefaultEvolutions) > 0:
+            InputFileNames = []
+            assert hf_scheme_DISNC is None
+            hf_scheme_DISCC = None
             extraEvolutionLines = None
-          if len(entry) > 3:
-            extraReactionLines = entry[3]
-          else:
             extraReactionLines = None
-          if len(entry) > 4:
-            extraConstants = entry[4]
-          else:
             extraConstants = None
-          outputs.append(benchmark_run(label=entry[0]))
-        #benchmark_results(outputs, extraopts='--no-pdfs --only-theory')
-        benchmark_results(outputs, extraopts='--no-pdfs --only-theory --no-tables')
+            dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/evolutions'
+            recreate_dir(dirname, cd=True, cwd=startdir)
+            outputs = []
+            for DefaultEvolution in DefaultEvolutions:
+              if Order == 'NLO' and DefaultEvolution == 'APFEL':
+                extraEvolutionLines = f'\n    FONLLVariant: {FONLLVariant}'
+              outputs.append(benchmark_run(label=DefaultEvolution))
+            benchmark_results(outputs, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
+          
+          # benchmark reactions
+          if len(hf_scheme_DISNCs) > 0:
+            assert DefaultEvolution is not None
+            #if Order == 'NNNLO':
+            #  DefaultEvolution = 'HOPPET' # need PDF and alphaS evolution at NNLO, because HOPPET SF can use only HOPPET alphaS evolution
+            dirname = f'{basedirname}/Order{Order}_isFFNS{isFFNS}_NFlavour{NFlavour}/reactions'
+            recreate_dir(dirname, cd=True, cwd=startdir)
+            if not realdata:
+              make_DIS_pseudodata()
+              InputFileNames = [
+                '../NCep.dat',
+                '../NCem.dat',
+                '../CCep.dat',
+                '../CCem.dat',
+              ]
+            else:
+              InputFileNames = [
+                'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+                'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+                'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+                'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+                'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+                'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
+                'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+              ]
+            outputs = []
+            for entry in hf_scheme_DISNCs:
+              hf_scheme_DISNC = entry[1]
+              hf_scheme_DISCC = hf_scheme_DISNC.replace('NC', 'CC')
+              if len(entry) > 2:
+                extraEvolutionLines = entry[2]
+                if extraEvolutionLines is not None:
+                  extraEvolutionLines = extraEvolutionLines.format(FONLLVariant=FONLLVariant)
+              else:
+                extraEvolutionLines = None
+              if len(entry) > 3:
+                extraReactionLines = entry[3]
+              else:
+                extraReactionLines = None
+              if len(entry) > 4:
+                extraConstants = entry[4]
+              else:
+                extraConstants = None
+              outputs.append(benchmark_run(label=entry[0]))
+            benchmark_results(outputs, extraopts='--no-pdfs --only-theory')
