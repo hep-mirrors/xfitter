@@ -153,8 +153,6 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   double charge = rd->_charge;
 
   valarray<double> val;
-  xf3 = 0.;
-  //f2 = fl = 0.;
   if (charge > 0)
     val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
   else

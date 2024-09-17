@@ -344,10 +344,12 @@ MaxErrAllowed: 2
     fout.write(out)
 
 def make_datafile_dis(fname, current, Q2s, xs, sqrts, charge):
+  IndexDataset = 1001 + {'NC':0, 'CC': 1}[current] + charge
   charge_title = {1: '+', -1: '-'}[charge]
   out = f'''* PSEUDODATA for DIS SF benchmark
 &Data 
   Name = "PSEUDODATA" 
+  IndexDataset = {IndexDataset}
   Reaction = "{current} e+-p"
   TermName = 'R'
   TermSource = 'use:hf_scheme_DIS{current}'
@@ -518,9 +520,10 @@ if __name__ == '__main__':
   evolutions_with_yaml_file = ['APFELxx', 'APFEL', 'HOPPET', 'QCDNUM']
 
   #DefaultEvolutions = ['QCDNUM']
+  #DefaultEvolutions = ['HOPPET', 'QCDNUM', 'APFEL']
   DefaultEvolutions = ['APFELxx', 'APFEL', 'QCDNUM', 'HOPPET']
   #DefaultEvolutions = ['APFELxx', 'HOPPET']
-  #DefaultEvolutions = []
+  DefaultEvolutions = []
 
   # hf_scheme_DISNCs is a list where every entry is [label, hf_scheme_DISNC, extraEvolutionLines, extraReactionLines, extraConstants]
   # label: directory name and plotting label
@@ -536,17 +539,18 @@ if __name__ == '__main__':
     #['APFELxx_ZMVFNS_N3LO', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0', 'Order_HOPPET_Evolution: NNLO'],
     ### Compare all codes at LO, NLO or NNLO
     #['APFELxx', 'N3LO_DISNC', '\n  proton-APFELxx:\n    ? !include evolutions/APFELxx.yaml\n', '    massive: 0'],
-    #['HOPPET', 'HOPPET_DISNC'],
-    #['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
+    ['HOPPET', 'HOPPET_DISNC'],
+    ['APFELff', 'FONLL_DISNC', '\n  proton-APFEL:\n    ? !include evolutions/APFEL.yaml\n    FONLLVariant: {FONLLVariant}\n    MassScheme: \'ZM-VFNS\''],
     #['QCDNUM', 'BaseDISNC'],
+    ['QCDNUM', 'BaseDISNC'],
   ]
   #hf_scheme_DISNCs = []
 
-  #Orders = ['LO']
+  Orders = ['LO']
   #Orders = ['NLO']
   #Orders = ['NNLO']
   #Orders = ['NNNLO']
-  Orders = ['LO', 'NLO', 'NNLO']
+  #Orders = ['LO', 'NLO', 'NNLO']
   isFFNSs = [0]
   NFlavours = [5]
   #isFFNSs = [1]
@@ -592,10 +596,11 @@ if __name__ == '__main__':
         benchmark_results(outputs, extraopts=' --q2all --ratiorange 0.99:1.01 --no-tables')
         
         # benchmark reactions
-        DefaultEvolution = 'QCDNUM'
+        #DefaultEvolution = 'QCDNUM'
+        DefaultEvolution = 'HOPPET'
         #DefaultEvolution = 'APFELxx'
         if Order == 'NNNLO':
-          DefaultEvolution = 'HOPPET'
+          DefaultEvolution = 'HOPPET' # need PDF and alphaS evolution at NNLO, because HOPPET SF can use only HOPPET alphaS evolution
         xs_NC = {
           5: np.logspace(np.log10(5e-5), np.log10(0.65), 50),
           50: np.logspace(np.log10(5e-4), np.log10(0.65), 50),
