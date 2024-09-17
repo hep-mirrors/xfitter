@@ -158,7 +158,7 @@ void ReactionHOPPET_DISNC::calcF2FLF3(unsigned dataSetID) {
     // Initialize structure functions
     hoppetInitStrFct(_order, _param_coefs, _xmuR, _xmuF);
 
-    const int charge = GetCharge(dataSetID);
+    const double charge = GetCharge(dataSetID);
     const double pol = GetPolarisation(dataSetID);
 
     const double _ve = -0.5 + 2. * (*_sin2thetaW); // !
