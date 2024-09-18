@@ -38,4 +38,7 @@ public:
   virtual void atMakeErrorBands(int i);
   //! Main function to compute predictions for given term. Return results by filling val and errors
   virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors)=0;
+protected:
+  int _ncpu; // number of parallel threads
+  bool _flagComputeAtIteration = false;
 };

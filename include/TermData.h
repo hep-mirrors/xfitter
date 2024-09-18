@@ -55,6 +55,7 @@ public:
   //val might be moved somewhre else in the future, please do not use it outside of TheorEval
   //this is a "weak" pointer, the actual valarray is owned by TheorEval
   valarray<double>*val=nullptr;
+  int _ncpu; // number of parallel threads
 private:
   TheorEval*parent;//The instance of TheorEval that manages this instance of TermData
   map<string,string>term_info;//Map key->value
