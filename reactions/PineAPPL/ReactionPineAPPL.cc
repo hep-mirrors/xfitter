@@ -19,6 +19,10 @@
 #include <sstream>
 #include <numeric>
 
+#ifdef PLOUGHSHARE_FOUND
+#include "ploughshare/ploughshare.h"
+#endif
+
 using namespace std;
 using namespace xfitter;
 
@@ -87,6 +91,18 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     DatasetData* data = new DatasetData;
     td->reactionData = (void*)data;
     // Load grids
+    string namePrefix="";
+    if (td->hasParam("PloughShare")) {
+#ifdef PLOUGHSHARE_FOUND
+        string PSdataset = td->getParamS("PloughShare");
+        ploughshare p;
+        p.verbose(false);
+        p.fetch(PSdataset);
+        namePrefix = p.path(PSdataset)+"/grids/";
+#else
+        hf_errlog(3009202401,"F:Ploughshare not found, please install");
+#endif
+    }
     string GridName = td->getParamS("GridName");
     try {
         istringstream ss(GridName);
@@ -95,7 +111,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
             pineappl_grid* g = nullptr;
             const auto& find = _initialized.find(token);
             if(find == _initialized.end()) {
-                g = pineappl_grid_read(token.c_str());             
+                g = pineappl_grid_read((namePrefix + token).c_str());             
                 _initialized.insert(std::make_pair(token, g));
                 hf_errlog(22122901, "I: read PineAPPL grids with "
                                     +to_string(pineappl_grid_bin_count(g))
@@ -105,7 +121,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
                 g = find->second;
             }
             data->grids.push_back(g);
-            data->GridNames.push_back(token);
+            data->GridNames.push_back(namePrefix + token);
         }
         // Init dimensions
         data->Nord  = pineappl_grid_order_count(data->grids[0]);
