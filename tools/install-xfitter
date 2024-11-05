@@ -244,8 +244,8 @@ fi
 
 #Require full PineAPPL installation if precompiled files not available
 if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu" ]]; then
-    echo "Unsupported architecture or rust version, installing pineappl from scratch"
-    pineappl_lite=0
+    #echo "Unsupported architecture or rust version, installing pineappl from scratch"
+    #pineappl_lite=0
 fi
 if [[ $skip_pineappl == 0 ]] && [[ pineappl_lite == 1 ]]; then
     glibcminver=2.17  #Pineappl precompiled using this version
