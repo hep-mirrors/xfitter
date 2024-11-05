@@ -21,7 +21,7 @@ PLOUGHSHARE_VERSION="0.0.20"
 skip_apfelgrid=0
 skip_dyturbo=1
 skip_rust=1
-skip_pineappl=1
+skip_pineappl=0
 # fetch precompiled files for pineappl if possible, avoiding heavy rust deps
 pineappl_lite=1
 skip_ploughshare=0
@@ -229,6 +229,11 @@ then
 	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
             echo "Using gcc version = 4.9.3"
         else
+            if [[ $arch == "" ]]
+            then
+                arch=`uname -m`
+            fi
+            rusttag="unknown-linux-gnu"
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
             echo "I will assume you have root installed in your system,"
@@ -375,6 +380,8 @@ else
  # pineappl:
     if [[ $skip_pineappl == 0 ]]; then
         echo "Installing PineAPPL $pineapplver..."
+        echo "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz
+	echo "pineappl_lite=$pineappl_lite"
         
         if [[ $pineappl_lite == 1 ]]; then
             mkdir $CURRENTDIR/deps/pineappl
@@ -606,7 +613,7 @@ else
 
     cd apfelxx-${apfelxxver}
     cmake3='cmake3'
-    if [ -x "command -v cmake3" ]; then
+    if ! command -v cmake3 >/dev/null 2>&1; then
         cmake3='cmake'
     fi
     $cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
