@@ -1,0 +1,79 @@
+# Alert:
+#    the dependence of inclusive ttbar x-section on `ctg` is artificial and is only 
+#    used to illustrate how to fit top quark mass and SMEFT parameters simultaneously.
+info:
+  # make some of the entries invisible to xFitter.
+  # since any two of (Kmt1, Kmt2, l_mt, q_mt) are sufficient (and equivalent) to determine the
+  # linear/quadratic corrections from mt, we need to mask the other two of them.
+  mask_entries: [Kmt1, Kmt2] # these two entries below will not be used
+  # mask_entries: [Kmt2, l_mt] # this should give the same result
+
+mt=172.5: # the name of entry is arbitrary as long as not conflicted with other entries
+  type: C
+  format: xsection
+  # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO
+  # inclusive ttbar production xsec in units of fb at 7, 8, 13 TeV LHC
+  xsec: [ 179.6, 256.0, 833.9] # theoretical predictions from twiki.cern.ch
+
+l_mt:
+  # ref: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO
+  # Use the quadratic part of the parametrisation for the mass dependence of the
+  # ttbar cross section proposed by Czakon, Fiedler and Mitov, arXiv:1303.6254, i.e.,
+  # l = (a1 - 4) / m_ref
+  # q = (a2 - 4a1 + 10) / m_ref^2, m_ref=172.5GeV
+  type: l
+  param: deltamt
+  format: ratio
+  xsec: [-0.030, -0.030, -0.027] 
+
+q_mt:
+  type: q
+  param: deltamt
+  format: ratio
+  xsec: [5.3e-4, 5.1e-4, 4.4e-4]
+
+Kmt1:
+  type: Q
+  param: deltamt # we fit deltamt(=mt-172.5GeV) instead of mt itself
+  param_value: 1.0 # value of deltamt
+  format: ratio # `xsec` will be ratios w.r.t. the C entry above, i.e. divided by x-section for mt=172.5GeV
+  # theoretical predictions (divided by those for mt=172.5) at 7, 8, 13 TeV
+  xsec: [0.97053, 0.97051, 0.97344]
+
+Kmt2:
+  type: Q
+  param: deltamt # we fit deltamt(=mt-172.5GeV) instead of mt itself
+  param_value: -2.5 # value of deltamt
+  format: ratio
+  xsec: [1.0783125, 1.0781875, 1.07025 ] # theoretical predictions (divided by those for mt=172.5) in each bin
+
+# `ctg1`, and `ctg2`, together with `mt=172.5` can be used to determine linear/quadratic corrections of ctg
+ctg1: # inclusive cross sections corresponding to mt=172.5GeV and ctg=3.0TeV^-2
+  type: Q
+  param: ctg
+  param_value: 3.0
+  format: xsection
+  xsec: [ 217.316,  317.44 , 1434.308] # artificial
+
+ctg2: # inclusive cross sections corresponding to mt=172.5GeV and ctg=-3.0TeV^-2
+  type: Q
+  param: ctg
+  param_value: -3.0
+  format: xsection
+  xsec: [174.212, 240.64 , 683.798] # artificial
+
+# Given linear/quadratic corrections of deltamt and ctg, determined by the above inputs,
+# `ctg_mt` further provides information of correction proportional to ctg*mt.
+ctg_mt: # inclusive cross sections corresponding to mt=172.5+1.0GeV and ctg=3.0TeV^-2
+  type: M
+  param: [ deltamt, ctg ]
+  param_value: [ 1.0, 3.0 ]
+  format: xsection
+  xsec: [205.52369748,  300.3986944 , 1371.19577952] # artificial
+  
+# ctg2_mt: # include K factor proportional to ctg^2*deltamt
+#   type: monomial
+#   param: [ deltamt, ctg ]
+#   power: [ 1, 2 ] # powers of deltamt and ctg, respectively. should be integers.
+#   format: ratio
+#   xsec: [-1e-3,  -1.2e-3, -3.0e-3] # artificial
