@@ -244,6 +244,7 @@ fi
 
 #Require full PineAPPL installation if precompiled files not available
 if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu" ]]; then
+    echo "Do nothing"
     #echo "Unsupported architecture or rust version, installing pineappl from scratch"
     #pineappl_lite=0
 fi
