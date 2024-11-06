@@ -164,8 +164,6 @@ then
     then
         echo "Detected EL9 Linux distribution"
         MODE=local
-        #arch=x86_64
-        #rusttag="unknown-linux-gnu"
         #skip_rust=0
         #skip_pineappl=0
     else
@@ -199,7 +197,6 @@ then
         elif [[ $SYS == "Ubuntu" ]]
         then
             echo "Detected Ubuntu distribution"
-            skip_pineappl=0
             rusttag="unknown-linux-gnu"
             if [[ $arch == "" ]]
             then
@@ -250,9 +247,8 @@ fi
 
 #Require full PineAPPL installation if precompiled files not available
 if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu" ]]; then
-    echo "Do nothing"
-    #echo "Unsupported architecture or rust version, installing pineappl from scratch"
-    #pineappl_lite=0
+    echo "Unsupported architecture or rust version, installing pineappl from scratch"
+    pineappl_lite=0
 fi
 if [[ $skip_pineappl == 0 ]] && [[ pineappl_lite == 1 ]]; then
     glibcminver=2.17  #Pineappl precompiled using this version
@@ -265,6 +261,7 @@ if [[ $skip_pineappl == 0 ]] && [[ pineappl_lite == 1 ]]; then
         skip_rust=0
     fi
 fi
+
 
 if [[ $MODE == "cern" ]]
     then
@@ -348,7 +345,6 @@ else
     rm -rf deps >& /dev/null
     mkdir deps
     cd deps
-
 #lhapdf:
     echo "Installing LHAPDF $lhapdfver..."
     if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
@@ -708,6 +704,7 @@ else
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
     fi
+
 
     if [[ $skip_ploughshare == 0 ]]; then
 	# Define the download URL
