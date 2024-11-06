@@ -349,65 +349,6 @@ else
     mkdir deps
     cd deps
 
- # rust
-    if [[ $skip_rust == 0 ]]; then
-        echo "Installing Rust $rustver..."
-        rust_url=https://static.rust-lang.org/dist/rust-${rustver}-${arch}-${rusttag}.tar.gz
-        if [[ $http == "curl" ]]
-        then
-            curl ${rust_url} > rust-${rustver}-${arch}-${rusttag}.tar.gz 2>> $CURRENTDIR/install.log
-        else
-            wget --no-check-certificate ${rust_url} >> $CURRENTDIR/install.log 2>&1
-        fi
-        tar xzf rust-${rustver}-${arch}-${rusttag}.tar.gz >> $CURRENTDIR/install.log  2>&1
-        cd rust-${rustver}-${arch}-${rusttag}
-        ./install.sh --prefix=$CURRENTDIR/deps/rust
-        export PATH=$CURRENTDIR/deps/rust/bin:$PATH
-        export LD_LIBRARY_PATH=$CURRENTDIR/deps/rust/lib/:$LD_LIBRARY_PATH
-        
-        # cargo-c needed for pineappl c-interface
-        echo "Installing cargo-c..."
-        cargo install --version ${cargocver} cargo-c
-        if [[ $? != 0 ]]
-        then
-            echo "Error, check install.log for details"
-            exit
-        fi
-        cd - >& /dev/null
-        export CARGODIR=$HOME/.cargo
-        export PATH=$CARGODIR/bin:$PATH 
-    fi
-    
- # pineappl:
-    if [[ $skip_pineappl == 0 ]]; then
-        echo "Installing PineAPPL $pineapplver..."
-        echo "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz
-	echo "pineappl_lite=$pineappl_lite"
-        
-        if [[ $pineappl_lite == 1 ]]; then
-            mkdir $CURRENTDIR/deps/pineappl
-            PINEAPPL_URL=https://github.com/NNPDF/pineappl/releases/download
-            wget --no-check-certificate "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz -O- 2>> $CURRENTDIR/install.log | tar xzf - -C "$CURRENTDIR/deps/pineappl"
-            sed -i s:prefix=/:prefix=$CURRENTDIR/deps/pineappl: "$CURRENTDIR/deps/pineappl"/lib/pkgconfig/pineappl_capi.pc            
-        else
-            PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
-            git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
-            cd pineappl/pineappl_capi
-            cargo cinstall --release --prefix=$CURRENTDIR/deps/pineappl
-            if [[ $? != 0 ]]
-            then
-                echo "Error, check install.log for details"
-                exit
-            fi
-          cd - >& /dev/null
-        fi
-                
-        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/lhapdf/lib/pkgconfig
-        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
-    fi
-    #exit 1
-
 #lhapdf:
     echo "Installing LHAPDF $lhapdfver..."
     if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
@@ -712,7 +653,61 @@ else
       cd - >& /dev/null
     fi
     
-
+ # rust
+    if [[ $skip_rust == 0 ]]; then
+        echo "Installing Rust $rustver..."
+        rust_url=https://static.rust-lang.org/dist/rust-${rustver}-${arch}-${rusttag}.tar.gz
+        if [[ $http == "curl" ]]
+        then
+            curl ${rust_url} > rust-${rustver}-${arch}-${rusttag}.tar.gz 2>> $CURRENTDIR/install.log
+        else
+            wget --no-check-certificate ${rust_url} >> $CURRENTDIR/install.log 2>&1
+        fi
+        tar xzf rust-${rustver}-${arch}-${rusttag}.tar.gz >> $CURRENTDIR/install.log  2>&1
+        cd rust-${rustver}-${arch}-${rusttag}
+        ./install.sh --prefix=$CURRENTDIR/deps/rust
+        export PATH=$CURRENTDIR/deps/rust/bin:$PATH
+        export LD_LIBRARY_PATH=$CURRENTDIR/deps/rust/lib/:$LD_LIBRARY_PATH
+        
+        # cargo-c needed for pineappl c-interface
+        echo "Installing cargo-c..."
+        cargo install --version ${cargocver} cargo-c
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        cd - >& /dev/null
+        export CARGODIR=$HOME/.cargo
+        export PATH=$CARGODIR/bin:$PATH 
+    fi
+    
+ # pineappl:
+    if [[ $skip_pineappl == 0 ]]; then
+        echo "Installing PineAPPL $pineapplver..."
+        
+        if [[ $pineappl_lite == 1 ]]; then
+            mkdir $CURRENTDIR/deps/pineappl
+            PINEAPPL_URL=https://github.com/NNPDF/pineappl/releases/download
+            wget --no-check-certificate "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz -O- 2>> $CURRENTDIR/install.log | tar xzf - -C "$CURRENTDIR/deps/pineappl"
+            sed -i s:prefix=/:prefix=$CURRENTDIR/deps/pineappl: "$CURRENTDIR/deps/pineappl"/lib/pkgconfig/pineappl_capi.pc            
+        else
+            PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
+            git clone --branch  "v$pineapplver" $PINEAPPL_URL >> $CURRENTDIR/install.log 2>&1
+            cd pineappl/pineappl_capi
+            cargo cinstall --release --prefix=$CURRENTDIR/deps/pineappl
+            if [[ $? != 0 ]]
+            then
+                echo "Error, check install.log for details"
+                exit
+            fi
+          cd - >& /dev/null
+        fi
+                
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/lhapdf/lib/pkgconfig
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
+    fi
 
     if [[ $skip_ploughshare == 0 ]]; then
 	# Define the download URL
@@ -817,7 +812,7 @@ echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
 rm /tmp/xf_py1234_a
 
-if [[ $skip_pineapple == 0 ]]; then
+if [[ $skip_pineappl == 0 ]]; then
     echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
     echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/pineappl/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
     echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH >> setup.sh
