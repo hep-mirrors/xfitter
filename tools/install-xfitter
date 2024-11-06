@@ -13,6 +13,7 @@ apfelgridver=1.0.5
 apfelxxver=4.8.0
 dyturbover=1.3.3
 pineapplver="0.6.0-alpha.17"
+rusttag="unknown-linux-gnu"
 rustver=1.66.0
 cargocver=0.9.14
 PLOUGHSHARE_VERSION="0.0.20"
@@ -229,11 +230,6 @@ then
 	    #. /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.06.08/x86_64-centos7-gcc49-opt/root/bin/thisroot.sh
             echo "Using gcc version = 4.9.3"
         else
-            if [[ $arch == "" ]]
-            then
-                arch=`uname -m`
-            fi
-            rusttag="unknown-linux-gnu"
             echo "Sorry, I don't recognize your system:"
             echo "$SYS $ver"
             echo "I will assume you have root installed in your system,"
@@ -245,6 +241,11 @@ then
             MODE="local"
         fi
     fi
+fi
+
+if [[ $arch == "" ]]
+then
+    arch=`uname -m`
 fi
 
 #Require full PineAPPL installation if precompiled files not available
