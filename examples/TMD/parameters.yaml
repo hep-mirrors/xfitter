@@ -1,0 +1,95 @@
+Minimizer: CERES
+
+CERES:
+  offset: 2
+  tolerance: 1e-5
+  strategy: 0
+  covariance: 1
+
+Parameters:
+  DYTurbo/lambda: [       1.0, 0.1 ]
+  DYTurbo/blim: [       1.5, 0.0 ]
+  DYTurbo/g0: [ 1.871088, 0.179874 ]
+  DYTurbo/g1: [ 0.580636, 0.008483 ]
+  DYTurbo/q: [ -0.082968, 0.007771 ]
+
+DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "NNPDF40_nnlo_as_01180_hessian"
+    member: 0
+  antiproton:
+    class: FlipCharge
+    input: proton-LHAPDF
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
+
+? !include constants.yaml
+
+
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+  DYTurbo:
+    #? !include reactions/DYTurbo.yaml
+    order: 4	    # Perturbative order in QCD: 0 for LL, 1 for NLL+NLO, 2 for NNLL+NNLO, 3 for NNNLL+NNLO
+    muR:   1     # Renormalization scale
+    muF:   1     # Factorization scale
+    muRes: 1   # Resummation scale
+    g1: 0.2       # Universal Gaussian non-perturbative form factor
+    q: 0.0       # Universal Gaussian non-perturbative form factor
+    g0: 0.3       # Universal Gaussian non-perturbative form factor
+    lambda: 1.0
+    blim: 1.5
+    debug: 0
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  Parameters:
+  #  alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation
+  #   DYTurbo/g1: [ 0.5, 0.7, 0.3 ]
+  #   DYTurbo/muR: [ 0.5, 1.0, 0.25 ]
+  #   DYTurbo/muF: [ 0.5, 1.0, 0.25 ]
+  #   DYTurbo/muRes: [ 0.5, 1.0, 0.25 ]
+  Evolutions:
+    proton-LHAPDF:
+      sets:    [NNPDF40_nnlo_as_01180_hessian]
+      members: [[0,1,end]]
+  Status: "On"               # "Off" to turn off profiler
+  WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "On"             # determine and report chi2 for each variation
+
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120
