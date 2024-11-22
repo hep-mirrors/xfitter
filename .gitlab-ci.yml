@@ -164,6 +164,42 @@ job-dyturbo:
     expire_in: 2 day
 
 
+job-tmd:
+  stage: test
+  extends: .install_dependencies
+  only: 
+    - merge_requests
+    - schedules
+  tags:
+    - cvmfs
+  script: 
+    - yum -y install git tar
+    - ls /cvmfs
+    - ./tools/install-qcdnum
+    - ./tools/install-lhapdf
+    - ./tools/install-dyturbo
+    - ./tools/install-numdiff
+    - . setup.sh
+    - ./make.sh install
+    - git clone -b fixtargpt https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+    - ./tools/test.sh TMD
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
+
+
 job-docker:
   stage: package
   tags:
