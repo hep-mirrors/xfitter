@@ -180,6 +180,7 @@ job-tmd:
     - ./tools/install-dyturbo
     - ./tools/install-numdiff
     - . setup.sh
+    - ./tools/download-lhapdf.sh NNPDF40_nnlo_as_01180_hessian >& download-lhapdf.log
     - ./make.sh install
     - git clone -b fixtargpt https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
