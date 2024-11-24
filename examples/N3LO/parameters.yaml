@@ -1,0 +1,109 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
+
+Parameters:
+  Adbar: [ 0.219395, 0.005613 ]
+  Agp: [ 0.301661, 0.830070 ]
+  Bdbar: [ -0.079243, 0.003409 ]
+  Bdv: [ 1.276836, 0.062804 ]
+  Bg: [ 0.009480, 0.360509 ]
+  Bgp: [ -0.347575, 0.194754 ]
+  Buv: [ 0.938680, 0.014303 ]
+  Cdbar: [ 11.008170, 1.299129 ]
+  Cdv: [ 5.658190, 0.269892 ]
+  Cg: [ 6.425601, 1.450465 ]
+  Cubar: [ 9.791902, 533.877473 ]
+  Cuv: [ 4.689506, 0.091929 ]
+  Dubar: [ -0.518606, 533.617278 ]
+  Euv: [ 5.642076, 0.788827 ]
+  Ag   :  DEPENDENT
+  Auv  :  DEPENDENT
+  Duv  : [    0     ]
+  Adv  :  DEPENDENT
+  ZERO : [ 0. ]          # zero
+  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  fs : [ 0.4, 0.0 ]
+
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv]
+  par_ubar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cubar,Dubar]
+  par_dbar:
+    class: HERAPDF
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s:
+    #class: HERAPDF
+    #parameters: [As,Bs,Cs]
+    # parametrise as expression: otherwise how to parametrise it as fs/(1-fs)*par_dbar using HERAPDF?
+    class: Expression
+    expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-APFELxx
+
+Evolutions:
+  proton-APFELxx:
+    ? !include evolutions/APFELxx.yaml
+    decomposition: proton
+
+# QCD parameters
+Order: NNNLO
+NFlavour: 5
+isFFNS: 0
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
+
+? !include constants.yaml
+
+
+
+byReaction:
+  N3LO_DISCC:
+    ? !include reactions/N3LO_DISCC.yaml
+  N3LO_DISNC:
+    ? !include reactions/N3LO_DISNC.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'N3LO_DISNC'     # global specification
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'N3LO_DISCC'     # global specification
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120
