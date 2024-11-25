@@ -1,17 +1,15 @@
-Minimizer: CERES
-
-CERES:
-  offset: 2
-  tolerance: 1e-5
-  strategy: 0
-  covariance: 1
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set str 2
+    call fcn 3
 
 Parameters:
-  DYTurbo/lambda: [       1.0, 0.1 ]
+  DYTurbo/g0: [ 1.243336, 0.327804 ]
+  DYTurbo/g1: [ 0.671667, 0.064718 ]
+  DYTurbo/lambda: [ 1.062648, 0.244947 ]
+  DYTurbo/q: [ -0.197736, 0.026218 ]
   DYTurbo/blim: [       1.5, 0.0 ]
-  DYTurbo/g0: [ 1.871088, 0.179874 ]
-  DYTurbo/g1: [ 0.580636, 0.008483 ]
-  DYTurbo/q: [ -0.082968, 0.007771 ]
 
 DefaultEvolution: proton-LHAPDF
 
@@ -74,7 +72,7 @@ Profiler:
     proton-LHAPDF:
       sets:    [NNPDF40_nnlo_as_01180_hessian]
       members: [[0,1,end]]
-  Status: "On"               # "Off" to turn off profiler
+  Status: "Off"               # "Off" to turn off profiler
   WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
   getChi2: "On"             # determine and report chi2 for each variation
 

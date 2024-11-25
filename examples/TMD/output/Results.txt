@@ -1,243 +1,126 @@
-After minimisation    1430.17  1186     1.206
+After minimisation     505.66   297     1.703
 
   Partial chi2s 
-Dataset    1    442.49( +7.94)   377  HERA1+2 NCep 920                                
-Dataset    2     66.14( +0.02)    70  HERA1+2 NCep 820                                
-Dataset    3    219.14( +1.06)   254  HERA1+2 NCep 575                                
-Dataset    4    217.70( -0.88)   204  HERA1+2 NCep 460                                
-Dataset    5    219.29( -0.22)   159  HERA1+2 NCem                                    
-Dataset    6     44.90( +0.38)    39  HERA1+2 CCep                                    
-Dataset    7     55.97( -2.14)    42  HERA1+2 CCem                                    
-Dataset    8     43.55( +0.83)    55  CDF ZPT 1.96 TEV                                
+Dataset    1      4.41( +0.25)     4  E288 200 GeV M 4-5 GeV                          
+Dataset    2     10.88( +0.36)     5  E288 200 GeV M 5-6 GeV                          
+Dataset    3      3.85( +0.44)     6  E288 200 GeV M 6-7 GeV                          
+Dataset    4      4.75( +1.67)     7  E288 200 GeV M 7-8 GeV                          
+Dataset    5      3.62( +4.61)     8  E288 200 GeV M 8-9 GeV                          
+Dataset    6      2.28( +9.15)     9  E288 300 GeV M 11-12 GeV                        
+Dataset    7      8.89( +0.54)     4  E288 300 GeV M 4-5 GeV                          
+Dataset    8      5.73( +0.64)     5  E288 300 GeV M 5-6 GeV                          
+Dataset    9      2.88( +0.49)     6  E288 300 GeV M 6-7 GeV                          
+Dataset   10      1.19( -0.12)     7  E288 300 GeV M 7-8 GeV                          
+Dataset   11      7.93( -0.69)     8  E288 300 GeV M 8-9 GeV                          
+Dataset   12     29.82( -6.88)    10  E288 400 GeV M 10-11 GeV                        
+Dataset   13      9.74( +0.59)    10  E288 400 GeV M 11-12 GeV                        
+Dataset   14      4.59( +5.23)    10  E288 400 GeV M 12-13 GeV                        
+Dataset   15      2.35(+10.93)    10  E288 400 GeV M 13-14 GeV                        
+Dataset   16      4.89( +1.21)     5  E288 400 GeV M 5-6 GeV                          
+Dataset   17     12.23( +0.96)     6  E288 400 GeV M 6-7 GeV                          
+Dataset   18      6.89( +0.50)     7  E288 400 GeV M 7-8 GeV                          
+Dataset   19     13.62( -0.41)     8  E288 400 GeV M 8-9 GeV                          
+Dataset   20     43.92( -9.34)    10  E288 400 GeV M 9-10 GeV                         
+Dataset   21      9.11( -0.52)     7  E605 M 7-8 GeV                                  
+Dataset   22     15.63( -0.26)     8  E605 M 8-9 GeV                                  
+Dataset   23      5.20( -1.89)    11  E605 M 10.5-11.5 GeV                            
+Dataset   24      8.35( -3.25)    12  E605 M 11.5-13.5 GeV                            
+Dataset   25     19.96( +0.71)    14  E605 M 13.5-18 GeV                              
+Dataset   26      2.74( +1.36)     4  E772 M 5-6 GeV                                  
+Dataset   27      5.08( +1.77)     5  E772 M 6-7 GeV                                  
+Dataset   28      5.71( +0.51)     6  E772 M 7-8 GeV                                  
+Dataset   29      6.82( +0.19)     6  E772 M 8-9 GeV                                  
+Dataset   30      9.92( +1.15)     8  E772 M 11-12 GeV                                
+Dataset   31     10.24( +2.30)     8  E772 M 12-13 GeV                                
+Dataset   32      5.99( +2.52)     6  E772 M 13-14 GeV                                
+Dataset   33      1.48( -0.02)     6  E772 M 14-15 GeV                                
+Dataset   34     73.82( +0.42)    55  CDF ZPT 1.96 TEV                                
 
- Correlated Chi2    113.99174880288339     
- Log penalty Chi2    6.9923011116032976     
- Systematic shifts          226
+ Correlated Chi2    115.99830106765603     
+ Log penalty Chi2    25.137204812173152     
+ Systematic shifts           83
   
                                 Name          Shift   +/-    Error          Type
-    1  sysHZComb1001                          0.3178   +/-   0.9327        :N:M:D
-    2  sysHZComb1002                         -0.5120   +/-   0.9364        :N:M:D
-    3  sysHZComb1003                          1.2725   +/-   0.5567        :N:M:D
-    4  sysHZComb1004                          0.2141   +/-   0.6188        :N:M:D
-    5  sysHZComb1005                          1.0181   +/-   0.6092        :N:M:D
-    6  sysHZComb1006                         -0.9989   +/-   0.7879        :N:M:D
-    7  sysHZComb1007                          0.1272   +/-   0.9982        :N:M:D
-    8  sysHZComb1008                          0.0631   +/-   0.9983        :N:M:D
-    9  sysHZComb1009                          0.0148   +/-   0.8995        :N:M:D
-   10  sysHZComb1010                         -0.3735   +/-   0.9936        :N:M:D
-   11  sysHZComb1011                         -0.8148   +/-   0.9662        :N:M:D
-   12  sysHZComb1012                          0.4342   +/-   0.9721        :N:M:D
-   13  sysHZComb1013                         -0.6284   +/-   0.9620        :N:M:D
-   14  sysHZComb1014                         -0.0460   +/-   0.9875        :N:M:D
-   15  sysHZComb1015                         -0.0983   +/-   0.9633        :N:M:D
-   16  sysHZComb1016                         -0.0860   +/-   0.9748        :N:M:D
-   17  sysHZComb1017                         -0.3049   +/-   0.9709        :N:M:D
-   18  sysHZComb1018                          0.2014   +/-   0.8226        :N:M:D
-   19  sysHZComb1019                         -0.3632   +/-   0.9837        :N:M:D
-   20  sysHZComb1020                         -0.3560   +/-   0.9814        :N:M:D
-   21  sysHZComb1021                         -0.0881   +/-   0.9744        :N:M:D
-   22  sysHZComb1022                          0.1699   +/-   0.9687        :N:M:D
-   23  sysHZComb1023                         -0.1206   +/-   0.9452        :N:M:D
-   24  sysHZComb1024                          0.0677   +/-   0.9879        :N:M:D
-   25  sysHZComb1025                          0.1330   +/-   0.9933        :N:M:D
-   26  sysHZComb1026                         -0.8799   +/-   0.9201        :N:M:D
-   27  sysHZComb1027                         -1.0841   +/-   0.9544        :N:M:D
-   28  sysHZComb1028                          0.8094   +/-   0.9749        :N:M:D
-   29  sysHZComb1029                         -0.5861   +/-   0.9184        :N:M:D
-   30  sysHZComb1030                         -0.3235   +/-   0.9438        :N:M:D
-   31  sysHZComb1031                         -0.6758   +/-   0.8387        :N:M:D
-   32  sysHZComb1032                          0.6469   +/-   0.9643        :N:M:D
-   33  sysHZComb1033                          0.7527   +/-   0.9708        :N:M:D
-   34  sysHZComb1034                         -0.4392   +/-   0.9840        :N:M:D
-   35  sysHZComb1035                          0.0246   +/-   0.9781        :N:M:D
-   36  sysHZComb1036                         -0.4222   +/-   0.9742        :N:M:D
-   37  sysHZComb1037                          0.5026   +/-   0.9702        :N:M:D
-   38  sysHZComb1038                         -0.5828   +/-   0.9126        :N:M:D
-   39  sysHZComb1039                         -0.4751   +/-   0.9535        :N:M:D
-   40  sysHZComb1040                         -0.1763   +/-   0.9302        :N:M:D
-   41  sysHZComb1041                         -0.6096   +/-   0.8122        :N:M:D
-   42  sysHZComb1042                         -0.1431   +/-   0.8744        :N:M:D
-   43  sysHZComb1043                          0.0532   +/-   0.9096        :N:M:D
-   44  sysHZComb1044                         -0.0430   +/-   0.9367        :N:M:D
-   45  sysHZComb1045                         -0.4635   +/-   0.9310        :N:M:D
-   46  sysHZComb1046                         -0.2536   +/-   0.9569        :N:M:D
-   47  sysHZComb1047                          0.2658   +/-   0.9468        :N:M:D
-   48  sysHZComb1048                         -0.0213   +/-   0.9610        :N:M:D
-   49  sysHZComb1049                         -0.5106   +/-   0.9457        :N:M:D
-   50  sysHZComb1050                          0.3862   +/-   0.9429        :N:M:D
-   51  sysHZComb1051                          0.3428   +/-   0.9523        :N:M:D
-   52  sysHZComb1052                          0.8493   +/-   0.9507        :N:M:D
-   53  sysHZComb1053                         -2.6727   +/-   0.9191        :N:M:D
-   54  sysHZComb1054                         -0.0054   +/-   0.9750        :N:M:D
-   55  sysHZComb1055                         -1.5709   +/-   0.9056        :N:M:D
-   56  sysHZComb1056                         -1.4222   +/-   0.8904        :N:M:D
-   57  sysHZComb1057                          0.0634   +/-   0.9194        :N:M:D
-   58  sysHZComb1058                          0.0842   +/-   0.9433        :N:M:D
-   59  sysHZComb1059                         -1.0528   +/-   0.8698        :N:M:D
-   60  sysHZComb1060                          0.1543   +/-   0.9789        :N:M:D
-   61  sysHZComb1061                          0.1547   +/-   0.9831        :N:M:D
-   62  sysHZComb1062                         -1.3391   +/-   0.8949        :N:M:D
-   63  sysHZComb1063                          0.4859   +/-   0.8364        :N:M:D
-   64  sysHZComb1064                          0.7089   +/-   0.9293        :N:M:D
-   65  sysHZComb1065                         -0.8826   +/-   0.9468        :N:M:D
-   66  sysHZComb1066                         -0.7145   +/-   0.9320        :N:M:D
-   67  sysHZComb1067                         -0.1628   +/-   0.9638        :N:M:D
-   68  sysHZComb1068                         -0.4813   +/-   0.9199        :N:M:D
-   69  sysHZComb1069                         -0.1846   +/-   0.9124        :N:M:D
-   70  sysHZComb1070                          0.3287   +/-   0.9074        :N:M:D
-   71  sysHZComb1071                         -1.2067   +/-   0.8573        :N:M:D
-   72  sysHZComb1072                         -0.0648   +/-   0.9702        :N:M:D
-   73  sysHZComb1073                          0.0986   +/-   0.9036        :N:M:D
-   74  sysHZComb1074                         -0.0625   +/-   0.9351        :N:M:D
-   75  sysHZComb1075                          0.0488   +/-   0.8652        :N:M:D
-   76  sysHZComb1076                         -0.0927   +/-   0.9605        :N:M:D
-   77  sysHZComb1077                         -0.6375   +/-   0.9611        :N:M:D
-   78  sysHZComb1078                         -0.0078   +/-   0.9756        :N:M:D
-   79  sysHZComb1079                         -0.0604   +/-   0.8843        :N:M:D
-   80  sysHZComb1080                         -0.5149   +/-   0.9249        :N:M:D
-   81  sysHZComb1081                         -0.1169   +/-   0.8874        :N:M:D
-   82  sysHZComb1082                         -0.7128   +/-   0.8381        :N:M:D
-   83  sysHZComb1083                         -1.3314   +/-   0.8902        :N:M:D
-   84  sysHZComb1084                          0.2473   +/-   0.9683        :N:M:D
-   85  sysHZComb1085                         -0.2203   +/-   0.8685        :N:M:D
-   86  sysHZComb1086                         -0.1016   +/-   0.7918        :N:M:D
-   87  sysHZComb1087                         -0.6640   +/-   0.8596        :N:M:D
-   88  sysHZComb1088                          0.2921   +/-   0.9911        :N:M:D
-   89  sysHZComb1089                          0.0515   +/-   0.9610        :N:M:D
-   90  sysHZComb1090                          0.6573   +/-   0.9429        :N:M:D
-   91  sysHZComb1091                          0.6474   +/-   0.8871        :N:M:D
-   92  sysHZComb1092                          0.1261   +/-   0.8089        :N:M:D
-   93  sysHZComb1093                          0.1831   +/-   0.7904        :N:M:D
-   94  sysHZComb1094                          0.0713   +/-   0.9992        :N:M:D
-   95  sysHZComb1095                         -0.4675   +/-   0.8458        :N:M:D
-   96  sysHZComb1096                          0.1802   +/-   0.8947        :N:M:D
-   97  sysHZComb1097                          0.4122   +/-   0.9880        :N:M:D
-   98  sysHZComb1098                          1.6213   +/-   0.7355        :N:M:D
-   99  sysHZComb1099                         -0.9715   +/-   0.6835        :N:M:D
-  100  sysHZComb1100                         -0.9360   +/-   0.6877        :N:M:D
-  101  sysHZComb1101                         -0.3083   +/-   0.7721        :N:M:D
-  102  sysHZComb1102                         -0.4927   +/-   0.9019        :N:M:D
-  103  sysHZComb1103                          0.2952   +/-   0.7906        :N:M:D
-  104  sysHZComb1104                         -1.2054   +/-   0.7942        :N:M:D
-  105  sysHZComb1105                          0.9329   +/-   0.6950        :N:M:D
-  106  sysHZComb1106                         -0.5994   +/-   0.7720        :N:M:D
-  107  sysHZComb1107                          0.7533   +/-   0.7415        :N:M:D
-  108  sysHZComb1108                          1.7418   +/-   0.6795        :N:M:D
-  109  sysHZComb1109                          0.2990   +/-   0.9899        :N:M:D
-  110  sysHZComb1110                         -0.5757   +/-   0.7034        :N:M:D
-  111  sysHZComb1111                         -1.8374   +/-   0.5497        :N:M:D
-  112  sysHZComb1112                          0.3576   +/-   0.9904        :N:M:D
-  113  sysHZComb1113                          1.3755   +/-   0.8404        :N:M:D
-  114  sysHZComb1114                          1.7737   +/-   0.8063        :N:M:D
-  115  sysHZComb1115                          0.9269   +/-   0.7570        :N:M:D
-  116  sysHZComb1116                         -0.0516   +/-   0.7731        :N:M:D
-  117  sysHZComb1117                          0.4786   +/-   0.8219        :N:M:D
-  118  sysHZComb1118                         -0.1803   +/-   0.9966        :N:M:D
-  119  sysHZComb1119                          0.3794   +/-   0.9749        :N:M:D
-  120  sysHZComb1120                          0.8833   +/-   0.8549        :N:M:D
-  121  sysHZComb1121                          0.2991   +/-   0.9900        :N:M:D
-  122  sysHZComb1122                          0.1642   +/-   0.9330        :N:M:D
-  123  sysHZComb1123                         -0.2921   +/-   0.9287        :N:M:D
-  124  sysHZComb1124                         -1.1829   +/-   0.8625        :N:M:D
-  125  sysHZComb1125                          0.8828   +/-   0.8727        :N:M:D
-  126  sysHZComb1126                         -0.2329   +/-   0.9166        :N:M:D
-  127  sysHZComb1127                         -0.1078   +/-   0.9237        :N:M:D
-  128  sysHZComb1128                         -0.3552   +/-   0.9555        :N:M:D
-  129  sysHZComb1129                          0.1906   +/-   0.8586        :N:M:D
-  130  sysHZComb1130                          0.2524   +/-   0.8076        :N:M:D
-  131  sysHZComb1131                         -0.6449   +/-   0.7919        :N:M:D
-  132  sysHZComb1132                         -0.4900   +/-   0.7900        :N:M:D
-  133  sysHZComb1133                          0.5219   +/-   0.8226        :N:M:D
-  134  sysHZComb1134                          0.4284   +/-   0.9788        :N:M:D
-  135  sysHZComb1135                         -1.3376   +/-   0.8196        :N:M:D
-  136  sysHZComb1136                          0.4567   +/-   0.8785        :N:M:D
-  137  sysHZComb1137                         -0.4513   +/-   0.8847        :N:M:D
-  138  sysHZComb1138                          0.6263   +/-   0.9202        :N:M:D
-  139  sysHZComb1139                         -0.9123   +/-   0.9414        :N:M:D
-  140  sysHZComb1140                         -0.2501   +/-   0.9580        :N:M:D
-  141  sysHZComb1141                         -0.2464   +/-   0.9712        :N:M:D
-  142  sysHZComb1142                          1.0863   +/-   0.8611        :N:M:D
-  143  sysHZComb1143                          0.5500   +/-   0.8554        :N:M:D
-  144  sysHZComb1144                          1.4766   +/-   0.8420        :N:M:D
-  145  sysHZComb1145                          0.3291   +/-   0.9860        :N:M:D
-  146  sysHZComb1146                          0.2169   +/-   0.9897        :N:M:D
-  147  sysHZComb1147                          0.7935   +/-   0.8050        :N:M:D
-  148  sysHZComb1148                         -0.6351   +/-   0.7941        :N:M:D
-  149  sysHZComb1149                          0.6254   +/-   0.7657        :N:M:D
-  150  sysHZComb1150                         -0.5084   +/-   0.7881        :N:M:D
-  151  sysHZComb1151                         -0.0070   +/-   0.9631        :N:M:D
-  152  sysHZComb1152                          0.6513   +/-   0.7353        :N:M:D
-  153  sysHZComb1153                         -1.4527   +/-   0.8353        :N:M:D
-  154  sysHZComb1154                         -0.2128   +/-   0.8130        :N:M:D
-  155  sysHZComb1155                          1.3158   +/-   0.8169        :N:M:D
-  156  sysHZComb1156                         -0.0071   +/-   0.9161        :N:M:D
-  157  sysHZComb1157                          1.1453   +/-   0.7236        :N:M:D
-  158  sysHZComb1158                          0.1464   +/-   0.7983        :N:M:D
-  159  sysHZComb1159                         -0.0265   +/-   1.0000        :N:M:D
-  160  sysHZComb1160                          0.0057   +/-   0.8821        :N:M:D
-  161  sysHZComb1161                          0.6971   +/-   0.8424        :N:M:D
-  162  sysHZComb1162                          0.7656   +/-   0.8884        :N:M:D
-  163  proc_nrl                               0.0960   +/-   0.3881        :N:M:D
-  164  proc_tb21                             -3.0911   +/-   0.6713        :N:M:D
-  165  proc_tb22                             -1.6391   +/-   0.3068        :N:M:D
-  166  proc_tb23                             -0.2654   +/-   0.4344        :N:M:D
-  167  proc_tb24                             -0.6217   +/-   0.4098        :N:M:D
-  168  proc_gp                               -0.0376   +/-   0.4548        :N:M:D
-  169  proc_had                               0.0228   +/-   0.5386        :N:M:D
-  170  eff                                   -0.0341   +/-   0.9843        :N:M:D
-  171  lumi                                   0.4470   +/-   0.1910        :N:M:D
-  172  CStat_001_CDF ZPT 1.96 TEV            -0.7317   +/-   0.8555        :N:P:D
-  173  CStat_002_CDF ZPT 1.96 TEV            -0.8203   +/-   0.7034        :N:P:D
-  174  CStat_003_CDF ZPT 1.96 TEV            -1.8426   +/-   0.7527        :N:P:D
-  175  CStat_004_CDF ZPT 1.96 TEV             1.8266   +/-   0.7360        :N:P:D
-  176  CStat_005_CDF ZPT 1.96 TEV            -0.0659   +/-   0.7587        :N:P:D
-  177  CStat_006_CDF ZPT 1.96 TEV             1.5263   +/-   0.7641        :N:P:D
-  178  CStat_007_CDF ZPT 1.96 TEV             0.2903   +/-   0.7896        :N:P:D
-  179  CStat_008_CDF ZPT 1.96 TEV             1.1072   +/-   0.7803        :N:P:D
-  180  CStat_009_CDF ZPT 1.96 TEV             0.1641   +/-   0.7965        :N:P:D
-  181  CStat_010_CDF ZPT 1.96 TEV             0.5627   +/-   0.7989        :N:P:D
-  182  CStat_011_CDF ZPT 1.96 TEV            -0.4520   +/-   0.8144        :N:P:D
-  183  CStat_012_CDF ZPT 1.96 TEV             1.1724   +/-   0.8437        :N:P:D
-  184  CStat_013_CDF ZPT 1.96 TEV            -0.1335   +/-   0.8254        :N:P:D
-  185  CStat_014_CDF ZPT 1.96 TEV             1.1383   +/-   0.8269        :N:P:D
-  186  CStat_015_CDF ZPT 1.96 TEV            -0.4179   +/-   0.8569        :N:P:D
-  187  CStat_016_CDF ZPT 1.96 TEV             0.0456   +/-   0.8502        :N:P:D
-  188  CStat_017_CDF ZPT 1.96 TEV            -0.1759   +/-   0.8572        :N:P:D
-  189  CStat_018_CDF ZPT 1.96 TEV             0.1112   +/-   0.8865        :N:P:D
-  190  CStat_019_CDF ZPT 1.96 TEV            -0.6259   +/-   0.9189        :N:P:D
-  191  CStat_020_CDF ZPT 1.96 TEV             0.6057   +/-   0.8578        :N:P:D
-  192  CStat_021_CDF ZPT 1.96 TEV            -0.1417   +/-   0.8705        :N:P:D
-  193  CStat_022_CDF ZPT 1.96 TEV             0.0627   +/-   0.8573        :N:P:D
-  194  CStat_023_CDF ZPT 1.96 TEV             0.0323   +/-   0.8780        :N:P:D
-  195  CStat_024_CDF ZPT 1.96 TEV             0.9546   +/-   0.8803        :N:P:D
-  196  CStat_025_CDF ZPT 1.96 TEV             0.9795   +/-   0.8633        :N:P:D
-  197  CStat_026_CDF ZPT 1.96 TEV            -0.3274   +/-   0.9216        :N:P:D
-  198  CStat_027_CDF ZPT 1.96 TEV            -0.2097   +/-   0.8572        :N:P:D
-  199  CStat_028_CDF ZPT 1.96 TEV             0.2997   +/-   0.8772        :N:P:D
-  200  CStat_029_CDF ZPT 1.96 TEV            -0.4970   +/-   0.8960        :N:P:D
-  201  CStat_030_CDF ZPT 1.96 TEV             0.1829   +/-   0.8694        :N:P:D
-  202  CStat_031_CDF ZPT 1.96 TEV            -0.0459   +/-   0.8715        :N:P:D
-  203  CStat_032_CDF ZPT 1.96 TEV             0.0627   +/-   0.8831        :N:P:D
-  204  CStat_033_CDF ZPT 1.96 TEV            -0.2700   +/-   0.8974        :N:P:D
-  205  CStat_034_CDF ZPT 1.96 TEV            -0.3297   +/-   0.8940        :N:P:D
-  206  CStat_035_CDF ZPT 1.96 TEV            -0.2237   +/-   0.9012        :N:P:D
-  207  CStat_036_CDF ZPT 1.96 TEV             0.0736   +/-   0.8803        :N:P:D
-  208  CStat_037_CDF ZPT 1.96 TEV             0.1068   +/-   0.9106        :N:P:D
-  209  CStat_038_CDF ZPT 1.96 TEV            -0.2958   +/-   0.8870        :N:P:D
-  210  CStat_039_CDF ZPT 1.96 TEV             1.0057   +/-   0.8828        :N:P:D
-  211  CStat_040_CDF ZPT 1.96 TEV             0.6067   +/-   0.8692        :N:P:D
-  212  CStat_041_CDF ZPT 1.96 TEV             0.2605   +/-   0.8665        :N:P:D
-  213  CStat_042_CDF ZPT 1.96 TEV            -0.6387   +/-   0.8624        :N:P:D
-  214  CStat_043_CDF ZPT 1.96 TEV            -0.5666   +/-   0.9105        :N:P:D
-  215  CStat_044_CDF ZPT 1.96 TEV            -0.0327   +/-   0.9042        :N:P:D
-  216  CStat_045_CDF ZPT 1.96 TEV            -0.1190   +/-   0.9083        :N:P:D
-  217  CStat_046_CDF ZPT 1.96 TEV            -0.0975   +/-   0.9048        :N:P:D
-  218  CStat_047_CDF ZPT 1.96 TEV            -0.6584   +/-   0.9024        :N:P:D
-  219  CStat_048_CDF ZPT 1.96 TEV            -0.0672   +/-   0.9138        :N:P:D
-  220  CStat_049_CDF ZPT 1.96 TEV            -0.3286   +/-   0.9140        :N:P:D
-  221  CStat_050_CDF ZPT 1.96 TEV            -0.4888   +/-   0.9035        :N:P:D
-  222  CStat_051_CDF ZPT 1.96 TEV            -0.0048   +/-   0.8557        :N:P:D
-  223  CStat_052_CDF ZPT 1.96 TEV             0.6558   +/-   0.8988        :N:P:D
-  224  CStat_053_CDF ZPT 1.96 TEV             0.2018   +/-   0.9115        :N:P:D
-  225  CStat_054_CDF ZPT 1.96 TEV             0.4779   +/-   0.9678        :N:P:D
-  226  CStat_055_CDF ZPT 1.96 TEV            -0.0080   +/-   0.9945        :N:P:D
+    1  norm_E288_e200_m45                     0.2250   +/-   0.0940        :N:M:D
+    2  norm_E288_e200_m56                     0.2339   +/-   0.1117        :N:M:D
+    3  norm_E288_e200_m67                     0.2546   +/-   0.1304        :N:M:D
+    4  norm_E288_e200_m78                     0.7373   +/-   0.1993        :N:M:D
+    5  norm_E288_e200_m89                     1.5473   +/-   0.2844        :N:M:D
+    6  norm_E288_e300_m1112                   1.9025   +/-   0.5055        :N:M:D
+    7  norm_E288_e300_m45                     0.5366   +/-   0.0838        :N:M:D
+    8  norm_E288_e300_m56                     0.4842   +/-   0.0908        :N:M:D
+    9  norm_E288_e300_m67                     0.3064   +/-   0.1011        :N:M:D
+   10  norm_E288_e300_m78                    -0.0725   +/-   0.1460        :N:M:D
+   11  norm_E288_e300_m89                    -0.3236   +/-   0.2210        :N:M:D
+   12  norm_E288_e400_m1011                  -4.0756   +/-   0.1336        :N:M:D
+   13  norm_E288_e400_m1112                   0.2383   +/-   0.1745        :N:M:D
+   14  norm_E288_e400_m1213                   1.3762   +/-   0.2144        :N:M:D
+   15  norm_E288_e400_m1314                   2.4055   +/-   0.2670        :N:M:D
+   16  norm_E288_e400_m56                     0.8694   +/-   0.0536        :N:M:D
+   17  norm_E288_e400_m67                     0.6171   +/-   0.0324        :N:M:D
+   18  norm_E288_e400_m78                     0.3019   +/-   0.0434        :N:M:D
+   19  norm_E288_e400_m89                    -0.1558   +/-   0.0580        :N:M:D
+   20  norm_E288_e400_m910                   -6.1625   +/-   0.0914        :N:M:D
+   21  norm_e605_m78                         -0.3761   +/-   0.3221        :N:M:D
+   22  norm_e605_m89                         -0.1797   +/-   0.2535        :N:M:D
+   23  norm_e605_m105115                     -0.7265   +/-   0.2415        :N:M:D
+   24  norm_e605_m115135                     -1.2379   +/-   0.2386        :N:M:D
+   25  norm_e605_m135180                     -0.0232   +/-   0.2998        :N:M:D
+   26  lumi_e772                              1.9027   +/-   0.3671        :N:M:D
+   27  eff                                   -0.0469   +/-   0.9844        :N:M:D
+   28  lumi                                   0.0861   +/-   0.1915        :N:M:D
+   29  CStat_001_CDF ZPT 1.96 TEV             1.4386   +/-   0.8517        :N:P:D
+   30  CStat_002_CDF ZPT 1.96 TEV            -0.5519   +/-   0.7036        :N:P:D
+   31  CStat_003_CDF ZPT 1.96 TEV            -3.0628   +/-   0.7539        :N:P:D
+   32  CStat_004_CDF ZPT 1.96 TEV             2.3454   +/-   0.7357        :N:P:D
+   33  CStat_005_CDF ZPT 1.96 TEV             1.5420   +/-   0.7597        :N:P:D
+   34  CStat_006_CDF ZPT 1.96 TEV             2.0345   +/-   0.7639        :N:P:D
+   35  CStat_007_CDF ZPT 1.96 TEV             1.4981   +/-   0.7901        :N:P:D
+   36  CStat_008_CDF ZPT 1.96 TEV             1.0719   +/-   0.7803        :N:P:D
+   37  CStat_009_CDF ZPT 1.96 TEV             1.0851   +/-   0.7969        :N:P:D
+   38  CStat_010_CDF ZPT 1.96 TEV             0.4862   +/-   0.7989        :N:P:D
+   39  CStat_011_CDF ZPT 1.96 TEV             0.2786   +/-   0.8146        :N:P:D
+   40  CStat_012_CDF ZPT 1.96 TEV             1.2931   +/-   0.8437        :N:P:D
+   41  CStat_013_CDF ZPT 1.96 TEV             0.4523   +/-   0.8255        :N:P:D
+   42  CStat_014_CDF ZPT 1.96 TEV             0.9777   +/-   0.8269        :N:P:D
+   43  CStat_015_CDF ZPT 1.96 TEV             0.1137   +/-   0.8570        :N:P:D
+   44  CStat_016_CDF ZPT 1.96 TEV             0.2024   +/-   0.8502        :N:P:D
+   45  CStat_017_CDF ZPT 1.96 TEV            -0.5700   +/-   0.8573        :N:P:D
+   46  CStat_018_CDF ZPT 1.96 TEV             0.0591   +/-   0.8865        :N:P:D
+   47  CStat_019_CDF ZPT 1.96 TEV            -1.0084   +/-   0.9189        :N:P:D
+   48  CStat_020_CDF ZPT 1.96 TEV             0.4512   +/-   0.8578        :N:P:D
+   49  CStat_021_CDF ZPT 1.96 TEV             0.0499   +/-   0.8705        :N:P:D
+   50  CStat_022_CDF ZPT 1.96 TEV             0.2897   +/-   0.8573        :N:P:D
+   51  CStat_023_CDF ZPT 1.96 TEV             0.1291   +/-   0.8780        :N:P:D
+   52  CStat_024_CDF ZPT 1.96 TEV             0.8804   +/-   0.8803        :N:P:D
+   53  CStat_025_CDF ZPT 1.96 TEV             0.8925   +/-   0.8633        :N:P:D
+   54  CStat_026_CDF ZPT 1.96 TEV            -0.6445   +/-   0.9216        :N:P:D
+   55  CStat_027_CDF ZPT 1.96 TEV            -0.0531   +/-   0.8573        :N:P:D
+   56  CStat_028_CDF ZPT 1.96 TEV             0.3867   +/-   0.8772        :N:P:D
+   57  CStat_029_CDF ZPT 1.96 TEV            -0.4450   +/-   0.8960        :N:P:D
+   58  CStat_030_CDF ZPT 1.96 TEV             0.3690   +/-   0.8694        :N:P:D
+   59  CStat_031_CDF ZPT 1.96 TEV            -0.2172   +/-   0.8715        :N:P:D
+   60  CStat_032_CDF ZPT 1.96 TEV            -0.1641   +/-   0.8831        :N:P:D
+   61  CStat_033_CDF ZPT 1.96 TEV            -0.4368   +/-   0.8974        :N:P:D
+   62  CStat_034_CDF ZPT 1.96 TEV            -0.1449   +/-   0.8940        :N:P:D
+   63  CStat_035_CDF ZPT 1.96 TEV            -0.3830   +/-   0.9012        :N:P:D
+   64  CStat_036_CDF ZPT 1.96 TEV             0.3145   +/-   0.8803        :N:P:D
+   65  CStat_037_CDF ZPT 1.96 TEV             0.2222   +/-   0.9106        :N:P:D
+   66  CStat_038_CDF ZPT 1.96 TEV            -0.1154   +/-   0.8870        :N:P:D
+   67  CStat_039_CDF ZPT 1.96 TEV             0.8026   +/-   0.8828        :N:P:D
+   68  CStat_040_CDF ZPT 1.96 TEV             0.2625   +/-   0.8692        :N:P:D
+   69  CStat_041_CDF ZPT 1.96 TEV            -0.1480   +/-   0.8666        :N:P:D
+   70  CStat_042_CDF ZPT 1.96 TEV            -0.2313   +/-   0.8624        :N:P:D
+   71  CStat_043_CDF ZPT 1.96 TEV            -0.4833   +/-   0.9105        :N:P:D
+   72  CStat_044_CDF ZPT 1.96 TEV             0.0652   +/-   0.9042        :N:P:D
+   73  CStat_045_CDF ZPT 1.96 TEV            -0.0776   +/-   0.9083        :N:P:D
+   74  CStat_046_CDF ZPT 1.96 TEV             0.0402   +/-   0.9048        :N:P:D
+   75  CStat_047_CDF ZPT 1.96 TEV            -0.7558   +/-   0.9024        :N:P:D
+   76  CStat_048_CDF ZPT 1.96 TEV            -0.0995   +/-   0.9138        :N:P:D
+   77  CStat_049_CDF ZPT 1.96 TEV            -0.3467   +/-   0.9140        :N:P:D
+   78  CStat_050_CDF ZPT 1.96 TEV            -0.5754   +/-   0.9035        :N:P:D
+   79  CStat_051_CDF ZPT 1.96 TEV             0.0108   +/-   0.8557        :N:P:D
+   80  CStat_052_CDF ZPT 1.96 TEV             0.7165   +/-   0.8988        :N:P:D
+   81  CStat_053_CDF ZPT 1.96 TEV             0.0912   +/-   0.9115        :N:P:D
+   82  CStat_054_CDF ZPT 1.96 TEV             0.5012   +/-   0.9678        :N:P:D
+   83  CStat_055_CDF ZPT 1.96 TEV            -0.0172   +/-   0.9945        :N:P:D
