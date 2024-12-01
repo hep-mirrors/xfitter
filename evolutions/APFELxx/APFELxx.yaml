@@ -1,3 +1,10 @@
 class: APFELxx
 xGrid: [[100, 1e-5, 3], [60, 1e-1, 3], [50, 6e-1, 3], [50, 8e-1, 3]]
 QGrid: [50, 1, 1000, 3]
+P3NSp: 0
+P3NSm: 0
+P3NSs: 0
+P3SGps: 0
+P3SGqg: 0
+P3SGgq: 0
+P3SGgg: 0
