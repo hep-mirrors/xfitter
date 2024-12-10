@@ -52,6 +52,11 @@ namespace xfitter
     virtual void atConfigurationChange(){};
 
     /**
+     * @brief This function should be called when writing out PBTMDs
+     */
+    virtual void Write_TMD(const char* name){};
+
+    /**
      * @name Getters
      */
     ///@{

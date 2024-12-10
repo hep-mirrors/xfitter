@@ -1,0 +1,10 @@
+class: PBTMD
+xGrid   :   [9.9e-7, 0.01, 0.1, 0.4, 0.7]
+xGridW  :   [1,       2,     4,   8,  16]
+Q2Grid  :   [0.99999999999,  2.05e8 ]
+Q2GridW :   [1.,     1.]
+NQ2bins :   20
+NXbins  :   50
+Read_QCDNUM_Tables : 1
+SplineOrder : 2
+ICheck  :   0                # do or not check of the grid boundaries,

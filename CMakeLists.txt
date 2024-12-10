@@ -33,6 +33,7 @@ find_package(APPLgrid)
 find_package(APFELgrid)
 find_package(APFEL)
 find_package(APFELxx)
+#find_package(UPDFLIB)
 find_package(Ceres)
 include(find_package_ROOT)
 find_package(Hathor)
@@ -40,10 +41,10 @@ find_package(DYTurbo)
 find_package(yaml)
 find_package(ZLIB)
 find_package(PineAPPL)
-find_package(Ploughshare)
 
 set(CMAKE_CXX_FLAGS "-O ${CMAKE_CXX_FLAGS}")
 set(CMAKE_Fortran_FLAGS "-O ${CMAKE_Fortran_FLAGS}")
+#set(CMAKE_Fortran_FLAGS "-O -std=legacy ${CMAKE_Fortran_FLAGS}")
 set(CMAKE_C_FLAGS "-O ${CMAKE_C_FLAGS}")
 
 if(OPENMP)
@@ -107,7 +108,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # For semaphore in multithreading
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
+# changed hannes
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
 
 #When linking, set rpath to install directories
 #This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
@@ -163,6 +165,7 @@ add_subdirectory(evolutions/APFELxx)
 add_subdirectory(evolutions/FlipCharge)
 add_subdirectory(evolutions/FlipUD)
 add_subdirectory(evolutions/LHAPDF)
+add_subdirectory(evolutions/PBTMD)
 
 #Reactions
 add_subdirectory(reactions/NC_SIA)
@@ -191,7 +194,6 @@ add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
 add_subdirectory(reactions/PineAPPL)
-add_subdirectory(reactions/EFT)
 
 #Tools
 add_subdirectory(tools/draw/src)
