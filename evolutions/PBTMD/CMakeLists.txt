@@ -1,0 +1,11 @@
+
+  message(STATUS " optional evolution PBTMD ")
+  set(CMAKE_Fortran_FLAGS "-Wall -std=legacy -fno-automatic -fPIC -ffixed-line-length-132 ${CMAKE_Fortran_FLAGS}")
+  #set(CMAKE_Fortran_FLAGS "-Wall -std=legacy -fno-automatic -static  -fPIC -ffixed-line-length-132 ${CMAKE_Fortran_FLAGS}")
+  #set(CMAKE_Fortran_FLAGS "-Wall -std=legacy -fno-automatic  -fcheck=all -static  -fPIC -ffixed-line-length-132 ${CMAKE_Fortran_FLAGS}")
+  set(TARGET evolutionPBTMD)
+  add_library(${TARGET} MODULE PBTMDutils.f EvolutionPBTMD.cc)
+  target_link_libraries(${TARGET} PUBLIC xfitter yaml-cpp )
+  target_link_libraries(${TARGET} PRIVATE QCDNUM LHAPDF )
+  install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+  install(FILES PBTMD.yaml DESTINATION ${DEST_YAML}/evolutions)
