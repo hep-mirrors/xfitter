@@ -1,4 +1,7 @@
 #!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 #####################################################################
 ## Configuration ####################################################
 
@@ -7,6 +10,7 @@ lhapdfver=6.5.4
 hathorver=2.0
 hoppetver=1.2.0
 applgridver=1.6.35
+# This is the frozen version of the package
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
@@ -563,12 +567,15 @@ else
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
-    if [[ $http == "curl" ]]
-    then 
-        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
-    else
-        wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    fi
+#    if [[ $http == "curl" ]]
+#    then 
+#        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+#    else
+#        wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+#    fi
+    # link it
+
+    ln -s ${SCRIPT_DIR}/qcdnum${qcdnumstripver}.tar.gz .
     tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
 
@@ -627,7 +634,7 @@ else
       numdiff_url=http://nongnu.askapache.com/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
-          curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+          curl ${numdiff_url} > numdiff-${numdiffver}.tar.gz 2>> $CURRENTDIR/install.log
       else
           wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       fi
