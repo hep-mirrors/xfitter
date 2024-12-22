@@ -48,6 +48,7 @@ find_package(yaml)
 find_package(ZLIB)
 find_package(PineAPPL)
 find_package(Ploughshare)
+find_package(HOPPET)
 
 set(CMAKE_CXX_FLAGS "-O ${CMAKE_CXX_FLAGS}")
 set(CMAKE_Fortran_FLAGS "-O ${CMAKE_Fortran_FLAGS}")
@@ -172,6 +173,7 @@ add_subdirectory(evolutions/APFELxx)
 add_subdirectory(evolutions/FlipCharge)
 add_subdirectory(evolutions/FlipUD)
 add_subdirectory(evolutions/LHAPDF)
+add_subdirectory(evolutions/HOPPET)
 
 #Reactions
 add_subdirectory(reactions/NC_SIA)
@@ -200,6 +202,9 @@ add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
 add_subdirectory(reactions/PineAPPL)
+add_subdirectory(reactions/HOPPET_DISNC)
+add_subdirectory(reactions/HOPPET_DISCC)
+add_subdirectory(reactions/EFT)
 
 #Tools
 add_subdirectory(tools/draw/src)

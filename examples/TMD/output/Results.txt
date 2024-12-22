@@ -1,0 +1,126 @@
+After minimisation     505.66   297     1.703
+
+  Partial chi2s 
+Dataset    1      4.41( +0.25)     4  E288 200 GeV M 4-5 GeV                          
+Dataset    2     10.88( +0.36)     5  E288 200 GeV M 5-6 GeV                          
+Dataset    3      3.85( +0.44)     6  E288 200 GeV M 6-7 GeV                          
+Dataset    4      4.75( +1.67)     7  E288 200 GeV M 7-8 GeV                          
+Dataset    5      3.62( +4.61)     8  E288 200 GeV M 8-9 GeV                          
+Dataset    6      2.28( +9.15)     9  E288 300 GeV M 11-12 GeV                        
+Dataset    7      8.89( +0.54)     4  E288 300 GeV M 4-5 GeV                          
+Dataset    8      5.73( +0.64)     5  E288 300 GeV M 5-6 GeV                          
+Dataset    9      2.88( +0.49)     6  E288 300 GeV M 6-7 GeV                          
+Dataset   10      1.19( -0.12)     7  E288 300 GeV M 7-8 GeV                          
+Dataset   11      7.93( -0.69)     8  E288 300 GeV M 8-9 GeV                          
+Dataset   12     29.82( -6.88)    10  E288 400 GeV M 10-11 GeV                        
+Dataset   13      9.74( +0.59)    10  E288 400 GeV M 11-12 GeV                        
+Dataset   14      4.59( +5.23)    10  E288 400 GeV M 12-13 GeV                        
+Dataset   15      2.35(+10.93)    10  E288 400 GeV M 13-14 GeV                        
+Dataset   16      4.89( +1.21)     5  E288 400 GeV M 5-6 GeV                          
+Dataset   17     12.23( +0.96)     6  E288 400 GeV M 6-7 GeV                          
+Dataset   18      6.89( +0.50)     7  E288 400 GeV M 7-8 GeV                          
+Dataset   19     13.62( -0.41)     8  E288 400 GeV M 8-9 GeV                          
+Dataset   20     43.92( -9.34)    10  E288 400 GeV M 9-10 GeV                         
+Dataset   21      9.11( -0.52)     7  E605 M 7-8 GeV                                  
+Dataset   22     15.63( -0.26)     8  E605 M 8-9 GeV                                  
+Dataset   23      5.20( -1.89)    11  E605 M 10.5-11.5 GeV                            
+Dataset   24      8.35( -3.25)    12  E605 M 11.5-13.5 GeV                            
+Dataset   25     19.96( +0.71)    14  E605 M 13.5-18 GeV                              
+Dataset   26      2.74( +1.36)     4  E772 M 5-6 GeV                                  
+Dataset   27      5.08( +1.77)     5  E772 M 6-7 GeV                                  
+Dataset   28      5.71( +0.51)     6  E772 M 7-8 GeV                                  
+Dataset   29      6.82( +0.19)     6  E772 M 8-9 GeV                                  
+Dataset   30      9.92( +1.15)     8  E772 M 11-12 GeV                                
+Dataset   31     10.24( +2.30)     8  E772 M 12-13 GeV                                
+Dataset   32      5.99( +2.52)     6  E772 M 13-14 GeV                                
+Dataset   33      1.48( -0.02)     6  E772 M 14-15 GeV                                
+Dataset   34     73.82( +0.42)    55  CDF ZPT 1.96 TEV                                
+
+ Correlated Chi2    115.99830106765603     
+ Log penalty Chi2    25.137204812173152     
+ Systematic shifts           83
+  
+                                Name          Shift   +/-    Error          Type
+    1  norm_E288_e200_m45                     0.2250   +/-   0.0940        :N:M:D
+    2  norm_E288_e200_m56                     0.2339   +/-   0.1117        :N:M:D
+    3  norm_E288_e200_m67                     0.2546   +/-   0.1304        :N:M:D
+    4  norm_E288_e200_m78                     0.7373   +/-   0.1993        :N:M:D
+    5  norm_E288_e200_m89                     1.5473   +/-   0.2844        :N:M:D
+    6  norm_E288_e300_m1112                   1.9025   +/-   0.5055        :N:M:D
+    7  norm_E288_e300_m45                     0.5366   +/-   0.0838        :N:M:D
+    8  norm_E288_e300_m56                     0.4842   +/-   0.0908        :N:M:D
+    9  norm_E288_e300_m67                     0.3064   +/-   0.1011        :N:M:D
+   10  norm_E288_e300_m78                    -0.0725   +/-   0.1460        :N:M:D
+   11  norm_E288_e300_m89                    -0.3236   +/-   0.2210        :N:M:D
+   12  norm_E288_e400_m1011                  -4.0756   +/-   0.1336        :N:M:D
+   13  norm_E288_e400_m1112                   0.2383   +/-   0.1745        :N:M:D
+   14  norm_E288_e400_m1213                   1.3762   +/-   0.2144        :N:M:D
+   15  norm_E288_e400_m1314                   2.4055   +/-   0.2670        :N:M:D
+   16  norm_E288_e400_m56                     0.8694   +/-   0.0536        :N:M:D
+   17  norm_E288_e400_m67                     0.6171   +/-   0.0324        :N:M:D
+   18  norm_E288_e400_m78                     0.3019   +/-   0.0434        :N:M:D
+   19  norm_E288_e400_m89                    -0.1558   +/-   0.0580        :N:M:D
+   20  norm_E288_e400_m910                   -6.1625   +/-   0.0914        :N:M:D
+   21  norm_e605_m78                         -0.3761   +/-   0.3221        :N:M:D
+   22  norm_e605_m89                         -0.1797   +/-   0.2535        :N:M:D
+   23  norm_e605_m105115                     -0.7265   +/-   0.2415        :N:M:D
+   24  norm_e605_m115135                     -1.2379   +/-   0.2386        :N:M:D
+   25  norm_e605_m135180                     -0.0232   +/-   0.2998        :N:M:D
+   26  lumi_e772                              1.9027   +/-   0.3671        :N:M:D
+   27  eff                                   -0.0469   +/-   0.9844        :N:M:D
+   28  lumi                                   0.0861   +/-   0.1915        :N:M:D
+   29  CStat_001_CDF ZPT 1.96 TEV             1.4386   +/-   0.8517        :N:P:D
+   30  CStat_002_CDF ZPT 1.96 TEV            -0.5519   +/-   0.7036        :N:P:D
+   31  CStat_003_CDF ZPT 1.96 TEV            -3.0628   +/-   0.7539        :N:P:D
+   32  CStat_004_CDF ZPT 1.96 TEV             2.3454   +/-   0.7357        :N:P:D
+   33  CStat_005_CDF ZPT 1.96 TEV             1.5420   +/-   0.7597        :N:P:D
+   34  CStat_006_CDF ZPT 1.96 TEV             2.0345   +/-   0.7639        :N:P:D
+   35  CStat_007_CDF ZPT 1.96 TEV             1.4981   +/-   0.7901        :N:P:D
+   36  CStat_008_CDF ZPT 1.96 TEV             1.0719   +/-   0.7803        :N:P:D
+   37  CStat_009_CDF ZPT 1.96 TEV             1.0851   +/-   0.7969        :N:P:D
+   38  CStat_010_CDF ZPT 1.96 TEV             0.4862   +/-   0.7989        :N:P:D
+   39  CStat_011_CDF ZPT 1.96 TEV             0.2786   +/-   0.8146        :N:P:D
+   40  CStat_012_CDF ZPT 1.96 TEV             1.2931   +/-   0.8437        :N:P:D
+   41  CStat_013_CDF ZPT 1.96 TEV             0.4523   +/-   0.8255        :N:P:D
+   42  CStat_014_CDF ZPT 1.96 TEV             0.9777   +/-   0.8269        :N:P:D
+   43  CStat_015_CDF ZPT 1.96 TEV             0.1137   +/-   0.8570        :N:P:D
+   44  CStat_016_CDF ZPT 1.96 TEV             0.2024   +/-   0.8502        :N:P:D
+   45  CStat_017_CDF ZPT 1.96 TEV            -0.5700   +/-   0.8573        :N:P:D
+   46  CStat_018_CDF ZPT 1.96 TEV             0.0591   +/-   0.8865        :N:P:D
+   47  CStat_019_CDF ZPT 1.96 TEV            -1.0084   +/-   0.9189        :N:P:D
+   48  CStat_020_CDF ZPT 1.96 TEV             0.4512   +/-   0.8578        :N:P:D
+   49  CStat_021_CDF ZPT 1.96 TEV             0.0499   +/-   0.8705        :N:P:D
+   50  CStat_022_CDF ZPT 1.96 TEV             0.2897   +/-   0.8573        :N:P:D
+   51  CStat_023_CDF ZPT 1.96 TEV             0.1291   +/-   0.8780        :N:P:D
+   52  CStat_024_CDF ZPT 1.96 TEV             0.8804   +/-   0.8803        :N:P:D
+   53  CStat_025_CDF ZPT 1.96 TEV             0.8925   +/-   0.8633        :N:P:D
+   54  CStat_026_CDF ZPT 1.96 TEV            -0.6445   +/-   0.9216        :N:P:D
+   55  CStat_027_CDF ZPT 1.96 TEV            -0.0531   +/-   0.8573        :N:P:D
+   56  CStat_028_CDF ZPT 1.96 TEV             0.3867   +/-   0.8772        :N:P:D
+   57  CStat_029_CDF ZPT 1.96 TEV            -0.4450   +/-   0.8960        :N:P:D
+   58  CStat_030_CDF ZPT 1.96 TEV             0.3690   +/-   0.8694        :N:P:D
+   59  CStat_031_CDF ZPT 1.96 TEV            -0.2172   +/-   0.8715        :N:P:D
+   60  CStat_032_CDF ZPT 1.96 TEV            -0.1641   +/-   0.8831        :N:P:D
+   61  CStat_033_CDF ZPT 1.96 TEV            -0.4368   +/-   0.8974        :N:P:D
+   62  CStat_034_CDF ZPT 1.96 TEV            -0.1449   +/-   0.8940        :N:P:D
+   63  CStat_035_CDF ZPT 1.96 TEV            -0.3830   +/-   0.9012        :N:P:D
+   64  CStat_036_CDF ZPT 1.96 TEV             0.3145   +/-   0.8803        :N:P:D
+   65  CStat_037_CDF ZPT 1.96 TEV             0.2222   +/-   0.9106        :N:P:D
+   66  CStat_038_CDF ZPT 1.96 TEV            -0.1154   +/-   0.8870        :N:P:D
+   67  CStat_039_CDF ZPT 1.96 TEV             0.8026   +/-   0.8828        :N:P:D
+   68  CStat_040_CDF ZPT 1.96 TEV             0.2625   +/-   0.8692        :N:P:D
+   69  CStat_041_CDF ZPT 1.96 TEV            -0.1480   +/-   0.8666        :N:P:D
+   70  CStat_042_CDF ZPT 1.96 TEV            -0.2313   +/-   0.8624        :N:P:D
+   71  CStat_043_CDF ZPT 1.96 TEV            -0.4833   +/-   0.9105        :N:P:D
+   72  CStat_044_CDF ZPT 1.96 TEV             0.0652   +/-   0.9042        :N:P:D
+   73  CStat_045_CDF ZPT 1.96 TEV            -0.0776   +/-   0.9083        :N:P:D
+   74  CStat_046_CDF ZPT 1.96 TEV             0.0402   +/-   0.9048        :N:P:D
+   75  CStat_047_CDF ZPT 1.96 TEV            -0.7558   +/-   0.9024        :N:P:D
+   76  CStat_048_CDF ZPT 1.96 TEV            -0.0995   +/-   0.9138        :N:P:D
+   77  CStat_049_CDF ZPT 1.96 TEV            -0.3467   +/-   0.9140        :N:P:D
+   78  CStat_050_CDF ZPT 1.96 TEV            -0.5754   +/-   0.9035        :N:P:D
+   79  CStat_051_CDF ZPT 1.96 TEV             0.0108   +/-   0.8557        :N:P:D
+   80  CStat_052_CDF ZPT 1.96 TEV             0.7165   +/-   0.8988        :N:P:D
+   81  CStat_053_CDF ZPT 1.96 TEV             0.0912   +/-   0.9115        :N:P:D
+   82  CStat_054_CDF ZPT 1.96 TEV             0.5012   +/-   0.9678        :N:P:D
+   83  CStat_055_CDF ZPT 1.96 TEV            -0.0172   +/-   0.9945        :N:P:D

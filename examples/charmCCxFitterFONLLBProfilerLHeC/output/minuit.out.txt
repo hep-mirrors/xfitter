@@ -6,6 +6,9 @@
  NOW USING STRATEGY  2: MAKE SURE MINIMUM TRUE, ERRORS CORRECT  
 
  **********
- **    2 **CALL FCN    3.000    
+ **    2 **CALL FCN    1.000    
  **********
  THERE ARE CURRENTLY NO PARAMETERS DEFINED
+ **********
+ **    3 **CALL FCN    3.000    
+ **********

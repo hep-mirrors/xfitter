@@ -1,0 +1,59 @@
+* xmshen137@gmail.com
+* This example demonstrates the extraction of mt from inclusvie ttbar production rates at 7, 8, and 13 TeV.
+* Please to do take the results of this illustrative example seriously. For example,
+*  - scale and PDF uncertainties (and other error sources) are not included for simplicity;
+* Ref:
+* https://arxiv.org/abs/2205.13830
+* https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO
+&Data 
+  Name = "ttbar" 
+  IndexDataset = 1
+  TermName = 'c','lmt','qmt','deltamt','ctgp3','ctgm3','ctg','lctgmt'
+  TermSource = 'KFactor','KFactor','KFactor','KFactor','KFactor','KFactor','KFactor','KFactor'
+  TermInfo = 'DataColumn=c','DataColumn=l_mt','DataColumn=q_mt','Parameter=deltamt','DataColumn=y1','DataColumn=y3','Parameter=ctg','DataColumn=lctgmt'
+  TheorExpr = 'c*(1
+  +lmt*deltamt
+  +qmt*deltamt*deltamt
+  +(9*(ctgp3/c-1)+3*3*(1-ctgm3/c))/54*ctg
+  +(0-3*(1-ctgp3/c)+3*(ctgm3/c-1))/54*ctg*ctg
+  +(lctgmt-c*(1
+  +lmt*1
+  +qmt*1*1
+  +(9*(ctgp3/c-1)+3*3*(1-ctgm3/c))/54*3
+  +(0-3*(1-ctgp3/c)+3*(ctgm3/c-1))/54*3*3
+  ))/c*(ctg/3)*(deltamt/1)
+  )'
+! ctg dependence is given via xsec values for different values of ctg -> need to solve quadratic equation
+! y1 at x1 = 3, y2(=c) at x2 = 0, y3 at x3 = -3
+! y = A * x * x + B * x + C
+! denom = (x1 - x2) * (x1 - x3) * (x2 - x3) = 3*3*6 = 54
+! double A     = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / denom;
+! double B     = (x3 * x3 * (y1 - y2) + x2 * x2 * (y3 - y1) + x1 * x1 * (y2 - y3)) / denom;
+! double C     = (x2 * x3 * (x2 - x3) * y1 + x3 * x1 * (x3 - x1) * y2 + x1 * x2 * (x1 - x2) * y3) / denom;
+
+  
+! Dummy bins ("Bin", "Dummy", "Dummy") are used to get identical output to "EFT" example
+  NData =   3
+  NColumn =  11
+  ColumnType = 3*"Bin","Sigma", 1*"Error", 6*"Bin"
+  ColumnName = "Bin","dummy","dummy","Sigma", "stat", "c", "l_mt", "q_mt", "y1", "y3", "lctgmt"
+  Percent = 1*true
+&End 
+&PlotDesc
+   PlotN = 1
+   PlotDefColumn = 'Bin'
+   PlotDefValue = 0,10
+   PlotVarColumn = 'Bin'
+   PlotOptions(1)  = 
+ 'Experiment:inclusive_ttbar_xsec@ExtraLabel:pp #rightarrow t#bar{t}@XTitle: @YTitle: #sigma [fb] @Title:'
+&End
+* c: deltamt=0,ctg=0
+* lmt: d_xsec/d_deltamt
+* q_mt: d^2_xsec/d_deltamt^2/2
+* y1: ctg=3
+* y3: ctg=-3
+* lctgmt: deltamt=1,ctg=3
+* Bin Bin2 Bin3 sigma stat     c     lmt    q_mt        y1       y3         lctgmt
+    1    0    0 178.5 2.6  179.6  -0.030  5.3e-4   217.316  174.212   205.52369748
+    1    0    0 243.3 2.5  256.0  -0.030  5.1e-4   317.440  240.640   300.39869440
+    0    0    0 815.0 4.3  833.9  -0.027  4.4e-4  1434.308  683.798  1371.19577952

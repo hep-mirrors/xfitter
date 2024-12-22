@@ -149,6 +149,13 @@ void APFEL_Evol::atStart()
   }
   else
   {
+    // SZ 2024.09.06 support ZM-VFNS: override scheme = FONLL-A(B,C)
+    {
+      if (_yAPFEL["MassScheme"]) 
+      {
+        scheme = _yAPFEL["MassScheme"].as<string>();
+      }
+    }
     APFEL::SetMassScheme(scheme);
   }
 
