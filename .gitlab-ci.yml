@@ -32,7 +32,7 @@ job-install-full:
   timeout: 120m
   script: 
     #- yum -y install gcc-gfortran git tar root libgfortran-static
-    - yum -y install git tar root
+    - yum -y install git tar root perl-CPAN
     - ./tools/install-xfitter deps
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
