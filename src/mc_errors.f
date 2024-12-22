@@ -62,6 +62,7 @@ cv initialise the random shifts
 C
 C Loop over systematic sources:
 C
+      open(90,file=TRIM(OutDirName)//'/mc_rnd.txt')
       do isys=1,nsys
          call rnorml(rndsh,1)   ! gauss random number
          call ranlux(ranflat,1) ! uniform random number
@@ -72,7 +73,11 @@ C
          print '(''random numbers: sys, gauss, flat '',2i6,2F8.2)',
      $        isys,isys, rand_shift(isys),
      $        r_sh_fl(isys)
+         write(90,'(''random numbers: sys, gauss, flat '',2i6,2F8.2)')
+     $        isys,isys, rand_shift(isys),
+     $        r_sh_fl(isys)
       enddo
+      close(90)
 
 C
 C Loop over the data:

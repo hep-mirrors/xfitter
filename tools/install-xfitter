@@ -1,4 +1,7 @@
 #!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 #####################################################################
 ## Configuration ####################################################
 
@@ -8,12 +11,14 @@ hathorver=2.0
 #hoppetver=1.2.0
 hoppetver=master # needed for HOPPET structure functions (to be replaced with upcoming 1.3.0 version)
 applgridver=1.6.35
+# This is the frozen version of the package
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
 apfelxxver=4.8.0
 dyturbover=1.3.3
 pineapplver="0.6.0-alpha.17"
+rusttag="unknown-linux-gnu"
 rustver=1.66.0
 cargocver=0.9.14
 PLOUGHSHARE_VERSION="0.0.20"
@@ -22,7 +27,7 @@ PLOUGHSHARE_VERSION="0.0.20"
 skip_apfelgrid=0
 skip_dyturbo=1
 skip_rust=1
-skip_pineappl=1
+skip_pineappl=0
 # fetch precompiled files for pineappl if possible, avoiding heavy rust deps
 pineappl_lite=1
 skip_ploughshare=0
@@ -240,6 +245,11 @@ then
     fi
 fi
 
+if [[ $arch == "" ]]
+then
+    arch=`uname -m`
+fi
+
 #Require full PineAPPL installation if precompiled files not available
 if [[ $arch != x86_64 ]] && [[ $rusttag != "unknown-linux-gnu" ]]; then
     echo "Unsupported architecture or rust version, installing pineappl from scratch"
@@ -356,9 +366,9 @@ else
     else
         wget --no-check-certificate https://lhapdf.hepforge.org/downloads/${lhapdf}-${lhapdfver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
-    cat $CURRENTDIR/install.log
+    #cat $CURRENTDIR/install.log
     tar xfz ${lhapdf}-${lhapdfver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-    cat $CURRENTDIR/install.log 
+    #cat $CURRENTDIR/install.log 
     cd ${lhapdf}-${lhapdfver}
     ./configure --prefix=$CURRENTDIR/deps/lhapdf --disable-python  >> $CURRENTDIR/install.log  2>&1
     if [[ $? != 0 ]]
@@ -536,7 +546,7 @@ else
 	then
             echo "Error, check install.log for details"
 	fi
-	make -j 8 install
+	make -j 8 install >> $CURRENTDIR/install.log  2>&1
 	cd - >& /dev/null
     fi
     
@@ -554,7 +564,7 @@ else
 
     cd apfelxx-${apfelxxver}
     cmake3='cmake3'
-    if [ -x "command -v cmake3" ]; then
+    if ! command -v cmake3 >/dev/null 2>&1; then
         cmake3='cmake'
     fi
     $cmake3 -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/apfelxx >> $CURRENTDIR/install.log  2>&1
@@ -566,12 +576,15 @@ else
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
-    if [[ $http == "curl" ]]
-    then 
-        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
-    else
-        wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-    fi
+#    if [[ $http == "curl" ]]
+#    then 
+#        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+#    else
+#        wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+#    fi
+    # link it
+
+    ln -s ${SCRIPT_DIR}/qcdnum${qcdnumstripver}.tar.gz .
     tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
 
@@ -630,7 +643,7 @@ else
       numdiff_url=http://nongnu.askapache.com/numdiff/numdiff-${numdiffver}.tar.gz
       if [[ $http == "curl" ]]
       then
-          curl ${numdiff_url} > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+          curl ${numdiff_url} > numdiff-${numdiffver}.tar.gz 2>> $CURRENTDIR/install.log
       else
           wget --no-check-certificate ${numdiff_url} >> $CURRENTDIR/install.log 2>&1
       fi
@@ -688,7 +701,7 @@ else
         if [[ $pineappl_lite == 1 ]]; then
             mkdir $CURRENTDIR/deps/pineappl
             PINEAPPL_URL=https://github.com/NNPDF/pineappl/releases/download
-            wget --no-check-certificate "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz -O- | tar xzf - -C "$CURRENTDIR/deps/pineappl"
+            wget --no-check-certificate "${PINEAPPL_URL}"/v${pineapplver}/pineappl_capi-${arch}-${rusttag}.tar.gz -O- 2>> $CURRENTDIR/install.log | tar xzf - -C "$CURRENTDIR/deps/pineappl"
             sed -i s:prefix=/:prefix=$CURRENTDIR/deps/pineappl: "$CURRENTDIR/deps/pineappl"/lib/pkgconfig/pineappl_capi.pc            
         else
             PINEAPPL_URL=https://github.com/NNPDF/pineappl.git
@@ -700,10 +713,9 @@ else
                 echo "Error, check install.log for details"
                 exit
             fi
+          cd - >& /dev/null
         fi
-        
-        cd - >& /dev/null
-        
+                
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/lhapdf/lib/pkgconfig
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$CURRENTDIR/deps/pineappl/lib/pkgconfig
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CURRENTDIR/deps/pineappl/lib
@@ -718,7 +730,7 @@ else
 	cd "${TMP_DIR}" || exit
 
 	# Download the Ploughshare archive
-	wget "${PLOUGHSHARE_URL}"
+	#wget "${PLOUGHSHARE_URL}"
 
 	if [[ $http == "curl" ]]
 	then
@@ -813,7 +825,7 @@ echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
 echo "export PYTHONPATH=$PYTHONPATH:`cat /tmp/xf_py1234_a` " >> setup.sh
 rm /tmp/xf_py1234_a
 
-if [[ $skip_pineapple == 0 ]]; then
+if [[ $skip_pineappl == 0 ]]; then
     echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/lhapdf/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
     echo export PKG_CONFIG_PATH=\$CURRENTDIR/deps/pineappl/lib/pkgconfig:\$PKG_CONFIG_PATH >> setup.sh
     echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/pineappl/lib:\$LD_LIBRARY_PATH >> setup.sh
