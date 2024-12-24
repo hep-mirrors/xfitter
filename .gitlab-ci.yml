@@ -212,7 +212,6 @@ job-docker:
     - schedules
   timeout: 120m
   script:
-    - yum -y install git tar root perl-CPAN
     - docker info
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker build -t gitlab-registry.cern.ch/fitters/xfitter:master .
