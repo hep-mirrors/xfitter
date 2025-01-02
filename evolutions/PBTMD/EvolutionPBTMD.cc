@@ -22,7 +22,33 @@
 xfitter::BasePdfDecomposition *gPdfDecomp = nullptr;
 xfitter::BaseEvolution* gExternalEvolution;
 
+// Wrapper for QCDNUM
+double funcPDF(int *ipdf, double *x) {
+  if (*ipdf<0) return 0.;
+  const std::map <int,int> ip = { {1,-3}, {2,-2}, {3,-1}, {4,1}, {5,2}, {6,3}, {7,-4}, {8,4}, {9,-5}, {10,5}, {11,-6}, {12,6}, {0,21} } ;
+  return gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)];
+}
+
+double static   qcdnumDef[] = {
+// tb bb  cb  sb ub   db  g   d   u   s   c   b   t
+  0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // sb
+  0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0.,  // ub
+  0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.,  // db
+  0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.,  // d
+  0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.,  // u
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.,  // s
+  0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // cb
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.,  // c
+  0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // bb
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.,  // b
+  1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,  // tb
+  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.  // t
+};
+
+
 extern "C" {
+
+
 
 double funcstart_(int *ipdf, double *x) {
 //double funcPDF(int *ipdf, double *x) {
@@ -90,6 +116,10 @@ namespace xfitter {
 
     //Evolution gets its decomposition from YAML
     gPdfDecomp=XFITTER_PARS::getInputDecomposition(yPBTMD);
+    Mz = XFITTER_PARS::getParamD("Mz");
+    alphas = XFITTER_PARS::getParamD("alphas");
+    const double* Q0         = XFITTER_PARS::getParamD("Q0");
+    double q20 = (*Q0) * (*Q0);
    }
 
   void EvolutionPBTMD::atConfigurationChange(){
@@ -98,7 +128,27 @@ namespace xfitter {
   }
 
   void EvolutionPBTMD::atIteration(){
-  // std::cout<< " in PBTMD atIteration " << std::endl;
+//      std::cout<< " in PBTMD atIteration " << std::endl;
+      const double* q0 = XFITTER_PARS::getParamD("Q0");
+      int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
+      double epsi = 0;
+
+      //Re-read Mz and alphas at each iteration so that they can be fitted
+      double alS = *alphas;
+
+      if ( std::isnan(alS) ) {
+        alS = 0.0001; //this should make chi2 bad and force minimizer to an earlier, valid, value of alphas
+        cerr<<"[WARN] QCDNUM got alphas = NaN; using alphas = "<<alS<<" instead"<<endl;
+        hf_errlog(19070500, "W: alphas = NaN in QCDNUM, see stderr");
+      }
+
+
+      const double MZ = *Mz;
+//        cout << " PBTMD at iteration: as = " << alS << " " << MZ << endl;
+      QCDNUM::setalf( alS, MZ * MZ );
+
+      QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
+
   }
 
   void EvolutionPBTMD::afterIteration(){
