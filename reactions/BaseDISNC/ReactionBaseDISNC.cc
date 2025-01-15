@@ -88,12 +88,12 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
     break;
   case dataType::f2:
     F2(td, val, err);
-    if (_flag_ht[termID] && 1) 
+    if (_flag_ht[termID] && 0) 
       ApplyHigherTwist(td, 2, val, err);
     break;
   case dataType::fl:
     FL(td, val, err);
-    if (_flag_ht[termID] && 1) {
+    if (_flag_ht[termID] && 0) {
       valarray<double> f2;
       F2(td, f2, err);
       ApplyHigherTwist(td, 1, val, err, &f2);
@@ -539,12 +539,12 @@ void ReactionBaseDISNC::sred BASE_PARS
 
   valarray<double> f2(_npoints[termID]);
   F2(td, f2, err);
-  if (_flag_ht[termID] && 1) 
+  if (_flag_ht[termID] && 0) 
     ApplyHigherTwist(td, 2, f2, err);
 
   valarray<double> fl(_npoints[termID]);
   FL(td, fl, err);
-  if (_flag_ht[termID] && 1) 
+  if (_flag_ht[termID] && 0) 
     ApplyHigherTwist(td, 1, fl, err, &f2);
 
   valarray<double> xf3(_npoints[termID]);

@@ -153,19 +153,45 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   double charge = rd->_charge;
 
   valarray<double> val;
-  if (charge > 0)
-    val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
-  else
-    val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
-
-  if (!rd->_isReduced)
+  switch (((BaseDISCC::ReactionData*)td->reactionData)->_dataType[td->id])
   {
+  case BaseDISCC::dataType::signonred:
+  {
+    if (charge > 0)
+      val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
+    else
+      val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
     // extra factor for non-reduced cross section
     auto &x = *BaseDISCC::GetBinValues(td, "x"),
         &q2 = *BaseDISCC::GetBinValues(td, "Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * _Gf * _Gf / (2 * pi * x) * _convfac;
     val *= factor;
+    break;
+  }
+  case BaseDISCC::dataType::sigred:
+  {
+    if (charge > 0)
+      val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
+    else
+      val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
+    break;
+  }
+  case BaseDISCC::dataType::f2:
+  {
+    val = f2;
+    break;
+  }
+  case BaseDISCC::dataType::fl:
+  {
+    val = fl;
+    break;
+  }
+  case BaseDISCC::dataType::f3:
+  {
+    val = xf3;
+    break;
+  }
   }
 
   IntegrateDIS *iDIS = rd->_integrated;
@@ -230,12 +256,29 @@ void ReactionBaseDISCC::initTerm(TermData *td)
     if (type == "sigred")
     {
       _isReduced = true;
+      ((BaseDISCC::ReactionData*)td->reactionData)->_dataType[termID] = BaseDISCC::dataType::sigred;
       msg = "I: Calculating DIS CC reduced cross section";
     }
     else if (type == "signonred")
     {
       _isReduced = false;
+      ((BaseDISCC::ReactionData*)td->reactionData)->_dataType[termID] = BaseDISCC::dataType::signonred;
       msg = "I: Calculating DIS CC non-reduced cross section";
+    }
+    else if (type == "F2")
+    {
+      ((BaseDISCC::ReactionData*)td->reactionData)->_dataType[termID] = BaseDISCC::dataType::f2;
+      msg = "I: Calculating DIS CC F2";
+    }
+    else if (type == "FL")
+    {
+      ((BaseDISCC::ReactionData*)td->reactionData)->_dataType[termID] = BaseDISCC::dataType::fl;
+      msg = "I: Calculating DIS CC FL";
+    }
+    else if (type == "F3")
+    {
+      ((BaseDISCC::ReactionData*)td->reactionData)->_dataType[termID] = BaseDISCC::dataType::f3;
+      msg = "I: Calculating DIS CC F3";
     }
     else
     {

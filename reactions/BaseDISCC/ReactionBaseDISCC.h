@@ -25,6 +25,16 @@ public:
 
 protected:
 
+   enum class dataType
+   {
+      signonred,
+      sigred,
+      f2,
+      fl,
+      f3,
+      sigred_nof3
+   }; //!< Define compute output.
+
   virtual valarray<double> FL(TermData *td);
   virtual valarray<double> F2(TermData *td);
   virtual valarray<double> xF3(TermData *td);
@@ -40,6 +50,7 @@ protected:
   // is the map with pointers IntegrateDIS* outdated (seems to be in ReactionData)? --SZ
   //map<unsigned, IntegrateDIS *> _integrated;
   virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
+  //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
 };
 
 /// Helper classes and functions:
@@ -51,6 +62,15 @@ namespace BaseDISCC
     c,
     b
   }; //!< Define final state.
+  enum class dataType
+  {
+    signonred,
+    sigred,
+    f2,
+    fl,
+    f3,
+    sigred_nof3
+  }; //!< Define compute output.
   struct ReactionData
   {
     int _npoints;                        //!< Number of points in a dataset.
@@ -58,6 +78,7 @@ namespace BaseDISCC
     double _charge = 0.;                 //!< lepton beam charge
     bool _isReduced = false;             //!< reduced cross section
     dataFlav _dataFlav = dataFlav::incl; //!< flavour (incl, c, b)
+    map<unsigned, dataType> _dataType;   //!< cross section (reduced, F2, FL)
     // for integrated cross sections
     // method is based on legacy subroutine GetIntegratedDisXsection
     IntegrateDIS *_integrated = nullptr;

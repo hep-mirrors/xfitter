@@ -237,6 +237,20 @@ void ReactionFFABM_DISNC::atIteration()
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 {
+  // for HT
+  std::vector<double> ht_x(_ht_x[dataSetID].size());
+  std::vector<double> ht_f2(_ht_x[dataSetID].size());
+  std::vector<double> ht_ft(_ht_x[dataSetID].size());
+  for (size_t i = 0; i < ht_x.size(); i++)
+  {
+    ht_x[i] = *_ht_x[dataSetID][i];
+    ht_f2[i] = *_ht_2[dataSetID][i];
+    ht_ft[i] = *_ht_t[dataSetID][i];
+  }
+  tk::spline spline_f2, spline_ft;
+  spline_ft.set_points(ht_x, ht_ft);
+  spline_f2.set_points(ht_x, ht_f2);
+  //
   if ((_f2abm[dataSetID][0] < -99.))
   { // compute
     // use ref to termData:
@@ -272,6 +286,16 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         if(_flag_tmc[dataSetID]) {
           if ((_tmc_xmin[i] == 0. || _tmc_xmin[i] < x[i]) && (_tmc_logxlogq2min[i] == 0. || _tmc_logxlogq2min[i] < log(x[i])*log(q2[i])))
             apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
+        }
+        if (_flag_ht[dataSetID]) {
+          double q02 = 1.;
+          double ft = f2 - fl;
+          f2 += std::pow(x[i], *_ht_alpha_2[dataSetID]) * spline_f2(x[i]) * q02 / q2[i];
+          tk::spline spline_t;
+          spline_t.set_points(ht_x, ht_ft);
+          ft += std::pow(x[i], *_ht_alpha_t[dataSetID]) * spline_ft(x[i]) * q02 / q2[i];
+          fl = f2 - ft;
+          //printf("  %f\n", ft);
         }
       }
       switch (GetDataFlav(dataSetID))
