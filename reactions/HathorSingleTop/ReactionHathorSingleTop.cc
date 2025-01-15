@@ -472,7 +472,7 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
             hathor->getXsection(_mtop[dataSetID], _mr[dataSetID], _mf[dataSetID]);
             double dum = 0.0;
             hathor->getResult(0, crst, dum);
-            printf("xsec,err: %f %f [%.3f%%]\n", crst, dum, dum/crst*100.);
+            //printf("xsec,err: %f %f [%.3f%%]\n", crst, dum, dum/crst*100.);
     
         }
 
