@@ -237,22 +237,24 @@ void ReactionFFABM_DISNC::atIteration()
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 {
-  // for HT
-  std::vector<double> ht_x(_ht_x[dataSetID].size());
-  std::vector<double> ht_f2(_ht_x[dataSetID].size());
-  std::vector<double> ht_ft(_ht_x[dataSetID].size());
-  for (size_t i = 0; i < ht_x.size(); i++)
-  {
-    ht_x[i] = *_ht_x[dataSetID][i];
-    ht_f2[i] = *_ht_2[dataSetID][i];
-    ht_ft[i] = *_ht_t[dataSetID][i];
-  }
-  tk::spline spline_f2, spline_ft;
-  spline_ft.set_points(ht_x, ht_ft);
-  spline_f2.set_points(ht_x, ht_f2);
-  //
   if ((_f2abm[dataSetID][0] < -99.))
   { // compute
+    // for HT
+    tk::spline spline_f2, spline_ft;
+    std::vector<double> ht_x(_ht_x[dataSetID].size());
+    std::vector<double> ht_f2(_ht_x[dataSetID].size());
+    std::vector<double> ht_ft(_ht_x[dataSetID].size());
+    if (_flag_ht[dataSetID]) {
+      for (size_t i = 0; i < ht_x.size(); i++)
+      {
+        ht_x[i] = *_ht_x[dataSetID][i];
+        ht_f2[i] = *_ht_2[dataSetID][i];
+        ht_ft[i] = *_ht_t[dataSetID][i];
+      }
+      spline_ft.set_points(ht_x, ht_ft);
+      spline_f2.set_points(ht_x, ht_f2);
+    }
+    //
     // use ref to termData:
     auto td = _tdDS[dataSetID];
     // NC
