@@ -271,6 +271,7 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
         std::string order = td->getParamS("Order");
         _scheme[dataSetID] = Hathor::LO;  //POLE uses this
         orderI = 0;                       //MSBAR uses this
+        _kfactors_nnlo_tch[dataSetID] = 1.0;
         if (order == "NLO") {
             _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;  
             orderI = 1;                                             
@@ -278,6 +279,8 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
             hf_errlog(21121005,"W: Standard Hathor-2.0 has no NNLO single top processes. ReactionHathorSingleTop reverts to NLO.");
             _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;  
             orderI = 1;                                             
+            // NNLO/NLO K-factor as given in ABMP16 paper arXiv:1701.05838 with refs. to arXiv:1404.7116 and arXiv:1608.05212
+            _kfactors_nnlo_tch[dataSetID] = 0.984;
 			/* NNLO not implemented in Hathor-2.0. If updated, remove the above 3 
 			 *lines and uncomment the below */
             //_scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO  | Hathor::NNLO;
@@ -478,6 +481,9 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
 
         val[0] += crst;
 
+    }
+    if (tchannel[dataSetID] == 1 && schannel[dataSetID] == 0 && Wtchannel[dataSetID] == 0) {
+        val[0] *= _kfactors_nnlo_tch[dataSetID];
     }
   
 }

@@ -63,6 +63,9 @@ protected:
     std::map<int, int> schannel;
     std::map<int, int> Wtchannel;
 
+    //NNLO t-channel K-factors
+    map<unsigned, double> _kfactors_nnlo_tch;
+
 
     // constants
     double const pi = 3.141592653589793;
