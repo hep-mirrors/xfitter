@@ -70,9 +70,9 @@ void APFEL_Evol::atStart()
   const int PtOrder = OrderMap(XFITTER_PARS::getParamS("Order"));
   const double *Mz = XFITTER_PARS::getParamD("Mz");
 
-  const double *mch = XFITTER_PARS::getParamD("mch");
-  const double *mbt = XFITTER_PARS::getParamD("mbt");
-  const double *mtp = XFITTER_PARS::getParamD("mtp");
+  _mch = XFITTER_PARS::getParamD("mch");
+  _mbt = XFITTER_PARS::getParamD("mbt");
+  _mtp = XFITTER_PARS::getParamD("mtp");
 
   // Retrieve parameters needed to initialize DIS APFEL.
   const double *sin2thw = XFITTER_PARS::getParamD("sin2thW");
@@ -107,7 +107,7 @@ void APFEL_Evol::atStart()
   }
 
   vector<double> qLimits = getSeq<double>(_yAPFEL["qLimits"]);
-  const string heavyQuarkMassScheme = _yAPFEL["heavyQuarkMassScheme"].as<string>();
+  _heavyQuarkMassScheme = _yAPFEL["heavyQuarkMassScheme"].as<string>();
   const string heavyQuarkMassRunning = _yAPFEL["heavyQuarkMassRunning"].as<string>();
   const string theoryType = _yAPFEL["theoryType"].as<string>();
   const string nllxResummation = _yAPFEL["nllxResummation"].as<string>();
@@ -230,13 +230,13 @@ void APFEL_Evol::atStart()
   }
   APFEL::LockGrids(true);
 
-  if (heavyQuarkMassScheme == "Pole")
+  if (_heavyQuarkMassScheme == "Pole")
   {
-    APFEL::SetPoleMasses(*mch, *mbt, *mtp);
+    APFEL::SetPoleMasses(*_mch, *_mbt, *_mtp);
   }
   else
   {
-    APFEL::SetMSbarMasses(*mch, *mbt, *mtp);
+    APFEL::SetMSbarMasses(*_mch, *_mbt, *_mtp);
     if (heavyQuarkMassRunning == "On")
     {
       APFEL::EnableMassRunning(true);
@@ -284,8 +284,17 @@ void APFEL_Evol::atIteration()
   _Qlast = -1.;
   const double *Mz = XFITTER_PARS::getParamD("Mz");
   APFEL::SetAlphaQCDRef(*_alphas, *_alphas_q0);
+  if (_heavyQuarkMassScheme == "Pole")
+  {
+    APFEL::SetPoleMasses(*_mch, *_mbt, *_mtp);
+  }
+  else
+  {
+    APFEL::SetMSbarMasses(*_mch, *_mbt, *_mtp);
+  }
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atIteration();
+  //printf("SZ alphas_nf5(mz) = %.4f\n", this->getAlphaS(*Mz));
 }
 
 void APFEL_Evol::atConfigurationChange()

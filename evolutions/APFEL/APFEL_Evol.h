@@ -2,6 +2,7 @@
 #pragma once
 #include "BaseEvolution.h"
 #include <yaml-cpp/yaml.h>
+#include <string>
 
 namespace xfitter
 {
@@ -47,5 +48,11 @@ private:
   double* _alphas;
   /// Evolution starting scale for alphas:
   const double* _alphas_q0;
+  /// Heavy-quark mass scheme
+  std::string _heavyQuarkMassScheme;
+  /// Heavy-quark masses
+  const double *_mch;
+  const double *_mbt;
+  const double *_mtp;
 };
 } // namespace xfitter
