@@ -469,6 +469,7 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
                          +pow(aspi*d1dec*_mtop[dataSetID]/dmtms,2)/2.*(valtclop - 2.*valtclo + valtclom);
                 crst  += asNNLO*NNLOder;            
             }
+            //printf("xsec,err: %f %f [%.3f%%]\n", crst, err1, err1/crst*100.);
                        
         } else {  //POLE scheme calculated in Hathor, no ext. numerical derivatives
     
