@@ -678,6 +678,11 @@ C
       ReadParsFromFile = .false.
       ParsFileName = ''
       CovFileName = ''
+      ! SZ
+      !ReadParsFromFile = .true.
+      !ParsFileName = 'abmp16_par.txt'
+      !CovFileName = 'abmp16_cov.txt'
+      !
 
       open (51,file='steering.txt',status='old')
       read (51,NML=Output,END=51,ERR=52)

@@ -276,6 +276,7 @@ C-----------------------------------------
       integer i,j, k, ind, ind2, mpar, jext
       double precision, allocatable :: Amat(:,:)
       double precision, allocatable :: eigenvalues(:)
+      double precision parerr_stored(MNE)
 C
       integer  iunint(MNE)  ! internal param. number
       integer  iexint(MNE)  ! external param. number
@@ -343,6 +344,7 @@ C     Check the covariance matrix:
             pkeep(ind) = parval
             write (6,*) ' '
             mpar = mpar + 1
+            parerr_stored(mpar) = parerr
          endif
       enddo
 
@@ -361,6 +363,17 @@ C     Check the covariance matrix:
 
       if (ReadParsFromFile) then
          call ReadParCovMatrix(CovFileName, Amat, Npari)
+         do i=1,npari
+            do j=1,npari
+               Amat(i,j)=Amat(i,j)*parerr_stored(i)*parerr_stored(j)
+               if (i.ne.j) then 
+                 Amat(i,j)=0
+               endif
+            enddo
+         enddo
+         do i=1,npari
+            print '(100E10.2)' ,( Amat(j,i),j=1,npari )
+         enddo
       else
          call MNEMAT( Amat, Npari)
       endif
