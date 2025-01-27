@@ -276,7 +276,7 @@ C-----------------------------------------
       integer i,j, k, ind, ind2, mpar, jext
       double precision, allocatable :: Amat(:,:)
       double precision, allocatable :: eigenvalues(:)
-      double precision parerr_stored(MNE)
+      double precision parerr_keep(MNE)
 C
       integer  iunint(MNE)  ! internal param. number
       integer  iexint(MNE)  ! external param. number
@@ -313,13 +313,24 @@ C Function
       double precision chi2data_theory ! function
 C for theory errors:
       double precision, allocatable :: TheoVars(:,:)
+      integer ierr
+      integer ii
 
 
 C------------------------------------------------------------------------
 
       if (ReadParsFromFile) then
-         call ReadPars(ParsFileName,pkeep)
+C         call ReadPars(ParsFileName,pkeep)
          call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+C get number of parameters
+C          npari = 0
+C          open (51,file=ParsFileName, status='old',iostat=ierr)
+C          do
+C            read(51, '(A)', iostat=ierr) parname
+C            if (ierr /= 0) exit
+C            npari = npari + 1
+C          enddo
+C          close (51)
       else
 C         call MNCOMD(fcn,'SET ERRDEF 9',icond,0)
          call MNCOMD(fcn,'HESSE',icond,0)
@@ -344,7 +355,7 @@ C     Check the covariance matrix:
             pkeep(ind) = parval
             write (6,*) ' '
             mpar = mpar + 1
-            parerr_stored(mpar) = parerr
+            parerr_keep(mpar) = parerr
          endif
       enddo
 
@@ -362,18 +373,22 @@ C     Check the covariance matrix:
 
 
       if (ReadParsFromFile) then
-         call ReadParCovMatrix(CovFileName, Amat, Npari)
-         do i=1,npari
-            do j=1,npari
-               Amat(i,j)=Amat(i,j)*parerr_stored(i)*parerr_stored(j)
-               if (i.ne.j) then 
-                 Amat(i,j)=0
-               endif
-            enddo
-         enddo
-         do i=1,npari
-            print '(100E10.2)' ,( Amat(j,i),j=1,npari )
-         enddo
+C         Allocate(Amat_read(Npari, Npari))
+C         call ReadParCovMatrix(CovFileName, Amat_read, Npari)
+         call ReadParCovMatrix(ParsFileName, CovFileName, Amat, Npari)
+         !do i=1,npari
+         !enddo
+         !do i=1,npari
+         !   do j=1,npari
+         !      Amat(i,j)=Amat(i,j)*parerr_keep(i)*parerr_keep(j)
+               !if (i.ne.j) then 
+               !  Amat(i,j)=0
+               !endif
+         !   enddo
+         !enddo
+         !do i=1,npari
+         !   print '(100E10.2)' ,( Amat(j,i),j=1,npari )
+         !enddo
       else
          call MNEMAT( Amat, Npari)
       endif
@@ -455,11 +470,12 @@ C write out once more (with theory errors filled)
       end
 
 !> read parameter values from the pars out file
-! Probably borken since 2.2.0 --Ivan
+C      subroutine ReadPars(FileName, pvals, pidx)
       subroutine ReadPars(FileName, pvals)
       implicit none
       character*(*) FileName
       double precision pvals(*)
+C      integer pidx(*)
       integer IStatus
 
       character*120 buff
@@ -469,20 +485,21 @@ C write out once more (with theory errors filled)
       double precision parval, parerr, parlolim, parhilim
 C------------------------------------------------
       print *,'Reading parameter values from '//trim(FileName)
-      open (51,file=FileName, status='old',err=3)
- 1    read (51,'(A120)',end=2, err=4) buff
+C      open (51,file=FileName, status='old',err=3)
+C 1    read (51,'(A120)',end=2, err=4) buff
 
-      call MNPARS(buff,IStatus)
-      goto 1
+C      call MNPARS(buff,IStatus)
+C      goto 1
 C Decode
 
- 2    close (51)
+C 2    close (51)
 
       call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
       do ind=1,nparx
          call mnpout(ind,parname,parval,parerr,parlolim,
      $        parhilim,ii)
          pvals(ind) = parval
+C         pidx(ind) = ii
       enddo
 
 
@@ -494,30 +511,73 @@ C Decode
      $     //trim(FileName)//', STOP')
       end
 
-      subroutine ReadParCovMatrix( FileName, Cov, Npars)
+      subroutine ReadParCovMatrix(FileNamePars, FileNameCov, Cov, Npars)
       implicit none
-      character *(*) FileName
+      character *(*) FileNamePars
+      character *(*) FileNameCov
       integer NPars
       double precision Cov(Npars,Npars)
       integer i,j
+      integer ind,ii
+      integer npars_r
+      double precision parval,parerr,parlolim,parhilim
+      double precision fmin, fedm, errdef
+      integer npari, nparx, istat
+      integer paridx(70)
+      double precision parerr_keep(70)
+      character parname_keep(70)*100
+      character*100 parname
 C---------------------------------------------------
-      open (51, file=FileName, status='old', err=1)
-
-      print *,npars
-      do i=1,NPars
-         read (51,*,err=2,end=3) ( Cov(j,i),j=1,NPars )
-         print '(20E10.2)' ,( Cov(j,i),j=1,NPars )
+      print *,'Reading parameter namer from '//trim(FileNamePars)
+      i = 0
+      open (51,file=FileNamePars, status='old',err=3)
+ 1    i = i + 1
+      read (51,'(A120)',end=2, err=4) parname_keep(i)
+C      call MNPARS(buff,IStatus)
+      goto 1
+ 2    close (51)
+      call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+      do ind=1,nparx
+         call mnpout(ind,parname,parval,parerr,parlolim,parhilim,ii)
+         if (ii.gt.0) then
+           parerr_keep(ii) = parerr
+           do i=1,NPars
+             if (parname.eq.parname_keep(i)) then
+               paridx(i) = ii
+               exit
+             endif
+           enddo
+         endif
       enddo
-      print *,'Read covariance matrix from '//trim(FileName)
+
+      print *,'Read covariance matrix from '//trim(FileNameCov)
+      open (51, file=FileNameCov, status='old', err=11)
+      print *,'npars=',npars
+      do i=1,NPars
+         read (51,*,err=22,end=33) ( Cov(paridx(j),paridx(i)),j=1,NPars )
+C         print '(20E10.2)' ,( Cov(paridx(j),paridx(i)),j=1,NPars )
+      enddo
       close (51)
+      do i=1,npari
+         do j=1,npari
+            !Cov(i,j)=Cov(i,j)*parerr_keep(i)*parerr_keep(j)
+         enddo
+      enddo
+      do i=1,NPars
+         print '(100E10.2)' ,( Cov(j,i),j=1,NPars )
+      enddo
       return
- 1    call hf_errlog(16042820,
+ 3    call hf_errlog(16042810,'F: Can not find parameters file = '
+     $     //trim(FileNamePars)//', STOP')
+ 4    call hf_errlog(16042811,'F: Can not read parameters file = '
+     $     //trim(FileNamePars)//', STOP')
+ 11    call hf_errlog(16042820,
      $    'F: Can not open file with parameters covariance matrix '
-     $     //trim(FileName)//', STOP')
- 2    call hf_errlog(16042821,
+     $     //trim(FileNameCov)//', STOP')
+ 22    call hf_errlog(16042821,
      $  'F: Error while reading file with parameters covariance matrix '
-     $     //trim(FileName)//', STOP')
- 3    call hf_errlog(16042822,
+     $     //trim(FileNameCov)//', STOP')
+ 33    call hf_errlog(16042822,
      $    'F: Unexpected end of file with parameters covariance matrix '
-     $     //trim(FileName)//', STOP')
+     $     //trim(FileNameCov)//', STOP')
       end
