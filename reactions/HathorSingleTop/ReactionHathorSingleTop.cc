@@ -403,10 +403,11 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
         
             // LO
             //hathor->setScheme(Hathor::LO);
+            hathor->setScheme(_scheme[dataSetID]);
             // all order result
             hathor->getXsection(_mtop[dataSetID],_mtop[dataSetID],_mf[dataSetID]);
             hathor->getResult(0,valtclo,err1,chi1);
-            //printf("xsec,err LO: %f %f [%.3f%%]\n", valtclo, err1, err1/valtclo*100.);
+            //printf("xsec,err LO: %f %f [%.3f%%] %f %f\n", valtclo, err1, err1/valtclo*100., _mtop[dataSetID],_mf[dataSetID]);
     
             if (orderI > 0) {
                 // LO derivatives
