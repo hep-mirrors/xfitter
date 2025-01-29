@@ -1,0 +1,181 @@
+After minimisation     117.36   121     0.970
+
+  Partial chi2s 
+Dataset    1      0.00( -0.00)    15  CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(ttbar
+Dataset    2      0.00( +0.00)    34  CMS 2108.02803 [TOP-20-001] 13TeV ttbar [M(ttbar
+Dataset    3      0.00( +0.00)    19  ATLAS 1908.07305 13TeV ttbar [M(ttbar),y(ttbar)]
+Dataset    4      0.00( +0.00)    10  ATLAS 2006.09274 13TeV ttbar [M(ttbar),y(ttbar)]
+Dataset    5      0.00( +0.00)    15  CMS 1703.01630 [TOP-14-013] 8TeV ttbar [M(ttbar)
+Dataset    6      0.00( +0.00)     6  ATLAS 1511.04716 8TeV ttbar [M(ttbar)] cross sec
+Dataset    7      0.00( -0.00)     4  ATLAS 1407.0371 7TeV ttbar [M(ttbar)] cross sect
+Dataset    8      0.00( +0.00)     4  ATLAS 1607.07281 7TeV ttbar [M(ttbar)] cross sec
+Dataset    9      0.00( +0.00)     5  ATLAS 1607.07281 8TeV ttbar [M(ttbar)] cross sec
+Dataset   10      0.00( +0.00)     1  ATLAS+CMS 2205.13830 7TeV ttbar total cross sect
+Dataset   11      0.00( -0.00)     1  ATLAS+CMS 2205.13830 8TeV ttbar total cross sect
+Dataset   12      0.08( +0.00)     1  CMS 2303.10680 13.6TeV ttbar total cross section
+Dataset   13      0.22( +0.00)     1  ATLAS-CONF-2023-006 5TeV ttbar total cross secti
+Dataset   14      0.26( +0.00)     1  CMS 2112.09114 5TeV ttbar total cross section   
+Dataset   15      6.51( +0.00)     1  ATLAS 2207.01354 5TeV ttbar total cross section 
+Dataset   16      6.00( +0.00)     1  ATLAS 2303.15340 13TeV ttbar total cross section
+Dataset   17      1.22( +0.00)     1  ATLAS 2006.13076 13TeV ttbar total cross section
+Dataset   18      0.25( +0.00)     1  CMS 1812.10505 13TeV ttbar total cross section  
+Dataset   19      0.03( +0.00)     1  CMS 2108.02803 13TeV ttbar total cross section  
+
+ Correlated Chi2    8.6336274255613326     
+ Log penalty Chi2    2.9976021664879258E-015
+ Systematic shifts          153
+  
+                                Name          Shift   +/-    Error          Type
+    1  BFRAG_CENTRAL                          0.0500   +/-   0.9972        :N:A:D
+    2  BFRAG_DOWN                             0.0629   +/-   0.9846        :N:A:D
+    3  BFRAG_PETERSON                        -0.5105   +/-   0.9428        :N:A:D
+    4  BFRAG_UP                               0.0923   +/-   0.9316        :N:A:D
+    5  BKG_DOWN                              -0.2053   +/-   0.8579        :N:A:D
+    6  BKG_UP                                 0.2846   +/-   0.8773        :N:A:D
+    7  BR_DOWN                                0.0000   +/-   1.0000        :N:A:D
+    8  BR_UP                                  0.0000   +/-   1.0000        :N:A:D
+    9  BSEMILEP_DOWN                         -0.1301   +/-   0.9973        :N:A:D
+   10  BSEMILEP_UP                            0.0948   +/-   0.9986        :N:A:D
+   11  BTAG_DOWN                             -0.1534   +/-   0.9972        :N:A:D
+   12  BTAG_LJET_DOWN                        -0.1086   +/-   0.9900        :N:A:D
+   13  BTAG_LJET_UP                           0.1083   +/-   0.9905        :N:A:D
+   14  BTAG_UP                                0.2067   +/-   0.9960        :N:A:D
+   15  ERDON                                 -0.1325   +/-   0.8245        :N:A:D
+   16  ERDONRETUNE                           -0.3460   +/-   0.9129        :N:A:D
+   17  GLUONMOVETUNE                          0.6794   +/-   0.8252        :N:A:D
+   18  JER_DOWN                               0.1918   +/-   0.9863        :N:A:D
+   19  JER_UP                                -0.4367   +/-   0.9334        :N:A:D
+   20  JESAbsoluteMPFBias_DOWN                0.2317   +/-   0.9870        :N:A:D
+   21  JESAbsoluteMPFBias_UP                 -0.4066   +/-   0.9856        :N:A:D
+   22  JESAbsoluteScale_DOWN                  0.1957   +/-   0.9936        :N:A:D
+   23  JESAbsoluteScale_UP                   -0.3108   +/-   0.9918        :N:A:D
+   24  JESAbsoluteStat_DOWN                  -0.2722   +/-   0.9752        :N:A:D
+   25  JESAbsoluteStat_UP                     0.2950   +/-   0.9467        :N:A:D
+   26  JESFlavorQCD_DOWN                      0.5701   +/-   0.8989        :N:A:D
+   27  JESFlavorQCD_UP                       -0.9041   +/-   0.8803        :N:A:D
+   28  JESFragmentation_DOWN                 -0.0444   +/-   0.9972        :N:A:D
+   29  JESFragmentation_UP                   -0.0897   +/-   0.9930        :N:A:D
+   30  JESPileUpDataMC_DOWN                   0.1038   +/-   0.9938        :N:A:D
+   31  JESPileUpDataMC_UP                    -0.1240   +/-   0.9856        :N:A:D
+   32  JESPileUpPtBB_DOWN                    -0.0850   +/-   0.9956        :N:A:D
+   33  JESPileUpPtBB_UP                       0.0225   +/-   0.9846        :N:A:D
+   34  JESPileUpPtEC1_DOWN                   -0.1515   +/-   0.9437        :N:A:D
+   35  JESPileUpPtEC1_UP                      0.1527   +/-   0.9496        :N:A:D
+   36  JESPileUpPtEC2_DOWN                    0.0000   +/-   1.0000        :N:A:D
+   37  JESPileUpPtEC2_UP                      0.0000   +/-   1.0000        :N:A:D
+   38  JESPileUpPtHF_DOWN                     0.0000   +/-   1.0000        :N:A:D
+   39  JESPileUpPtHF_UP                       0.0000   +/-   1.0000        :N:A:D
+   40  JESPileUpPtRef_DOWN                   -0.1624   +/-   0.9827        :N:A:D
+   41  JESPileUpPtRef_UP                      0.1022   +/-   0.9813        :N:A:D
+   42  JESRelativeBal_DOWN                    0.3956   +/-   0.9364        :N:A:D
+   43  JESRelativeBal_UP                     -0.8301   +/-   0.9168        :N:A:D
+   44  JESRelativeFSR_DOWN                   -0.2701   +/-   0.9923        :N:A:D
+   45  JESRelativeFSR_UP                      0.0956   +/-   0.9923        :N:A:D
+   46  JESRelativeJEREC1_DOWN                -0.0035   +/-   0.9999        :N:A:D
+   47  JESRelativeJEREC1_UP                   0.0017   +/-   0.9999        :N:A:D
+   48  JESRelativeJEREC2_DOWN                 0.0000   +/-   1.0000        :N:A:D
+   49  JESRelativeJEREC2_UP                   0.0000   +/-   1.0000        :N:A:D
+   50  JESRelativeJERHF_DOWN                  0.0000   +/-   1.0000        :N:A:D
+   51  JESRelativeJERHF_UP                    0.0000   +/-   1.0000        :N:A:D
+   52  JESRelativePtBB_DOWN                   0.0937   +/-   0.9924        :N:A:D
+   53  JESRelativePtBB_UP                    -0.2019   +/-   0.9903        :N:A:D
+   54  JESRelativePtEC1_DOWN                 -0.0563   +/-   0.9526        :N:A:D
+   55  JESRelativePtEC1_UP                   -0.0907   +/-   0.9488        :N:A:D
+   56  JESRelativePtEC2_DOWN                  0.0000   +/-   1.0000        :N:A:D
+   57  JESRelativePtEC2_UP                    0.0000   +/-   1.0000        :N:A:D
+   58  JESRelativePtHF_DOWN                   0.0000   +/-   1.0000        :N:A:D
+   59  JESRelativePtHF_UP                     0.0000   +/-   1.0000        :N:A:D
+   60  JESRelativeStatEC_DOWN                 0.0017   +/-   0.9953        :N:A:D
+   61  JESRelativeStatEC_UP                  -0.0385   +/-   0.9891        :N:A:D
+   62  JESRelativeStatFSR_DOWN                0.0033   +/-   0.9997        :N:A:D
+   63  JESRelativeStatFSR_UP                 -0.0009   +/-   0.9997        :N:A:D
+   64  JESRelativeStatHF_DOWN                 0.0000   +/-   1.0000        :N:A:D
+   65  JESRelativeStatHF_UP                   0.0000   +/-   1.0000        :N:A:D
+   66  JESSinglePionECAL_DOWN                -0.0936   +/-   0.9924        :N:A:D
+   67  JESSinglePionECAL_UP                  -0.0243   +/-   0.9958        :N:A:D
+   68  JESSinglePionHCAL_DOWN                -0.1593   +/-   0.9924        :N:A:D
+   69  JESSinglePionHCAL_UP                  -0.0011   +/-   0.9955        :N:A:D
+   70  JESTimePtEta_DOWN                     -0.0091   +/-   0.9952        :N:A:D
+   71  JESTimePtEta_UP                       -0.0408   +/-   0.9984        :N:A:D
+   72  LEPT_DOWN                              0.5484   +/-   0.9680        :N:A:D
+   73  LEPT_UP                               -0.5391   +/-   0.9689        :N:A:D
+   74  LUMI_DOWN                              0.0000   +/-   1.0000        :N:A:D
+   75  LUMI_UP                                0.0000   +/-   1.0000        :N:A:D
+   76  MASS_DOWN                             -0.0280   +/-   0.9256        :N:A:D
+   77  MASS_UP                                0.3885   +/-   0.9201        :N:A:D
+   78  MATCH_DOWN                             0.5807   +/-   0.7917        :N:A:D
+   79  MATCH_UP                               0.3156   +/-   0.7204        :N:A:D
+   80  MESCALE_DOWN                          -0.5325   +/-   0.8215        :N:A:D
+   81  MESCALE_UP                             0.4789   +/-   0.8757        :N:A:D
+   82  PDF_102                               -0.0007   +/-   0.9999        :N:A:D
+   83  PDF_103                                0.0515   +/-   0.9997        :N:A:D
+   84  PDF_104                               -0.1597   +/-   0.9952        :N:A:D
+   85  PDF_105                               -0.0391   +/-   0.9972        :N:A:D
+   86  PDF_106                                0.1514   +/-   0.9974        :N:A:D
+   87  PDF_107                               -0.0816   +/-   0.9990        :N:A:D
+   88  PDF_108                               -0.0686   +/-   0.9975        :N:A:D
+   89  PDF_109                                0.0220   +/-   0.9991        :N:A:D
+   90  PDF_110                               -0.1915   +/-   0.9906        :N:A:D
+   91  PDF_111                                0.2618   +/-   0.9892        :N:A:D
+   92  PDF_112                                0.0056   +/-   0.9979        :N:A:D
+   93  PDF_113                               -0.0103   +/-   0.9992        :N:A:D
+   94  PDF_114                               -0.3092   +/-   0.9753        :N:A:D
+   95  PDF_115                                0.2245   +/-   0.9908        :N:A:D
+   96  PDF_116                               -0.0825   +/-   0.9987        :N:A:D
+   97  PDF_117                                0.0677   +/-   0.9992        :N:A:D
+   98  PDF_118                                0.0040   +/-   0.9992        :N:A:D
+   99  PDF_119                                0.0235   +/-   0.9992        :N:A:D
+  100  PDF_120                                0.1536   +/-   0.9932        :N:A:D
+  101  PDF_121                               -0.1709   +/-   0.9921        :N:A:D
+  102  PDF_122                                0.0380   +/-   0.9996        :N:A:D
+  103  PDF_123                               -0.0734   +/-   0.9983        :N:A:D
+  104  PDF_124                               -0.0965   +/-   0.9977        :N:A:D
+  105  PDF_125                                0.0927   +/-   0.9979        :N:A:D
+  106  PDF_126                                0.0658   +/-   0.9989        :N:A:D
+  107  PDF_127                               -0.0663   +/-   0.9990        :N:A:D
+  108  PDF_128                               -0.0359   +/-   0.9995        :N:A:D
+  109  PDF_129                                0.0502   +/-   0.9991        :N:A:D
+  110  PDF_130                               -0.0193   +/-   0.9990        :N:A:D
+  111  PDF_131                                0.0338   +/-   0.9996        :N:A:D
+  112  PDF_132                                0.0208   +/-   0.9998        :N:A:D
+  113  PDF_133                               -0.0288   +/-   0.9997        :N:A:D
+  114  PDF_134                               -0.0059   +/-   0.9993        :N:A:D
+  115  PDF_135                                0.0685   +/-   0.9983        :N:A:D
+  116  PDF_136                                0.0170   +/-   0.9969        :N:A:D
+  117  PDF_137                               -0.0049   +/-   0.9974        :N:A:D
+  118  PDF_138                                0.0865   +/-   0.9967        :N:A:D
+  119  PDF_139                               -0.1515   +/-   0.9918        :N:A:D
+  120  PDF_140                                0.0305   +/-   0.9993        :N:A:D
+  121  PDF_141                               -0.0464   +/-   0.9991        :N:A:D
+  122  PDF_142                               -0.0753   +/-   0.9985        :N:A:D
+  123  PDF_143                                0.1225   +/-   0.9982        :N:A:D
+  124  PDF_144                               -0.2231   +/-   0.9906        :N:A:D
+  125  PDF_145                                0.2301   +/-   0.9937        :N:A:D
+  126  PDF_146                                0.0463   +/-   0.9883        :N:A:D
+  127  PDF_147                               -0.0231   +/-   0.9989        :N:A:D
+  128  PDF_148                               -0.0245   +/-   0.9981        :N:A:D
+  129  PDF_149                               -0.1571   +/-   0.9945        :N:A:D
+  130  PDF_150                               -0.1059   +/-   0.9949        :N:A:D
+  131  PDF_151                               -0.1264   +/-   0.9917        :N:A:D
+  132  PDF_152                               -0.0049   +/-   0.9998        :N:A:D
+  133  PDF_153                               -0.0241   +/-   0.9998        :N:A:D
+  134  PDF_154                                0.0840   +/-   0.9955        :N:A:D
+  135  PDF_155                               -0.0276   +/-   0.9997        :N:A:D
+  136  PDF_156                                0.0439   +/-   0.9996        :N:A:D
+  137  PDF_157                               -0.0496   +/-   0.9993        :N:A:D
+  138  PDF_158                                0.1213   +/-   0.9976        :N:A:D
+  139  PDF_159                               -0.1336   +/-   0.9973        :N:A:D
+  140  PSFSRSCALE_DOWN                        0.1794   +/-   0.9022        :N:A:D
+  141  PSFSRSCALE_UP                         -0.2054   +/-   0.8213        :N:A:D
+  142  PSISRSCALE_DOWN                        0.3648   +/-   0.8623        :N:A:D
+  143  PSISRSCALE_UP                         -0.0793   +/-   0.8179        :N:A:D
+  144  PU_DOWN                               -0.0604   +/-   0.9895        :N:A:D
+  145  PU_UP                                  0.0653   +/-   0.9904        :N:A:D
+  146  TRIG_DOWN                             -0.0247   +/-   0.9890        :N:A:D
+  147  TRIG_ETA_DOWN                          0.4158   +/-   0.9609        :N:A:D
+  148  TRIG_ETA_UP                           -0.4148   +/-   0.9607        :N:A:D
+  149  TRIG_UP                                0.0232   +/-   0.9892        :N:A:D
+  150  UETUNE_DOWN                            1.1483   +/-   0.7350        :N:A:D
+  151  UETUNE_UP                             -0.1033   +/-   0.7536        :N:A:D
+  152  UNCLUSTERED_DOWN                      -0.3886   +/-   0.9544        :N:A:D
+  153  UNCLUSTERED_UP                         0.2408   +/-   0.9820        :N:A:D
