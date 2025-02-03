@@ -210,7 +210,6 @@ void APFEL_Evol::atStart()
   if (!_alphas_q0) {
     _alphas_q0 = Mz;
   }
-  APFEL::SetAlphaQCDRef(*_alphas, *_alphas_q0);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
   if (fragmen == "On")
   {
@@ -284,7 +283,8 @@ void APFEL_Evol::atStart()
   // Initialize the APFEL DIS module
   APFEL::SetAlphaQCDRef(0.118, *Mz); //need to set alphas = 0.118 at initializiation
   APFEL::InitializeAPFEL_DIS();
-  APFEL::SetAlphaQCDRef(*alphas, *Mz);
+  //APFEL::SetAlphaQCDRef(*alphas, *Mz);
+  APFEL::SetAlphaQCDRef(*_alphas, *_alphas_q0);
 
   APFEL::SetPDFSet("external");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);

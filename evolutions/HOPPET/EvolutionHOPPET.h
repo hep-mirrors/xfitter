@@ -45,6 +45,16 @@ namespace xfitter
     double _Qmin;
     double _Qmax;
     double _ymax;
+    int _isFFNS;
+    int _nflavour;
+    int _msbar;
+    const double* _mch;
+    const double* _mbt;
+    const double* _mtp;
+    /// pointer to alphas parameter
+    double* _alphas;
+    /// Evolution starting scale for alphas:
+    const double* _alphas_q0;
     BasePdfDecomposition*                                                   _inPDFs;
   };
   
