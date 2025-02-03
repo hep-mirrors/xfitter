@@ -20,6 +20,9 @@ void ReactionTheory::initTerm(TermData*td){
       hf_errlog(2023061401,"I: Will use "+std::to_string(td->_ncpu)+" threads");
   }
   _ncpu = td->_ncpu;
+  if (td->hasParam("computeAtIteration")) {
+    _flagComputeAtIteration = td->getParamI("computeAtIteration");
+  }
 };
 void ReactionTheory::freeTerm(TermData*td){};
 void ReactionTheory::reinitTerm(TermData*td){

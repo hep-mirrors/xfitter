@@ -36,6 +36,13 @@ extern "C"
     partonsens(x, r, 2);
   }
 
+  double pdf_ixfxq_wrapper_(const int& id, const double &x, const double &Q) {
+    return wrappedPDFs[0]->xfxQ(id, x, Q);
+  }
+  double pdf_ixfxq_wrapper1_(const int& id, const double &x, const double &Q) {
+    return wrappedPDFs[1]->xfxQ(id, x, Q);
+  }
+
   double alphas_wrapper_(const double &Q) {
     return wrappedPDFs[0]->getAlphaS(Q);
   }

@@ -19,6 +19,10 @@
 #include <sstream>
 #include <numeric>
 
+#ifdef PLOUGHSHARE_FOUND
+#include "ploughshare/ploughshare.h"
+#endif
+
 using namespace std;
 using namespace xfitter;
 
@@ -89,6 +93,18 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     DatasetData* data = new DatasetData;
     td->reactionData = (void*)data;
     // Load grids
+    string namePrefix="";
+    if (td->hasParam("PloughShare")) {
+#ifdef PLOUGHSHARE_FOUND
+        string PSdataset = td->getParamS("PloughShare");
+        ploughshare p;
+        p.verbose(false);
+        p.fetch(PSdataset);
+        namePrefix = p.path(PSdataset)+"/grids/";
+#else
+        hf_errlog(3009202401,"F:Ploughshare not found, please install");
+#endif
+    }
     string GridName = td->getParamS("GridName");
     try {
         istringstream ss(GridName);
@@ -97,7 +113,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
             pineappl_grid* g = nullptr;
             const auto& find = _initialized.find(token);
             if(find == _initialized.end()) {
-                g = pineappl_grid_read(token.c_str());             
+                g = pineappl_grid_read((namePrefix + token).c_str());             
                 _initialized.insert(std::make_pair(token, g));
                 hf_errlog(22122901, "I: read PineAPPL grids with "
                                     +to_string(pineappl_grid_bin_count(g))
@@ -107,11 +123,9 @@ void ReactionPineAPPL::initTerm(TermData*td) {
                 g = find->second;
             }
             data->grids.push_back(g);
-            data->GridNames.push_back(token);
+            data->GridNames.push_back(namePrefix + token);
         }
         // Init dimensions
-        //data->Nbins = pineappl_grid_bin_count(data->grids[0]);
-        //printf("data->Nbins = %d\n", data->Nbins);
         data->Nord  = pineappl_grid_order_count(data->grids[0]);
         auto* lumi  = pineappl_grid_lumi(data->grids[0]);
         data->Nlumi = pineappl_lumi_count(lumi);
@@ -125,12 +139,6 @@ void ReactionPineAPPL::initTerm(TermData*td) {
         string ordS = td->getParamS("OrderMask");
         data->ordervec = maskParser(ordS);
         hf_errlog(23010305, "I: PineAPPL order mask: "+ordS);
-        /*if (data->Nord!=data->ordervec.size()) {
-            hf_errlog(23010301, "F: PineAPPL grid order count: "
-                                +to_string(data->Nord)
-                                +" disagrees with order mask size: "
-                                +to_string(data->ordervec.size()));
-        }*/
     } else data->Nord = 0;
     if (data->Nord==0) hf_errlog(23010302, "I: PineAPPL order mask unspecified, using all in grid");
 
@@ -163,7 +171,6 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     size_t Ngrids = data->grids.size();
 
     // Get CMS energy (by default the one used to create the grid is used)
-    // energyRescale = energy of grid / actual energy
     if(td->hasParam("energyRescale")) {
         data->energyRescale = *td->getParamD("energyRescale");
     }
@@ -207,8 +214,6 @@ void ReactionPineAPPL::initTerm(TermData*td) {
                 rebin_vars.push_back(token);
                 rebin_vars_bound.push_back(std::numeric_limits<double>::quiet_NaN());
         }
-        //for(size_t ivar = 0; ivar < rebin_vars.size(); ivar++)
-        //    printf("rebin[%ld] = %s %f\n", ivar, rebin_vars[ivar].data(), rebin_vars_bound[ivar]);
         if (data->grids.size() == 0)
             hf_errlog(23060501, "F: cannot rebin without grids");
         size_t np = 0;
@@ -290,17 +295,12 @@ void ReactionPineAPPL::initTerm(TermData*td) {
                 if (match_l[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[0+idim*2] + " " + std::to_string(bins_data[0+idim*2][bin]));
                 if (match_r[idim] == 0) hf_errlog(23051203, "F: Binning mismatch for " + rebin_vars[1+idim*2] + " " + std::to_string(bins_data[1+idim*2][bin]));
             }
-            //if (!match_l2) hf_errlog(23051203, "F: Binning mismatch for mttmin " + std::to_string((*mttmin)[bin]));
-            //if (!match_r2) hf_errlog(23051204, "F: Binning mismatch for mttmax " + std::to_string((*mttmax)[bin]));
-            //if (!match_l) hf_errlog(23051201, "F: Binning mismatch for yttmin " + std::to_string((*yttmin)[bin]));
-            //if (!match_r) hf_errlog(23051202, "F: Binning mismatch for yttmax " + std::to_string((*yttmax)[bin]));
         }
     }
 
     // store all grids to convolute them in atIteration
     const std::string key_pars = data->get_pars_as_str();
     for (const auto&  g : data->grids) {
-        //const std::string key = std::to_string((unsigned long long)(void**)g) + "_" + data->get_key(g, data->energyRescale, data->muR, data->muF, data->Nord, data->ordervec, data->Nlumi, data->lumivec);
         std::string key = std::to_string((unsigned long long)(void**)g) + "_" + key_pars;
         if (_convolved.find(key) == _convolved.end()) {
             _convolved[key] = std::make_pair(vector<double>(), td);
@@ -317,8 +317,6 @@ void ReactionPineAPPL::freeTerm(TermData*td) {
 }
 
 void ReactionPineAPPL::atIteration() {
-    //_convolved.clear();
-
     //Pineappl assumes PDF and alphaS wrapper function pointers
     //are given a pointer "state", e.g. an LHAPDF object, if the 
     //values were read from there. Here, call existing wrappers 
@@ -372,7 +370,6 @@ void ReactionPineAPPL::atIteration() {
         gridVals.resize(pineappl_grid_bin_count(grid));
         //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
         _pacount++;
-        //printf("_pacount = %d\n", _pacount);
         pineappl_grid_convolute_with_two(grid, 
                                             PDGID, xfx, 
                                             PDGID, xfx1, 
@@ -392,8 +389,6 @@ void ReactionPineAPPL::atIteration() {
 
     int ngrids = _convolved.size();
     int ncpu =  xfitter::xf_ncpu(_ncpu);
-    //printf("_ncpu = %d\n", _ncpu);
-    //printf("ncpu = %d\n", ncpu);
     if (ncpu == 1) {
         for (int i = 0; i < ngrids; i++) {
             calc_one(i, _convolved[_convolved_vector_of_keys[i]].first);
@@ -402,15 +397,12 @@ void ReactionPineAPPL::atIteration() {
     else {
         std::vector<int> positions(ngrids);
         int nbins = 0;
-        //printf("_convolved = %ld _convolved_vector_of_keys.size() = %ld\n", _convolved.size(), _convolved_vector_of_keys.size());fflush(stdout);
         for (size_t igrid = 0; igrid < _convolved_vector_of_keys.size(); igrid++) {
             positions[igrid] = nbins;
             const std::string& key = _convolved_vector_of_keys[igrid];
             pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
             nbins += pineappl_grid_bin_count(grid);
-            //printf("igrid,nbins = %ld,%d\n", igrid, nbins);
         }
-        //printf("nbins = %d\n", nbins);
         // Shared memory for predictions
         int shmid;
         double* sharedArray;
@@ -449,8 +441,6 @@ void ReactionPineAPPL::atIteration() {
                     //printf("computed\n");
                     const std::string& key = _convolved_vector_of_keys[i];
                     pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
-                    //nbins = pineappl_grid_bin_count(grid);
-                    //for (int ibin = 0; ibin < nbins; ibin++)
                     for (size_t ibin = 0; ibin < gridVals.size(); ibin++)
                         sharedArray[positions[i] + ibin] = gridVals[ibin];
                 }
@@ -501,81 +491,6 @@ void ReactionPineAPPL::compute(TermData*td,valarray<double>&val,map<string,valar
         pineappl_grid* grid = data.grids[igrid];
         std::string key = std::to_string((unsigned long long)(void**)grid) + "_" + key_pars;
         vector<double> gridVals = _convolved[key].first;
-
-        /*vector<double> gridVals;
-        gridVals.resize(data.Nbins);
-
-        std::string grid_name_and_energy = data.GridNames[igrid] + std::string("_energy_") + std::to_string(data.energyRescale);
-        if(td->hasParam("evolution")) {
-            grid_name_and_energy += "_evolution_" + td->getParamS("evolution");
-        }
-        if(td->hasParam("evolution1")) {
-            grid_name_and_energy += "_evolution1_" + td->getParamS("evolution1");
-        }
-        if(td->hasParam("evolution2")) {
-            grid_name_and_energy += "_evolution2_" + td->getParamS("evolution2");
-        }
-        if (grid && _convolved.find(grid_name_and_energy) == _convolved.end()) {//real, non-dummy grid
-            td->actualizeWrappers();
-
-            //Pineappl assumes PDF and alphaS wrapper function pointers
-            //are given a pointer "state", e.g. an LHAPDF object, if the 
-            //values were read from there. Here, call existing wrappers 
-            //rearranging parameter list & return value to suit pineappl 
-            //convolution function.
-            auto xfx = [](int32_t id_in, double x, double q2, void *state) {
-                if(x >= 1.) {
-                    return 0.;
-                }
-                double pdfs[13];
-                int32_t id = id_in==21 ? 6 : id_in+6;
-                double energyRescale = *((double*)state);
-                auto x_actual = x*energyRescale;
-                if(x_actual >= 1.) {
-                    return 0.;
-                }
-                pdf_xfxq_wrapper_(x_actual, sqrt(q2), pdfs);
-                return pdfs[id];
-            };
-            auto xfx1 = [](int32_t id_in, double x, double q2, void *state) {
-                double pdfs[13];
-                int32_t id = id_in==21 ? 6 : id_in+6;
-                double energyRescale = *((double*)state);
-                auto x_actual = x*energyRescale;
-                if(x_actual >= 1.) {
-                    return 0.;
-                }
-                pdf_xfxq_wrapper1_(x_actual, sqrt(q2), pdfs);
-                return pdfs[id];
-            };
-            auto alphas = [](double q2, void *state) {
-                return alphas_wrapper_(sqrt(q2));
-            };
-
-            //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
-            pineappl_grid_convolute_with_two(grid, 
-                                             PDGID, xfx, 
-                                             PDGID, xfx1, 
-                                             alphas, 
-                                             (void*)&data.energyRescale,//"state" is energyRescale
-                                             data.Nord>0 ? order_mask : nullptr,
-                                             data.Nlumi>0 ? lumi_mask : nullptr,
-                                             muR, muF, gridVals.data());
-            //scale by bin width
-            if (data.flagNorm) for(size_t i=0; i<gridVals.size(); i++) {
-                vector<double> bin_sizes;
-                bin_sizes.resize(pineappl_grid_bin_count(grid));
-                pineappl_grid_bin_normalizations(grid, bin_sizes.data());
-                gridVals[i] *= bin_sizes[i]*std::pow(data.energyRescale, 2.);
-            }
-            _convolved.insert(std::make_pair(grid_name_and_energy, gridVals));
-        }
-        else {
-            gridVals = _convolved[grid_name_and_energy];
-        }*/
-        //for(size_t i=0; i<gridVals.size(); i++) {
-        //    printf("i = %ld xsec = %f\n", i, gridVals[i]);
-        //}
         // insert values from this grid into output array
         copy_n(gridVals.begin(), gridVals.size(), &val[pos]);
         pos += pineappl_grid_bin_count(grid);

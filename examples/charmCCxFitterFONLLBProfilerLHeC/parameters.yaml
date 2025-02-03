@@ -2,6 +2,7 @@ Minimizer: MINUIT
 MINUIT:
   Commands: |
     set str 2
+    call fcn 1
     call fcn 3
 
 Evolutions:

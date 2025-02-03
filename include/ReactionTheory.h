@@ -40,4 +40,5 @@ public:
   virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors)=0;
 protected:
   int _ncpu; // number of parallel threads
+  bool _flagComputeAtIteration = false;
 };

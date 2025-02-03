@@ -87,9 +87,15 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
   //opts.silent      = td->getParamI("debug");
   opts.makehistos  = false;
   
+  if (td->hasParam("threads"))
+    opts.cubacores = td->getParamI("threads");
+
   if (td->hasParam("blim"))
     opts.blim = *(td->getParamD("blim"));
 
+  if (td->hasParam("npff"))
+    opts.npff = td->getParamI("npff");
+  
   if (td->hasParam("g1"))
     opts.g1 = *(td->getParamD("g1"));
 
@@ -146,6 +152,24 @@ void ReactionDYTurbo::compute(TermData*td,valarray<double>&val,map<string,valarr
 
   if (td->hasParam("alphaB"))
     opts.alphaB = *(td->getParamD("alphaB"));
+
+  if (td->hasParam("Linf"))
+    opts.Linf = *(td->getParamD("Linf"));
+
+  if (td->hasParam("L2"))
+    opts.L2 = *(td->getParamD("L2"));
+
+  if (td->hasParam("L4"))
+    opts.L4 = *(td->getParamD("L4"));
+
+  if (td->hasParam("linf"))
+    opts.linf = *(td->getParamD("linf"));
+
+  if (td->hasParam("l2"))
+    opts.l2 = *(td->getParamD("l2"));
+
+  if (td->hasParam("l4"))
+    opts.l4 = *(td->getParamD("l4"));
   
   //read g from LHAPDF
   if (string(xfitter::get_evolution()->getClassName()) == "LHAPDF")

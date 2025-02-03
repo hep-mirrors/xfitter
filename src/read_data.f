@@ -1416,7 +1416,11 @@ C Store:
                iError = iError + 1
                syst(iError) = buffer(i)    
                if (.not. Percent(iError)) then
-                  syst(iError) = syst(iError)/buffer(idxSigma)*100.
+                  if (daten(idx).ne.0) then
+                     syst(iError) = syst(iError)/daten(idx)*100. ! BUG buffer(idxSigma)*100.
+                  else
+                     syst(iError) = syst(iError)/buffer(idxSigma)*100.  ! for rotate.
+                  endif
                endif
             elseif (ColumnType(i).eq.'Bin') then
                iBin  = iBin + 1

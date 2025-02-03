@@ -4,7 +4,7 @@
 &InFiles
   ! Number of intput files
     !NInputFiles = 78 ! no LHCb data
-    NInputFiles = 85
+    !NInputFiles = 85
 
    InputFileNames =
 
@@ -191,7 +191,7 @@
 
 &InCorr
   ! Number of correlation (statistical, systematical or full) files
-    NCorrFiles = 14
+    !NCorrFiles = 14
  
   ! Correlation files:
     CorrFileNames = 

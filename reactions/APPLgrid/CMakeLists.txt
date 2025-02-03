@@ -3,6 +3,11 @@ if(NOT APPLgrid_FOUND)
   return()
 endif()
 
+if(NOT ROOT_FOUND)
+  message(STATUS "Skipping optional reaction APPLgrid because ROOT library was not found")
+  return()
+endif()
+
 if (PLOUGHSHARE_FOUND)
   message(STATUS "Found ploughshare, including in APPLgrid install ")
   add_definitions(-DPLOUGHSHARE_FOUND)

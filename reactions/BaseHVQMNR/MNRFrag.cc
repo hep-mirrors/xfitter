@@ -4,6 +4,7 @@
 #include <TMath.h>
 #include <TF2.h>
 #include <TH2D.h>
+#include "Math/IntegratorOptions.h"
 
 // Interface to xFitter FORTRAN routines
 extern "C"
@@ -430,7 +431,15 @@ namespace MNR
     // For 1D fragmentation function determine mean, if needed
     if(f_meson->ClassName() == TString("TF1"))
     {
-      f_meson->SetParameter(0, 1. / f_meson->Integral(0.,1.));
+      double integral = f_meson->Integral(0.,1.);
+      if (integral == 0.) // SZ 2024.07.01 this happens with ROOT Version: 6.32.02 on naf el9: need to change integration method
+      {
+        std::string default_mathod = ROOT::Math::IntegratorOneDimOptions::DefaultIntegrator();
+        ROOT::Math::IntegratorOneDimOptions::SetDefaultIntegrator("GAUSS");
+        integral = f_meson->Integral(0.,1.);
+        ROOT::Math::IntegratorOneDimOptions::SetDefaultIntegrator(default_mathod.c_str());
+      }
+      f_meson->SetParameter(0, 1. / integral);
       if(mean) *mean = f_meson->Mean(0.0, 1.0);
     }
     return f_meson;

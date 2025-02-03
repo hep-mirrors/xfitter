@@ -1,0 +1,53 @@
+
+OutputDirectory : output
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0 # 0 (default): VFNS with number of flavours changing from 3 to NFlavour, 1: FFNS with number of flavours = NFlavour at any scale
+
+Minimizer: MINUIT # CERES
+MINUIT:
+  Commands: |
+    call fcn 3
+    
+#  doErrors :  Hesse # None
+
+Parameters:
+  mtFit : [ 171.54, 0.7 ]
+
+DefaultEvolution: proton-LHAPDF
+
+Evolutions:
+  proton-LHAPDF:
+    class: LHAPDF
+    set: "ABMP16_5_nnlo"
+    member: 0
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+? !include constants.yaml
+
+byReaction:
+  PineAPPL:
+    ? !include reactions/PineAPPL.yaml
+    #OrderMask : "1,1,1,1,0,0,0,0,0,0" # NLO
+    #OrderMask : "1,0,0,0,0,0,0,0,0,0" # LO
+    muR : 1.0
+    muF : 1.0
+    threads: -1
+#
+# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
+#
+Profiler:
+  #Parameters:
+  #  alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
+  Evolutions:
+    proton-LHAPDF:
+      sets: [ABMP16_5_nnlo]
+      members: [[0,1,end]]
+  Status: "Off"                 # "Off" to turn off profiler
+  WriteTheo: "On"              # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+  getChi2: "On"                # determine and report chi2 for each variation
+  enableExternalProfiler: "Off" # enable creation of additional files, needed for xfitter draw
+  threads: -1

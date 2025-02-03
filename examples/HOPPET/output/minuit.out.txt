@@ -1,0 +1,61 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/ 50  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'Adbar     '   0.16130      0.10000E-01     no limits
+     2 'Adv       '    1.0000      constant
+     3 'Ag        '    1.0000      constant
+     4 'Agp       '   0.73110E-01  0.10000E-01     no limits
+     5 'Aubar     '    0.0000      constant
+     6 'Auv       '    1.0000      constant
+     7 'Bdbar     '  -0.12730      0.40000E-02     no limits
+     8 'Bdv       '    1.0300      0.60000E-01     no limits
+     9 'Bg        '  -0.61953E-01  0.27000         no limits
+    10 'Bgp       '  -0.38310      0.10000E-01     no limits
+    11 'Bubar     '    0.0000      constant
+    12 'Buv       '   0.81048      0.16000E-01     no limits
+    13 'Cdbar     '    9.5862       1.2345         no limits
+    14 'Cdv       '    4.8463      0.30000         no limits
+    15 'Cg        '    5.5624      0.32000         no limits
+    16 'Cgp       '    25.000      constant
+    17 'Cubar     '    7.0597      0.80000         no limits
+    18 'Cuv       '    4.8235      0.60000E-01     no limits
+    19 'DbarToS   '    1.0000      constant
+    20 'Dubar     '    1.5481       1.0000         no limits
+    21 'Duv       '    0.0000      constant
+    22 'Euv       '    9.9214      0.80000         no limits
+    23 'ZERO      '    0.0000      constant
+    24 'fs        '   0.40000      constant
+ **********
+ **    1 **CALL FCN    3.000    
+ **********
+
+ FCN=   1742.771     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1   Adbar       0.16130       0.10000E-01
+   2   Adv          1.0000       constant   
+   3   Ag           1.0000       constant   
+   4   Agp         0.73110E-01   0.10000E-01
+   5   Aubar        0.0000       constant   
+   6   Auv          1.0000       constant   
+   7   Bdbar      -0.12730       0.40000E-02
+   8   Bdv          1.0300       0.60000E-01
+   9   Bg         -0.61953E-01   0.27000    
+  10   Bgp        -0.38310       0.10000E-01
+  11   Bubar        0.0000       constant   
+  12   Buv         0.81048       0.16000E-01
+  13   Cdbar        9.5862        1.2345    
+  14   Cdv          4.8463       0.30000    
+  15   Cg           5.5624       0.32000    
+  16   Cgp          25.000       constant   
+  17   Cubar        7.0597       0.80000    
+  18   Cuv          4.8235       0.60000E-01
+  19   DbarToS      1.0000       constant   
+  20   Dubar        1.5481        1.0000    
+  21   Duv          0.0000       constant   
+  22   Euv          9.9214       0.80000    
+  23   ZERO         0.0000       constant   
+  24   fs          0.40000       constant   

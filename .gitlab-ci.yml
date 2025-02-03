@@ -1,4 +1,6 @@
-image: "gitlab-registry.cern.ch/fitters/xfitter"
+image: "gitlab-registry.cern.ch/fitters/xfitter:with_docker"
+# image: "gitlab-registry.cern.ch/fitters/xfitter"
+
 
 stages:
  - test
@@ -6,9 +8,10 @@ stages:
 
 .install_dependencies:
   before_script:
-    - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
-    - ln -s /usr/bin/cmake3 /usr/bin/cmake 
-  
+#    - yum -y install yum-plugin-ovl which yaml-cpp-devel libyaml-devel gsl-devel cmake3 automake libtool zlib zlib-devel zlib-static ceres-solver-devel
+#    - ln -s /usr/bin/cmake3 /usr/bin/cmake 
+    - echo "ha"
+
 job-install-minimal:
   stage: test
   extends: .install_dependencies
@@ -29,14 +32,14 @@ job-install-full:
   timeout: 120m
   script: 
     #- yum -y install gcc-gfortran git tar root libgfortran-static
-    - yum -y install git tar root
+    - yum -y install git tar root perl-CPAN
     - ./tools/install-xfitter deps
     - . setup.sh
     # for the next command the output is redirected, to see it (in case of problems) uncomment the command below which will print it
     - ./tools/download-lhapdf.sh HERAPDF20_NNLO_EIG HERAPDF20_NNLO_VAR CT14nlo CT14nnlo ABMP16_3_nlo ABMP16_5_nnlo HERAPDF20_NLO_FF3B_EIG NNPDF30_nlo_as_0118 NNPDF31_nlo_as_0118_hessian NNPDF31_nnlo_as_0118 MMHT2014nnlo68cl nCTEQ15FullNuc_184_74 nCTEQ15FullNuc_1_1 >& download-lhapdf.log
     - cat *.log
     - ./make.sh install
-    - git clone -b fix2 --single-branch https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - git clone -b master --single-branch https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
     - rm -rf temp-datafiles
     - cd datafiles
@@ -135,20 +138,57 @@ job-dyturbo:
     - yum -y install git tar
     - ls /cvmfs
     #- . /cvmfs/sft.cern.ch/lcg/views/LCG_103/x86_64-centos7-gcc12-opt/setup.sh
-    - . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
+    #- . /cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-cc7-gcc49-opt/setup.sh
     - ./tools/install-qcdnum
     - ./tools/install-lhapdf
     - ./tools/install-dyturbo
     - ./tools/install-numdiff
     - . setup.sh
     - ./make.sh install
-    - git clone -b cdfzpt-dyt1.3 https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - git clone -b master https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
     - mv temp-datafiles/.git datafiles/.git
     - rm -rf temp-datafiles
     - cd datafiles
     - git reset --hard HEAD
     - cd -
     - ./tools/test.sh ZPT
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
+  artifacts:
+    when: on_failure
+    paths:
+      - install.log
+      - temp/**/test.log
+      - temp/**/xfitter.log
+      - temp/**/output
+    expire_in: 2 day
+
+
+job-tmd:
+  stage: test
+  extends: .install_dependencies
+  only: 
+    - merge_requests
+    - schedules
+  tags:
+    - cvmfs
+  script: 
+    - yum -y install git tar
+    - ls /cvmfs
+    - ./tools/install-qcdnum
+    - ./tools/install-lhapdf
+    - ./tools/install-dyturbo
+    - ./tools/install-numdiff
+    - . setup.sh
+    - ./tools/download-lhapdf.sh NNPDF40_nnlo_as_01180_hessian >& download-lhapdf.log
+    - ./make.sh install
+    - git clone -b master https://gitlab.cern.ch/fitters/xfitter-datafiles.git temp-datafiles
+    - mv temp-datafiles/.git datafiles/.git
+    - rm -rf temp-datafiles
+    - cd datafiles
+    - git reset --hard HEAD
+    - cd -
+    - ./tools/test.sh TMD
   variables:
     CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE" 
   artifacts:

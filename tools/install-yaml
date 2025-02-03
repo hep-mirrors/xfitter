@@ -8,7 +8,8 @@ dir=deps-yaml
 
 # Package versions:
 yamlver=0.2.5
-yamlppver=0.7.0
+#yamlppver=yaml-cpp-0.7.0
+yamlppver=0.8.0
 
 #Check for dummies
 if [[ $0 == bash || $0 = csh ]]
@@ -30,13 +31,13 @@ echo "Get yaml++"
 mkdir -p $dir
 cd $dir
 
-wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-${yamlppver}.tar.gz > $CURRENTDIR/install_yam.log  2>&1
-tar xfz yaml-cpp-${yamlppver}.tar.gz
-cd yaml-cpp-yaml-cpp-${yamlppver}
+wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/${yamlppver}.tar.gz > $CURRENTDIR/install_yam.log  2>&1
+tar xfz ${yamlppver}.tar.gz
+cd yaml-cpp-${yamlppver}
 mkdir build
 cd build
 cmake3='cmake3'
-if [ -x "command -v cmake3" ]; then
+if ! command -v cmake3 >/dev/null 2>&1; then
   cmake3='cmake'
 fi
 $cmake3  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
@@ -68,9 +69,13 @@ fi
 
 cd $CURRENTDIR
 
-libspp=`pkg-config --libs $dir/yaml-cpp/share/pkgconfig/yaml-cpp.pc`
-incspp=`pkg-config --cflags $dir/yaml-cpp/share/pkgconfig/yaml-cpp.pc`
-
+if [[ $yamlppver == yaml-cpp-0.7.0 ]]; then
+  libspp=`pkg-config --libs $dir/yaml-cpp/share/pkgconfig/yaml-cpp.pc`
+  incspp=`pkg-config --cflags $dir/yaml-cpp/share/pkgconfig/yaml-cpp.pc`
+elif [[ $yamlppver == 0.8.0 ]]; then
+  libspp=`pkg-config --libs $dir/yaml-cpp/lib64/pkgconfig/yaml-cpp.pc`
+  incspp=`pkg-config --cflags $dir/yaml-cpp/lib64/pkgconfig/yaml-cpp.pc`
+fi
 
 echo "Make setup_yaml.sh file"
 echo "export CURRENTDIR=`pwd`" > setup_yaml.sh

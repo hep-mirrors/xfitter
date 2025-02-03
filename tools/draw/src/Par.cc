@@ -14,6 +14,8 @@
 #include "FileOpener.h"
 #include "FTNFitPars.h"
 
+std::vector<std::pair<double,double>> pumplin_errors(const std::string& dir);
+
 Par::Par(string dirname, string label)
 {
   if (outdirs[label].IsMCreplica())
@@ -145,10 +147,14 @@ Par::Par(string dirname, string label)
         }
       }
       else {
+	// read pumplin errors:
+	std::vector<std::pair<double,double>> eJon = pumplin_errors(dirname);
+
         ifstream &f = fo.GetStream();
         string line;
         int idx = 0;
         getline(f, line);
+	int internalIndex = 0;
         while(!f.eof()) 
           {
             istringstream iss(line);
@@ -164,11 +170,16 @@ Par::Par(string dirname, string label)
                 parlist[index].error_p = err;
                 parlist[index].error_m = err;
                 parlist[index].name = name;
+		if ( (err !=0) and (eJon.size()>0) and (internalIndex<eJon.size()) ) {
+		  // update error
+		  parlist[index].error_p = eJon[internalIndex].first;
+		  parlist[index].error_m = eJon[internalIndex].second;
+		  internalIndex++;
+		}
               }
             getline(f, line);
           }
         f.close();
-
         //Read fit status
         fitstatus = fitstat(dirname);
       }
@@ -262,4 +273,47 @@ string hessestat(string dir)
     }
   ff.close();
   return status;
+}
+
+std::vector<std::pair<double,double>> pumplin_errors(const std::string& dir) {
+  std::vector<std::pair<double,double>> pars;
+
+  string fname = dir + "/minuit.out.txt";
+  ifstream ff(fname.c_str());
+  if (!ff.good())
+    return pars;
+  // find "MYSTUFF" statement
+  string line;
+  bool gotMyStuff;
+  while (getline(ff, line)) {
+    if (line.find("mystuff called with argument  1000") != string::npos) {
+      gotMyStuff = true;
+      break;
+    }
+  };
+  if (! gotMyStuff)
+    return pars;
+  while (getline(ff, line)) {
+    double errSym;
+    if (line.find("mystuff called with argument  2000") != string::npos) 
+      return pars;  // stop
+    if ( (line.find("for DeltaChisq") != string::npos) and (line.find(" at ") != string::npos)) {
+      int pos1 = line.find("+/-")+3;
+      int pos2 = line.find("for DeltaChisq")-1;
+      istringstream iss(line.substr(pos1,pos2));
+      iss >> errSym;
+    }
+    if ((line.find("Steps in ") != string::npos)) {
+      int pos1 = line.find("=")+1;
+      int pos2 = line.find(",");
+      int pos3 = line.find("(")-1;
+      double deltaUp,deltaDown;
+      istringstream iss1(line.substr(pos1,pos2-1));
+      iss1 >> deltaUp;
+      istringstream iss2(line.substr(pos2+1,pos3));
+      iss2 >> deltaDown;
+      pars.push_back(std::pair<double,double>(sqrt(deltaUp)*errSym,sqrt(deltaDown)*errSym));
+    }
+  }
+  return pars;
 }

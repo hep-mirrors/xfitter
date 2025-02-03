@@ -1,0 +1,116 @@
+
+*  Namelist to control input data
+*
+&InFiles
+     InputFileNames =
+        'datafiles/lhc/cms/topProduction/1904.05237/top18004_mttytt.dat'
+        'datafiles/lhc/cms/topProduction/2108.02803/top20001_mttytt.dat'
+        'datafiles/lhc/atlas/topProduction/1908.07305/a190807305_mttytt.dat'
+        'datafiles/lhc/atlas/topProduction/2006.09274/a200609274_mttytt.dat'
+        'datafiles/lhc/cms/topProduction/1703.01630/top14013_mttytt.dat'
+        'datafiles/lhc/cms/topProduction/1511.04716/a151104716_mtt.dat'
+        'datafiles/lhc/cms/topProduction/1407.0371/a14070371_mtt.dat'
+        'datafiles/lhc/atlas/topProduction/1607.07281/a160707281_7tev_mtt.dat'
+        'datafiles/lhc/atlas/topProduction/1607.07281/a160707281_8tev_mtt.dat'
+        'datafiles/lhc/atlascmsCombined/topProduction/2205.13830/t220513830_7tev.dat'
+        'datafiles/lhc/atlascmsCombined/topProduction/2205.13830/t220513830_8tev.dat'
+        'datafiles/lhc/cms/topProduction/2303.10680/t230310680.dat'
+        'datafiles/lhc/atlas/topProduction/ATLAS-CONF-2023-006/atlasconf2023006.dat'
+        'datafiles/lhc/cms/topProduction/2112.09114/t211209114.dat'
+        'datafiles/lhc/atlas/topProduction/2207.01354/t220701354.dat'
+        'datafiles/lhc/cms/topProduction/2303.15340/t230315340.dat'
+        'datafiles/lhc/cms/topProduction/2006.13076/t200613076.dat'
+        'datafiles/lhc/cms/topProduction/1812.10505/t181210505.dat'
+        'datafiles/lhc/cms/topProduction/2108.02803/t210802803.dat'
+&End
+
+&InCorr
+  ! Correlation files:
+    CorrFileNames = 'datafiles/lhc/cms/topProduction/1904.05237/top18004_mttytt__top18004_mttytt.dat'
+                    'datafiles/lhc/cms/topProduction/2108.02803/top20001_mttytt__top20001_mttytt.dat'
+                    'datafiles/lhc/atlas/topProduction/1908.07305/a190807305_mttytt__a190807305_mttytt.dat'
+                    'datafiles/lhc/atlas/topProduction/2006.09274/a200609274_mttytt__a200609274_mttytt.dat'
+                    'datafiles/lhc/cms/topProduction/1703.01630/top14013_mttytt__top14013_mttytt.dat'
+                    'datafiles/lhc/cms/topProduction/1511.04716/a151104716_mtt__a151104716_mtt.dat'
+                    'datafiles/lhc/cms/topProduction/1407.0371/a14070371_mtt__a14070371_mtt.dat'
+                    'datafiles/lhc/atlas/topProduction/1607.07281/a160707281_7tev_mtt__a160707281_7tev_mtt.dat'
+                    'datafiles/lhc/atlas/topProduction/1607.07281/a160707281_8tev_mtt__a160707281_8tev_mtt.dat'
+                    'datafiles/lhc/atlascmsCombined/topProduction/2205.13830/t220513830_7tev__t220513830_8tev.dat'
+&End
+
+&ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
+  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
+  tolerance = 0.0
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
+  useBlas = .false.
+&End
+
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .False.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+
+   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
+  LSubtractStat = .false.
+&End
+*
+* (Optional) List systematic sources, modify their scaling properties:
+*
+&Systematics
+&End
+*
+* Main steering cards
+*
+&xFitter 
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
+
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2ExtraParam = 'PoissonCorr'
+
+ ! Debug flag
+  LDEBUG     = False
+
+
+ ! Quadratic approximation for asymmetric uncertainties
+ ! AsymErrorsIterations = 10
+&End
+*
+* Output steering cards
+*
+&Output 
+  ! -- Q2 values at which the pdfs & errors are done (up to 20)
+  Q2VAL = 9., 10000.
+
+  ! How many x points to write (standard = 101)
+  OUTNX = 101
+
+  ! x-range of output (standard = 1E-4 1.0)
+  OUTXRANGE = 1E-4, 0.9999
+&End
+*
+* Process dependent cuts
+*
+&Cuts
+&End

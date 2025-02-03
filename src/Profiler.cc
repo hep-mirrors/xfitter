@@ -189,7 +189,11 @@ namespace xfitter
     _nSourcesOrig = nsysloc;
 
     if (_getChi2) { // central prediction
+      // SZ 2024.09.10 avoid MC method which is called when fcn(iflag=1) before theory unc. are added
+      auto stored = steering_.lrand;
+      steering_.lrand = 0;
       auto chi2tot = chi2data_theory_(1);
+      steering_.lrand = stored;
       auto fname = _outputDir + "/Results.txt";
       bool cp = system(( (string)"rm -f " + fname  ).c_str());
       fopen_(85, fname.c_str(), fname.size());

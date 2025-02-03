@@ -3,7 +3,7 @@ find_package(PkgConfig REQUIRED)
 set(PKG_CONFIG_PATH_SAVED "$ENV{PKG_CONFIG_PATH}")
 if(EXISTS "$ENV{yaml_cpp_DIR}")
   #if yaml_cpp_DIR environment variable is set, make pkg-config search there too
-  set(ENV{PKG_CONFIG_PATH} "$ENV{yaml_cpp_DIR}/share/pkgconfig:$ENV{yaml_cpp_DIR}/lib/pkgconfig:$ENV{yaml_cpp_DIR}/pkgconfig:$ENV{yaml_cpp_DIR}:$ENV{PKG_CONFIG_PATH}")
+  set(ENV{PKG_CONFIG_PATH} "$ENV{yaml_cpp_DIR}/share/pkgconfig:$ENV{yaml_cpp_DIR}/lib/pkgconfig:$ENV{yaml_cpp_DIR}/lib64/pkgconfig:$ENV{yaml_cpp_DIR}/pkgconfig:$ENV{yaml_cpp_DIR}:$ENV{PKG_CONFIG_PATH}")
 endif()
 pkg_check_modules(yaml-cpp QUIET yaml-cpp)
 if(yaml-cpp_FOUND)
