@@ -307,6 +307,7 @@ void APFEL_Evol::atIteration()
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);
   BaseEvolution::atIteration();
   //printf("SZ alphas_nf5(mz) = %.4f\n", this->getAlphaS(*Mz));
+  //printf("SZ g(0.1,mz) = %.4f\n", this->xfxQmap(0.1,*Mz)[7]);
 }
 
 void APFEL_Evol::atConfigurationChange()
