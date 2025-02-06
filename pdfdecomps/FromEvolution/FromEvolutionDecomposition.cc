@@ -40,7 +40,10 @@ namespace xfitter {
     }
   }
   std::map<int,double>FromEvolutionDecomposition::xfxMap(double x)const{
-    return _evolution->xfxQmap(x,  _Q0);
+    auto result = _evolution->xfxQmap(x,  _Q0);
+    result[22] = 0.;
+    //printf("pdf(x=%.1e) = ", x); for (const auto& it : result) printf(" [%d]%+.1e", it.first, it.second); printf("\n");
+    return result;
   }
 }
 

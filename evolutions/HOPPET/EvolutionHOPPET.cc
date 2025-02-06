@@ -86,7 +86,7 @@ namespace xfitter
       hf_errlog(20240903, "F: Unsupported isFFNS = " + std::to_string(_isFFNS));
     }
     atConfigurationChange();
-    printf("SZ HOPPET _isFFNS %d MSbar %d _nflavour %d\n", _isFFNS, _msbar, _nflavour);
+    //printf("SZ HOPPET _isFFNS %d MSbar %d _nflavour %d\n", _isFFNS, _msbar, _nflavour);
   }
 
 void  heralhc_init(const double & x,
@@ -143,7 +143,8 @@ void  heralhc_init(const double & x,
   
   std::map<int,double>EvolutionHOPPET::xfxQmap(double x,double Q){
     //std::cout << " HERE WE ARE in HOPPET A " << std::endl;
-    double pdfs[14];
+    double pdfs[14] = {0.0};
+    //printf("xfxQmap(x=%.1e) = ", x); for (int i = 0; i < 14; i++) printf(" [%d]%+.1e", i, pdfs[i]); printf("\n");
     xfxQarray(x, Q, pdfs);
     std::map<int, double> res;
     
@@ -152,7 +153,7 @@ void  heralhc_init(const double & x,
     for (int ipdf = -6; ipdf <= npdfMax; ipdf++)
       {
 	int ii = (ipdf == 0) ? 21 : ipdf;
-	// photon PDF:
+	// photon PDF (not implemented):
 	if (ipdf == 7)
 	  ii = 22;
 	res[ii] = pdfs[ipdf+6];
@@ -161,13 +162,22 @@ void  heralhc_init(const double & x,
   }
 
   double EvolutionHOPPET::xfxQ(int i,double x,double Q){
-    double pdfs[14];
+    double pdfs[14] = {0.0};
+    //printf("xfxQ(x=%.1e) = ", x); for (int i = 0; i < 14; i++) printf(" [%d]%+.1e", i, pdfs[i]); printf("\n");
     xfxQarray(x, Q, pdfs);
     return pdfs[i+6];
   }
 
   void EvolutionHOPPET::xfxQarray(double x,double Q,double*pdfs){
+    for (int i = 0; i < 13; i++) {
+      pdfs[i] = 0.0;
+    }
     hoppetEval(x, Q, pdfs);
+    // make sure that appropriate heavy-flavour PDFs are 0, otherwise top and antitop values seem to be dummy numbers in FFNS with nf<5
+    for (int i = 6; i > _nflavour; i--) {
+      pdfs[6-i] = pdfs[6+i] = 0.;
+    }
+    //printf("hop(x=%.1e) = ", x); for (int i = 0; i < 14; i++) printf(" [%d]%+.1e", i, pdfs[i]); printf("\n");
   }
 
   double EvolutionHOPPET::getAlphaS(double Q){

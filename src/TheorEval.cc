@@ -24,6 +24,10 @@
 #include "xfitter_pars.h"
 #include "xfitter_steer.h"
 
+#include <unistd.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
+
 // ROOT spline can be uncommented (here and below in the code) and used e.g. for cross checks (obviously requires ROOT)
 //#include <TSpline.h>
 #include <spline.h>
@@ -681,8 +685,77 @@ void TheorEval::Evaluate(valarray<double> &vte )
 void TheorEval::updateReactionValues(){
   map<string,valarray<double> > errors;//The errors returned by reaction are ignored
   //TODO: actually use the errors reported by ReactionTheory in chi2 calculation
-  for(const auto td:term_datas){
-    td->reaction->compute(td,*td->val,errors);
+  //for(const auto td:term_datas){
+  //  td->reaction->compute(td,*td->val,errors);
+  //}
+  auto calc_one = [&](int i) {
+    term_datas[i]->reaction->compute(term_datas[i],*term_datas[i]->val,errors);
+  };
+
+  const int _ncpu = 1;
+  int ncpu =  xfitter::xf_ncpu(_ncpu);
+  //printf("ncpu = %d\n", ncpu);
+  
+  const int Ncalc = term_datas.size();
+  //const int Npoints = term_datas.size();
+  //printf("Ncalc = %d\n", Ncalc);
+  if (ncpu == 1) {
+    for (int i = 0; i < Ncalc; i++) {
+      calc_one(i);
+    }
+  }
+  else {
+    // Shared memory for predictions
+    int shmid;
+    double* sharedArray;
+    shmid = shmget(IPC_PRIVATE, sizeof(double) * Ncalc, IPC_CREAT | 0666);
+    if (shmid < 0) {
+      hf_errlog(2023060200,"F: Failed to create shared memory segment");
+    }
+	  sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
+    if (sharedArray == reinterpret_cast<double*>(-1)) {
+      hf_errlog(2023060201,"F: Failed to attach shared memory segment");
+    }
+    // define Chunks
+    int chunkSize = Ncalc / ncpu;
+    int reminder  = Ncalc % ncpu; 
+    int first = 0;
+    int startIndex = 0;
+    int endIndex = 0;
+    // loop over all
+    for (int icpu = 0; icpu < min(ncpu, Ncalc); icpu++) {
+      startIndex = endIndex;
+      endIndex   = startIndex + chunkSize;
+      if (icpu < reminder) {
+	      endIndex += 1;
+      }
+      pid_t pid = xfitter::xf_fork( min(ncpu, Ncalc)  );
+      if ( pid == 0) {       
+        // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
+        int fdlimit = (int)sysconf(_SC_OPEN_MAX);
+        for (int i = STDERR_FILENO + 1; i < fdlimit; i++) {
+          close(i);
+        }
+        for (int i = first+startIndex; i < first+endIndex; i++) {
+          printf("CPU %d computing %d\n", icpu, i);
+          calc_one(i);
+        }
+        exit(0);	    
+      }
+      else if (pid<0) {
+      	hf_errlog(2023060204,"F: Failed to create a fork process");	
+      }
+    }	
+    // Wait ...
+    int status;
+    while (wait(&status) > 0);    
+    // Store result
+    //for (size_t i = 0; i<Ncalc; i++) {
+    //  val[i] = sharedArray[i];
+    //}    
+    // Detach and remove shared memory segments
+    shmdt(sharedArray);
+    shmctl(shmid, IPC_RMID, NULL);
   }
 }
 const valarray<double>*TheorEval::getBinColumn(const string&n)const{
