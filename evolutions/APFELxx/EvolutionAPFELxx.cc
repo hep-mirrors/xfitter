@@ -25,9 +25,12 @@ namespace xfitter
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
     // Retrieve parameters needed to initialize APFEL++.
-    const double* MCharm   = XFITTER_PARS::getParamD("mch");
-    const double* MBottom  = XFITTER_PARS::getParamD("mbt");
-    const double* MTop     = XFITTER_PARS::getParamD("mtp");
+    _mch = XFITTER_PARS::getParamD("mch");
+    _mbt = XFITTER_PARS::getParamD("mbt");
+    _mtp = XFITTER_PARS::getParamD("mtp");
+    _mch_last = *_mch;
+    _mbt_last = *_mbt;
+    _mtp_last = *_mtp;
     const YAML::Node xGrid = yamlNode["xGrid"];
 
     vector<apfel::SubGrid> sgv;
@@ -39,37 +42,35 @@ namespace xfitter
     _Grid = std::unique_ptr<const apfel::Grid>(new apfel::Grid(sgv));
 
     // Vectors of masses and thresholds
-    _Masses = {0, 0, 0, *MCharm, *MBottom, *MTop};
+    _Masses = {0, 0, 0, *_mch, *_mbt, *_mtp};
     _Thresholds = _Masses;
-    int isFFNS = 0; // VFNS by default
+    _isFFNS = 0; // VFNS by default
     if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end()) {
-      isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
+      _isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
     }
     if (yamlNode["isFFNS"]) {
-      isFFNS = yamlNode["isFFNS"].as<int>();
+      _isFFNS = yamlNode["isFFNS"].as<int>();
     }
-    int nflavour = -1;
-    nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+    _NFlavour = -1;
+    _NFlavour = XFITTER_PARS::gParametersI.at("NFlavour");
     if (yamlNode["NFlavour"]) {
-      nflavour = yamlNode["NFlavour"].as<int>();
+      _NFlavour = yamlNode["NFlavour"].as<int>();
     }
-    if(isFFNS == 1) {
-      for (int i = 5; i >= nflavour; i--) {
+    if(_isFFNS == 1) {
+      for (int i = 5; i >= _NFlavour; i--) {
         _Thresholds[i] = 1.0e10;
       }
     }
-    else if(isFFNS == 0) {;}
-    else if(isFFNS != 0) {
-      hf_errlog(2025020101, "F: Unsupported isFFNS = " + std::to_string(isFFNS));
+    else if(_isFFNS == 0) {;}
+    else if(_isFFNS != 0) {
+      hf_errlog(2025020101, "F: Unsupported _isFFNS = " + std::to_string(_isFFNS));
     }
-    //if (nflavour == 5 && isFFNS == 1) _Thresholds = {0, 0, 0, 0, 0, 0};
     if(XFITTER_PARS::gParametersS.find("heavyQuarkMassScheme") != XFITTER_PARS::gParametersS.end()) {
       _heavyQuarkMassScheme = XFITTER_PARS::gParametersS.at("heavyQuarkMassScheme");
     }
     if (yamlNode["heavyQuarkMassScheme"]) {
       _heavyQuarkMassScheme = yamlNode["heavyQuarkMassScheme"].as<string>();
     }
-    //printf("SZ NFlavour = %d isFFNS = %d _heavyQuarkMassScheme = %s _Thresholds: ", nflavour, isFFNS, _heavyQuarkMassScheme.c_str()); for (auto& it : _Thresholds) printf("%.3f ", it); printf("\n");
     // Initialize QCD evolution objects
     if (_heavyQuarkMassScheme == "Pole") {
       _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
@@ -90,7 +91,12 @@ namespace xfitter
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Restart from scratch at each iteration, e.g. when fitting heavy-quark masses (fast enough)
     if (yamlNode["restart_at_each_iteration"] && yamlNode["restart_at_each_iteration"].as<int>() == 1) {
-      this->atStart();
+      // Restart only if any of relevant heavy quark masses changed
+      if (_isFFNS == 0) {
+        if (_NFlavour >= 4 && _mch_last != *_mch || _NFlavour >= 5 && _mbt_last != *_mbt || _NFlavour >= 6 &&  _mtp_last != *_mtp) {
+          this->atStart();
+        }
+      }
     }
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
@@ -160,10 +166,8 @@ namespace xfitter
     pdfs[10]=fset.at(4);
     pdfs[11]=fset.at(5);
     pdfs[12]=fset.at(6);
-    //printf("apfelxx(x=%.1e,Q=%.1e) = ", x, Q); for (const auto& it : fset) printf(" %+.1e", it.second); printf("\n");
   }
   double EvolutionAPFELxx::getAlphaS(double Q){
-    //printf("getAlphaS(Q=%.1e) = %.1e\n", Q, _AlphaQCD(Q));
     return _AlphaQCD(Q);
   }
 
