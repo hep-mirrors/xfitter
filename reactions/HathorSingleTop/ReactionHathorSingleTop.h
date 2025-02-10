@@ -48,9 +48,9 @@ protected:
     HathorPdfxFitter* _pdf;
     int* _rndStore;
     map<unsigned, int> _scheme;
-    map<unsigned, double> _mtop;
-    map<unsigned, double> _mr;
-    map<unsigned, double> _mf;
+    map<unsigned, const double*> _mtop;
+    map<unsigned, const double*> _mr;
+    map<unsigned, const double*> _mf;
     // store term data for later access
     map<unsigned, TermData*> _tdDS;
   

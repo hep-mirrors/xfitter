@@ -304,21 +304,19 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
         hathor->setPrecision(precisionLevel);
     
         // top quark mass
-        _mtop[dataSetID] = *td->getParamD("mtp");
+        _mtop[dataSetID] = td->getParamD("mtp");
     
         // renorm. scale
-        _mr[dataSetID] = _mtop[dataSetID];
-        if(td->hasParam("muR")) _mr[dataSetID] *= *td->getParamD("muR");
+        _mr[dataSetID] = td->getParamD("muR");
     
         // fact. scale
-        _mf[dataSetID] = _mtop[dataSetID];
-        if(td->hasParam("muF")) _mf[dataSetID] *= *td->getParamD("muF");
+        _mf[dataSetID] = td->getParamD("muF");
     
         if (init1) {
             std::cout << " Hathor will use:";
-            std::cout << " mtop = " << _mtop[dataSetID] << "[GeV] ";
-            std::cout << " renorm. scale = " << _mr[dataSetID] << "[GeV] ";
-            std::cout << " fact. scale = " << _mf[dataSetID] << "[GeV]";
+            std::cout << " mtop = " << *_mtop[dataSetID] << "[GeV] ";
+            std::cout << " renorm. scale = " << *_mr[dataSetID] * (*_mtop[dataSetID]) << "[GeV] ";
+            std::cout << " fact. scale = " << *_mf[dataSetID] * (*_mtop[dataSetID]) << "[GeV]";
             std::cout << std::endl;
         } 
     
@@ -387,8 +385,8 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
     
             double valtclo, valtclop, valtclom, valtcnlo, valtcnlop, valtcnlom, valtcnnlo;
             double err1, chi1;
-            double aspi  = hathor->getAlphas(_mtop[dataSetID])/(pi);
-            double dmtms = _mtop[dataSetID]/100.;  //For numerical derivative w.r.t mt
+            double aspi  = hathor->getAlphas(*_mtop[dataSetID])/(pi);
+            double dmtms = *_mtop[dataSetID]/100.;  //For numerical derivative w.r.t mt
     
             // decoupling coefficients
             nfl = 5.;
@@ -405,46 +403,39 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
             //hathor->setScheme(Hathor::LO);
             hathor->setScheme(_scheme[dataSetID]);
             // all order result
-            hathor->getXsection(_mtop[dataSetID],_mtop[dataSetID],_mf[dataSetID]);
+            hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
             hathor->getResult(0,valtclo,err1,chi1);
-            //printf("xsec,err LO: %f %f [%.3f%%] %f %f\n", valtclo, err1, err1/valtclo*100., _mtop[dataSetID],_mf[dataSetID]);
     
             if (orderI > 0) {
                 // LO derivatives
                 hathor->setScheme(Hathor::LO);
-                hathor->getXsection(_mtop[dataSetID]+dmtms,_mtop[dataSetID],_mf[dataSetID]);
-                hathor->getResult(0,valtclop,err1,chi1);    
-                //printf("xsec,err LOp: %f %f [%.3f%%]\n", valtclop, err1, err1/valtclop*100.);
-                hathor->getXsection(_mtop[dataSetID]-dmtms,_mtop[dataSetID],_mf[dataSetID]);
+                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+                hathor->getResult(0,valtclop,err1,chi1);
+                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
                 hathor->getResult(0,valtclom,err1,chi1);
-                //printf("xsec,err LOm: %f %f [%.3f%%]\n", valtclom, err1, err1/valtclom*100.);
     
                 // NLO
                 //hathor->setScheme(Hathor::NLO);
-                //hathor->getXsection(_mtop[dataSetID],_mtop[dataSetID],_mf[dataSetID]);
+                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
                 //hathor->getResult(0,valtcnlo,err1,chi1);
-                //printf("xsec,err NLO: %f %f [%.3f%%]\n", valtcnlo, err1, err1/valtcnlo*100.);
             }
     
             if (orderI > 1) {
                 // NLO derivatives
                 hathor->setScheme(Hathor::NLO);
-                hathor->getXsection(_mtop[dataSetID]+dmtms,_mtop[dataSetID],_mf[dataSetID]);
+                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
                 hathor->getResult(0,valtcnlop,err1,chi1);
-                //printf("xsec,err NLOp: %f %f [%.3f%%]\n", valtcnlop, err1, err1/valtcnlop*100.);
-                hathor->getXsection(_mtop[dataSetID]-dmtms,_mtop[dataSetID],_mf[dataSetID]);
+                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
                 hathor->getResult(0,valtcnlom,err1,chi1);
-                //printf("xsec,err NLOm: %f %f [%.3f%%]\n", valtcnlom, err1, err1/valtcnlom*100.);
     
                 // NNLO
                 //hathor->setScheme(Hathor::NNLO);
-                //hathor->getXsection(_mtop[dataSetID],_mtop[dataSetID],_mf[dataSetID]);
+                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
                 //hathor->getResult(0,valtcnnlo,err1,chi1);
-                //printf("xsec,err NNLO: %f %f [%.3f%%]\n", valtcnnlo, err1, err1/valtcnnlo*100.);
             }
     
             //Coefficients for generalizing cross-section to arbitrary alpha_s(mu_r)
-            vector<double> asFac = asFactors(hathor,_mtop[dataSetID],_mr[dataSetID]);
+            vector<double> asFac = asFactors(hathor,*_mtop[dataSetID],*_mr[dataSetID]*(*_mtop[dataSetID]));
             if (asFac.size()!=3) {
                 hf_errlog(21120901,"F: ERROR in calculating as conversion factors in ReactionHathorSingleTop.cc");
                 return;
@@ -460,21 +451,21 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
                    + (orderI > 1 ? asNNLO*valtcnnlo : 0.);  //Common NNLO
             //Numerical derivative contributions
             if (orderI > 0) {
-                NLOder = aspi*d1dec*_mtop[dataSetID]/(2.*dmtms)*(valtclop-valtclom);
+                NLOder = aspi*d1dec*(*_mtop[dataSetID])/(2.*dmtms)*(valtclop-valtclom);
                 crst  += asNLO*NLOder;
             }
             if (orderI > 1) {
                 //N.B. csNLO terms include one factor of aspi on 2nd line
-                NNLOder = pow(aspi,2)*d2dec*_mtop[dataSetID]/(2.*dmtms)*(valtclop - valtclom)                  
-                         +       aspi*d1dec*_mtop[dataSetID]/(2.*dmtms)*(valtcnlop - valtcnlom)
-                         +pow(aspi*d1dec*_mtop[dataSetID]/dmtms,2)/2.*(valtclop - 2.*valtclo + valtclom);
+                NNLOder = pow(aspi,2)*d2dec*(*_mtop[dataSetID])/(2.*dmtms)*(valtclop - valtclom)                  
+                         +       aspi*d1dec*(*_mtop[dataSetID])/(2.*dmtms)*(valtcnlop - valtcnlom)
+                         +pow(aspi*d1dec*(*_mtop[dataSetID])/dmtms,2)/2.*(valtclop - 2.*valtclo + valtclom);
                 crst  += asNNLO*NNLOder;            
             }
             //printf("xsec,err: %f %f [%.3f%%]\n", crst, err1, err1/crst*100.);
                        
         } else {  //POLE scheme calculated in Hathor, no ext. numerical derivatives
     
-            hathor->getXsection(_mtop[dataSetID], _mr[dataSetID], _mf[dataSetID]);
+            hathor->getXsection(*_mtop[dataSetID], *_mr[dataSetID]*(*_mtop[dataSetID]), *_mf[dataSetID]*(*_mtop[dataSetID]));
             double dum = 0.0;
             hathor->getResult(0, crst, dum);
             //printf("xsec,err: %f %f [%.3f%%]\n", crst, dum, dum/crst*100.);
