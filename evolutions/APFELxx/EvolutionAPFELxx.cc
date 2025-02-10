@@ -69,7 +69,6 @@ namespace xfitter
     if (yamlNode["heavyQuarkMassScheme"]) {
       _heavyQuarkMassScheme = yamlNode["heavyQuarkMassScheme"].as<string>();
     }
-    //printf("SZ NFlavour = %d isFFNS = %d _heavyQuarkMassScheme = %s _Thresholds: ", nflavour, isFFNS, _heavyQuarkMassScheme.c_str()); for (auto& it : _Thresholds) printf("%.3f ", it); printf("\n");
     // Initialize QCD evolution objects
     if (_heavyQuarkMassScheme == "Pole") {
       _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
@@ -160,10 +159,8 @@ namespace xfitter
     pdfs[10]=fset.at(4);
     pdfs[11]=fset.at(5);
     pdfs[12]=fset.at(6);
-    //printf("apfelxx(x=%.1e,Q=%.1e) = ", x, Q); for (const auto& it : fset) printf(" %+.1e", it.second); printf("\n");
   }
   double EvolutionAPFELxx::getAlphaS(double Q){
-    //printf("getAlphaS(Q=%.1e) = %.1e\n", Q, _AlphaQCD(Q));
     return _AlphaQCD(Q);
   }
 
