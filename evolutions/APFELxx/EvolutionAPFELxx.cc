@@ -88,6 +88,10 @@ namespace xfitter
   void EvolutionAPFELxx::atIteration()
   {
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
+    // Restart from scratch at each iteration, e.g. when fitting heavy-quark masses (fast enough)
+    if (yamlNode["restart_at_each_iteration"] && yamlNode["restart_at_each_iteration"].as<int>() == 1) {
+      this->atStart();
+    }
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
     _Q0 = *XFITTER_PARS::getParamD((yamlNode["Q0"]) ? yamlNode["Q0"].as<string>() : "Q0");
