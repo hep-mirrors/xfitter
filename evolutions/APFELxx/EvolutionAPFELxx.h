@@ -60,7 +60,19 @@ namespace xfitter
     double _Q0;
     /// Evolution starting scale for alphas:
     const double* _alphas_q0;
+    /// Flavour scheme
+    int _isFFNS;
+    /// Number of flavours
+    int _NFlavour;
     /// heavy quark mass scheme (pole or MSbar)
     std::string _heavyQuarkMassScheme;
+    /// Heavy-quark masses
+    const double *_mch;
+    const double *_mbt;
+    const double *_mtp;
+    /// Heavy-quark masses at last iteration
+    double _mch_last;
+    double _mbt_last;
+    double _mtp_last;
   };
 }
