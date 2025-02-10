@@ -7,6 +7,7 @@
 #include <apfel/dglap.h>
 #include <apfel/dglapbuilder.h>
 #include <apfel/tabulateobject.h>
+#include <apfel/alphaqcdmsbarmass.h>
 
 #include <vector>
 #include <memory>
@@ -53,5 +54,13 @@ namespace xfitter
     std::map<int,apfel::DglapObjects>                                       _DglapObj;
     std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>> _TabulatedPDFs;
     std::function<double(double const& Q)>                                  _AlphaQCD;
+    /// pointer to alphas parameter
+    double* _alphas;
+    /// Evolution starting scale:
+    double _Q0;
+    /// Evolution starting scale for alphas:
+    const double* _alphas_q0;
+    /// heavy quark mass scheme (pole or MSbar)
+    std::string _heavyQuarkMassScheme;
   };
 }

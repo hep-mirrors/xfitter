@@ -41,9 +41,46 @@ namespace xfitter
     // Vectors of masses and thresholds
     _Masses = {0, 0, 0, *MCharm, *MBottom, *MTop};
     _Thresholds = _Masses;
-
+    int isFFNS = 0; // VFNS by default
+    if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end()) {
+      isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
+    }
+    if (yamlNode["isFFNS"]) {
+      isFFNS = yamlNode["isFFNS"].as<int>();
+    }
+    int nflavour = -1;
+    nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+    if (yamlNode["NFlavour"]) {
+      nflavour = yamlNode["NFlavour"].as<int>();
+    }
+    if(isFFNS == 1) {
+      for (int i = 5; i >= nflavour; i--) {
+        _Thresholds[i] = 1.0e10;
+      }
+    }
+    else if(isFFNS == 0) {;}
+    else if(isFFNS != 0) {
+      hf_errlog(2025020101, "F: Unsupported isFFNS = " + std::to_string(isFFNS));
+    }
+    //if (nflavour == 5 && isFFNS == 1) _Thresholds = {0, 0, 0, 0, 0, 0};
+    if(XFITTER_PARS::gParametersS.find("heavyQuarkMassScheme") != XFITTER_PARS::gParametersS.end()) {
+      _heavyQuarkMassScheme = XFITTER_PARS::gParametersS.at("heavyQuarkMassScheme");
+    }
+    if (yamlNode["heavyQuarkMassScheme"]) {
+      _heavyQuarkMassScheme = yamlNode["heavyQuarkMassScheme"].as<string>();
+    }
+    //printf("SZ NFlavour = %d isFFNS = %d _heavyQuarkMassScheme = %s _Thresholds: ", nflavour, isFFNS, _heavyQuarkMassScheme.c_str()); for (auto& it : _Thresholds) printf("%.3f ", it); printf("\n");
     // Initialize QCD evolution objects
-    _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
+    if (_heavyQuarkMassScheme == "Pole") {
+      _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
+    }
+    else if (_heavyQuarkMassScheme == "MSBar") {
+      _DglapObj = apfel::InitializeDglapObjectsQCDMSbarMass(*_Grid, _Masses, _Thresholds);
+    }
+    else {
+      hf_errlog(2025020501, "F: Unsupported _heavyQuarkMassScheme = " + _heavyQuarkMassScheme);
+    }
+    //_DglapObj.FlavourScheme = FFNS;
     atConfigurationChange();
   }
 
@@ -51,26 +88,46 @@ namespace xfitter
   void EvolutionAPFELxx::atIteration()
   {
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
+    // Restart from scratch at each iteration, e.g. when fitting heavy-quark masses (fast enough)
+    if (yamlNode["restart_at_each_iteration"] && yamlNode["restart_at_each_iteration"].as<int>() == 1) {
+      this->atStart();
+    }
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
-    const double* Q0         = XFITTER_PARS::getParamD("Q0");
-    const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
-    const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");
+    _Q0 = *XFITTER_PARS::getParamD((yamlNode["Q0"]) ? yamlNode["Q0"].as<string>() : "Q0");
+    const double *Mz = XFITTER_PARS::getParamD("Mz");
+    try {
+      _alphas_q0 = XFITTER_PARS::getParamD((yamlNode["alphas_Q0"]) ? yamlNode["alphas_Q0"].as<string>() : "alphas_Q0");
+    }
+    catch(std::out_of_range&ex) {
+      _alphas_q0 = nullptr;
+    }
+    if (!_alphas_q0) {
+      _alphas_q0 = Mz;
+    }
+    _alphas = XFITTER_PARS::getParamD((yamlNode["alphas"]) ? yamlNode["alphas"].as<string>() : "alphas");
     const YAML::Node QGrid   = yamlNode["QGrid"];
 
     // Reinitialise and tabulate the running coupling at every
     // iteration. This is fast enough and allows for the reference
     // value to be fitted.
-    apfel::AlphaQCD a{*Alphas_ref, *Q_ref, _Masses, _Thresholds, PtOrder};
-    const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
-    _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
+    if (_heavyQuarkMassScheme == "Pole") {
+      apfel::AlphaQCD a{*_alphas, *_alphas_q0, _Masses, _Thresholds, PtOrder};
+      const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
+      _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
+    }
+    else if (_heavyQuarkMassScheme == "MSBar") {
+      apfel::AlphaQCDMSbarMass a{*_alphas, *_alphas_q0, _Masses, _Thresholds, PtOrder};
+      const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
+      _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
+    }
 
     // Construct the DGLAP objects
     const auto Dglap = BuildDglap(_DglapObj,
       [=] (double const& x, double const&)->std::map<int,double>{
         return apfel::PhysToQCDEv(_inPDFs->xfxMap(x));
       },
-    *Q0, PtOrder, _AlphaQCD);
+    _Q0, PtOrder, _AlphaQCD);
 
     // Tabulate PDFs (ideally the parameters of the tabulation should
     // be read from parameters.yaml).
@@ -103,8 +160,10 @@ namespace xfitter
     pdfs[10]=fset.at(4);
     pdfs[11]=fset.at(5);
     pdfs[12]=fset.at(6);
+    //printf("apfelxx(x=%.1e,Q=%.1e) = ", x, Q); for (const auto& it : fset) printf(" %+.1e", it.second); printf("\n");
   }
   double EvolutionAPFELxx::getAlphaS(double Q){
+    //printf("getAlphaS(Q=%.1e) = %.1e\n", Q, _AlphaQCD(Q));
     return _AlphaQCD(Q);
   }
 
