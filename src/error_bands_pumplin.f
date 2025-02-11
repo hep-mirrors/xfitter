@@ -403,6 +403,9 @@ C         call ReadParCovMatrix(CovFileName, Amat_read, Npari)
 
 C Diagonalize:
       call MyDSYEVD( Npari, Amat, Npari, Eigenvalues, ifail)
+      do i=1,npari
+        print *,Eigenvalues(i)
+      enddo
 
 C scale the matirx
       do i=1,npari
@@ -570,7 +573,7 @@ C---------------------------------------------------
            do i=1,npar_input
              if (parname.eq.parname_input(i)) then
                paridx(i) = ii
-               print *,'ind_x,ind_i,ind_inp,parname,parname_input,paridx = ',ind,ii,i,parname,parname_input(i),paridx(i)
+               print *,'ind_x,ind_i,ind_inp,paridx,parname = ',ind,ii,i,paridx(i),parname
                exit
              endif
            enddo
@@ -580,7 +583,7 @@ C---------------------------------------------------
          do j=1,npar_input
             if (paridx(j).eq.i) then
                paridx_back(i) = j
-               print*,'i,paridx_back = ',i,paridx_back(i)
+               print*,'i,paridx,paridx_back = ',i,paridx(i),paridx_back(i)
                exit
             endif
          enddo
@@ -595,14 +598,16 @@ C---------------------------------------------------
       close (51)
       do i=1,npari
          do j=1,npari
+            !Cov(i,j) = Cov_input(paridx(i),paridx(j))*parerr_keep(i)*parerr_keep(j)
             Cov(i,j) = Cov_input(paridx_back(i),paridx_back(j))*parerr_keep(i)*parerr_keep(j)
+            !Cov(i,j) = Cov_input(paridx(i),paridx(j))*parerr_keep(i)*parerr_keep(j)
+            !if (i.ne.j) Cov(i,j) = 0
          enddo
       enddo
       deallocate(Cov_input)
       do i=1,npari
          print '(100E10.2)' ,( Cov(j,i),j=1,npari )
       enddo
-      print*,'SZ dupa'
       call flush(6)
       return
  3    call hf_errlog(16042810,'F: Can not find parameters file = '
