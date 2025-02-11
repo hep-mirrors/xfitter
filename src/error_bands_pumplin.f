@@ -403,6 +403,7 @@ C         call ReadParCovMatrix(CovFileName, Amat_read, Npari)
 
 C Diagonalize:
       call MyDSYEVD( Npari, Amat, Npari, Eigenvalues, ifail)
+      print*,'ifail = ',ifail
       do i=1,npari
         print *,Eigenvalues(i)
       enddo
@@ -606,7 +607,8 @@ C---------------------------------------------------
       enddo
       deallocate(Cov_input)
       do i=1,npari
-         print '(100E10.2)' ,( Cov(j,i),j=1,npari )
+         !print '(100E10.2)' ,( Cov(j,i),j=1,npari )
+         print '(100E14.6)' ,( Cov(j,i),j=1,npari )
       enddo
       call flush(6)
       return
