@@ -239,7 +239,7 @@ void WriteLHAPDF6subgrid(FILE* f, BaseEvolution* pdf, const vector<double>& X, c
     fprintf(f, "%i ", entry.first);
   }
   fprintf(f, "\n");
-
+  
   //Now go over PDF values
   for (const double x : X) {
     for (const double* q = qbegin; q != qend; ++q) {
@@ -417,6 +417,10 @@ LHAPDF6_Options LHAPDF6_Options::fromYAML(YAML::Node node)
   //Process option "evolution" first to be able to use its name in errors
   BaseEvolution* pdf = xfitter::get_evolution(node["evolution"].as<string>(""));
   info.pdf = pdf;
+  
+//  auto const& pdfMap = pdf->xfxQmap(0.1, 10.);
+//  cout << " lhapdf6: Options: size xfxQmap "<< pdfMap.size() << endl;
+
 
   info.error_type = getErrorType();
   info.flavor_scheme = getFlavorScheme();
@@ -519,7 +523,7 @@ LHAPDF6_Options LHAPDF6_Options::fromYAML(YAML::Node node)
       cerr << it.second << endl;
       hf_errlog(19060700, "F: Error when parsing WriteLHAPDF6, see stderr");
       abort();
-    }
+    } 
   }
 
   //If some options were omitted, use defaults
@@ -569,9 +573,13 @@ void WriteLHAPDF6info(FILE* f, const LHAPDF6_Options& info, const QX_Grid& qx_gr
   // Get flavours info from the PDF
   auto const& pdfMap = info.pdf->xfxQmap(0.5 * (qx_grid.X.front() + qx_grid.X.back())
                                          , 0.5 * (qx_grid.Q.front() + qx_grid.Q.back()));
+                                         
+  auto const& pdfMap2 = info.pdf->xfxQmap(0.1, 10.);
+        
   fprintf(f, "Flavors: [");
   for (const auto& entry : pdfMap) {
     fprintf(f, "%i, ", entry.first);
+    cout << " lhapdf6_output: flavors = " << entry.first << endl;
   }
   fprintf(f, "]\n");
 
@@ -600,6 +608,8 @@ void WriteLHAPDF6info(FILE* f, const LHAPDF6_Options& info, const QX_Grid& qx_gr
   fprintf(f, "MTop: %g\n", *getParamD("mtp"));
 
   BaseEvolution* pdf = info.pdf;
+  
+  
   //Write alphaS
   fprintf(f, "AlphaS_MZ: %g\n", pdf->getAlphaS(Mz));
   fprintf(f, "AlphaS_OrderQCD: %i\n", order);
@@ -708,7 +718,7 @@ extern "C" {
       WriteLHAPDF6info(f, options, *qx_grid);
       fclose(f);
     }
-  }
+  } 
 
   void print_lhapdf6_()
   {
