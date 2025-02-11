@@ -10,6 +10,7 @@
 #include "FTNFitPars.h"          // tools to handle fortran minuit
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
+#include <cstring>
 
 /// Fortran interfaces:
 extern "C" {
@@ -42,7 +43,15 @@ extern "C" {
 
   int getparameterindex_(const char name[], int len);
   void mnstat_(double&fmin,double&fedm,double&errdef,int&npari,int&nparx,int&istat);
+
+  struct COMMON_CparsFromFile_t {
+    char ParsFileName[128];
+    char CovFileName[128];
+    bool ReadParsFromFile;
+  };
 }
+
+extern COMMON_CparsFromFile_t cparsfromfile_;
 
 
 std::string parseFix(std::string const& fixCommand ) {
@@ -101,8 +110,13 @@ void MINUITMinimizer::atStart() {
   if (node["threads"]) {
     XFITTER_PARS::gParametersI["NCPUPumplin"] = node["threads"].as<int>();
     hf_errlog(2023061550,"I: Using fork() for minuit Jon Pumplin's error computation.");
-  }    
-  return;
+  }
+  //auto nodePrintPars = XFITTER_PARS::gParametersY["MINUIT"]["printFittedParsAtIteration"];
+  //if ( nodePrintPars ) 
+  //  _printParsAtIter = nodePrintPars.as<bool>();
+  //else
+  //  _printParsAtIter = true;
+  //return;
 }
 
 /// Minimization loop
@@ -145,6 +159,12 @@ void MINUITMinimizer::errorAnalysis()
 {
   auto errNode = XFITTER_PARS::gParametersY["MINUIT"]["doErrors"];
   if ( errNode ) {
+    auto parsNode = XFITTER_PARS::gParametersY["MINUIT"]["ReadParsFromFile"];
+    if ( parsNode ) {
+      cparsfromfile_.ReadParsFromFile = true;
+      strcpy(cparsfromfile_.ParsFileName, parsNode["ParsFileName"].as<std::string>().c_str());
+      strcpy(cparsfromfile_.CovFileName, parsNode["CovFileName"].as<std::string>().c_str());
+    }
     std::string bandType = errNode.as<std::string>();
     if ( bandType == "Pumplin" ) {
       hf_errlog(12020506, "I: Calculation of error bands required");

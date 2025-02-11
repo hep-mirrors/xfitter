@@ -560,7 +560,7 @@ C         print '(20E10.2)' ,( Cov(paridx(j),paridx(i)),j=1,NPars )
       close (51)
       do i=1,npari
          do j=1,npari
-            !Cov(i,j)=Cov(i,j)*parerr_keep(i)*parerr_keep(j)
+            Cov(i,j)=Cov(i,j)*parerr_keep(i)*parerr_keep(j)
          enddo
       enddo
       do i=1,NPars
