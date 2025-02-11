@@ -87,6 +87,10 @@ C
       enddo
 
       print *,mpar,' variable parameters'
+      if (mpar.gt.70) then
+        print *,'ERROR: increase fixed-size arrays: 70 < npars = ', mpar
+        call hf_errlog(11022503,'F: increase fixed-size arrays npars > 70')
+      endif
 
 
       do ind=1,mpar
@@ -344,13 +348,17 @@ C     Check the covariance matrix:
      $           'S:Problems with error matrix, can not produce bands')
          endif
       endif
+      if (npari.gt.70) then
+        print *,'ERROR: increase fixed-size arrays: 70 < npars = ', npari
+        call hf_errlog(11022502,'F: increase fixed-size arrays npars > 70')
+      endif
 
       mpar = 0
       do ind=1,nparx
          call mnpout(ind,parname,parval,parerr,parlolim,
      $        parhilim,iunint(ind))
          if (iunint(ind).gt.0) then
-            write (6,*) 'Parameter',ind,' name=',parname
+            write (6,*) 'Parameter',ind,' name=',parname,' =',parval,' +- ',parerr
             write (6,*) 'Internal index=',iunint(ind)
             pkeep(ind) = parval
             write (6,*) ' '
@@ -517,55 +525,85 @@ C         pidx(ind) = ii
       character *(*) FileNameCov
       integer NPars
       double precision Cov(Npars,Npars)
+      double precision, allocatable :: Cov_input(:,:)
       integer i,j
       integer ind,ii
-      integer npars_r
       double precision parval,parerr,parlolim,parhilim
       double precision fmin, fedm, errdef
       integer npari, nparx, istat
       integer paridx(70)
+      integer paridx_back(70)
       double precision parerr_keep(70)
-      character parname_keep(70)*100
+      integer npar_input
+      character parname_input(70)*100
       character*100 parname
 C---------------------------------------------------
-      print *,'Reading parameter namer from '//trim(FileNamePars)
-      i = 0
+      print *,'npars = ',npars
+      print *,'Reading parameter names from '//trim(FileNamePars)
+      npar_input = 0
       open (51,file=FileNamePars, status='old',err=3)
- 1    i = i + 1
-      read (51,'(A120)',end=2, err=4) parname_keep(i)
-C      call MNPARS(buff,IStatus)
+ 1    npar_input = npar_input + 1
+      if (npar_input.gt.70) then
+        print *,'ERROR: increase fixed-size arrays: 70 < npar_input = ', npar_input
+        call hf_errlog(11022501,'F: increase fixed-size arrays npar_input > 70')
+      endif
+      read (51,'(A120)',end=2, err=4) parname_input(npar_input)
       goto 1
  2    close (51)
+      npar_input = npar_input - 1
       call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+      if (npars.ne.npari) then
+        call hf_errlog(11022504,'F: npari != npars, check input covariance matrix')
+      endif
+      do i=1,npar_input
+         print*,'i,parname_input = ',i,parname_input(i)
+      enddo
+      print *,'npari,nparx,npar_input = ',npari,nparx,npar_input
+      do i=1,npar_input
+         paridx(i) = 0
+         paridx_back(i) = 0
+      enddo
       do ind=1,nparx
          call mnpout(ind,parname,parval,parerr,parlolim,parhilim,ii)
          if (ii.gt.0) then
            parerr_keep(ii) = parerr
-           do i=1,NPars
-             if (parname.eq.parname_keep(i)) then
+           do i=1,npar_input
+             if (parname.eq.parname_input(i)) then
                paridx(i) = ii
+               print *,'ind_x,ind_i,ind_inp,parname,parname_input,paridx = ',ind,ii,i,parname,parname_input(i),paridx(i)
                exit
              endif
            enddo
          endif
       enddo
+      do i=1,npari
+         do j=1,npar_input
+            if (paridx(j).eq.i) then
+               paridx_back(i) = j
+               print*,'i,paridx_back = ',i,paridx_back(i)
+               exit
+            endif
+         enddo
+      enddo
 
       print *,'Read covariance matrix from '//trim(FileNameCov)
+      Allocate(Cov_input(npar_input, npar_input))
       open (51, file=FileNameCov, status='old', err=11)
-      print *,'npars=',npars
-      do i=1,NPars
-         read (51,*,err=22,end=33) ( Cov(paridx(j),paridx(i)),j=1,NPars )
-C         print '(20E10.2)' ,( Cov(paridx(j),paridx(i)),j=1,NPars )
+      do i=1,npar_input
+         read (51,*,err=22,end=33) ( Cov_input(j,i),j=1,npar_input )
       enddo
       close (51)
       do i=1,npari
          do j=1,npari
-            Cov(i,j)=Cov(i,j)*parerr_keep(i)*parerr_keep(j)
+            Cov(i,j) = Cov_input(paridx_back(i),paridx_back(j))*parerr_keep(i)*parerr_keep(j)
          enddo
       enddo
-      do i=1,NPars
-         print '(100E10.2)' ,( Cov(j,i),j=1,NPars )
+      deallocate(Cov_input)
+      do i=1,npari
+         print '(100E10.2)' ,( Cov(j,i),j=1,npari )
       enddo
+      print*,'SZ dupa'
+      call flush(6)
       return
  3    call hf_errlog(16042810,'F: Can not find parameters file = '
      $     //trim(FileNamePars)//', STOP')
