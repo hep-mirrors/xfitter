@@ -24,6 +24,7 @@ c      logical first
       character*128  LHAPDFSET
       Logical lhapdf
       data lhapdf/.false./
+c      data lhapdf/.true./
       
       Logical First
       Data First/.true./
@@ -46,7 +47,7 @@ c      write(6,*) ' in pbtmdsubr lhapdf = ',lhapdf
       if (lhapdf) then
 c        write(6,*) ' before evolve ',x,sqrt(qmu2)
         if(First) then
-           LHAPDFSET ='HERAPDF20_NLO_EIG'
+           LHAPDFSET ='HERAPDF20_LO_EIG'
            call InitPDFsetByName(LHAPDFSET)
            First=.False.
         endif
@@ -62,7 +63,7 @@ c      write(6,*) ' in PBTMDsubr ', x, qmu2,ipdf
           if(xf(ipdf).ne.xf(ipdf)) then
              write(6,*) ' problem 1 in PBTMDsubr_old :',x,qmu2,xf(ipdf)
           endif
-          if(xf(ipdf).ge.1E10) then
+          if(xf(ipdf).ge.1E20) then
              write(6,*) ' problem 2 in PBTMDsubr_old :',x,qmu2,xf(ipdf)
           endif
 c          if(xf(ipdf).le.1E-20.and.xf(ipdf).ge.1E-300) then
@@ -514,7 +515,7 @@ c new convention
 c      write(6,*) ' starting distribution ',i,xpq0(i),pdf(i)
         if(xpq0(i) .ne. xpq0(i)) then
            icount = icount + 1
-           ic=100000
+           ic=1000000
            if (mod(icount,ic).eq.0)  write(6,*) ' problem in starting distribution: NaN-xpq0 set to zero:  ',i,x0,xpq0(i),icount
            xpq0(i) = 0
         endif

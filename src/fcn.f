@@ -402,6 +402,7 @@ c Print time, number of calls, chi2
          write(6,'(A20,i6,F12.2,i6,F12.2)') '
      $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out,
      $        ndf, chi2out/ndf
+        
       call flush
 ! ----------------  RESULTS OUTPUT ---------------------------------
 ! Reopen "Results.txt" file if it is not open
@@ -515,6 +516,7 @@ c     $           ,chi2_cont/NControlPoints
 
             call store_pdfs(base_pdfname)
             call print_lhapdf6
+            call print_TMD
          endif
 
 c WS: print NSYS --- needed for batch Offset runs
@@ -558,7 +560,6 @@ C Trigger reactions:
 
          call cpu_time(time2)
          print '(''cpu_time'',3F10.2)', time1, time2, time2-time1
-
 
       endif
 

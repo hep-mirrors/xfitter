@@ -61,6 +61,7 @@ set(xfitter_SOURCES
   FitPars_base.cc
   FTNFitPars.cc
   ../tools/draw/src/pdferrors.cc
+  tmd_output.cc
 )
 #Conditionally compiled sources
 if(QCDNUM_FOUND)
@@ -88,7 +89,9 @@ target_link_libraries(xfitter PRIVATE
   ${CMAKE_DL_LIBS} #for dlopen
   ${LAPACK_LIBRARIES} ZLIB::ZLIB z
 )
-target_link_libraries(xfitter PUBLIC yaml-cpp)
+target_link_libraries(xfitter PUBLIC yaml-cpp  )
+
+#target_link_libraries(xfitter PRIVATE evolutionPBTMD )
 
 #Optional libraries
 if(QCDNUM_FOUND)
@@ -122,7 +125,8 @@ add_subdirectory(minuit)
 #It means to treat all local variables as static by default (as if SAVE was specified)
 #Without this flag hf_errlog will crash, and some other code will also work incorrectly
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-automatic")
+#  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-automatic")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wall -std=legacy -fno-automatic -fPIC -ffixed-line-length-132")
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -noauto")
 else()

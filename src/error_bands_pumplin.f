@@ -166,9 +166,11 @@ C
             close (76)
             if(shift_dir.eq.-1) then
               call save_data_lhapdf6(j*2-1)
+              call save_data_tmd(j*2-1)
               call error_band_action(j*2-1)
             else
               call save_data_lhapdf6(j*2)
+              call save_data_tmd(j*2)
               call error_band_action(j*2)
             endif
 
@@ -412,6 +414,7 @@ C
          close (76)
 
          call save_data_lhapdf6(j)
+         call save_data_tmd(j)
 
          call error_band_action(j)
       enddo                     ! j
