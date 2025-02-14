@@ -139,7 +139,8 @@ c divide all SFs by 2 to get e+/-
 
 c c quark
        f2cabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
-       flcabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
+c       flcabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
+       flcabkm = f2cabkm
      &     -ftnucharm(nb,nt,ni,x,q2,8)/2
        f3cabkm = f3nucharm(nb,nt,ni,x,q2,8)/2
 c b quark
@@ -280,7 +281,8 @@ c divide all SFs by 2 to get e+/-
 
 c c quark
        f2cabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
-       flcabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
+c       flcabkm = f2nucharm(nb,nt,ni,x,q2,8)/2
+       flcabkm = f2cabkm
      &     -ftnucharm(nb,nt,ni,x,q2,8)/2
        f3cabkm = f3nucharm(nb,nt,ni,x,q2,8)/2
 c b quark

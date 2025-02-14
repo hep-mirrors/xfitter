@@ -321,6 +321,80 @@ void ReactionBaseDISCC::initTerm(TermData *td)
     _npoints = td->getNbins();
   }
   hf_errlog(17041001, msg);
+
+  if (td->hasParam("ht")) {
+    _flag_ht[termID] = true;
+    // for arrays, expect comma-separated strings
+    // each item should be either double or parameter name
+    auto read_array = [td](const std::string& parname) {
+      std::istringstream ss(td->getParamS(parname));
+      std::string token;
+      int counter = 0;
+      //std::vector<std::unique_ptr<double> > result;
+      std::vector<const double* > result;
+      while(std::getline(ss, token, ','))
+      {
+        if (td->hasParam(token)) {
+          //result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
+          result.push_back(td->getParamD(token));
+          //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as xfitter parameter";
+          //hf_errlog(24051700+counter, msg);
+        }
+        else {
+          try {
+            //result.push_back(unique_ptr<double>(new double(stod(token))));
+            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
+            result.push_back(new double(stod(token)));
+            //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as constant value";
+            //hf_errlog(24051701+counter, msg);
+          }
+          catch (const std::invalid_argument&) {
+            string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" is not a parameter name or double";
+            hf_errlog(24051702, msg);
+          }
+        }
+        counter++;
+      }
+      return result;
+    };
+    auto read_double = [td](const std::string& parname) {
+      std::istringstream ss(td->getParamS(parname));
+      std::string token;
+      //std::unique_ptr<double> result;
+      const double* result;
+      while(std::getline(ss, token, ','))
+      {
+        if (td->hasParam(token)) {
+          //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as xfitter parameter";
+          //hf_errlog(24051700, msg);
+          //result = unique_ptr<double>(new double(*td->getParamD(token)));
+          result = td->getParamD(token);
+        }
+        else {
+          try {
+            //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as constant value";
+            //hf_errlog(24051701, msg);
+            //result = unique_ptr<double>(new double(stod(token)));
+            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
+            result = new double(stod(token));
+          }
+          catch (const std::invalid_argument&) {
+            string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" is not a parameter name or double";
+            hf_errlog(24051702, msg);
+          }
+        }
+      }
+      return result;
+    };
+    _ht_x[termID] = read_array("ht_x");
+    _ht_2[termID] = read_array("ht_vals_f2");
+    _ht_t[termID] = read_array("ht_vals_ft");
+    _ht_alpha_2[termID] = read_double("ht_val_alpha_f2");
+    _ht_alpha_t[termID] = read_double("ht_val_alpha_ft");
+  }
+  else {
+    _flag_ht[termID] = false;
+  }
 }
 
 const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const string &binName)

@@ -51,6 +51,14 @@ protected:
   //map<unsigned, IntegrateDIS *> _integrated;
   virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
   //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
+
+  // higher twist
+  map<unsigned, bool> _flag_ht;
+  map<unsigned, std::vector<const double* > > _ht_x;
+  map<unsigned, std::vector<const double* > > _ht_2;
+  map<unsigned, std::vector<const double* > > _ht_t;
+  map<unsigned, const double* > _ht_alpha_2;
+  map<unsigned, const double* > _ht_alpha_t;
 };
 
 /// Helper classes and functions:

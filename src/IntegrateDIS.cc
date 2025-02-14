@@ -76,6 +76,7 @@ int IntegrateDIS::_init(const std::valarray<double>* sp,
   _y.resize(npoints * nSubBins);
   int currentSubBin = 0;
 
+  printf("SZ q2minp->size() = %ld\n", q2minp->size());
   for(size_t i = 0; i < q2minp->size(); i++)
   {
     const double s = (*sp)[i];
@@ -103,6 +104,7 @@ int IntegrateDIS::_init(const std::valarray<double>* sp,
         xmaxp==nullptr ||
         ( (*xmaxp)[i] == (*xmaxp)[i - 1] )
       )
+      && s == (*sp)[i-1]
     )
     {
       // -1 means that the value from previous bin will be copied in compute()
@@ -202,6 +204,7 @@ std::valarray<double> IntegrateDIS::compute(const std::valarray<double>& val)
         if(_y[i] == 0.0)
           continue;
         double dxsec = val[i] * _deltaq2[i] * _deltax[i];
+        printf("SZ Q2,x = %e,%e -> xsec = %e\n", _q2[i], _x[i], val[i]);
         xsec += dxsec;
         //printf("%f %f %f: %f += %f [ %f * %f * %f ]\n", _q2[i], _x[i], _y[i],
         //       xsec, dxsec, val[i], _deltaq2[i], _deltax[i]);
@@ -212,6 +215,8 @@ std::valarray<double> IntegrateDIS::compute(const std::valarray<double>& val)
     }
     nBins++;
   }
+  fflush(stdout);
+  //throw 24;
   assert(valIntegrated.size() == nBins);
   return valIntegrated;
 }
