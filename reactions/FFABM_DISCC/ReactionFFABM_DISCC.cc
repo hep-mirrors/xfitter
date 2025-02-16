@@ -467,9 +467,11 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   unsigned dataSetID = integrationParams.dataSetID;
   double mpr = 0.938272;
   //const double xmin = 0.;
-  //const double xmax = 1.0;
+  const double xmax = 1.0;
+  //const double xmax = 0.80;
   const double xmin = 1e-4;
-  const double xmax = 0.75;
+  //const double xmin = 1e-7;
+  //const double xmax = 0.75;
   //const double q2min = 0.8;
   const double q2min = 1.;
   //const double q2max = 1000.;
@@ -547,7 +549,28 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
     }
     flux = numufcalflux_(e);
   }
-  const double y = (q2 + x*x*mpr*mpr) / s / x;
+  double y = (q2 + x*x*mpr*mpr) / s / x;
+  if(integrationParams.intvar == 11) { // E dydx
+    if (*ndim == 2) {
+      e = integrationParams.var;
+      s = 2*mpr*e + mpr*mpr;
+      q2max = s*xmax;
+      flux = 1.;
+      double ymin = 0.;
+      double ymax = 1.;
+      x = xmin + (xmax - xmin) * inp[0];
+      y = ymin + (ymax - ymin) * inp[1];
+      q2 = s * x * y - x * x * mpr * mpr;
+      if (q2 <= q2min) {
+        val[0] = 0.;
+        return 0;
+      }
+      if (q2 > q2max) {
+        throw 42;
+      }
+      flux *= (s-mpr*mpr) * x;
+    }
+  }
   if (y <= 0. || y >= 1.) {
     val[0] = 0.;
     return 0;
