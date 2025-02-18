@@ -29,6 +29,7 @@ struct integration_params_cuba {
   BaseDISCC::ReactionData* rd;
   const double* br0;
   const double* br1;
+  double mn;
 };
 
 // the class factories
@@ -58,6 +59,7 @@ void sf_abkm_wrap_order_(const double &x, const double &q2,
                    const int &ncflag, const double &charge, const double &polar,
                    const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin);
 double numufcalflux_(const double& e);
+double nuke_fast_(const double& xb, const double& q2, const int& nsf, const int& ityp, const int& kint1, const int& kord, const int& ftyp, const float& syst);
 void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
                      const double& rmass8in, const double& rmass10in, const int& msbarmin,
                      double& hqscale1in, const double& hqscale2in, const int& flagthinterface);
@@ -465,7 +467,8 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   const integration_params_cuba& integrationParams = *(integration_params_cuba*)params;
   ReactionFFABM_DISCC* reaction = integrationParams.reaction;
   unsigned dataSetID = integrationParams.dataSetID;
-  double mpr = 0.938272;
+  //double mpr = 0.938272;
+  double mpr = integrationParams.mn;
   //const double xmin = 0.;
   const double xmax = 1.0;
   //const double xmax = 0.80;
@@ -490,6 +493,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       e = emin + (emax - emin) * inp[2];
       s = 2*mpr*e + mpr*mpr;
       flux = numufcalflux_(e);
+      flux *= (emax - emin);
     }
     else if (*ndim == 2) {
       e = integrationParams.var;
@@ -499,10 +503,13 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
     }
     x = xmin + (xmax - xmin) * inp[0];
     q2 = q2min + (q2max - q2min) * inp[1];
+    flux *= (q2max - q2min) * (xmax - xmin);
   }
   else if(integrationParams.intvar == 2) { // xbj
+    double extraf = 1.;
     if (*ndim == 3) {
       x = xmin + (xmax - xmin) * inp[2];
+      extraf = (xmax - xmin);
     }
     else if (*ndim == 2) {
       x = integrationParams.var;
@@ -513,8 +520,10 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
     q2 = q2min + (q2max - q2min) * inp[1];
     s = 2*mpr*e + mpr*mpr;
     flux = numufcalflux_(e);
+    flux *= (q2max - q2min) * (emax - emin) * extraf;
   }
   else if(integrationParams.intvar == 3) { // sqrts
+    double extraf = 1.;
     if (*ndim == 3) {
       double smax = 2*mpr*emax + mpr*mpr;
       q2max = smax*xmax;
@@ -522,6 +531,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       q2 = q2min + (q2max - q2min) * inp[2];
       e = emin + (emax - emin) * inp[1];
       s = 2*mpr*e + mpr*mpr;
+      extraf = (emax - emin);
     }
     else if (*ndim == 2) {
       //double sqrtshat = integrationParams.var;
@@ -548,10 +558,12 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       //q2 = sqrtshat*sqrtshat*(1./x-1);
     }
     flux = numufcalflux_(e);
+    flux *= (q2max - q2min) * (xmax - xmin) * extraf;
   }
   double y = (q2 + x*x*mpr*mpr) / s / x;
   if(integrationParams.intvar == 11) { // E dydx
     if (*ndim == 2) {
+      //printf("SZ inp = %f,%f\n", inp[0], inp[1]);
       e = integrationParams.var;
       s = 2*mpr*e + mpr*mpr;
       q2max = s*xmax;
@@ -569,6 +581,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
         throw 42;
       }
       flux *= (s-mpr*mpr) * x;
+      flux *= (ymax - ymin) * (xmax - xmin);
     }
   }
   if (y <= 0. || y >= 1.) {
@@ -636,6 +649,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   const double pi = 3.1415926535897932384626433832795029;
   double MW = *integrationParams.rd->Mw;
   double factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * reaction->_Gf * reaction->_Gf / (2 * pi * x) * reaction->_convfac;
+  //double factor = (MW * MW * MW * MW / pow((q2), 2)) * reaction->_Gf * reaction->_Gf / (2 * pi * x) * reaction->_convfac;
   val[0] *= factor;
   val[0] *= flux;
   if ( integrationParams.flav == BaseDISCC::dataFlav::c ) {
@@ -646,8 +660,27 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   return 0;
 }
 
+void apply_nuke(const double x, const double q2, double& f2, double& fl, double& f3) {
+  ;
+}
+
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
+  if (0) {
+    float syst = 0.;
+    double xb=0.01;
+    int nsf = 3;
+    int ityp = 0;
+    int kint1 = 2;
+    int kord = 3;
+    int ftyp = 4;
+    for (int i = 0; i < 12; i++) {
+      double q2 = 0.5 + 0.1 * i;
+      double nuke = nuke_fast_(xb, q2, nsf, ityp, kint1, kord, ftyp, syst);
+      printf("SZ xb,q2 = %f,%f -> nuke = %f\n", xb, q2, nuke);
+    }
+    throw 42;
+  }
   if ( (_f2abm[dataSetID][0]< -99.) )
   //if ( 1 )
   { // compute
@@ -696,7 +729,13 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           pars.br0 =td->getParamD("br_cmu_0");
           pars.br1 =td->getParamD("br_cmu_1");
           auto& nomad_var  = *GetBinValues(td,"nomad_var");
-          double mpr = 0.938272;
+          //double mpr = 0.938272;
+          double mp = 0.93827208816;
+          double mn = 0.93956542052;
+          double mnucl = (mp+mn)/2.;
+          //double mpr = 0.938272 * 56;
+          //mnucl *= 56;
+          pars.mn = mnucl;
           bool flag_total = td->hasParam("nomad_total");
           i = -10;
           for (size_t ii=0; ii<nomad; ii++) {
@@ -762,6 +801,23 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           _flabm[dataSetID][i] = 0.0;
           _f3abm[dataSetID][i] = 0.0;
           break;
+      }
+      if(td->hasParam("nuke_kint") && td->getParamI("nuke_kint") != 0) {
+        //const int ityp = td->getParamI("nuke_ityp");
+        const int ityp = 0;
+        const int kint = td->getParamI("nuke_kint");
+        const int kord = OrderMap(td->getParamS("Order"));
+        const int ftyp = td->getParamI("nuke_ftyp");
+        const float syst = 0.;
+        double cor_f1 = nuke_fast_(x[i], q2[i], 1, ityp, kint, kord, ftyp, syst);
+        double cor_f2 = nuke_fast_(x[i], q2[i], 2, ityp, kint, kord, ftyp, syst);
+        double cor_f3 = nuke_fast_(x[i], q2[i], 3, ityp, kint, kord, ftyp, syst);
+        //printf("SZnuke %d %d %d %d %f %f %f %f %f\n", ityp, kint, kord, ftyp, cor_f1, cor_f2, cor_f3, x[i], q2[i]);
+        double f1 = (_f2abm[dataSetID][i] - _flabm[dataSetID][i]) / (2 * x[i]);
+        f1 *= cor_f1;
+        _f2abm[dataSetID][i] *= cor_f2;
+        _flabm[dataSetID][i] = _f2abm[dataSetID][i] - 2 * x[i] * f1;
+        _f3abm[dataSetID][i] *= cor_f3;
       }
     }
   }
