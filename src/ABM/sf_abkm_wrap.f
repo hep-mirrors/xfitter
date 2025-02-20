@@ -125,12 +125,15 @@ c --------------- Charged Currents !  ----------------
 
        ni = 24
        if(charge.gt.0) then
-c W+
+       !if(charge.lt.0) then
+c W+ nu
         nb = 6
         else
-c W-
+c W- nubar
         nb = 7
        endif
+       !print*,'SZ = ',charge,nb
+       !nb = 6
 
 c divide all SFs by 2 to get e+/-
        f2abkm = f2qcd(nb,nt,ni,x,q2)/2

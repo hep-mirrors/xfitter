@@ -802,7 +802,8 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           _f3abm[dataSetID][i] = 0.0;
           break;
       }
-      if(td->hasParam("nuke_kint") && td->getParamI("nuke_kint") != 0) {
+      //apply_tmc(3, f2, fl, f3, 1, q2, x, ncflag, rd->_charge, rd->_polarisation, cos2thw, i);
+      if(td->hasParam("nuke_kint") && td->getParamI("nuke_kint") != 0 && 1) {
         //const int ityp = td->getParamI("nuke_ityp");
         const int ityp = 0;
         const int kint = td->getParamI("nuke_kint");
@@ -812,6 +813,11 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
         double cor_f1 = nuke_fast_(x[i], q2[i], 1, ityp, kint, kord, ftyp, syst);
         double cor_f2 = nuke_fast_(x[i], q2[i], 2, ityp, kint, kord, ftyp, syst);
         double cor_f3 = nuke_fast_(x[i], q2[i], 3, ityp, kint, kord, ftyp, syst);
+        //double cor_f3 = nuke_fast_(x[i], q2[i], 3, ityp, abs(kint), kord, ftyp, syst);
+        //if (kint<0) {
+        //  double cor_f3_bar = nuke_fast_(x[i], q2[i], 3, ityp, -1*kint, kord, ftyp, syst);
+        //  cor_f3 = cor_f3*2 - cor_f3_bar;
+        //}
         //printf("SZnuke %d %d %d %d %f %f %f %f %f\n", ityp, kint, kord, ftyp, cor_f1, cor_f2, cor_f3, x[i], q2[i]);
         double f1 = (_f2abm[dataSetID][i] - _flabm[dataSetID][i]) / (2 * x[i]);
         f1 *= cor_f1;

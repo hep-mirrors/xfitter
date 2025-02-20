@@ -173,18 +173,27 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
     double mp = 0.93827208816;
     double mn = 0.93956542052;
     double mnucl = (mp+mn)/2.;
+    //mnucl = mp;
     auto e = q2 / (2*mnucl*x*y);
     auto ft = f2-fl;
-    val = _convfac*_Gf*_Gf*mnucl*e/(pi*pow((1+q2/(MW*MW)), 2.)) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft-charge*y*(1-y/2.)*xf3);
+    //printf("SZ charge = %f\n", charge);
+    //val = (1-charge*polarity)*_convfac*_Gf*_Gf*mnucl*e/(pi*pow((1+q2/(MW*MW)), 2.)) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft+charge*y*(1-y/2.)*xf3);
+    //val = _convfac*_Gf*_Gf*mnucl*e/(pi*pow((1+q2/(MW*MW)), 2.)) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft-charge*y*(1-y/2.)*xf3);
+    //val = _convfac*_Gf*_Gf*mnucl*e/(pi*pow((1+q2/(MW*MW)), 2.)) * ((1-y)*f2+y*y/2.*ft+charge*y*(1-y/2.)*xf3);
+    //val = _convfac*_Gf*_Gf*mnucl*e/(pi) * ((1-y)*f2+y*y/2.*ft+charge*y*(1-y/2.)*xf3);
     //val *= y/q2;
     //val *= 1e9;
     //val *= 1e1;
+    val = (1-charge*polarity) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft+charge*y*(1-y/2.)*xf3);
+    //good//val = (1-charge*polarity) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft+0.5*charge*yminus*xf3);
+    //val = (1-charge*polarity) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft-0.5*charge*yplus*xf3);
     //
     val *= factor;
     break;
   }
   case BaseDISCC::dataType::sigred:
   {
+    //polarity *= -1;
     if (charge > 0)
       val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
     else
