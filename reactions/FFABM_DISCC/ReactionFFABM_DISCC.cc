@@ -547,6 +547,8 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
 
       double sqrtshat = integrationParams.var;
       x = xmin + (xmax - xmin) * inp[0];
+      y = inp[1];
+      //q2 = s*x*y - x*x*mpr*mpr;
       //e = (sqrtshat*sqrtshat-x*x*mpr*mpr)/(2*x*mpr);
       s = sqrtshat*sqrtshat/x;
       e = (s - mpr*mpr) / (2*mpr);
@@ -565,7 +567,8 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       //q2 = sqrtshat*sqrtshat*(1./x-1);
     }
     flux = numufcalflux_(e);
-    flux *= (q2max - q2min) * (xmax - xmin) * extraf;
+    //flux *= (q2max - q2min) * (xmax - xmin) * extraf;
+    flux *= (q2max - q2min) * extraf;
   }
   double y = (q2 + x*x*mpr*mpr) / s / x;
   if(integrationParams.intvar == 11) { // E dydx
