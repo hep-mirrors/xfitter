@@ -486,6 +486,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   //const double q2max = 20.;
   const double emin = 6.;
   const double emax = 300.;
+  //const double emax = 600.;
   double x(-1.), q2(-1.), e(-1.), s(-1.), q2max(-1.);
   double flux(-1.);
   if(integrationParams.intvar == 1) { // E
@@ -546,15 +547,19 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
 
       double sqrtshat = integrationParams.var;
       x = xmin + (xmax - xmin) * inp[0];
-      e = (sqrtshat*sqrtshat-x*x*mpr*mpr)/(2*x*mpr);
-      if (e < emin || e > emax) {
+      //e = (sqrtshat*sqrtshat-x*x*mpr*mpr)/(2*x*mpr);
+      s = sqrtshat*sqrtshat/x;
+      e = (s - mpr*mpr) / (2*mpr);
+      //if (e < emin || e > emax) {
+      if (e <= 0. || e > emax) {
         val[0] = 0.;
         return 0;
       }
       double smax = 2*mpr*emax + mpr*mpr;
       q2max = smax*xmax;
       q2 = q2min + (q2max - q2min) * inp[1];
-      s = 2*mpr*e + mpr*mpr;
+      //s = 2*mpr*e + mpr*mpr;
+      //printf("%f %f \n", sqrtshat, sqrt(s*x));
       //s = sqrtshat / x;
       //e = (s - mpr*mpr)/ (mpr*2)
       //q2 = sqrtshat*sqrtshat*(1./x-1);
@@ -642,9 +647,14 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       xf3sum = x * f3c;
       break;
   }
+  //printf("%f %f %f\n", f2sum, flsum, xf3sum);
   double yplus = 1.0 + (1.0 - y) * (1.0 - y);
   double yminus = 1.0 - (1.0 - y) * (1.0 - y);
-  if (integrationParams.charge > 0)
+  auto charge = integrationParams.charge;
+  if (integrationParams.rd->_isBeamNu) {
+    charge *= -1; // swap back, see InitTerm()
+  }
+  if (charge > 0)
     val[0] = 0.5 * (1 + integrationParams.polarity) * (yplus * f2sum - yminus * xf3sum - y * y * flsum);
   else
     val[0] = 0.5 * (1 - integrationParams.polarity) * (yplus * f2sum + yminus * xf3sum - y * y * flsum);
