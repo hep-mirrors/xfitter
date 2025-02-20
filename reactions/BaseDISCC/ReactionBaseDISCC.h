@@ -85,6 +85,7 @@ namespace BaseDISCC
     double _polarisation = 0.;           //!< longitudinal polarisation
     double _charge = 0.;                 //!< lepton beam charge
     bool _isReduced = false;             //!< reduced cross section
+    bool _isBeamNu = false;              //!< neutrino beam
     dataFlav _dataFlav = dataFlav::incl; //!< flavour (incl, c, b)
     map<unsigned, dataType> _dataType;   //!< cross section (reduced, F2, FL)
     // for integrated cross sections

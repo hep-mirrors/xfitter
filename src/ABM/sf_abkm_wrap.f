@@ -40,7 +40,7 @@ C New user routines for PDFs and alpha_S have to be provided in this version
 
       subroutine sf_abkm_wrap(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,
      $   flcabkm,f3cabkm,f2babkm,flbabkm,f3babkm,ncflag,charge,
-     $   polar,sin2thw,cos2thw,MZ)
+     $   polar,sin2thw,cos2thw,MZ,nt)
 C-------------------------------------------------------------------------
 C
 C Created by RP 09 Jan 2012. A wraper around abkm functions
@@ -68,7 +68,7 @@ c      f2qcd(nb,nt,ni,xb,q2)
       double precision eleVec,eleAxial,sin2thw,cos2thw,Mz,PZ
 
 
-      nt = 1
+      !nt = 1
 c --------------- Neutral Currents !  ----------------
       if(ncflag.eq.1) then
 
@@ -132,7 +132,7 @@ c W+ nu
 c W- nubar
         nb = 7
        endif
-       !print*,'SZ = ',charge,nb
+       !print*,'SZ = ',charge,nb,nt
        !nb = 6
 
 c divide all SFs by 2 to get e+/-
@@ -157,7 +157,7 @@ c b quark
 
       subroutine sf_abkm_wrap_order(x,q2,f2abkm,flabkm,f3abkm,f2cabkm,
      $   flcabkm,f3cabkm,f2babkm,flbabkm,f3babkm,ncflag,charge,
-     $   polar,sin2thw,cos2thw,MZ,kordpdfin)
+     $   polar,sin2thw,cos2thw,MZ,kordpdfin,nt)
 C-------------------------------------------------------------------------
 C
 C Created by RP 09 Jan 2012. A wraper around abkm functions
@@ -213,7 +213,7 @@ c follow recommendation of Sergey Alekhin for FL
       kordf3    = kordpdfin
       kordalps  = kordpdfin
 
-      nt = 1
+      !nt = 1
 c --------------- Neutral Currents !  ----------------
       if(ncflag.eq.1) then
 
@@ -383,7 +383,7 @@ c The parameter HQNONS drives the nonsinglet contribution to the charm productio
 c It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user.
 c In ABMP16 fit it was set to .false.
 c (makes small difference which reaches few % only at highest Q2 of the charm HERA data and is negligible for practical purposes)
-      hqnons = .false.
+      hqnons = .true.
 
 C--------------------------------------------------------------------------
       end

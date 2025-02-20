@@ -57,6 +57,7 @@ private:
     int flag_flavour;
     int order;
     double xi;
+    int nt;
   };
   map<int, int> _flag_tmc;
   map<int, int> _tmc_integration_method;
@@ -65,7 +66,7 @@ private:
   const double* _tmc_mpr;
   map<int, int> _ncpu;
   double apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
-    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i);
+    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i, const int nt);
   static int Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
 };
 

@@ -30,6 +30,7 @@ struct integration_params_cuba {
   const double* br0;
   const double* br1;
   double mn;
+  int nt;
 };
 
 // the class factories
@@ -51,13 +52,13 @@ void sf_abkm_wrap_(const double& x, const double& q2,
                    const double& f2cabkm, const double& flcabkm, const double& f3cabkm,
                    const double& f2babkm, const double& flbabkm, const double& f3babkm,
                    const int& ncflag, const double& charge, const double& polar,
-                   const double& sin2thw, const double& cos2thw, const double& MZ);
+                   const double& sin2thw, const double& cos2thw, const double& MZ, const int& nt=1);
 void sf_abkm_wrap_order_(const double &x, const double &q2,
                    const double &f2abkm, const double &flabkm, const double &f3abkm,
                    const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
                    const double &f2babkm, const double &flbabkm, const double &f3babkm,
                    const int &ncflag, const double &charge, const double &polar,
-                   const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin);
+                   const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin, const int& nt=1);
 double numufcalflux_(const double& e);
 double nuke_fast_(const double& xb, const double& q2, const int& nsf, const int& ityp, const int& kint1, const int& kord, const int& ftyp, const float& syst);
 void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
@@ -240,7 +241,7 @@ void ReactionFFABM_DISCC::atIteration() {
 }
 
 double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
-    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i) {
+    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i, const int nt) {
   double mn = *_tmc_mpr;
   double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]);
   double xi = 2*x[i]/(1+gam);
@@ -254,11 +255,11 @@ double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, 
     if (integrationParams.order == -1)
       sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
                 f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
+                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.nt);
     else
       sf_abkm_wrap_order_(xip, integrationParams.q2[integrationParams.i],
                 f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.order);
+                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.order, integrationParams.nt);
     if (integrationParams.flag_calc_fl == 0) {
       if (integrationParams.flag_flavour == 1)
         return f2/xip/xip;
@@ -303,6 +304,7 @@ double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, 
   pars.flag_calc_fl = 0;
   pars.flag_flavour = flag_flavour;
   pars.order = 0;
+  pars.nt = nt;
   if (1==0) {
     double x0 = 0.01;
     double x1 = 1.;
@@ -591,7 +593,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
   sf_abkm_wrap_(x, q2,
                 f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
+                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.nt);
   //printf("SZ integral E,s = %f,%f q2,x,y = %f,%f,%f -> f2,fl,f3,f2c,flc,f3c = %f,%f,%f,%f,%f,%f integrationParams.ncflag = %d, integrationParams.charge = %d, integrationParams.polarity = %f, *integrationParams._sin2thwPtr = %f, integrationParams.cos2thw = %f, *integrationParams._mzPtr = %f\n", e, s, q2, x, y, f2,fl,f3,f2c,flc,f3c, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
   double f2sum(0),flsum(0),xf3sum(0);
   switch ( integrationParams.flav ) {
@@ -600,7 +602,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
         if ((reaction->_tmc_xmin[dataSetID] == 0. || reaction->_tmc_xmin[dataSetID] < x) && (reaction->_tmc_logxlogq2min[dataSetID] == 0. || reaction->_tmc_logxlogq2min[dataSetID] < log(x)*log(q2))) {
           std::valarray<double> q2v = {q2};
           std::valarray<double> xv = {x};
-          reaction->apply_tmc(reaction->_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2v, xv, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, integrationParams.cos2thw, 0);
+          reaction->apply_tmc(reaction->_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2v, xv, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, integrationParams.cos2thw, 0, 1);
         }
       }
       if (reaction->_flag_ht[dataSetID]) {
@@ -686,6 +688,8 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   { // compute
     // use ref to termData:
     auto td = _tdDS[dataSetID];
+    td->actualizeWrappers();
+    pdffillgrid_();
     BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
 
     //printf("SZ calcF2FL: dataSetID,rd->_dataFlav,ht = %d,%d,%d\n", dataSetID, rd->_dataFlav, _flag_ht[dataSetID]);
@@ -728,6 +732,8 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           pars.intvar = *td->getParamD("nomad");
           pars.br0 =td->getParamD("br_cmu_0");
           pars.br1 =td->getParamD("br_cmu_1");
+          //pars.nt = td->hasParam("nt") ? td->getParamI("nt") : 1;
+          pars.nt = 1;
           auto& nomad_var  = *GetBinValues(td,"nomad_var");
           //double mpr = 0.938272;
           double mp = 0.93827208816;
@@ -778,9 +784,21 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           return;
         }
 
+        int nt = 1;
+        //if(td->hasParam("nt")) nt = td->getParamI("nt");
+        //if(td->hasParam("evolution") && td->getParamS("evolution") == "neutron")
+        //sf_abkm_wrap_(x[i], q2[i],
+        //              f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
+        //              ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr, 8);
+        //else
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                      ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr);
+                      ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr, nt);
+        if(_flag_tmc[dataSetID]) {
+          // TODO ???
+          if ((_tmc_xmin[dataSetID] == 0. || _tmc_xmin[dataSetID] < x[i]) && (_tmc_logxlogq2min[dataSetID] == 0. || _tmc_logxlogq2min[dataSetID] < log(x[i])*log(q2[i])))
+            apply_tmc(_tmc_integration_method[dataSetID], f2c, flc, f3c, 2, q2, x, ncflag, rd->_charge, rd->_polarisation, cos2thw, i, nt);
+        }
       }
 
 
@@ -807,7 +825,8 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
         //const int ityp = td->getParamI("nuke_ityp");
         const int ityp = 0;
         const int kint = td->getParamI("nuke_kint");
-        const int kord = OrderMap(td->getParamS("Order"));
+        //printf("SZ kint = %d\n", kint);
+        const int kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
         const int ftyp = td->getParamI("nuke_ftyp");
         const float syst = 0.;
         double cor_f1 = nuke_fast_(x[i], q2[i], 1, ityp, kint, kord, ftyp, syst);
