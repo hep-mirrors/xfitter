@@ -139,6 +139,8 @@ c I/O channel to read the data
 *...Load tables and grid 
 * 
       if (kords.eq.kord) goto 10 
+      !print*,ityp,kint1,kord,ftyp,kords
+      !call flush(6)
       ityps=ityp
       kints=kint
       kords=kord

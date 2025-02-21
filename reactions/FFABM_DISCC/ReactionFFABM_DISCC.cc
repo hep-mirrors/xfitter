@@ -31,6 +31,11 @@ struct integration_params_cuba {
   const double* br1;
   double mn;
   int nt;
+  int nuke_ityp;
+  int nuke_kint;
+  int nuke_kord;
+  int nuke_ftyp;
+  float nuke_syst;
 };
 
 // the class factories
@@ -472,11 +477,11 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   //double mpr = 0.938272;
   double mpr = integrationParams.mn;
   //const double xmin = 0.;
-  const double xmax = 1.0;
+  double xmax = 1.0;
   //const double xmax = 0.80;
   const double xmin = 1e-4;
   //const double xmin = 1e-7;
-  //const double xmax = 0.75;
+  //double xmax = 0.75;
   //const double q2min = 0.8;
   const double q2min = 1.;
   //const double q2max = 1000.;
@@ -534,41 +539,77 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       q2 = q2min + (q2max - q2min) * inp[2];
       e = emin + (emax - emin) * inp[1];
       s = 2*mpr*e + mpr*mpr;
-      extraf = (emax - emin);
+      extraf = (xmax - xmin);
     }
     else if (*ndim == 2) {
-      //double sqrtshat = integrationParams.var;
+      /*//double sqrtshat = integrationParams.var;
       //e = emin + (emax - emin) * inp[0];
       //s = 2*mpr*e + mpr*mpr;
       //double smax = 2*mpr*emax + mpr*mpr;
       //q2max = smax*xmax;
       //q2 = q2min + (q2max - q2min) * inp[1];
       //x = sqrtshat / s;
-
+      //sqrtshat = sqrt((2*mpr*e + mpr*mpr)*x)
       double sqrtshat = integrationParams.var;
-      x = xmin + (xmax - xmin) * inp[0];
-      y = inp[1];
-      //q2 = s*x*y - x*x*mpr*mpr;
+      double smax = 2*mpr*emax + mpr*mpr;
+      double smin = 2*mpr*emin + mpr*mpr;
+      //double smax = (sqrtshat*sqrtshat)/xmin;
+      xmax = sqrtshat*sqrtshat/smin;
+      q2max = smax*xmax;
+      q2 = q2min + (q2max - q2min) * inp[0];
+      e = emin + (emax - emin) * inp[1];
+      s = 2*mpr*e + mpr*mpr;
+      x = sqrtshat*sqrtshat/s;
       //e = (sqrtshat*sqrtshat-x*x*mpr*mpr)/(2*x*mpr);
-      s = sqrtshat*sqrtshat/x;
-      e = (s - mpr*mpr) / (2*mpr);
       //if (e < emin || e > emax) {
-      if (e <= 0. || e > emax) {
+      if (x <= xmin || x >= xmax) {
         val[0] = 0.;
         return 0;
       }
-      double smax = 2*mpr*emax + mpr*mpr;
-      q2max = smax*xmax;
-      q2 = q2min + (q2max - q2min) * inp[1];
+      //q2max = smax*xmax;
+      //q2 = q2min + (q2max - q2min) * inp[1];
       //s = 2*mpr*e + mpr*mpr;
-      //printf("%f %f \n", sqrtshat, sqrt(s*x));
       //s = sqrtshat / x;
       //e = (s - mpr*mpr)/ (mpr*2)
-      //q2 = sqrtshat*sqrtshat*(1./x-1);
+      //q2 = sqrtshat*sqrtshat*(1./x-1);*/
+      //
+      /*double sqrtshat = integrationParams.var;
+      x = xmin + (xmax - xmin) * inp[0];
+      s = sqrtshat*sqrtshat/x;
+      e = (s-mpr*mpr)/(2*mpr);
+      if (e <= emin || e >= emax) {
+        val[0] = 0.;
+        return 0;
+      }
+      q2 = emin + (emax - emin) * inp[1];
+      double smax = 2*mpr*emax + mpr*mpr;
+      q2max = smax*xmax;
+      if (q2 <= q2min || q2 >= q2max) {
+        val[0] = 0.;
+        return 0;
+      }*/
+      //
+      double sqrtshat = integrationParams.var;
+      x = xmin + (xmax - xmin) * inp[0];
+      //q2 = sqrtshat*sqrtshat * x;
+      q2 = sqrtshat*sqrtshat / (1./x - 1);
+      //q2 = sqrtshat*sqrtshat / (1./x - x);
+      //q2 = pow(sqrtshat / (1./x - x), 2.);
+      //q2 = pow(sqrtshat / (1./x - 1), 2.);
+      //double smax = 2*mpr*emax + mpr*mpr;
+      //q2max = smax*xmax;
+      //if (q2 <= q2min || q2 >= q2max) {
+      if (q2 <= q2min) {
+        val[0] = 0.;
+        return 0;
+      }
+      e = emin + (emax - emin) * inp[1];
+      s = 2*mpr*e + mpr*mpr;
     }
     flux = numufcalflux_(e);
-    //flux *= (q2max - q2min) * (xmax - xmin) * extraf;
-    flux *= (q2max - q2min) * extraf;
+    //flux *= (q2max - q2min) * (emax - emin) * extraf;
+    flux *= (xmax - xmin) * (emax - emin) * extraf;
+    //flux *= (xmax - xmin) * (q2max - q2min) * extraf;
   }
   double y = (q2 + x*x*mpr*mpr) / s / x;
   if(integrationParams.intvar == 11) { // E dydx
@@ -650,7 +691,17 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       xf3sum = x * f3c;
       break;
   }
-  //printf("%f %f %f\n", f2sum, flsum, xf3sum);
+  if(integrationParams.nuke_kint && 0) {
+    double cor_f1 = nuke_fast_(x, q2, 1, integrationParams.nuke_ityp, integrationParams.nuke_kint, integrationParams.nuke_kord, integrationParams.nuke_ftyp, integrationParams.nuke_syst);
+    double cor_f2 = nuke_fast_(x, q2, 2, integrationParams.nuke_ityp, integrationParams.nuke_kint, integrationParams.nuke_kord, integrationParams.nuke_ftyp, integrationParams.nuke_syst);
+    double cor_f3 = nuke_fast_(x, q2, 3, integrationParams.nuke_ityp, integrationParams.nuke_kint, integrationParams.nuke_kord, integrationParams.nuke_ftyp, integrationParams.nuke_syst);
+    //printf("%f\n", cor_f2);
+    double f1 = (f2sum - flsum) / (2 * x);
+    f1 *= cor_f1;
+    f2sum *= cor_f2;
+    flsum = f2sum - 2*x*f1;
+    xf3sum *= cor_f3;
+  }
   double yplus = 1.0 + (1.0 - y) * (1.0 - y);
   double yminus = 1.0 - (1.0 - y) * (1.0 - y);
   auto charge = integrationParams.charge;
@@ -726,6 +777,11 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
       if (q2[i]>1.0) {
 
         if (td->hasParam("nomad")) {
+          printf("SZ1\n");fflush(stdout);
+          double ret = nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
+          printf("SZ2 ret = %f\n", ret);fflush(stdout);
+          //nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
+          //printf("SZ3 ret = %f\n", ret);fflush(stdout);
           //printf("SZ flux(E=%f) = %f\n", 20., numufcalflux_(20.));
           int nomad = Np;
           // PDFs
@@ -745,6 +801,14 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           pars.intvar = *td->getParamD("nomad");
           pars.br0 =td->getParamD("br_cmu_0");
           pars.br1 =td->getParamD("br_cmu_1");
+          pars.nuke_kint = 0;
+          if(td->hasParam("nuke_kint") && td->getParamI("nuke_kint") != 0 && 1) {
+            pars.nuke_kint = td->getParamI("nuke_kint");
+            pars.nuke_ityp = 0;
+            pars.nuke_kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
+            pars.nuke_ftyp = td->getParamI("nuke_ftyp");
+            pars.nuke_syst = 0.;
+          }
           //pars.nt = td->hasParam("nt") ? td->getParamI("nt") : 1;
           pars.nt = 1;
           auto& nomad_var  = *GetBinValues(td,"nomad_var");
