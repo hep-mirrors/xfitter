@@ -476,10 +476,15 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   unsigned dataSetID = integrationParams.dataSetID;
   //double mpr = 0.938272;
   double mpr = integrationParams.mn;
+  const double emin = 6.;
+  const double emax = 300.;
+  //const double emax = 600.;
   //const double xmin = 0.;
-  double xmax = 1.0;
+  double xmin = 1./(2*mpr*emax);
+  //double xmax = 1.0;
+  double xmax = 0.99;
   //const double xmax = 0.80;
-  const double xmin = 1e-4;
+  //const double xmin = 1e-4;
   //const double xmin = 1e-7;
   //double xmax = 0.75;
   //const double q2min = 0.8;
@@ -489,10 +494,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
   //const double xmax = 0.75;
   //const double q2min = 1.;
   //const double q2max = 20.;
-  const double emin = 6.;
-  const double emax = 300.;
-  //const double emax = 600.;
-  double x(-1.), q2(-1.), e(-1.), s(-1.), q2max(-1.);
+  double x(-1.), q2(-1.), y(-1.), e(-1.), s(-1.), q2max(-1.);
   double flux(-1.);
   if(integrationParams.intvar == 1) { // E
     if (*ndim == 3) {
@@ -500,96 +502,69 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       q2max = smax*xmax;
       e = emin + (emax - emin) * inp[2];
       s = 2*mpr*e + mpr*mpr;
-      flux = numufcalflux_(e);
-      flux *= (emax - emin);
+      flux = numufcalflux_(e)*(emax - emin)*(q2max - q2min) * (xmax - xmin);
     }
     else if (*ndim == 2) {
       e = integrationParams.var;
       s = 2*mpr*e + mpr*mpr;
       q2max = s*xmax;
-      flux = 1.;
+      flux = (q2max - q2min) * (xmax - xmin);
     }
     x = xmin + (xmax - xmin) * inp[0];
     q2 = q2min + (q2max - q2min) * inp[1];
-    flux *= (q2max - q2min) * (xmax - xmin);
+    y = (q2 + x*x*mpr*mpr) / s / x;
   }
   else if(integrationParams.intvar == 2) { // xbj
     double extraf = 1.;
     if (*ndim == 3) {
       x = xmin + (xmax - xmin) * inp[2];
-      extraf = (xmax - xmin);
+      double smax = 2*mpr*emax + mpr*mpr;
+      q2max = smax*xmax;
+      e = emin + (emax - emin) * inp[0];
+      q2 = q2min + (q2max - q2min) * inp[1];
+      s = 2*mpr*e + mpr*mpr;
+      y = (q2 + x*x*mpr*mpr) / s / x;
+      flux = numufcalflux_(e) * (q2max - q2min) * (emax - emin) * (xmax - xmin);
     }
     else if (*ndim == 2) {
       x = integrationParams.var;
+      double smax = 2*mpr*emax + mpr*mpr;
+      q2max = smax*xmax;
+      e = emin + (emax - emin) * inp[0];
+      q2 = q2min + (q2max - q2min) * inp[1];
+      s = 2*mpr*e + mpr*mpr;
+      y = (q2 + x*x*mpr*mpr) / s / x;
+      flux = numufcalflux_(e) * (q2max - q2min) * (emax - emin);
+      flux *= 2*mpr*y*x*x/q2;
+      //flux *= e;
     }
-    double smax = 2*mpr*emax + mpr*mpr;
-    q2max = smax*xmax;
-    e = emin + (emax - emin) * inp[0];
-    q2 = q2min + (q2max - q2min) * inp[1];
-    s = 2*mpr*e + mpr*mpr;
-    flux = numufcalflux_(e);
-    flux *= (q2max - q2min) * (emax - emin) * extraf;
   }
   else if(integrationParams.intvar == 3) { // sqrts
-    double extraf = 1.;
+    double extraf = -1.;
     if (*ndim == 3) {
       double smax = 2*mpr*emax + mpr*mpr;
       q2max = smax*xmax;
       x = xmin + (xmax - xmin) * inp[0];
-      q2 = q2min + (q2max - q2min) * inp[2];
-      e = emin + (emax - emin) * inp[1];
-      s = 2*mpr*e + mpr*mpr;
-      extraf = (xmax - xmin);
-    }
-    else if (*ndim == 2) {
-      /*//double sqrtshat = integrationParams.var;
-      //e = emin + (emax - emin) * inp[0];
-      //s = 2*mpr*e + mpr*mpr;
-      //double smax = 2*mpr*emax + mpr*mpr;
-      //q2max = smax*xmax;
-      //q2 = q2min + (q2max - q2min) * inp[1];
-      //x = sqrtshat / s;
-      //sqrtshat = sqrt((2*mpr*e + mpr*mpr)*x)
-      double sqrtshat = integrationParams.var;
-      double smax = 2*mpr*emax + mpr*mpr;
-      double smin = 2*mpr*emin + mpr*mpr;
-      //double smax = (sqrtshat*sqrtshat)/xmin;
-      xmax = sqrtshat*sqrtshat/smin;
-      q2max = smax*xmax;
-      q2 = q2min + (q2max - q2min) * inp[0];
-      e = emin + (emax - emin) * inp[1];
-      s = 2*mpr*e + mpr*mpr;
-      x = sqrtshat*sqrtshat/s;
-      //e = (sqrtshat*sqrtshat-x*x*mpr*mpr)/(2*x*mpr);
-      //if (e < emin || e > emax) {
-      if (x <= xmin || x >= xmax) {
+      y = inp[1];
+      double sqrtshatmin = 3.0;
+      double sqrtshatmax = 18.0;
+      double sqrtshat = sqrtshatmax + (sqrtshatmax - sqrtshatmin) * inp[2];
+      q2 = sqrtshat*sqrtshat / (1./x - 1);
+      if (q2 <= q2min) {
         val[0] = 0.;
         return 0;
       }
-      //q2max = smax*xmax;
-      //q2 = q2min + (q2max - q2min) * inp[1];
-      //s = 2*mpr*e + mpr*mpr;
-      //s = sqrtshat / x;
-      //e = (s - mpr*mpr)/ (mpr*2)
-      //q2 = sqrtshat*sqrtshat*(1./x-1);*/
-      //
-      /*double sqrtshat = integrationParams.var;
-      x = xmin + (xmax - xmin) * inp[0];
-      s = sqrtshat*sqrtshat/x;
+      s = (q2 + x*x*mpr*mpr) / x / y;
       e = (s-mpr*mpr)/(2*mpr);
       if (e <= emin || e >= emax) {
         val[0] = 0.;
         return 0;
       }
-      q2 = emin + (emax - emin) * inp[1];
-      double smax = 2*mpr*emax + mpr*mpr;
-      q2max = smax*xmax;
-      if (q2 <= q2min || q2 >= q2max) {
-        val[0] = 0.;
-        return 0;
-      }*/
-      //
+      flux = (sqrtshatmax - sqrtshatmin) * (xmax - xmin) * numufcalflux_(e);
+    }
+    else if (*ndim == 2) {
       double sqrtshat = integrationParams.var;
+      xmin = 1./(sqrtshat*sqrtshat);
       x = xmin + (xmax - xmin) * inp[0];
       //q2 = sqrtshat*sqrtshat * x;
       q2 = sqrtshat*sqrtshat / (1./x - 1);
@@ -605,13 +580,12 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
       }
       e = emin + (emax - emin) * inp[1];
       s = 2*mpr*e + mpr*mpr;
+      y = (q2 + x*x*mpr*mpr) / s / x;
+      flux = (xmax - xmin) * (emax - emin) * numufcalflux_(e);
+      flux *= 2*mpr*x*y;
+      //flux *= 1./(2.*mpr*(1-x));
     }
-    flux = numufcalflux_(e);
-    //flux *= (q2max - q2min) * (emax - emin) * extraf;
-    flux *= (xmax - xmin) * (emax - emin) * extraf;
-    //flux *= (xmax - xmin) * (q2max - q2min) * extraf;
   }
-  double y = (q2 + x*x*mpr*mpr) / s / x;
   if(integrationParams.intvar == 11) { // E dydx
     if (*ndim == 2) {
       //printf("SZ inp = %f,%f\n", inp[0], inp[1]);
@@ -732,21 +706,6 @@ void apply_nuke(const double x, const double q2, double& f2, double& fl, double&
 
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
-  if (0) {
-    float syst = 0.;
-    double xb=0.01;
-    int nsf = 3;
-    int ityp = 0;
-    int kint1 = 2;
-    int kord = 3;
-    int ftyp = 4;
-    for (int i = 0; i < 12; i++) {
-      double q2 = 0.5 + 0.1 * i;
-      double nuke = nuke_fast_(xb, q2, nsf, ityp, kint1, kord, ftyp, syst);
-      printf("SZ xb,q2 = %f,%f -> nuke = %f\n", xb, q2, nuke);
-    }
-    throw 42;
-  }
   if ( (_f2abm[dataSetID][0]< -99.) )
   //if ( 1 )
   { // compute
@@ -780,9 +739,6 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           printf("SZ1\n");fflush(stdout);
           double ret = nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
           printf("SZ2 ret = %f\n", ret);fflush(stdout);
-          //nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
-          //printf("SZ3 ret = %f\n", ret);fflush(stdout);
-          //printf("SZ flux(E=%f) = %f\n", 20., numufcalflux_(20.));
           int nomad = Np;
           // PDFs
           td->actualizeWrappers();
@@ -802,7 +758,7 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           pars.br0 =td->getParamD("br_cmu_0");
           pars.br1 =td->getParamD("br_cmu_1");
           pars.nuke_kint = 0;
-          if(td->hasParam("nuke_kint") && td->getParamI("nuke_kint") != 0 && 1) {
+          if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0 && 1) {
             pars.nuke_kint = td->getParamI("nuke_kint");
             pars.nuke_ityp = 0;
             pars.nuke_kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
@@ -876,6 +832,34 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           if ((_tmc_xmin[dataSetID] == 0. || _tmc_xmin[dataSetID] < x[i]) && (_tmc_logxlogq2min[dataSetID] == 0. || _tmc_logxlogq2min[dataSetID] < log(x[i])*log(q2[i])))
             apply_tmc(_tmc_integration_method[dataSetID], f2c, flc, f3c, 2, q2, x, ncflag, rd->_charge, rd->_polarisation, cos2thw, i, nt);
         }
+        auto reaction = this;
+        if (reaction->_flag_ht[dataSetID]) {
+          // for HT
+          tk::spline spline_f2, spline_ft;
+          std::vector<double> ht_x(reaction->_ht_x[dataSetID].size());
+          std::vector<double> ht_f2(reaction->_ht_x[dataSetID].size());
+          std::vector<double> ht_ft(reaction->_ht_x[dataSetID].size());
+          if (reaction->_flag_ht[dataSetID]) {
+            for (size_t i = 0; i < ht_x.size(); i++)
+            {
+              ht_x[i] = *reaction->_ht_x[dataSetID][i];
+              ht_f2[i] = *reaction->_ht_2[dataSetID][i];
+              ht_ft[i] = *reaction->_ht_t[dataSetID][i];
+            }
+            spline_ft.set_points(ht_x, ht_ft);
+            spline_f2.set_points(ht_x, ht_f2);
+          }
+          //
+          //printf("SZ HT1 f2,fl = %f,%f\n", f2,fl);
+          double q02 = 1.;
+          double ftc = f2c - flc;
+          f2c += std::pow(x[i], *reaction->_ht_alpha_2[dataSetID]) * spline_f2(x[i]) * q02 / q2[i];
+          tk::spline spline_t;
+          spline_t.set_points(ht_x, ht_ft);
+          ftc += std::pow(x[i], *reaction->_ht_alpha_t[dataSetID]) * spline_ft(x[i]) * q02 / q2[i];
+          flc = f2c - ftc;
+          //printf("SZ HT2 f2,fl = %f,%f\n", f2,fl);
+        }
       }
 
 
@@ -898,10 +882,11 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           break;
       }
       //apply_tmc(3, f2, fl, f3, 1, q2, x, ncflag, rd->_charge, rd->_polarisation, cos2thw, i);
-      if(td->hasParam("nuke_kint") && td->getParamI("nuke_kint") != 0 && 1) {
+      if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0 && 1) {
         //const int ityp = td->getParamI("nuke_ityp");
         const int ityp = 0;
         const int kint = td->getParamI("nuke_kint");
+        //kint = 1 * kint / abs(kint);
         //printf("SZ kint = %d\n", kint);
         const int kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
         const int ftyp = td->getParamI("nuke_ftyp");
@@ -909,6 +894,16 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
         double cor_f1 = nuke_fast_(x[i], q2[i], 1, ityp, kint, kord, ftyp, syst);
         double cor_f2 = nuke_fast_(x[i], q2[i], 2, ityp, kint, kord, ftyp, syst);
         double cor_f3 = nuke_fast_(x[i], q2[i], 3, ityp, kint, kord, ftyp, syst);
+        if (kint < 0 && 1) {
+          int nt = 1;
+          int charge_bar = -1 * rd->_charge;
+          sf_abkm_wrap_(x[i], q2[i],
+                        f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
+                        ncflag, charge_bar, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr, nt);
+          double cor_f3_bar = nuke_fast_(x[i], q2[i], 3, ityp, -1*kint, kord, ftyp, syst);
+          cor_f3 = ((_f3abm[dataSetID][i] + x[i] * f3c) * cor_f3 - x[i] * f3c * cor_f3_bar) / _f3abm[dataSetID][i];
+        //  cor_f3 = 2 * cor_f3 - cor_f3_bar;
+        }
         //double cor_f3 = nuke_fast_(x[i], q2[i], 3, ityp, abs(kint), kord, ftyp, syst);
         //if (kint<0) {
         //  double cor_f3_bar = nuke_fast_(x[i], q2[i], 3, ityp, -1*kint, kord, ftyp, syst);

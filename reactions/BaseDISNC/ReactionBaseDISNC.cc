@@ -291,7 +291,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     _npoints[termID] = (*q2p).size();
   }
   if (td->hasParam("ht")) {
-    _flag_ht[termID] = true;
+    _flag_ht[termID] = td->getParamI("ht");
     // for arrays, expect comma-separated strings
     // each item should be either double or parameter name
     auto read_array = [td](const std::string& parname) {

@@ -369,7 +369,7 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   hf_errlog(17041001, msg);
 
   if (td->hasParam("ht")) {
-    _flag_ht[termID] = true;
+    _flag_ht[termID] = td->getParamI("ht");
     // for arrays, expect comma-separated strings
     // each item should be either double or parameter name
     auto read_array = [td](const std::string& parname) {
