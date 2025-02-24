@@ -59,6 +59,11 @@ protected:
   map<unsigned, std::vector<const double* > > _ht_t;
   map<unsigned, const double* > _ht_alpha_2;
   map<unsigned, const double* > _ht_alpha_t;
+
+  // nuclear corrections
+  map<unsigned, int> _nucl_kint;
+  map<unsigned, int> _nucl_ftyp;
+  map<unsigned, int> _nucl_kord;
 };
 
 /// Helper classes and functions:
@@ -100,6 +105,8 @@ namespace BaseDISCC
     valarray<double> _xf3d;
     const double *Mw; //parameter of W mass
     int ipdfSet; /// PDF set used in the QCDNUM evolution
+    int _nuke_ftyp = 0; // nuclear correction: 1 Carbon (A=12, Z=6), 2 Iron (A=56, Z=26), 3 Lead (A=207, Z=82), 4 Emulsion (mixture of nuclei) 
+    int _nuke_kint = 0; // nuclear interaction: 1 charged lepton, 2 neutrino (-2 antineutrino) CC, 3 neutrino (-3 antineutrino) NC, 4 neutrino CC charm production (-4 antineutrino), 5 neutrino CC not-charm (-5 antineutrino) [4, 5 not implemented]
   };
 
   /// Helper function to get bin values, including integrated sigma:

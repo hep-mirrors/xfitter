@@ -368,6 +368,7 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   }
   hf_errlog(17041001, msg);
 
+  // read higher twist parameters
   if (td->hasParam("ht")) {
     _flag_ht[termID] = td->getParamI("ht");
     // for arrays, expect comma-separated strings
@@ -440,6 +441,13 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   }
   else {
     _flag_ht[termID] = false;
+  }
+
+  // read nuclear correction parameters
+  if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
+    rd->_nuke_ftyp = td->getParamI("nuke_ftyp");
+    rd->_nuke_kint = td->getParamI("nuke_kint");
+    rd->_nuke_kord = OrderMap(td->getParamS("Order"));
   }
 }
 

@@ -180,11 +180,14 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
 
   _mzPtr = td->getParamD("Mz");
   _sin2thwPtr = td->getParamD("sin2thW");
+  _cos2thw = 1 - *_sin2thwPtr;
 
   // target mass correction
   if (td->hasParam("tmc"))
   {
     _flag_tmc[termID] = td->getParamI("tmc");
+    _flag_tmc_c[termID] = td->hasParam("tmc_c") ? td->getParamI("tmc_c") : 0;
+    _flag_tmc_b[termID] = td->hasParam("tmc_b") ? td->getParamI("tmc_b") : 0;
     if (td->hasParam("tmc_integration_method"))
     {
       auto s = td->getParamS("tmc_integration_method");
@@ -245,11 +248,11 @@ void ReactionFFABM_DISCC::atIteration() {
 
 }
 
-double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
-    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i, const int nt) {
+double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, double& f3, const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x,
+    const int ncflag, const int charge, const double polarity, const double cos2thw, const int nt) {
   double mn = *_tmc_mpr;
-  double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]);
-  double xi = 2*x[i]/(1+gam);
+  double gam = sqrt(1+4*x*x*mn*mn/q2);
+  double xi = 2*x/(1+gam);
   if (xi>1) {throw 42;}
   auto integrate = [](double xip, void* params) {
     if(xip >= 1.) {
@@ -344,7 +347,7 @@ double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, 
     int key_param = 6;
     double result, error;
     gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-    //gsl_integration_qag (&F, x[i], 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+    //gsl_integration_qag (&F, x, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
     gsl_integration_workspace_free (w);
     I = result;
   }
@@ -433,39 +436,43 @@ double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, 
   //I = 0;
   //I *= 5;
   double f20 = f2;
-  //f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2 + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
+  //f2 = x*x/xi/xi/gam/gam/gam*f2 + 6*x*x*x*mn*mn/q2/gam/gam/gam/gam*I;
   pars.order = -1;
   double f2_at_xi = integrate(xi, &pars)*xi*xi;
   //double f2_at_xi = integrate(xi, &pars)*xi;
   //printf("f2: %f %f\n", f2, f2_at_xi);
-  double f2_tmc = x[i]*x[i]/xi/xi/gam/gam/gam*f2_at_xi + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
-  //double f2_orig = integrate(x[i], &pars)*x[i]*x[i];
+  double f2_tmc = x*x/xi/xi/gam/gam/gam*f2_at_xi + 6*x*x*x*mn*mn/q2/gam/gam/gam/gam*I;
+  //double f2_orig = integrate(x, &pars)*x*x;
   //f2 = f2 * f2_tmc / f2_orig;
   f2 = f2_tmc;
-  //double ft = f2 - fl;
-  //ft = x[i]*x[i]/xi/xi/gam*ft + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
-  pars.flag_calc_fl = 1;
-  double fl_at_xi = integrate(xi, &pars)*xi*xi;
-  //double fl_at_xi = integrate(xi, &pars)*xi;
-  double ft_at_xi = f2_at_xi - fl_at_xi;
-  double ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
-  double fl_tmc = f2_tmc - ft;
-  fl = fl_tmc;
-  //fl = fl + x[i]*x[i]/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x[i]*x[i]*x[i]/q2[i]/gam/gam/gam/gam*I;
-  //double fl0 = fl;
-  //pars.flag_calc_fl = 2;
-  //double f3_at_xi = integrate(xi, &pars)*xi*xi;
-  //f3 = x[i]/xi/gam/gam*f3_at_xi + 2*mn*mn/q2[i]*x[i]*x[i]/gam/gam/gam*I;
-  /*double fl_orig = integrate(x[i], &pars)*x[i]*x[i];
+  if (flag_fl) {
+    //double ft = f2 - fl;
+    //ft = x*x/xi/xi/gam*ft + 2*x*x*x*mn*mn/q2/gam/gam*I;
+    pars.flag_calc_fl = 1;
+    double fl_at_xi = integrate(xi, &pars)*xi*xi;
+    //double fl_at_xi = integrate(xi, &pars)*xi;
+    double ft_at_xi = f2_at_xi - fl_at_xi;
+    double ft = x*x/xi/xi/gam*ft_at_xi + 2*x*x*x*mn*mn/q2/gam/gam*I;
+    double fl_tmc = f2_tmc - ft;
+    fl = fl_tmc;
+    //fl = fl + x*x/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x*x*x/q2/gam/gam/gam/gam*I;
+    //double fl0 = fl;
+  }
+  if (flag_f3) {
+    pars.flag_calc_fl = 2;
+    double f3_at_xi = integrate(xi, &pars)*xi*xi;
+    f3 = x/xi/gam/gam*f3_at_xi + 2*mn*mn/q2*x*x/gam/gam/gam*I;
+  }
+  /*double fl_orig = integrate(x, &pars)*x*x;
   //fl = fl * fl_tmc / fl_orig;
   pars.order = -1;
   f2_at_xi = integrate(xi, &pars)*xi*xi;
   fl_at_xi = integrate(xi, &pars)*xi*xi;
   ft_at_xi = f2_at_xi - fl_at_xi;
-  ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
+  ft = x*x/xi/xi/gam*ft_at_xi + 2*x*x*x*mn*mn/q2/gam/gam*I;
   fl = f2-ft;*/
-  //printf("SZ [x,q2 = %f %f] gsl = %f +- %f [%f] cuba = %f +- %f [%f] sim38 = %f [%f] TMC [%f]\n", x[i], q2[i], result, error, error/result, cuba_integral[0], cuba_error[0], cuba_integral[0]/result-1, sim38, sim38/result-1, f2/f20-1);
-  //printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
+  //printf("SZ [x,q2 = %f %f] gsl = %f +- %f [%f] cuba = %f +- %f [%f] sim38 = %f [%f] TMC [%f]\n", x, q2, result, error, error/result, cuba_integral[0], cuba_error[0], cuba_integral[0]/result-1, sim38, sim38/result-1, f2/f20-1);
+  //printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x, q2, result, error, error/result, sim38, sim38/result-1, f2/f20-1);
   return f2/f20-1;
 }
 
@@ -625,7 +632,7 @@ int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, c
         if ((reaction->_tmc_xmin[dataSetID] == 0. || reaction->_tmc_xmin[dataSetID] < x) && (reaction->_tmc_logxlogq2min[dataSetID] == 0. || reaction->_tmc_logxlogq2min[dataSetID] < log(x)*log(q2))) {
           std::valarray<double> q2v = {q2};
           std::valarray<double> xv = {x};
-          reaction->apply_tmc(reaction->_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2v, xv, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, integrationParams.cos2thw, 0, 1);
+          reaction->apply_tmc(reaction->_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2v[0], xv[0], integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, integrationParams.cos2thw, 1);
         }
       }
       if (reaction->_flag_ht[dataSetID]) {
@@ -707,216 +714,199 @@ void apply_nuke(const double x, const double q2, double& f2, double& fl, double&
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   if ( (_f2abm[dataSetID][0]< -99.) )
-  //if ( 1 )
-  { // compute
-    // use ref to termData:
+  {
     auto td = _tdDS[dataSetID];
     td->actualizeWrappers();
     pdffillgrid_();
     BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
-
-    //printf("SZ calcF2FL: dataSetID,rd->_dataFlav,ht = %d,%d,%d\n", dataSetID, rd->_dataFlav, _flag_ht[dataSetID]);
-
-    // CC
-    int ncflag = 0;
-
-    // Get x,Q2 arrays:
-    auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
-    auto q2 = *q2p, x = *xp;
-
-    // Number of data points
-    // SZ getNbins does not work for integrated cross sections (returning number of bins)
-    //const size_t Np = td->getNbins();
-    const size_t Np = xp->size();
-
-    double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-    double cos2thw = 1.0 - *_sin2thwPtr;
-
-    for (size_t i=0; i<Np; i++) {
-      if (q2[i]>1.0) {
-
-        if (td->hasParam("nomad")) {
-          printf("SZ1\n");fflush(stdout);
-          double ret = nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
-          printf("SZ2 ret = %f\n", ret);fflush(stdout);
-          int nomad = Np;
-          // PDFs
-          td->actualizeWrappers();
-          pdffillgrid_();
-          integration_params_cuba pars;
-          pars.ncflag = ncflag;
-          pars.charge = rd->_charge;
-          pars.polarity = rd->_polarisation;
-          pars.cos2thw = cos2thw;
-          pars._sin2thwPtr = _sin2thwPtr;
-          pars._mzPtr = _mzPtr;
-          pars.flav = rd->_dataFlav;
-          pars.reaction = this;
-          pars.dataSetID = dataSetID;
-          pars.rd = rd;
-          pars.intvar = *td->getParamD("nomad");
-          pars.br0 =td->getParamD("br_cmu_0");
-          pars.br1 =td->getParamD("br_cmu_1");
-          pars.nuke_kint = 0;
-          if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0 && 1) {
-            pars.nuke_kint = td->getParamI("nuke_kint");
-            pars.nuke_ityp = 0;
-            pars.nuke_kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
-            pars.nuke_ftyp = td->getParamI("nuke_ftyp");
-            pars.nuke_syst = 0.;
-          }
-          //pars.nt = td->hasParam("nt") ? td->getParamI("nt") : 1;
-          pars.nt = 1;
-          auto& nomad_var  = *GetBinValues(td,"nomad_var");
-          //double mpr = 0.938272;
-          double mp = 0.93827208816;
-          double mn = 0.93956542052;
-          double mnucl = (mp+mn)/2.;
-          //double mpr = 0.938272 * 56;
-          //mnucl *= 56;
-          pars.mn = mnucl;
-          bool flag_total = td->hasParam("nomad_total");
-          i = -10;
-          for (size_t ii=0; ii<nomad; ii++) {
-            pars.var = nomad_var[ii];
-            double error(0.);
-            const int NDIM = flag_total ? 3 : 2;
-            const int NCOMP = 1;
-            void* USERDATA = &pars;
-            const int NVEC = 1;
-            //const double EPSREL = 1e-3;
-            const double EPSREL = 1e-2;
-            //const double EPSABS = 1e-12;
-            const double EPSABS = 0;
-            const int FLAGS = 0;
-            const int MINEVAL = 0;
-            const int MAXEVAL = flag_total ? 500000 : 200000;
-            const int KEY = 0;
-            const char* STATEFILE = nullptr;
-            void* SPIN = nullptr;
-            int nregions = 0;
-            int neval = 0;
-            int fail = 0;
-            cubareal cuba_integral[1], cuba_error[1], prob[1];
-            Cuhre(NDIM, NCOMP, Integrand_Cuhre, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
-            printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
-            for(int comp = 0; comp < NCOMP; ++comp )
-              printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
-            _f2abm[dataSetID][ii] = cuba_integral[0];
-            error = cuba_error[0];
-            printf("SZ NOMAD nomad_var[%d] = %6.2f -> xsec = %.4e +- %.4e\n", pars.intvar, pars.var, _f2abm[dataSetID][ii], error);
-            if (flag_total) {
-              for (size_t iii=0; iii<nomad; iii++) {
-                _f2abm[dataSetID][iii] = cuba_integral[0];
-              }
-              return;
-            }
-            //gsl_function F;
-            //double result = gsl_sf_bessel_J0(4.5);
-          }
-          return;
-        }
-
-        int nt = 1;
-        //if(td->hasParam("nt")) nt = td->getParamI("nt");
-        //if(td->hasParam("evolution") && td->getParamS("evolution") == "neutron")
-        //sf_abkm_wrap_(x[i], q2[i],
-        //              f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-        //              ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr, 8);
-        //else
-        sf_abkm_wrap_(x[i], q2[i],
-                      f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                      ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr, nt);
-        if(_flag_tmc[dataSetID]) {
-          // TODO ???
-          if ((_tmc_xmin[dataSetID] == 0. || _tmc_xmin[dataSetID] < x[i]) && (_tmc_logxlogq2min[dataSetID] == 0. || _tmc_logxlogq2min[dataSetID] < log(x[i])*log(q2[i])))
-            apply_tmc(_tmc_integration_method[dataSetID], f2c, flc, f3c, 2, q2, x, ncflag, rd->_charge, rd->_polarisation, cos2thw, i, nt);
-        }
-        auto reaction = this;
-        if (reaction->_flag_ht[dataSetID]) {
-          // for HT
-          tk::spline spline_f2, spline_ft;
-          std::vector<double> ht_x(reaction->_ht_x[dataSetID].size());
-          std::vector<double> ht_f2(reaction->_ht_x[dataSetID].size());
-          std::vector<double> ht_ft(reaction->_ht_x[dataSetID].size());
-          if (reaction->_flag_ht[dataSetID]) {
-            for (size_t i = 0; i < ht_x.size(); i++)
-            {
-              ht_x[i] = *reaction->_ht_x[dataSetID][i];
-              ht_f2[i] = *reaction->_ht_2[dataSetID][i];
-              ht_ft[i] = *reaction->_ht_t[dataSetID][i];
-            }
-            spline_ft.set_points(ht_x, ht_ft);
-            spline_f2.set_points(ht_x, ht_f2);
-          }
-          //
-          //printf("SZ HT1 f2,fl = %f,%f\n", f2,fl);
-          double q02 = 1.;
-          double ftc = f2c - flc;
-          f2c += std::pow(x[i], *reaction->_ht_alpha_2[dataSetID]) * spline_f2(x[i]) * q02 / q2[i];
-          tk::spline spline_t;
-          spline_t.set_points(ht_x, ht_ft);
-          ftc += std::pow(x[i], *reaction->_ht_alpha_t[dataSetID]) * spline_ft(x[i]) * q02 / q2[i];
-          flc = f2c - ftc;
-          //printf("SZ HT2 f2,fl = %f,%f\n", f2,fl);
-        }
-      }
-
-
-      switch ( rd->_dataFlav )
-      {
-        case BaseDISCC::dataFlav::incl :
-          _f2abm[dataSetID][i] = f2 + f2c + f2b;
-          _flabm[dataSetID][i] = fl + flc + flb;
-          _f3abm[dataSetID][i] = x[i] * (f3 + f3c + f3b);
-          break;
-        case BaseDISCC::dataFlav::c :
-          _f2abm[dataSetID][i] = f2c;
-          _flabm[dataSetID][i] = flc;
-          _f3abm[dataSetID][i] = x[i] * f3c;
-          break;
-        case BaseDISCC::dataFlav::b:
-          _f2abm[dataSetID][i] = 0.0;
-          _flabm[dataSetID][i] = 0.0;
-          _f3abm[dataSetID][i] = 0.0;
-          break;
-      }
-      //apply_tmc(3, f2, fl, f3, 1, q2, x, ncflag, rd->_charge, rd->_polarisation, cos2thw, i);
-      if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0 && 1) {
-        //const int ityp = td->getParamI("nuke_ityp");
-        const int ityp = 0;
-        const int kint = td->getParamI("nuke_kint");
-        //kint = 1 * kint / abs(kint);
-        //printf("SZ kint = %d\n", kint);
-        const int kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
-        const int ftyp = td->getParamI("nuke_ftyp");
-        const float syst = 0.;
-        double cor_f1 = nuke_fast_(x[i], q2[i], 1, ityp, kint, kord, ftyp, syst);
-        double cor_f2 = nuke_fast_(x[i], q2[i], 2, ityp, kint, kord, ftyp, syst);
-        double cor_f3 = nuke_fast_(x[i], q2[i], 3, ityp, kint, kord, ftyp, syst);
-        if (kint < 0 && 1) {
-          int nt = 1;
-          int charge_bar = -1 * rd->_charge;
-          sf_abkm_wrap_(x[i], q2[i],
-                        f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                        ncflag, charge_bar, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr, nt);
-          double cor_f3_bar = nuke_fast_(x[i], q2[i], 3, ityp, -1*kint, kord, ftyp, syst);
-          cor_f3 = ((_f3abm[dataSetID][i] + x[i] * f3c) * cor_f3 - x[i] * f3c * cor_f3_bar) / _f3abm[dataSetID][i];
-        //  cor_f3 = 2 * cor_f3 - cor_f3_bar;
-        }
-        //double cor_f3 = nuke_fast_(x[i], q2[i], 3, ityp, abs(kint), kord, ftyp, syst);
-        //if (kint<0) {
-        //  double cor_f3_bar = nuke_fast_(x[i], q2[i], 3, ityp, -1*kint, kord, ftyp, syst);
-        //  cor_f3 = cor_f3*2 - cor_f3_bar;
-        //}
-        //printf("SZnuke %d %d %d %d %f %f %f %f %f\n", ityp, kint, kord, ftyp, cor_f1, cor_f2, cor_f3, x[i], q2[i]);
-        double f1 = (_f2abm[dataSetID][i] - _flabm[dataSetID][i]) / (2 * x[i]);
-        f1 *= cor_f1;
-        _f2abm[dataSetID][i] *= cor_f2;
-        _flabm[dataSetID][i] = _f2abm[dataSetID][i] - 2 * x[i] * f1;
-        _f3abm[dataSetID][i] *= cor_f3;
+    if (td->hasParam("nomad")) {
+      int intvar = td->getParamI("nomad");
+      auto& nomad_var  = *GetBinValues(td, "nomad_var");
+      for (size_t i=0; i<nomad_var->size(); i++) {
+        calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i], _flabm[dataSetID][i], _f3abm[dataSetID][i]);
       }
     }
+    else {
+      auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
+      auto& q2 = *q2p, x = *xp;
+      for (size_t i=0; i<xp->size(); i++) {
+        calc_point(q2[i], x[i], dataSetID, rd, _f2abm[dataSetID][i], _flabm[dataSetID][i], _f3abm[dataSetID][i]);
+      }
+    }
+  }
+}
+
+void combine_flavours(const int dataSetID, const double f, const double fc, const double fb, double& fout)
+{
+  switch (GetDataFlav(dataSetID))
+  {
+    case dataFlav::incl:
+      fout = f + fc + fb;
+      break;
+    case dataFlav::c:
+      fout = fc;
+      break;
+    case dataFlav::b:
+      fout = fb;
+      break;
+  }
+}
+
+// Calculates one data point as integral over Q2,x,E and returns values f2, fl, f3
+void calc_integral(const int intvar, const double val, const int datasetID, const ReactionData *rd, double& f2out, double& flout, double& f3out)
+{
+  if(rd->_nuke_ftyp) {
+    printf("SZ1\n");fflush(stdout);
+    double ret = nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
+    printf("SZ2 ret = %f\n", ret);fflush(stdout);
+  }
+  // PDFs
+  integration_params_cuba pars;
+  pars.ncflag = ncflag;
+  pars.charge = rd->_charge;
+  pars.polarity = rd->_polarisation;
+  pars.cos2thw = cos2thw;
+  pars._sin2thwPtr = _sin2thwPtr;
+  pars._mzPtr = _mzPtr;
+  pars.flav = rd->_dataFlav;
+  pars.reaction = this;
+  pars.dataSetID = dataSetID;
+  pars.rd = rd;
+  pars.intvar = *td->getParamD("nomad");
+  pars.br0 =td->getParamD("br_cmu_0");
+  pars.br1 =td->getParamD("br_cmu_1");
+  pars.nuke_kint = 0;
+  if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0 && 1) {
+    pars.nuke_kint = td->getParamI("nuke_kint");
+    pars.nuke_ityp = 0;
+    pars.nuke_kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
+    pars.nuke_ftyp = td->getParamI("nuke_ftyp");
+    pars.nuke_syst = 0.;
+  }
+  //pars.nt = td->hasParam("nt") ? td->getParamI("nt") : 1;
+  pars.nt = 1;
+  //double mpr = 0.938272;
+  double mp = 0.93827208816;
+  double mn = 0.93956542052;
+  double mnucl = (mp+mn)/2.;
+  //double mpr = 0.938272 * 56;
+  //mnucl *= 56;
+  pars.mn = mnucl;
+  bool flag_total = td->hasParam("nomad_total");
+  i = -10;
+  for (size_t ii=0; ii<nomad; ii++) {
+    pars.var = nomad_var[ii];
+    double error(0.);
+    const int NDIM = flag_total ? 3 : 2;
+    const int NCOMP = 1;
+    void* USERDATA = &pars;
+    const int NVEC = 1;
+    //const double EPSREL = 1e-3;
+    const double EPSREL = 1e-2;
+    //const double EPSABS = 1e-12;
+    const double EPSABS = 0;
+    const int FLAGS = 0;
+    const int MINEVAL = 0;
+    const int MAXEVAL = flag_total ? 500000 : 200000;
+    const int KEY = 0;
+    const char* STATEFILE = nullptr;
+    void* SPIN = nullptr;
+    int nregions = 0;
+    int neval = 0;
+    int fail = 0;
+    cubareal cuba_integral[1], cuba_error[1], prob[1];
+    Cuhre(NDIM, NCOMP, Integrand_Cuhre, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
+    printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
+    for(int comp = 0; comp < NCOMP; ++comp )
+      printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
+    _f2abm[dataSetID][ii] = cuba_integral[0];
+    error = cuba_error[0];
+    printf("SZ NOMAD nomad_var[%d] = %6.2f -> xsec = %.4e +- %.4e\n", pars.intvar, pars.var, _f2abm[dataSetID][ii], error);
+    if (flag_total) {
+      for (size_t iii=0; iii<nomad; iii++) {
+        _f2abm[dataSetID][iii] = cuba_integral[0];
+      }
+      return;
+    }
+    //gsl_function F;
+    //double result = gsl_sf_bessel_J0(4.5);
+  }
+  return;
+}
+
+// Calculates one data point at (Q2,x) and returns values f2, fl, f3
+void ReactionFFABM_DISCC::calc_point = (const double q2, const double x, const int datasetID, const ReactionData *rd, double& f2out, double& flout, double& f3out)
+{
+  static constexpr int ncflag = 0;
+  static constexpr int nt = 1;
+  const double cos2thw = 1.0 - *_sin2thwPtr;
+  f2out = 0.;
+  flout = 0.;
+  f3out = 0.;
+  if (q2 < 1.0) return;
+  double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
+  sf_abkm_wrap_(x, q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr);
+  bool calc_f3bar = rd->_nuke_ftyp && rd->_nucl_kint < 0; // for nuclear corrections
+  double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
+  if(calc_f3bar) {
+    int charge_bar = -1 * rd->_charge;
+    sf_abkm_wrap_(x, q2, f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr);
+  }
+  if(_flag_tmc[dataSetID]) 
+  {
+    if ((_tmc_xmin[dataSetID] == 0. || _tmc_xmin[dataSetID] < x) && (_tmc_logxlogq2min[dataSetID] == 0. || _tmc_logxlogq2min[dataSetID] < log(x)*log(q2)))
+    {
+      const bool flag_fl = true;
+      const bool flag_f3 = false;
+      apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
+      if(_flag_tmc_c[dataSetID]) {
+        apply_tmc(_tmc_integration_method[dataSetID], f2c, flc, f3c, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
+        if(calc_f3bar) {
+          apply_tmc(_tmc_integration_method[dataSetID], f2c_bar, flc_bar, f3c_bar, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
+        }
+      }
+      if(_flag_tmc_b[dataSetID]) {
+        apply_tmc(_tmc_integration_method[dataSetID], f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
+      }
+    }
+  }
+  if (_flag_ht[dataSetID]) 
+  {
+    double q02 = 1.;
+    double ft = f2 - fl;
+    f2 += std::pow(x, *_ht_alpha_2[dataSetID]) * spline_f2(x) * q02 / q2;
+    tk::spline spline_t;
+    spline_t.set_points(ht_x, ht_ft);
+    ft += std::pow(x, *_ht_alpha_t[dataSetID]) * spline_ft(x) * q02 / q2;
+    fl = f2 - ft;
+  }
+  combine_flavours(dataSetID, f2, f2c, f2b, f2out);
+  combine_flavours(dataSetID, fl, flc, flb, flout);
+  combine_flavours(dataSetID, f3, f3c, f3b, f3out);
+  f3out *= x;
+  double f3out_bar(0.);
+  if(calc_f3bar) {
+    combine_flavours(dataSetID, f3_bar, f3c_bar, f3b_bar, f3out_bar);
+    f3out_bar *= x;
+  }
+  if(rd->_nuke_ftyp) 
+  {
+    static constexpr int ityp = 0;
+    static constexpr float syst = 0.;
+    double cor_f1 = nuke_fast_(x, q2, 1, ityp, rd->_nucl_kint, rd->_nuke_kord, rd->_nucl_ftyp, syst);
+    double cor_f2 = nuke_fast_(x, q2, 2, ityp, rd->_nucl_kint, rd->_nuke_kord, rd->_nucl_ftyp, syst);
+    double cor_f3 = nuke_fast_(x, q2, 3, ityp, rd->_nucl_kint, rd->_nuke_kord, rd->_nucl_ftyp, syst);
+    if (rd->_nucl_kint < 0) 
+    {
+      int kint_bar = -1 * rd->_nucl_kint;
+      double cor_f3_bar = nuke_fast_(x, q2, 3,  ityp, kint_bar, rd->_nuke_kord, rd->_nucl_ftyp, syst);
+      cor_f3 = ((f3out + x * f3out_bar) * cor_f3 - x * f3out_bar * cor_f3_bar) / f3out;
+    }
+    double f1 = (f2out - flout) / (2 * x);
+    f1 *= cor_f1;
+    f2out *= cor_f2;
+    flout = f2out - 2 * x * f1;
+    f3out *= cor_f3;
   }
 }
 
