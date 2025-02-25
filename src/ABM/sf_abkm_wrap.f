@@ -383,7 +383,7 @@ c The parameter HQNONS drives the nonsinglet contribution to the charm productio
 c It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user.
 c In ABMP16 fit it was set to .false.
 c (makes small difference which reaches few % only at highest Q2 of the charm HERA data and is negligible for practical purposes)
-      hqnons = .true.
+      hqnons = .false.
 
 C--------------------------------------------------------------------------
       end

@@ -16,26 +16,13 @@
 #include <spline.h>
 struct integration_params_cuba {
   int intvar;
-  double var;
-  int ncflag;
-  int charge;
-  double polarity;
-  double cos2thw;
-  const double* _sin2thwPtr;
-  const double* _mzPtr;
-  BaseDISCC::dataFlav flav;
-  ReactionFFABM_DISCC* reaction;
+  double val;
   unsigned dataSetID;
-  BaseDISCC::ReactionData* rd;
+  const BaseDISCC::ReactionData* rd;
+  ReactionFFABM_DISCC* reaction;
   const double* br0;
   const double* br1;
-  double mn;
-  int nt;
-  int nuke_ityp;
-  int nuke_kint;
-  int nuke_kord;
-  int nuke_ftyp;
-  float nuke_syst;
+  double mnucl;
 };
 
 // the class factories
@@ -250,6 +237,7 @@ void ReactionFFABM_DISCC::atIteration() {
 
 double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, double& f3, const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x,
     const int ncflag, const int charge, const double polarity, const double cos2thw, const int nt) {
+  //printf("apply_tmc q2,x = %f,%f\n", q2, x);
   double mn = *_tmc_mpr;
   double gam = sqrt(1+4*x*x*mn*mn/q2);
   double xi = 2*x/(1+gam);
@@ -259,13 +247,14 @@ double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, 
       return 0.;
     }
     const integration_params& integrationParams = *(integration_params*)params;
+    //printf("integrate q2,xip = %f,%f\n", integrationParams.q2, xip);
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     if (integrationParams.order == -1)
-      sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
+      sf_abkm_wrap_(xip, integrationParams.q2,
                 f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                 integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.nt);
     else
-      sf_abkm_wrap_order_(xip, integrationParams.q2[integrationParams.i],
+      sf_abkm_wrap_order_(xip, integrationParams.q2,
                 f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                 integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.order, integrationParams.nt);
     if (integrationParams.flag_calc_fl == 0) {
@@ -302,7 +291,6 @@ double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, 
   };
   integration_params pars;
   pars.q2 = q2;
-  pars.i = i;
   pars.ncflag = ncflag;
   pars.charge = charge;
   pars.polarity = polarity;
@@ -476,245 +464,111 @@ double ReactionFFABM_DISCC::apply_tmc(const int method, double& f2, double& fl, 
   return f2/f20-1;
 }
 
-int ReactionFFABM_DISCC::Integrand_Cuhre(const int* ndim, const cubareal* inp, const int *ncomp, cubareal* val, void *params) {
+int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, const int *ncomp, cubareal* val, void *params) {
   //(void)ndim; // Unused parameter
-  const integration_params_cuba& integrationParams = *(integration_params_cuba*)params;
-  ReactionFFABM_DISCC* reaction = integrationParams.reaction;
-  unsigned dataSetID = integrationParams.dataSetID;
-  //double mpr = 0.938272;
-  double mpr = integrationParams.mn;
-  const double emin = 6.;
-  const double emax = 300.;
-  //const double emax = 600.;
-  //const double xmin = 0.;
-  double xmin = 1./(2*mpr*emax);
-  //double xmax = 1.0;
-  double xmax = 0.99;
-  //const double xmax = 0.80;
-  //const double xmin = 1e-4;
-  //const double xmin = 1e-7;
-  //double xmax = 0.75;
-  //const double q2min = 0.8;
-  const double q2min = 1.;
-  //const double q2max = 1000.;
-  //const double xmin = 0.02;
-  //const double xmax = 0.75;
-  //const double q2min = 1.;
-  //const double q2max = 20.;
-  double x(-1.), q2(-1.), y(-1.), e(-1.), s(-1.), q2max(-1.);
-  double flux(-1.);
-  if(integrationParams.intvar == 1) { // E
-    if (*ndim == 3) {
-      double smax = 2*mpr*emax + mpr*mpr;
-      q2max = smax*xmax;
+  const integration_params_cuba& pars = *(integration_params_cuba*)params;
+  static const double mnucl = pars.mnucl;
+  static const double emin = 6.;
+  static const double emax = 300.;
+  static const double xmin = 1./(2.*mnucl*emax);
+  static const double xmax = 0.99;
+  static const double q2min = 1.;
+  double x(-1.), q2(-1.), y(-1.), e(-1.), s(-1.), q2max(-1.), factor(-1.);
+  if(pars.intvar == 1) { // E
+    if (*ndim == 2) {
+      e = pars.val;
+      s = 2 * mnucl * e + mnucl * mnucl;
+      q2max = s * xmax;
+      x = xmin + (xmax - xmin) * inp[0];
+      q2 = q2min + (q2max - q2min) * inp[1];
+      factor = (q2max - q2min) * (xmax - xmin);
+    }
+    else if (*ndim == 3) {
+      double smax = 2 * mnucl * emax + mnucl * mnucl;
+      q2max = smax * xmax;
+      x = xmin + (xmax - xmin) * inp[0];
+      q2 = q2min + (q2max - q2min) * inp[1];
       e = emin + (emax - emin) * inp[2];
-      s = 2*mpr*e + mpr*mpr;
-      flux = numufcalflux_(e)*(emax - emin)*(q2max - q2min) * (xmax - xmin);
+      s = 2 * mnucl * e + mnucl * mnucl;
+      factor = numufcalflux_(e) * (emax - emin) * (q2max - q2min) * (xmax - xmin);
     }
-    else if (*ndim == 2) {
-      e = integrationParams.var;
-      s = 2*mpr*e + mpr*mpr;
-      q2max = s*xmax;
-      flux = (q2max - q2min) * (xmax - xmin);
-    }
-    x = xmin + (xmax - xmin) * inp[0];
-    q2 = q2min + (q2max - q2min) * inp[1];
-    y = (q2 + x*x*mpr*mpr) / s / x;
+    y = (q2 + x * x * mnucl * mnucl) / s / x;
   }
-  else if(integrationParams.intvar == 2) { // xbj
-    double extraf = 1.;
-    if (*ndim == 3) {
+  else if(pars.intvar == 2) { // xbj
+    if (*ndim == 2) {
+      double smax = 2 * mnucl * emax + mnucl * mnucl;
+      q2max = smax * xmax;
+      e = emin + (emax - emin) * inp[0];
+      q2 = q2min + (q2max - q2min) * inp[1];
+      s = 2 * mnucl * e + mnucl * mnucl;
+      x = pars.val;
+      y = (q2 + x * x * mnucl * mnucl) / s / x;
+      factor = numufcalflux_(e) * (q2max - q2min) * (emax - emin);
+    }
+    else if (*ndim == 3) {
+      double smax = 2 * mnucl * emax + mnucl * mnucl;
+      q2max = smax * xmax;
+      e = emin + (emax - emin) * inp[0];
+      q2 = q2min + (q2max - q2min) * inp[1];
       x = xmin + (xmax - xmin) * inp[2];
-      double smax = 2*mpr*emax + mpr*mpr;
-      q2max = smax*xmax;
-      e = emin + (emax - emin) * inp[0];
-      q2 = q2min + (q2max - q2min) * inp[1];
-      s = 2*mpr*e + mpr*mpr;
-      y = (q2 + x*x*mpr*mpr) / s / x;
-      flux = numufcalflux_(e) * (q2max - q2min) * (emax - emin) * (xmax - xmin);
-    }
-    else if (*ndim == 2) {
-      x = integrationParams.var;
-      double smax = 2*mpr*emax + mpr*mpr;
-      q2max = smax*xmax;
-      e = emin + (emax - emin) * inp[0];
-      q2 = q2min + (q2max - q2min) * inp[1];
-      s = 2*mpr*e + mpr*mpr;
-      y = (q2 + x*x*mpr*mpr) / s / x;
-      flux = numufcalflux_(e) * (q2max - q2min) * (emax - emin);
-      flux *= 2*mpr*y*x*x/q2;
-      //flux *= e;
+      s = 2 * mnucl * e + mnucl * mnucl;
+      y = (q2 + x * x * mnucl * mnucl) / s / x;
+      factor = numufcalflux_(e) * (q2max - q2min) * (emax - emin) * (xmax - xmin);
     }
   }
-  else if(integrationParams.intvar == 3) { // sqrts
-    double extraf = -1.;
-    if (*ndim == 3) {
-      double smax = 2*mpr*emax + mpr*mpr;
-      q2max = smax*xmax;
+  else if(pars.intvar == 3) { // sqrts
+    if (*ndim == 2) {
+      double sqrtshat = pars.val;
+      double xmin = 1./(sqrtshat*sqrtshat);
       x = xmin + (xmax - xmin) * inp[0];
-      y = inp[1];
-      double sqrtshatmin = 3.0;
-      double sqrtshatmax = 18.0;
-      double sqrtshat = sqrtshatmax + (sqrtshatmax - sqrtshatmin) * inp[2];
-      q2 = sqrtshat*sqrtshat / (1./x - 1);
-      if (q2 <= q2min) {
-        val[0] = 0.;
-        return 0;
-      }
-      s = (q2 + x*x*mpr*mpr) / x / y;
-      e = (s-mpr*mpr)/(2*mpr);
-      if (e <= emin || e >= emax) {
-        val[0] = 0.;
-        return 0;
-      }
-      flux = (sqrtshatmax - sqrtshatmin) * (xmax - xmin) * numufcalflux_(e);
-    }
-    else if (*ndim == 2) {
-      double sqrtshat = integrationParams.var;
-      xmin = 1./(sqrtshat*sqrtshat);
-      x = xmin + (xmax - xmin) * inp[0];
-      //q2 = sqrtshat*sqrtshat * x;
-      q2 = sqrtshat*sqrtshat / (1./x - 1);
-      //q2 = sqrtshat*sqrtshat / (1./x - x);
-      //q2 = pow(sqrtshat / (1./x - x), 2.);
-      //q2 = pow(sqrtshat / (1./x - 1), 2.);
-      //double smax = 2*mpr*emax + mpr*mpr;
-      //q2max = smax*xmax;
-      //if (q2 <= q2min || q2 >= q2max) {
+      q2 = sqrtshat * sqrtshat / (1. / x - 1);
       if (q2 <= q2min) {
         val[0] = 0.;
         return 0;
       }
       e = emin + (emax - emin) * inp[1];
-      s = 2*mpr*e + mpr*mpr;
-      y = (q2 + x*x*mpr*mpr) / s / x;
-      flux = (xmax - xmin) * (emax - emin) * numufcalflux_(e);
-      flux *= 2*mpr*x*y;
-      //flux *= 1./(2.*mpr*(1-x));
-    }
-  }
-  if(integrationParams.intvar == 11) { // E dydx
-    if (*ndim == 2) {
-      //printf("SZ inp = %f,%f\n", inp[0], inp[1]);
-      e = integrationParams.var;
-      s = 2*mpr*e + mpr*mpr;
-      q2max = s*xmax;
-      flux = 1.;
-      double ymin = 0.;
-      double ymax = 1.;
-      x = xmin + (xmax - xmin) * inp[0];
-      y = ymin + (ymax - ymin) * inp[1];
-      q2 = s * x * y - x * x * mpr * mpr;
-      if (q2 <= q2min) {
-        val[0] = 0.;
-        return 0;
-      }
-      if (q2 > q2max) {
-        throw 42;
-      }
-      flux *= (s-mpr*mpr) * x;
-      flux *= (ymax - ymin) * (xmax - xmin);
+      s = 2 * mnucl * e + mnucl * mnucl;
+      y = (q2 + x * x * mnucl * mnucl) / s / x;
+      factor = numufcalflux_(e) * (xmax - xmin) * (emax - emin);
     }
   }
   if (y <= 0. || y >= 1.) {
     val[0] = 0.;
     return 0;
   }
-  double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-  sf_abkm_wrap_(x, q2,
-                f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.nt);
-  //printf("SZ integral E,s = %f,%f q2,x,y = %f,%f,%f -> f2,fl,f3,f2c,flc,f3c = %f,%f,%f,%f,%f,%f integrationParams.ncflag = %d, integrationParams.charge = %d, integrationParams.polarity = %f, *integrationParams._sin2thwPtr = %f, integrationParams.cos2thw = %f, *integrationParams._mzPtr = %f\n", e, s, q2, x, y, f2,fl,f3,f2c,flc,f3c, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
-  double f2sum(0),flsum(0),xf3sum(0);
-  switch ( integrationParams.flav ) {
-    case BaseDISCC::dataFlav::incl :
-      if(reaction->_flag_tmc[dataSetID]) {
-        if ((reaction->_tmc_xmin[dataSetID] == 0. || reaction->_tmc_xmin[dataSetID] < x) && (reaction->_tmc_logxlogq2min[dataSetID] == 0. || reaction->_tmc_logxlogq2min[dataSetID] < log(x)*log(q2))) {
-          std::valarray<double> q2v = {q2};
-          std::valarray<double> xv = {x};
-          reaction->apply_tmc(reaction->_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2v[0], xv[0], integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, integrationParams.cos2thw, 1);
-        }
-      }
-      if (reaction->_flag_ht[dataSetID]) {
-        // for HT
-        tk::spline spline_f2, spline_ft;
-        std::vector<double> ht_x(reaction->_ht_x[dataSetID].size());
-        std::vector<double> ht_f2(reaction->_ht_x[dataSetID].size());
-        std::vector<double> ht_ft(reaction->_ht_x[dataSetID].size());
-        if (reaction->_flag_ht[dataSetID]) {
-          for (size_t i = 0; i < ht_x.size(); i++)
-          {
-            ht_x[i] = *reaction->_ht_x[dataSetID][i];
-            ht_f2[i] = *reaction->_ht_2[dataSetID][i];
-            ht_ft[i] = *reaction->_ht_t[dataSetID][i];
-          }
-          spline_ft.set_points(ht_x, ht_ft);
-          spline_f2.set_points(ht_x, ht_f2);
-        }
-        //
-        //printf("SZ HT1 f2,fl = %f,%f\n", f2,fl);
-        double q02 = 1.;
-        double ft = f2 - fl;
-        f2 += std::pow(x, *reaction->_ht_alpha_2[dataSetID]) * spline_f2(x) * q02 / q2;
-        tk::spline spline_t;
-        spline_t.set_points(ht_x, ht_ft);
-        ft += std::pow(x, *reaction->_ht_alpha_t[dataSetID]) * spline_ft(x) * q02 / q2;
-        fl = f2 - ft;
-        //printf("SZ HT2 f2,fl = %f,%f\n", f2,fl);
-      }
-      f2sum = f2 + f2c + f2b;
-      flsum = fl + flc + flb;
-      xf3sum = x * (f3 + f3c + f3b);
-      break;
-    case BaseDISCC::dataFlav::c :
-      f2sum = f2c;
-      flsum = flc;
-      xf3sum = x * f3c;
-      break;
-  }
-  if(integrationParams.nuke_kint && 0) {
-    double cor_f1 = nuke_fast_(x, q2, 1, integrationParams.nuke_ityp, integrationParams.nuke_kint, integrationParams.nuke_kord, integrationParams.nuke_ftyp, integrationParams.nuke_syst);
-    double cor_f2 = nuke_fast_(x, q2, 2, integrationParams.nuke_ityp, integrationParams.nuke_kint, integrationParams.nuke_kord, integrationParams.nuke_ftyp, integrationParams.nuke_syst);
-    double cor_f3 = nuke_fast_(x, q2, 3, integrationParams.nuke_ityp, integrationParams.nuke_kint, integrationParams.nuke_kord, integrationParams.nuke_ftyp, integrationParams.nuke_syst);
-    //printf("%f\n", cor_f2);
-    double f1 = (f2sum - flsum) / (2 * x);
-    f1 *= cor_f1;
-    f2sum *= cor_f2;
-    flsum = f2sum - 2*x*f1;
-    xf3sum *= cor_f3;
-  }
+  double f2sum(0.), flsum(0.), xf3sum(0.);
+  pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
   double yplus = 1.0 + (1.0 - y) * (1.0 - y);
   double yminus = 1.0 - (1.0 - y) * (1.0 - y);
-  auto charge = integrationParams.charge;
-  if (integrationParams.rd->_isBeamNu) {
+  auto charge = pars.rd->_charge;
+  if (pars.rd->_isBeamNu) {
     charge *= -1; // swap back, see InitTerm()
   }
   if (charge > 0)
-    val[0] = 0.5 * (1 + integrationParams.polarity) * (yplus * f2sum - yminus * xf3sum - y * y * flsum);
+    val[0] = 0.5 * (1 + pars.rd->_polarisation) * (yplus * f2sum - yminus * xf3sum - y * y * flsum);
   else
-    val[0] = 0.5 * (1 - integrationParams.polarity) * (yplus * f2sum + yminus * xf3sum - y * y * flsum);
+    val[0] = 0.5 * (1 - pars.rd->_polarisation) * (yplus * f2sum + yminus * xf3sum - y * y * flsum);
   const double pi = 3.1415926535897932384626433832795029;
-  double MW = *integrationParams.rd->Mw;
-  double factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * reaction->_Gf * reaction->_Gf / (2 * pi * x) * reaction->_convfac;
-  //double factor = (MW * MW * MW * MW / pow((q2), 2)) * reaction->_Gf * reaction->_Gf / (2 * pi * x) * reaction->_convfac;
+  double MW = *pars.rd->Mw;
+  double GF = pars.reaction->_Gf;
+  double kinfactor = (pow(MW, 4.) / pow((q2 + MW * MW), 2)) * GF * GF / (2 * pi * x) * pars.reaction->_convfac;
+  val[0] *= kinfactor;
   val[0] *= factor;
-  val[0] *= flux;
-  if ( integrationParams.flav == BaseDISCC::dataFlav::c ) {
-    double br = *integrationParams.br0 / (1 + *integrationParams.br1 / e);
+  if ( pars.rd->_dataFlav == BaseDISCC::dataFlav::c ) {
+    double br = *pars.br0 / (1 + *pars.br1 / e);
     val[0] *= br;
   }
-  if (val[0] != val[0] || 1./val[0] == 0.) val[0] = 0.;
+  if (val[0] != val[0] || 1./val[0] == 0.) {
+    val[0] = 0.;
+  }
   return 0;
-}
-
-void apply_nuke(const double x, const double q2, double& f2, double& fl, double& f3) {
-  ;
 }
 
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   if ( (_f2abm[dataSetID][0]< -99.) )
   {
+    update_ht(dataSetID);
     auto td = _tdDS[dataSetID];
     td->actualizeWrappers();
     pdffillgrid_();
@@ -722,13 +576,13 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
     if (td->hasParam("nomad")) {
       int intvar = td->getParamI("nomad");
       auto& nomad_var  = *GetBinValues(td, "nomad_var");
-      for (size_t i=0; i<nomad_var->size(); i++) {
-        calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i], _flabm[dataSetID][i], _f3abm[dataSetID][i]);
+      for (size_t i=0; i<nomad_var.size(); i++) {
+        calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i]);
       }
     }
     else {
       auto *q2p  = GetBinValues(td,"Q2"), *xp  = GetBinValues(td,"x");
-      auto& q2 = *q2p, x = *xp;
+      auto q2 = *q2p, x = *xp;
       for (size_t i=0; i<xp->size(); i++) {
         calc_point(q2[i], x[i], dataSetID, rd, _f2abm[dataSetID][i], _flabm[dataSetID][i], _f3abm[dataSetID][i]);
       }
@@ -736,177 +590,141 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   }
 }
 
-void combine_flavours(const int dataSetID, const double f, const double fc, const double fb, double& fout)
-{
-  switch (GetDataFlav(dataSetID))
-  {
-    case dataFlav::incl:
-      fout = f + fc + fb;
-      break;
-    case dataFlav::c:
-      fout = fc;
-      break;
-    case dataFlav::b:
-      fout = fb;
-      break;
-  }
-}
-
 // Calculates one data point as integral over Q2,x,E and returns values f2, fl, f3
-void calc_integral(const int intvar, const double val, const int datasetID, const ReactionData *rd, double& f2out, double& flout, double& f3out)
+void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out)
 {
-  if(rd->_nuke_ftyp) {
+  if(1 && rd->_nuke_ftyp) {
     printf("SZ1\n");fflush(stdout);
     double ret = nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
     printf("SZ2 ret = %f\n", ret);fflush(stdout);
   }
-  // PDFs
   integration_params_cuba pars;
-  pars.ncflag = ncflag;
-  pars.charge = rd->_charge;
-  pars.polarity = rd->_polarisation;
-  pars.cos2thw = cos2thw;
-  pars._sin2thwPtr = _sin2thwPtr;
-  pars._mzPtr = _mzPtr;
-  pars.flav = rd->_dataFlav;
-  pars.reaction = this;
   pars.dataSetID = dataSetID;
   pars.rd = rd;
-  pars.intvar = *td->getParamD("nomad");
-  pars.br0 =td->getParamD("br_cmu_0");
-  pars.br1 =td->getParamD("br_cmu_1");
-  pars.nuke_kint = 0;
-  if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0 && 1) {
-    pars.nuke_kint = td->getParamI("nuke_kint");
-    pars.nuke_ityp = 0;
-    pars.nuke_kord = OrderMap(td->getParamS("Order")); // does not matter - not implemented?
-    pars.nuke_ftyp = td->getParamI("nuke_ftyp");
-    pars.nuke_syst = 0.;
-  }
-  //pars.nt = td->hasParam("nt") ? td->getParamI("nt") : 1;
-  pars.nt = 1;
-  //double mpr = 0.938272;
-  double mp = 0.93827208816;
-  double mn = 0.93956542052;
-  double mnucl = (mp+mn)/2.;
-  //double mpr = 0.938272 * 56;
-  //mnucl *= 56;
-  pars.mn = mnucl;
-  bool flag_total = td->hasParam("nomad_total");
-  i = -10;
-  for (size_t ii=0; ii<nomad; ii++) {
-    pars.var = nomad_var[ii];
-    double error(0.);
-    const int NDIM = flag_total ? 3 : 2;
-    const int NCOMP = 1;
-    void* USERDATA = &pars;
-    const int NVEC = 1;
-    //const double EPSREL = 1e-3;
-    const double EPSREL = 1e-2;
-    //const double EPSABS = 1e-12;
-    const double EPSABS = 0;
-    const int FLAGS = 0;
-    const int MINEVAL = 0;
-    const int MAXEVAL = flag_total ? 500000 : 200000;
-    const int KEY = 0;
-    const char* STATEFILE = nullptr;
-    void* SPIN = nullptr;
-    int nregions = 0;
-    int neval = 0;
-    int fail = 0;
-    cubareal cuba_integral[1], cuba_error[1], prob[1];
-    Cuhre(NDIM, NCOMP, Integrand_Cuhre, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
-    printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
-    for(int comp = 0; comp < NCOMP; ++comp )
-      printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
-    _f2abm[dataSetID][ii] = cuba_integral[0];
-    error = cuba_error[0];
-    printf("SZ NOMAD nomad_var[%d] = %6.2f -> xsec = %.4e +- %.4e\n", pars.intvar, pars.var, _f2abm[dataSetID][ii], error);
-    if (flag_total) {
-      for (size_t iii=0; iii<nomad; iii++) {
-        _f2abm[dataSetID][iii] = cuba_integral[0];
-      }
-      return;
-    }
-    //gsl_function F;
-    //double result = gsl_sf_bessel_J0(4.5);
-  }
-  return;
+  pars.reaction = this;
+  pars.intvar = *_tdDS[dataSetID]->getParamD("nomad");
+  pars.val = val;
+  static const double* br0 = _tdDS[dataSetID]->getParamD("br_cmu_0");
+  static const double* br1 = _tdDS[dataSetID]->getParamD("br_cmu_1");
+  pars.br0 = br0;
+  pars.br1 = br1;
+  static const double mpr = *_tdDS[dataSetID]->getParamD("mpr");
+  static const double mnt = *_tdDS[dataSetID]->getParamD("mnt");
+  double mnucl = (mpr+mnt)/2.;
+  pars.mnucl = mnucl;
+  const int NDIM = intvar > 0 ? 2 : 3;
+  const int NCOMP = 1;
+  void* USERDATA = &pars;
+  const int NVEC = 1;
+  //const double EPSREL = 1e-3;
+  const double EPSREL = 1e-2;
+  const double EPSABS = 0;
+  const int FLAGS = 0;
+  const int MINEVAL = 0;
+  const int MAXEVAL = NDIM == 2 ? 500000 : 1000000;
+  const int KEY = 0;
+  const char* STATEFILE = nullptr;
+  void* SPIN = nullptr;
+  int nregions = 0;
+  int neval = 0;
+  int fail = 0;
+  cubareal cuba_integral[1], cuba_error[1], prob[1];
+  Cuhre(NDIM, NCOMP, integrate_nomad, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
+  printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
+  for(int comp = 0; comp < NCOMP; ++comp )
+    printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
+    xsec_out = cuba_integral[0];
+  printf("SZ NOMAD nomad_var[%d] = %6.2f -> xsec = %.4e +- %.4e\n", pars.intvar, pars.val, xsec_out, cuba_error[0]);
 }
 
 // Calculates one data point at (Q2,x) and returns values f2, fl, f3
-void ReactionFFABM_DISCC::calc_point = (const double q2, const double x, const int datasetID, const ReactionData *rd, double& f2out, double& flout, double& f3out)
+void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out)
 {
   static constexpr int ncflag = 0;
   static constexpr int nt = 1;
-  const double cos2thw = 1.0 - *_sin2thwPtr;
   f2out = 0.;
   flout = 0.;
   f3out = 0.;
   if (q2 < 1.0) return;
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-  sf_abkm_wrap_(x, q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr);
-  bool calc_f3bar = rd->_nuke_ftyp && rd->_nucl_kint < 0; // for nuclear corrections
+  sf_abkm_wrap_(x, q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, _cos2thw, *_mzPtr);
+  bool calc_f3bar = rd->_nuke_ftyp && rd->_nuke_kint < 0; // for nuclear corrections
+  //calc_f3bar = false;
   double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
   if(calc_f3bar) {
     int charge_bar = -1 * rd->_charge;
-    sf_abkm_wrap_(x, q2, f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, rd->_polarisation, *_sin2thwPtr, cos2thw, *_mzPtr);
+    sf_abkm_wrap_(x, q2, f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, rd->_polarisation, *_sin2thwPtr, _cos2thw, *_mzPtr, nt);
   }
   if(_flag_tmc[dataSetID]) 
   {
     if ((_tmc_xmin[dataSetID] == 0. || _tmc_xmin[dataSetID] < x) && (_tmc_logxlogq2min[dataSetID] == 0. || _tmc_logxlogq2min[dataSetID] < log(x)*log(q2)))
     {
       const bool flag_fl = true;
-      const bool flag_f3 = false;
-      apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
+      //const bool flag_f3 = false;
+      const bool flag_f3 = true;
+      apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, flag_fl, flag_f3, 1, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, nt);
       if(_flag_tmc_c[dataSetID]) {
-        apply_tmc(_tmc_integration_method[dataSetID], f2c, flc, f3c, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
-        if(calc_f3bar) {
-          apply_tmc(_tmc_integration_method[dataSetID], f2c_bar, flc_bar, f3c_bar, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
-        }
+        apply_tmc(_tmc_integration_method[dataSetID], f2c, flc, f3c, flag_fl, flag_f3, 2, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, nt);
       }
       if(_flag_tmc_b[dataSetID]) {
-        apply_tmc(_tmc_integration_method[dataSetID], f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, charge, polarity, cos2thw, nt);
+        apply_tmc(_tmc_integration_method[dataSetID], f2b, flb, f3b, flag_fl, flag_f3, 3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, nt);
       }
-    }
+      if(calc_f3bar) {
+        apply_tmc(_tmc_integration_method[dataSetID], f2_bar, fl_bar, f3_bar, flag_fl, flag_f3, 1, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, nt);
+        if(_flag_tmc_c[dataSetID]) {
+          apply_tmc(_tmc_integration_method[dataSetID], f2c_bar, flc_bar, f3c_bar, flag_fl, flag_f3, 2, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, nt);
+        }
+        if(_flag_tmc_b[dataSetID]) {
+          apply_tmc(_tmc_integration_method[dataSetID], f2b_bar, flb_bar, f3b_bar, flag_fl, flag_f3, 3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, nt);
+        }
+      }
   }
-  if (_flag_ht[dataSetID]) 
-  {
-    double q02 = 1.;
-    double ft = f2 - fl;
-    f2 += std::pow(x, *_ht_alpha_2[dataSetID]) * spline_f2(x) * q02 / q2;
-    tk::spline spline_t;
-    spline_t.set_points(ht_x, ht_ft);
-    ft += std::pow(x, *_ht_alpha_t[dataSetID]) * spline_ft(x) * q02 / q2;
-    fl = f2 - ft;
   }
-  combine_flavours(dataSetID, f2, f2c, f2b, f2out);
-  combine_flavours(dataSetID, fl, flc, flb, flout);
-  combine_flavours(dataSetID, f3, f3c, f3b, f3out);
+  apply_ht(dataSetID, q2, x, f2, fl);
+  //apply_ht(dataSetID, q2, x, f2c, flc);
+  combine_flavours(rd, f2, f2c, f2b, f2out);
+  combine_flavours(rd, fl, flc, flb, flout);
+  combine_flavours(rd, f3, f3c, f3b, f3out);
   f3out *= x;
   double f3out_bar(0.);
   if(calc_f3bar) {
-    combine_flavours(dataSetID, f3_bar, f3c_bar, f3b_bar, f3out_bar);
+    combine_flavours(rd, f3_bar, f3c_bar, f3b_bar, f3out_bar);
     f3out_bar *= x;
   }
   if(rd->_nuke_ftyp) 
   {
     static constexpr int ityp = 0;
     static constexpr float syst = 0.;
-    double cor_f1 = nuke_fast_(x, q2, 1, ityp, rd->_nucl_kint, rd->_nuke_kord, rd->_nucl_ftyp, syst);
-    double cor_f2 = nuke_fast_(x, q2, 2, ityp, rd->_nucl_kint, rd->_nuke_kord, rd->_nucl_ftyp, syst);
-    double cor_f3 = nuke_fast_(x, q2, 3, ityp, rd->_nucl_kint, rd->_nuke_kord, rd->_nucl_ftyp, syst);
-    if (rd->_nucl_kint < 0) 
+    double cor_f1 = nuke_fast_(x, q2, 1, ityp, rd->_nuke_kint, rd->_nuke_kord, rd->_nuke_ftyp, syst);
+    double cor_f2 = nuke_fast_(x, q2, 2, ityp, rd->_nuke_kint, rd->_nuke_kord, rd->_nuke_ftyp, syst);
+    double cor_f3 = nuke_fast_(x, q2, 3, ityp, rd->_nuke_kint, rd->_nuke_kord, rd->_nuke_ftyp, syst);
+    if (rd->_nuke_kint < 0) 
     {
-      int kint_bar = -1 * rd->_nucl_kint;
-      double cor_f3_bar = nuke_fast_(x, q2, 3,  ityp, kint_bar, rd->_nuke_kord, rd->_nucl_ftyp, syst);
-      cor_f3 = ((f3out + x * f3out_bar) * cor_f3 - x * f3out_bar * cor_f3_bar) / f3out;
+      int kint_bar = -1 * rd->_nuke_kint;
+      double cor_f3_bar = nuke_fast_(x, q2, 3,  ityp, kint_bar, rd->_nuke_kord, rd->_nuke_ftyp, syst);
+      cor_f3 = ((f3out + f3out_bar) * cor_f3 - f3out_bar * cor_f3_bar) / f3out;
     }
     double f1 = (f2out - flout) / (2 * x);
     f1 *= cor_f1;
     f2out *= cor_f2;
     flout = f2out - 2 * x * f1;
     f3out *= cor_f3;
+  }
+}
+
+void ReactionFFABM_DISCC::combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb, double& fout)
+{
+  switch (rd->_dataFlav)
+  {
+    case BaseDISCC::dataFlav::incl:
+      fout = f + fc + fb;
+      break;
+    case BaseDISCC::dataFlav::c:
+      fout = fc;
+      break;
+    case BaseDISCC::dataFlav::b:
+      fout = fb;
+      break;
   }
 }
 

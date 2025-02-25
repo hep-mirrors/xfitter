@@ -1,6 +1,7 @@
 #pragma once
 #include "ReactionTheory.h"
 #include "IntegrateDIS.h"
+#include <spline.h>
 
 /**
   @class' ReactionBaseDISCC
@@ -53,12 +54,16 @@ protected:
   //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
 
   // higher twist
+  tk::spline _spline_f2;
+  tk::spline _spline_ft;
   map<unsigned, bool> _flag_ht;
   map<unsigned, std::vector<const double* > > _ht_x;
   map<unsigned, std::vector<const double* > > _ht_2;
   map<unsigned, std::vector<const double* > > _ht_t;
   map<unsigned, const double* > _ht_alpha_2;
   map<unsigned, const double* > _ht_alpha_t;
+  void update_ht(size_t dataSetID);
+  void apply_ht(const int dataSetID, const double q2, const double x, double& f2, double& fl);
 
   // nuclear corrections
   map<unsigned, int> _nucl_kint;
@@ -107,6 +112,7 @@ namespace BaseDISCC
     int ipdfSet; /// PDF set used in the QCDNUM evolution
     int _nuke_ftyp = 0; // nuclear correction: 1 Carbon (A=12, Z=6), 2 Iron (A=56, Z=26), 3 Lead (A=207, Z=82), 4 Emulsion (mixture of nuclei) 
     int _nuke_kint = 0; // nuclear interaction: 1 charged lepton, 2 neutrino (-2 antineutrino) CC, 3 neutrino (-3 antineutrino) NC, 4 neutrino CC charm production (-4 antineutrino), 5 neutrino CC not-charm (-5 antineutrino) [4, 5 not implemented]
+    int _nuke_kord = 0; // order: 1 LO, 2 NLO, 3 NNLO [not implemented]
   };
 
   /// Helper function to get bin values, including integrated sigma:

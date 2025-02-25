@@ -45,11 +45,11 @@ private:
   double _cos2thw;
 
   void calcF2FL(int dataSetID);
-  void calc_point(const double q2, const double x, const int datasetID, const ReactionData *rd, double& f2out, double& flout, double& f3out);
-  void calc_integral(const int intvar, const double val, const int datasetID, const ReactionData *rd, double& f2out, double& flout, double& f3out);
+  void calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out);
+  void calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out);
+  static int integrate_nomad(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
   struct integration_params {
-    std::valarray<double> q2;
-    int i;
+    double q2;
     int ncflag;
     int charge;
     double polarity;
@@ -70,8 +70,7 @@ private:
   map<int, double> _tmc_logxlogq2min;
   const double* _tmc_mpr;
   map<int, int> _ncpu;
-  void combine_flavours(const int dataSetID, const double f, const double fc, const double fb, double& fout);
+  void combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb, double& fout);
   double apply_tmc(const int method, double& f2, double& fl, double& f3, const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x, const int ncflag, const int charge, const double polarity, const double cos2thw, const int nt);
-  static int Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
 };
 

@@ -36,13 +36,13 @@ void sf_abkm_wrap_(const double &x, const double &q2,
                    const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
                    const double &f2babkm, const double &flbabkm, const double &f3babkm,
                    const int &ncflag, const double &charge, const double &polar,
-                   const double &sin2thw, const double &cos2thw, const double &MZ);
+                   const double &sin2thw, const double &cos2thw, const double &MZ, const int &nt=1);
 void sf_abkm_wrap_order_(const double &x, const double &q2,
                    const double &f2abkm, const double &flabkm, const double &f3abkm,
                    const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
                    const double &f2babkm, const double &flbabkm, const double &f3babkm,
                    const int &ncflag, const double &charge, const double &polar,
-                   const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin);
+                   const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin, const int &nt=1);
 void abkm_set_input_(const int &kschemepdfin, const int &kordpdfin,
                      const double &rmass8in, const double &rmass10in, const int &msbarmin,
                      double &hqscale1in, const double &hqscale2in, const int &flagthinterface);
@@ -282,6 +282,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       f3out = 0.;
       if (q2[i] > 1.0)
       {
+        //printf("q2,x = %f,%f\n", q2[i], x[i]);
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                       ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
@@ -294,8 +295,6 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           double q02 = 1.;
           double ft = f2 - fl;
           f2 += std::pow(x[i], *_ht_alpha_2[dataSetID]) * spline_f2(x[i]) * q02 / q2[i];
-          tk::spline spline_t;
-          spline_t.set_points(ht_x, ht_ft);
           ft += std::pow(x[i], *_ht_alpha_t[dataSetID]) * spline_ft(x[i]) * q02 / q2[i];
           fl = f2 - ft;
           //printf("  %f\n", ft);

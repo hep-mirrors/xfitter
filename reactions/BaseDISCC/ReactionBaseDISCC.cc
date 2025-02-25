@@ -14,6 +14,7 @@
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
 #include "EvolutionQCDNUM.h"
+#include "xfitter_cpp_base.h"
 
 // Helpers for QCDNUM (CC):
 
@@ -169,6 +170,8 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
         &q2 = *BaseDISCC::GetBinValues(td, "Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * _Gf * _Gf / (2 * pi * x) * _convfac;
+    val *= factor;
+    break;
     //
     //s = 2*mpr*e + mpr*mpr;
     //factor = q2 / x / y / e;
@@ -468,5 +471,37 @@ const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const stri
       return rd->_integrated->getBinValuesY();
     else
       return td->getBinColumnOrNull(binName);
+  }
+}
+
+void ReactionBaseDISCC::update_ht(size_t dataSetID)
+{
+  if (_flag_ht[dataSetID]) {
+    std::vector<double> ht_x(_ht_x[dataSetID].size());
+    std::vector<double> ht_f2(_ht_x[dataSetID].size());
+    std::vector<double> ht_ft(_ht_x[dataSetID].size());
+      for (size_t i = 0; i < ht_x.size(); i++)
+    {
+      ht_x[i] = *_ht_x[dataSetID][i];
+      ht_f2[i] = *_ht_2[dataSetID][i];
+      ht_ft[i] = *_ht_t[dataSetID][i];
+    }
+    _spline_ft.set_points(ht_x, ht_ft);
+    _spline_f2.set_points(ht_x, ht_f2);
+  }
+}
+
+void ReactionBaseDISCC::apply_ht(const int dataSetID, const double q2, const double x, double& f2, double& fl) 
+{
+  if (_flag_ht[dataSetID]) 
+  {
+    double q02 = 1.;
+    double ft = f2 - fl;
+    double f2_cor = std::pow(x, *_ht_alpha_2[dataSetID]) * _spline_f2(x) * q02 / q2;
+    double ft_cor = std::pow(x, *_ht_alpha_t[dataSetID]) * _spline_ft(x) * q02 / q2;
+    //printf("HT q2,x = %f,%f f2,ft = %f,%f\n", q2, x, f2_cor/f2, ft_cor/ft);
+    f2 += f2_cor;
+    ft += ft_cor;
+    fl = f2 - ft;
   }
 }
