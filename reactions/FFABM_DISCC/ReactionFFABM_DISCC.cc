@@ -7,8 +7,8 @@
 */
 
 #include "ReactionFFABM_DISCC.h"
+#include "DIS_HT.h"
 #include "xfitter_cpp_base.h"
-
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_integration.h>
 #include "cuba.h"
@@ -225,6 +225,8 @@ void ReactionFFABM_DISCC::atIteration() {
   auto td = _tdDS.begin()->second;
   td->actualizeWrappers();
   pdffillgrid_();
+
+  _ht->update();
 
   // Flag for internal arrays
   for ( auto ds : _dsIDs)  {
@@ -568,7 +570,6 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
 void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   if ( (_f2abm[dataSetID][0]< -99.) )
   {
-    update_ht(dataSetID);
     auto td = _tdDS[dataSetID];
     td->actualizeWrappers();
     pdffillgrid_();
@@ -680,8 +681,9 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
       }
   }
   }
-  apply_ht(dataSetID, q2, x, f2, fl);
-  //apply_ht(dataSetID, q2, x, f2c, flc);
+  if(_flag_ht[dataSetID]) {
+    _ht->apply(q2, x, f2, fl);
+  }
   combine_flavours(rd, f2, f2c, f2b, f2out);
   combine_flavours(rd, fl, flc, flb, flout);
   combine_flavours(rd, f3, f3c, f3b, f3out);

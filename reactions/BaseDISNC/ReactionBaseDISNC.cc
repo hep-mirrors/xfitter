@@ -16,7 +16,7 @@
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
 #include "EvolutionQCDNUM.h"
-#include <spline.h>
+#include "DIS_HT.h"
 
 template <typename T>
 void print(T d)
@@ -50,6 +50,12 @@ extern "C"
 extern "C" ReactionBaseDISNC *create()
 {
   return new ReactionBaseDISNC();
+}
+
+ReactionBaseDISNC::~ReactionBaseDISNC() {
+  if(_ht) {
+    delete _ht;
+  }
 }
 
 // Initialize at the start of the computation
@@ -88,16 +94,9 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
     break;
   case dataType::f2:
     F2(td, val, err);
-    if (_flag_ht[termID] && 0) 
-      ApplyHigherTwist(td, 2, val, err);
     break;
   case dataType::fl:
     FL(td, val, err);
-    if (_flag_ht[termID] && 0) {
-      valarray<double> f2;
-      F2(td, f2, err);
-      ApplyHigherTwist(td, 1, val, err, &f2);
-    }
     break;
   case dataType::f3:
     xF3(td, val, err);
@@ -290,79 +289,18 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     }
     _npoints[termID] = (*q2p).size();
   }
+
+  // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
+  _ht = nullptr;
+  _flag_ht[termID] = false;
   if (td->hasParam("ht")) {
     _flag_ht[termID] = td->getParamI("ht");
-    // for arrays, expect comma-separated strings
-    // each item should be either double or parameter name
-    auto read_array = [td](const std::string& parname) {
-      std::istringstream ss(td->getParamS(parname));
-      std::string token;
-      int counter = 0;
-      //std::vector<std::unique_ptr<double> > result;
-      std::vector<const double* > result;
-      while(std::getline(ss, token, ','))
-      {
-        if (td->hasParam(token)) {
-          //result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
-          result.push_back(td->getParamD(token));
-          //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as xfitter parameter";
-          //hf_errlog(24051700+counter, msg);
-        }
-        else {
-          try {
-            //result.push_back(unique_ptr<double>(new double(stod(token))));
-            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
-            result.push_back(new double(stod(token)));
-            //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as constant value";
-            //hf_errlog(24051701+counter, msg);
-          }
-          catch (const std::invalid_argument&) {
-            string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" is not a parameter name or double";
-            hf_errlog(24051702, msg);
-          }
-        }
-        counter++;
-      }
-      return result;
-    };
-    auto read_double = [td](const std::string& parname) {
-      std::istringstream ss(td->getParamS(parname));
-      std::string token;
-      //std::unique_ptr<double> result;
-      const double* result;
-      while(std::getline(ss, token, ','))
-      {
-        if (td->hasParam(token)) {
-          //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as xfitter parameter";
-          //hf_errlog(24051700, msg);
-          //result = unique_ptr<double>(new double(*td->getParamD(token)));
-          result = td->getParamD(token);
-        }
-        else {
-          try {
-            //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as constant value";
-            //hf_errlog(24051701, msg);
-            //result = unique_ptr<double>(new double(stod(token)));
-            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
-            result = new double(stod(token));
-          }
-          catch (const std::invalid_argument&) {
-            string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" is not a parameter name or double";
-            hf_errlog(24051702, msg);
-          }
-        }
-      }
-      return result;
-    };
-    _ht_x[termID] = read_array("ht_x");
-    _ht_2[termID] = read_array("ht_vals_f2");
-    _ht_t[termID] = read_array("ht_vals_ft");
-    _ht_alpha_2[termID] = read_double("ht_val_alpha_f2");
-    _ht_alpha_t[termID] = read_double("ht_val_alpha_ft");
+    if (!_ht) {
+      _ht = new DIS_HT();
+      _ht->init(td);
+    }
   }
-  else {
-    _flag_ht[termID] = false;
-  }
+  
 
   hf_errlog(17041001, msg);
 
@@ -376,13 +314,6 @@ void ReactionBaseDISNC::initTerm(TermData *td)
 
   // Get PDF id
   _ipdfSet[termID] = static_cast<xfitter::EvolutionQCDNUM*> (td->getPDF())->getPdfType();
-
-  // higher twist spline knots
-  //_ht_x = {    0.,    0.1,    0.3,   0.5,   0.7,   0.9, 1.};
-  //_ht_2 = { 0.023, -0.032, -0.005, 0.025, 0.051, 0.003, 0.};
-  //_ht_t = {-0.319, -0.134, -0.052, 0.071, 0.030, 0.003, 0.};
-  //_ht_alpha_2 = 0.;
-  //_ht_alpha_t = 0.05;
 }
 
 void ReactionBaseDISNC::reinitTerm(TermData *td)
@@ -539,13 +470,9 @@ void ReactionBaseDISNC::sred BASE_PARS
 
   valarray<double> f2(_npoints[termID]);
   F2(td, f2, err);
-  if (_flag_ht[termID] && 0) 
-    ApplyHigherTwist(td, 2, f2, err);
 
   valarray<double> fl(_npoints[termID]);
   FL(td, fl, err);
-  if (_flag_ht[termID] && 0) 
-    ApplyHigherTwist(td, 1, fl, err, &f2);
 
   valarray<double> xf3(_npoints[termID]);
   xf3 = 0;
@@ -681,8 +608,9 @@ void ReactionBaseDISNC::kappa(TermData *td, valarray<double> &k)
   k = 1. / (4 * _sin2thetaW * cos2thetaW) * (*q2p) / ((*q2p) + _Mz * _Mz);
 }
 
-void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err, valarray<double>* f2)
+/*void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err, valarray<double>* f2)
 {
+  throw 42;
   unsigned termID = td->id;
   const double q02 = 1.;
   auto &x = *GetBinValues(td, "x");
@@ -714,4 +642,4 @@ void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarra
       val[ip] += pow(x[ip], *_ht_alpha_2[termID]) * spline(x[ip]) * q02 / q2[ip];
     }
   }
-}
+}*/

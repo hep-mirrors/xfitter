@@ -15,6 +15,7 @@
 #include "BaseEvolution.h"
 #include "EvolutionQCDNUM.h"
 #include "xfitter_cpp_base.h"
+#include "DIS_HT.h"
 
 // Helpers for QCDNUM (CC):
 
@@ -61,6 +62,12 @@ void zmstfun_(const int &id, const double &key, double &x, double &q2, double &s
 extern "C" ReactionBaseDISCC *create()
 {
   return new ReactionBaseDISCC();
+}
+
+ReactionBaseDISCC::~ReactionBaseDISCC() {
+  if(_ht) {
+    delete _ht;
+  }
 }
 
 // Initialize at the start of the computation
@@ -371,79 +378,15 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   }
   hf_errlog(17041001, msg);
 
-  // read higher twist parameters
+  // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
+  _ht = nullptr;
+  _flag_ht[termID] = false;
   if (td->hasParam("ht")) {
     _flag_ht[termID] = td->getParamI("ht");
-    // for arrays, expect comma-separated strings
-    // each item should be either double or parameter name
-    auto read_array = [td](const std::string& parname) {
-      std::istringstream ss(td->getParamS(parname));
-      std::string token;
-      int counter = 0;
-      //std::vector<std::unique_ptr<double> > result;
-      std::vector<const double* > result;
-      while(std::getline(ss, token, ','))
-      {
-        if (td->hasParam(token)) {
-          //result.push_back(unique_ptr<double>(new double(*td->getParamD(token))));
-          result.push_back(td->getParamD(token));
-          //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as xfitter parameter";
-          //hf_errlog(24051700+counter, msg);
-        }
-        else {
-          try {
-            //result.push_back(unique_ptr<double>(new double(stod(token))));
-            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
-            result.push_back(new double(stod(token)));
-            //string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" as constant value";
-            //hf_errlog(24051701+counter, msg);
-          }
-          catch (const std::invalid_argument&) {
-            string msg = "I: using higher twist parameter " + parname + "[" + std::to_string(counter) + "] = \"" + token + "\" is not a parameter name or double";
-            hf_errlog(24051702, msg);
-          }
-        }
-        counter++;
-      }
-      return result;
-    };
-    auto read_double = [td](const std::string& parname) {
-      std::istringstream ss(td->getParamS(parname));
-      std::string token;
-      //std::unique_ptr<double> result;
-      const double* result;
-      while(std::getline(ss, token, ','))
-      {
-        if (td->hasParam(token)) {
-          //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as xfitter parameter";
-          //hf_errlog(24051700, msg);
-          //result = unique_ptr<double>(new double(*td->getParamD(token)));
-          result = td->getParamD(token);
-        }
-        else {
-          try {
-            //string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" as constant value";
-            //hf_errlog(24051701, msg);
-            //result = unique_ptr<double>(new double(stod(token)));
-            //TODO: remember these created parameters and delete them, see also createConstantParameter() in xfitter_pars.cc
-            result = new double(stod(token));
-          }
-          catch (const std::invalid_argument&) {
-            string msg = "I: using higher twist parameter " + parname + " = \"" + token + "\" is not a parameter name or double";
-            hf_errlog(24051702, msg);
-          }
-        }
-      }
-      return result;
-    };
-    _ht_x[termID] = read_array("ht_x");
-    _ht_2[termID] = read_array("ht_vals_f2");
-    _ht_t[termID] = read_array("ht_vals_ft");
-    _ht_alpha_2[termID] = read_double("ht_val_alpha_f2");
-    _ht_alpha_t[termID] = read_double("ht_val_alpha_ft");
-  }
-  else {
-    _flag_ht[termID] = false;
+    if (!_ht) {
+      _ht = new DIS_HT();
+      _ht->init(td);
+    }
   }
 
   // read nuclear correction parameters
@@ -471,37 +414,5 @@ const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const stri
       return rd->_integrated->getBinValuesY();
     else
       return td->getBinColumnOrNull(binName);
-  }
-}
-
-void ReactionBaseDISCC::update_ht(size_t dataSetID)
-{
-  if (_flag_ht[dataSetID]) {
-    std::vector<double> ht_x(_ht_x[dataSetID].size());
-    std::vector<double> ht_f2(_ht_x[dataSetID].size());
-    std::vector<double> ht_ft(_ht_x[dataSetID].size());
-      for (size_t i = 0; i < ht_x.size(); i++)
-    {
-      ht_x[i] = *_ht_x[dataSetID][i];
-      ht_f2[i] = *_ht_2[dataSetID][i];
-      ht_ft[i] = *_ht_t[dataSetID][i];
-    }
-    _spline_ft.set_points(ht_x, ht_ft);
-    _spline_f2.set_points(ht_x, ht_f2);
-  }
-}
-
-void ReactionBaseDISCC::apply_ht(const int dataSetID, const double q2, const double x, double& f2, double& fl) 
-{
-  if (_flag_ht[dataSetID]) 
-  {
-    double q02 = 1.;
-    double ft = f2 - fl;
-    double f2_cor = std::pow(x, *_ht_alpha_2[dataSetID]) * _spline_f2(x) * q02 / q2;
-    double ft_cor = std::pow(x, *_ht_alpha_t[dataSetID]) * _spline_ft(x) * q02 / q2;
-    //printf("HT q2,x = %f,%f f2,ft = %f,%f\n", q2, x, f2_cor/f2, ft_cor/ft);
-    f2 += f2_cor;
-    ft += ft_cor;
-    fl = f2 - ft;
   }
 }

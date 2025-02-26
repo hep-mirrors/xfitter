@@ -3,6 +3,8 @@
 #include "ReactionTheory.h"
 #include <IntegrateDIS.h>
 
+class DIS_HT;
+
 /**
   @class' ReactionBaseDISNC
 
@@ -21,6 +23,7 @@ class ReactionBaseDISNC : public ReactionTheory
 {
 public:
    ReactionBaseDISNC(){};
+   virtual ~ReactionBaseDISNC();
 
 public:
    virtual string getReactionName() const override { return "BaseDISNC"; };
@@ -130,22 +133,8 @@ protected:
    // method is based on legacy subroutine GetIntegratedDisXsection
    map<unsigned, IntegrateDIS *> _integrated;
    virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
+
    // higher twist
+   DIS_HT* _ht;
    map<unsigned, bool> _flag_ht;
-   //std::vector<double> _ht_x;
-   //std::vector<double> _ht_2;
-   //std::vector<double> _ht_t;
-   //double _ht_alpha_2;
-   //double _ht_alpha_t;
-   //map<unsigned, std::vector<std::unique_ptr<double> > > _ht_x;
-   //map<unsigned, std::vector<std::unique_ptr<double> > > _ht_2;
-   //map<unsigned, std::vector<std::unique_ptr<double> > > _ht_t;
-   //map<unsigned, std::unique_ptr<double> > _ht_alpha_2;
-   //map<unsigned, std::unique_ptr<double> > _ht_alpha_t;
-   map<unsigned, std::vector<const double* > > _ht_x;
-   map<unsigned, std::vector<const double* > > _ht_2;
-   map<unsigned, std::vector<const double* > > _ht_t;
-   map<unsigned, const double* > _ht_alpha_2;
-   map<unsigned, const double* > _ht_alpha_t;
-   void ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err, valarray<double>* f2 = nullptr);
 };

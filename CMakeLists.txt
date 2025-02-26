@@ -135,6 +135,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(src)
 #ABM is a shared library used by the FFABM_DISNC and FFABM_DISCC reactions
 add_subdirectory(src/ABM)
+#DIS higher twist spline parametrisation used by the BaseDISCC, BaseDISNC and FFABM_DISNC, FFABM_DISCC reactions
+#TODO: change this to be used by base reactions BaseDISCC and BaseDISNC only (requires changing their interfaces)
+add_subdirectory(src/DIS_HT)
 
 #==Dynamically-loaded modules==
 

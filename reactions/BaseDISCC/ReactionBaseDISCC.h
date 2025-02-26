@@ -1,7 +1,8 @@
 #pragma once
 #include "ReactionTheory.h"
 #include "IntegrateDIS.h"
-#include <spline.h>
+
+class DIS_HT;
 
 /**
   @class' ReactionBaseDISCC
@@ -17,6 +18,7 @@ class ReactionBaseDISCC : public ReactionTheory
 {
 public:
   ReactionBaseDISCC(){};
+  virtual ~ReactionBaseDISCC();
 
 public:
   virtual string getReactionName() const override { return "BaseDISCC"; };
@@ -54,16 +56,8 @@ protected:
   //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
 
   // higher twist
-  tk::spline _spline_f2;
-  tk::spline _spline_ft;
+  DIS_HT* _ht;
   map<unsigned, bool> _flag_ht;
-  map<unsigned, std::vector<const double* > > _ht_x;
-  map<unsigned, std::vector<const double* > > _ht_2;
-  map<unsigned, std::vector<const double* > > _ht_t;
-  map<unsigned, const double* > _ht_alpha_2;
-  map<unsigned, const double* > _ht_alpha_t;
-  void update_ht(size_t dataSetID);
-  void apply_ht(const int dataSetID, const double q2, const double x, double& f2, double& fl);
 
   // nuclear corrections
   map<unsigned, int> _nucl_kint;

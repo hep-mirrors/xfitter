@@ -7,6 +7,7 @@
 */
 
 #include "ReactionFFABM_DISNC.h"
+#include "DIS_HT.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_integration.h>
@@ -225,6 +226,8 @@ void ReactionFFABM_DISNC::atIteration()
   td->actualizeWrappers();
   pdffillgrid_();
 
+  _ht->update();
+
   // Flag for internal arrays
   for (auto ds : _dsIDs)
   {
@@ -239,22 +242,6 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 {
   if ((_f2abm[dataSetID][0] < -99.))
   { // compute
-    // for HT
-    tk::spline spline_f2, spline_ft;
-    std::vector<double> ht_x(_ht_x[dataSetID].size());
-    std::vector<double> ht_f2(_ht_x[dataSetID].size());
-    std::vector<double> ht_ft(_ht_x[dataSetID].size());
-    if (_flag_ht[dataSetID]) {
-      for (size_t i = 0; i < ht_x.size(); i++)
-      {
-        ht_x[i] = *_ht_x[dataSetID][i];
-        ht_f2[i] = *_ht_2[dataSetID][i];
-        ht_ft[i] = *_ht_t[dataSetID][i];
-      }
-      spline_ft.set_points(ht_x, ht_ft);
-      spline_f2.set_points(ht_x, ht_f2);
-    }
-    //
     // use ref to termData:
     auto td = _tdDS[dataSetID];
     // NC
@@ -291,14 +278,9 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           if ((_tmc_xmin[i] == 0. || _tmc_xmin[i] < x[i]) && (_tmc_logxlogq2min[i] == 0. || _tmc_logxlogq2min[i] < log(x[i])*log(q2[i])))
             apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
         }
-        if (_flag_ht[dataSetID]) {
-          double q02 = 1.;
-          double ft = f2 - fl;
-          f2 += std::pow(x[i], *_ht_alpha_2[dataSetID]) * spline_f2(x[i]) * q02 / q2[i];
-          ft += std::pow(x[i], *_ht_alpha_t[dataSetID]) * spline_ft(x[i]) * q02 / q2[i];
-          fl = f2 - ft;
-          //printf("  %f\n", ft);
-        }
+        if(_flag_ht[dataSetID]) {
+          _ht->apply(q2[i], x[i], f2, fl);
+        }      
       }
       switch (GetDataFlav(dataSetID))
       {
