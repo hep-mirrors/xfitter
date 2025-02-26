@@ -575,16 +575,20 @@ else
     cd - >& /dev/null
  #qcdnum
     echo "Installing QCDNUM $qcdnumver..."
+    if [[ $qcdnumver != "18-00-00" ]]
+    then
+      echo "ERROR: qcdnumver = $qcdnumver is currently not available (only 18-00-00 is available)"
+      exit
+    fi
     qcdnumstripver=`echo $qcdnumver |sed "s/-//g"`
-#    if [[ $http == "curl" ]]
-#    then 
-#        curl https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
-#    else
-#        wget https://www.nikhef.nl/~h24/qcdnum-files/download/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
-#    fi
+    if [[ $http == "curl" ]]
+    then 
+        curl https://gitlab.cern.ch/fitters/xfitter/-/raw/master/tools/qcdnum${qcdnumstripver}.tar.gz > qcdnum${qcdnumstripver}.tar.gz 2>> $CURRENTDIR/install.log
+    else
+        wget https://gitlab.cern.ch/fitters/xfitter/-/raw/master/tools/qcdnum${qcdnumstripver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+    fi
     # link it
-
-    ln -s ${SCRIPT_DIR}/qcdnum${qcdnumstripver}.tar.gz .
+    #ln -s ${SCRIPT_DIR}/qcdnum${qcdnumstripver}.tar.gz .
     tar xfz qcdnum${qcdnumstripver}.tar.gz  >> $CURRENTDIR/install.log  2>&1
     cd qcdnum-${qcdnumver}
 
