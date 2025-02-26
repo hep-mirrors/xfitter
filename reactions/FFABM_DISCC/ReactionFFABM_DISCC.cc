@@ -226,7 +226,9 @@ void ReactionFFABM_DISCC::atIteration() {
   td->actualizeWrappers();
   pdffillgrid_();
 
-  _ht->update();
+  if (_ht) {
+    _ht->update();
+  }
 
   // Flag for internal arrays
   for ( auto ds : _dsIDs)  {

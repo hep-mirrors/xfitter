@@ -136,6 +136,6 @@ protected:
 
    // higher twist
    // TODO: make this private to ensure it is used only from the parent class
-   DIS_HT* _ht;
+   DIS_HT* _ht = nullptr;
    map<unsigned, bool> _flag_ht;
 };

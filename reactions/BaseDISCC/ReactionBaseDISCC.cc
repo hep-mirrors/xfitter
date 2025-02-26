@@ -379,11 +379,10 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   hf_errlog(17041001, msg);
 
   // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
-  _ht = nullptr;
   _flag_ht[termID] = false;
   if (td->hasParam("ht")) {
     _flag_ht[termID] = td->getParamI("ht");
-    if (!_ht) {
+    if (_flag_ht[termID] && !_ht) {
       _ht = new DIS_HT(td);
     }
   }

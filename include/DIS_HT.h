@@ -16,14 +16,21 @@ class DIS_HT {
     DIS_HT(TermData* td);
     ~DIS_HT();
   private:
-    bool _flag_ht;
+    // splines
     tk::spline* _spline_f2;
     tk::spline* _spline_ft;
+    // parameters via pointers (can be fitted)
     std::vector<const double*> _ht_x;
     std::vector<const double*> _ht_2;
     std::vector<const double*> _ht_t;
     const double* _ht_alpha_2;
     const double* _ht_alpha_t;
+    // flags which store info whether the above point to newly allocated (in this class) memory
+    std::vector<bool> _isnew_ht_x;
+    std::vector<bool> _isnew_ht_2;
+    std::vector<bool> _isnew_ht_t;
+    bool _isnew_ht_alpha_2;
+    bool _isnew_ht_alpha_t;
   private:
     void init(TermData *td);
     void update();
