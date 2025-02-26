@@ -3,6 +3,7 @@
 #include "IntegrateDIS.h"
 
 class DIS_HT;
+class DIS_TMC;
 
 /**
   @class' ReactionBaseDISCC
@@ -59,6 +60,8 @@ protected:
   // TODO: make this private to ensure it is used only from the parent class
   DIS_HT* _ht = nullptr;
   map<unsigned, bool> _flag_ht;
+  // target mass corrections
+  map<int, DIS_TMC*> _tmc;
 
   // nuclear corrections
   map<unsigned, int> _nucl_kint;

@@ -48,29 +48,7 @@ private:
   void calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out);
   void calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out);
   static int integrate_nomad(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
-  struct integration_params {
-    double q2;
-    int ncflag;
-    int charge;
-    double polarity;
-    double cos2thw;
-    const double* _sin2thwPtr;
-    const double* _mzPtr;
-    int flag_calc_fl;
-    int flag_flavour;
-    int order;
-    double xi;
-    int nt;
-  };
-  map<int, int> _flag_tmc;
-  map<int, int> _flag_tmc_c;
-  map<int, int> _flag_tmc_b;
-  map<int, int> _tmc_integration_method;
-  map<int, double> _tmc_xmin;
-  map<int, double> _tmc_logxlogq2min;
-  const double* _tmc_mpr;
   map<int, int> _ncpu;
   void combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb, double& fout);
-  double apply_tmc(const int method, double& f2, double& fl, double& f3, const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x, const int ncflag, const int charge, const double polarity, const double cos2thw, const int nt);
 };
 

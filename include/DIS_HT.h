@@ -7,7 +7,7 @@ namespace tk {class spline;}
 // DIS higher twist spline parametrisation
 class DIS_HT {
   // TODO do not use friends, instead make sure this class is used only by ReactionBaseDISNC
-  // and ReactionBaseDISCC reactions and make the corresponding members there private
+  // and ReactionBaseDISCC reactions and make the corresponding pointers there private
   friend class ReactionBaseDISNC;
   friend class ReactionBaseDISCC;
   friend class ReactionFFABM_DISNC;
@@ -31,7 +31,7 @@ class DIS_HT {
     std::vector<bool> _isnew_ht_t;
     bool _isnew_ht_alpha_2;
     bool _isnew_ht_alpha_t;
-  private:
+  private: // TODO: make public when used only by ReactionBaseDISNC, ReactionBaseDISCC
     void init(TermData *td);
     void update();
     void apply(const double q2, const double x, double& f2, double& fl);

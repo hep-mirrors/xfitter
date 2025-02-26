@@ -1,0 +1,31 @@
+// DIS target mass corrections according to prescription
+// H. Georgi and H. D. Politzer, Phys. Rev. D9, 416 (1974)
+
+class TermData;
+
+class DIS_TMC {
+  // TODO do not use friends, instead make sure this class is used only by ReactionBaseDISNC
+  // and ReactionBaseDISCC reactions and make the corresponding pointers there private
+  friend class ReactionBaseDISNC;
+  friend class ReactionBaseDISCC;
+  friend class ReactionFFABM_DISNC;
+  friend class ReactionFFABM_DISCC;
+  public:
+    DIS_TMC(TermData* td);
+  private:
+    bool _flag_l;
+    bool _flag_c;
+    bool _flag_b;
+    int _integration_method;
+    double _xmin;
+    double _logxlogq2min;
+    const double* _mpr;
+    double apply_one_flavour(double& f2, double& fl, double& f3, 
+      const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x,
+      const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz);
+  private: // TODO: make public when used only by ReactionBaseDISNC, ReactionBaseDISCC
+    void apply(double& f2, double& fl, double& f3, 
+      double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
+      const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, 
+      const int charge, const double polarity, const double cos2thw, const double mz);
+};

@@ -16,6 +16,7 @@
 #include "EvolutionQCDNUM.h"
 #include "xfitter_cpp_base.h"
 #include "DIS_HT.h"
+#include "DIS_TMC.h"
 
 // Helpers for QCDNUM (CC):
 
@@ -387,6 +388,12 @@ void ReactionBaseDISCC::initTerm(TermData *td)
     }
   }
 
+  // read target mass correction parameters
+  _tmc[termID] = nullptr;
+  if (td->hasParam("tmc")) {
+    _tmc[termID] = new DIS_TMC(td);
+  }
+  
   // read nuclear correction parameters
   if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
     rd->_nuke_ftyp = td->getParamI("nuke_ftyp");
