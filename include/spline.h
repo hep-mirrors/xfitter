@@ -24,6 +24,7 @@
  */
 
 // 21.01.2019 Modified by Oleksandr Zenaiev (implemented input checks and derivative calculation)
+// 26.02.2025 do not use unnamed namespace
 
 
 #ifndef TK_SPLINE_H
@@ -39,8 +40,8 @@
 
 // unnamed namespace only because the implementation is in this
 // header file and we don't want to export symbols to the obj files
-namespace
-{
+//namespace
+//{
 
 namespace tk
 {
@@ -424,6 +425,6 @@ double spline::operator() (double x, bool flagDerivative) const
 } // namespace tk
 
 
-} // namespace
+//} // namespace
 
 #endif /* TK_SPLINE_H */

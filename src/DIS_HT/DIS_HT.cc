@@ -1,10 +1,13 @@
 #include "DIS_HT.h"
+#include "spline.h"
 #include "TermData.h"
 #include <cmath>
 #include <sstream>
 
-void DIS_HT::init(TermData* td) {
+DIS_HT::DIS_HT(TermData* td) {
   _flag_ht = true;
+  _spline_f2 = new tk::spline();
+  _spline_ft = new tk::spline();
   // for arrays, expect comma-separated strings
   // each item should be either double or parameter name
   auto read_array = [td](const std::string& parname) {
@@ -74,6 +77,15 @@ void DIS_HT::init(TermData* td) {
   _ht_alpha_t = read_double("ht_val_alpha_ft");
 }
 
+DIS_HT::~DIS_HT() {
+  if(_spline_f2) {
+    delete _spline_f2;
+  }
+  if(_spline_ft) {
+    delete _spline_ft;
+  }
+}
+
 void DIS_HT::update()
 {
   if (_flag_ht) {
@@ -86,8 +98,8 @@ void DIS_HT::update()
       ht_f2[i] = *_ht_2[i];
       ht_ft[i] = *_ht_t[i];
     }
-    _spline_ft.set_points(ht_x, ht_ft);
-    _spline_f2.set_points(ht_x, ht_f2);
+    _spline_ft->set_points(ht_x, ht_ft);
+    _spline_f2->set_points(ht_x, ht_f2);
   }
 }
 
@@ -97,8 +109,8 @@ void DIS_HT::apply(const double q2, const double x, double& f2, double& fl)
   {
     static constexpr double q02 = 1.;
     double ft = f2 - fl;
-    const double f2_cor = std::pow(x, *_ht_alpha_2) * _spline_f2(x) * q02 / q2;
-    const double ft_cor = std::pow(x, *_ht_alpha_t) * _spline_ft(x) * q02 / q2;
+    const double f2_cor = std::pow(x, *_ht_alpha_2) * (*_spline_f2)(x) * q02 / q2;
+    const double ft_cor = std::pow(x, *_ht_alpha_t) * (*_spline_ft)(x) * q02 / q2;
     //printf("HT q2,x = %f,%f f2,ft = %f,%f\n", q2, x, f2_cor/f2, ft_cor/ft);
     f2 += f2_cor;
     ft += ft_cor;

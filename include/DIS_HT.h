@@ -1,6 +1,8 @@
-#include <spline.h>
+#include <vector>
 
 class TermData;
+namespace tk {class spline;}
+
 
 // DIS higher twist spline parametrisation
 class DIS_HT {
@@ -10,10 +12,13 @@ class DIS_HT {
   friend class ReactionBaseDISCC;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
+  public:
+    DIS_HT(TermData* td);
+    ~DIS_HT();
   private:
     bool _flag_ht;
-    tk::spline _spline_f2;
-    tk::spline _spline_ft;
+    tk::spline* _spline_f2;
+    tk::spline* _spline_ft;
     std::vector<const double*> _ht_x;
     std::vector<const double*> _ht_2;
     std::vector<const double*> _ht_t;

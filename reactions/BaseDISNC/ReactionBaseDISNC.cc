@@ -296,8 +296,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   if (td->hasParam("ht")) {
     _flag_ht[termID] = td->getParamI("ht");
     if (!_ht) {
-      _ht = new DIS_HT();
-      _ht->init(td);
+      _ht = new DIS_HT(td);
     }
   }
   
