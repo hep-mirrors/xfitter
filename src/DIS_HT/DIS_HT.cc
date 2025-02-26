@@ -15,7 +15,6 @@ DIS_HT::DIS_HT(TermData* td) {
     std::istringstream ss(td->getParamS(parname));
     std::string token;
     int counter = 0;
-    //std::vector<std::unique_ptr<double> > result;
     std::vector<const double* > result;
     while(std::getline(ss, token, ','))
     {
@@ -42,7 +41,6 @@ DIS_HT::DIS_HT(TermData* td) {
   auto read_double = [td](const std::string& parname, bool& isnew) {
     std::istringstream ss(td->getParamS(parname));
     std::string token;
-    //std::unique_ptr<double> result;
     const double* result;
     while(std::getline(ss, token, ','))
     {
