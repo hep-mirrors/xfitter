@@ -135,6 +135,7 @@ protected:
    virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
 
    // higher twist
+   // TODO: make this private to ensure it is used only from the parent class
    DIS_HT* _ht;
    map<unsigned, bool> _flag_ht;
 };
