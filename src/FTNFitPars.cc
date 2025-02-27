@@ -53,7 +53,8 @@ extern "C" {
   // common/ExtraPars/ExtraParamNames,ExtraParamValue,ExtraParamStep,
   // $     ExtraParamMin,ExtraParamMax,iExtraParamMinuit,nExtraParam
   
-  const int nExtraParamMax=50;
+  //const int nExtraParamMax=50;
+  const int nExtraParamMax=100;
   struct COMMON_ExtraPars_t {
     char Names[nExtraParamMax][32];
     double Value[nExtraParamMax], Step[nExtraParamMax], Min[nExtraParamMax], Max[nExtraParamMax];
