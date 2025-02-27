@@ -49,6 +49,6 @@ private:
   void calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out);
   static int integrate_nomad(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
   map<int, int> _ncpu;
-  void combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb, double& fout);
+  double combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb);
 };
 

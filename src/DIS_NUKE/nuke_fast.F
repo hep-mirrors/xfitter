@@ -164,19 +164,19 @@ c I/O channel to read the data
         if (tt.eq.1) then 
           print *,'***** Reading C tables *****'
 *          locfile =  envdata(1:dfhf)//'/nuc/petti14/nuke_C.dat'
-          locfile =  '/home/zenaiev/soft/xfitter-abmp/reactions/FFABM_DISCC/petti14/nuke_C.dat'
+          locfile =  '/home/zenaiev/soft/xfitter-abmp/src/DIS_NUKE/petti14/nuke_C.dat'
         else if (tt.eq.2) then 
           print *,'***** Reading Fe tables *****'
 *          locfile =  envdata(1:dfhf)//'/nuc/petti14/nuke_C.dat'
-          locfile =  '/home/zenaiev/soft/xfitter-abmp/reactions/FFABM_DISCC/petti14/nuke_Fe.dat'
+          locfile =  '/home/zenaiev/soft/xfitter-abmp/src/DIS_NUKE/petti14/nuke_Fe.dat'
         else if (tt.eq.3) then 
           print *,'***** Reading Pb tables *****'
 *          locfile =  envdata(1:dfhf)//'/nuc/petti14/nuke_Pb.dat'
-          locfile =  '/home/zenaiev/soft/xfitter-abmp/reactions/FFABM_DISCC/petti14/nuke_Pb.dat'
+          locfile =  '/home/zenaiev/soft/xfitter-abmp/src/DIS_NUKE/petti14/nuke_Pb.dat'
         else if (tt.eq.4) then 
           print *,'***** Reading emulsion tables *****'
 *          locfile =  envdata(1:dfhf)//'/nuc/petti14/nuke_Emulsion.dat'
-          locfile =  '/home/zenaiev/soft/xfitter-abmp/reactions/FFABM_DISCC/petti14/nuke_Emulsion.dat'
+          locfile =  '/home/zenaiev/soft/xfitter-abmp/src/DIS_NUKE/petti14/nuke_Emulsion.dat'
         end if
         dfhf2 = index(locfile,' ') - 1
         print *,'Opening the file ',locfile(1:dfhf2)

@@ -139,6 +139,7 @@ add_subdirectory(src/ABM)
 #TODO: change this to be used by base reactions BaseDISCC and BaseDISNC only (requires changing their interfaces)
 add_subdirectory(src/DIS_HT)
 add_subdirectory(src/DIS_TMC)
+add_subdirectory(src/DIS_NUKE)
 
 #==Dynamically-loaded modules==
 

@@ -9,6 +9,7 @@
 #include "ReactionFFABM_DISNC.h"
 #include "DIS_HT.h"
 #include "DIS_TMC.h"
+#include "DIS_NUKE.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_integration.h>
@@ -230,15 +231,22 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 
     // Calculate i-th data point, return values f2, fl, f3
     auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
-      f2out = 0.;
-      flout = 0.;
-      f3out = 0.;
+      f2out = flout = f3out = 0.;
       if (q2[i] > 1.0)
       {
         //printf("q2,x = %f,%f\n", q2[i], x[i]);
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                       ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
+        double f3out_bar = 0.;
+        if(_nuke[dataSetID] && _nuke[dataSetID]->need_f3bar()) {
+          // need F3bar for nuclear corrections and antineutrino
+          // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
+          int charge_bar = -1 * charge;
+          double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
+          sf_abkm_wrap_(x[i], q2[i], f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
+          f3out_bar = x[i] * combine_flavours(GetDataFlav(dataSetID), f3_bar, f3c_bar, f3b_bar);
+        }
         if (_tmc[dataSetID]) {
           const bool flag_fl = true;
           const bool flag_f3 = false;
@@ -248,24 +256,13 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         if(_flag_ht[dataSetID]) {
           _ht->apply(q2[i], x[i], f2, fl);
         }      
-      }
-      switch (GetDataFlav(dataSetID))
-      {
-        case dataFlav::incl:
-          f2out = f2 + f2c + f2b;
-          flout = fl + flc + flb;
-          f3out = x[i] * (f3 + f3c + f3b);
-          break;
-        case dataFlav::c:
-          f2out = f2c;
-          flout = flc;
-          f3out = x[i] * f3c;
-          break;
-        case dataFlav::b:
-          f2out = f2b;
-          flout = flb;
-          f3out = x[i] * f3b;
-          break;
+        f2out = combine_flavours(GetDataFlav(dataSetID), f2, f2c, f2b);
+        flout = combine_flavours(GetDataFlav(dataSetID), fl, flc, flb);
+        f3out = x[i] * combine_flavours(GetDataFlav(dataSetID), f3, f3c, f3b);
+            // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
+        if (_nuke[dataSetID]) {
+          _nuke[dataSetID]->apply(q2[i], x[i], f2out, flout, f3out, &f3out_bar);
+        }
       }
     };
 
@@ -346,6 +343,21 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       shmdt(sharedArray);
       shmctl(shmid, IPC_RMID, NULL);
     }
+  }
+}
+
+double ReactionFFABM_DISNC::combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb)
+{
+  switch (flav)
+  {
+    case ReactionBaseDISNC::dataFlav::incl:
+      return f + fc + fb;
+    case ReactionBaseDISNC::dataFlav::c:
+      return fc;
+    case ReactionBaseDISNC::dataFlav::b:
+      return fb;
+    default: // avoid warning
+      return 0.;
   }
 }
 

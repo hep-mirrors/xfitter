@@ -32,7 +32,6 @@ class DIS_HT {
     bool _isnew_ht_alpha_2;
     bool _isnew_ht_alpha_t;
   private: // TODO: make public when used only by ReactionBaseDISNC, ReactionBaseDISCC
-    void init(TermData *td);
     void update();
     void apply(const double q2, const double x, double& f2, double& fl);
 };

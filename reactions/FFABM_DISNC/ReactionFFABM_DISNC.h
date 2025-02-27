@@ -71,4 +71,5 @@ private:
   map<int, double> _tmc_logxlogq2min;
   const double* _tmc_mpr;
   map<int, int> _ncpu;
+  double combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb);
 };

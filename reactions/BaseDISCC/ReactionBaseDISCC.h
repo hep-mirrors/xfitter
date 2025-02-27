@@ -4,6 +4,7 @@
 
 class DIS_HT;
 class DIS_TMC;
+class DIS_NUKE;
 
 /**
   @class' ReactionBaseDISCC
@@ -62,6 +63,8 @@ protected:
   map<unsigned, bool> _flag_ht;
   // target mass corrections
   map<int, DIS_TMC*> _tmc;
+  // nuclear corrections
+  map<int, DIS_NUKE*> _nuke;
 
   // nuclear corrections
   map<unsigned, int> _nucl_kint;
@@ -108,9 +111,6 @@ namespace BaseDISCC
     valarray<double> _xf3d;
     const double *Mw; //parameter of W mass
     int ipdfSet; /// PDF set used in the QCDNUM evolution
-    int _nuke_ftyp = 0; // nuclear correction: 1 Carbon (A=12, Z=6), 2 Iron (A=56, Z=26), 3 Lead (A=207, Z=82), 4 Emulsion (mixture of nuclei) 
-    int _nuke_kint = 0; // nuclear interaction: 1 charged lepton, 2 neutrino (-2 antineutrino) CC, 3 neutrino (-3 antineutrino) NC, 4 neutrino CC charm production (-4 antineutrino), 5 neutrino CC not-charm (-5 antineutrino) [4, 5 not implemented]
-    int _nuke_kord = 0; // order: 1 LO, 2 NLO, 3 NNLO [not implemented]
   };
 
   /// Helper function to get bin values, including integrated sigma:

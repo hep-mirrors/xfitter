@@ -9,6 +9,7 @@
 #include "ReactionFFABM_DISCC.h"
 #include "DIS_HT.h"
 #include "DIS_TMC.h"
+#include "DIS_NUKE.h"
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_integration.h>
@@ -46,14 +47,7 @@ void sf_abkm_wrap_(const double& x, const double& q2,
                    const double& f2babkm, const double& flbabkm, const double& f3babkm,
                    const int& ncflag, const double& charge, const double& polar,
                    const double& sin2thw, const double& cos2thw, const double& MZ, const int& nt=1);
-void sf_abkm_wrap_order_(const double &x, const double &q2,
-                   const double &f2abkm, const double &flabkm, const double &f3abkm,
-                   const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
-                   const double &f2babkm, const double &flbabkm, const double &f3babkm,
-                   const int &ncflag, const double &charge, const double &polar,
-                   const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin, const int& nt=1);
 double numufcalflux_(const double& e);
-double nuke_fast_(const double& xb, const double& q2, const int& nsf, const int& ityp, const int& kint1, const int& kord, const int& ftyp, const float& syst);
 void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
                      const double& rmass8in, const double& rmass10in, const int& msbarmin,
                      double& hqscale1in, const double& hqscale2in, const int& flagthinterface);
@@ -327,9 +321,10 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
 // Calculates one data point as integral over Q2,x,E and returns values f2, fl, f3
 void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out)
 {
-  if(1 && rd->_nuke_ftyp) {
+  if (1 && _nuke[dataSetID]) {
     printf("SZ1\n");fflush(stdout);
-    double ret = nuke_fast_(0.1, 10., 1, 0, 2, 3, 2, 0.);
+    double f2(1.), fl(1.), f3(1.);
+    double ret = _nuke[dataSetID]->apply(0.1, 10., f2, fl, f3);
     printf("SZ2 ret = %f\n", ret);fflush(stdout);
   }
   integration_params_cuba pars;
@@ -375,19 +370,18 @@ void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, cons
 void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out)
 {
   static constexpr int ncflag = 0;
-  static constexpr int nt = 1;
-  f2out = 0.;
-  flout = 0.;
-  f3out = 0.;
+  f2out = flout = f3out = 0.;
   if (q2 < 1.0) return;
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
   sf_abkm_wrap_(x, q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, _cos2thw, *_mzPtr);
-  bool calc_f3bar = rd->_nuke_ftyp && rd->_nuke_kint < 0; // for nuclear corrections
-  //calc_f3bar = false;
-  double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
-  if(calc_f3bar) {
+  double f3out_bar = 0.;
+  if(_nuke[dataSetID] && _nuke[dataSetID]->need_f3bar()) {
+    // need F3bar for nuclear corrections and antineutrino
+    // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
     int charge_bar = -1 * rd->_charge;
-    sf_abkm_wrap_(x, q2, f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, rd->_polarisation, *_sin2thwPtr, _cos2thw, *_mzPtr, nt);
+    double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
+    sf_abkm_wrap_(x, q2, f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, rd->_polarisation, *_sin2thwPtr, _cos2thw, *_mzPtr);
+    f3out_bar = x * combine_flavours(rd, f3_bar, f3c_bar, f3b_bar);
   }
   if (_tmc[dataSetID]) {
     const bool flag_fl = true;
@@ -398,49 +392,27 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
   if(_flag_ht[dataSetID]) {
     _ht->apply(q2, x, f2, fl);
   }
-  combine_flavours(rd, f2, f2c, f2b, f2out);
-  combine_flavours(rd, fl, flc, flb, flout);
-  combine_flavours(rd, f3, f3c, f3b, f3out);
-  f3out *= x;
-  double f3out_bar(0.);
-  if(calc_f3bar) {
-    combine_flavours(rd, f3_bar, f3c_bar, f3b_bar, f3out_bar);
-    f3out_bar *= x;
-  }
-  if(rd->_nuke_ftyp) 
-  {
-    static constexpr int ityp = 0;
-    static constexpr float syst = 0.;
-    double cor_f1 = nuke_fast_(x, q2, 1, ityp, rd->_nuke_kint, rd->_nuke_kord, rd->_nuke_ftyp, syst);
-    double cor_f2 = nuke_fast_(x, q2, 2, ityp, rd->_nuke_kint, rd->_nuke_kord, rd->_nuke_ftyp, syst);
-    double cor_f3 = nuke_fast_(x, q2, 3, ityp, rd->_nuke_kint, rd->_nuke_kord, rd->_nuke_ftyp, syst);
-    if (rd->_nuke_kint < 0) 
-    {
-      int kint_bar = -1 * rd->_nuke_kint;
-      double cor_f3_bar = nuke_fast_(x, q2, 3,  ityp, kint_bar, rd->_nuke_kord, rd->_nuke_ftyp, syst);
-      cor_f3 = ((f3out + f3out_bar) * cor_f3 - f3out_bar * cor_f3_bar) / f3out;
-    }
-    double f1 = (f2out - flout) / (2 * x);
-    f1 *= cor_f1;
-    f2out *= cor_f2;
-    flout = f2out - 2 * x * f1;
-    f3out *= cor_f3;
+  f2out = combine_flavours(rd, f2, f2c, f2b);
+  flout = combine_flavours(rd, fl, flc, flb);
+  f3out = x * combine_flavours(rd, f3, f3c, f3b);
+  // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
+  if (_nuke[dataSetID]) {
+    _nuke[dataSetID]->apply(q2, x, f2out, flout, f3out, &f3out_bar);
   }
 }
 
-void ReactionFFABM_DISCC::combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb, double& fout)
+double ReactionFFABM_DISCC::combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb)
 {
   switch (rd->_dataFlav)
   {
     case BaseDISCC::dataFlav::incl:
-      fout = f + fc + fb;
-      break;
+      return f + fc + fb;
     case BaseDISCC::dataFlav::c:
-      fout = fc;
-      break;
+      return fc;
     case BaseDISCC::dataFlav::b:
-      fout = fb;
-      break;
+      return fb;
+    default: // avoid warning
+      return 0.;
   }
 }
 

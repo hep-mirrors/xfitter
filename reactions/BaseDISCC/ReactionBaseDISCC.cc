@@ -17,6 +17,7 @@
 #include "xfitter_cpp_base.h"
 #include "DIS_HT.h"
 #include "DIS_TMC.h"
+#include "DIS_NUKE.h"
 
 // Helpers for QCDNUM (CC):
 
@@ -178,8 +179,8 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
         &q2 = *BaseDISCC::GetBinValues(td, "Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * _Gf * _Gf / (2 * pi * x) * _convfac;
-    val *= factor;
-    break;
+    //val *= factor;
+    //break;
     //
     //s = 2*mpr*e + mpr*mpr;
     //factor = q2 / x / y / e;
@@ -381,7 +382,7 @@ void ReactionBaseDISCC::initTerm(TermData *td)
 
   // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
   _flag_ht[termID] = false;
-  if (td->hasParam("ht")) {
+  if (td->hasParam("ht") && td->getParamI("ht") != 0) {
     _flag_ht[termID] = td->getParamI("ht");
     if (_flag_ht[termID] && !_ht) {
       _ht = new DIS_HT(td);
@@ -395,10 +396,9 @@ void ReactionBaseDISCC::initTerm(TermData *td)
   }
   
   // read nuclear correction parameters
-  if(td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
-    rd->_nuke_ftyp = td->getParamI("nuke_ftyp");
-    rd->_nuke_kint = td->getParamI("nuke_kint");
-    rd->_nuke_kord = OrderMap(td->getParamS("Order"));
+  _nuke[termID] = nullptr;
+  if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
+    _nuke[termID] = new DIS_NUKE(td);
   }
 }
 

@@ -5,6 +5,7 @@
 
 class DIS_HT;
 class DIS_TMC;
+class DIS_NUKE;
 
 /**
   @class' ReactionBaseDISNC
@@ -142,4 +143,7 @@ protected:
 
   // target mass corrections
   map<int, DIS_TMC*> _tmc;
+
+  // nuclear corrections
+  map<int, DIS_NUKE*> _nuke;
 };
