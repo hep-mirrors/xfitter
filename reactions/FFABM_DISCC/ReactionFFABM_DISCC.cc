@@ -391,7 +391,8 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
   }
   if (_tmc[dataSetID]) {
     const bool flag_fl = true;
-    const bool flag_f3 = true;
+    const bool flag_f3 = false;
+    //const bool flag_f3 = true; [not implemented]
     _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, *_mzPtr);
   }
   if(_flag_ht[dataSetID]) {

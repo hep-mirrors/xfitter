@@ -17,6 +17,7 @@
 #include "BaseEvolution.h"
 #include "EvolutionQCDNUM.h"
 #include "DIS_HT.h"
+#include "DIS_TMC.h"
 
 template <typename T>
 void print(T d)
@@ -289,6 +290,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     }
     _npoints[termID] = (*q2p).size();
   }
+  hf_errlog(17041001, msg);
 
   // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
   _flag_ht[termID] = false;
@@ -299,8 +301,11 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     }
   }
   
-
-  hf_errlog(17041001, msg);
+  // read target mass correction parameters
+  _tmc[termID] = nullptr;
+  if (td->hasParam("tmc")) {
+    _tmc[termID] = new DIS_TMC(td);
+  }
 
   // Allocate internal arrays:
   _f2u[termID].resize(_npoints[termID]);

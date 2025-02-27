@@ -34,9 +34,17 @@ struct integration_params {
 };
 
 DIS_TMC::DIS_TMC(TermData* td){
-  _flag_l = td->getParamI("tmc");
-  _flag_c = td->hasParam("tmc_c") ? td->getParamI("tmc_c") : 0;
-  _flag_b = td->hasParam("tmc_b") ? td->getParamI("tmc_b") : 0;
+  const std::string& tmc_str = td->getParamS("tmc");
+  _flag_l = _flag_c = _flag_b = false;
+  if (tmc_str.find('l') != std::string::npos) {
+    _flag_l = true;
+  }
+  if (tmc_str.find('c') != std::string::npos) {
+    _flag_c = true;
+  }
+  if (tmc_str.find('b') != std::string::npos) {
+    _flag_b = true;
+  }
   if (td->hasParam("tmc_integration_method"))
   {
     auto s = td->getParamS("tmc_integration_method");
@@ -74,8 +82,7 @@ void DIS_TMC::apply(double& f2, double& fl, double& f3, double& f2c, double& flc
     const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz) {
   if ((_xmin == 0. || _xmin < x) && (_logxlogq2min == 0. || _logxlogq2min < log(x)*log(q2))) {
     if(_flag_l) {
-      double cor = apply_one_flavour(f2, fl, f3, flag_fl, flag_f3, 1, q2, x, ncflag, charge, polarity, cos2thw, mz);
-      printf("cor = %f\n", cor);
+      apply_one_flavour(f2, fl, f3, flag_fl, flag_f3, 1, q2, x, ncflag, charge, polarity, cos2thw, mz);
     }
     if(_flag_c) {
       apply_one_flavour(f2c, flc, f3c, flag_fl, flag_f3, 2, q2, x, ncflag, charge, polarity, cos2thw, mz);
@@ -274,11 +281,11 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     //fl = fl + x*x/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x*x*x/q2/gam/gam/gam/gam*I;
     //double fl0 = fl;
   }
-  if (flag_f3) {
+  /*if (flag_f3) {
     pars.flag_calc_fl = 2;
     double f3_at_xi = integrate(xi, &pars)*xi*xi;
     f3 = x/xi/gam/gam*f3_at_xi + 2*mn*mn/q2*x*x/gam/gam/gam*I;
-  }
+  }*/
   /*double fl_orig = integrate(x, &pars)*x*x;
   //fl = fl * fl_tmc / fl_orig;
   pars.order = -1;

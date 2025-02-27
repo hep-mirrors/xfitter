@@ -8,6 +8,7 @@
 
 #include "ReactionFFABM_DISNC.h"
 #include "DIS_HT.h"
+#include "DIS_TMC.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 #include <gsl/gsl_integration.h>
@@ -159,45 +160,6 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   _mzPtr = td->getParamD("Mz");
   _sin2thwPtr = td->getParamD("sin2thW");
 
-  // target mass correction
-  if (td->hasParam("tmc"))
-  {
-    _flag_tmc[termID] = td->getParamI("tmc");
-    if (td->hasParam("tmc_integration_method"))
-    {
-      auto s = td->getParamS("tmc_integration_method");
-      if (s == "gsl")
-        _tmc_integration_method[termID] = 0;
-      else if (s == "simpson13")
-        _tmc_integration_method[termID] = 1;
-      else if (s == "power_simpson13")
-        _tmc_integration_method[termID] = -1;
-      else if (s == "simpson38")
-        _tmc_integration_method[termID] = 2;
-      else if (s == "boole")
-        _tmc_integration_method[termID] = 3;
-      else if (s == "cuba")
-        _tmc_integration_method[termID] = 4;
-      else {
-        string msg = "F: unknown tmc_integration_method = " + td->getParamS("tmc_integration_method");
-        hf_errlog(24052201, msg);
-      }
-    }
-    else
-      _tmc_integration_method[termID] = 0; // "gsl"
-    if (td->hasParam("tmc_xmin"))
-      _tmc_xmin[termID] = *td->getParamD("tmc_xmin");
-    else
-      _tmc_xmin[termID] = 0.;
-    if (td->hasParam("tmc_logxlogq2min"))
-      _tmc_logxlogq2min[termID] = *td->getParamD("tmc_logxlogq2min");
-    else
-      _tmc_logxlogq2min[termID] = 0.;
-    _tmc_mpr = td->getParamD("mpr");
-  }
-  else
-    _flag_tmc[termID] = 0;
-
   // parallel
   _ncpu[td->id] = 1;
   //printf("td->hasParam(threads) = %d\n", td->hasParam("threads"));
@@ -244,8 +206,10 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 {
   if ((_f2abm[dataSetID][0] < -99.))
   { // compute
-    // use ref to termData:
     auto td = _tdDS[dataSetID];
+    td->actualizeWrappers();
+    pdffillgrid_();
+
     // NC
     int ncflag = 1;
 
@@ -275,10 +239,11 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         sf_abkm_wrap_(x[i], q2[i],
                       f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
                       ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
-        if(_flag_tmc[dataSetID]) {
-          // TODO ???
-          if ((_tmc_xmin[i] == 0. || _tmc_xmin[i] < x[i]) && (_tmc_logxlogq2min[i] == 0. || _tmc_logxlogq2min[i] < log(x[i])*log(q2[i])))
-            apply_tmc(_tmc_integration_method[dataSetID], f2, fl, f3, 1, q2, x, ncflag, charge, polarity, cos2thw, i);
+        if (_tmc[dataSetID]) {
+          const bool flag_fl = true;
+          const bool flag_f3 = false;
+          //const bool flag_f3 = true; [not implemented]
+          _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2[i], x[i], ncflag, charge, polarity, cos2thw, *_mzPtr);
         }
         if(_flag_ht[dataSetID]) {
           _ht->apply(q2[i], x[i], f2, fl);
@@ -400,229 +365,6 @@ void ReactionFFABM_DISNC::xF3 BASE_PARS
 {
   calcF2FL(td->id);
   val = _f3abm[td->id];
-}
-
-double ReactionFFABM_DISNC::apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
-    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i) {
-  double mn = *_tmc_mpr;
-  double gam = sqrt(1+4*x[i]*x[i]*mn*mn/q2[i]);
-  double xi = 2*x[i]/(1+gam);
-  if (xi>1) {throw 42;}
-  auto integrate = [](double xip, void* params) {
-    if(xip >= 1.) {
-      return 0.;
-    }
-    const integration_params& integrationParams = *(integration_params*)params;
-    double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-    if (integrationParams.order == -1)
-      sf_abkm_wrap_(xip, integrationParams.q2[integrationParams.i],
-                f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr);
-    else
-      sf_abkm_wrap_order_(xip, integrationParams.q2[integrationParams.i],
-                f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, *integrationParams._sin2thwPtr, integrationParams.cos2thw, *integrationParams._mzPtr, integrationParams.order);
-    if (integrationParams.flag_calc_fl == 0) {
-      if (integrationParams.flag_flavour == 1)
-        return f2/xip/xip;
-      else if (integrationParams.flag_flavour == 2)
-        return f2c/xip/xip;
-      else if (integrationParams.flag_flavour == 3)
-        return f2b/xip/xip;
-      else
-        return 0.;
-    }
-    else if (integrationParams.flag_calc_fl == 1) {
-      if (integrationParams.flag_flavour == 1)
-        return fl/xip/xip;
-      else if (integrationParams.flag_flavour == 2)
-        return flc/xip/xip;
-      else if (integrationParams.flag_flavour == 3)
-        return flb/xip/xip;
-      else
-        return 0.;
-    }
-    else if (integrationParams.flag_calc_fl == 2) {
-      if (integrationParams.flag_flavour == 1)
-        return f3/xip/xip;
-      else if (integrationParams.flag_flavour == 2)
-        return f3c/xip/xip;
-      else if (integrationParams.flag_flavour == 3)
-        return f3b/xip/xip;
-      else
-        return 0.;
-    }
-    throw 1;
-  };
-  integration_params pars;
-  pars.q2 = q2;
-  pars.i = i;
-  pars.ncflag = ncflag;
-  pars.charge = charge;
-  pars.polarity = polarity;
-  pars.cos2thw = cos2thw;
-  pars._sin2thwPtr = _sin2thwPtr;
-  pars._mzPtr = _mzPtr;
-  pars.flag_calc_fl = 0;
-  pars.flag_flavour = flag_flavour;
-  pars.order = 0;
-  if (1==0) {
-    double x0 = 0.01;
-    double x1 = 1.;
-    std::vector<double> q2s = {2., 5., 10., 100.};
-    double q20 = 10.;
-    printf("%10s%10s%15s%15s\n", "q2", "x", "f2", "fl");
-    for (auto& q20 : q2s) {
-      pars.q2 = q20;
-      pars.flag_flavour = 1;
-      for(int ii=0; ii<=100; ii++) {
-        double xx = x0+ii*(x1-x0)/100.;
-        pars.flag_calc_fl = 1;
-        double fl = integrate(xx, &pars);
-        pars.flag_calc_fl = 0;
-        double f2 = integrate(xx, &pars);
-        printf("%10.1f%10.6f%15.6e%15.6e\n", q20, xx, f2, fl);
-      }
-    }
-    fflush(stdout);
-    throw 42;
-  }
-  double I;
-  // gsl integration
-  if (method == 0) {
-    gsl_function F;
-    F.function = integrate;
-    F.params = &pars;
-    size_t alloc_space = 1000;
-    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
-    double epsabs = 0;
-    double epsrel = 1e-3;
-    int key_param = 6;
-    double result, error;
-    gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-    //gsl_integration_qag (&F, x[i], 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-    gsl_integration_workspace_free (w);
-    I = result;
-  }
-  // Simpson 1/3 integration
-  else if (method == 1) {
-    double a = xi;
-    double b = a*5;
-    if (b > 0.999) 
-      b = 0.999;
-    double sim13 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
-    I = sim13;
-  }
-  // Simpson 1/3 integration with power approximation
-  else if (method == -1) {
-    double a = xi;
-    double b = a*5;
-    if (b > 0.999) 
-      b = 0.999;
-    double f1 = integrate(a, &pars);
-    double alpha = log(f1)/log(xi);
-    double f1pr = f1 - pow(a, alpha);
-    double f2 = integrate((a+b)/2., &pars);
-    double f2pr = f2 - pow((a+b)/2., alpha);
-    double f3 = integrate(b, &pars);
-    double f3pr = f3 - pow(b, alpha);
-    double sim13 = (b-a)/6.*(f1pr+4*f2pr+f3pr);
-    double part_power = (1-pow(xi, alpha+1))/(alpha+1);
-    I = sim13 + part_power;
-  }
-  // Simpson 3/8 integration
-  else if (method == 2) {
-    double a = xi;
-    //double b = log10(1/xi);
-    double b = a*5;
-    if (b > 0.999) 
-      b = 0.999;
-    double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
-    I = sim38;
-  }
-  // Boole integration
-  else if (method == 3) {
-    double a = xi;
-    //double b = log10(1/xi);
-    //double b = a*5;
-    //double maxfrac = (xi>0.25) ? 0.9 : 0.5;
-    //double maxfrac = 0.5 + 0.4 * xi;
-    double maxfrac = 0.4 + 0.6 * xi;
-    //double maxfrac = sqrt(xi);
-    double b = xi+(1-xi)*maxfrac;
-    //if (b > 0.999) 
-    //  b = 0.999;
-    double h = (b-a)/4.;
-    double boole = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
-    I = boole;
-  }
-  // cuba integration
-  else if (method == 4) {
-    /*const int NDIM = 2;
-    const int NCOMP = 1;
-    pars.xi = xi;
-    void* USERDATA = &pars;
-    const int NVEC = 1;
-    const double EPSREL = 1e-3;
-    //const double EPSABS = 1e-12;
-    const double EPSABS = 0;
-    const int FLAGS = 0;
-    const int MINEVAL = 0;
-    const int MAXEVAL = 10000;
-    const int KEY = 0;
-    const char* STATEFILE = nullptr;
-    void* SPIN = nullptr;
-    int nregions = 0;
-    int neval = 0;
-    int fail = 0;
-    cubareal cuba_integral[1], cuba_error[1], prob[1];
-    Cuhre(NDIM, NCOMP, ReactionFFABM_DISNC::Integrand_Cuhre, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
-    //printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n",
-    //nregions, neval, fail);
-    //for(int comp = 0; comp < NCOMP; ++comp )
-    //  printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
-    //    (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
-    I = cuba_integral[0];*/
-  }
-  //double I = result;
-  //I = sim38;
-  //I = 0;
-  //I *= 5;
-  double f20 = f2;
-  //f2 = x[i]*x[i]/xi/xi/gam/gam/gam*f2 + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
-  pars.order = -1;
-  double f2_at_xi = integrate(xi, &pars)*xi*xi;
-  //double f2_at_xi = integrate(xi, &pars)*xi;
-  //printf("f2: %f %f\n", f2, f2_at_xi);
-  double f2_tmc = x[i]*x[i]/xi/xi/gam/gam/gam*f2_at_xi + 6*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam/gam/gam*I;
-  //double f2_orig = integrate(x[i], &pars)*x[i]*x[i];
-  //f2 = f2 * f2_tmc / f2_orig;
-  f2 = f2_tmc;
-  //double ft = f2 - fl;
-  //ft = x[i]*x[i]/xi/xi/gam*ft + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
-  pars.flag_calc_fl = 1;
-  double fl_at_xi = integrate(xi, &pars)*xi*xi;
-  //double fl_at_xi = integrate(xi, &pars)*xi;
-  double ft_at_xi = f2_at_xi - fl_at_xi;
-  double ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
-  double fl_tmc = f2_tmc - ft;
-  fl = fl_tmc;
-  //fl = fl + x[i]*x[i]/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x[i]*x[i]*x[i]/q2[i]/gam/gam/gam/gam*I;
-  //double fl0 = fl;
-  //pars.flag_calc_fl = 2;
-  //double f3_at_xi = integrate(xi, &pars)*xi*xi;
-  //f3 = x[i]/xi/gam/gam*f3_at_xi + 2*mn*mn/q2[i]*x[i]*x[i]/gam/gam/gam*I;
-  /*double fl_orig = integrate(x[i], &pars)*x[i]*x[i];
-  //fl = fl * fl_tmc / fl_orig;
-  pars.order = -1;
-  f2_at_xi = integrate(xi, &pars)*xi*xi;
-  fl_at_xi = integrate(xi, &pars)*xi*xi;
-  ft_at_xi = f2_at_xi - fl_at_xi;
-  ft = x[i]*x[i]/xi/xi/gam*ft_at_xi + 2*x[i]*x[i]*x[i]*mn*mn/q2[i]/gam/gam*I;
-  fl = f2-ft;*/
-  //printf("SZ [x,q2 = %f %f] gsl = %f +- %f [%f] cuba = %f +- %f [%f] sim38 = %f [%f] TMC [%f]\n", x[i], q2[i], result, error, error/result, cuba_integral[0], cuba_error[0], cuba_integral[0]/result-1, sim38, sim38/result-1, f2/f20-1);
-  //printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x[i], q2[i], result, error, error/result, sim38, sim38/result-1, f2/f20-1);
-  return f2/f20-1;
 }
 
 /*int ReactionFFABM_DISNC::Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata) {
