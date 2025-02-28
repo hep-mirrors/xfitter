@@ -5,6 +5,6 @@ endif()
 
 set(TARGET reactionBaseDISNC)
 add_library(${TARGET} SHARED ReactionBaseDISNC.cc)
-target_link_libraries(${TARGET} PRIVATE xfitter evolutionQCDNUM DIS_HT DIS_TMC)
+target_link_libraries(${TARGET} PRIVATE xfitter evolutionQCDNUM DIS_HT DIS_TMC DIS_NUKE)
 target_include_directories(${TARGET} PUBLIC .)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})

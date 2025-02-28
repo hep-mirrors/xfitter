@@ -1,4 +1,8 @@
 #include "DIS_TMC.h"
+//#include "ReactionFFABM_DISNC.h"
+//#include "ReactionFFABM_DISCC.h"
+//#include "../reactions/FFABM_DISNC/ReactionFFABM_DISNC.h"
+//#include "../reactions/FFABM_DISCC/ReactionFFABM_DISCC.h"
 #include "TermData.h"
 #include "hf_errlog.h"
 #include <cmath>
@@ -79,9 +83,15 @@ DIS_TMC::DIS_TMC(TermData* td){
 }
 
 void DIS_TMC::apply(double& f2, double& fl, double& f3, double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
-    const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz) {
+    const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz, void* ptr_reaction) {
   if ((_xmin == 0. || _xmin < x) && (_logxlogq2min == 0. || _logxlogq2min < log(x)*log(q2))) {
     if(_flag_l) {
+      /*if (ncflag == 1) {
+        ReactionFFABM_DISNC* reaction = (ReactionFFABM_DISNC*)ptr_reaction;
+        f2 = reaction->calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+        fl = reaction->calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+        f3 = reaction->calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+      }*/
       apply_one_flavour(f2, fl, f3, flag_fl, flag_f3, 1, q2, x, ncflag, charge, polarity, cos2thw, mz);
     }
     if(_flag_c) {

@@ -79,7 +79,8 @@ namespace BaseDISCC
   {
     incl,
     c,
-    b
+    b,
+    l
   }; //!< Define final state.
   enum class dataType
   {

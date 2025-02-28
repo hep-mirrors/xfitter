@@ -17,6 +17,7 @@
 
 class ReactionFFABM_DISNC : public ReactionBaseDISNC
 {
+  friend DIS_TMC; // TODO modify DIS_TMC to call public methods only
 private:
   typedef ReactionBaseDISNC Super;
 
@@ -45,6 +46,12 @@ private:
   const double* _mbPtr;
   const double* _mzPtr;
   const double* _sin2thwPtr;
+  double _hqscale1in;
+  double _hqscale2in;
+  bool _msbarmin;
+  int _ordfl;
+  int _order;
+  int _kschemepdfin;
 
   void calcF2FL(unsigned dataSetID);
 
@@ -72,4 +79,5 @@ private:
   const double* _tmc_mpr;
   map<int, int> _ncpu;
   double combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb);
+  double calc_point_strfun(const ReactionBaseDISNC::dataType ftype, const ReactionBaseDISNC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge);
 };

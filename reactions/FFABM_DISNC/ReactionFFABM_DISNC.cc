@@ -34,6 +34,14 @@ extern "C" ReactionFFABM_DISNC *create()
 //  ABM/src/grid.f
 extern "C"
 {
+double f2qcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
+double flqcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
+double f3qcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
+double f2charm_ffn_(const double& xb, const double& q2, const int& nq);
+double flcharm_ffn_(const double& xb, const double& q2, const int& nq);
+double f2nucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
+double flnucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
+double f3nucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
 void sf_abkm_wrap_(const double &x, const double &q2,
                    const double &f2abkm, const double &flabkm, const double &f3abkm,
                    const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
@@ -46,11 +54,9 @@ void sf_abkm_wrap_order_(const double &x, const double &q2,
                    const double &f2babkm, const double &flbabkm, const double &f3babkm,
                    const int &ncflag, const double &charge, const double &polar,
                    const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin, const int &nt=1);
-void abkm_set_input_(const int &kschemepdfin, const int &kordpdfin,
-                     const double &rmass8in, const double &rmass10in, const int &msbarmin,
-                     double &hqscale1in, const double &hqscale2in, const int &flagthinterface);
-//void abkm_update_hq_masses_(const double& rmass8in, const double& rmass10in);
-void abkm_set_input_orderfl_(const int &flord);
+void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
+                     const double& rmass8in, const double& rmass10in, const int& msbarmin,
+                     double& hqscale1in, const double& hqscale2in, const int& flord);
 void initgridconst_();
 void pdffillgrid_();
 
@@ -88,22 +94,22 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   Super::initTerm(td);
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
-  double hqscale1in = 1.0;
-  double hqscale2in = 1.0;
+  _hqscale1in = 1.0;
+  _hqscale2in = 1.0;
   if (td->hasParam("scalea1"))
-    hqscale1in = *td->getParamD("scalea1");
+    _hqscale1in = *td->getParamD("scalea1");
   if(td->hasParam("scaleb1"))
-    hqscale2in = *td->getParamD("scaleb1");
+    _hqscale2in = *td->getParamD("scaleb1");
 
   // pole or MCbar running mass treatment (default pole)
-  bool msbarmin = false;
+  _msbarmin = false;
   if(td->hasParam("runm"))
-    msbarmin = *td->getParamD("runm");
+    _msbarmin = *td->getParamD("runm");
 
   // O(alpha_S) F_L = O(alpha_S) F_2 + ordfl (default ordfl = 1)
-  int ordfl = 1;
+  _ordfl = 1;
   if(td->hasParam("ordfl"))
-    ordfl = td->getParamI("ordfl");
+    _ordfl = td->getParamI("ordfl");
 
   // control x range (certain PDF sets have limited x_min, x_max)
   if(td->hasParam("xbmin"))
@@ -114,7 +120,7 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   initgridconst_();
 
   // Take the 3-flavour scheme as a default
-  int kschemepdfin = 0;
+  _kschemepdfin = 0;
 
   // heavy quark masses
   _mcPtr = td->getParamD("mch");
@@ -137,18 +143,13 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
 
   printf("---------------------------------------------\n");
   printf("INFO from ABKM_init:\n");
-  printf("FF ABM running mass def? T(rue), (F)alse: %c\n", msbarmin ? 'T' : 'F');
-  printf("O(alpha_S) F_L - O(alpha_S) F2 = %d\n", ordfl);
+  printf("FF ABM running mass def? T(rue), (F)alse: %c\n", _msbarmin ? 'T' : 'F');
+  printf("O(alpha_S) F_L - O(alpha_S) F2 = %d\n", _ordfl);
   printf("---------------------------------------------\n");
-  printf("factorisation scale for heavy quarks  is set to sqrt(%f * Q^2 + %f * 4m_q^2\n", hqscale1in, hqscale2in);
+  printf("factorisation scale for heavy quarks  is set to sqrt(%f * Q^2 + %f * 4m_q^2\n", _hqscale1in, _hqscale2in);
 
-  const string order = td->getParamS("Order");
-  // NLO or NNLO: kordpdfin=1 NLO, kordpdfin=2 NNLO
-  // this flag will set kordhq,kordalps,kordf2,kordfl,kordfl to same order
-  const int kordpdfin = OrderMap(order) - 1;
-
-  abkm_set_input_(kschemepdfin, kordpdfin, *_mcPtr, *_mbPtr, msbarmin, hqscale1in, hqscale2in, 1);
-  abkm_set_input_orderfl_(ordfl);
+  _order = OrderMap(td->getParamS("Order")) - 1;
+  abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
 
   unsigned termID = td->id;
   auto nBins = td->getNbins();
@@ -212,7 +213,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     pdffillgrid_();
 
     // NC
-    int ncflag = 1;
+    static constexpr int ncflag = 1;
 
     double charge = GetCharge(dataSetID);
     double polarity = GetPolarisation(dataSetID);
@@ -234,24 +235,47 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       f2out = flout = f3out = 0.;
       if (q2[i] > 1.0)
       {
-        //printf("q2,x = %f,%f\n", q2[i], x[i]);
-        sf_abkm_wrap_(x[i], q2[i],
-                      f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                      ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
+        //sf_abkm_wrap_(x[i], q2[i], f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, ncflag, charge, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
+        if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::l) {
+          f2 = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+          fl = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+          f3 = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+        }
+        if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::c) {
+          f2c = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+          flc = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+          f3c = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+        }
+        if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::b) {
+          f2b = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+          flb = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+          f3b = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+        }
+                    
         double f3out_bar = 0.;
         if(_nuke[dataSetID] && _nuke[dataSetID]->need_f3bar()) {
           // need F3bar for nuclear corrections and antineutrino
           // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
           int charge_bar = -1 * charge;
-          double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
-          sf_abkm_wrap_(x[i], q2[i], f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
+          //double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
+          //sf_abkm_wrap_(x[i], q2[i], f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
+          double f3_bar(0), f3c_bar(0), f3b_bar(0);
+          if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::l) {
+            f3_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, charge_bar);
+          }
+          if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::c) {
+            f3c_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, charge_bar);
+          }
+          if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::b) {
+            f3b_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, charge_bar);
+          }
           f3out_bar = x[i] * combine_flavours(GetDataFlav(dataSetID), f3_bar, f3c_bar, f3b_bar);
         }
         if (_tmc[dataSetID]) {
           const bool flag_fl = true;
           const bool flag_f3 = false;
           //const bool flag_f3 = true; [not implemented]
-          _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2[i], x[i], ncflag, charge, polarity, cos2thw, *_mzPtr);
+          _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2[i], x[i], ncflag, charge, polarity, cos2thw, *_mzPtr, this);
         }
         if(_flag_ht[dataSetID]) {
           _ht->apply(q2[i], x[i], f2, fl);
@@ -344,6 +368,59 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       shmctl(shmid, IPC_RMID, NULL);
     }
   }
+}
+
+double ReactionFFABM_DISNC::calc_point_strfun(const ReactionBaseDISNC::dataType ftype, const ReactionBaseDISNC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge) {
+  //printf("calc_point_strfun ftype,flav = %d,%d q2,x = %f,%f\n", ftype, flav, q2, x);
+  if (order >= 0) {
+    abkm_set_input_(_kschemepdfin, order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
+  }
+  auto reset_order_and_return = [&](const double val) {
+    if (order >= 0) {
+      abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
+    }
+    return val;
+  };
+  static constexpr int nt = 1; // proton
+  switch (flav) {
+    case ReactionBaseDISNC::dataFlav::l: {
+      static constexpr double eleAxial = -0.5;
+      const double eleVec = -0.5 + 2 * (*_sin2thwPtr);
+      const double facgz = - eleVec - charge * GetPolarisation(dataSetID) * eleAxial;
+      const double faczz = eleVec * eleVec + eleAxial * eleAxial + 2 * charge * GetPolarisation(dataSetID) * eleAxial * eleVec;
+      const double facgzf3 = -1 * eleAxial - charge * GetPolarisation(dataSetID) * eleVec;
+      const double faczzf3 = 2 * eleAxial * eleVec + charge * GetPolarisation(dataSetID) * (eleVec * eleVec + eleAxial * eleAxial);
+      const double PZ = 1. / (4 * (*_sin2thwPtr) * (1 - (*_sin2thwPtr)) * (1 + (*_mzPtr) * (*_mzPtr) / q2));
+      switch (ftype) {
+        case ReactionBaseDISNC::dataType::f2:
+          return reset_order_and_return(f2qcd_(3, nt, 22, x, q2) + facgz * PZ * f2qcd_(3, nt, 25, x, q2) + faczz * PZ * PZ * f2qcd_(3, nt, 23, x, q2));
+        case ReactionBaseDISNC::dataType::fl:
+          return reset_order_and_return(flqcd_(3, nt, 22, x, q2) + facgz * PZ * flqcd_(3, nt, 25, x, q2) + faczz * PZ * PZ * flqcd_(3, nt, 23, x, q2));
+        case ReactionBaseDISNC::dataType::f3:
+          return reset_order_and_return(-1 * charge * (facgzf3 * PZ * f3qcd_(3, nt, 25, x, q2) + faczzf3 * PZ * PZ * f3qcd_(3, nt, 23, x, q2)));
+      }
+    }
+    case ReactionBaseDISNC::dataFlav::c:
+      switch (ftype) {
+        case ReactionBaseDISNC::dataType::f2:
+          return reset_order_and_return(f2charm_ffn_(x, q2, 8));
+        case ReactionBaseDISNC::dataType::fl:
+          return reset_order_and_return(flcharm_ffn_(x, q2, 8));
+        case ReactionBaseDISNC::dataType::f3:
+          return reset_order_and_return(0.);
+      }
+    case ReactionBaseDISNC::dataFlav::b:
+      switch (ftype) {
+        case ReactionBaseDISNC::dataType::f2:
+          return reset_order_and_return(f2charm_ffn_(x, q2, 10));
+        case ReactionBaseDISNC::dataType::fl:
+          return reset_order_and_return(flcharm_ffn_(x, q2, 10));
+        case ReactionBaseDISNC::dataType::f3:
+          return reset_order_and_return(0.);
+      }
+  }
+  hf_errlog(28022501, "F: Unsupported structure function type or flavour");
+  return 0; // avoid warning
 }
 
 double ReactionFFABM_DISNC::combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb)

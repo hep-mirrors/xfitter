@@ -18,6 +18,7 @@
 #include "EvolutionQCDNUM.h"
 #include "DIS_HT.h"
 #include "DIS_TMC.h"
+#include "DIS_NUKE.h"
 
 template <typename T>
 void print(T d)
@@ -305,6 +306,12 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   _tmc[termID] = nullptr;
   if (td->hasParam("tmc")) {
     _tmc[termID] = new DIS_TMC(td);
+  }
+
+  // read nuclear correction parameters
+  _nuke[termID] = nullptr;
+  if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
+    _nuke[termID] = new DIS_NUKE(td);
   }
 
   // Allocate internal arrays:

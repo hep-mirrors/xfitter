@@ -52,7 +52,8 @@ protected:
    {
       incl,
       c,
-      b
+      b,
+      l
    }; //!< Define final state.
 
    /*

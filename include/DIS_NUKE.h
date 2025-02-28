@@ -1,3 +1,4 @@
+#pragma once
 class TermData;
 
 // DIS nuclear corrections according to 

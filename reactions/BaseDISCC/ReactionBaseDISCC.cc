@@ -179,8 +179,8 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
         &q2 = *BaseDISCC::GetBinValues(td, "Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * _Gf * _Gf / (2 * pi * x) * _convfac;
-    //val *= factor;
-    //break;
+    val *= factor;
+    break;
     //
     //s = 2*mpr*e + mpr*mpr;
     //factor = q2 / x / y / e;

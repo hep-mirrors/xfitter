@@ -1,3 +1,4 @@
+#pragma once
 // DIS target mass corrections according to prescription
 // H. Georgi and H. D. Politzer, Phys. Rev. D9, 416 (1974)
 
@@ -27,5 +28,5 @@ class DIS_TMC {
     void apply(double& f2, double& fl, double& f3, 
       double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
       const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, 
-      const int charge, const double polarity, const double cos2thw, const double mz);
+      const int charge, const double polarity, const double cos2thw, const double mz, void* ptr_reaction);
 };
