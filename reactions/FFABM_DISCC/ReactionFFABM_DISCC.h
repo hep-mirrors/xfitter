@@ -49,6 +49,7 @@ private:
   int _ordfl;
   int _order;
   int _kschemepdfin;
+  int _FLAG_FAST = 0;
 
   void calcF2FL(int dataSetID);
   void calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out);

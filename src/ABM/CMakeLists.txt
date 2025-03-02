@@ -20,6 +20,7 @@ add_library(ABM SHARED
   spline.f
   split.f
   WGPLG.f
+  ABM.cc
 )
 target_link_libraries(ABM xfitter)
 install(TARGETS ABM DESTINATION ${DEST_MODULE})

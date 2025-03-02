@@ -21,6 +21,7 @@ class DIS_TMC {
     double _xmin;
     double _logxlogq2min;
     const double* _mpr;
+    int _FLAG_FAST = 0;
     double apply_one_flavour(double& f2, double& fl, double& f3, 
       const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x,
       const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz);

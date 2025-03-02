@@ -367,3 +367,32 @@ c (makes small difference which reaches few % only at highest Q2 of the charm HE
 
 C--------------------------------------------------------------------------
       end
+
+      Subroutine ABKM_Change_Order(kordpdfin)
+C---------------------------------------------------------------------------
+C  Wraper to change the order of calculations, returns the previous order
+C---------------------------------------------------------------------------
+      implicit none
+      integer ordfl
+      integer kordpdfin
+      integer npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
+      common /forpdfset/ npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
+      double precision q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+      double precision alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1
+      double precision hqscale2
+      integer nfeff,kordalps,kfeff,kordhq,kordf2,kordfl,kordf3,ordfl
+      logical alsmz
+      common /FORALPSRENORM/ q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+     , ,alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1,hqscale2
+     , ,nfeff,kordalps,kfeff
+     , ,kordhq,kordf2,kordfl,kordf3
+     , ,alsmz
+      ABKM_Change_Order = kordpdfin
+      ordfl = kordfl - kordpdfin
+      kordpdf   = kordpdfin
+      kordhq    = kordpdfin
+      kordf2    = kordpdfin
+      kordfl    = kordpdfin+ordfl
+      kordf3    = kordpdfin
+      kordalps  = kordpdfin
+      end

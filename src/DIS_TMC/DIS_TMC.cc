@@ -110,52 +110,86 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
   double gam = sqrt(1+4*x*x*mn*mn/q2);
   double xi = 2*x/(1+gam);
   if (xi>1) {throw 42;}
-  auto integrate = [](double xip, void* params) {
+  auto integrate = [&](double xip, void* params) {
     if(xip >= 1.) {
       return 0.;
     }
     const integration_params& integrationParams = *(integration_params*)params;
     //printf("integrate q2,xip = %f,%f\n", integrationParams.q2, xip);
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-    if (integrationParams.order == -1)
-      sf_abkm_wrap_(xip, integrationParams.q2,
-                f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, 1.-integrationParams.cos2thw, integrationParams.cos2thw, integrationParams._mz);
-    else
-      sf_abkm_wrap_order_(xip, integrationParams.q2,
-                f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b,
-                integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, 1.-integrationParams.cos2thw, integrationParams.cos2thw, integrationParams._mz, integrationParams.order);
-    if (integrationParams.flag_calc_fl == 0) {
-      if (integrationParams.flag_flavour == 1)
-        return f2/xip/xip;
-      else if (integrationParams.flag_flavour == 2)
-        return f2c/xip/xip;
-      else if (integrationParams.flag_flavour == 3)
-        return f2b/xip/xip;
-      else
-        return 0.;
+    if (_FLAG_FAST) {
+      if (integrationParams.flag_calc_fl == 0) {
+        if (integrationParams.flag_flavour == 1)
+          return calc_point_strfun(rd, BaseDISCC::dataType::f2, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge)/xip/xip;
+        else if (integrationParams.flag_flavour == 2)
+          return f2c/xip/xip;
+        else if (integrationParams.flag_flavour == 3)
+          return f2b/xip/xip;
+        else
+          return 0.;
+      }
+      else if (integrationParams.flag_calc_fl == 1) {
+        if (integrationParams.flag_flavour == 1)
+          return fl/xip/xip;
+        else if (integrationParams.flag_flavour == 2)
+          return flc/xip/xip;
+        else if (integrationParams.flag_flavour == 3)
+          return flb/xip/xip;
+        else
+          return 0.;
+      }
+      else if (integrationParams.flag_calc_fl == 2) {
+        if (integrationParams.flag_flavour == 1)
+          return f3/xip/xip;
+        else if (integrationParams.flag_flavour == 2)
+          return f3c/xip/xip;
+        else if (integrationParams.flag_flavour == 3)
+          return f3b/xip/xip;
+        else
+          return 0.;
+      }
+      throw 1;
     }
-    else if (integrationParams.flag_calc_fl == 1) {
-      if (integrationParams.flag_flavour == 1)
-        return fl/xip/xip;
-      else if (integrationParams.flag_flavour == 2)
-        return flc/xip/xip;
-      else if (integrationParams.flag_flavour == 3)
-        return flb/xip/xip;
-      else
-        return 0.;
+    else {
+      if (integrationParams.order >= 0) {
+        abkm_set_input_(_kschemepdfin, integrationParams.order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
+      }
+      sf_abkm_wrap_(xip, integrationParams.q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, 1.-integrationParams.cos2thw, integrationParams.cos2thw, integrationParams._mz, integrationParams.order);
+      if (integrationParams.order >= 0) {
+        abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
+      }
+      if (integrationParams.flag_calc_fl == 0) {
+        if (integrationParams.flag_flavour == 1)
+          return f2/xip/xip;
+        else if (integrationParams.flag_flavour == 2)
+          return f2c/xip/xip;
+        else if (integrationParams.flag_flavour == 3)
+          return f2b/xip/xip;
+        else
+          return 0.;
+      }
+      else if (integrationParams.flag_calc_fl == 1) {
+        if (integrationParams.flag_flavour == 1)
+          return fl/xip/xip;
+        else if (integrationParams.flag_flavour == 2)
+          return flc/xip/xip;
+        else if (integrationParams.flag_flavour == 3)
+          return flb/xip/xip;
+        else
+          return 0.;
+      }
+      else if (integrationParams.flag_calc_fl == 2) {
+        if (integrationParams.flag_flavour == 1)
+          return f3/xip/xip;
+        else if (integrationParams.flag_flavour == 2)
+          return f3c/xip/xip;
+        else if (integrationParams.flag_flavour == 3)
+          return f3b/xip/xip;
+        else
+          return 0.;
+      }
+      throw 1;
     }
-    else if (integrationParams.flag_calc_fl == 2) {
-      if (integrationParams.flag_flavour == 1)
-        return f3/xip/xip;
-      else if (integrationParams.flag_flavour == 2)
-        return f3c/xip/xip;
-      else if (integrationParams.flag_flavour == 3)
-        return f3b/xip/xip;
-      else
-        return 0.;
-    }
-    throw 1;
   };
   integration_params pars;
   pars.q2 = q2;

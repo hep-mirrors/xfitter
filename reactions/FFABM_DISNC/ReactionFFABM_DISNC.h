@@ -52,6 +52,7 @@ private:
   int _ordfl;
   int _order;
   int _kschemepdfin;
+  int _FLAG_FAST = 0;
 
   void calcF2FL(unsigned dataSetID);
 
