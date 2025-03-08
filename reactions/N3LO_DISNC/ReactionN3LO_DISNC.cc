@@ -50,8 +50,18 @@ void ReactionN3LO_DISNC::atStart()
   F3Obj = InitializeF3NCObjectsZM(*Grid, Thresholds);
 
   // Initialize coefficient functions
-  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds);
-  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds);
+  std::vector<int>  IMod = {0, 0, 0, 0, 0};
+  //imod 0 : central
+  //imod 1 : down variation
+  //imod 2 : up variation
+  IMod[0] = yamlNode["massive_sx"].as<int>();
+  IMod[1] = yamlNode["massive_A"].as<int>();
+  IMod[2] = yamlNode["massive_B"].as<int>();
+  IMod[3] = yamlNode["massive_C"].as<int>();
+  IMod[4] = yamlNode["massive_D"].as<int>();
+
+  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, IMod);
+  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, IMod);
   F2ObjM0 = InitializeF2NCObjectsMassiveZero(*Grid, Thresholds);
   FLObjM0 = InitializeFLNCObjectsMassiveZero(*Grid, Thresholds);
 }
