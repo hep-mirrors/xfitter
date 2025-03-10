@@ -35,7 +35,16 @@ double funcPDFext(int* ipdf, double* x,  double* q2, bool* first){
     {0,21},{7,22}
   };
   double q = sqrt(*q2);
-  return gExternalEvolution->xfxQmap(*x, q)[ip.at(*ipdf)];
+  // avoid crash if copying external PDFs which do not have photon
+  try {
+    return gExternalEvolution->xfxQmap(*x, q)[ip.at(*ipdf)];
+  }
+  catch(std::out_of_range&ex) {
+    if (*ipdf == 7) {
+      return 0.;
+    }
+    return 0.; // avoid warning
+  }
 }
 
 

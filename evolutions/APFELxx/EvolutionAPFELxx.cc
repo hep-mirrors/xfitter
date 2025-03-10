@@ -2,7 +2,8 @@
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 
-#include <apfel/alphaqcd.h>
+//#include <apfel/alphaqcd.h>
+#include <apfel/alphaqcdxi.h>
 #include <apfel/messages.h>
 #include <apfel/rotations.h>
 
@@ -24,15 +25,28 @@ namespace xfitter
 
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     _inPDFs=XFITTER_PARS::getInputDecomposition(yamlNode);
-    // Retrieve parameters needed to initialize APFEL++.
+
+    // Retrieve parameters needed for APFEL++ evolution
+    _PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
+    _Q0 = *XFITTER_PARS::getParamD((yamlNode["Q0"]) ? yamlNode["Q0"].as<string>() : "Q0");
+    const double *Mz = XFITTER_PARS::getParamD("Mz");
+    _alphas_q0 = Mz;
+    const auto& alphas_Q0_parameter_name = yamlNode["alphas_Q0"] ? yamlNode["alphas_Q0"].as<string>() : "alphas_Q0";
+    if (XFITTER_PARS::gParameters.find(alphas_Q0_parameter_name) != XFITTER_PARS::gParameters.end())  {
+      _alphas_q0 = XFITTER_PARS::getParamD(alphas_Q0_parameter_name);
+    }
+    _alphas = XFITTER_PARS::getParamD((yamlNode["alphas"]) ? yamlNode["alphas"].as<string>() : "alphas");
     _mch = XFITTER_PARS::getParamD("mch");
     _mbt = XFITTER_PARS::getParamD("mbt");
     _mtp = XFITTER_PARS::getParamD("mtp");
     _mch_last = *_mch;
     _mbt_last = *_mbt;
     _mtp_last = *_mtp;
-    const YAML::Node xGrid = yamlNode["xGrid"];
 
+    // resummation scale variation
+    _xi = yamlNode["xi"].as<double>();
+
+    const YAML::Node xGrid = yamlNode["xGrid"];
     vector<apfel::SubGrid> sgv;
     for(auto const& sg : xGrid)
       sgv.push_back(apfel::SubGrid{sg[0].as<int>(), sg[1].as<double>(), sg[2].as<int>()});
@@ -41,9 +55,14 @@ namespace xfitter
     // in APFELxx/yaml. I need to find a clever way to retrieve them)
     _Grid = std::unique_ptr<const apfel::Grid>(new apfel::Grid(sgv));
 
+    // # ratios between heavy quark thresholds and masses
+    const double kmc = yamlNode["kmc"].as<double>();
+    const double kmb = yamlNode["kmb"].as<double>();
+    const double kmt = yamlNode["kmt"].as<double>();
+
     // Vectors of masses and thresholds
     _Masses = {0, 0, 0, *_mch, *_mbt, *_mtp};
-    _Thresholds = _Masses;
+    _Thresholds = {0, 0, 0, (*_mch) * kmc, (*_mbt) * kmb, (*_mtp) * kmt};
     _isFFNS = 0; // VFNS by default
     if(XFITTER_PARS::gParametersI.find("isFFNS") != XFITTER_PARS::gParametersI.end()) {
       _isFFNS = XFITTER_PARS::gParametersI.at("isFFNS");
@@ -65,12 +84,7 @@ namespace xfitter
     else if(_isFFNS != 0) {
       hf_errlog(2025020101, "F: Unsupported _isFFNS = " + std::to_string(_isFFNS));
     }
-    if(XFITTER_PARS::gParametersS.find("heavyQuarkMassScheme") != XFITTER_PARS::gParametersS.end()) {
-      _heavyQuarkMassScheme = XFITTER_PARS::gParametersS.at("heavyQuarkMassScheme");
-    }
-    if (yamlNode["heavyQuarkMassScheme"]) {
-      _heavyQuarkMassScheme = yamlNode["heavyQuarkMassScheme"].as<string>();
-    }
+    _heavyQuarkMassScheme = yamlNode["heavyQuarkMassScheme"].as<string>();
     // Initialize QCD evolution objects
     if (_heavyQuarkMassScheme == "Pole") {
       _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
@@ -98,32 +112,28 @@ namespace xfitter
         }
       }
     }
-    // Retrieve the relevant parameters needed to compute the evolutions
-    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
-    _Q0 = *XFITTER_PARS::getParamD((yamlNode["Q0"]) ? yamlNode["Q0"].as<string>() : "Q0");
-    const double *Mz = XFITTER_PARS::getParamD("Mz");
-    try {
-      _alphas_q0 = XFITTER_PARS::getParamD((yamlNode["alphas_Q0"]) ? yamlNode["alphas_Q0"].as<string>() : "alphas_Q0");
-    }
-    catch(std::out_of_range&ex) {
-      _alphas_q0 = nullptr;
-    }
-    if (!_alphas_q0) {
-      _alphas_q0 = Mz;
-    }
-    _alphas = XFITTER_PARS::getParamD((yamlNode["alphas"]) ? yamlNode["alphas"].as<string>() : "alphas");
-    const YAML::Node QGrid   = yamlNode["QGrid"];
-
+    
     // Reinitialise and tabulate the running coupling at every
     // iteration. This is fast enough and allows for the reference
     // value to be fitted.
     if (_heavyQuarkMassScheme == "Pole") {
-      apfel::AlphaQCD a{*_alphas, *_alphas_q0, _Masses, _Thresholds, PtOrder};
-      const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
+      //apfel::AlphaQCD a{*_alphas, *_alphas_q0, _Masses, _Thresholds, _PtOrder};
+      apfel::AlphaQCDxi a{*_alphas, *_alphas_q0, _Masses, _Thresholds, _PtOrder, _xi};
+      //const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
+      const YAML::Node QGridAs   = yamlNode["QGridAs"];
+      const apfel::TabulateObject<double> Alphas{a, 
+        QGridAs[0].as<int>(),
+        QGridAs[1].as<double>(),
+        QGridAs[2].as<double>(),
+        QGridAs[3].as<int>()
+      };
       _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
     }
     else if (_heavyQuarkMassScheme == "MSBar") {
-      apfel::AlphaQCDMSbarMass a{*_alphas, *_alphas_q0, _Masses, _Thresholds, PtOrder};
+      if (_xi != 1.) {
+        hf_errlog(2025031001, "F: MSbar masses and resummation scale mu != 1.0 is unavailable");
+      }
+      apfel::AlphaQCDMSbarMass a{*_alphas, *_alphas_q0, _Masses, _Thresholds, _PtOrder};
       const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
       _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
     }
@@ -133,10 +143,12 @@ namespace xfitter
       [=] (double const& x, double const&)->std::map<int,double>{
         return apfel::PhysToQCDEv(_inPDFs->xfxMap(x));
       },
-    _Q0, PtOrder, _AlphaQCD);
+    //_Q0, _PtOrder, _AlphaQCD);
+    _Q0, _PtOrder, _AlphaQCD, _xi);
 
     // Tabulate PDFs (ideally the parameters of the tabulation should
     // be read from parameters.yaml).
+    const YAML::Node QGrid   = yamlNode["QGrid"];
     _TabulatedPDFs = std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>>
       (new apfel::TabulateObject<apfel::Set<apfel::Distribution>>{*Dglap,
           QGrid[0].as<int>(),
