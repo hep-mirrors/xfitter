@@ -109,7 +109,12 @@ void ReactionFONLL_DISNC::atIteration()
       if (q2[i] != Q2save)
       {
         const double Q = sqrt(q2[i]);
-        APFEL::ComputeStructureFunctionsAPFEL(Q0, Q); /// THIS INCLUDES APFEL EVOLUTION
+        if (_non_apfel_evol) {
+          APFEL::ComputeStructureFunctionsAPFEL(Q, Q); /// do not evolve PDFs, take them from external set at Q
+        }
+        else {
+          APFEL::ComputeStructureFunctionsAPFEL(Q0, Q); /// THIS INCLUDES APFEL EVOLUTION
+        }
       }
 
       // Compute structure functions by interpolation in x for the
