@@ -37,7 +37,7 @@ cd yaml-cpp-${yamlppver}
 mkdir build
 cd build
 cmake3='cmake3'
-if [ -x "command -v cmake3" ]; then
+if ! command -v cmake3 >/dev/null 2>&1; then
   cmake3='cmake'
 fi
 $cmake3  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 

@@ -50,8 +50,18 @@ void ReactionN3LO_DISNC::atStart()
   F3Obj = InitializeF3NCObjectsZM(*Grid, Thresholds);
 
   // Initialize coefficient functions
-  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds);
-  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds);
+  std::vector<int>  IMod = {0, 0, 0, 0, 0};
+  //imod 0 : central
+  //imod 1 : down variation
+  //imod 2 : up variation
+  IMod[0] = yamlNode["massive_sx"].as<int>();
+  IMod[1] = yamlNode["massive_A"].as<int>();
+  IMod[2] = yamlNode["massive_B"].as<int>();
+  IMod[3] = yamlNode["massive_C"].as<int>();
+  IMod[4] = yamlNode["massive_D"].as<int>();
+
+  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, IMod);
+  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, IMod);
   F2ObjM0 = InitializeF2NCObjectsMassiveZero(*Grid, Thresholds);
   FLObjM0 = InitializeFLNCObjectsMassiveZero(*Grid, Thresholds);
 }
@@ -279,8 +289,16 @@ void ReactionN3LO_DISNC::atIteration()
 
   if (initcharm)
     {
-      const apfel::TabulateObject<apfel::Distribution> F2charm {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLcharm {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, PerturbativeOrder, as, fBq);
+      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, PerturbativeOrder, as, fBq);
+      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, PerturbativeOrder, as, fBq);
+      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, PerturbativeOrder, as, fBq);
+      const apfel::TabulateObject<apfel::Distribution> F2charmZM {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmZM {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM  {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM0 {[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F3charm {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
 
       // Loop over the data sets.
@@ -290,7 +308,7 @@ void ReactionN3LO_DISNC::atIteration()
 
 	  if (GetDataFlav(termID) != dataFlav::c)
 	    continue;
-    
+
 	  // Get evolution boundary:
 	  double gridLowQLimit = td->getPDF()->getQgrid()[0];
 
@@ -308,16 +326,21 @@ void ReactionN3LO_DISNC::atIteration()
 	  _f2fonll[termID].resize(Np);
 	  _flfonll[termID].resize(Np);
 	  _f3fonll[termID].resize(Np);
+	  double mc2 = pow(Thresholds[3],2);
 
 	  for (size_t i = 0; i < Np; i++)
 	    {
+	      double fthrc = q2[i] > mc2 ? pow(1.-mc2/q2[i],2): 0.;
+	      double etac = q2[i] / ( q2[i] + 4 * Masses[3] * Masses[3] );
 	      // Skip all points with Q2 below starting scale
 	      if (q2[i] < gridLowQLimit*gridLowQLimit)
 		continue;
 	
 	      // Compute structure functions by interpolation in x and Q
-	      _f2fonll[termID][i] = F2charm.EvaluatexQ(x[i], sqrt(q2[i]));
-	      _flfonll[termID][i] = FLcharm.EvaluatexQ(x[i], sqrt(q2[i]));
+	      //	      _f2fonll[termID][i] = F2charm.EvaluatexQ(x[i], sqrt(q2[i]));
+	      _f2fonll[termID][i] = fthrc*F2charmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + F2charmM.EvaluatexQ(x[i]/etac, sqrt(q2[i]))  - fthrc*F2charmM0.EvaluatexQ(x[i], sqrt(q2[i]));
+	      //              _flfonll[termID][i] = FLcharm.EvaluatexQ(x[i], sqrt(q2[i]));
+	      _flfonll[termID][i] = fthrc*FLcharmZM.EvaluatexQ(x[i], sqrt(q2[i]))  + FLcharmM.EvaluatexQ(x[i]/etac, sqrt(q2[i]))  - fthrc*FLcharmM0.EvaluatexQ(x[i], sqrt(q2[i]));
 	      _f3fonll[termID][i] = -charge * F3charm.EvaluatexQ(x[i], sqrt(q2[i]));
 	    }
 	}
@@ -331,8 +354,17 @@ void ReactionN3LO_DISNC::atIteration()
 
   if (initbottom)
     {
-      const apfel::TabulateObject<apfel::Distribution> F2bottom{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLbottom{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, PerturbativeOrder, as, fBq);
+      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, PerturbativeOrder, as, fBq);
+      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, PerturbativeOrder, as, fBq);
+      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, PerturbativeOrder, as, fBq);
+
+      const apfel::TabulateObject<apfel::Distribution> F2bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM0{[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomZM{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM0{[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F3bottom{[&] (double const& Q) -> apfel::Distribution{ return F3.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
 
       // Loop over the data sets.
@@ -360,16 +392,21 @@ void ReactionN3LO_DISNC::atIteration()
 	  _f2fonll[termID].resize(Np);
 	  _flfonll[termID].resize(Np);
 	  _f3fonll[termID].resize(Np);
-
+	  double mb2 = pow(Thresholds[4],2);
 	  for (size_t i = 0; i < Np; i++)
 	    {
 	      // Skip all points with Q2 below starting scale
 	      if (q2[i] < gridLowQLimit*gridLowQLimit)
 		continue;
+
+	      double fthrb = q2[i] > mb2 ? pow(1.-mb2/q2[i],2): 0.;
+	      double etab = q2[i] / ( q2[i] + 4 * Masses[4] * Masses[4] );
 	
 	      // Compute structure functions by interpolation in x and Q
-	      _f2fonll[termID][i] = F2bottom.EvaluatexQ(x[i], sqrt(q2[i]));
-	      _flfonll[termID][i] = FLbottom.EvaluatexQ(x[i], sqrt(q2[i]));
+	      //_f2fonll[termID][i] = F2bottom.EvaluatexQ(x[i], sqrt(q2[i]));
+	      //_flfonll[termID][i] = FLbottom.EvaluatexQ(x[i], sqrt(q2[i]));
+	      _f2fonll[termID][i] = fthrb*F2bottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + F2bottomM.EvaluatexQ(x[i]/etab, sqrt(q2[i])) - fthrb*F2bottomM0.EvaluatexQ(x[i], sqrt(q2[i]));
+	      _flfonll[termID][i] = fthrb*FLbottomZM.EvaluatexQ(x[i], sqrt(q2[i])) + FLbottomM.EvaluatexQ(x[i]/etab, sqrt(q2[i])) - fthrb*FLbottomM0.EvaluatexQ(x[i], sqrt(q2[i]));
 	      _f3fonll[termID][i] = -charge * F3bottom.EvaluatexQ(x[i], sqrt(q2[i]));
 	    }
 	}
