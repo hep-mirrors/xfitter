@@ -61,7 +61,7 @@ void ReactionFONLL_DISCC::atIteration()
   APFEL::SetProcessDIS("CC");
 
   // Starting scale ...
-  double Q0 = *XFITTER_PARS::getParamD("Q0");
+  //double Q0 = *XFITTER_PARS::getParamD("Q0");
 
   // Loop over the data sets.
   for (auto tdpair : _dsIDs)
