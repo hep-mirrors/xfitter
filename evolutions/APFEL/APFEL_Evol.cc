@@ -257,17 +257,19 @@ void APFEL_Evol::atStart()
       hf_errlog(1506202302,"E: Higher APFEL grid range should be Q <= 4550 GeV to match resummation grids.");
   }
 
+  // SCALE VARIATIONS BELOW APPLY TO STRUCTURE FUNCTIONS! (REACTIONS FONLL_DISNC, FONLL_DISCC)
   // set the ratio muR / Q (default 1), muF / Q (default 1)
-  double muRoverQ = _yAPFEL["muRoverQ"].as<double>();
-  double muFoverQ = _yAPFEL["muFoverQ"].as<double>();
-  APFEL::EnableDynamicalScaleVariations(true); // ??? somehow in the past this was needed if muRoverQ != 1, muFoverQ != 1
-  APFEL::SetRenQRatio(muRoverQ);
-  APFEL::SetFacQRatio(muFoverQ);
-
+  APFEL::SetScaleVariationProcedure(1); // scale variations in structure functions only
+  APFEL::EnableDynamicalScaleVariations(true); // enables or disables the possibility to perform fact/ren scale variations point by point without requiring the ratio \mu_{R,F} / Q to be constant
+  //APFEL::EnableDynamicalScaleVariations(false); // enables or disables the possibility to perform fact/ren scale variations point by point without requiring the ratio \mu_{R,F} / Q to be constant
   // Initialize the APFEL DIS module
   APFEL::SetAlphaQCDRef(0.118, *Mz); //need to set alphas = 0.118 at initializiation
   APFEL::InitializeAPFEL_DIS();
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
+  double muRoverQ = _yAPFEL["muRoverQ"].as<double>();
+  double muFoverQ = _yAPFEL["muFoverQ"].as<double>();
+  APFEL::SetRenQRatio(muRoverQ);
+  APFEL::SetFacQRatio(muFoverQ);
 
   APFEL::SetPDFSet("external");
   gPdfDecomp = XFITTER_PARS::getInputDecomposition(_yAPFEL);

@@ -38,7 +38,8 @@ protected:
       signonred,
       sigred,
       f2,
-      fl
+      fl,
+      xf3
    }; //!< Define compute output.
    enum class dataFlav
    {

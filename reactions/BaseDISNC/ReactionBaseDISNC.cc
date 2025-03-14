@@ -88,6 +88,9 @@ void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map
   case dataType::fl:
     FL(td, val, err);
     break;
+  case dataType::xf3:
+    xF3(td, val, err);
+    break;
   }
 
   if (_integrated.find(termID) == _integrated.end())
@@ -186,6 +189,11 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     {
       _dataType[termID] = dataType::fl;
       msg = "I: Calculating DIS NC FL";
+    }
+    else if (type == "xF3")
+    {
+      _dataType[termID] = dataType::xf3;
+      msg = "I: Calculating DIS NC xF3";
     }
     else
     {
