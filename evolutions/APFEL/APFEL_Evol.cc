@@ -207,7 +207,6 @@ void APFEL_Evol::atStart()
   APFEL::SetCKM(*Vud, *Vus, *Vub,
                 *Vcd, *Vcs, *Vcb,
                 *Vtd, *Vts, *Vtb);
-  APFEL::EnableDynamicalScaleVariations(true);
 
   APFEL::SetQLimits(qLimits[0], qLimits[1]);
   _Qmin = qLimits[0];
