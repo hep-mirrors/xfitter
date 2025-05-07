@@ -68,7 +68,7 @@ double funcstart_(int *ipdf, double *x) {
   const std::map <int,int> ip =
   {
     {-6,-6}, {-5,-5}, {-4,-4}, {-3,-3}, {-2,-2}, {-1,-1}, {1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6},
-    {0,21},{7,22}, {8,23}, {9,-24}, {10,24}, {11,25}
+    {0,21},{7,22}, {8,23}, {9,24}, {10,-24}, {11,25}
   };  
   // std::cout << " in PBTMD in funcSTART " << *ipdf << " " << *x << std::endl;
   //std::cout << " in PBTMD in funcSTART " << gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)]<< std::endl;

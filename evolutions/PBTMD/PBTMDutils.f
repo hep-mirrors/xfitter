@@ -295,6 +295,7 @@ c average over parton - antiparton for better stability
          test = (xpqr(iparton)+xpqr(-iparton))/2.*xpq0(0)/x0
       elseif(iparton.ge.7.and.iparton.le.11) then 
          test = xpqr(iparton)*xpq0(0)/x0
+         test = 0
       else
          write(6,*) ' iTMDg: wrong iparton ',iparton
       endif
@@ -411,40 +412,41 @@ c      Fccfm1 = .false.
 
 
       endif
-      
+C electroweak: W+ (iparton=9 ):  -1, -3, -5, 2, 4, 6     -> dbar_quark (dbar generated)
+C electroweak: W- (iparton=10):  -2, -4, -6, 1, 3, 5     -> ubar_quark (ubar generated)
 
        if(iparton.eq.0) then
          test = xpqr(0)*(xpq0(1)+xpq0(2)+xpq0(3)+xpq0(-1)+xpq0(-2)+xpq0(-3))/x0
          elseif(iparton.eq.1) then
-         test = (Kaa*xpq0(1) + Kab_u*xpq0(2)+ Kac*xpq0(3)
-     +         + Kaabar*xpq0(-1)+ Kabbar_u *xpq0(-2) + Kacbar *xpq0(-3))/x0
+         test = (Kaa_u*xpq0(1) + Kab*xpq0(2)+ Kac_u*xpq0(3)
+     +         + Kaabar*xpq0(-1)+ Kabbar_u*xpq0(-2) + Kacbar*xpq0(-3))/x0
          elseif(iparton.eq.2) then
-         test = (Kaa_u*xpq0(2) + Kab*xpq0(1)+ Kac*xpq0(3)
+         test = (Kaa*xpq0(2) + Kab_u*xpq0(1)+ Kac_u*xpq0(3)
      +         + Kaabar_u*xpq0(-2)+ Kabbar *xpq0(-1) + Kacbar *xpq0(-3))/x0
          elseif(iparton.eq.3) then
-         test = (Kaa*xpq0(3) + Kab_u*xpq0(2)+ Kac*xpq0(1)
+         test = (Kaa_u*xpq0(3) + Kab*xpq0(2)+ Kac_u*xpq0(1)
      +         + Kaabar*xpq0(-3)+ Kabbar_u *xpq0(-2) + Kacbar *xpq0(-1))/x0
          elseif(iparton.eq.-1) then
          test = (Kaa*xpq0(-1) + Kab_u*xpq0(-2)+ Kac*xpq0(-3)
-     +         + Kaabar*xpq0(1)+ Kabbar_u *xpq0(2) + Kacbar *xpq0(3))/x0
+     +         + Kaabar_u*xpq0(1)+ Kabbar *xpq0(2) + Kacbar_u *xpq0(3))/x0
          elseif(iparton.eq.-2) then
          test = (Kaa_u*xpq0(-2) + Kab*xpq0(-1)+ Kac*xpq0(-3)
-     +         + Kaabar_u*xpq0(2)+ Kabbar *xpq0(1) + Kacbar *xpq0(3))/x0
+     +         + Kaabar*xpq0(2)+ Kabbar_u *xpq0(1) + Kacbar_u *xpq0(3))/x0
          elseif(iparton.eq.-3) then
          test = (Kaa*xpq0(-3) + Kab_u*xpq0(-2)+ Kac*xpq0(-1)
-     +         + Kaabar*xpq0(3)+ Kabbar_u *xpq0(2) + Kacbar *xpq0(1))/x0
+     +         + Kaabar_u*xpq0(3)+ Kabbar *xpq0(2) + Kacbar_u *xpq0(1))/x0
          elseif(iparton.eq.4) then
-         test = (Kad*xpq0(3) + Kad_u*xpq0(2)+ Kad*xpq0(1)
+         test = (Kad_u*xpq0(3) + Kad*xpq0(2)+ Kad_u*xpq0(1)
      +         + Kadbar*xpq0(-3)+ Kadbar_u *xpq0(-2) + Kadbar *xpq0(-1))/x0
          elseif(iparton.eq.-4) then
          test = (Kad*xpq0(-3) + Kad_u*xpq0(-2)+ Kad*xpq0(-1)
-     +         + Kadbar*xpq0(3)+ Kadbar_u *xpq0(2) + Kadbar *xpq0(1))/x0
+     +         + Kadbar_u*xpq0(3)+ Kadbar *xpq0(2) + Kadbar_u *xpq0(1))/x0
          elseif(iparton.eq.5) then
-         test = (Kae*xpq0(3) + Kae_u*xpq0(2)+ Kae*xpq0(1)
+         test = (Kae_u*xpq0(3) + Kae*xpq0(2)+ Kae_u*xpq0(1)
      +         + Kaebar*xpq0(-3)+ Kaebar_u *xpq0(-2) + Kaebar *xpq0(-1))/x0
          elseif(iparton.eq.-5) then
          test = (Kae*xpq0(-3) + Kae_u*xpq0(-2)+ Kae*xpq0(-1)
-     +         + Kaebar*xpq0(3)+ Kaebar_u *xpq0(2) + Kaebar *xpq0(1))/x0
+     +         + Kaebar_u*xpq0(3)+ Kaebar *xpq0(2) + Kaebar_u *xpq0(1))/x0
 c         elseif(iparton.eq.6) then
 c         test = (Kaf*xpq0(3) + Kaf*xpq0(2)+ Kaf*xpq0(1)
 c     +         + Kafbar*xpq0(-3)+ Kafbar *xpq0(-2) + Kafbar *xpq0(-1))/x0
@@ -452,14 +454,11 @@ c         elseif(iparton.eq.-6) then
 c         test = (Kaf*xpq0(-3) + Kaf*xpq0(-2)+ Kaf*xpq0(-1)
 c     +         + Kafbar*xpq0(3)+ Kafbar *xpq0(2) + Kafbar *xpq0(1))/x0
          elseif(iparton.ge.7.and.iparton.le.8) then
-         test = xpqr(iparton)*(xpq0(1)+xpq0(3)+xpq0(-1)+xpq0(-3))/x0 +
-     +          xpqru(iparton)*(xpq0(2)+xpq0(-2))/x0 
-         elseif(iparton.eq.9) then
-         test = xpqr(iparton)*(xpq0(1)+xpq0(3))/x0 +
-     +          xpqru(iparton)*xpq0(2)/x0 
-         elseif(iparton.eq.10) then
-         test = xpqr(iparton)*(xpq0(-1)+xpq0(-3))/x0 +
-     +          xpqru(iparton)*xpq0(-2)/x0 
+         test = xpqr(iparton)*(xpq0(-1)+xpq0(-3)+xpq0(2)+xpq0(4))/x0 
+         elseif(iparton.eq.9) then  
+         test = xpqr(iparton)*(xpq0(2)+xpq0(-1)+xpq0(-3))/x0 ! Wplus
+         elseif(iparton.eq.10) then 
+         test = xpqru(iparton)*(xpq0(1)+xpq0(3)+xpq0(-2))/x0 ! Wminus         
          elseif(iparton.eq.11) then
          test = xpqr(iparton)*(xpq0(1)+xpq0(3)+xpq0(-1)+xpq0(-3))/x0 +
      +          xpqru(iparton)*(xpq0(2)+xpq0(-2))/x0 
