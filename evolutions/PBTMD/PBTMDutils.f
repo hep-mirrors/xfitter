@@ -295,7 +295,6 @@ c average over parton - antiparton for better stability
          test = (xpqr(iparton)+xpqr(-iparton))/2.*xpq0(0)/x0
       elseif(iparton.ge.7.and.iparton.le.11) then 
          test = xpqr(iparton)*xpq0(0)/x0
-         test = 0
       else
          write(6,*) ' iTMDg: wrong iparton ',iparton
       endif
