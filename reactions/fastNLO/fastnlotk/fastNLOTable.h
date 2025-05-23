@@ -22,7 +22,9 @@ class fastNLOTable {
  public:
    fastNLOTable();
    fastNLOTable(std::string filename);
+   //   fastNLOTable(std::string filename, std::string verbosity = "INFO");
    virtual ~fastNLOTable();
+   //   fastNLOTable(const fastNLOTable&, std::string verbosity = "INFO");
    fastNLOTable(const fastNLOTable&);
 
    virtual void ReadTable();
@@ -32,6 +34,7 @@ class fastNLOTable {
    bool IsCompatibleScenario(const fastNLOTable& other) const;
    bool IsCatenable(const fastNLOTable& other) const;
    bool IsCatenableScenario(const fastNLOTable& other) const;
+   bool IsEquivalent(const fastNLOTable& other, double rtol) const;
 
    // --- function previously included in fastNLOBase
    // header
@@ -67,7 +70,7 @@ class fastNLOTable {
    /// Get dimensionality of calculation: single-, double-, or triple-differential
    unsigned int GetNumDiffBin() const {return NDim;}
 
-   /// Getters for linear array of observable bins "ObsBin" running from 0->(NObsBin-1)
+   /// Getters/setters for linear array of observable bins "ObsBin" running from 0->(NObsBin-1)
 
    /// Return lower bin bound for obs. bin iObs in dim. iDim
    double GetObsBinLoBound(unsigned int iObs, unsigned int iDim) const;
@@ -75,8 +78,12 @@ class fastNLOTable {
    double GetObsBinUpBound(unsigned int iObs, unsigned int iDim) const;
    /// Return std::vector of lower bin bounds in dim. iDim for all obs. bins
    std::vector < double > GetObsBinsLoBounds(unsigned int iDim) const;
+   /// Set std::vector of lower bin bounds in dim. iDim for all obs. bins
+   void SetObsBinsLoBounds(unsigned int iDim, std::vector < double > v);
    /// Return std::vector of upper bin bounds in dim. iDim for all obs. bins
    std::vector < double > GetObsBinsUpBounds(unsigned int iDim) const;
+   /// Set std::vector of upper bin bounds in dim. iDim for all obs. bins
+   void SetObsBinsUpBounds(unsigned int iDim, std::vector < double > v);
    /// Return minimum value of all lower bin bounds for dim. iDim
    double GetObsBinsLoBoundsMin(unsigned int iDim) const;
    /// Return maximum value of all upper bin bounds for dim. iDim
@@ -195,6 +202,7 @@ class fastNLOTable {
    void MultiplyBinInTable(unsigned int iObsIdx, double fact);
    void MultiplyBinSize(unsigned int iObsIdx, double fact);
    template<typename T> void MultiplyBin(std::vector<T>& v, unsigned int idx, double fact);
+   void MultiplyBinBorders(unsigned int iDim, double fact);
 
    void CatBinToTable(const fastNLOTable& other, unsigned int iObsIdx, unsigned int table_count);
    void CatBin(const fastNLOTable& other, unsigned int iObsIdx, unsigned int table_count);
@@ -225,7 +233,7 @@ class fastNLOTable {
    /// ___________________________________________________________________________________________________
    /// Other useful functions
    /// ___________________________________________________________________________________________________
-   void MergeTable(const fastNLOTable& rhs, fastNLO::EMerge option=fastNLO::kMerge ); //!< 'merge' 
+   void MergeTable(const fastNLOTable& rhs, fastNLO::EMerge option=fastNLO::kMerge ); //!< 'merge'
    void MergeTables(const std::vector<fastNLOTable*>& tables, fastNLO::EMerge option=fastNLO::kMerge, double cutRMS=0 ); //!< 'merge' (also supports 'median' and 'mean')
    void AddTable(const fastNLOTable& rhs, fastNLO::EMerge option=fastNLO::kMerge); //!< 'merge'
    void SetUserWeights(double wgt); //!< Set user weights for subsequent mergeing wgt

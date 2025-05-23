@@ -4,6 +4,8 @@
 
 #include "fastNLOCoeffBase.h"
 #include "fastNLOConstants.h"
+#include "fastNLOInterpolBase.h"
+#include "fastNLOEvent.h"
 
 namespace fastNLO {
    struct WgtStat {
@@ -146,7 +148,7 @@ public:
    int GetNScaleDim() const {return NScaleDim;}
    //std::vector<std::string > GetScaleDescript(int iScale=0) const { return ScaleDescript[iScale]; };
    std::string GetScaleDescription(int iScale=0) const { return ScaleDescript[0][iScale]; };         // getter for scale description of scale iScale
-   std::vector<std::vector<std::string > > GetScaleDescr() const { return ScaleDescript; }
+   const std::vector<std::vector<std::string > >& GetScaleDescr() const { return ScaleDescript; }
    int GetNxtot1(int iBin) const { return XNode1[iBin].size(); }
    int GetNxtot2(int iBin) const { return XNode2.size() > 0 ? XNode2[iBin].size() : -1; }
 
@@ -155,9 +157,13 @@ public:
    double GetX1(int iObsBin, int iXnode) const; //! return x value of pdf1 for x-node 1
    double GetX2(int iObsBin, int iXnode) const; //! return x value of pdf1 for x-node 1
 
-   std::vector < double > GetXNodes1(int iObsBin) const { return XNode1[iObsBin]; }
-   std::vector < double > GetXNodes2(int iObsBin) const { return XNode2[iObsBin]; }
+   const std::vector < double >& GetXNodes1(int iObsBin) const { return XNode1[iObsBin]; }
+   const std::vector < double >& GetXNodes2(int iObsBin) const { return XNode2[iObsBin]; }
 
+   fastNLO::v2d GetAllXNodes1() const { return XNode1; }
+   fastNLO::v2d GetAllXNodes2() const { return XNode2; }
+   fastNLO::v2d* AccessAllXNodes1() { return &XNode1; }
+   fastNLO::v2d* AccessAllXNodes2() { return &XNode2; }
    bool IsReference() const {return IRef>0;};
    bool IsCompatible(const fastNLOCoeffAddBase& other) const;
    bool IsCatenable(const fastNLOCoeffAddBase& other) const;
@@ -172,6 +178,11 @@ public:
    const fastNLO::WgtStat& GetWgtStat() const { return fWgt;} //!< Get weight and event counts
    fastNLO::WgtStat& AccessWgtStat() { return fWgt;} //!< Get weight and event counts
    double GetMergeWeight(fastNLO::EMerge moption, int proc, int bin) const ; //!< Get merge weight for a given bin and subprocess
+
+   void ExtendX(int ObsBin, std::vector<fastNLOInterpolBase*>& KernX1, std::vector<fastNLOInterpolBase*>& KernX2);
+   virtual void ExtendSigmaTildeX(int ObsBin, unsigned int OldXSize1, unsigned int OldXSize2);
+   virtual void Fill(fnloEvent& Event, int ObsBin, int X, int scalevar, const std::vector<std::pair<int, double>>& nmu1,
+      const std::vector<std::pair<int, double>>& nmu2, int SubProcess, double w);
 
 protected:
    void ReadCoeffAddBase(std::istream& table, int ITabVersionRead);

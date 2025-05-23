@@ -150,8 +150,16 @@ bool fastNLOCoeffBase::IsCatenable(const fastNLOCoeffBase& other) const {
       return false;
    }
    if ( ! (fVersionRead < 25000) ) {
-      if ( (HasCoeffInfoBlock(0,0) && ! other.HasCoeffInfoBlock(0,0)) ||
-           (! HasCoeffInfoBlock(0,0) && other.HasCoeffInfoBlock(0,0)) ) {
+      if (
+          (HasCoeffInfoBlock(0,0) && ! other.HasCoeffInfoBlock(0,0)) ||
+          (! HasCoeffInfoBlock(0,0) && other.HasCoeffInfoBlock(0,0)) ||
+          (HasCoeffInfoBlock(0,1) && ! other.HasCoeffInfoBlock(0,1)) ||
+          (! HasCoeffInfoBlock(0,1) && other.HasCoeffInfoBlock(0,1)) ||
+          (HasCoeffInfoBlock(1,0) && ! other.HasCoeffInfoBlock(1,0)) ||
+          (! HasCoeffInfoBlock(1,0) && other.HasCoeffInfoBlock(1,0)) ||
+          (HasCoeffInfoBlock(1,1) && ! other.HasCoeffInfoBlock(1,1)) ||
+          (! HasCoeffInfoBlock(1,1) && other.HasCoeffInfoBlock(1,1))
+          ) {
          debug["IsCatenable"]<<"Missing InfoBlock in either of the two tables. Skipped."<<endl;
          return false;
       }
@@ -164,9 +172,15 @@ bool fastNLOCoeffBase::IsCatenable(const fastNLOCoeffBase& other) const {
    return true;
 }
 
+
 //________________________________________________________________________________________________________________ //
+bool fastNLOCoeffBase::IsEquivalent(const fastNLOCoeffBase& other, double rtol) const {
+   error["IsEquivalent"] << "IsEquivalent not implemented by subclass!" << endl;
+   exit(1);
+}
 
 
+//________________________________________________________________________________________________________________ //
 void fastNLOCoeffBase::SetCoeffAddDefaults(){
   SetIDataFlag(0);
   SetIAddMultFlag(0);
@@ -273,22 +287,25 @@ int fastNLOCoeffBase::GetCoeffInfoBlockIndex(int fICoeffInfoBlockFlag1, int fICo
 }
 
 void fastNLOCoeffBase::AddCoeffInfoBlock(int fICoeffInfoBlockFlag1, int fICoeffInfoBlockFlag2, std::vector<std::string> Description,
-                                         std::vector<double> Uncertainty) {
+                                         std::vector<double> Content) {
    info["AddCoeffInfoBlocks"]<<"Adding additional InfoBlock with flags "<<fICoeffInfoBlockFlag1<<" and "<<fICoeffInfoBlockFlag2<<" to table contribution."<<endl;
    NCoeffInfoBlocks += 1;
    ICoeffInfoBlockFlag1.push_back(fICoeffInfoBlockFlag1);
    ICoeffInfoBlockFlag2.push_back(fICoeffInfoBlockFlag2);
    NCoeffInfoBlockDescr.push_back(Description.size());
    CoeffInfoBlockDescript.push_back(Description);
-   NCoeffInfoBlockCont.push_back(Uncertainty.size());
-   CoeffInfoBlockContent.push_back(Uncertainty);
+   NCoeffInfoBlockCont.push_back(Content.size());
+   CoeffInfoBlockContent.push_back(Content);
 }
 
 void fastNLOCoeffBase::AddCoeffInfoBlock(int fICoeffInfoBlockFlag1, int fICoeffInfoBlockFlag2, std::vector<std::string> Description,
-                                         std::string filename, unsigned int icola, unsigned int icolb) {
+                                         std::string filename, unsigned int icola, unsigned int icolb, double relfac) {
    info["AddCoeffInfoBlocks"]<<"Adding additional InfoBlock reading data from file "<<filename<<endl;
-   std::vector<double> Uncertainty = fastNLOTools::ReadUncertaintyFromFile(filename, icola, icolb);
-   AddCoeffInfoBlock(fICoeffInfoBlockFlag1, fICoeffInfoBlockFlag2, Description, Uncertainty);
+   std::vector<double> Content = fastNLOTools::ReadContentFromFile(filename, icola, icolb);
+   for ( unsigned int i=0; i<Content.size(); i++ ) {
+      Content[i] = relfac*Content[i];
+   }
+   AddCoeffInfoBlock(fICoeffInfoBlockFlag1, fICoeffInfoBlockFlag2, Description, Content);
 }
 
 void fastNLOCoeffBase::ReadCoeffInfoBlocks(istream& table, int ITabVersionRead) {
@@ -301,7 +318,7 @@ void fastNLOCoeffBase::ReadCoeffInfoBlocks(istream& table, int ITabVersionRead) 
          int iflag;
          table >> iflag;
          ICoeffInfoBlockFlag1.push_back(iflag);
-         if (ICoeffInfoBlockFlag1[i] == 0) {
+         if (ICoeffInfoBlockFlag1[i] == 0 || ICoeffInfoBlockFlag1[i] == 1) {
             debug["ReadCoeffInfoBlocks"]<<"Found info block of type ICoeffInfoBlockFlag1 = "<<ICoeffInfoBlockFlag1[i]<<endl;
          } else {
             error["ReadCoeffInfoBlocks"]<<"Found info block of unknown type ICoeffInfoBlockFlag1 = "<<ICoeffInfoBlockFlag1[i]<<endl;
@@ -321,7 +338,7 @@ void fastNLOCoeffBase::ReadCoeffInfoBlocks(istream& table, int ITabVersionRead) 
          for (unsigned int j=0; j<Description.size(); j++) {
             debug["ReadCoeffInfoBlocks"]<<"Read info block description line "<<j<<" : "<< Description[j] <<endl;
          }
-         if ( ICoeffInfoBlockFlag1[i] == 0 ) { // Entry per ObsBin
+         if (ICoeffInfoBlockFlag1[i] == 0 || ICoeffInfoBlockFlag1[i] == 1) { // Entry per ObsBin
             std::vector < double > Content;
             NCoeffInfoBlockCont.push_back(fastNLOTools::ReadFlexibleVector(Content,table));
             if ( NCoeffInfoBlockCont[i]-1 != fNObsBins ) {
@@ -343,7 +360,7 @@ void fastNLOCoeffBase::WriteCoeffInfoBlocks(ostream& table, int ITabVersionWrite
       debug["WriteCoeffInfoBlocks"]<<"Writing additional InfoBlocks; NCoeffInfoBlocks = "<<NCoeffInfoBlocks<<endl;
       table << NCoeffInfoBlocks << sep;
       for (int i=0; i<NCoeffInfoBlocks; i++) {
-         debug["WriteCoeffInfoBlocks"]<<"ICoeffInfoBlockFlags1,2 = "<<ICoeffInfoBlockFlag1[i]<<", "<<ICoeffInfoBlockFlag1[i]<<endl;
+         debug["WriteCoeffInfoBlocks"]<<"ICoeffInfoBlockFlags1,2 = "<<ICoeffInfoBlockFlag1[i]<<", "<<ICoeffInfoBlockFlag2[i]<<endl;
          table << ICoeffInfoBlockFlag1[i] << sep;
          table << ICoeffInfoBlockFlag2[i] << sep;
          table << NCoeffInfoBlockDescr[i] << sep;

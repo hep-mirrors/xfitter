@@ -38,8 +38,10 @@ public:
    unsigned int GetNScaleNode2(int iObsBin) const { return ScaleNode2[iObsBin].size(); };
    double GetScaleNode1(int iObsBin, int iNode) const { return ScaleNode1[iObsBin][iNode]; };
    double GetScaleNode2(int iObsBin, int iNode) const { return ScaleNode2[iObsBin][iNode]; };
-   std::vector < double > GetScaleNodes1(int iObsBin) const { return ScaleNode1[iObsBin]; };
-   std::vector < double > GetScaleNodes2(int iObsBin) const { return ScaleNode2[iObsBin]; };
+   fastNLO::v2d* AccessScaleNode1() { return &XNode1; }
+   fastNLO::v2d* AccessScaleNode2() { return &XNode2; }
+   const std::vector < double >& GetScaleNodes1(int iObsBin) const { return ScaleNode1[iObsBin]; };
+   const std::vector < double >& GetScaleNodes2(int iObsBin) const { return ScaleNode2[iObsBin]; };
    bool IsCompatible(const fastNLOCoeffAddFlex& other) const;                   //!< check for compatibilty for adding/merging of two tables
    bool IsCatenable(const fastNLOCoeffAddFlex& other) const;        //!< Check for compatibility of two contributions for merging/adding
    std::vector<fastNLO::v5d*>  AccessSigmaTildes() {
@@ -48,10 +50,17 @@ public:
    std::vector<const fastNLO::v5d*> GetSigmaTildes() const {
       return {&SigmaTildeMuIndep,&SigmaTildeMuRDep,&SigmaTildeMuFDep,&SigmaTildeMuRRDep,&SigmaTildeMuFFDep,&SigmaTildeMuRFDep};
    };//!< Get access to sigma tilde
+   bool IsEquivalent(const fastNLOCoeffBase& other, double rtol) const;
+   bool IsSigmaTildeEquivalent(const fastNLOCoeffAddFlex* op, const fastNLO::v5d *tst5, const fastNLO::v5d *ost5, double rtol, std::string name) const;
+
+   void ExtendSigmaTildeX(int ObsBin, unsigned int OldXSize1, unsigned int OldXSize2);
+   void Fill(fnloEvent& Event, int ObsBin, int X, int scalevar, const std::vector<std::pair<int, double>>& nmu1,
+      const std::vector<std::pair<int, double>>& nmu2, int SubProcess, double w);
 
 protected:
 
    void ReadCoeffAddFlex(std::istream& table, int ITabVersionRead);
+   void ExtendSigmaTilde(const fastNLOCoeffAddFlex& othflex, fastNLO::v5d& ThisSigmaTilde, fastNLO::v5d& OtherSigmaTilde);
 
    int fILOord;   // obtained from Scenario
    int fSTildeDISFormat = 1; // format of sigma-tilde coefficients (0: log(mu2/q2), 1: log(mu2))

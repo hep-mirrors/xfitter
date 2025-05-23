@@ -4,6 +4,9 @@
 
 #include "fastnlotk/fastNLOCoeffAddBase.h"
 #include "fastnlotk/fastNLOTools.h"
+#include "fastnlotk/fastNLOEvent.h"
+#include "fastnlotk/fastNLOInterpolBase.h"
+#include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
 using namespace fastNLO;
@@ -64,43 +67,26 @@ void fastNLOCoeffAddBase::Read(istream& table, int ITabVersionRead){
 
 //________________________________________________________________________________________________________________ //
 void fastNLOCoeffAddBase::ReadCoeffAddBase(istream& table, int ITabVersionRead){
+   debug["ReadCoeffAddBase::ReadCoeffAddBase"]<<"Start reading coefficients for table version "<<ITabVersionRead<<endl;
    CheckCoeffConstants(this);
    char buffer[5257];
-   //   string stest;
-   // if ( fVersionRead>=24000 ) table >> stest; //"fastNLO_CoeffAddBase"
-   // if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
    table >> IRef;
    table >> IScaleDep;
-   // if ( fVersionRead >= 24000 ) {
-   //    table >> Nevt;
-   //    table >> fWgt.WgtNevt;
-   //    table >> fWgt.NumTable;
-   //    table >> fWgt.WgtNumEv;
-   //    table >> fWgt.WgtSumW2;
-   //    table >> fWgt.SigSumW2;
-   //    table >> fWgt.SigSum;
-   //    fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsSumW2, table );
-   //    fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSumW2, table );
-   //    fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSum, table );
-   //    fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsNumEv, table );
-   // }
-   // else {
+   table >> Nevt;
+   double readNevt = Nevt;
+   if ( Nevt <= 0 ) { // v2300
       table >> Nevt;
-      double readNevt = Nevt;
-      if ( Nevt <= 0 ) { // v2300
-         table >> Nevt;
-         table >> fWgt.WgtNevt;
-         if ( readNevt<=-2 ) table >> fWgt.NumTable;
-         table >> fWgt.WgtNumEv;
-         table >> fWgt.WgtSumW2;
-         table >> fWgt.SigSumW2;
-         table >> fWgt.SigSum;
-         fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsSumW2, table );
-         fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSumW2, table );
-         fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSum, table );
-         fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsNumEv, table );
-      }
-   // }
+      table >> fWgt.WgtNevt;
+      if ( readNevt<=-2 ) table >> fWgt.NumTable;
+      table >> fWgt.WgtNumEv;
+      table >> fWgt.WgtSumW2;
+      table >> fWgt.SigSumW2;
+      table >> fWgt.SigSum;
+      fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsSumW2, table );
+      fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSumW2, table );
+      fastNLOTools::ReadFlexibleVector ( fWgt.SigObsSum, table );
+      fastNLOTools::ReadFlexibleVector ( fWgt.WgtObsNumEv, table );
+   }
    table >> Npow;
    int NPDF;
    table >> NPDF;
@@ -225,9 +211,6 @@ void fastNLOCoeffAddBase::ReadCoeffAddBase(istream& table, int ITabVersionRead){
       //            StripWhitespace(ScaleDescript[i][j]);
       }
    }
-
-   // if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
-   // if ( fVersionRead>=24000 ) fastNLOTools::ReadUnused(table);
 }
 
 
@@ -236,11 +219,9 @@ void fastNLOCoeffAddBase::Write(ostream& table, int itabversion) {
    debug["Write"]<<"Calling fastNLOCoeffBase::Write()"<<endl;
    fastNLOCoeffBase::Write(table,itabversion);
    CheckCoeffConstants(this);
-   // if ( itabversion >= 24000 ) table << "fastNLO_CoeffAddBase" << sep;
-   // if ( itabversion >= 24000 ) table << 0 << sep; // v2.4, but yet unused
    table << IRef << sep;
    table << IScaleDep << sep;
-   if ( itabversion==23000 || itabversion==23500 || itabversion==23600 || itabversion==25000 ) { // detailed storage of weights
+   if ( itabversion==23000 || itabversion==23500 || itabversion==23600 || itabversion==25000 || itabversion==26000) { // detailed storage of weights
       if ( itabversion==23000 || itabversion==23500 ) table << -1 << sep; // -1: read the values below
       else table << -2 << sep; // -1: read the values below
       table << Nevt << sep;
@@ -254,21 +235,7 @@ void fastNLOCoeffAddBase::Write(ostream& table, int itabversion) {
       fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSumW2, table );
       fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSum, table );
       fastNLOTools::WriteFlexibleVector ( fWgt.WgtObsNumEv, table );
-   }
-   // else if ( itabversion>=24000 ) { // detailed storage of weights
-   //    table << Nevt << sep;
-   //    table << fWgt.WgtNevt << sep;
-   //    table << fWgt.NumTable << sep;
-   //    table << fWgt.WgtNumEv << sep;
-   //    table << fWgt.WgtSumW2 << sep;
-   //    table << fWgt.SigSumW2 << sep;
-   //    table << fWgt.SigSum << sep;
-   //    fastNLOTools::WriteFlexibleVector ( fWgt.WgtObsSumW2, table );
-   //    fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSumW2, table );
-   //    fastNLOTools::WriteFlexibleVector ( fWgt.SigObsSum, table );
-   //    fastNLOTools::WriteFlexibleVector ( fWgt.WgtObsNumEv, table );
-   // }
-   else {
+   } else {
       table << Nevt << sep;
    }
    table << Npow << sep;
@@ -356,9 +323,6 @@ void fastNLOCoeffAddBase::Write(ostream& table, int itabversion) {
          table << ScaleDescript[i][j] << sep;
       }
    }
-   // if ( itabversion>=24000 ) table << 0 << sep; // v2.4, but yet unused
-   // if ( itabversion>=24000 ) table << 0 << sep; // v2.4, but yet unused
-
 }
 
 
@@ -374,6 +338,14 @@ void fastNLOCoeffAddBase::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
       }
    }
 
+   for (int i = 0; i < fNObsBins; i++) {
+      fastNLOTools::ExtendHead(XNode1[i], other.XNode1[i]);
+   }
+   if (NPDFDim > 1) {
+      for (int i = 0; i < fNObsBins; i++) {
+         fastNLOTools::ExtendHead(XNode2[i], other.XNode2[i]);
+      }
+   }
 
    if ( moption==fastNLO::kAttach ) {
       //Nevt = Nevt;// stays!
@@ -471,29 +443,14 @@ bool fastNLOCoeffAddBase::IsCompatible(const fastNLOCoeffAddBase& other) const {
       //return false;
       warn["IsCompatible"]<<"Continuing! (experimental: This is needed for kAttach, but may causes bugs otherwise. Please report!)"<<endl;
    }
-   // check x-nodes briefly
-   if ( fNObsBins != other.GetNObsBin() ){
-      warn["IsCompatible"]<<"Different number of bins detected."<<endl;
+   // check x-nodes
+   if (!fastNLOTools::SameTails(GetAllXNodes1(), other.GetAllXNodes1())) {
+      warn["IsCompatible"] << "XNodes1 not compatible, set verbosity to debug for more information." << endl;
       return false;
    }
-   // check x-nodes briefly
-   for ( int i = 0 ; i< fNObsBins ;i++ ){
-      if ( GetNxmax(i) != other.GetNxmax(i) ){
-         error["IsCompatible"]<<"Different number of x-nodes detected: "<<GetNxmax(i)<<" <-> "<<other.GetNxmax(i)<<endl;
-         return false;
-      }
-      if ( GetNxtot1(i) != other.GetNxtot1(i) ){
-         error["IsCompatible"]<<"Different number of x-nodes detected: "<<GetNxtot1(i)<<" <-> "<<other.GetNxtot1(i)<<endl;
-         return false;
-      }
-      if ( GetXNode1(i,0) != other.GetXNode1(i,0) ){
-         warn["IsCompatible"]<<"Different values for x-nodes detected. Lowest x-node: "<<GetXNode1(i,0)<<" <-> "<<other.GetXNode1(i,0)<<endl;
-         return false;
-      }
-      // if ( GetXNode1(i,1) != other.GetXNode1(i,1) ){
-      //    warn["IsCompatible"]<<"Different values for x-nodes detected."<<endl;
-      //    return false;
-      // }
+   if (!fastNLOTools::SameTails(GetAllXNodes2(), other.GetAllXNodes2())) {
+      warn["IsCompatible"] << "XNodes2 not compatible, set verbosity to debug for more information." << endl;
+      return false;
    }
    // succesful!
    return true;
@@ -805,11 +762,12 @@ void fastNLOCoeffAddBase::EraseBin(unsigned int iObsIdx, int ITabVersionRead) {
       if ( NCoeffInfoBlocks > 0 ) {
          debug["EraseBin"]<<"Found " << NCoeffInfoBlocks << " InfoBlocks with bins to be erased, too." << endl;
          for ( int i=0; i < NCoeffInfoBlocks; i++ ) {
-            if ( ICoeffInfoBlockFlag1[i] == 0 && ICoeffInfoBlockFlag2[i] == 0 ) {
+            if ( (ICoeffInfoBlockFlag1[i] == 0 || ICoeffInfoBlockFlag1[i] == 1) &&
+                 (ICoeffInfoBlockFlag2[i] == 0 || ICoeffInfoBlockFlag2[i] == 1) ) { // All possibilities for now. Potential extra info in description.
                CoeffInfoBlockContent[i].erase(CoeffInfoBlockContent[i].begin()+iObsIdx);
                NCoeffInfoBlockCont[i] = NCoeffInfoBlockCont[i] - 1;
             } else {
-               error["EraseBin"]<<"Erase bin not yet implemented for InfoBlocks other than with flags 1,2 = 0, 0:" <<
+               error["EraseBin"]<<"Erase bin not yet implemented for InfoBlocks other than with flags 1,2 = [0,1],[0,1]:" <<
                   ICoeffInfoBlockFlag1[i] << ", " << ICoeffInfoBlockFlag2[i] << ", aborted!" << endl;
                exit(567);
             }
@@ -838,11 +796,12 @@ void fastNLOCoeffAddBase::CatBin(const fastNLOCoeffAddBase& other, unsigned int 
       if ( NCoeffInfoBlocks > 0 ) {
          debug["CatBin"]<<"Found " << NCoeffInfoBlocks << " InfoBlocks with bins to be catenated, too." << endl;
          for ( int i=0; i < NCoeffInfoBlocks; i++ ) {
-            if ( ICoeffInfoBlockFlag1[i] == 0 && ICoeffInfoBlockFlag2[i] == 0 ) {
+            if ( (ICoeffInfoBlockFlag1[i] == 0 || ICoeffInfoBlockFlag1[i] == 1) &&
+                 (ICoeffInfoBlockFlag2[i] == 0 || ICoeffInfoBlockFlag2[i] == 1) ) { // All possibilities for now. Potential extra info in description.
                CoeffInfoBlockContent[i].push_back(other.CoeffInfoBlockContent[i][iObsIdx]);
                NCoeffInfoBlockCont[i] = NCoeffInfoBlockCont[i] + 1;
             } else {
-               error["CatBin"]<<"Catenate bins not yet implemented for InfoBlocks other than with flags 1,2 = 0, 0:" <<
+               error["CatBin"]<<"Catenate bins not yet implemented for InfoBlocks other than with flags 1,2 = [0,1],[0,1]:" <<
                   ICoeffInfoBlockFlag1[i] << ", " << ICoeffInfoBlockFlag2[i] << ", aborted!" << endl;
                exit(678);
             }
@@ -850,4 +809,38 @@ void fastNLOCoeffAddBase::CatBin(const fastNLOCoeffAddBase& other, unsigned int 
       }
    }
    fastNLOCoeffBase::CatBin(other, iObsIdx);
+}
+
+
+//________________________________________________________________________________________________________________ //
+void fastNLOCoeffAddBase::ExtendX(int ObsBin, std::vector<fastNLOInterpolBase*>& KernX1, std::vector<fastNLOInterpolBase*>& KernX2) {
+   unsigned int oldXSize1 = GetNxtot1(ObsBin);
+   unsigned int oldXSize2 = GetNxtot2(ObsBin);
+   bool x1Extended = fastNLOTools::ExtendHead(XNode1[ObsBin], KernX1[ObsBin]->fgrid);
+   if (NPDFDim > 1) {
+      bool x2Extended = fastNLOTools::ExtendHead(XNode2[ObsBin], KernX2[ObsBin]->fgrid);
+      if (!x1Extended && !x2Extended) {
+         return;
+      }
+   } else {
+      if (!x1Extended) {
+         return;
+      }
+   }
+   ExtendSigmaTildeX(ObsBin, oldXSize1, oldXSize2);
+}
+
+
+//________________________________________________________________________________________________________________ //
+void fastNLOCoeffAddBase::ExtendSigmaTildeX(int ObsBin, unsigned int OldXSize1, unsigned int OldXSize2) {
+   error["ExtendSigmaTildeX"] << "Method not implemented for fastNLOCoeffAddBase subclass. Exiting." << endl;
+   exit(1);
+}
+
+
+//________________________________________________________________________________________________________________ //
+void fastNLOCoeffAddBase::Fill(fnloEvent& Event, int ObsBin, int X, int scalevar,
+      const std::vector<std::pair<int, double>>& nmu1, const std::vector<std::pair<int, double>>& nmu2, int SubProcess, double w) {
+   error["Fill"] << "Method not implemented for fastNLOCoeffAddBase subclass. Exiting." << endl;
+   exit(1);
 }

@@ -423,7 +423,7 @@
 // stored automatically in config.h via AC_DEFINE statements in configure.ac.
 // To enable conditional compilation, e.g. using HAVE_LIBZ, this config file
 // MUST be the very first one to be included with
-//#include <config.h>
+#include <config.h>
 
 #include <algorithm>
 #include <cfloat>
@@ -434,7 +434,7 @@
 #include "fastnlotk/fastNLOTools.h"
 #include "fastnlotk/fastNLOCoeffAddFix.h"
 #include "fastnlotk/fastNLOCoeffAddFlex.h"
-//#include "fastnlotk/fastNLOLHAPDF.h"
+#include "fastnlotk/fastNLOLHAPDF.h"
 #ifdef WITH_HOPPET
 #include "fastnlotk/HoppetInterface.h"
 #endif
@@ -455,16 +455,12 @@ fastNLOReader::fastNLOReader() : fastNLOTable() {
    fUseHoppet            = false;
 }
 
-
 //______________________________________________________________________________
 
 fastNLOReader::fastNLOReader(string filename) : fastNLOTable(filename) {
-   //SetGlobalVerbosity(DEBUG); // Temporary for debugging
+   // say::SetGlobalVerbosity(say::toVerbosity()[verbosity]);
    logger.SetClassName("fastNLOReader");
    logger.debug["fastNLOReader"]<<"New fastNLOReader reading filename="<<filename<<endl;
-   //fCoeffData           = NULL;
-   //    Coeff_LO_Ref         = NULL;
-   //    Coeff_NLO_Ref        = NULL;
    fUnits               = fastNLO::kPublicationUnits;
    fMuRFunc             = fastNLO::kScale1;
    fMuFFunc             = fastNLO::kScale1;
@@ -478,11 +474,8 @@ fastNLOReader::fastNLOReader(string filename) : fastNLOTable(filename) {
 //______________________________________________________________________________
 
 fastNLOReader::fastNLOReader(const fastNLOTable& table) : fastNLOTable(table) {
-   //SetGlobalVerbosity(DEBUG); // Temporary for debugging
+   //   say::SetGlobalVerbosity(say::toVerbosity()[verbosity]);
    logger.SetClassName("fastNLOReader");
-   //fCoeffData           = NULL;
-   //    Coeff_LO_Ref         = NULL;
-   //    Coeff_NLO_Ref        = NULL;
    fUnits               = fastNLO::kPublicationUnits;
    fMuRFunc             = fastNLO::kScale1;
    fMuFFunc             = fastNLO::kScale1;
@@ -492,11 +485,10 @@ fastNLOReader::fastNLOReader(const fastNLOTable& table) : fastNLOTable(table) {
    fUseHoppet            = false;
    SetFilename("null");
 }
+
 //______________________________________________________________________________
 fastNLOReader::~fastNLOReader(void) {
 }
-
-
 
 //______________________________________________________________________________
 fastNLOReader::fastNLOReader(const fastNLOReader& other) :
@@ -509,6 +501,7 @@ fastNLOReader::fastNLOReader(const fastNLOReader& other) :
    XSectionRef_s1(other.XSectionRef_s1), XSectionRef_s2(other.XSectionRef_s2)
 {
    //! Copy constructor
+   //   say::SetGlobalVerbosity(say::toVerbosity()[verbosity]);
    OrderCoefficients(); // initialize pointers to fCoeff's
 }
 
@@ -1035,7 +1028,7 @@ vector < double > fastNLOReader::GetUncertainty(bool lNorm) {
 }
 
 //______________________________________________________________________________
-vector < double > fastNLOReader::GetNormCrossSection() {
+vector < double > fastNLOReader::GetNormCrossSection(bool lNormScale, double xmurd, double xmufd) {
    // Check whether normalization is defined
    if (INormFlag == 0) {
       logger.error["GetNormCrossSection"]<<"Normalization not defined for this scenario, aborting!"<<endl;
@@ -1044,6 +1037,13 @@ vector < double > fastNLOReader::GetNormCrossSection() {
    }
    if (XSection.empty()) CalcCrossSection();
    vector < double > XSectionNorm = XSection;
+
+   // Recalculate with modified scale factors for normalisation, if requested
+   if (lNormScale) {
+      SetScaleFactorsMuRMuF(xmurd,xmufd);
+      CalcCrossSection();
+   }
+   vector < double > XSectionDen = XSection;
 
    // // Second table to be loaded?
    // if ( INormFlag < 0 ) {
@@ -1089,7 +1089,7 @@ vector < double > fastNLOReader::GetNormCrossSection() {
          }
          for (int in = idivlo; in <= idivup; in++) {
             double bwidth = GetObsBinUpBound(in,iDim) - GetObsBinLoBound(in,iDim);
-            xsnorm += XSection[in]*bwidth;
+            xsnorm += XSectionDen[in]*bwidth;
             twidth += bwidth;
          }
       }
@@ -1173,6 +1173,7 @@ void fastNLOReader::CalcReferenceCrossSection() {
    //!  Initialize the internal arrays for the reference cross
    //!  sections with the information from the FastNLO file
    //!
+   logger.debug["CalcReferenceCrossSection"]<<"Starting CalcReferenceCrossSection ..."<<endl;
 
    XSectionRef.clear();
    XSectionRef.resize(NObsBin);
@@ -1244,10 +1245,81 @@ void fastNLOReader::CalcReferenceCrossSection() {
 
 
 //______________________________________________________________________________
+void fastNLOReader::CalcRefCrossSection() {
+   //!
+   //!  Initialize the internal arrays for the reference cross
+   //!  sections from the InfoBlocks of the fastNLO file (v2.6 upwards)
+   //!
+   logger.debug["CalcRefCrossSection"]<<"Starting CalcRefCrossSection ..."<<endl;
+
+   XSectionRef.clear();
+   XSectionRef.resize(NObsBin);
+
+   if (!GetIsFlexibleScaleTable()) {
+      fastNLOCoeffAddBase* Coeff_LO_Ref = GetReferenceTable(kLeading);
+      fastNLOCoeffAddBase* Coeff_NLO_Ref = GetReferenceTable(kNextToLeading);
+      fastNLOCoeffAddBase* Coeff_NNLO_Ref = GetReferenceTable(kNextToNextToLeading);
+      if (Coeff_LO_Ref && Coeff_NLO_Ref && Coeff_NNLO_Ref)
+         logger.warn["CalcRefCrossSection"]<<"Found NNLO reference cross section. Returning reference of LO+NLO+NNLO.\n";
+      if (Coeff_LO_Ref && Coeff_NLO_Ref) {
+         for (unsigned int i=0; i<NObsBin; i++) {
+            for (int l=0; l<Coeff_LO_Ref->GetNSubproc(); l++) {
+               //TODO ask Klaus about this: if (!fSubprocActive[l]) continue;
+               fastNLOCoeffAddFix* c = (fastNLOCoeffAddFix*)Coeff_LO_Ref;
+               int xUnits = c->GetIXsectUnits();
+               double unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
+               XSectionRef[i] +=  c->GetSigmaTilde(i,0,0,0,l) * unit / c->GetNevt(i,l) ; // no scalevariations in LO tables
+            }
+            for (int l=0; l<Coeff_NLO_Ref->GetNSubproc(); l++) {
+               //TODO ask Klaus about this: if (!fSubprocActive[l]) continue;
+               fastNLOCoeffAddFix* c = (fastNLOCoeffAddFix*)Coeff_NLO_Ref;
+               int xUnits = c->GetIXsectUnits();
+               double unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
+               XSectionRef[i] +=  c->GetSigmaTilde(i,fScalevar,0,0,l) * unit / c->GetNevt(i,l);
+            }
+            if (Coeff_NNLO_Ref) {
+               for (int l=0; l<Coeff_NNLO_Ref->GetNSubproc(); l++) {
+                  //TODO ask Klaus about this: if (!fSubprocActive[l]) continue;
+                  fastNLOCoeffAddFix* c = (fastNLOCoeffAddFix*)Coeff_NNLO_Ref;
+                  int xUnits = c->GetIXsectUnits();
+                  double unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
+                  XSectionRef[i] +=  c->GetSigmaTilde(i,fScalevar,0,0,l) * unit / c->GetNevt(i,l);
+               }
+            }
+         }
+      } else
+         logger.warn["CalcRefCrossSection"]<<"No reference cross sections for LO and NLO available.\n";
+   } else {
+      for (unsigned int i=0; i<NObsBin; i++) {
+         fastNLOCoeffAddFlex* cLO = (fastNLOCoeffAddFlex*)BBlocksSMCalc[kFixedOrder][kLeading];
+         int xUnits = cLO->GetIXsectUnits();
+         double unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
+         for (int n=0; n<cLO->GetNSubproc(); n++) {
+            //TODO if (!fSubprocActive[n]) continue;
+            XSectionRefMixed[i]             += cLO->SigmaRefMixed[i][n] * unit / cLO->GetNevt(i,n);
+            XSectionRef_s1[i]               += cLO->SigmaRef_s1[i][n] * unit / cLO->GetNevt(i,n);
+            XSectionRef_s2[i]               += cLO->SigmaRef_s2[i][n] * unit / cLO->GetNevt(i,n);
+         }
+         fastNLOCoeffAddFlex* cNLO = (fastNLOCoeffAddFlex*)BBlocksSMCalc[kFixedOrder][kNextToLeading];
+         xUnits = cNLO->GetIXsectUnits();
+         unit = RescaleCrossSectionUnits(BinSize[i], xUnits);
+         for (int n=0; n<cNLO->GetNSubproc(); n++) {
+            //TODO if (!fSubprocActive[n]) continue;
+            XSectionRefMixed[i]             += cNLO->SigmaRefMixed[i][n] * unit / cNLO->GetNevt(i,n);
+            XSectionRef_s1[i]               += cNLO->SigmaRef_s1[i][n] * unit / cNLO->GetNevt(i,n);
+            XSectionRef_s2[i]               += cNLO->SigmaRef_s2[i][n] * unit / cNLO->GetNevt(i,n);
+         }
+         // todo: nnlo reference cross section
+      }
+   }
+}
+
+
+//______________________________________________________________________________
 bool fastNLOReader::PrepareCache() {
    // check pdf cache
    const double PDFcks = CalcNewPDFChecksum();
-   if (fPDFCached==0. || (fPDFCached!=0. && fabs(PDFcks/fPDFCached -1.) > 1.e-7)) {
+   if (fPDFCached==0. || (fPDFCached!=0. && fabs(PDFcks/fPDFCached -1.) > 1.e-14)) {
       logger.debug["PrepareCache"]<<"Need to refill PDFCache, since PDFCecksum="<<PDFcks<<" and fPDFCached="<<fPDFCached<<endl;
       FillPDFCache(PDFcks);
    } else  logger.debug["PrepareCache"]<<"No need to refill PDFCache."<<endl;
@@ -1500,7 +1572,7 @@ void fastNLOReader::CalcCrossSectionv21(fastNLOCoeffAddFlex* c) {
       iCIBIndex = c->GetCoeffInfoBlockIndex(0);
       logger.debug["CalcCrossSectionv21"]<<"Found CoeffInfoBlock "<<iCIBIndex<<" with statistical/numerical uncertainties."<<endl;
       iCIBFlag2 = c->GetCoeffInfoBlockFlag2(iCIBIndex);
-      dCIBCont  = c->GetCoeffInfoContent(iCIBIndex);
+      dCIBCont  = c->GetCoeffInfoBlockContent(iCIBIndex);
    } else {
       logger.debug["CalcCrossSectionv21"]<<"No CoeffInfoBlock found; uncertainties are initialised to zero."<<endl;
    }
@@ -1616,7 +1688,7 @@ void fastNLOReader::CalcCrossSectionv20(fastNLOCoeffAddFix* c) {
       iCIBIndex = c->GetCoeffInfoBlockIndex(0);
       logger.debug["CalcCrossSectionv20"]<<"Found CoeffInfoBlock "<<iCIBIndex<<" with statistical/numerical uncertainties."<<endl;
       iCIBFlag2 = c->GetCoeffInfoBlockFlag2(iCIBIndex);
-      dCIBCont  = c->GetCoeffInfoContent(iCIBIndex);
+      dCIBCont  = c->GetCoeffInfoBlockContent(iCIBIndex);
    } else {
       logger.debug["CalcCrossSectionv20"]<<"No CoeffInfoBlock found; uncertainties are initialised to zero."<<endl;
    }
@@ -2133,7 +2205,7 @@ bool fastNLOReader::TestXFX() {
    // if ( sum== 0. ) printf("fastNLOReader. Error. All 13 pdf probabilities are 0. There might be sth. wrong in the pdf interface. Please check FastNLOUser::GetXFX().\n");
    for (int i = 0 ; i<13 ; i++) {
       if (pdftest[i] > 1.e10 || (pdftest[i] < 1.e-10 && pdftest[i] > 1.e-15)) {
-         logger.warn["TestXFX"]<<"The pdf probability of the "<<i<<"'s flavor seeems to be unreasonably large/small (pdf="<<pdftest[i]<<") at x="<<xtest<<", mu="<<mutest<<".\n";
+         logger.warn["TestXFX"]<<"The pdf probability of the "<<i<<"'s flavor seems to be unreasonably large/small (pdf="<<pdftest[i]<<") at x="<<xtest<<", mu="<<mutest<<".\n";
       }
    }
    return true;
@@ -2163,7 +2235,7 @@ void fastNLOReader::FillPDFCache(double chksum, bool lForce) {
    }
 
    // is there a need for a recalculation?
-   if (fPDFCached != 0. && fabs(PDFnew/fPDFCached - 1.) < 1.e-7 && !lForce) {
+   if (fPDFCached != 0. && fabs(PDFnew/fPDFCached - 1.) < 1.e-14 && !lForce) {
       logger.debug["FillPDFCache"]<<"No need for a refilling of PDFCache. fPDFCached=RefreshPDFChecksum()"<<PDFnew<<endl;
    } else {
       logger.debug["FillPDFCache"]<<"Refilling PDF cache"<<endl;
@@ -3403,11 +3475,42 @@ double fastNLOReader::RescaleCrossSectionUnits(double binsize, int xunits) {
 }
 
 
+//
+// Evaluation of uncertainties
+//
+// Scale uncertainty
 //______________________________________________________________________________
-XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eScaleUnc, bool lNorm) {
-   // Get 2- or 6-point scale uncertainty
-   const double xmurs[7] = {1.0, 0.5, 2.0, 0.5, 1.0, 1.0, 2.0};
-   const double xmufs[7] = {1.0, 0.5, 2.0, 1.0, 0.5, 2.0, 1.0};
+XsUncertainty fastNLOReader::GetXsUncertainty(const EScaleUncertaintyStyle eScaleUnc, bool lNorm, double sclfac) {
+   // Get 2-, 6- or, 30-point scale uncertainty around sclfac * central scale (30 only for normalised x sections/ratios)
+   // const double xmur0[7] = {1.0, 0.5, 2.0, 0.5, 1.0, 1.0, 2.0};
+   // const double xmuf0[7] = {1.0, 0.5, 2.0, 1.0, 0.5, 2.0, 1.0};
+   const double xmurn0[31] = {1.0, 0.5, 2.0, 0.5, 1.0, 1.0, 2.0,
+      0.5, 0.5, 1.0, 1.0, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 0.5,
+      2.0, 2.0, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 2.0};
+   const double xmufn0[31] = {1.0, 0.5, 2.0, 1.0, 0.5, 2.0, 1.0,
+      0.5, 1.0, 1.0, 0.5, 0.5, 0.5, 1.0, 0.5, 1.0, 1.0, 0.5, 1.0,
+      2.0, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 2.0, 1.0, 1.0, 2.0, 1.0};
+   const double xmurd0[31] = {1.0, 0.5, 2.0, 0.5, 1.0, 1.0, 2.0,
+      1.0, 1.0, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 1.0, 0.5, 1.0, 1.0,
+      1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, 2.0, 1.0, 1.0};
+   const double xmufd0[31] = {1.0, 0.5, 2.0, 1.0, 0.5, 2.0, 1.0,
+      1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0,
+      1.0, 2.0, 2.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0};
+
+   if ( sclfac < 0.1 || sclfac > 10. ) {
+      logger.error["GetScaleUncertainty"]<<"ERROR! Illegal value for sclfac, exiting. sclfac = "<< sclfac <<endl;
+      exit(1);
+   }
+   double xmurn[31];
+   double xmufn[31];
+   double xmurd[31];
+   double xmufd[31];
+   for (int i=0; i<31; i++) {
+      xmurn[i] = sclfac*xmurn0[i];
+      xmufn[i] = sclfac*xmufn0[i];
+      xmurd[i] = sclfac*xmurd0[i];
+      xmufd[i] = sclfac*xmufd0[i];
+   }
    XsUncertainty XsUnc;
 
    unsigned int NObsBin = GetNObsBin();
@@ -3416,6 +3519,8 @@ XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eS
       npoint = 2;
    } else if (eScaleUnc == kAsymmetricSixPoint) {
       npoint = 6;
+   } else if (eScaleUnc == kAsymmetricRatio) {
+      npoint = 30;
    }
 
    logger.debug["GetScaleUncertainty"]<<"npoint = "<<npoint<<endl;
@@ -3425,18 +3530,29 @@ XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eS
       logger.info["GetScaleUncertainty"]<<"Symmetric 2-point scale variations selected,"<<endl;
    } else if (npoint == 6) {
       logger.info["GetScaleUncertainty"]<<"Asymmetric 6-point scale variations selected,"<<endl;
+   } else if (npoint == 30 && lNorm) {
+      logger.info["GetScaleUncertainty"]<<"Asymmetric 30-point scale variations for ratios selected,"<<endl;
    } else {
       logger.error["GetScaleUncertainty"]<<"ERROR! No usual scale variation scheme selected, exiting."<<endl;
       logger.error["GetScaleUncertainty"]<<"npoint = "<<npoint<<endl;
+      logger.error["GetScaleUncertainty"]<<"lNorm = "<<lNorm<<endl;
       exit(1);
    }
 
    vector < double > MyXSection;
    //! Cross section and absolute uncertainties
    for (unsigned int iscl = 0; iscl <= npoint; iscl++) {
-      SetScaleFactorsMuRMuF(xmurs[iscl],xmufs[iscl]);
+      SetScaleFactorsMuRMuF(xmurn[iscl],xmufn[iscl]);
       CalcCrossSection();
-      MyXSection = GetCrossSection(lNorm);
+      bool lNormScale = false;
+      if (lNorm) {
+         if (eScaleUnc == kAsymmetricRatio) {
+            lNormScale = true;
+         }
+         MyXSection = GetNormCrossSection(lNormScale,xmurd[iscl],xmufd[iscl]);
+      } else {
+         MyXSection = GetCrossSection(lNorm);
+      }
       for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
          if (iscl == 0) {
             XsUnc.xs.push_back(MyXSection[iobs]);
@@ -3462,13 +3578,22 @@ XsUncertainty fastNLOReader::GetScaleUncertainty(const EScaleUncertaintyStyle eS
    }
 
    logger.info["GetScaleUncertainty"]<<"Setting scale factors back to default of unity."<<endl;
-   SetScaleFactorsMuRMuF(xmurs[0],xmufs[0]);
+   SetScaleFactorsMuRMuF(xmurn[0],xmufn[0]);
 
    return XsUnc;
 }
 
-std::vector< std::vector<double> > fastNLOReader::GetScaleUncertaintyVec(const EScaleUncertaintyStyle eScaleUnc) {
-   XsUncertainty xsUnc = fastNLOReader::GetScaleUncertainty(eScaleUnc);
+
+//______________________________________________________________________________
+
+// std::vector< std::vector<double> > fastNLOReader::GetXsUncertaintyVec(const EScaleUncertaintyStyle eScaleUnc, bool lNorm, int iprint, double sclfac) {
+std::vector< std::vector<double> > fastNLOReader::GetScaleUncertaintyVec(const EScaleUncertaintyStyle eScaleUnc, bool lNorm, int iprint, double sclfac) {
+   XsUncertainty xsUnc = fastNLOReader::GetXsUncertainty(eScaleUnc, lNorm, sclfac);
+   if (iprint > 0) {
+      string style{ScaleUncertaintyStyle_to_string(eScaleUnc)};
+      string UncName = " # Relative scale uncertainties (" + style + ")";
+      fastNLOTools::PrintXSUncertainty(xsUnc, UncName);
+   }
    std::vector<std::vector<double> > xsUncVec;
    xsUncVec.resize(3);
    xsUncVec[0] = xsUnc.xs;
@@ -3478,15 +3603,73 @@ std::vector< std::vector<double> > fastNLOReader::GetScaleUncertaintyVec(const E
 }
 
 
-// Added to include CoeffInfoBlocks
-//
 //______________________________________________________________________________
-XsUncertainty fastNLOReader::GetAddUncertainty(const EAddUncertaintyStyle eAddUnc, bool lNorm) {
+
+// void fastNLOReader::PrintXsUncertaintyVec(fastNLO::EScaleUncertaintyStyle eScaleUnc, std::string UncName, bool lNorm, double sclfac) {
+void fastNLOReader::PrintScaleUncertaintyVec(fastNLO::EScaleUncertaintyStyle eScaleUnc, std::string UncName, bool lNorm, double sclfac) {
+   XsUncertainty xsUnc = GetXsUncertainty(eScaleUnc, lNorm, sclfac);
+   fastNLOTools::PrintXSUncertainty(xsUnc, UncName);
+}
+
+
+// Numerical uncertainty (from CoeffInfoBlocks)
+//______________________________________________________________________________
+XsUncertainty fastNLOReader::GetXsUncertainty(const ENumUncertaintyStyle eNumUnc, bool lNorm) {
    //
    XsUncertainty XsUnc;
    vector < double > MyXSection;
+   vector < double > MyRefXSection;
    vector < double > MydXSection;
    unsigned int NObsBin = GetNObsBin();
+
+   //! For interpolation bias get reference PDF & member and values
+   if (eNumUnc == kApproxBias) {
+      std::vector < std::string > dCIBDescr;
+      std::string PDFset;
+      std::string PDFmem;
+      std::vector < double > dCIBCont;
+      //! Loop over contributions and evaluate InfoBlocks with reference values
+      for (unsigned int i=0; i<fCoeff.size() ; i++) {
+         fastNLOCoeffBase* c = GetCoeffTable(i);
+         logger.debug["GetNumUncertainty"]<<"Check whether contribution " << i << " is enabled, " << c->IsEnabled() << ", and additive (0), " << c->GetIAddMultFlag() << endl;
+         if ( c->IsEnabled() && c->GetIAddMultFlag() == 0 ) {
+            logger.info["GetNumUncertainty"]<<"Checking contribution " << i << " for reference values in InfoBlock." << endl;
+            if ( ! c->HasCoeffInfoBlock(1) ) {
+               logger.error["GetNumUncertainty"]<<"ERROR! No InfoBlock found for reference values, exiting."<<endl;
+               exit(35);
+            }
+            int iCIBIndex = c->GetCoeffInfoBlockIndex(1);
+            logger.debug["GetNumUncertainty"]<<"Found CoeffInfoBlock "<<iCIBIndex<<" with reference cross sections."<<endl;
+            dCIBDescr = c->GetCoeffInfoBlockDescription(iCIBIndex);
+            dCIBCont  = c->GetCoeffInfoBlockContent(iCIBIndex);
+            if ( dCIBDescr.size() < 3 ) {
+               logger.error["GetNumUncertainty"]<<"ERROR! InfoBlock description too short for reference cross sections, exiting."<<endl;
+               logger.error["GetNumUncertainty"]<<"       Line two and three should contain the used PDF set and member."<<endl;
+               exit(36);
+            } else {
+               PDFset = dCIBDescr[1];
+               PDFmem = dCIBDescr[2];
+            }
+            if ( MyRefXSection.size() == 0 ) {
+               MyRefXSection = dCIBCont;
+            } else {
+               if ( MyRefXSection.size() != dCIBCont.size() ) {
+                  logger.error["GetNumUncertainty"]<<"ERROR! Unequal number of reference values in contributions, exiting."<<endl;
+                  exit(39);
+               }
+               for (unsigned int j=0; j<MyRefXSection.size(); j++ ) {
+                  MyRefXSection[j] += dCIBCont[j];
+               }
+            }
+         }
+      }
+      if ( PDFset.empty() || PDFmem.empty() ) { // Corresponds to values from last active contribution
+         logger.error["GetNumUncertainty"]<<"ERROR! PDF set and/or PDF member used for reference values not found, aborted!" << endl;
+         exit(37);
+      }
+      logger.warn["GetNumUncertainty"]<<"The reference calculation used member " << PDFmem << " from PDF set " << PDFset << "." << endl;
+      logger.warn["GetNumUncertainty"]<<"To test the interpolation quality exactly the same PDF set and member must be used!" << endl;
+   }
 
    //! Cross section and absolute uncertainties
    CalcCrossSection();
@@ -3494,47 +3677,79 @@ XsUncertainty fastNLOReader::GetAddUncertainty(const EAddUncertaintyStyle eAddUn
    MydXSection = GetUncertainty(lNorm);
 
    //! Fill return struct
-   if (eAddUnc == kAddNone) {
-      logger.info["GetAddUncertainty"]<<"No additional uncertainty selected, uncertainties will be zero."<<endl;
+   if (eNumUnc == kNumNone) {
+      logger.info["GetNumUncertainty"]<<"No numerical uncertainty selected, uncertainties will be zero."<<endl;
       for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
          XsUnc.xs.push_back(MyXSection[iobs]);
          XsUnc.dxsu.push_back(0);
          XsUnc.dxsl.push_back(0);
       }
-   } else if (eAddUnc == kAddStat) {
-      logger.info["GetAddUncertainty"]<<"Statistical/numerical uncertainties selected."<<endl;
+   } else if (eNumUnc == kStatInt) {
+      logger.info["GetNumUncertainty"]<<"Statistical integration uncertainty selected."<<endl;
       for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
          XsUnc.xs.push_back(MyXSection[iobs]);
          XsUnc.dxsu.push_back(MydXSection[iobs]);
          XsUnc.dxsl.push_back(-MydXSection[iobs]);
       }
+   } else if (eNumUnc == kApproxBias) {
+      logger.info["GetNumUncertainty"]<<"Interpolation bias selected."<<endl;
+      for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
+         XsUnc.xs.push_back(MyXSection[iobs]);
+         XsUnc.dxsu.push_back(MyXSection[iobs]-MyRefXSection[iobs]);
+         XsUnc.dxsl.push_back(MyRefXSection[iobs]);
+      }
    } else {
-      logger.error["GetAddUncertainty"]<<"ERROR! No valid additional uncertainty style selected, exiting."<<endl;
-      logger.error["GetAddUncertainty"]<<"Style enum = "<<eAddUnc<<endl;
+      logger.error["GetNumUncertainty"]<<"ERROR! No valid numerical uncertainty style selected, exiting."<<endl;
+      logger.error["GetNumUncertainty"]<<"Style enum = "<<eNumUnc<<endl;
       exit(1);
    }
 
    //! Divide by cross section != 0 to give relative uncertainties
    for (unsigned int iobs = 0; iobs < NObsBin; iobs++) {
-      if (fabs(XsUnc.xs[iobs]) > DBL_MIN) {
-         XsUnc.dxsu[iobs] = +fabs(XsUnc.dxsu[iobs] / XsUnc.xs[iobs]);
-         XsUnc.dxsl[iobs] = -fabs(XsUnc.dxsl[iobs] / XsUnc.xs[iobs]);
+      if (eNumUnc == kApproxBias) {
+         if (fabs(MyRefXSection[iobs]) > DBL_MIN) {
+            XsUnc.dxsu[iobs] = XsUnc.dxsu[iobs] / fabs(MyRefXSection[iobs]);
+         } else {
+            XsUnc.dxsu[iobs] = 0.;
+         }
       } else {
-         XsUnc.dxsu[iobs] = 0.;
-         XsUnc.dxsl[iobs] = 0.;
+         if (fabs(XsUnc.xs[iobs]) > DBL_MIN) {
+            XsUnc.dxsu[iobs] = +fabs(XsUnc.dxsu[iobs] / XsUnc.xs[iobs]);
+            XsUnc.dxsl[iobs] = -fabs(XsUnc.dxsl[iobs] / XsUnc.xs[iobs]);
+         } else {
+            XsUnc.dxsu[iobs] = 0.;
+            XsUnc.dxsl[iobs] = 0.;
+         }
       }
-      logger.debug["GetAddUncertainty"]<<"iobs = " << iobs << ", dxsl = " << XsUnc.dxsl[iobs] << ", dxsu = " << XsUnc.dxsu[iobs] <<endl;
+      logger.debug["GetNumUncertainty"]<<"iobs = " << iobs << ", dxsl = " << XsUnc.dxsl[iobs] << ", dxsu = " << XsUnc.dxsu[iobs] <<endl;
    }
 
    return XsUnc;
 }
 
-std::vector< std::vector<double> > fastNLOReader::GetAddUncertaintyVec(const EAddUncertaintyStyle eAddUnc) {
-   XsUncertainty xsUnc = fastNLOReader::GetAddUncertainty(eAddUnc);
+
+//______________________________________________________________________________
+// std::vector< std::vector<double> > fastNLOReader::GetXsUncertaintyVec(const ENumUncertaintyStyle eNumUnc, bool lNorm, int iprint) {
+std::vector< std::vector<double> > fastNLOReader::GetNumUncertaintyVec(const ENumUncertaintyStyle eNumUnc, bool lNorm, int iprint) {
+   XsUncertainty xsUnc = fastNLOReader::GetXsUncertainty(eNumUnc, lNorm);
+   if (iprint > 0) {
+      string style{NumUncertaintyStyle_to_string(eNumUnc)};
+      string UncName = " # Relative numerical uncertainties (" + style + ")";
+      fastNLOTools::PrintXSUncertainty(xsUnc, UncName);
+   }
    std::vector<std::vector<double> > xsUncVec;
    xsUncVec.resize(3);
    xsUncVec[0] = xsUnc.xs;
    xsUncVec[1] = xsUnc.dxsu;
    xsUncVec[2] = xsUnc.dxsl;
    return xsUncVec;
+}
+
+
+//______________________________________________________________________________
+
+// void fastNLOReader::PrintXsUncertaintyVec(fastNLO::ENumUncertaintyStyle eNumUnc, std::string UncName, bool lNorm) {
+void fastNLOReader::PrintNumUncertaintyVec(fastNLO::ENumUncertaintyStyle eNumUnc, std::string UncName, bool lNorm) {
+   XsUncertainty xsUnc = GetXsUncertainty(eNumUnc, lNorm);
+   fastNLOTools::PrintXSUncertainty(xsUnc, UncName);
 }

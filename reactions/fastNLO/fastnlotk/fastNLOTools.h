@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "fastnlotk/fastNLOConstants.h"
+#include "fastNLOReader.h"
 #include "speaker.h"
 
 namespace fastNLOTools {
@@ -73,6 +73,12 @@ namespace fastNLOTools {
    //! - Printout of std::vectors
    template<typename T> void PrintVector( const std::vector<T>& v, std::string name, std::string prefix="");
 
+   //! - Printout of x section with uncertainty
+   void PrintXSUncertainty(XsUncertainty XsUnc, std::string UncName,
+                           std::string HeadLine = " # bin      cross_section           lower_uncertainty       upper_uncertainty");
+   void PrintXSUncertaintyVec(std::vector< std::vector<double> > XsUncVec, std::string UncName,
+                              std::string HeadLine = " # bin      cross_section           lower_uncertainty       upper_uncertainty");
+
    //! - useful i/o
    void PrintFastnloVersion(); //!< Print out fastNLO version
    bool CheckVersion(int version); //!< check version and exit if failed.
@@ -80,12 +86,23 @@ namespace fastNLOTools {
    bool ReadMagicNo(std::istream& table);                                       //!< Read and check magic number from table.
    void PutBackMagicNo(std::istream& table);                                    //!< Reset magic number, such that it can be recognized by other reading routines
 
-   //! Parse filename for uncertainties
+   //! Parse filename for additional information (uncertainties, reference cross sections, ...)
    //! - fnlo-tk-statunc:  'log' file extension; column numbers not needed, rel. stat. uncertainty = col #4
-   //! - NNLOJET dat file: 'dat' file extension; column numbers not needed, rel. stat. uncertainty = (col #5 / col #4)
+   //! - NNLOJET dat file: 'dat' file extension; column numbers either two (rel. stat. uncertainty = [col #5 / col #4]) or one (ref. cross section = col #4)
    //! - Generic txt file: 'txt' file extension; only icola --> rel. stat. uncertainty = col #icola
    //! -                                         icol a & b --> rel. stat. uncertainty = col #icolb / #icola
-   std::vector <double> ReadUncertaintyFromFile(std::string filename, unsigned int icola = 0, unsigned int icolb = 0);
+   std::vector <double> ReadContentFromFile(std::string filename, unsigned int icola = 0, unsigned int icolb = 0);
+
+   //! Function prototype for string to enum conversion of central scale choice
+   fastNLO::EScaleFunctionalForm GetScaleEnum(const std::string);
+
+   std::pair<fastNLO::v1d, fastNLO::v1d> GetTails(fastNLO::v1d& vector1, fastNLO::v1d& vector2);
+   bool SameTails(fastNLO::v1d vector1, fastNLO::v1d vector2, double rtol=0.0);
+   bool SameTails(fastNLO::v2d vector1, fastNLO::v2d vector2, double rtol=0.0);
+   bool ExtendHead(fastNLO::v1d& vector1, const fastNLO::v1d& vector2);
+   template <typename T> void ExtendSigmaTildeX(
+      std::vector<T>& SigmaTildeX, unsigned int OldDimSize1, unsigned int NewDimSize1,
+      unsigned int OldDimSize2, unsigned int NewDimSize2, int NPDFDim, T InsertValue);
 
 };
 
@@ -273,6 +290,5 @@ void fastNLOTools::PrintVector( const std::vector<T>& v, std::string name, std::
       std::cout<<" "<<prefix<<"   "<<i<<"\t"<<v[i]<<std::endl;
    }
 }
-
 
 #endif

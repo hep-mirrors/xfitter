@@ -5,6 +5,7 @@
 #include <cmath>
 #include <sstream>
 #include <string>
+#include "fastnlotk/fastNLOReader.h"
 #include "fastnlotk/fastNLOTools.h"
 
 using namespace std;
@@ -392,11 +393,11 @@ namespace fastNLOTools {
    }
 
    //______________________________________________________________________________
-   std::vector <double> ReadUncertaintyFromFile(std::string filename, unsigned int icola, unsigned int icolb) {
+   std::vector <double> ReadContentFromFile(std::string filename, unsigned int icola, unsigned int icolb) {
       std::string extension = "";
       std::ifstream infile;
       std::string line;
-      std::vector <double> Uncertainty;
+      std::vector <double> Content;
 
       //! Determine extension to differentiate for parsing
       //! - fnlo-tk-statunc:  'log' file extension; column numbers not needed, rel. stat. uncertainty = col #4
@@ -407,16 +408,16 @@ namespace fastNLOTools {
          extension = filename.substr(filename.find_last_of(".")+1);
       }
       if ( extension != "dat" && extension != "log" && extension != "txt" ) {
-         error["ReadUncertaintyFromFile"]<<"Unknown filename extension, aborted! filename = " << filename <<endl;
+         error["ReadContentFromFile"]<<"Unknown filename extension, aborted! filename = " << filename <<endl;
          exit(34);
       } else if ( extension == "txt" && icola == 0) {
-         error["ReadUncertaintyFromFile"]<<"'txt' file found, but column specification is missing, aborted! icola " << icola <<endl;
+         error["ReadContentFromFile"]<<"'txt' file found, but column specification is missing, aborted! icola " << icola <<endl;
          exit(35);
       } else if ( extension == "txt" && (icola > 10 || icolb > 10) ) {
-         error["ReadUncertaintyFromFile"]<<"'txt' file found, but column specification is too large, aborted! icola, icolb = " << icola << ", " << icolb <<endl;
+         error["ReadContentFromFile"]<<"'txt' file found, but column specification is too large, aborted! icola, icolb = " << icola << ", " << icolb <<endl;
          exit(35);
       } else {
-         info["ReadUncertaintyFromFile"]<<"Reading additional uncertainty content from file: " << filename <<endl;
+         info["ReadContentFromFile"]<<"Reading additional uncertainty content from file: " << filename <<endl;
       }
 
       infile.open(filename);
@@ -440,13 +441,15 @@ namespace fastNLOTools {
                   double xs, dxs;
                   iss >> xs;
                   iss >> dxs;
-                  if ( fabs(xs) > DBL_MIN ) {
+                  if (icola != 0 && icolb == 0) {
+                     Content.push_back(xs);
+                  } else if ( fabs(xs) > DBL_MIN ) {
                      // Is negative, if NLO_only or NNLO_only x section at production was < 0; keep this as additional information.
-                     Uncertainty.push_back(dxs/xs);
+                     Content.push_back(dxs/xs);
                      // Only allow positive numbers with maximum value of 1, i.e. = 100% uncertainty maximum
-                     //                     Uncertainty.push_back(std::min(fabs(dxs/xs),1.0));
+                     //                     Content.push_back(std::min(fabs(dxs/xs),1.0));
                   } else {
-                     Uncertainty.push_back(0.);
+                     Content.push_back(0.);
                   }
                   iline += 1;
                }
@@ -464,7 +467,7 @@ namespace fastNLOTools {
                   iss >> word;
                   double dxsrel;
                   iss >> dxsrel;
-                  Uncertainty.push_back(dxsrel);
+                  Content.push_back(dxsrel);
                   iline += 1;
                }
             }
@@ -478,24 +481,180 @@ namespace fastNLOTools {
                   iss >> word;
                }
                if ( icolb == 0 ) {
-                  Uncertainty.push_back(a);
+                  Content.push_back(a);
                } else {
                   if ( fabs(a) > DBL_MIN ) {
-                     Uncertainty.push_back(b/a);
+                     Content.push_back(b/a);
                   } else {
-                     Uncertainty.push_back(0);
+                     Content.push_back(0);
                   }
                }
             } else {
-               error["ReadUncertaintyFromFile"]<<"Unknown filename extension, aborted! filename = " << filename <<endl;
+               error["ReadContentFromFile"]<<"Unknown filename extension, aborted! filename = " << filename <<endl;
                exit(34);
             }
          }
       } else {
-         error["ReadUncertaintyFromFile"]<<"Cannot read from file, aborted! filename is: " << filename <<endl;
+         error["ReadContentFromFile"]<<"Cannot read from file, aborted! filename is: " << filename <<endl;
          exit(33);
       }
-      return Uncertainty;
+      return Content;
+   }
+
+   //______________________________________________________________________________
+   //! string to enum conversion of central scale choice
+   fastNLO::EScaleFunctionalForm GetScaleEnum(const std::string s) {
+      static std::unordered_map<std::string,fastNLO::EScaleFunctionalForm> const STRtoEScaleFunctionalForm = {
+         {"kScale1"           ,fastNLO::EScaleFunctionalForm::kScale1},
+         {"kScale2"           ,fastNLO::EScaleFunctionalForm::kScale2},
+         {"kQuadraticSum"     ,fastNLO::EScaleFunctionalForm::kQuadraticSum},
+         {"kQuadraticMean"    ,fastNLO::EScaleFunctionalForm::kQuadraticMean},
+         {"kQuadraticSumOver4",fastNLO::EScaleFunctionalForm::kQuadraticSumOver4},
+         {"kLinearMean"       ,fastNLO::EScaleFunctionalForm::kLinearMean},
+         {"kLinearSum"        ,fastNLO::EScaleFunctionalForm::kLinearSum},
+         {"kScaleMax"         ,fastNLO::EScaleFunctionalForm::kScaleMax},
+         {"kScaleMin"         ,fastNLO::EScaleFunctionalForm::kScaleMin},
+         {"kProd"             ,fastNLO::EScaleFunctionalForm::kProd},
+         {"kS2plusS1half"     ,fastNLO::EScaleFunctionalForm::kS2plusS1half},
+         {"kPow4Sum"          ,fastNLO::EScaleFunctionalForm::kPow4Sum},
+         {"kWgtAvg"           ,fastNLO::EScaleFunctionalForm::kWgtAvg},
+         {"kS2plusS1fourth"   ,fastNLO::EScaleFunctionalForm::kS2plusS1fourth},
+         {"kExpProd2"         ,fastNLO::EScaleFunctionalForm::kExpProd2},
+         {"kExtern"           ,fastNLO::EScaleFunctionalForm::kExtern},
+         {"kConst"            ,fastNLO::EScaleFunctionalForm::kConst},
+         // Additionally catch asymmetric mur, muf choices
+         {"scale12"           ,fastNLO::EScaleFunctionalForm::kScale1},
+         {"scale21"           ,fastNLO::EScaleFunctionalForm::kScale2}
+      };
+      auto it = STRtoEScaleFunctionalForm.find(s);
+      if (it != STRtoEScaleFunctionalForm.end()) {
+         return it->second;
+      } else {
+         error["GetScaleEnum"]<<"Unknown string for central scale choice, aborted! value = " << s << endl;
+         exit(1);
+      }
+   }
+
+   //______________________________________________________________________________
+   std::pair<fastNLO::v1d, fastNLO::v1d> GetTails(fastNLO::v1d& vector1, fastNLO::v1d& vector2) {
+      if (vector1.size() > vector2.size()) {
+         return std::make_pair(fastNLO::v1d(vector1.begin() + (vector1.size() - vector2.size()), vector1.end()), vector2);
+      } else if (vector1.size() < vector2.size()) {
+         return std::make_pair(vector1, fastNLO::v1d(vector2.begin() + (vector2.size() - vector1.size()), vector2.end()));
+      } else {
+         return std::make_pair(vector1, vector2);
+      }
+   }
+
+   //______________________________________________________________________________
+   bool SameTails(fastNLO::v1d vector1, fastNLO::v1d vector2, double rtol) {
+      std::tie(vector1, vector2) = GetTails(vector1, vector2);
+      for (unsigned int i = 0; i < vector1.size(); i++) {
+         if (abs(vector1[i] - vector2[i]) > abs(rtol * vector1[i])) {
+            debug["SameTails"] << "1D vector index is " << i << ". val1=" << vector1[i]
+               << " val2=" << vector2[i] << " rdiff="
+               << abs((vector1[i]-vector2[i])/vector1[i]) << " rtol=" << rtol << endl;
+            return false;
+         }
+      }
+      return true;
+   }
+
+   //______________________________________________________________________________
+   bool SameTails(fastNLO::v2d vector1, fastNLO::v2d vector2, double rtol) {
+      if (vector1.size() != vector2.size()) {
+         debug["SameTails"] << "2D vectors have different sizes." << endl;
+         return false;
+      }
+      for (unsigned int i = 0; i < vector1.size(); i++) {
+         if (!SameTails(vector1[i], vector2[i], rtol)) {
+            debug["SameTails"] << "2D vector index is " << i << endl;
+            return false;
+         }
+      }
+      return true;
+   }
+
+   //______________________________________________________________________________
+   bool ExtendHead(fastNLO::v1d& vector1, const fastNLO::v1d& vector2) {
+      if (vector1.size() < vector2.size()) {
+         vector1.insert(vector1.begin(), vector2.begin(), vector2.begin() + (vector2.size() - vector1.size()));
+         return true;
+      }
+      return false;
+   }
+
+   //______________________________________________________________________________
+   template <typename T> void ExtendSigmaTildeX(
+      std::vector<T>& SigmaTildeX, unsigned int OldDimSize1, unsigned int NewDimSize1,
+      unsigned int OldDimSize2, unsigned int NewDimSize2, int NPDFDim, T InsertValue) {
+      if (NPDFDim == 0) {
+         for (unsigned int i = OldDimSize1; i < NewDimSize1; i++) {
+            SigmaTildeX.insert(SigmaTildeX.begin(), InsertValue);
+         }
+      } else if (NPDFDim == 1) {
+         for (unsigned int i = OldDimSize1; i < NewDimSize1; i++) {
+            for (unsigned int j = 0; j <= i; j++) {
+               SigmaTildeX.insert(SigmaTildeX.begin() + (j * (j + 1) / 2), InsertValue);
+            }
+         }
+      } else if (NPDFDim == 2) {
+        for (unsigned int i = 0; i < OldDimSize2; i++) {
+           for (unsigned int j = OldDimSize1; j < NewDimSize1; j++) {
+              SigmaTildeX.insert(SigmaTildeX.begin() + i * NewDimSize1, InsertValue);
+           }
+        }
+        for (unsigned int i = OldDimSize2; i < NewDimSize2; i++) {
+           for (unsigned int j = 0; j < NewDimSize1; j++) {
+              SigmaTildeX.insert(SigmaTildeX.begin(), InsertValue);
+           }
+        }
+      } else {
+         error["ExtendSigmaTildeX"] << "Unsupported NPDFDim for x node density: " << NPDFDim << endl;
+         exit(1);
+      }
+   }
+   template void ExtendSigmaTildeX<fastNLO::v1d>(
+      fastNLO::v2d&, unsigned int, unsigned int, unsigned int, unsigned int, int, fastNLO::v1d);
+   template void ExtendSigmaTildeX<fastNLO::v3d>(
+      fastNLO::v4d&, unsigned int, unsigned int, unsigned int, unsigned int, int, fastNLO::v3d);
+
+
+   //______________________________________________________________________________
+   void PrintXSUncertainty(XsUncertainty XsUnc, string UncName, string HeadLine) {
+      //
+      //  Print evaluated cross section and relative uncertainty stored in
+      //  struct XsUncertainty of fastNLOReader.h
+      //
+
+      if ( XsUnc.xs.size() ) {
+         cout << _CSEPSC  << endl;
+         cout << " # fastNLOReader: Evaluating uncertainties" << endl;
+         cout << _CSEPSC  << endl;
+         cout << _DSEPSC  << endl;
+         cout << UncName  << endl;
+         cout << _SSEPSC  << endl;
+         cout << HeadLine << endl;
+         cout << _TSEPSC  << endl;
+         for ( unsigned int iobs=0;iobs<XsUnc.xs.size();iobs++ ) {
+            printf("%5.i      %#18.11E      %#18.11E      %#18.11E\n",iobs+1,XsUnc.xs[iobs],XsUnc.dxsl[iobs],XsUnc.dxsu[iobs]);
+         }
+         cout << _TSEPSC << endl;
+      }
+   }
+
+
+   //______________________________________________________________________________
+   void PrintXSUncertaintyVec(std::vector< std::vector<double> > xsUncVec, string UncName, string HeadLine) {
+      //
+      //  Print evaluated cross section and relative uncertainty stored in
+      //  Tri-vector XsUncertaintyVec of fastNLOReader.h
+      //
+      XsUncertainty xsUnc;
+      xsUnc.xs   = xsUncVec[0];
+      xsUnc.dxsu = xsUncVec[1];
+      xsUnc.dxsl = xsUncVec[2];
+      PrintXSUncertainty(xsUnc, UncName, HeadLine);
    }
 
 } // end namespace fastNLO

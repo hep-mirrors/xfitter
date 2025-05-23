@@ -35,6 +35,7 @@ public:
    virtual void CatBin(const fastNLOCoeffBase& other, unsigned int iObsIdx);
 
    bool IsCatenable(const fastNLOCoeffBase& other) const;
+   virtual bool IsEquivalent(const fastNLOCoeffBase& other, double rtol) const;
 
    void SetCoeffAddDefaults();
 
@@ -89,14 +90,17 @@ public:
    int GetCoeffInfoBlockFlag2(int Index) const { return ICoeffInfoBlockFlag2[Index]; };
    void SetCoeffInfoBlockFlag1(int Index, int iFlag1) { ICoeffInfoBlockFlag1[Index] = iFlag1; };
    void SetCoeffInfoBlockFlag2(int Index, int iFlag2) { ICoeffInfoBlockFlag2[Index] = iFlag2; };
-   std::vector < double > GetCoeffInfoContent(int Index) const { return CoeffInfoBlockContent[Index]; };
+   std::vector< std::string > GetCoeffInfoBlockDescription(int Index) const { return CoeffInfoBlockDescript[Index]; }
+   std::vector < double > GetCoeffInfoBlockContent(int Index) const { return CoeffInfoBlockContent[Index]; };
    int GetNCoeffInfoBlocks() const {return NCoeffInfoBlocks;}
    // Provide uncertainty via input vector
    void AddCoeffInfoBlock(int ICoeffInfoBlockFlag1, int ICoeffInfoBlockFlag2, std::vector<std::string> Description,
-                          std::vector<double> uncertainty);
+                          std::vector<double> Content);
    // Provide uncertainty reading from filename
    void AddCoeffInfoBlock(int ICoeffInfoBlockFlag1, int ICoeffInfoBlockFlag2, std::vector<std::string> Description,
-                          std::string filename, unsigned int icola = 0, unsigned int icolb = 0);
+                          std::string filename, unsigned int icola = 0, unsigned int icolb = 0, double relfac = 1);
+
+
 
 protected:
    void ReadBase(std::istream& table, int ITabVersionRead);

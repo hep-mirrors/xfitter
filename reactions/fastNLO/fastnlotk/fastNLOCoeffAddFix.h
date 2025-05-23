@@ -3,6 +3,7 @@
 
 #include "fastNLOCoeffAddBase.h"
 #include "fastNLOConstants.h"
+#include "fastNLOEvent.h"
 
 
 class fastNLOCoeffAddFix : public fastNLOCoeffAddBase {
@@ -56,6 +57,11 @@ public:
    void ResizeSigmaTilde();
    bool IsCompatible(const fastNLOCoeffAddFix& other) const;                   //!< Check for compatibility of two contributions for merging/adding
    bool IsCatenable(const fastNLOCoeffAddFix& other) const;        //!< Check for compatibility of two contributions for merging/adding
+   bool IsEquivalent(const fastNLOCoeffBase& other, double rtol) const;
+
+   void ExtendSigmaTildeX(int ObsBin, unsigned int OldXSize1, unsigned int OldXSize2);
+   void Fill(fnloEvent& Event, int ObsBin, int X, int scalevar, const std::vector<std::pair<int, double>>& nmu1,
+      const std::vector<std::pair<int, double>>& nmu2, int SubProcess, double w);
 
 protected:
    void ReadCoeffAddFix(std::istream& table, int ITabVersionRead);

@@ -77,6 +77,8 @@ public:
       fvol=volume;
    };
    static int SetGlobalVerbosity(say::Verbosity volume);
+   say::Verbosity GetGlobalVerbosity();
+   static say::Verbosity fverb;
    static void ErrorToErrStream(bool ToCerr) {
       fe2cerr=ToCerr;
    };
@@ -90,7 +92,6 @@ protected:
    unsigned long fii;
    static unsigned long ct;
    static bool fe2cerr;
-   static say::Verbosity fverb;
    static std::map<unsigned long,speaker*>* list;
    std::string cn;
 };
@@ -101,9 +102,15 @@ namespace say {
    extern speaker info;
    extern speaker warn;
    extern speaker error;
+   extern speaker debugsep;
+   extern speaker mansep;
+   extern speaker infosep;
+   extern speaker warnsep;
+   extern speaker errorsep;
    extern speaker shout; // same as error but streamed to cout
    extern speaker yell;  // same as error but streamed to cout without prefix
    extern int SetGlobalVerbosity(Verbosity verbosity);
+   extern Verbosity GetGlobalVerbosity(void);
 }
 
 
@@ -117,6 +124,11 @@ public:
    speaker info;
    speaker warn;
    speaker error;
+   speaker debugsep;
+   speaker mansep;
+   speaker infosep;
+   speaker warnsep;
+   speaker errorsep;
    speaker shout;
    speaker yell;
 private:

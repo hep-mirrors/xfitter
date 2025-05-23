@@ -27,6 +27,9 @@ public:
    fastNLOReader(std::string filename);
    fastNLOReader(const fastNLOTable&);
    fastNLOReader(const fastNLOReader&);
+   // fastNLOReader(std::string filename, std::string verbosity = "INFO");
+   // fastNLOReader(const fastNLOTable&, std::string verbosity = "INFO");
+   // fastNLOReader(const fastNLOReader&, std::string verbosity = "INFO");
    virtual ~fastNLOReader();
    void SetFilename(std::string filename) ;
    void InitScalevariation();
@@ -81,26 +84,36 @@ public:
    void ResetCache() { fPDFCached=0; fAlphasCached=0;}
 
    // ---- Do the cross section calculation ---- //
-   void CalcCrossSection();
-   double RescaleCrossSectionUnits(double binsize, int xunits);                         // Rescale according to kAbsoluteUnits and Ipublunits settings
+   void CalcCrossSection();                                      //!< Main method to calculate cross sections
+   void CalcReferenceCrossSection();                             //!< Old-style from grid like entries; is this working at all? Remove? TODO
+   void CalcRefCrossSection();                                   //!< New-style from InfoBlocks
+   std::vector < double > GetCrossSection(bool lNorm = false);   //!< Return vector with all cross section values, normalize on request
+   std::vector < double > GetReferenceCrossSection();            //!< Old-style from grid like entries; is this working at all? Remove? TODO
 
-   std::vector < double > GetCrossSection(bool lNorm = false);      //!< Return vector with all cross section values, normalize on request
-   std::vector < double > GetUncertainty(bool lNorm = false);       //!< Return vector with additional uncertainty of cross section values, normalise on request (NOT YET IMPLEMENTED)
-   std::vector < double > GetNormCrossSection();                    //!< Return vector with all normalized cross section values
-   std::vector < std::map< double, double > > GetCrossSection_vs_x1(); //! Cross section vs. x1 ( XSection_vsX1[bin][<x,xs>] )
-   std::vector < std::map< double, double > > GetCrossSection_vs_x2(); //! Cross section vs. x2 ( XSection_vsX1[bin][<x,xs>] )
+   std::vector < double > GetNormCrossSection(bool lNormScale = false, double xmurd = 1.0, double xmufd = 1.0); //!< Return vector with all normalized cross section values
+   std::vector < std::map< double, double > > GetCrossSection_vs_x1();                                          //! Cross section vs. x1 ( XSection_vsX1[bin][<x,xs>] ) Working? TODO
+   std::vector < std::map< double, double > > GetCrossSection_vs_x2();                                          //! Cross section vs. x2 ( XSection_vsX1[bin][<x,xs>] ) Working? TODO
+   std::vector < std::vector < double > > GetCrossSection2Dim();                                                //! Needed? Working? TODO
 
-   std::vector < double > GetReferenceCrossSection();
-   std::vector < double > GetQScales();   //!< Order (power of alpha_s) rel. to LO: 0 --> LO, 1 --> NLO
-   std::vector < std::vector < double > > GetCrossSection2Dim();
+   std::vector < double > GetQScales();                         //!< Order (power of alpha_s) rel. to LO: 0 --> LO, 1 --> NLO
+   std::vector < double > GetUncertainty(bool lNorm = false);   //!< Return vector with statistical uncertainty of cross section values, normalise on request (NOT YET IMPLEMENTED) TODO
 
+   //! Return struct with vectors (for C++) or vector of vectors (for Python) containing the cross section values and the selected uncertainty
+   //! Enum of Uncertaintstyle decides on method to call, but does not work for Python extension --> switch back to use differently named UncertaintyVec methods
+   //! Scale uncertainty
+   XsUncertainty GetXsUncertainty(const fastNLO::EScaleUncertaintyStyle eScaleUnc, bool lNorm = false, double sclfac = 1.);
+   // std::vector< std::vector<double> > GetXsUncertaintyVec(const fastNLO::EScaleUncertaintyStyle eScaleUnc, bool lNorm = false, int iprint = 0, double sclfac = 1.);
+   // void PrintXsUncertaintyVec(fastNLO::EScaleUncertaintyStyle, std::string UncName, bool lNorm = false, double sclfac =1.);
+   std::vector< std::vector<double> > GetScaleUncertaintyVec(const fastNLO::EScaleUncertaintyStyle eScaleUnc, bool lNorm = false, int iprint = 0, double sclfac = 1.);
+   void PrintScaleUncertaintyVec(fastNLO::EScaleUncertaintyStyle, std::string UncName, bool lNorm = false, double sclfac =1.);
+   //! Numerical uncertainty
+   XsUncertainty GetXsUncertainty(const fastNLO::ENumUncertaintyStyle eNumUnc, bool lNorm = false);
+   // std::vector< std::vector<double> > GetXsUncertaintyVec(const fastNLO::ENumUncertaintyStyle eNumUnc, bool lNorm = false, int iprint = 0);
+   // void PrintXsUncertaintyVec(fastNLO::ENumUncertaintyStyle, std::string UncName, bool lNorm = false);
+   std::vector< std::vector<double> > GetNumUncertaintyVec(const fastNLO::ENumUncertaintyStyle eNumUnc, bool lNorm = false, int iprint = 0);
+   void PrintNumUncertaintyVec(fastNLO::ENumUncertaintyStyle, std::string UncName, bool lNorm = false);
 
-   //! Return struct with vectors containing the cross section values and the selected uncertainty
-   XsUncertainty GetScaleUncertainty( const fastNLO::EScaleUncertaintyStyle eScaleUnc, bool lNorm = false);
-   XsUncertainty GetAddUncertainty( const fastNLO::EAddUncertaintyStyle eAddUnc, bool lNorm = false);
-   //! Function for use with pyext (TODO: Clean this up)
-   std::vector< std::vector<double> > GetScaleUncertaintyVec( const fastNLO::EScaleUncertaintyStyle eScaleUnc );
-   std::vector< std::vector<double> > GetAddUncertaintyVec( const fastNLO::EAddUncertaintyStyle eAddUnc );
+   double RescaleCrossSectionUnits(double binsize, int xunits);   // Rescale according to kAbsoluteUnits and Ipublunits settings
 
    // ---- Getters for fastNLOReader member variables ---- //
    fastNLO::EScaleFunctionalForm GetMuRFunctionalForm() const { return fMuRFunc; };
@@ -154,8 +167,6 @@ protected:
    double CalcNewPDFChecksum();
    double CalcChecksum(double mu);
    bool PrepareCache();
-
-   void CalcReferenceCrossSection();
 
    double CalcMu(fastNLO::EMuX kMuX, double scale1 , double scale2 , double scalefactor);
    double FuncMixedOver1(double scale1 , double scale2) ;

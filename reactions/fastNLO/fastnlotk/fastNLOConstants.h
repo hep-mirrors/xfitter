@@ -4,22 +4,24 @@
 // NEVER EVER include a project's internal config.h in installable header files!
 // Use for conditional compilation only in .cc source code files.
 // Otherwise conflicts with other linked projects are to be expected.
-#include <string>
-#include <vector>
+#include <optional>
 #include <set>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #ifndef FNLO_NAME
 #define FNLO_NAME       "fastNLO_toolkit"
 #define FNLO_SUBPROJECT "toolkit"
-#define FNLO_VERSION    "2.5.0"
-#define FNLO_GITREV     "2826"
+#define FNLO_VERSION    "2.6.0"
+#define FNLO_GITREV     "3067-3-g1f8468f0"
 #define FNLO_AUTHORS    "D. Britzger, T. Kluge, K. Rabbertz, F. Stober, G. Sieber, M. Wobisch"
 #define FNLO_WEBPAGE    "http://projects.hepforge.org/fastnlo"
 #define FNLO_AUTHORSv14 "T. Kluge, K. Rabbertz, M. Wobisch"
 #define FNLO_QUOTEv14   "Proc. DIS 2006, 483 (2006), hep-ph/0609285."
 #define FNLO_AUTHORSv2  "D. Britzger, K. Rabbertz, F. Stober, M. Wobisch"
 #define FNLO_QUOTEv2    "Proc. DIS 2012, 217 (2012), arXiv:1208.3641."
-#define FNLO_YEARS      "2005-2021"
+#define FNLO_YEARS      "2005-2025"
 #endif
 
 // KR: Replace by precompiler defines
@@ -50,8 +52,8 @@ namespace fastNLO {
    typedef std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<std::vector<double > > > > > > > v7d;
 
    // ---- constants ---- //
-   static const std::set<int> CompatibleVersions{20000,21000,22000,23000,23500,23600,25000};
-   const int tabversion   = 23600;
+   static const std::set<int> CompatibleVersions{20000,21000,22000,23000,23500,23600,25000,26000};
+   const int tabversion   = 26000;
    const int tablemagicno = 1234567890;
    // separating character between entries in table
    const char sep[] = "\n";
@@ -106,14 +108,50 @@ namespace fastNLO {
    enum EScaleUncertaintyStyle {
       kScaleNone                = 0,    // no scale uncertainty, only central scale (mu_r,mu_f) = (1,1) evaluated
       kSymmetricTwoPoint        = 1,    // symmetric (mu_r,mu_f) scale variations by factors (1/2,1/2), (2,2)
-      kAsymmetricSixPoint       = 2     // asymmetric (mu_r,mu_f) scale variations by factors (1/2,1/2), (2,2) plus
+      kAsymmetricSixPoint       = 2,    // asymmetric (mu_r,mu_f) scale variations by factors (1/2,1/2), (2,2) plus
                                         // (1/2,1), (1,1/2), (1,2), (2,1)
+      kAsymmetricRatio          = 3     // 30(+1) combinations for mu_r, mu_f in numerator and denominator
    };
 
-   enum EAddUncertaintyStyle {
-      kAddNone                  = 0,    // no additional uncertainty
-      kAddStat                  = 1     // statistical/numerical uncertainty
+   constexpr std::string_view ScaleUncertaintyStyle_to_string(EScaleUncertaintyStyle estyle) {
+      switch (estyle) {
+         case kScaleNone:          return "NN";
+         case kSymmetricTwoPoint:  return "2P";
+         case kAsymmetricSixPoint: return "6P";
+         case kAsymmetricRatio:    return "30";
+         default:                  return "??";
+      }
+   }
+
+   constexpr std::optional<EScaleUncertaintyStyle> ScaleUncertaintyStyle_to_enum(std::string_view sstyle) {
+      if (sstyle == "NN") return kScaleNone;
+      if (sstyle == "2P") return kSymmetricTwoPoint;
+      if (sstyle == "6P") return kAsymmetricSixPoint;
+      if (sstyle == "30") return kAsymmetricRatio;
+      return{kScaleNone};
+   }
+
+   enum ENumUncertaintyStyle {
+      kNumNone                  = 0,    // no numerical uncertainty
+      kStatInt                  = 1,    // statistical uncertainty from MC integration
+      kApproxBias               = 2     // bias from approximation through interpolation
    };
+
+   constexpr std::string_view NumUncertaintyStyle_to_string(ENumUncertaintyStyle estyle) {
+      switch (estyle) {
+         case kNumNone:    return "NN";
+         case kStatInt:    return "ST";
+         case kApproxBias: return "AB";
+         default:          return "??";
+      }
+   }
+
+   constexpr std::optional<ENumUncertaintyStyle> NumUncertaintyStyle_to_enum(std::string_view sstyle) {
+      if (sstyle == "NN") return kNumNone;
+      if (sstyle == "ST") return kStatInt;
+      if (sstyle == "AB") return kApproxBias;
+      return{kNumNone};
+   }
 
    enum EPDFUncertaintyStyle {
       kPDFNone                  = 0,    // No PDF uncertainty, only averaged cross section result evaluated (Correct for NNPDF, wrong otherwise!)
@@ -126,10 +164,50 @@ namespace fastNLO {
       kHeraPDF10                = 7     // HERAPDF 1.0 uncertainties
    };
 
+   constexpr std::string_view PDFUncertaintyStyle_to_string(EPDFUncertaintyStyle estyle) {
+      switch (estyle) {
+         case kPDFNone:              return "NN";
+         case kLHAPDF6:              return "L6";
+         case kHessianSymmetric:     return "HS";
+         case kHessianAsymmetric:    return "HA";
+         case kHessianAsymmetricMax: return "HP";
+         case kHessianCTEQCL68:      return "HC";
+         case kMCSampling:           return "MC";
+         case kHeraPDF10:            return "H1"; // not yet implemented
+         default:                    return "??";
+      }
+   }
+
+   constexpr std::optional<EPDFUncertaintyStyle> PDFUncertaintyStyle_to_enum(std::string_view sstyle) {
+      if (sstyle == "NN") return kPDFNone;
+      if (sstyle == "L6") return kLHAPDF6;
+      if (sstyle == "HS") return kHessianSymmetric;
+      if (sstyle == "HA") return kHessianAsymmetric;
+      if (sstyle == "HP") return kHessianAsymmetricMax;
+      if (sstyle == "HC") return kHessianCTEQCL68;
+      if (sstyle == "MC") return kMCSampling;
+      if (sstyle == "H1") return kHeraPDF10;
+      return{kPDFNone};
+   }
+
    enum EAsUncertaintyStyle {
       kAsNone                   = 0,    // no a_s uncertainty
       kAsGRV                    = 1,    // a_s(M_Z) uncertainty with GRV evolution
    };
+
+   constexpr std::string_view AsUncertaintyStyle_to_string(EAsUncertaintyStyle estyle) {
+      switch (estyle) {
+         case kAsNone:             return "NN";
+         case kAsGRV:              return "AS";
+         default:                  return "??";
+      }
+   }
+
+   constexpr std::optional<EAsUncertaintyStyle> AsUncertaintyStyle_to_enum(std::string_view sstyle) {
+      if (sstyle == "NN") return kAsNone;
+      if (sstyle == "AS") return kAsGRV;
+      return{kAsNone};
+   }
 
    enum EMerge {  //!< mergeing options.
       kMerge, //!< Calculate weighted average (default. Nevt usually set externally by generator code).

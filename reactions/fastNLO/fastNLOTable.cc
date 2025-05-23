@@ -2,7 +2,7 @@
 // stored automatically in config.h via AC_DEFINE statements in configure.ac.
 // To enable conditional compilation, e.g. using HAVE_LIBZ, this config file
 // MUST be the very first one to be included with
-//#include <config.h>
+#include <config.h>
 
 #include <algorithm>
 #include <cfloat>
@@ -12,6 +12,7 @@
 #include <set>
 #include "fastnlotk/fastNLOTable.h"
 #include "fastnlotk/fastNLOTools.h"
+#include "fastnlotk/read_steer.h"
 // zlib wrapper library
 #ifdef HAVE_LIBZ
 #include "fastnlotk/zstr.hpp"
@@ -64,6 +65,7 @@ fastNLOTable::fastNLOTable(const fastNLOTable& other)
      IDivUpPointer(other.IDivUpPointer)
 {
    //! Copy constructor
+   //   say::SetGlobalVerbosity(say::toVerbosity()[verbosity]);
    logger.SetClassName("fastNLOTable");
    for (size_t i = 0; i < other.fCoeff.size(); ++i) {
       fCoeff[i] = other.fCoeff[i]->Clone();
@@ -545,6 +547,17 @@ bool fastNLOTable::IsCatenableScenario(const fastNLOTable& other) const {
       }
    }
    if ( !potentialcatenable ) logger.warn["IsCatenableScenario"]<<"Some labels have differing values, but relevant variables seem to be catenable. Continuing."<<endl;
+   return true;
+}
+
+
+// ___________________________________________________________________________________________________
+bool fastNLOTable::IsEquivalent(const fastNLOTable& other, double rtol=1e-6) const {
+   for (int i = 0; i < 1; i++) {
+      if (!GetCoeffTable(i)->IsEquivalent(*other.GetCoeffTable(i), rtol)) {
+         return false;
+      }
+   }
    return true;
 }
 
@@ -1127,16 +1140,10 @@ void fastNLOTable::SetDimLabel( string label, unsigned int iDim , bool IsDiff ){
    // TODO: KR: The IsDiff boolean should be changed into an int to accommodate IDiffBin 0,1,2
    //           possibility?!
    //
-   // int iDim: counting starts from 0
-
 
    // check validity of call
-   if ( NDim < iDim ) {
+   if ( ! (iDim < NDim) ) {
       logger.error["SetDimLabel"]<<"Sorry, you have only initialized "<<NDim<<" dimensions, but you want to label a dimension with number "<<iDim<<endl;
-      exit(1);
-   }
-   if ( iDim < 1) {
-      logger.error["SetDimLabel"]<<"The dimension must be a natural number. iDim="<<iDim<<endl;
       exit(1);
    }
 
@@ -1255,7 +1262,7 @@ double fastNLOTable::GetObsBinUpBound(unsigned int iObs, unsigned int iDim) cons
 
 
 // ___________________________________________________________________________________________________
-// Return vector of lower bin bounds in dim. iDim for all obs. bins
+// Return/set vector of lower bin bounds in dim. iDim for all obs. bins
 vector < double > fastNLOTable::GetObsBinsLoBounds(unsigned int iDim) const {
    if ( ! (iDim < NDim) ) {
       logger.error["GetObsBinsLoBounds"]<<"Dimension iDim " << iDim << " out of range, NDim = " << NDim << ", aborted!" << endl;
@@ -1269,9 +1276,25 @@ vector < double > fastNLOTable::GetObsBinsLoBounds(unsigned int iDim) const {
    return LoBin;
 }
 
+void fastNLOTable::SetObsBinsLoBounds(unsigned int iDim, vector < double > v) {
+   if ( ! (iDim < NDim) ) {
+      logger.error["SetObsBinsLoBounds"]<<"Dimension iDim " << iDim << " out of range, NDim = " << NDim << ", aborted!" << endl;
+      exit(1);
+   }
+   if ( v.size() != NObsBin ) {
+      logger.error["SetObsBinsLoBounds"]<<"Vector size " << v.size() << " unequal to no. of observable bins " <<  NObsBin << ", aborted!" << endl;
+      exit(1);
+   }
+   // Set lower bin edge of all observable bins for dimension 'iDim'
+   for (size_t i = 0; i < v.size(); ++i) {
+      Bin[i][iDim].first = v[i];
+   }
+   return;
+}
+
 
 // ___________________________________________________________________________________________________
-// Return vector of upper bin bounds in dim. iDim for all obs. bins
+// Return/set vector of upper bin bounds in dim. iDim for all obs. bins
 vector < double > fastNLOTable::GetObsBinsUpBounds(unsigned int iDim) const {
    if ( ! (iDim < NDim) ) {
       logger.error["GetObsBinsUpBounds"]<<"Dimension iDim " << iDim << " out of range, NDim = " << NDim << ", aborted!" << endl;
@@ -1285,6 +1308,21 @@ vector < double > fastNLOTable::GetObsBinsUpBounds(unsigned int iDim) const {
    return UpBin;
 }
 
+void fastNLOTable::SetObsBinsUpBounds(unsigned int iDim, vector < double > v) {
+   if ( ! (iDim < NDim) ) {
+      logger.error["SetObsBinsUpBounds"]<<"Dimension iDim " << iDim << " out of range, NDim = " << NDim << ", aborted!" << endl;
+      exit(1);
+   }
+   if ( v.size() != NObsBin ) {
+      logger.error["SetObsBinsUpBounds"]<<"Vector size " << v.size() << " unequal to no. of observable bins " <<  NObsBin << ", aborted!" << endl;
+      exit(1);
+   }
+   // Set upper bin edge of all observable bins for dimension 'iDim'
+   for (size_t i = 0; i < v.size(); ++i) {
+      Bin[i][iDim].second = v[i];
+   }
+   return;
+}
 
 // ___________________________________________________________________________________________________
 // Return minimum value of all lower bin bounds for dim. iDim
@@ -1918,7 +1956,7 @@ void fastNLOTable::PrintContributionSummary(int iprint) const {
    //
    logger.debug["PrintContributionSummary"] << "Printing flag iprint = " << iprint << endl;
    char buffer[1024];
-   cout  << endl;
+   //   cout  << endl;
    cout  << fastNLO::_CSEPSC << endl;
    logger.shout << "Overview on contribution types and numbers contained in table: " << ffilename << endl;
    cout  << fastNLO::_SSEPSC << endl;
@@ -2242,6 +2280,25 @@ void fastNLOTable::MultiplyBinSize(unsigned int iObsIdx, double fact) {
    MultiplyBin(fastNLOTable::BinSize,iObsIdx,fact);
 }
 
+void fastNLOTable::MultiplyBinBorders(unsigned int iDim, double fact) {
+   logger.debug["MultiplyBinBorders"]<<"Multiplying the bin borders of dimension " << iDim << " by " << fact << endl;
+   if ( ! (iDim < NDim) ) {
+      logger.error["MultiplyBinBorders"]<<"Dimensionality iDim " << iDim << " too large for this table with NDim = " << NDim << endl;
+      exit(1);
+   }
+   std::vector < double > lo = GetObsBinsLoBounds(iDim);
+   std::vector < double > up = GetObsBinsUpBounds(iDim);
+   for (size_t i = 0; i < NObsBin; ++i) {
+      //      cout << "AAA: iobs = " << i << ", lo = " << lo[i] << ", up = " << up[i] << endl;
+      lo[i] *= fact;
+      up[i] *= fact;
+      //      cout << "BBB: iobs = " << i << ", lo = " << lo[i] << ", up = " << up[i] << endl;
+   }
+   SetObsBinsLoBounds(iDim, lo);
+   SetObsBinsUpBounds(iDim, up);
+   return;
+}
+
 void fastNLOTable::MultiplyBinInTable(unsigned int iObsIdx, double fact) {
    logger.debug["MultiplyBinInTable"]<<"Multiplying the observable index no. " << iObsIdx << endl;
    // Changes to table header block A2
@@ -2522,7 +2579,7 @@ void fastNLOTable::PrintHeader(int iprint) const {
 
 //______________________________________________________________________________
 void fastNLOTable::PrintWelcomeMessage() {
-
+   //   say::SetGlobalVerbosity(say::toVerbosity()["WARNING"]);
    char fnlo[100];
    sprintf(fnlo,"%c[%d;%dmfast%c[%d;%dmNLO\033[0m",27,0,31,27,0,34);
    char subproject[100]      = FNLO_SUBPROJECT;
@@ -2536,43 +2593,42 @@ void fastNLOTable::PrintWelcomeMessage() {
    char quotev2[200]         = FNLO_QUOTEv2;
    char years[100]           = FNLO_YEARS;
 
-   cout  << endl;
-   cout  << fastNLO::_CSEPSC << endl;
-   speaker &shout = logger.shout;
-   cout << " #" << endl;
-   shout << fnlo << "_" << subproject << endl;
-   shout << "Version " << package_version << "_" << gitrev << endl;
-   cout << " #" << endl;
-   shout << "C++ program and toolkit to read and create fastNLO v2 tables and" << endl;
-   shout << "derive QCD cross sections using PDFs, e.g. from LHAPDF" << endl;
-   cout << " #" << endl;
-   cout  << fastNLO::_SSEPSC << endl;
-   cout << " #" << endl;
-   shout << "Copyright © " << years << " " << fnlo << " Collaboration" << endl;
-   shout << authors << endl;
-   cout << " #" << endl;
-   shout << "This program is free software: you can redistribute it and/or modify" << endl;
-   shout << "it under the terms of the GNU General Public License as published by" << endl;
-   shout << "the Free Software Foundation, either version 3 of the License, or" << endl;
-   shout << "(at your option) any later version." << endl;
-   cout << " #" << endl;
-   shout << "This program is distributed in the hope that it will be useful," << endl;
-   shout << "but WITHOUT ANY WARRANTY; without even the implied warranty of" << endl;
-   shout << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << endl;
-   shout << "GNU General Public License for more details." << endl;
-   cout << " #" << endl;
-   shout << "You should have received a copy of the GNU General Public License" << endl;
-   shout << "along with this program. If not, see <http://www.gnu.org/licenses/>." << endl;
-   cout << " #" << endl;
-   cout  << fastNLO::_SSEPSC << endl;
-   cout << " #" << endl;
-   shout << "The projects web page can be found at:" << endl;
-   shout << "  " << webpage << endl;
-   cout << " #" << endl;
-   shout << "If you use this code, please cite:" << endl;
-   shout << "  " << authorsv14 << ", " << quotev14 << endl;
-   shout << "  " << authorsv2 << ", " << quotev2 << endl;
-   cout << " #" << endl;
-   cout  << fastNLO::_CSEPSC << endl;
+   speaker &infosep = logger.infosep;
+   infosep << fastNLO::_CSEPSC << endl;
+   infosep << " #" << endl;
+   infosep << " # " << fnlo << "_" << subproject << endl;
+   infosep << " # Version " << package_version << "_" << gitrev << endl;
+   infosep << " #" << endl;
+   infosep << " # " << "C++ program and toolkit to read and create fastNLO v2 tables and" << endl;
+   infosep << " # " << "derive QCD cross sections using PDFs, e.g. from LHAPDF" << endl;
+   infosep << " #" << endl;
+   infosep << fastNLO::_SSEPSC << endl;
+   infosep << " #" << endl;
+   infosep << " # " << "Copyright © " << years << " " << fnlo << " Collaboration" << endl;
+   infosep << " # " << authors << endl;
+   infosep << " #" << endl;
+   infosep << " # " << "This program is free software: you can redistribute it and/or modify" << endl;
+   infosep << " # " << "it under the terms of the GNU General Public License as published by" << endl;
+   infosep << " # " << "the Free Software Foundation, either version 3 of the License, or" << endl;
+   infosep << " # " << "(at your option) any later version." << endl;
+   infosep << " #" << endl;
+   infosep << " # " << "This program is distributed in the hope that it will be useful," << endl;
+   infosep << " # " << "but WITHOUT ANY WARRANTY; without even the implied warranty of" << endl;
+   infosep << " # " << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << endl;
+   infosep << " # " << "GNU General Public License for more details." << endl;
+   infosep << " #" << endl;
+   infosep << " # " << "You should have received a copy of the GNU General Public License" << endl;
+   infosep << " # " << "along with this program. If not, see <http://www.gnu.org/licenses/>." << endl;
+   infosep << " #" << endl;
+   infosep << fastNLO::_SSEPSC << endl;
+   infosep << " #" << endl;
+   infosep << " # " << "The projects web page can be found at:" << endl;
+   infosep << " #   " << webpage << endl;
+   infosep << " #" << endl;
+   infosep << " # " << "If you use this code, please cite:" << endl;
+   infosep << " #   " << authorsv14 << ", " << quotev14 << endl;
+   infosep << " #   " << authorsv2 << ", " << quotev2 << endl;
+   infosep << " #" << endl;
+   infosep << fastNLO::_CSEPSC << endl;
    fWelcomeOnce = true;
 }

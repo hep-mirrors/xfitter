@@ -5,6 +5,7 @@
 #include "fastnlotk/fastNLOTable.h"
 #include "fastnlotk/fastNLOTools.h"
 #include "fastnlotk/fastNLOCoeffAddFlex.h"
+#include "fastnlotk/fastNLOEvent.h"
 
 using namespace std;
 
@@ -216,15 +217,19 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
    if ( !ok ) {
       error["Add"]<<"Incompatible table."<<endl;
    }
-   const fastNLOCoeffAddFlex& othflex = (const fastNLOCoeffAddFlex&) other;
+   fastNLOCoeffAddFlex& othflex = (fastNLOCoeffAddFlex&) other;
    if ( moption==fastNLO::kMerge ) {
-      fastNLOTools::AddVectors( SigmaTildeMuIndep , othflex.SigmaTildeMuIndep );
+      ExtendSigmaTilde(othflex, SigmaTildeMuIndep, othflex.SigmaTildeMuIndep);
+      fastNLOTools::AddVectors(SigmaTildeMuIndep, othflex.SigmaTildeMuIndep);
       if ( NScaleDep==3 || NScaleDep>=5 ) {
-         fastNLOTools::AddVectors( SigmaTildeMuFDep , othflex.SigmaTildeMuFDep );
-         fastNLOTools::AddVectors( SigmaTildeMuRDep , othflex.SigmaTildeMuRDep );
+         ExtendSigmaTilde(othflex, SigmaTildeMuFDep, othflex.SigmaTildeMuFDep);
+         fastNLOTools::AddVectors(SigmaTildeMuFDep, othflex.SigmaTildeMuFDep);
+         ExtendSigmaTilde(othflex, SigmaTildeMuRDep, othflex.SigmaTildeMuRDep);
+         fastNLOTools::AddVectors(SigmaTildeMuRDep, othflex.SigmaTildeMuRDep);
          if (( NScaleDep>=6 || !SigmaTildeMuRRDep.empty())  // both tables contain log^2 contributions (default case)
              && (othflex.NScaleDep>=6 || !othflex.SigmaTildeMuRRDep.empty()) ) {
-            fastNLOTools::AddVectors( SigmaTildeMuRRDep , othflex.SigmaTildeMuRRDep );
+            ExtendSigmaTilde(othflex, SigmaTildeMuRRDep, othflex.SigmaTildeMuRRDep);
+            fastNLOTools::AddVectors(SigmaTildeMuRRDep, othflex.SigmaTildeMuRRDep);
          }
          else if ( NScaleDep==6 && othflex.NScaleDep==5 ) { // this tables contains log^2 contributions, but the other does not
             // nothing todo.
@@ -234,8 +239,10 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
             NScaleDep = 6;
          }
          if ( NScaleDep>=7 || !SigmaTildeMuFFDep.empty()) {
-            fastNLOTools::AddVectors( SigmaTildeMuFFDep , othflex.SigmaTildeMuFFDep );
-            fastNLOTools::AddVectors( SigmaTildeMuRFDep , othflex.SigmaTildeMuRFDep );
+            ExtendSigmaTilde(othflex, SigmaTildeMuFFDep, othflex.SigmaTildeMuFFDep);
+            fastNLOTools::AddVectors(SigmaTildeMuFFDep, othflex.SigmaTildeMuFFDep);
+            ExtendSigmaTilde(othflex, SigmaTildeMuRFDep, othflex.SigmaTildeMuRFDep);
+            fastNLOTools::AddVectors(SigmaTildeMuRFDep, othflex.SigmaTildeMuRFDep);
          }
       }
       fastNLOTools::AddVectors( SigmaRefMixed , othflex.SigmaRefMixed );
@@ -244,7 +251,7 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
    }
    else if ( moption==fastNLO::kAttach ) {
       vector<fastNLO::v5d*> st1 = this->AccessSigmaTildes();
-      vector<const fastNLO::v5d*> st2 = othflex.GetSigmaTildes();
+      vector<fastNLO::v5d*> st2 = othflex.AccessSigmaTildes();
       int cMax = st1.size();
       for ( int ii = cMax-1 ; ii>= 0 ; ii-- ) {
          if ( st1[ii]->size()==0 ) cMax--;
@@ -252,6 +259,9 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
             error["Add"]<<"Scale dependent weights are not identically initialized"<<endl;
             exit(1);
          }
+      }
+      for ( int im = 0 ; im<cMax ; im++ ) { // mu-indep, mur, muf, ...
+         ExtendSigmaTilde(othflex, *st1[im], *st2[im]);
       }
       for ( int iObs = 0 ; iObs<GetNObsBin(); iObs++ ) {
          for (unsigned int jS1=0; jS1<GetNScaleNode1(iObs); jS1++) {
@@ -277,7 +287,7 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
    }
    else {
       vector<fastNLO::v5d*> st1 = this->AccessSigmaTildes();
-      vector<const fastNLO::v5d*> st2 = othflex.GetSigmaTildes();
+      vector<fastNLO::v5d*> st2 = othflex.AccessSigmaTildes();
       int cMax = st1.size();
       for ( int ii = cMax-1 ; ii>= 0 ; ii-- ) {
          if ( st1[ii]->size()==0 && st2[ii]->size()==0) cMax--;
@@ -295,6 +305,26 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
                }
                info["add"]<<"Copied coefficients from other table."<<endl;
                */
+
+               // May need to extend other sigma tilde prior to copying dimensions.
+               // Cannot call ExtendSigmaTilde because st1[ii]->size() == 0 .
+               for(int obsBin=0 ; obsBin<fNObsBins ; obsBin++){
+                  fastNLO::v3d insertValue = fastNLO::v3d(
+                     GetNScaleNode1(obsBin), fastNLO::v2d(GetNScaleNode2(obsBin), fastNLO::v1d(GetNSubproc())));
+                  int thisNxtot1 = GetNxtot1(obsBin);
+                  int thisNxtot2 = GetNxtot2(obsBin);
+                  int otherNxtot1 = othflex.GetNxtot1(obsBin);
+                  int otherNxtot2 = othflex.GetNxtot2(obsBin);
+                  if (thisNxtot1 > otherNxtot1) {
+                     fastNLOTools::ExtendSigmaTildeX((*st2[ii])[obsBin], otherNxtot1, thisNxtot1,
+                        otherNxtot2, otherNxtot2, NPDFDim, insertValue);
+                  }
+                  int maxNxtot1 = max(thisNxtot1, otherNxtot1);
+                  if (thisNxtot2 > otherNxtot2) {
+                     fastNLOTools::ExtendSigmaTildeX((*st2[ii])[obsBin], maxNxtot1, maxNxtot1,
+                        otherNxtot2, thisNxtot2, NPDFDim, insertValue);
+                  }
+               }
                fastNLOTools::ResizeFlexibleVector(*st1[ii],*st2[ii]);
             }
             else if ( st2[ii]->size() == 0  ) {
@@ -306,6 +336,9 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
                exit(2);
             }
          }
+      }
+      for ( int im = 0 ; im<cMax ; im++ ) { // mu-indep, mur, muf, ...
+         ExtendSigmaTilde(othflex, *st1[im], *st2[im]);
       }
       for ( int iObs = 0 ; iObs<GetNObsBin(); iObs++ ) {
          for (unsigned int jS1=0; jS1<GetNScaleNode1(iObs); jS1++) {
@@ -349,6 +382,37 @@ void fastNLOCoeffAddFlex::Add(const fastNLOCoeffAddBase& other, fastNLO::EMerge 
    }
    else if ( moption==fastNLO::kAttach ) {
       NormalizeCoefficients(1);
+   }
+}
+
+
+//________________________________________________________________________________________________________________ //
+void fastNLOCoeffAddFlex::ExtendSigmaTilde(
+      const fastNLOCoeffAddFlex& othflex, fastNLO::v5d& ThisSigmaTilde, fastNLO::v5d& OtherSigmaTilde) {
+   for(int obsBin=0 ; obsBin<fNObsBins ; obsBin++){
+      fastNLO::v3d insertValue = fastNLO::v3d(
+         GetNScaleNode1(obsBin), fastNLO::v2d(GetNScaleNode2(obsBin), fastNLO::v1d(GetNSubproc())));
+      fastNLO::v4d& thisX = ThisSigmaTilde[obsBin];
+      fastNLO::v4d& otherX = OtherSigmaTilde[obsBin];
+      int thisNxtot1 = GetNxtot1(obsBin);
+      int thisNxtot2 = GetNxtot2(obsBin);
+      int otherNxtot1 = othflex.GetNxtot1(obsBin);
+      int otherNxtot2 = othflex.GetNxtot2(obsBin);
+      if (thisNxtot1 < otherNxtot1) {
+         fastNLOTools::ExtendSigmaTildeX(thisX, thisNxtot1, otherNxtot1,
+            thisNxtot2, thisNxtot2, NPDFDim, insertValue);
+      } else if (thisNxtot1 > otherNxtot1) {
+         fastNLOTools::ExtendSigmaTildeX(otherX, otherNxtot1, thisNxtot1,
+            otherNxtot2, otherNxtot2, NPDFDim, insertValue);
+      }
+      int maxNxtot1 = max(thisNxtot1, otherNxtot1);
+      if (thisNxtot2 < otherNxtot2) {
+         fastNLOTools::ExtendSigmaTildeX(thisX, maxNxtot1, maxNxtot1,
+            thisNxtot2, otherNxtot2, NPDFDim, insertValue);
+      } else if (thisNxtot2 > otherNxtot2) {
+         fastNLOTools::ExtendSigmaTildeX(otherX, maxNxtot1, maxNxtot1,
+            otherNxtot2, thisNxtot2, NPDFDim, insertValue);
+      }
    }
 }
 
@@ -576,4 +640,157 @@ void fastNLOCoeffAddFlex::CatBin(const fastNLOCoeffAddFlex& other, unsigned int 
       SigmaTildeMuRFDep[nold] = other.SigmaTildeMuRFDep[iObsIdx];
    }
    fastNLOCoeffAddBase::CatBin(other, iObsIdx, ITabVersionRead);
+}
+
+
+//________________________________________________________________________________________________________________ //
+bool fastNLOCoeffAddFlex::IsEquivalent(const fastNLOCoeffBase& other, double rtol) const {
+   const fastNLOCoeffAddFlex* op = dynamic_cast<const fastNLOCoeffAddFlex*>(&other);
+   if (op == nullptr) {
+      debug["IsEquivalent"] << "other is not of type fastNLOCoeffAddFlex." << endl;
+      return false;
+   }
+
+   if (!fastNLOTools::SameTails(GetAllXNodes1(), op->GetAllXNodes1(), rtol)) {
+      debug["IsEquivalent"] << "XNode1 not equivalent, see above." << endl;
+      return false;
+   }
+   if (!fastNLOTools::SameTails(GetAllXNodes2(), op->GetAllXNodes2(), rtol)) {
+      debug["IsEquivalent"] << "XNode2 not equivalent, see above." << endl;
+      return false;
+   }
+   std::vector<const fastNLO::v5d*> tst6 = GetSigmaTildes();
+   std::vector<const fastNLO::v5d*> ost6 = op->GetSigmaTildes();
+   std::vector<std::string> names = {"MuIndep", "MuRDep", "MuFDep", "MuRRDep", "MuFFDep", "MuRFDep"};
+   for (unsigned int i = 0; i < tst6.size(); i++) {
+      const fastNLO::v5d* tst5 = tst6[i];
+      const fastNLO::v5d* ost5 = ost6[i];
+      if (!IsSigmaTildeEquivalent(op, tst5, ost5, rtol, names[i])) {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+//________________________________________________________________________________________________________________ //
+bool fastNLOCoeffAddFlex::IsSigmaTildeEquivalent(const fastNLOCoeffAddFlex* op, const fastNLO::v5d *tst5, const fastNLO::v5d *ost5, double rtol, std::string name) const {
+   if (tst5->size() != ost5->size()) {
+      debug["IsSigmaTildeEquivalent"] << name << ": Number of observable bins is different." << endl;
+      return false;
+   }
+   if (NPDFDim != op->GetNPDFDim()) {
+      debug["IsSigmaTildeEquivalent"] << name << ": NPDFDim is different: " << NPDFDim << " <-> " << op->GetNPDFDim() << endl;
+      return false;
+   }
+   for (unsigned int obsBin = 0; obsBin < tst5->size(); obsBin++) {
+      unsigned int tOffsetXN1, oOffsetXN1, tOffsetXN2, oOffsetXN2;
+      int tnb1 = GetNxtot1(obsBin);
+      int onb1 = op->GetNxtot1(obsBin);
+      int tnb2 = GetNxtot2(obsBin);
+      int onb2 = op->GetNxtot2(obsBin);
+      int x1Max = std::min(tnb1, onb1);
+      int x2Max = std::min(tnb2, onb2);
+      if (tnb1 > onb1) {
+         tOffsetXN1 = tnb1 - onb1;
+         oOffsetXN1 = 0;
+      } else {
+         tOffsetXN1 = 0;
+         oOffsetXN1 = onb1 - tnb1;
+      }
+      if (NPDFDim > 1) {
+         if (tnb2 > onb2) {
+            tOffsetXN2 = tnb2 - onb2;
+            oOffsetXN2 = 0;
+         } else {
+            tOffsetXN2 = 0;
+            oOffsetXN2 = onb2 - tnb2;
+         }
+      } else {
+         tOffsetXN2 = tOffsetXN1;
+         oOffsetXN2 = oOffsetXN1;
+      }
+
+      fastNLO::v4d tst4 = tst5->at(obsBin);
+      fastNLO::v4d ost4 = ost5->at(obsBin);
+
+      int xIt2Max = NPDFDim > 1 ? x2Max : x1Max;
+      for (int xIt2 = 0; xIt2 < xIt2Max; xIt2++) {
+         int xIt1Max = NPDFDim > 1 ? x1Max : xIt2 + 1;
+         for (int xIt1 = 0; xIt1 < xIt1Max; xIt1++) {
+            fastNLO::v3d tst3 = tst4[GetXIndex(obsBin, xIt1 + tOffsetXN1, xIt2 + tOffsetXN2)];
+            fastNLO::v3d ost3 = ost4[op->GetXIndex(obsBin, xIt1 + oOffsetXN1, xIt2 + oOffsetXN2)];
+            if (tst3.size() != ost3.size()) {
+               return false;
+            }
+            for (unsigned int scaleNode1 = 0; scaleNode1 < tst3.size(); scaleNode1++) {
+               fastNLO::v2d tst2 = tst3[scaleNode1];
+               fastNLO::v2d ost2 = ost3[scaleNode1];
+               if (tst2.size() != ost2.size()) {
+                  return false;
+               }
+               for (unsigned int scaleNode2 = 0; scaleNode2 < tst2.size(); scaleNode2++) {
+                  fastNLO::v1d tst1 = tst2[scaleNode2];
+                  fastNLO::v1d ost1 = ost2[scaleNode2];
+                  if (tst1.size() != ost1.size()) {
+                     return false;
+                  }
+                  for (unsigned int subProcess = 0; subProcess < tst1.size(); subProcess++) {
+                     double rdiff = std::abs((tst1[subProcess] - ost1[subProcess]) / tst1[subProcess]);
+                     if (rdiff > rtol) {
+                        debug["IsSigmaTildeEquivalent"] << name << " rdiff too high: obsBin=" << obsBin << " scaleNode1="
+                           << scaleNode1 << " scaleNode2=" << scaleNode2 << " x1=" << (xIt1 - x1Max) << " x2=" << (xIt2 - x2Max)
+                           << " subProcess=" << subProcess << " t=" << tst1[subProcess] << " o=" << ost1[subProcess]
+                           << " rdiff=" << rdiff << endl;
+                        return false;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return true;
+}
+
+
+//________________________________________________________________________________________________________________ //
+void fastNLOCoeffAddFlex::ExtendSigmaTildeX(int ObsBin, unsigned int OldXSize1, unsigned int OldXSize2) {
+   fastNLO::v3d insertValue = fastNLO::v3d(
+      GetNScaleNode1(ObsBin), fastNLO::v2d(GetNScaleNode2(ObsBin), fastNLO::v1d(GetNSubproc())));
+   unsigned int newXSize1 = GetNxtot1(ObsBin);
+   unsigned int newXSize2 = GetNxtot2(ObsBin);
+   fastNLOTools::ExtendSigmaTildeX(
+      SigmaTildeMuIndep[ObsBin], OldXSize1, newXSize1, OldXSize2, newXSize2, NPDFDim, insertValue);
+   fastNLOTools::ExtendSigmaTildeX(
+      SigmaTildeMuRDep[ObsBin], OldXSize1, newXSize1, OldXSize2, newXSize2, NPDFDim, insertValue);
+   fastNLOTools::ExtendSigmaTildeX(
+      SigmaTildeMuFDep[ObsBin], OldXSize1, newXSize1, OldXSize2, newXSize2, NPDFDim, insertValue);
+   fastNLOTools::ExtendSigmaTildeX(
+      SigmaTildeMuRRDep[ObsBin], OldXSize1, newXSize1, OldXSize2, newXSize2, NPDFDim, insertValue);
+   fastNLOTools::ExtendSigmaTildeX(
+      SigmaTildeMuFFDep[ObsBin], OldXSize1, newXSize1, OldXSize2, newXSize2, NPDFDim, insertValue);
+   fastNLOTools::ExtendSigmaTildeX(
+      SigmaTildeMuRFDep[ObsBin], OldXSize1, newXSize1, OldXSize2, newXSize2, NPDFDim, insertValue);
+}
+
+
+//________________________________________________________________________________________________________________ //
+void fastNLOCoeffAddFlex::Fill(fnloEvent& Event, int ObsBin, int X, int scalevar, const vector<pair<int, double>>& nmu1,
+      const vector<pair<int, double>>& nmu2, int SubProcess, double w) {
+   for (unsigned int m1 = 0 ; m1<nmu1.size() ; m1++) {
+      for (unsigned int mu2 = 0 ; mu2<nmu2.size() ; mu2++) {
+         double wfnlo = nmu1[m1].second * nmu2[mu2].second * w;
+         SigmaTildeMuIndep[ObsBin][X][nmu1[m1].first][nmu2[mu2].first][SubProcess] += Event._w  * wfnlo;
+         if (Event._wf != 0 || Event._wr != 0) {
+            SigmaTildeMuFDep[ObsBin][X][nmu1[m1].first][nmu2[mu2].first][SubProcess] += Event._wf * wfnlo;
+            SigmaTildeMuRDep[ObsBin][X][nmu1[m1].first][nmu2[mu2].first][SubProcess] += Event._wr * wfnlo;
+         }
+         if (Event._wrr != 0 || Event._wff != 0 || Event._wrf != 0) {
+            SigmaTildeMuRRDep[ObsBin][X][nmu1[m1].first][nmu2[mu2].first][SubProcess] += Event._wrr * wfnlo;
+            SigmaTildeMuFFDep[ObsBin][X][nmu1[m1].first][nmu2[mu2].first][SubProcess] += Event._wff * wfnlo;
+            SigmaTildeMuRFDep[ObsBin][X][nmu1[m1].first][nmu2[mu2].first][SubProcess] += Event._wrf * wfnlo;
+         }
+      }
+   }
 }
