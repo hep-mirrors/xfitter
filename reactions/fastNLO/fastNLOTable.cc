@@ -2,7 +2,7 @@
 // stored automatically in config.h via AC_DEFINE statements in configure.ac.
 // To enable conditional compilation, e.g. using HAVE_LIBZ, this config file
 // MUST be the very first one to be included with
-#include <config.h>
+#include <fastnlotk/config.h>
 
 #include <algorithm>
 #include <cfloat>
