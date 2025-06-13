@@ -19,10 +19,11 @@
 xfitterbranch=fastNLO-v2.6        # default: main [or master?]
 yamlver=0.2.5                     # default: 0.2.5
 qcdnumver=18-00-00                # default: 18-00-00
-applgridver=1.6.36                # default: 1.6.36
+applgridver= #1.6.36                # default: 1.6.36
 apfelxxver=                       # default: 4.8.0
-pineapplver="0.6.0-alpha.17"      # default: 0.6.0-alpha.17
+pineapplver= #"0.6.0-alpha.17"      # default: 0.6.0-alpha.17
 dyturbover=                       # default: 1.4.2
+ceresver=2.2.0                    # default: 2.2.0
 # ----------------------------------------------------------------- #
 #                      END OF USER INPUT                            # 
 # ----------------------------------------------------------------- #
@@ -123,6 +124,7 @@ echo " | APPLgrid:   $applgridver"
 echo " | Apfel++:    $apfelxxver"
 echo " | Pineappl:   $pineapplver"
 echo " | DYTurbo:    $dyturbover"
+echo " | Ceres:      $ceresver"
 echo " | "
 echo " | Available packages from lcg"
 echo " | gcc:        $(gcc --version | head -1)"
@@ -148,6 +150,22 @@ case "$choice" in
   *) echo "Invalid input. Please enter y or n."; exit 1;;
 esac
 
+
+# --- check CMAKE_CUDA_ARCHITECTURES and cuda, when ceres is requested
+if [[ -n $ceresver ]]; then
+    if command -v nvcc >/dev/null 2>&1; then
+        echo "found cuda:  $(command -v nvcc)"
+    else
+        echo "CUDA is NOT installed or not in PATH"
+        exit 1
+    fi
+    if [[ -z $CMAKE_CUDA_ARCHITECTURES ]]; then
+        echo " | Warning! Ceres installation was requested, but CMAKE_CUDA_ARCHITECTURES not set. Please set CMAKE_CUDA_ARCHITECTURES first."
+        exit 1
+    fi
+fi
+
+# --- mk installdir
 mkdir -p $INSTALLDIR
 
 ### debugs:
@@ -162,7 +180,7 @@ mkdir -p $INSTALLDIR
 
 cd $CURRENTDIR
 #####################################################################
-# installing applgrid
+# install applgrid
 #####################################################################
 if [[ ! -n $applgridver ]]; then
     echo "Skipping installation of APPLgrid."
@@ -176,6 +194,7 @@ else
     # --- download and upack
     wget --no-check-certificate $APPLGRID_URL >> $APPLlog 2>&1  || { echo "Error. Fetching of APPLgrid failed. Check $APPLlog for details"; exit 1; }
     tar xfz applgrid-$applgridver.tgz  >> $APPLlog  2>&1   || { echo "Error. Unpacking of APPLgrid failed. Check $APPLlog for details"; exit 1; }
+    rm applgrid-$applgridver.tgz # clean up
     # --- configure, compile and install
     cd applgrid-$applgridver
     # need to supply c++1X flag from root explicitly
@@ -191,7 +210,7 @@ fi
 
 cd $CURRENTDIR
 #####################################################################
-# installing pineappl
+# install pineappl
 #####################################################################
 if [[ ! -n $pineapplver ]]; then
     echo "Skipping installation of Pineappl."
@@ -206,6 +225,7 @@ else
     wget https://github.com/NNPDF/pineappl/releases/download/v1.0.0/pineappl_capi-${arch}-${rusttag}.tar.gz  >> $pinelog 2>&1  || \
         { echo "Error. Fetching of Pineappl failed. Check $pinelog for details"; exit 1; }
     tar xzvf pineappl_capi-${arch}-${rusttag}.tar.gz -C $INSTALLDIR >> $pinelog 2>&1 || { echo "Error. Unpacking of Pineappl failed. Check $pinelog for details"; exit 1; }
+    rm pineappl_capi-${arch}-${rusttag}.tar.gz # clean up
     # --- return
     echo -e "Pineappl installed successfully. See $pinelog for installation details.\n"
     cd $CURRENTDIR
@@ -215,7 +235,7 @@ fi
 
 cd $CURRENTDIR
 #####################################################################
-# installing yaml
+# install yaml
 #####################################################################
 if [[ ! -n $yamlver ]]; then
     echo "Skipping installation of yaml."
@@ -227,6 +247,7 @@ else
     # --- download and upack
     wget http://pyyaml.org/download/libyaml/yaml-${yamlver}.tar.gz >> $yamllog  2>&1  || { echo "Error. Fetching of YAML failed. Check $yamllog for details"; exit 1; }
     tar xzvf yaml-${yamlver}.tar.gz >> $yamllog  2>&1
+    rm yaml-${yamlver}.tar.gz # clean up
     cd yaml-${yamlver}  >> $yamllog
     # --- configure, compile and install ...
     ./configure --prefix=$INSTALLDIR >> $yamllog 2>&1 || { echo "Error. Configure of YAML failed. Check $yamllog for details"; exit 1; }
@@ -242,7 +263,7 @@ fi
 
 cd $CURRENTDIR
 #####################################################################
-# installing QCDNUM
+# install QCDNUM
 #####################################################################
 if [[ ! -n $qcdnumver ]]; then
     echo "Skipping installation of QCDNUM."
@@ -255,6 +276,7 @@ else
     # --- download and unpack
     wget https://gitlab.cern.ch/fitters/xfitter/-/raw/master/tools/qcdnum${qcdnumstripver}.tar.gz >> $qcdnumlog 2>&1
     tar xzvf qcdnum${qcdnumstripver}.tar.gz  >> $qcdnumlog  2>&1
+    rm qcdnum${qcdnumstripver}.tar.gz # clean up
     cd qcdnum-${qcdnumver}
     # --- configure
     ./configure --prefix=$INSTALLDIR  >> $qcdnumlog  2>&1  || { echo "Error. Configure of QCDNUM failed. Check $qcdnumlog for details"; exit 1; }
@@ -269,7 +291,7 @@ fi
 
 
 #####################################################################
-# installing apfelxx
+# install apfelxx
 #####################################################################
 if [[ ! -n $apfelxxver ]]; then
     echo "Skipping installation of Apfel++."
@@ -282,7 +304,8 @@ else
     wget --no-check-certificate https://github.com/vbertone/apfelxx/archive/refs/tags/${apfelxxver}.tar.gz  >> $apfelxxlog 2>&1  || \
         { echo "Error. Fetching of APFELxx failed. Check $apfelxxlog for details"; exit 1; }
     mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
-    tar xfvz apfelxx-${apfelxxver}.tar.gz >> $apfelxxlog 2>&1 || { echo "Error. Unpacking of APFELxx failed. Check $apfelxxlog for details."; exit 1; }
+    tar xzvf apfelxx-${apfelxxver}.tar.gz >> $apfelxxlog 2>&1 || { echo "Error. Unpacking of APFELxx failed. Check $apfelxxlog for details."; exit 1; }
+    rm xfvz apfelxx-${apfelxxver}.tar.gz # clean up
     cd apfelxx-${apfelxxver}
     # ---- build Apfel++
     mkdir build; cd build
@@ -311,7 +334,8 @@ else
     dyturbolog=$CURRENTDIR/install_dyturbo.log
     wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz >> $dyturbolog 2>&1 || \
         { echo "Error. Fetching of DYTurbo failed. Check $dyturbolog for details"; exit 1; }
-    tar xfz dyturbo-${dyturbover}.tar.gz  >> $CURRENTDIR/install.log  2>&1 || { echo "Error. Unpacking of DYTurbo failed. Check $dyturbolog for details"; exit 1; }
+    tar xzvf dyturbo-${dyturbover}.tar.gz  >> $dyturbolog  2>&1 || { echo "Error. Unpacking of DYTurbo failed. Check $dyturbolog for details"; exit 1; }
+    rm dyturbo-${dyturbover}.tar.gz  # clean up
     cd dyturbo-${dyturbover}
     #export CXXFLAGS="${CXXFLAGS} -std=c++0x"
     ./configure --enable-Ofast --disable-tlsopt --prefix=$INSTALLDIR >> $dyturbolog  2>&1 || { echo "Error. Configure of DYTurbo failed. Check $dyturbolog for details"; exit 1; }
@@ -325,7 +349,34 @@ fi
 
 cd $CURRENTDIR
 #####################################################################
-# installing xfitter
+# install Ceres
+#####################################################################
+if [[ ! -n $ceresver ]]; then
+    echo "Skipping installation of Ceres."
+else
+    # ----------------------------------------------------------------- #
+    echo "Installing CERES $ceresver ..."
+    # ----------------------------------------------------------------- #
+    cereslog=$CURRENTDIR/install_ceres.log
+    wget http://ceres-solver.org/ceres-solver-${ceresver}.tar.gz  >> $cereslog 2>&1 || { echo "Error. Fetching of Ceres failed. Check $cereslog for details"; exit 1; }
+    tar xzvf ceres-solver-${ceresver}.tar.gz >> $cereslog  2>&1 || { echo "Error. Unpacking of Ceres failed. Check $cereslog for details"; exit 1; }
+    rm ceres-solver-${ceresver}.tar.gz
+    cd ceres-solver-${ceresver}
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX=$INSTALLDIR -DEXPORT_BUILD_DIR=on -DMINIGLOG=on -DCXSPARSE=off -DSUITESPARSE=off -DSCHUR_SPECIALIZATIONS=off -DGFLAGS=off -DLAPACK=off #-DBUILD_SHARED_LIBS=on
+    make -j8  || { echo "Error. Compilation of Ceres failed. Check $cereslog for details"; exit 1; }
+    make install
+       # --- return
+    echo -e "Ceres installed successfully. See $cereslog for installation details.\n"
+    cd $CURRENTDIR
+fi
+
+
+
+cd $CURRENTDIR
+#####################################################################
+# install xfitter
 #####################################################################
 if [[ ! -n $xfitterbranch ]]; then
     echo "Skipping installation of xFitter."
