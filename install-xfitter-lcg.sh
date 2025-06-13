@@ -384,7 +384,7 @@ else
     cd $CURRENTDIR
     git clone --branch $xfitterbranch --single-branch https://gitlab.cern.ch/fitters/xfitter.git xfitter_git
     mkdir xfitter-build; cd xfitter-build
-    cmake ../xfitter_git  -DCMAKE_INSTALL_PREFIX=$INSTALLDIR -DCMAKE_DISABLE_FIND_PACKAGE_Ceres=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Ploughshare=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_APFELgrid=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Hathor=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_HOPPET=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_DYTurbo=TRUE  || { echo "Error. CMake of xFitter failed. See above's log for details"; exit 1; }
+    cmake ../xfitter_git  -DCMAKE_INSTALL_PREFIX=$INSTALLDIR -DCMAKE_DISABLE_FIND_PACKAGE_Ploughshare=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_APFELgrid=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Hathor=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_HOPPET=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_DYTurbo=TRUE  || { echo "Error. CMake of xFitter failed. See above's log for details"; exit 1; }
     make -j8   || { echo "Error. Compilatoin of xFitter failed. See above's log for details"; exit 1; }
     make install
 fi
