@@ -19,11 +19,11 @@
 xfitterbranch=fastNLO-v2.6        # default: main [or master?]
 yamlver=0.2.5                     # default: 0.2.5
 qcdnumver=18-00-00                # default: 18-00-00
-applgridver= #1.6.36                # default: 1.6.36
+applgridver=1.6.36                # default: 1.6.36
 apfelxxver=                       # default: 4.8.0
-pineapplver= #"0.6.0-alpha.17"      # default: 0.6.0-alpha.17
+pineapplver="0.6.0-alpha.17"      # default: 0.6.0-alpha.17
 dyturbover=                       # default: 1.4.2
-ceresver=2.2.0                    # default: 2.2.0
+ceresver= #2.2.0                    # default: 2.2.0
 # ----------------------------------------------------------------- #
 #                      END OF USER INPUT                            # 
 # ----------------------------------------------------------------- #
@@ -59,8 +59,8 @@ INSTALLDIR=$CURRENTDIR/deps
 # --- Write setup file
 cat << EOF >setup-lcgenv-$PLATFORM-$LCG_VERSION.sh
 #!/bin/bash  
-PLATFORM=$PLATFORM
-LCG_VERSION=$LCG_VERSION
+export PLATFORM=$PLATFORM
+export LCG_VERSION=$LCG_VERSION
 source /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$PLATFORM/setup.sh
 export PATH=$INSTALLDIR/bin:\$PATH
 export LD_LIBRARY_PATH=$INSTALLDIR/lib:\$LD_LIBRARY_PATH
@@ -161,6 +161,7 @@ if [[ -n $ceresver ]]; then
     fi
     if [[ -z $CMAKE_CUDA_ARCHITECTURES ]]; then
         echo " | Warning! Ceres installation was requested, but CMAKE_CUDA_ARCHITECTURES not set. Please set CMAKE_CUDA_ARCHITECTURES first."
+        echo " |          Default value for most NVidia GPUs:    export CMAKE_CUDA_ARCHITECTURES=90"
         exit 1
     fi
 fi
@@ -364,10 +365,10 @@ else
     cd ceres-solver-${ceresver}
     mkdir build
     cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX=$INSTALLDIR -DEXPORT_BUILD_DIR=on -DMINIGLOG=on -DCXSPARSE=off -DSUITESPARSE=off -DSCHUR_SPECIALIZATIONS=off -DGFLAGS=off -DLAPACK=off #-DBUILD_SHARED_LIBS=on
+    cmake .. -DCMAKE_INSTALL_PREFIX=$INSTALLDIR -DCMAKE_CUDA_ARCHITECTURES=$CMAKE_CUDA_ARCHITECTURES -DEXPORT_BUILD_DIR=on -DMINIGLOG=on -DCXSPARSE=off -DSUITESPARSE=off -DSCHUR_SPECIALIZATIONS=off -DGFLAGS=off -DLAPACK=off #-DBUILD_SHARED_LIBS=on
     make -j8  || { echo "Error. Compilation of Ceres failed. Check $cereslog for details"; exit 1; }
     make install
-       # --- return
+    # --- return
     echo -e "Ceres installed successfully. See $cereslog for installation details.\n"
     cd $CURRENTDIR
 fi
