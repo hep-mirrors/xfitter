@@ -34,7 +34,7 @@ ceresver=2.2.0                    # default: 2.2.0
 # --- test environmental variables
 #      - PLATFORM
 #      - LCG_VERSION
-if [[ -f /cvmfs/sft.cern.ch/lcg/views/LCG_$LCG_VERSION/$PLATFORM/setup.sh ]]; then
+if [[ -d /cvmfs/sft.cern.ch/lcg/views/LCG_$LCG_VERSION ]]; then
     export LCG_VERSION=LCG_$LCG_VERSION
 fi
 if [[ ! -f /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$PLATFORM/setup.sh ]]; then
