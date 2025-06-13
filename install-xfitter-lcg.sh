@@ -9,8 +9,6 @@
 #
 #####################################################################
 
-
-
 # ----------------------------------------------------------------- #
 #                USER INPUT STARTS HERE                             #
 # ----------------------------------------------------------------- #
@@ -19,11 +17,11 @@
 xfitterbranch=fastNLO-v2.6        # default: main [or master?]
 yamlver=0.2.5                     # default: 0.2.5
 qcdnumver=18-00-00                # default: 18-00-00
-applgridver=1.6.36                # default: 1.6.36
+applgridver= #1.6.36                # default: 1.6.36
 apfelxxver=                       # default: 4.8.0
-pineapplver="0.6.0-alpha.17"      # default: 0.6.0-alpha.17
+pineapplver= #"0.6.0-alpha.17"      # default: 0.6.0-alpha.17
 dyturbover=                       # default: 1.4.2
-ceresver= #2.2.0                    # default: 2.2.0
+ceresver=2.2.0                    # default: 2.2.0
 # ----------------------------------------------------------------- #
 #                      END OF USER INPUT                            # 
 # ----------------------------------------------------------------- #
@@ -36,6 +34,9 @@ ceresver= #2.2.0                    # default: 2.2.0
 # --- test environmental variables
 #      - PLATFORM
 #      - LCG_VERSION
+if [[ -f /cvmfs/sft.cern.ch/lcg/views/LCG_$LCG_VERSION/$PLATFORM/setup.sh ]]; then
+    export LCG_VERSION=LCG_$LCG_VERSION
+fi
 if [[ ! -f /cvmfs/sft.cern.ch/lcg/views/$LCG_VERSION/$PLATFORM/setup.sh ]]; then
     echo " +-----------------------------------------------------------------------------------------------+"
     echo " | Error! Cannot find LCG setup script. Probably variables PLATFORM and/or LCG_VERSION are not set!"
