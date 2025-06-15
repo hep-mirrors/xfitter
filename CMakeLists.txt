@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.8.12.2)
-cmake_minimum_required(VERSION 3.5)
+#cmake_minimum_required(VERSION 2.8.12.2)
+cmake_minimum_required(VERSION 4.0)
 set(CMAKE_MACOSX_RPATH 1)
 
 project(xFitter CXX C Fortran)
