@@ -1,6 +1,6 @@
 
   message(STATUS " optional evolution PBTMD ")
-  set(CMAKE_Fortran_FLAGS "-Wall -std=legacy -fno-automatic -fPIC -ffixed-line-length-132 ${CMAKE_Fortran_FLAGS}")
+  set(CMAKE_Fortran_FLAGS "-w -std=legacy -fno-automatic -fPIC -ffixed-line-length-132  ${CMAKE_Fortran_FLAGS}")
   #set(CMAKE_Fortran_FLAGS "-Wall -std=legacy -fno-automatic -static  -fPIC -ffixed-line-length-132 ${CMAKE_Fortran_FLAGS}")
   #set(CMAKE_Fortran_FLAGS "-Wall -std=legacy -fno-automatic  -fcheck=all -static  -fPIC -ffixed-line-length-132 ${CMAKE_Fortran_FLAGS}")
   set(TARGET evolutionPBTMD)
