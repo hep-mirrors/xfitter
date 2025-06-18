@@ -18,10 +18,10 @@ xfitterbranch=fastNLO-v2.6        # default: main [or master?]
 yamlver=0.2.5                     # default: 0.2.5
 qcdnumver=18-00-00                # default: 18-00-00
 applgridver= #1.6.36                # default: 1.6.36
-apfelxxver=                       # default: 4.8.0
+apfelxxver=4.8.1                       # default: 4.8.0
 pineapplver= #"0.6.0-alpha.17"      # default: 0.6.0-alpha.17
 dyturbover=                       # default: 1.4.2
-ceresver=2.2.0                    # default: 2.2.0
+ceresver= #2.2.0                    # default: 2.2.0
 # ----------------------------------------------------------------- #
 #                      END OF USER INPUT                            # 
 # ----------------------------------------------------------------- #
@@ -307,7 +307,7 @@ else
         { echo "Error. Fetching of APFELxx failed. Check $apfelxxlog for details"; exit 1; }
     mv ${apfelxxver}.tar.gz apfelxx-${apfelxxver}.tar.gz
     tar xzvf apfelxx-${apfelxxver}.tar.gz >> $apfelxxlog 2>&1 || { echo "Error. Unpacking of APFELxx failed. Check $apfelxxlog for details."; exit 1; }
-    rm xfvz apfelxx-${apfelxxver}.tar.gz # clean up
+    rm apfelxx-${apfelxxver}.tar.gz # clean up
     cd apfelxx-${apfelxxver}
     # ---- build Apfel++
     mkdir build; cd build
