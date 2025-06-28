@@ -1,0 +1,391 @@
+2025-06-27 17:08:39
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+3 occurences of a non-integrable function used in xFitter due to Sc(0)
+1 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:08:41
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+6 occurences of a non-integrable function used in xFitter due to Sc(0)
+2 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:08:54
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+21 occurences of a non-integrable function used in xFitter due to Sc(0)
+9 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:09:14
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+42 occurences of a non-integrable function used in xFitter due to Sc(0)
+19 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:09:33
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+59 occurences of a non-integrable function used in xFitter due to Sc(0)
+27 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:09:37
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+64 occurences of a non-integrable function used in xFitter due to Sc(0)
+29 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:09:41
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+69 occurences of a non-integrable function used in xFitter due to Sc(0)
+31 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:09:48
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+78 occurences of a non-integrable function used in xFitter due to Sc(0)
+35 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:02
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+93 occurences of a non-integrable function used in xFitter due to Sc(0)
+42 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:04
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+96 occurences of a non-integrable function used in xFitter due to Sc(0)
+43 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:08
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+101 occurences of a non-integrable function used in xFitter due to Sc(0)
+45 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:10
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+104 occurences of a non-integrable function used in xFitter due to Sc(0)
+46 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:23
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+119 occurences of a non-integrable function used in xFitter due to Sc(0)
+53 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:33
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+130 occurences of a non-integrable function used in xFitter due to Sc(0)
+58 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:35
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+133 occurences of a non-integrable function used in xFitter due to Sc(0)
+59 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:39
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+138 occurences of a non-integrable function used in xFitter due to Sc(0)
+61 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:53
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+153 occurences of a non-integrable function used in xFitter due to Sc(0)
+68 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:10:58
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+158 occurences of a non-integrable function used in xFitter due to Sc(0)
+70 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:11:04
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+165 occurences of a non-integrable function used in xFitter due to Sc(0)
+73 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:11:06
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+168 occurences of a non-integrable function used in xFitter due to Sc(0)
+74 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:11:08
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+171 occurences of a non-integrable function used in xFitter due to Sc(0)
+75 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:11:10
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+174 occurences of a non-integrable function used in xFitter due to Sc(0)
+76 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+
+2025-06-27 17:11:24
+
+Condition number for matrix T in metamorph for ifl= 0 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 1 is: 3.41188
+Condition number for matrix T in metamorph for ifl= 2 is: 3.41188
+
+Caution: A higher condition number may result in a poor metamorph.
+Note: Condition number will increase with more control points added.
+      The condition number may be improved by selecting different control points.
+
+189 occurences of a non-integrable function used in xFitter due to Sc(0)
+83 occurences of a non-integrable function used in xFitter due to Sc(1)
+
+Check best-fit Sc(1) and Sc(2) values in Fantomas output files to ensure xf(x) for all flavors is integrable.
+
+Sc(1) and Sc(1) should be greater than 0.07
+

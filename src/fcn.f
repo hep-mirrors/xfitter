@@ -23,6 +23,11 @@ C---------------------------------------------------------
 #include "fcn.inc"
 #include "endmini.inc"
 #include "for_debug.inc"
+cpn22
+#ifdef FANTOMAS
+#include "fantomas.inc"
+#endif
+
       integer i
       double precision chi2data_theory !function
 
@@ -84,6 +89,15 @@ c will take them from
       call MntShowVValues(chi2out)
 #endif
       call flush
+
+#ifdef FANTOMAS
+cpn22 If chi2 has improved, save the Fantomas steering card
+      if (chi2out.lt.chimin) then
+        chimin = chi2out
+        call writefantoout()
+      endif
+#endif
+      
       return
       end
 C------------------------------------------------------
@@ -388,6 +402,14 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
      $     shift_polRHp**2+shift_polRHm**2+
      $     shift_polLHp**2+shift_polLHm**2+
      $     shift_polL**2+shift_polT**2
+
+clk23 add chi2 penalty from fantomas conditions here
+clk25 commented out until new chi2 penalty function is implemented
+c#ifdef FANTOMAS
+c      call getfantochi2(fantochi)
+c      chi2out = chi2out + fantochi
+c#endif
+      
 c If for any reason we got chi2==NaN, set it to +inf so that that
 c a minimizer would treat it as very bad
       if(chi2out/=chi2out)then !if chi2out is NaN

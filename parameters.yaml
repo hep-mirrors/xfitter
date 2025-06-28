@@ -1,139 +1,101 @@
-Minimizer: MINUIT # CERES
+Minimizer: MINUIT
 MINUIT:
+  #doErrors: Pumplin #uncomment to make error bands
   Commands: |
-    call fcn 1
-    set str 2
+    minimize #uncomment to run the fit
     call fcn 3
-#    migrad
-#    hesse
-#    call fcn 3
+    #scan   #uncomment to display chi2 plots for all free parameters in minuit.out.save
+    #scan 4
+    #scan 5
+    #scan 6
+
     
-#  doErrors :  Hesse # None
-
-CERES:
-  offset: 2
-  tolerance: 1e-5
-  strategy: 0
-  covariance: 1
-
 Parameters:
-  Ag   :  DEPENDENT
-  Bg   : [ -0.061953, 0.27 ]
-  Cg   : [  5.562367,  0.32 ]
-  Agp  : [ 0.07311, 0.01 ]  # negative gluon ....
-  Bgp  : [ -0.383100, 0.01 ]
-  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
-  Auv  :  DEPENDENT
-  Buv  : [ 0.810476, 0.016 ]
-  Cuv  : [ 4.823512, 0.06 ]
-  Duv  : [    0     ]
-  Euv  : [ 9.921366, 0.8 ]
-  Adv  :  DEPENDENT
-  Bdv  : [ 1.029995, 0.06 ]
-  Cdv  : [ 4.846279, 0.3 ]
-  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
-  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
-  Cubar: [ 7.059694, 0.8 ]
-  Dubar: [ 1.548098, 1.0 ]
-  Adbar: [ 0.1613, 0.01 ]
-  Bdbar: [ -0.1273, 0.004  ]
-  Cdbar: # another example of providing value, step etc.
-    value: 9.586246
-    step: 1.2345
-    #min
-    #max
-    #pr_mean
-    #pr_sigma
-  ZERO : [ 0. ]          # zero
-  fs   :   0.4   #no step means fixed
-  DbarToS: "=fs/(1-fs)"
+  Av:  SUMRULE
+  #Bv: [ 0.69375, 0.03]
+  #Cv: [ 0.94165, 0.04, 0, 10]
+  delBv: [ 0., 0.03]
+  delCv: [ 0., 0.04]
+  delDv: 0.
+  delEv: 0.
+  As: [  9.3428,0.5]
+  #Bs: [ 0.27599, 0.1]
+  #Cs: [ 6.6988, 3]
+  delBs: [ 0., 0.3]
+  delCs: [ 0., 3]
+  delDs: 0.
+  delEs: 0.
+  Ag:  SUMRULE
+  #Bg:   0.
+  #Cg: [ 2.1447, 1]
+  delBg: [ 0., 0.2]
+  delCg: [ 0., 1]
+  delDg: 0.
+  delEg: 0.
+  gifl:  0.
+  sifl:  1.
+  vifl:  2.
+  ZERO: [ 0. ]
 
 Parameterisations:
-  par_uv:
-    class: HERAPDF
-    parameters: [Auv,Buv,Cuv,Duv,Euv]
-  par_dv:
-    class: HERAPDF
-    parameters: [Adv,Bdv,Cdv]
-  par_ubar:
-    class: HERAPDF
-    parameters: [Adbar,Bdbar,Cubar,Dubar]
-  par_dbar:
-    class: HERAPDF
-    parameters: [Adbar,Bdbar,Cdbar]
-  par_s: # s=fs/(1-fs) * Dbar
-    class: Factor
-    factor: DbarToS #name of parameter
-    input: par_dbar
-  par_g:
-    class: NegativeGluon
-    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
-  #par_s:
-    #class: HERAPDF
-    #parameters: [As,Bs,Cs]
-  #par_s:
-    #class: Expression
-    #expression: "Adbar*fs/(1-fs)*(x^Bdbar*(1-x)^Cdbar)"
-  # Another example for Expression parameterisation
-  #par_g:
-    #class: Expression
-    #expression: "Ag*(x^Bg*(1-x)^Cg-Agp*x^Bgp*(1-x)^Cgp)"
+  v:
+    class: Fantomas
+    parameters: [Av,delBv,delCv,delDv,delEv,vifl]
+  S:
+    class: Fantomas
+    parameters: [As,delBs,delCs,delDs,delEs,sifl]
+  g:
+    class: Fantomas
+    parameters: [Ag,delBg,delCg,delDg,delEg,gifl]
 
-DefaultDecomposition: proton
 Decompositions:
-  proton:
-    class: UvDvUbarDbarS
-    xuv: par_uv
-    xdv: par_dv
-    xubar: par_ubar
-    xdbar: par_dbar
-    xs: par_s
-    xg: par_g
-
-#DefaultEvolution: proton-APFELff
-DefaultEvolution: proton-QCDNUM
-#DefaultEvolution: proton-LHAPDF
+  pion:
+    class: SU3_PositivePion
+    valence: v
+    sea: S
+    gluon: g
 
 Evolutions:
-  #proton-APFELff:
-    #? !include evolutions/APFEL.yaml
-    #decomposition: proton
-  proton-QCDNUM:
+  positive_pion:
     ? !include evolutions/QCDNUM.yaml
-    decomposition: proton #this could be omitted, as the default decomposition is set
-    # The following allows QCDNUM to read PDFs from other evolutions:
-    #EvolutionCopy: "proton-LHAPDF"
-  proton-LHAPDF:
-    class: LHAPDF
-    set: "NNPDF30_nlo_as_0118"
-    #set: "CT10nlo"
-    member: 0
-#  proton-APFEL:
-#    ? !include evolutions/APFELxx.yaml
-#    decomposition: proton
-  antiproton:
+    decomposition: pion
+  negative_pion:
     class: FlipCharge
-    #input: proton-QCDNUM
-    input: proton-LHAPDF
-#  neutron:
-#    class: FlipUD
-#    input: proton-QCDNUM
+    input: positive_pion
+  tungsten_target:
+    class: LHAPDF
+    set:   nCTEQ15FullNuc_184_74
+    member: 0
+  #positive_pion-QCDNUM:
+  #  ? !include evolutions/QCDNUM.yaml
+    # The following allows QCDNUM to read PDFs from other evolutions:
+  #  EvolutionCopy: "positive_pion"
+  proton:
+    class: LHAPDF
+    set:   nCTEQ15FullNuc_1_1
+    member: 0
 
-Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
-
+DefaultEvolution: positive_pion
 ? !include constants.yaml
-
-alphas : 0.118
+Q0: 1.378404875209022 #=sqrt(1.9)
+alphas: 0.118
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+muF: 1.0
+muR: 1.0
 
 byReaction:
   # RT DIS scheme settings:
   RT_DISNC:
     ? !include reactions/RT_DISNC.yaml
-    # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-    #evolution: proton-QCDNUM
-  # uncomment if defaultEvolution is not QCDNUM: RT_DISNC works with QCDNUM only, use EvolutionCopy
-  #BaseDISCC:
-  #  evolution: proton-QCDNUM
+    # RT_DISNC works only with QCDNUM evolution, need to specify it explicitly (in this case it is copied from LHAPDF, while default evloution is LHAPDF)
+    evolution: positive_pion
+  BaseDISNC:
+    evolution: positive_pion
+  BaseDISCC:
+    # BaseDISCC works only with QCDNUM evolution, need to specify it explicitly (in this case it is copied from LHAPDF, while default evloution is LHAPDF)
+    evolution: positive_pion
   # FONLL scheme settings:
   FONLL_DISNC:
     ? !include reactions/FONLL_DISNC.yaml
@@ -150,19 +112,17 @@ byReaction:
   # APPLgrid settings:
   APPLgrid:
     ? !include reactions/APPLgrid.yaml
-  # APPLgrid settings:
-  # (optional) APFELgrid module settings:
-  #  ? !include reactions/APFELgrid.yaml
   # (optional) Fractal module settings:
   Fractal_DISNC:
     ? !include reactions/Fractal_DISNC.yaml
-#  DYTurbo:
-#    ? !include reactions/DYTurbo.yaml
-
-#byDataset: #Here one can redefine some parameters for specific datasets
-#  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
-#  "HERA1+2 NCep 920":
-#    epolarity: 2
+  HathorSingleTop:
+    MS_MASS: 0        #0 pole; 1 MSbar
+    muR: 1.
+    muF: 1.
+    precisionLevel: 2 #1 low; 2 medium (default); 3 High
+    tSgTop:  1      #Include t-channel process
+    sSgTop:  0      #Include s-channel process
+    WtSgTop: 0      #Include W+t final state processes
 
 # Specify HF scheme used for DIS NC processes:
 hf_scheme_DISNC :
@@ -174,50 +134,22 @@ hf_scheme_DISNC :
 #  1 : BaseDISNC
 #  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
 
-# Specify HF scheme used for DIS CC processes:
-hf_scheme_DISCC :
-  defaultValue : 'BaseDISCC'       # global specification
-#  defaultValue : 'FONLL_DISCC'     # global specification
-#  defaultValue : 'FFABM_DISCC'     # global specification
-
-#
-# Profiler allows to add variations of parameters and PDF eigenvectors as additional nuisance parameters
-#
-Profiler:
-  Parameters:
-    alphas: [ 0.118, 0.119, 0.117 ]  # central, up, (down) variation. If down is not given, uses symmetrizes Up variation 
-  #Evolutions:
-  #  proton-LHAPDF:
-  #    sets:    [CT10]
-  #    members: [[0,1,end]]
-  Status: "Off"                 # "Off" to turn off profiler
-  WriteTheo: "Off"              # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
-  getChi2: "Off"                # determine and report chi2 for each variation
-  enableExternalProfiler: "Off" # enable creation of additional files, needed for xfitter draw
-
-OutputDirectory: "output" #Can be omitted, default is "output"
+#Profiler: #uncomment to enable profiling
+#  alphas: [ 0.118, 0.119, 0.117 ]
+#  Evolutions:
+#    tungsten_target:
+#      sets:    [nCTEQ15FullNuc_184_74]
+#      members: [[0,1,end]]
+? !include constants.yaml
+#  Status: "On"               # "Off" to turn off profiler
+#  WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+#  getChi2: "Off"              # determine and report chi2 for each variation
+#  enableExternalProfiler: "On" # enable creation of additional files, needed for xfitter draw
 
 WriteLHAPDF6:
-  name: "proton"
-  description: "..."
-  authors: "..."
-  reference: "..."
-    # use DefaultEvolution
-  #evolution: proton-QCDNUM
-    # take internal grid
-  preferInternalGrid:
-    # or define grid
-  #Xrange: [1e-4, 1]
-  #Qrange: [1,1000]
-  #Xnpoints: 200
-  #Qnpoints: 120
+  name: "xFitterPI"
+  authors: "xFitter Developers' team: Ivan Novikov, Hamed Abdolmaleki, Daniel Britzger, Amanda Cooper-Sarkar, Francesco Giuli, Alexander Glazov, Aleksander Kusina, Agnieszka Luszczak, Fred Olness, Pavel Starovoitov, Mark Sutton, Oleksandr Zenaiev"
+  description: "Minimal parameterisation. NLO negative pion fitted to Drell-Yan data of experiments NA10 and E615 and prompt photon production data of experiment WA70. Nuclear PDF set nCTEQ15FullNuc_184_74 was used for tungsten target."
 
-#
-# Possible levels to stop program execution:
-#  1 - will stop on warnings
-#  2 - will stop on errors (default)
-#  3 - will stop on severe errors
-#  4 - will stop on fatal
-#  5 - will not stop on any error
-
-MaxErrAllowed: 2
+ExtraActions:
+  PrintPionMoments:

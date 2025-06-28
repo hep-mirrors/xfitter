@@ -1,0 +1,20 @@
+# Fantomas steering card v. 0.2
+# date
+# gluon -- metamorph 0
+# ifl	Nm	MappingMode	xPower	Sc(0)	Sc(1)	Sc(2)
+0	1	0	1.	1	-0.37	2.83
+# Xs  Sm  fp  fm
+0.001 FIX
+0.8   FIX
+# sea  -- metamorph 1
+# ifl	Nm	MappingMode	xPower	Sc(0)	Sc(1)	Sc(2)
+1	1	0	1.	1	0.73	8.19
+# Xs  Sm  fp  fm
+0.001 FIX
+0.8   FIX
+# valence  -- metamorph 2
+# ifl	Nm	MappingMode	xPower	Sc(0)	Sc(1)	Sc(2)
+2	1	0	1.	1	0.76	0.95
+# Xs  Sm  fp  fm
+0.001 FIX
+0.8   FIX

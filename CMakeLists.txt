@@ -61,6 +61,7 @@ else()
 if(CMAKE_VERSION VERSION_LESS "3.1")
   #workaround for older versions of cmake
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 else()
   set(CMAKE_CXX_STANDARD 11)
   set(CMAKE_CXX_STANDARD_REQUIRED YES)
@@ -107,6 +108,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   endif()
 endif()
 
+#lk22
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DFANTOMAS")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DFANTOMAS")
+
+
 # For semaphore in multithreading
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
 
@@ -149,6 +155,8 @@ add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
 add_subdirectory(pdfparams/Chebyschev)
+#lk25
+add_subdirectory(pdfparams/Fantomas)
 
 #Decompositions
 add_subdirectory(pdfdecomps/Pion_FF_B_C)
@@ -156,6 +164,8 @@ add_subdirectory(pdfdecomps/UvDvUbarDbarS)
 add_subdirectory(pdfdecomps/LHAPDF)
 add_subdirectory(pdfdecomps/SU3_Pion)
 add_subdirectory(pdfdecomps/UvDvUbarDbarSSbar)
+#lk25
+add_subdirectory(pdfdecomps/SU3_PositivePion)
 
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)

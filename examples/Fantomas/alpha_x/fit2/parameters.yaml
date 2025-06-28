@@ -1,0 +1,160 @@
+Minimizer: MINUIT
+MINUIT:
+  #doErrors: Pumplin #uncomment to make error bands
+  Commands: |
+    minimize #uncomment to run the fit
+    call fcn 3
+    migrad 10000
+    #scan   #uncomment to display chi2 plots for all free parameters in minuit.out.save
+    #scan 4
+    #scan 5
+    #scan 6
+
+    
+Parameters:
+  Av:  SUMRULE
+  #Bv: [ 0.69375, 0.03]
+  #Cv: [ 0.94165, 0.04, 0, 10]
+  delBv: [ 0., 0.03]
+  delCv: [ 0., 0.04]
+  delDv: 0.
+  delEv: [ 0., 0.1]
+  delFv: [ 0., 0.1]
+  delGv: 0.
+  As: [  15.580,0.5]
+  #Bs: [ 0.27599, 0.1]
+  #Cs: [ 6.6988, 3]
+  delBs: [ 0., 0.3]
+  delCs: [ 0., 3]
+  delDs: 0.
+  delEs: [ 0., 0.1]
+  delFs: [ 0., 0.1]
+  delGs: 0.
+  Ag:  SUMRULE
+  #Bg:   0.
+  #Cg: [ 2.1447, 1]
+  delBg: [ 0., 0.2]
+  delCg: [ 0., 1]
+  delDg: 0.
+  delEg: 0.
+  gifl:  0.
+  sifl:  1.
+  vifl:  2.
+  ZERO: [ 0. ]
+
+Parameterisations:
+  v:
+    class: Fantomas
+    parameters: [Av,delBv,delCv,delDv,delEv,delFv,delGv,vifl]
+  S:
+    class: Fantomas
+    parameters: [As,delBs,delCs,delDs,delEs,delFs,delGs,sifl]
+  g:
+    class: Fantomas
+    parameters: [Ag,delBg,delCg,delDg,delEg,gifl]
+
+Decompositions:
+  pion:
+    class: SU3_PositivePion
+    valence: v
+    sea: S
+    gluon: g
+
+Evolutions:
+  positive_pion:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: pion
+  negative_pion:
+    class: FlipCharge
+    input: positive_pion
+  tungsten_target:
+    class: LHAPDF
+    set:   nCTEQ15FullNuc_184_74
+    member: 0
+  #positive_pion-QCDNUM:
+  #  ? !include evolutions/QCDNUM.yaml
+    # The following allows QCDNUM to read PDFs from other evolutions:
+  #  EvolutionCopy: "positive_pion"
+  proton:
+    class: LHAPDF
+    set:   nCTEQ15FullNuc_1_1
+    member: 0
+
+DefaultEvolution: positive_pion
+? !include constants.yaml
+Q0: 1.378404875209022 #=sqrt(1.9)
+alphas: 0.118
+Order: NLO
+NFlavour: 5
+isFFNS: 0
+muF: 1.0
+muR: 1.0
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+    # RT_DISNC works only with QCDNUM evolution, need to specify it explicitly (in this case it is copied from LHAPDF, while default evloution is LHAPDF)
+    evolution: positive_pion
+  BaseDISNC:
+    evolution: positive_pion
+  BaseDISCC:
+    # BaseDISCC works only with QCDNUM evolution, need to specify it explicitly (in this case it is copied from LHAPDF, while default evloution is LHAPDF)
+    evolution: positive_pion
+  # FONLL scheme settings:
+  FONLL_DISNC:
+    ? !include reactions/FONLL_DISNC.yaml
+  FONLL_DISCC:
+    ? !include reactions/FONLL_DISCC.yaml
+  # FF ABM scheme settings:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC.yaml
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+  # AFB settings:
+  AFB:
+    ? !include reactions/AFB.yaml
+  # APPLgrid settings:
+  APPLgrid:
+    ? !include reactions/APPLgrid.yaml
+  # (optional) Fractal module settings:
+  Fractal_DISNC:
+    ? !include reactions/Fractal_DISNC.yaml
+  HathorSingleTop:
+    MS_MASS: 0        #0 pole; 1 MSbar
+    muR: 1.
+    muF: 1.
+    precisionLevel: 2 #1 low; 2 medium (default); 3 High
+    tSgTop:  1      #Include t-channel process
+    sSgTop:  0      #Include s-channel process
+    WtSgTop: 0      #Include W+t final state processes
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+#  defaultValue : 'BaseDISNC'       # global specification
+#  defaultValue : 'FONLL_DISNC'     # global specification
+#  defaultValue : 'FFABM_DISNC'
+#  'HERA1+2 NCep 920' : 'BaseDISNC' # datafile specific (based on name)
+#  1 : BaseDISNC
+#  'HERA1+2 NCep 920' : 'Fractal_DISNC'  # Fractal model. Add parameters file if you want to try it (see above)
+
+#Profiler: #uncomment to enable profiling
+#  alphas: [ 0.118, 0.119, 0.117 ]
+#  Evolutions:
+#    tungsten_target:
+#      sets:    [nCTEQ15FullNuc_184_74]
+#      members: [[0,1,end]]
+? !include constants.yaml
+#  Status: "On"               # "Off" to turn off profiler
+#  WriteTheo: "On"            # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
+#  getChi2: "Off"              # determine and report chi2 for each variation
+#  enableExternalProfiler: "On" # enable creation of additional files, needed for xfitter draw
+
+WriteLHAPDF6:
+  name: "xFitterPI"
+  authors: "xFitter Developers' team: Ivan Novikov, Hamed Abdolmaleki, Daniel Britzger, Amanda Cooper-Sarkar, Francesco Giuli, Alexander Glazov, Aleksander Kusina, Agnieszka Luszczak, Fred Olness, Pavel Starovoitov, Mark Sutton, Oleksandr Zenaiev"
+  description: "Minimal parameterisation. NLO negative pion fitted to Drell-Yan data of experiments NA10 and E615 and prompt photon production data of experiment WA70. Nuclear PDF set nCTEQ15FullNuc_184_74 was used for tungsten target."
+
+ExtraActions:
+  PrintPionMoments:

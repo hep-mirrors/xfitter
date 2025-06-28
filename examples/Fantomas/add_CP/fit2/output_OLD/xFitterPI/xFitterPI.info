@@ -1,0 +1,25 @@
+SetDesc: "Minimal parameterisation. NLO negative pion fitted to Drell-Yan data of experiments NA10 and E615 and prompt photon production data of experiment WA70. Nuclear PDF set nCTEQ15FullNuc_184_74 was used for tungsten target."
+Authors: "xFitter Developers' team: Ivan Novikov, Hamed Abdolmaleki, Daniel Britzger, Amanda Cooper-Sarkar, Francesco Giuli, Alexander Glazov, Aleksander Kusina, Agnieszka Luszczak, Fred Olness, Pavel Starovoitov, Mark Sutton, Oleksandr Zenaiev"
+Format: lhagrid1
+DataVersion: 1
+NumMembers: 1
+Flavors: [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, ]
+OrderQCD: 1
+FlavorScheme: variable
+ErrorType: symmhessian
+XMin: 9.9e-07
+XMax: 0.981783
+QMin: 1
+QMax: 14317.8
+MZ: 91.1876
+MUp: 0
+MDown: 0
+MStrange: 0
+MCharm: 1.43
+MBottom: 4.5
+MTop: 173
+AlphaS_MZ: 0.118
+AlphaS_OrderQCD: 1
+AlphaS_Type: ipol
+AlphaS_Qs: [1, 1.17405, 1.3784, 1.40397, 1.43, 1.43, 1.58708, 1.7614, 1.95488, 2.16961, 2.40793, 2.67242, 2.96597, 3.29176, 3.65334, 4.05463, 4.5, 4.5, 5.27215, 6.17678, 7.23664, 8.47837, 9.93315, 11.6376, 13.6344, 15.9739, 18.7149, 21.9261, 25.6884, 30.0962, 35.2603, 41.3106, 48.399, 56.7037, 66.4333, 77.8325, 91.1876, 109.968, 132.617, 159.93, 192.868, 192.868, 232.59, 280.493, 338.263, 407.929, 491.945, 593.263, 715.449, 862.799, 1040.5, 1254.79, 1513.22, 1824.88, 2200.72, 2653.97, 3200.57, 3859.75, 4654.68, 5613.34, 6769.43, 8163.63, 9844.98, 11872.6, 14317.8]
+AlphaS_Vals: [0.450741, 0.399431, 0.359369, 0.355329, 0.351387, 0.351384, 0.332528, 0.315713, 0.300613, 0.286973, 0.274582, 0.263273, 0.252906, 0.243364, 0.23455, 0.226381, 0.218789, 0.218788, 0.209185, 0.200418, 0.192381, 0.184984, 0.178152, 0.171822, 0.165939, 0.160457, 0.155336, 0.15054, 0.146039, 0.141807, 0.137818, 0.134054, 0.130494, 0.127123, 0.123926, 0.120889, 0.118, 0.114761, 0.111699, 0.108799, 0.106049, 0.106049, 0.103437, 0.100953, 0.0985876, 0.0963325, 0.0941801, 0.0921234, 0.0901562, 0.0882725, 0.0864673, 0.0847355, 0.0830728, 0.0814751, 0.0799387, 0.0784599, 0.0770357, 0.075663, 0.074339, 0.0730612, 0.0718272, 0.0706347, 0.0694817, 0.0683662, 0.0672865]
