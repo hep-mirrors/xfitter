@@ -328,6 +328,7 @@ c      endif
       Double Precision iTMDq
       Double Precision xt
       double precision xr,pr,xpqr(-6:11),xpqru(-6:11)
+      double precision xpqrtest(-6:11)
       double precision xpqrdbar(-6:11),xpqrubar(-6:11)
       Double Precision x0,xmin,xmax,wt,test
       Double Precision xstart,qstart,xpq0(-6:11)
@@ -383,7 +384,59 @@ c rearrange parton-antiparton in case of only parton pdfs
             xpqrubar(2) = xpqru(-2)           
           endif 
         else
-          call iTMDgridq(xr,pr,xpqr)
+          call iTMDgridq(xr,pr,xpqrtest)
+          do i=-6,11
+c              xpqr(i) = xpqrtest(i)
+              xpqr(i) = 0
+              xpqru(i)= 0
+              xpqrdbar(i) = 0
+              xpqrubar(i) = 0
+          end do
+          
+          xpqr(0) = xpqrtest(0)
+          
+          xpqr(1)=xpqrtest(-3)
+          xpqr(2)=(xpqrtest(-2)+xpqrtest(-1))/2.
+          xpqr(3)=(xpqrtest(-2)+xpqrtest(-1))/2.
+          xpqr(-1)=xpqrtest(3)
+          xpqr(-2)=(xpqrtest(2)+xpqrtest(1))/2.
+          xpqr(-3)=(xpqrtest(2)+xpqrtest(1))/2.
+          xpqr(4)=xpqrtest(-4)
+          xpqr(5)=xpqrtest(-5)
+          xpqr(-4)=xpqrtest(4)
+          xpqr(-5)=xpqrtest(5)
+
+          xpqru(1) = (xpqrtest(-2)+xpqrtest(-1))/2.
+          xpqru(2) = xpqrtest(-3)
+          xpqru(-1) = (xpqrtest(2)+xpqrtest(1))/2.
+          xpqru(-2) = xpqrtest(3)
+c          xpqru(-3) = (xpqrtest(2)+xpqrtest(1))/2. ! test
+          xpqru(4) = xpqrtest(-4)
+          xpqru(5) = xpqrtest(-5)
+          xpqru(-4) = xpqrtest(4)
+          xpqru(-5) = xpqrtest(5)
+          
+          xpqrdbar(1) = xpqrtest(3)
+          xpqrdbar(-1) = xpqrtest(-3)
+          xpqrdbar(2) = (xpqrtest(2)+xpqrtest(1))/2.
+          xpqrdbar(-2) = (xpqrtest(-2)+xpqrtest(-1))/2.
+          xpqrdbar(3) = (xpqrtest(2)+xpqrtest(1))/2.
+          xpqrdbar(-3) = (xpqrtest(-2)+xpqrtest(-1))/2.
+          xpqrdbar(4) = xpqrtest(4)
+          xpqrdbar(5) = xpqrtest(5)
+          xpqrdbar(-4) = xpqrtest(-4)
+          xpqrdbar(-5) = xpqrtest(-5)
+
+
+          xpqrubar(1) = (xpqrtest(2)+xpqrtest(1))/2. 
+          xpqrubar(2) = xpqrtest(3)
+          xpqrubar(-1) = (xpqrtest(-2)+xpqrtest(-1))/2.
+          xpqrubar(-2) = xpqrtest(-3)
+          xpqrubar(4) = xpqrtest(4)
+          xpqrubar(5) = xpqrtest(5)
+          xpqrubar(-4) = xpqrtest(-4)
+          xpqrubar(-5) = xpqrtest(-5)
+          
         endif
 c        write(6,*) ' after iTMDgridq ',xr,pr,xpqr(0)
         else
@@ -423,13 +476,13 @@ C electroweak: W- (iparton=10):  -2, -4, -6, 1, 3, 5     -> ubar, cbar, tbar uba
             test = (xpqr(-2)*xpq0(1) + xpqru(-2)*xpq0(2)+ xpqr(-3)*xpq0(3)
      +            + xpqrdbar(-2)*xpq0(-1)+ xpqrubar(-2)*xpq0(-2) + xpqrdbar(-3)*xpq0(-3))/x0
          elseif(iparton.eq.3) then 
-            test = (xpqr(-3)*xpq0(1) + xpqr(-3)*xpq0(2)+ xpqr(1)*xpq0(3)
-     +            + xpqrdbar(-3)*xpq0(-1)+ xpqrdbar(-3)*xpq0(-2) + xpqrdbar(1)*xpq0(-3))/x0
+            test = (xpqr(3)*xpq0(1) + xpqru(1)*xpq0(2)+ xpqr(1)*xpq0(3)
+     +            + xpqrdbar(3)*xpq0(-1)+ xpqrubar(1)*xpq0(-2) + xpqrdbar(1)*xpq0(-3))/x0
 c            test = ((xpqr(-3)+xpqr(-2))/2.*xpq0(1) + (xpqr(-3)+xpqr(-2))/2.*xpq0(2)+ xpqr(1)*xpq0(3)
 c     +            + (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-1)+ (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-2) + xpqrdbar(1)*xpq0(-3))/x0
          elseif(iparton.eq.-3) then 
-            test = (xpqr(-3)*xpq0(1) + xpqru(-3)*xpq0(2)+ xpqr(-1)*xpq0(3)
-     +            + xpqrdbar(-3)*xpq0(-1)+ xpqrubar(-3)*xpq0(-2) + xpqrdbar(-1)*xpq0(-3))/x0
+            test = (xpqr(-3)*xpq0(1) + xpqru(-1)*xpq0(2)+ xpqr(-1)*xpq0(3)
+     +            + xpqrdbar(-3)*xpq0(-1)+ xpqrubar(-1)*xpq0(-2) + xpqrdbar(-1)*xpq0(-3))/x0
 c            test = ((xpqr(-3)+xpqr(-2))/2.*xpq0(1) + (xpqr(-3)+xpqr(-2))/2.*xpq0(2)+ xpqr(-1)*xpq0(3)
 c     +            + (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-1)+ (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-2) + xpqrdbar(-1)*xpq0(-3))/x0
          elseif(iabs(iparton).ge.4.and.iabs(iparton).le.6) then 
