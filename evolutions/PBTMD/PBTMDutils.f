@@ -373,15 +373,15 @@ c          mygridfiles_u=mygridfiles
             call iTMDgridq_dbar(xr,pr,xpqrdbar)
             call iTMDgridq_ubar(xr,pr,xpqrubar)
           else
-            do i=-6,11
-              xpqrdbar(i) = xpqr(i)
-              xpqrubar(i) = xpqru(i)
+            do i=-6,6
+              xpqrdbar(-i) = xpqr(i)
+              xpqrubar(-i) = xpqru(i)
             end do
 c rearrange parton-antiparton in case of only parton pdfs            
-            xpqrdbar(-1) = xpqr(1)
-            xpqrdbar(1) = xpqr(-1)
-            xpqrubar(-2) = xpqru(2)
-            xpqrubar(2) = xpqru(-2)           
+c            xpqrdbar(-1) = xpqr(1)
+c            xpqrdbar(1) = xpqr(-1)
+c            xpqrubar(-2) = xpqru(2)
+c            xpqrubar(2) = xpqru(-2)           
           endif 
         else
           call iTMDgridq(xr,pr,xpqrtest)
