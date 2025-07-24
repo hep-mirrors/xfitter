@@ -1,22 +1,8 @@
-find_path(APPLgrid_INCLUDE_DIR
-    appl_grid/appl_file.h
-    PATHS ${CMAKE_SOURCE_DIR}/../deps/applgrid/include
-    NO_DEFAULT_PATH
-)
-find_library(APPLgrid_LIBRARY
-    NAMES libAPPLgrid.so
-    PATHS ${CMAKE_SOURCE_DIR}/../deps/applgrid/lib
-    NO_DEFAULT_PATH
-)
-
-if(APPLgrid_INCLUDE_DIR AND APPLgrid_LIBRARY)
-    set(APPLgrid_FOUND TRUE)
-    set(APPLgrid_INCLUDE_DIRS ${APPLgrid_INCLUDE_DIR})
-    set(APPLgrid_LIBRARIES ${APPLgrid_LIBRARY})
-else()
-  message(FATAL_ERROR "APPLgrid not found. Please check your paths.")
+# Only find_package if target not already created
+if(NOT TARGET APPLgrid)
+    find_package(APPLgrid REQUIRED)
 endif()
-  
+
 add_library(fapplwrap STATIC
     applwrap.cxx
     fapplwrap.cxx
@@ -25,17 +11,17 @@ add_library(fapplwrap STATIC
 
 set_target_properties(fapplwrap PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-# Link APPLgrid and ROOT if available
+target_include_directories(fapplwrap PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Link to APPLgrid if found
 if(APPLgrid_FOUND)
-    target_include_directories(fapplwrap PUBLIC ${APPLgrid_INCLUDE_DIRS})
-    target_link_libraries(fapplwrap PUBLIC ${APPLgrid_LIBRARIES})
+    target_link_libraries(fapplwrap PUBLIC APPLgrid)
 endif()
 
+# Link to ROOT if found
 if(ROOT_FOUND)
     target_include_directories(fapplwrap PUBLIC ${ROOT_INCLUDE_DIRS})
     target_link_libraries(fapplwrap PUBLIC ${ROOT_LIBRARIES})
 endif()
-
-target_include_directories(fapplwrap PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
