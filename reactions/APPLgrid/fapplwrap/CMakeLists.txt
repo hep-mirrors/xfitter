@@ -1,13 +1,14 @@
 find_path(APPLgrid_INCLUDE_DIR
     appl_grid/appl_file.h
-    PATHS /data/atlas/atlasdata/giuli/xFitter_fapplwrap/deps/applgrid/include
+    PATHS ${CMAKE_SOURCE_DIR}/../deps/applgrid/include
     NO_DEFAULT_PATH
 )
 find_library(APPLgrid_LIBRARY
     NAMES libAPPLgrid.so
-    PATHS /data/atlas/atlasdata/giuli/xFitter_fapplwrap/deps/applgrid/lib
+    PATHS ${CMAKE_SOURCE_DIR}/../deps/applgrid/lib
     NO_DEFAULT_PATH
 )
+
 if(APPLgrid_INCLUDE_DIR AND APPLgrid_LIBRARY)
     set(APPLgrid_FOUND TRUE)
     set(APPLgrid_INCLUDE_DIRS ${APPLgrid_INCLUDE_DIR})
