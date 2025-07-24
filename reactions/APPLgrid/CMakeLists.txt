@@ -14,12 +14,19 @@ if (PLOUGHSHARE_FOUND)
   add_definitions(-I${PLOUGHSHARE_INCLUDE_DIRS})
 endif()
 
+# Add fapplwrap subdirectory
+add_subdirectory(fapplwrap)
+
 set(TARGET reactionAPPLgrid)
 add_library(${TARGET} MODULE ReactionAPPLgrid.cc)
 if (PLOUGHSHARE_FOUND)
-  target_link_libraries(${TARGET} PRIVATE xfitter APPLgrid PLOUGHSHARE)
+  target_link_libraries(${TARGET} PRIVATE xfitter APPLgrid PLOUGHSHARE fapplwrap)
 else()
-  target_link_libraries(${TARGET} PRIVATE xfitter APPLgrid)
+  target_link_libraries(${TARGET} PRIVATE xfitter APPLgrid fapplwrap)
 endif()
+
+# Add fapplwrap include directory
+target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/fapplwrap)
+
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 install(FILES APPLgrid.yaml DESTINATION ${DEST_YAML}/reactions)
