@@ -368,12 +368,13 @@ c (makes small difference which reaches few % only at highest Q2 of the charm HE
 C--------------------------------------------------------------------------
       end
 
-      Subroutine ABKM_Change_Order(kordpdfin)
+      FUNCTION ABKM_Change_Order(kordpdfin)
 C---------------------------------------------------------------------------
 C  Wraper to change the order of calculations, returns the previous order
 C---------------------------------------------------------------------------
       implicit none
-      integer ordfl
+C      integer ordfl
+      integer ABKM_Change_Order
       integer kordpdfin
       integer npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
       common /forpdfset/ npdftot,kordpdf,kschemepdf,kpdfset,kordkernel

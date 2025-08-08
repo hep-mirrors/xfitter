@@ -59,7 +59,7 @@ namespace abm {
     pdffillgrid_();
   }
 
-  double calc_point_strfun(const SFprc prc, const SFtype ftype, const SFflav flav, const double q2, const double x, const int order, const int charge, const double polar, const double sin2thw, const double mz, const double* f2c_cc) {
+  double calc_point_strfun(const SFproc prc, const SFtype ftype, const SFflav flav, const double q2, const double x, const int order, const int charge, const double polar, const double sin2thw, const double mz, const double* f2c_cc) {
     static constexpr int nt = 1; // proton
     int order_old;
     if (order >= 0) {
@@ -72,7 +72,7 @@ namespace abm {
       return val;
     };
     switch (prc) {
-      case SFprc::nc:
+      case SFproc::nc:
         switch (flav) {
           case SFflav::l: {
             static constexpr double eleAxial = -0.5;
@@ -110,7 +110,7 @@ namespace abm {
                 return reset_order_and_return(0.);
             }
         }
-      case SFprc::cc:
+      case SFproc::cc:
         const int ni = 24; // CC
         const int nb = charge > 0 ? 6 : 7;
         switch (flav) {

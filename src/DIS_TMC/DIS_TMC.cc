@@ -1,4 +1,5 @@
-#include "DIS_TMC.h"
+#ifdef NOTCOMPILE
+//#include "DIS_TMC.h"
 //#include "ReactionFFABM_DISNC.h"
 //#include "ReactionFFABM_DISCC.h"
 //#include "../reactions/FFABM_DISNC/ReactionFFABM_DISNC.h"
@@ -82,8 +83,13 @@ DIS_TMC::DIS_TMC(TermData* td){
   _mpr = td->getParamD("mpr");
 }
 
-void DIS_TMC::apply(double& f2, double& fl, double& f3, double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
-    const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz, void* ptr_reaction) {
+void DIS_TMC::apply(double& f2, double& fl, double& f3, 
+                    double& f2c, double& flc, double& f3c, 
+                    double& f2b, double& flb, double& f3b, 
+                    const bool flag_fl, const bool flag_f3, 
+                    const double q2, const double x, 
+                    const int ncflag, const int charge, const double polarity, 
+                    const double cos2thw, const double mz, void* ptr_reaction) {
   if ((_xmin == 0. || _xmin < x) && (_logxlogq2min == 0. || _logxlogq2min < log(x)*log(q2))) {
     if(_flag_l) {
       /*if (ncflag == 1) {
@@ -342,3 +348,4 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
   //printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x, q2, result, error, error/result, sim38, sim38/result-1, f2/f20-1);
   return f2/f20-1;
 }
+#endif

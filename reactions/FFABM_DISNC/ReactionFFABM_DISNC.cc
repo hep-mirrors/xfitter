@@ -78,6 +78,9 @@ void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
                      double& hqscale1in, const double& hqscale2in, const int& flord);
 void initgridconst_();
 void pdffillgrid_();*/
+void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
+                     const double& rmass8in, const double& rmass10in, const int& msbarmin,
+                     double& hqscale1in, const double& hqscale2in, const int& flord);
 }
 
 // Initialize at the start of the computation
@@ -235,7 +238,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       {
         if (_FLAG_FAST) {
           if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::l) {
-            f2 = abm::calc_point_strfun(abm::SFprc::nc, abm::SFprc::f2, abm::SFflav::l, q2[i], x[i], -1, GetCharge(dataSetID), GetPolarisation(dataSetID), _sin2thetaW, *_mzPtr);
+            f2 = abm::calc_point_strfun(abm::SFproc::nc, abm::SFtype::f2, abm::SFflav::l, q2[i], x[i], -1, GetCharge(dataSetID), GetPolarisation(dataSetID), _sin2thetaW, *_mzPtr);
             f2 = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
             fl = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
             f3 = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
@@ -275,7 +278,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           else {
             sf_abkm_wrap_(x[i], q2[i], f2_bar, fl_bar, f3_bar, f2c_bar, flc_bar, f3c_bar, f2b_bar, flb_bar, f3b_bar, ncflag, charge_bar, polarity, *_sin2thwPtr, cos2thw, *_mzPtr);
           }
-          double f3_bar(0), f3c_bar(0), f3b_bar(0);
+          //double f3_bar(0), f3c_bar(0), f3b_bar(0);
           f3out_bar = x[i] * combine_flavours(GetDataFlav(dataSetID), f3_bar, f3c_bar, f3b_bar);
         }
         if (_tmc[dataSetID]) {

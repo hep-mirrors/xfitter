@@ -122,7 +122,9 @@ void DIS_HT::apply(const double q2, const double x, double& f2, double& fl)
   const double f2_cor = std::pow(x, *_ht_alpha_2) * (*_spline_f2)(x) * q02 / q2;
   const double ft_cor = std::pow(x, *_ht_alpha_t) * (*_spline_ft)(x) * q02 / q2;
   //printf("HT q2,x = %f,%f f2,ft = %f,%f\n", q2, x, f2_cor/f2, ft_cor/ft);
-  f2 += f2_cor;
-  ft += ft_cor;
+  //const double scale = 18./5.;
+  const double scale = 1.;
+  f2 += f2_cor * scale;
+  ft += ft_cor * scale;
   fl = f2 - ft;
 }

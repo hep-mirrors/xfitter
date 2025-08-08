@@ -132,7 +132,7 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
   masses_.rmass[9] = *_mbPtr;
   
   // CKM matrix
-  constants_abkm_.ckm[0] = *td->getParamD("Vud");
+  /*constants_abkm_.ckm[0] = *td->getParamD("Vud");
   constants_abkm_.ckm[1] = *td->getParamD("Vus");
   constants_abkm_.ckm[2] = *td->getParamD("Vub");
   constants_abkm_.ckm[3] = *td->getParamD("Vcd");
@@ -140,7 +140,7 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
   constants_abkm_.ckm[5] = *td->getParamD("Vcb");
   constants_abkm_.ckm[6] = *td->getParamD("Vtd");
   constants_abkm_.ckm[7] = *td->getParamD("Vts");
-  constants_abkm_.ckm[8] = *td->getParamD("Vtb");
+  constants_abkm_.ckm[8] = *td->getParamD("Vtb");*/
 
   printf("---------------------------------------------\n");
   printf("INFO from ABKM_init:\n");
@@ -200,6 +200,7 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
   static const double mnucl = pars.mnucl;
   static constexpr double emin = 6.;
   //static constexpr double emin = 0.;
+  //static constexpr double emin = 0.1;
   static constexpr double emax = 300.;
   static const double xmin = 1./(2.*mnucl*emax);
   static constexpr double xmax = 0.99;
@@ -208,6 +209,7 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
   double q2max = smax * xmax;
   double x(-1.), q2(-1.), y(-1.), e(-1.), s(-1.), factor(-1.);
   if(pars.intvar == 1) { // E
+    throw 42;
     if (*ndim == 2) {
       e = pars.val;
       s = 2 * mnucl * e + mnucl * mnucl;
@@ -225,7 +227,120 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
     }
     y = (q2 + x * x * mnucl * mnucl) / s / x;
   }
+  else if(pars.intvar == 9) { // test
+    //printf("SZ dupa\n");
+    //double x = 0.015;
+    //double q2 = 15.0;
+    double x = 1e-3 + (1e-2 - 1e-3) * inp[0];
+    double q2 = 10 + (100 - 10) * inp[1];
+    double f2sum(0.), flsum(0.), xf3sum(0.);
+    pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
+    //printf("f2sum = %f\n", f2sum);
+    //throw 1;
+    val[0] = xf3sum;
+    val[0] *= (100 - 10) * (1e-2 - 1e-3);
+    return 0;
+  }
+  else if(pars.intvar == 7) { // test
+    double f2sum(0.), flsum(0.), xf3sum(0.);
+    if(1==2){
+      double x = 0.15;
+      double q2 = 15.0;
+      double y = 0.5;
+      pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
+      double yplus = 1.0 + (1.0 - y) * (1.0 - y);
+      if (1) {
+        yplus -= 2.0 * std::pow(mnucl * x * y, 2.0)/q2;
+      }
+      double yminus = 1.0 - (1.0 - y) * (1.0 - y);
+      auto charge = pars.rd->_isBeamNu ? -1 * pars.rd->_charge : pars.rd->_charge; // swap charge for nu beam, see InitTerm()
+      val[0] = 0.5 * (1 + charge * pars.rd->_polarisation) * (yplus * f2sum - charge * yminus * xf3sum - y * y * flsum);
+      //val[0] = 2*((1.-y-std::pow((mnucl*x*y),2.0)/q2)*f2sum+y*y/2.*(f2sum-flsum)+(y-y*y/2.)*xf3sum);
+      double e = q2/(2*mnucl*x*y);
+      printf("SZ = %f %f %f %f %f %f %f %f\n", x, y, q2, mnucl, f2sum*2, flsum*2, xf3sum*2/x, val[0]);
+      double br = *pars.br0 / (1 + *pars.br1 / e);
+      val[0] *= br;
+      return 0;
+      throw 1;
+    }
+    double e = 0.15910e+02;
+    double s=2*mnucl*e;
+    double xmin1=q2min/s;
+    x = xmin1 + (xmax - xmin1) * inp[0];
+    double ymin = q2min/s/x;
+    y = ymin + (1 - ymin) * inp[1];
+    q2 = s * x * y;
+    factor = 1.0;
+    factor *= (xmax - xmin1) * (1 - ymin);
+    factor *= x;
+    factor *= e;
+    factor /= x;
+    pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
+    double yplus = 1.0 + (1.0 - y) * (1.0 - y);
+    if (1) {
+      yplus -= 2.0 * std::pow(mnucl * x * y, 2.0)/q2;
+    }
+    double yminus = 1.0 - (1.0 - y) * (1.0 - y);
+    auto charge = pars.rd->_isBeamNu ? -1 * pars.rd->_charge : pars.rd->_charge; // swap charge for nu beam, see InitTerm()
+    val[0] = 0.5 * (1 + charge * pars.rd->_polarisation) * (yplus * f2sum - charge * yminus * xf3sum - y * y * flsum);
+    val[0] *= factor;
+    double br = *pars.br0 / (1 + *pars.br1 / e);
+    val[0] *= br;
+    return 0;
+  }
+  else if(pars.intvar == 8) { // test
+    double e = 0.15910e+02;
+    s = 2 * mnucl * e + mnucl * mnucl;
+    double smax1 = 2 * mnucl * e + mnucl * mnucl;
+    q2max = smax1 * xmax;
+    double xmin1 = 1./(2.*mnucl*e);
+    x = xmin1 + inp[0] * (xmax - xmin1);
+    y = inp[1];
+    q2 = s * x * y;
+    factor = 1.0;
+    factor *= (xmax - xmin1);
+    factor *= x;
+    factor *= e;
+    double f2sum(0.), flsum(0.), xf3sum(0.);
+    pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
+    double yplus = 1.0 + (1.0 - y) * (1.0 - y);
+    if (1) {
+      yplus -= 2.0 * std::pow(mnucl * x * y, 2.0)/q2;
+    }
+    double yminus = 1.0 - (1.0 - y) * (1.0 - y);
+    auto charge = pars.rd->_isBeamNu ? -1 * pars.rd->_charge : pars.rd->_charge; // swap charge for nu beam, see InitTerm()
+    val[0] = 0.5 * (1 + charge * pars.rd->_polarisation) * (yplus * f2sum - charge * yminus * xf3sum - y * y * flsum);
+    val[0] *= factor;
+    double br = *pars.br0 / (1 + *pars.br1 / e);
+    val[0] *= br;
+    factor /= x;
+    return 0;
+  }
+  else if(pars.intvar == 10) { // test
+    printf("SZ dupa\n");
+    const double pi = 3.1415926535897932384626433832795029;
+    double x = inp[0] * pi/2.;
+    double y = inp[1] * pi/2.;
+    val[0] = sin(x)*cos(y);
+    val[0] *= pi/2. * pi/2.;
+    return 0;
+  }
+  else if(pars.intvar == 11) { // E
+    if (*ndim == 2) {
+      e = pars.val;
+      s=2*mnucl*e;
+      double xmin1=q2min/s;
+      x = xmin1 + (xmax - xmin1) * inp[0];
+      double ymin = q2min/s/x;
+      y = ymin + (1 - ymin) * inp[1];
+      q2 = s * x * y;
+      factor = 1.0;
+      factor *= (xmax - xmin1) * (1 - ymin);
+      //factor *= x;
+    }
+  }
   else if(pars.intvar == 2) { // xbj
+    throw 42;
     if (*ndim == 2) {
       e = emin + (emax - emin) * inp[0];
       q2 = q2min + (q2max - q2min) * inp[1];
@@ -244,7 +359,26 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
       factor = numufcalflux_(e) * (q2max - q2min) * (emax - emin) * (xmax - xmin);
     }
   }
+  else if(pars.intvar == 12) { // xbj
+    if (*ndim == 2) {
+      x = pars.val;
+      double alim = q2min/x/2./mnucl;
+      double emin1 = std::max(std::min(alim,emax),emin);
+      e = emin1 + (emax - emin1) * inp[0];
+      double ymin1 = alim/e;
+      y = ymin1 + (1 - ymin1) * inp[1];
+      //s = 2 * mnucl * e + mnucl * mnucl;
+      s = 2 * mnucl * e;
+      q2 = s * x * y;
+      //factor = numufcalflux_(e) * (q2max - q2min) * (emax - emin);
+      factor = numufcalflux_(e);
+      factor *= (emax - emin1) * (1 - ymin1);
+      factor *= e;
+      //e = 10.;
+    }
+  }
   else if(pars.intvar == 3) { // sqrts
+    //throw 42;
     if (*ndim == 2) {
       double sqrtshat = pars.val;
       double xmin = 1./(sqrtshat*sqrtshat);
@@ -260,6 +394,34 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
       factor = numufcalflux_(e) * (xmax - xmin) * (emax - emin);
     }
   }
+  else if(pars.intvar == 13) { // sqrts
+    if (*ndim == 2) {
+      double sqrtshat = pars.val;
+      double shat = sqrtshat*sqrtshat;
+      double emin1 = std::min(std::max(emin,(q2min+shat)/2./mnucl),emax);
+      e = emin1 + (emax - emin1) * inp[0];
+      double spmax = 2*mnucl*e;
+      double xmin1 = (1./(1+shat/q2min));
+      double xmax1 = (1-shat/spmax);
+      //printf("SZ e: %f - %f, x: %f - %f\n", emin1, emax, xmin1, xmax1);
+      x = xmin1 + (xmax1 - xmin1) * inp[1];
+      q2 = shat * x / (1 - x);
+      if (q2 < (q2min-1e-6)) {
+        printf("q2 = %f\n", q2);
+        throw 43.0;
+        val[0] = 0.;
+        return 0;
+      }
+      y = q2 / (2 * e * mnucl * x);
+      factor = numufcalflux_(e);
+      //factor = 1.;
+      factor *= 1. / (2 * mnucl * (1 - x));
+      //factor *= 2 * sqrtshat;
+      factor *= (xmax1 - xmin1) * (emax - emin1);
+      //factor /= (xmax1 - xmin1) * (emax - emin1);
+      //e = 10.;
+    }
+  }
   if (y <= 0. || y >= 1.) {
     val[0] = 0.;
     return 0;
@@ -267,6 +429,9 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
   double f2sum(0.), flsum(0.), xf3sum(0.);
   pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
   double yplus = 1.0 + (1.0 - y) * (1.0 - y);
+  if (1) {
+    yplus -= 2.0 * std::pow(mnucl * x * y, 2.0)/q2;
+  }
   double yminus = 1.0 - (1.0 - y) * (1.0 - y);
   auto charge = pars.rd->_isBeamNu ? -1 * pars.rd->_charge : pars.rd->_charge; // swap charge for nu beam, see InitTerm()
   val[0] = 0.5 * (1 + charge * pars.rd->_polarisation) * (yplus * f2sum - charge * yminus * xf3sum - y * y * flsum);
@@ -274,7 +439,11 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
   double MW = *pars.rd->Mw;
   double GF = pars.reaction->_Gf;
   double kinfactor = (pow(MW, 4.) / pow((q2 + MW * MW), 2)) * GF * GF / (2 * pi * x) * pars.reaction->_convfac;
-  val[0] *= kinfactor;
+  //val[0] *= kinfactor;
+  if(1==2){
+    val[0] /= kinfactor;
+    factor *= e;
+  }
   val[0] *= factor;
   if ( pars.rd->_dataFlav == BaseDISCC::dataFlav::c ) {
     double br = *pars.br0 / (1 + *pars.br1 / e);
@@ -338,8 +507,9 @@ void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, cons
   const int NCOMP = 1;
   void* USERDATA = &pars;
   const int NVEC = 1;
-  //const double EPSREL = 1e-3;
-  const double EPSREL = 1e-2;
+  //const double EPSREL = 1e-5;
+  const double EPSREL = 1e-3;
+  //const double EPSREL = 1e-2;
   const double EPSABS = 0;
   const int FLAGS = 0;
   const int MINEVAL = 0;
@@ -408,12 +578,12 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
     }
     f3out_bar = x * combine_flavours(rd, f3_bar, f3c_bar, f3b_bar);
   }
-  if (_tmc[dataSetID]) {
+  /*if (_tmc[dataSetID]) {
     const bool flag_fl = true;
     const bool flag_f3 = false;
     //const bool flag_f3 = true; [not implemented]
     _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, *_mzPtr, this);
-  }
+  }*/
   if(_flag_ht[dataSetID]) {
     _ht->apply(q2, x, f2, fl);
   }
@@ -426,7 +596,7 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
   }
 }
 
-double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::ReactionData* rd, const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double* f2c = nullptr) {
+double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::ReactionData* rd, const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double* f2c) {
   if (flav == BaseDISCC::dataFlav::b) {
     return 0;
   }
@@ -453,11 +623,11 @@ double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::ReactionData* rd,
           return reset_order_and_return(f3qcd_(nb, nt, ni, x, q2) / 2.);
       }
     case BaseDISCC::dataFlav::c:
+      double f2c_calc = 0.;
       switch (ftype) {
         case BaseDISCC::dataType::f2:
           return reset_order_and_return(f2nucharm_(nb, nt, ni, x, q2, 8) / 2.);
         case BaseDISCC::dataType::fl:
-          f2c_calc = 0.;
           if (f2c) {
             f2c_calc = *f2c;
           }
@@ -505,3 +675,12 @@ valarray<double> ReactionFFABM_DISCC::xF3(TermData *td)
   calcF2FL(td->id);
   return _f3abm[td->id];
 }
+
+/*double ReactionFFABM_DISCC::numufcalflux_sz_(const double& e) {
+  if(e < _nomad_emin || e > _nomad_emax) {
+    return 0.;
+  }
+  else {
+    return numufcalflux_(e);
+  }
+}*/
