@@ -5,8 +5,9 @@
 class TermData;
 
 class DIS_TMC {
-  // TODO do not use friends, instead make sure this class is used only by ReactionBaseDISNC
-  // and ReactionBaseDISCC reactions and make the corresponding pointers there private
+  // if needed to be used by other DIS reactions, add them here
+  // NOTE: TMC are applied to F2, FL and different flavours separately
+  // it is not possible to implement it at the level of BaseDIS classes
   friend class ReactionBaseDISNC;
   friend class ReactionBaseDISCC;
   friend class ReactionFFABM_DISNC;
@@ -25,7 +26,7 @@ class DIS_TMC {
     double apply_one_flavour(double& f2, double& fl, double& f3, 
       const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x,
       const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz);
-  private: // TODO: make public when used only by ReactionBaseDISNC, ReactionBaseDISCC
+    // private methods can be used by friends
     void apply(double& f2, double& fl, double& f3, 
       double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
       const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, 

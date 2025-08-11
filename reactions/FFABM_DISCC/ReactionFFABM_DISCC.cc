@@ -578,13 +578,14 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
     }
     f3out_bar = x * combine_flavours(rd, f3_bar, f3c_bar, f3b_bar);
   }
-  /*if (_tmc[dataSetID]) {
+  if (_tmc[dataSetID]) {
     const bool flag_fl = true;
     const bool flag_f3 = false;
     //const bool flag_f3 = true; [not implemented]
     _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, *_mzPtr, this);
-  }*/
+  }
   if(_flag_ht[dataSetID]) {
+    // HT is applied only to F2 and FL light flavour part
     _ht->apply(q2, x, f2, fl);
   }
   f2out = combine_flavours(rd, f2, f2c, f2b);

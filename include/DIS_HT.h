@@ -7,8 +7,9 @@ namespace tk {class spline;}
 
 // DIS higher twist spline parametrisation
 class DIS_HT {
-  // TODO do not use friends, instead make sure this class is used only by ReactionBaseDISNC
-  // and ReactionBaseDISCC reactions and make the corresponding pointers there private
+  // if needed to be used by other DIS reactions, add them here
+  // NOTE: HT is applied only to F2 and FL light flavour part
+  // it is not possible to implement it at the level of BaseDIS classes
   friend class ReactionBaseDISNC;
   friend class ReactionBaseDISCC;
   friend class ReactionFFABM_DISNC;
@@ -32,7 +33,7 @@ class DIS_HT {
     std::vector<bool> _isnew_ht_t;
     bool _isnew_ht_alpha_2;
     bool _isnew_ht_alpha_t;
-  private: // TODO: make public when used only by ReactionBaseDISNC, ReactionBaseDISCC
+    // private methods can be used by friends
     void update();
     void apply(const double q2, const double x, double& f2, double& fl);
 };

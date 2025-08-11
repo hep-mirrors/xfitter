@@ -58,7 +58,6 @@ protected:
   //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
 
   // higher twist
-  // TODO: make this private to ensure it is used only from the parent class
   DIS_HT* _ht = nullptr;
   map<unsigned, bool> _flag_ht;
   // target mass corrections
