@@ -138,8 +138,9 @@ protected:
    virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
 
    // higher twist
-   DIS_HT* _ht = nullptr;
-   map<unsigned, bool> _flag_ht;
+   //DIS_HT* _ht = nullptr;
+   //map<unsigned, bool> _flag_ht;
+  map<int, DIS_HT*> _ht;
 
   // target mass corrections
   map<int, DIS_TMC*> _tmc;

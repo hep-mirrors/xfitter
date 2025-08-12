@@ -191,8 +191,13 @@ void ReactionFFABM_DISNC::atIteration()
   //td->actualizeWrappers();
   //abm::pdffillgrid();
 
-  if (_ht) {
-    _ht->update();
+  //if (_ht) {
+  //  _ht->update();
+  //}
+  for (auto ht : _ht) {
+    if (ht.second) {
+      ht.second->update();
+    }
   }
 
   // Flag for internal arrays
@@ -287,8 +292,11 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           //const bool flag_f3 = true; [not implemented]
           _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2[i], x[i], ncflag, charge, polarity, cos2thw, *_mzPtr, this);
         }
-        if(_flag_ht[dataSetID]) {
-          _ht->apply(q2[i], x[i], f2, fl);
+        //if(_flag_ht[dataSetID]) {
+        //  _ht->apply(q2[i], x[i], f2, fl);
+        //}      
+        if(_ht[dataSetID]) {
+          _ht[dataSetID]->apply(q2[i], x[i], f2, fl);
         }      
         f2out = combine_flavours(GetDataFlav(dataSetID), f2, f2c, f2b);
         flout = combine_flavours(GetDataFlav(dataSetID), fl, flc, flb);

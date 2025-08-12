@@ -55,9 +55,12 @@ extern "C" ReactionBaseDISNC *create()
 }
 
 ReactionBaseDISNC::~ReactionBaseDISNC() {
-  if(_ht) {
-    delete _ht;
-  }
+  //if(_ht) {
+  //  delete _ht;
+  //}
+  for (auto ht : _ht) delete ht.second;
+  for (auto tmc : _tmc) delete tmc.second;
+  for (auto nk : _nuke) delete nk.second;
 }
 
 // Initialize at the start of the computation
@@ -294,12 +297,16 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   hf_errlog(17041001, msg);
 
   // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
-  _flag_ht[termID] = false;
+  //_flag_ht[termID] = false;
+  //if (td->hasParam("ht") && td->getParamI("ht") != 0) {
+  //  _flag_ht[termID] = td->getParamI("ht");
+  //  if (_flag_ht[termID] && !_ht) {
+  //    _ht = new DIS_HT(td, false);
+  //  }
+  //}
+  _ht[termID] = nullptr;
   if (td->hasParam("ht") && td->getParamI("ht") != 0) {
-    _flag_ht[termID] = td->getParamI("ht");
-    if (_flag_ht[termID] && !_ht) {
-      _ht = new DIS_HT(td, false);
-    }
+    _ht[termID] = new DIS_HT(td, false);
   }
   
   // read target mass correction parameters

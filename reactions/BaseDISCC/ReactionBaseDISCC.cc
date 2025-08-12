@@ -170,15 +170,17 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   {
   case BaseDISCC::dataType::signonred:
   {
-    if (charge > 0)
-      val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
-    else
-      val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
+    //if (charge > 0)
+    //  val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
+    //else
+    //  val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
+    val = 0.5 * (1 + charge*polarity) * (yplus * f2 - charge * yminus * xf3 - y * y * fl);
     // extra factor for non-reduced cross section
     auto &x = *BaseDISCC::GetBinValues(td, "x"),
         &q2 = *BaseDISCC::GetBinValues(td, "Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * _Gf * _Gf / (2 * pi * x) * _convfac;
+    //factor = 1.;
     val *= factor;
     break;
     //
@@ -220,10 +222,11 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   case BaseDISCC::dataType::sigred:
   {
     //polarity *= -1;
-    if (charge > 0)
-      val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
-    else
-      val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
+    //if (charge > 0)
+    //  val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
+    //else
+    //  val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
+    val = 0.5 * (1 + charge*polarity) * (yplus * f2 - charge * yminus * xf3 - y * y * fl);
     break;
   }
   case BaseDISCC::dataType::f2:
