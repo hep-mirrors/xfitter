@@ -5,7 +5,8 @@
 #include <sstream>
 #include <iostream>
 
-DIS_HT::DIS_HT(TermData* td) {
+DIS_HT::DIS_HT(TermData* td, const bool flag_cc) {
+  _flag_cc = flag_cc;
   _spline_f2 = new tk::spline();
   _spline_ft = new tk::spline();
   // for arrays, expect comma-separated strings
@@ -36,6 +37,7 @@ DIS_HT::DIS_HT(TermData* td) {
       }
       counter++;
     }
+    printf("read_array result ="); for(auto& r : result) printf(" %.3f", *r); printf("\n");
     return result;
   };
   auto read_double = [td](const std::string& parname, bool& isnew) {
@@ -61,6 +63,7 @@ DIS_HT::DIS_HT(TermData* td) {
         }
       }
     }
+    printf("read_double result = %.3f\n", *result);
     return result;
   };
   _ht_x = read_array("ht_x", _isnew_ht_x);
@@ -122,8 +125,7 @@ void DIS_HT::apply(const double q2, const double x, double& f2, double& fl)
   const double f2_cor = std::pow(x, *_ht_alpha_2) * (*_spline_f2)(x) * q02 / q2;
   const double ft_cor = std::pow(x, *_ht_alpha_t) * (*_spline_ft)(x) * q02 / q2;
   //printf("HT q2,x = %f,%f f2,ft = %f,%f\n", q2, x, f2_cor/f2, ft_cor/ft);
-  //const double scale = 18./5.;
-  const double scale = 1.;
+  const double scale = _flag_cc ? 18./5. : 1.;
   f2 += f2_cor * scale;
   ft += ft_cor * scale;
   fl = f2 - ft;

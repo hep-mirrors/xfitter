@@ -15,9 +15,11 @@ class DIS_HT {
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
   public:
-    DIS_HT(TermData* td);
+    DIS_HT(TermData* td, const bool flag_cc);
     ~DIS_HT();
   private:
+    // CC flag
+    bool _flag_cc;
     // splines
     tk::spline* _spline_f2;
     tk::spline* _spline_ft;
