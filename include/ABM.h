@@ -1,6 +1,9 @@
 #pragma once
+
+#include <vector>
+
 namespace abm {
-  enum class SFproc
+  /*enum class SFproc
   {
     nc,
     cc,
@@ -16,15 +19,17 @@ namespace abm {
     l,
     c,
     b,
-  };
+  };*/
   void initgridconst();
   void pdffillgrid();
-  void set_input(const int kschemepdfin, const int kordpdfin, 
-                 const double rmass8in, const double rmass10in, 
-                 const int msbarmin, double hqscale1in, const double hqscale2in, 
-                 const int flord, const bool hqnons = false,
-                 int kordpdf = -1, int kordhq = -1, int kordf2 = -1, 
-                 int kordfl = -1, int kordf3 = -1, int kordalps = -1
+  void update_ckm_matrix(const std::vector<const double*>& ckm);
+  void set_scheme_and_order(const int kschemepdf, const int kordpdf, 
+                 const int msbarm, const int flord, 
+                 int kordhq = -1, int kordf2 = -1, int kordfl = -1, int kordf3 = -1, int kordalps = -1,
+                 const bool hqnons = false
                  );
-  double calc_point_strfun(const SFproc prc, const SFtype ftype, const SFflav flav, const double q2, const double x, const int order, const int charge, const double polar, const double sin2thw, const double mz, const double* f2c_cc = nullptr);
+  void set_hq_masses(const double mc, const double mb);
+  void set_hq_scales(const double hqscale1, const double hqscale2);
+  void set_xbmin(const double val);
+  void set_xbmax(const double val);
 }

@@ -49,13 +49,14 @@ private:
   int _ordfl;
   std::map<unsigned, int> _order; // term dependent
   int _kschemepdfin;
-  int _FLAG_FAST = 0;
+  int _FLAG_FAST;
   std::map<unsigned, int> _orderHQ; // allows adjusting HQ order for specific data sets
+  std::vector<const double*> _ckm; // CKM matrix
 
   void calcF2FL(int dataSetID);
   void calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out);
   //double calc_point_strfun(const BaseDISCC::ReactionData* rd, const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double f2c=0.);
-  double calc_point_strfun(const BaseDISCC::ReactionData* rd, const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double* f2c=nullptr);
+  double calc_point_strfun(const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double* f2c=nullptr);
   void calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out);
   static int integrate_nomad(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
   map<int, int> _ncpu;

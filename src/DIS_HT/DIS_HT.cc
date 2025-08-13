@@ -37,7 +37,7 @@ DIS_HT::DIS_HT(TermData* td, const bool flag_cc) {
       }
       counter++;
     }
-    printf("read_array result ="); for(auto& r : result) printf(" %.3f", *r); printf("\n");
+    //printf("read_array result ="); for(auto& r : result) printf(" %.3f", *r); printf("\n");
     return result;
   };
   auto read_double = [td](const std::string& parname, bool& isnew) {
@@ -63,7 +63,7 @@ DIS_HT::DIS_HT(TermData* td, const bool flag_cc) {
         }
       }
     }
-    printf("read_double result = %.3f\n", *result);
+    //printf("read_double result = %.3f\n", *result);
     return result;
   };
   _ht_x = read_array("ht_x", _isnew_ht_x);

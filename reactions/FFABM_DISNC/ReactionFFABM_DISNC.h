@@ -50,9 +50,10 @@ private:
   double _hqscale2in;
   bool _msbarmin;
   int _ordfl;
-  int _order;
+  std::map<unsigned, int> _order; // term dependent
   int _kschemepdfin;
-  int _FLAG_FAST = 0;
+  int _FLAG_FAST;
+  std::map<unsigned, int> _orderHQ; // allows adjusting HQ order for specific data sets
 
   void calcF2FL(unsigned dataSetID);
 

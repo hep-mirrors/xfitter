@@ -67,6 +67,12 @@ c      f2qcd(nb,nt,ni,xb,q2)
       real*8 facgzf3,faczzf3
       double precision eleVec,eleAxial,sin2thw,cos2thw,Mz,PZ
 
+      double precision rmass,rmassp,rcharge
+      COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)
+      logical msbarm,hqnons,bmsnfopt,bmsnnlo,vloop
+      double precision ddnnlohq
+      common /forschemedef/ ddnnlohq,msbarm,hqnons
+     ,  ,bmsnfopt,bmsnnlo,vloop
 
       !nt = 1
 c --------------- Neutral Currents !  ----------------
@@ -152,6 +158,8 @@ c b quark
        f3babkm = 0.0d0
       endif
 
+C      print*,f2abkm,flabkm,f3abkm,f2cabkm,
+C     $   flcabkm,f3cabkm,f2babkm,flbabkm,f3babkm
       RETURN
       end
 
@@ -345,7 +353,7 @@ C-------------------------------
       rmass(10) = rmass10in
       kschemepdf= kschemepdfin
 c set same order for pdf, light, heavy quarks
-      print*,'kordpdfin, rmass8in,rmass10in  ', kordpdfin, rmass8in,rmass10in
+C      print*,'kordpdfin, rmass8in,rmass10in  ', kordpdfin, rmass8in,rmass10in
       kordpdf   = kordpdfin
       kordhq    = kordpdfin
       kordf2    = kordpdfin

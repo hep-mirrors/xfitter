@@ -7,6 +7,7 @@
 */
 
 #include "ReactionFFABM_DISCC.h"
+#include "ABM.h"
 #include "DIS_HT.h"
 #include "DIS_TMC.h"
 #include "DIS_NUKE.h"
@@ -32,56 +33,24 @@ extern "C" ReactionFFABM_DISCC* create() {
   return new ReactionFFABM_DISCC();
 }
 
-// TODO: in the future this reaction should be improved,
-// currently it duplicates ReactionFFABM_DISNC with very few lines changed,
-// common code should be separated
-
-// wrappers from:
-//  ABM/src/sf_abkm_wrap.f
-//  ABM/src/initgridconst.f
-//  ABM/src/grid.f
 extern "C" {
+double numufcalflux_(const double& e); // NOMAD E(nu) flux
 double f2qcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
 double flqcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
 double f3qcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
-double f2charm_ffn_(const double& xb, const double& q2, const int& nq);
-double flcharm_ffn_(const double& xb, const double& q2, const int& nq);
 double f2nucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
 double ftnucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
 double f3nucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
+// TODO to be removed
 void sf_abkm_wrap_(const double& x, const double& q2,
                    const double& f2abkm, const double& flabkm, const double& f3abkm,
                    const double& f2cabkm, const double& flcabkm, const double& f3cabkm,
                    const double& f2babkm, const double& flbabkm, const double& f3babkm,
                    const int& ncflag, const double& charge, const double& polar,
                    const double& sin2thw, const double& cos2thw, const double& MZ, const int& nt=1);
-double numufcalflux_(const double& e);
 void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
                      const double& rmass8in, const double& rmass10in, const int& msbarmin,
                      double& hqscale1in, const double& hqscale2in, const int& flord);
-void initgridconst_();
-void pdffillgrid_();
-
-struct COMMON_masses
-{
-  double rmass[150];
-  double rmassp[150];
-  double rcharge[150];
-};
-extern COMMON_masses masses_;
-
-struct COMMON_gridset
-{
-  double delx1,delx2,delxp,dels1[8],dels2[8],xlog1,xlog2,x1,q2ini[8],q2min,q2max,xbmin,xbmax;
-  int nxmgrid,nxpgrid,nspgrid,nsmgrid,khalf;
-};
-extern COMMON_gridset gridset_;
-
-struct COMMON_constants_abkm
-{
-  double pi,alpha,alphady,rmpr,gfer2,sintc,sintw2,rmw,rmz,rgz,ckm[9],ckm2[9];
-};
-extern COMMON_constants_abkm constants_abkm_;
 }
 
 
@@ -95,6 +64,7 @@ void ReactionFFABM_DISCC::atStart()
 void ReactionFFABM_DISCC::initTerm(TermData *td)
 {
   Super::initTerm(td);
+  _FLAG_FAST = td->hasParam("_FLAG_FAST") ? td->getParamI("_FLAG_FAST") : 0;
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
   _hqscale1in = 1.0;
@@ -103,6 +73,7 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
     _hqscale1in = *td->getParamD("scalea1");
   if(td->hasParam("scaleb1"))
     _hqscale2in = *td->getParamD("scaleb1");
+  abm::set_hq_scales(_hqscale1in, _hqscale2in);
 
   // pole or MCbar running mass treatment (default pole)
   _msbarmin = false;
@@ -116,43 +87,41 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
   
   // control x range (certain PDF sets have limited x_min, x_max)
   if(td->hasParam("xbmin"))
-    gridset_.xbmin = *td->getParamD("xbmin");
+    abm::set_xbmin(*td->getParamD("xbmin"));
   if(td->hasParam("xbmax"))
-    gridset_.xbmax = *td->getParamD("xbmax");
+    abm::set_xbmax(*td->getParamD("xbmax"));
 
-  initgridconst_();
+    abm::initgridconst();
 
   // Take the 3-flavour scheme as a default
   _kschemepdfin = 0;
 
   // heavy quark masses
   _mcPtr = td->getParamD("mch");
-  masses_.rmass[7] = *_mcPtr;
   _mbPtr = td->getParamD("mbt");
-  masses_.rmass[9] = *_mbPtr;
   
   // CKM matrix
-  /*constants_abkm_.ckm[0] = *td->getParamD("Vud");
-  constants_abkm_.ckm[1] = *td->getParamD("Vus");
-  constants_abkm_.ckm[2] = *td->getParamD("Vub");
-  constants_abkm_.ckm[3] = *td->getParamD("Vcd");
-  constants_abkm_.ckm[4] = *td->getParamD("Vcs");
-  constants_abkm_.ckm[5] = *td->getParamD("Vcb");
-  constants_abkm_.ckm[6] = *td->getParamD("Vtd");
-  constants_abkm_.ckm[7] = *td->getParamD("Vts");
-  constants_abkm_.ckm[8] = *td->getParamD("Vtb");*/
+  _ckm.resize(9);
+  _ckm[0] = td->getParamD("Vud");
+  _ckm[1] = td->getParamD("Vus");
+  _ckm[2] = td->getParamD("Vub");
+  _ckm[3] = td->getParamD("Vcd");
+  _ckm[4] = td->getParamD("Vcs");
+  _ckm[5] = td->getParamD("Vcb");
+  _ckm[6] = td->getParamD("Vtd");
+  _ckm[7] = td->getParamD("Vts");
+  _ckm[8] = td->getParamD("Vtb");
 
   printf("---------------------------------------------\n");
-  printf("INFO from ABKM_init:\n");
+  printf("INFO from ReactionFFABM_DISCC:\n");
   printf("FF ABM running mass def? T(rue), (F)alse: %c\n", _msbarmin ? 'T' : 'F');
   printf("O(alpha_S) F_L - O(alpha_S) F2 = %d\n", _ordfl);
-  printf("---------------------------------------------\n");
   printf("factorisation scale for heavy quarks  is set to sqrt(%f * Q^2 + %f * 4m_q^2\n", _hqscale1in, _hqscale2in);
+  printf("---------------------------------------------\n");
 
   unsigned termID = td->id;
   _order[termID] = OrderMap(td->getParamS("Order")) - 1;
   _orderHQ[termID] = (td->hasParam("OrderHQ")) ? OrderMap(td->getParamS("OrderHQ")) - 1 : -1;
-  //abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
   auto nBins = td->getNbins();
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   if(rd->_integrated)
@@ -168,18 +137,10 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
 
 //
 void ReactionFFABM_DISCC::atIteration() {
-
   Super::atIteration ();
 
-  //masses_.rmass[7] = *_mcPtr;
-  //masses_.rmass[9] = *_mbPtr;
-
-  // need any TermData pointer to actualise PDFs and alpha_s
-  // for the pdffillgrid_ call: use 1st one, this works properly
-  // only if all terms have same evolution, decomposition etc.
-  //auto td = _tdDS.begin()->second;
-  //td->actualizeWrappers();
-  //pdffillgrid_();
+  abm::set_hq_masses(*_mcPtr, *_mbPtr);
+  abm::update_ckm_matrix(_ckm);
 
   //if (_ht) {
   //  _ht->update();
@@ -196,7 +157,6 @@ void ReactionFFABM_DISCC::atIteration() {
     (_flabm[ds])[0] = -100.;
     (_f3abm[ds])[0] = -100.;
   }
-
 }
 
 int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, const int *ncomp, cubareal* val, void *params) {
@@ -466,7 +426,7 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
   {
     auto td = _tdDS[dataSetID];
     td->actualizeWrappers();
-    pdffillgrid_();
+    abm::pdffillgrid();
     BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
     if (td->hasParam("nomad")) {
       int intvar = td->getParamI("nomad");
@@ -537,29 +497,29 @@ void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, cons
 // Calculates one data point at (Q2,x) and returns values f2, fl, f3
 void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out)
 {
-  abkm_set_input_(_kschemepdfin, _order[dataSetID], *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
   static constexpr int ncflag = 0;
   f2out = flout = f3out = 0.;
   if (q2 < 1.0) return;
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
   if (_FLAG_FAST) {
     if (rd->_dataFlav == BaseDISCC::dataFlav::incl || rd->_dataFlav == BaseDISCC::dataFlav::l) {
-      f2 = calc_point_strfun(rd, BaseDISCC::dataType::f2, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge);
-      fl = calc_point_strfun(rd, BaseDISCC::dataType::fl, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge);
-      f3 = calc_point_strfun(rd, BaseDISCC::dataType::f3, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge);
+      f2 = calc_point_strfun(BaseDISCC::dataType::f2, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge);
+      fl = calc_point_strfun(BaseDISCC::dataType::fl, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge);
+      f3 = calc_point_strfun(BaseDISCC::dataType::f3, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge);
     }
     if (rd->_dataFlav == BaseDISCC::dataFlav::incl || rd->_dataFlav == BaseDISCC::dataFlav::c) {
-      f2c = calc_point_strfun(rd, BaseDISCC::dataType::f2, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, rd->_charge);
-      flc = calc_point_strfun(rd, BaseDISCC::dataType::fl, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, rd->_charge, &f2c);
-      f3c = calc_point_strfun(rd, BaseDISCC::dataType::f3, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, rd->_charge);
+      f2c = calc_point_strfun(BaseDISCC::dataType::f2, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, rd->_charge);
+      flc = calc_point_strfun(BaseDISCC::dataType::fl, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, rd->_charge, &f2c);
+      f3c = calc_point_strfun(BaseDISCC::dataType::f3, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, rd->_charge);
     }
     if (rd->_dataFlav == BaseDISCC::dataFlav::incl || rd->_dataFlav == BaseDISCC::dataFlav::b) {
-      f2b = calc_point_strfun(rd, BaseDISCC::dataType::f2, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
-      flb = calc_point_strfun(rd, BaseDISCC::dataType::fl, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
-      f3b = calc_point_strfun(rd, BaseDISCC::dataType::f3, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
+      f2b = calc_point_strfun(BaseDISCC::dataType::f2, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
+      flb = calc_point_strfun(BaseDISCC::dataType::fl, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
+      f3b = calc_point_strfun(BaseDISCC::dataType::f3, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
     }
   }
   else {
+    abkm_set_input_(_kschemepdfin, _order[dataSetID], *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
     sf_abkm_wrap_(x, q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, ncflag, rd->_charge, rd->_polarisation, *_sin2thwPtr, _cos2thw, *_mzPtr);
   }
   double f3out_bar = 0.;
@@ -570,13 +530,13 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
     double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
     if (_FLAG_FAST) {
       if (rd->_dataFlav == BaseDISCC::dataFlav::incl || rd->_dataFlav == BaseDISCC::dataFlav::l) {
-        f3_bar = calc_point_strfun(rd, BaseDISCC::dataType::f3, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, charge_bar);
+        f3_bar = calc_point_strfun(BaseDISCC::dataType::f3, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, charge_bar);
       }
       if (rd->_dataFlav == BaseDISCC::dataFlav::incl || rd->_dataFlav == BaseDISCC::dataFlav::c) {
-        f3c_bar = calc_point_strfun(rd, BaseDISCC::dataType::f3, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, charge_bar);
+        f3c_bar = calc_point_strfun(BaseDISCC::dataType::f3, BaseDISCC::dataFlav::c, q2, x, dataSetID, -1, charge_bar);
       }
       if (rd->_dataFlav == BaseDISCC::dataFlav::incl || rd->_dataFlav == BaseDISCC::dataFlav::b) {
-        f3b_bar = calc_point_strfun(rd, BaseDISCC::dataType::f3, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, charge_bar);
+        f3b_bar = calc_point_strfun(BaseDISCC::dataType::f3, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, charge_bar);
       }
     }
     else {
@@ -606,19 +566,14 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
   }
 }
 
-double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::ReactionData* rd, const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double* f2c) {
+double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double* f2c) {
   if (flav == BaseDISCC::dataFlav::b) {
     return 0;
   }
-  if (order >= 0) {
-    abkm_set_input_(_kschemepdfin, order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
-  }
-  auto reset_order_and_return = [&](const double val) {
-    if (order >= 0) {
-      abkm_set_input_(_kschemepdfin, _order[dataSetID], *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
-    }
-    return val;
-  };
+  int orderALL = (order >= 0) ? order : _order[dataSetID];
+  int orderHQ = (order >= 0) ? order : _orderHQ[dataSetID];
+  int orderFL = (order >= 0) ? order : _ordfl;
+  abm::set_scheme_and_order(_kschemepdfin, orderALL, _msbarmin, orderFL, orderHQ);
   static constexpr int nt = 1; // proton
   static constexpr int ni = 24; // CC
   const int nb = charge > 0 ? 6 : 7;
@@ -626,17 +581,17 @@ double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::ReactionData* rd,
     case BaseDISCC::dataFlav::l:
       switch (ftype) {
         case BaseDISCC::dataType::f2:
-          return reset_order_and_return(f2qcd_(nb, nt, ni, x, q2) / 2.);
+          return f2qcd_(nb, nt, ni, x, q2) / 2.;
         case BaseDISCC::dataType::fl:
-          return reset_order_and_return(flqcd_(nb, nt, ni, x, q2) / 2.);
+          return flqcd_(nb, nt, ni, x, q2) / 2.;
         case BaseDISCC::dataType::f3:
-          return reset_order_and_return(f3qcd_(nb, nt, ni, x, q2) / 2.);
+          return f3qcd_(nb, nt, ni, x, q2) / 2.;
       }
     case BaseDISCC::dataFlav::c:
       double f2c_calc = 0.;
       switch (ftype) {
         case BaseDISCC::dataType::f2:
-          return reset_order_and_return(f2nucharm_(nb, nt, ni, x, q2, 8) / 2.);
+          return f2nucharm_(nb, nt, ni, x, q2, 8) / 2.;
         case BaseDISCC::dataType::fl:
           if (f2c) {
             f2c_calc = *f2c;
@@ -644,9 +599,9 @@ double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::ReactionData* rd,
           else {
             f2c_calc = f2nucharm_(nb, nt, ni, x, q2, 8) / 2.;
           }
-          return reset_order_and_return(f2c_calc - ftnucharm_(nb, nt, ni, x, q2, 8) / 2.);
+          return f2c_calc - ftnucharm_(nb, nt, ni, x, q2, 8) / 2.;
         case BaseDISCC::dataType::f3:
-          return reset_order_and_return(f3nucharm_(nb, nt, ni, x, q2, 8) / 2.);
+          return f3nucharm_(nb, nt, ni, x, q2, 8) / 2.;
       }
   }
   hf_errlog(28022501, "F: Unsupported structure function type or flavour");
@@ -663,8 +618,9 @@ double ReactionFFABM_DISCC::combine_flavours(const BaseDISCC::ReactionData* rd, 
       return fc;
     case BaseDISCC::dataFlav::b:
       return fb;
-    default: // avoid warning
-      return 0.;
+    default:
+      hf_errlog(28022501, "F: Unsupported flavour");
+      return 0.; // avoid warning
   }
 }
 
