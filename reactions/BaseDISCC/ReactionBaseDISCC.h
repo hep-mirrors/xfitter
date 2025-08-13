@@ -58,8 +58,9 @@ protected:
   //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
 
   // higher twist
-  DIS_HT* _ht = nullptr;
-  map<unsigned, bool> _flag_ht;
+  //DIS_HT* _ht = nullptr;
+  //map<unsigned, bool> _flag_ht;
+  map<int, DIS_HT*> _ht;
   // target mass corrections
   map<int, DIS_TMC*> _tmc;
   // nuclear corrections

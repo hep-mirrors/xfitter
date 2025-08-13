@@ -149,10 +149,10 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
   printf("---------------------------------------------\n");
   printf("factorisation scale for heavy quarks  is set to sqrt(%f * Q^2 + %f * 4m_q^2\n", _hqscale1in, _hqscale2in);
 
-  _order = OrderMap(td->getParamS("Order")) - 1;
-  abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
-
   unsigned termID = td->id;
+  _order[termID] = OrderMap(td->getParamS("Order")) - 1;
+  _orderHQ[termID] = (td->hasParam("OrderHQ")) ? OrderMap(td->getParamS("OrderHQ")) - 1 : -1;
+  //abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
   auto nBins = td->getNbins();
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   if(rd->_integrated)
@@ -171,18 +171,23 @@ void ReactionFFABM_DISCC::atIteration() {
 
   Super::atIteration ();
 
-  masses_.rmass[7] = *_mcPtr;
-  masses_.rmass[9] = *_mbPtr;
+  //masses_.rmass[7] = *_mcPtr;
+  //masses_.rmass[9] = *_mbPtr;
 
   // need any TermData pointer to actualise PDFs and alpha_s
   // for the pdffillgrid_ call: use 1st one, this works properly
   // only if all terms have same evolution, decomposition etc.
-  auto td = _tdDS.begin()->second;
-  td->actualizeWrappers();
-  pdffillgrid_();
+  //auto td = _tdDS.begin()->second;
+  //td->actualizeWrappers();
+  //pdffillgrid_();
 
-  if (_ht) {
-    _ht->update();
+  //if (_ht) {
+  //  _ht->update();
+  //}
+  for (auto ht : _ht) {
+    if (ht.second) {
+      ht.second->update();
+    }
   }
 
   // Flag for internal arrays
@@ -532,6 +537,7 @@ void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, cons
 // Calculates one data point at (Q2,x) and returns values f2, fl, f3
 void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out)
 {
+  abkm_set_input_(_kschemepdfin, _order[dataSetID], *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
   static constexpr int ncflag = 0;
   f2out = flout = f3out = 0.;
   if (q2 < 1.0) return;
@@ -584,10 +590,13 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
     //const bool flag_f3 = true; [not implemented]
     _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, *_mzPtr, this);
   }
-  if(_flag_ht[dataSetID]) {
-    // HT is applied only to F2 and FL light flavour part
-    _ht->apply(q2, x, f2, fl);
-  }
+  // HT is applied only to F2 and FL light flavour part
+  //if(_flag_ht[dataSetID]) {
+  //  _ht->apply(q2, x, f2, fl);
+  //}
+  if(_ht[dataSetID]) {
+    _ht[dataSetID]->apply(q2, x, f2, fl);
+  }      
   f2out = combine_flavours(rd, f2, f2c, f2b);
   flout = combine_flavours(rd, fl, flc, flb);
   f3out = x * combine_flavours(rd, f3, f3c, f3b);
@@ -606,7 +615,7 @@ double ReactionFFABM_DISCC::calc_point_strfun(const BaseDISCC::ReactionData* rd,
   }
   auto reset_order_and_return = [&](const double val) {
     if (order >= 0) {
-      abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
+      abkm_set_input_(_kschemepdfin, _order[dataSetID], *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
     }
     return val;
   };

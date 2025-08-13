@@ -397,3 +397,56 @@ C      integer ordfl
       kordf3    = kordpdfin
       kordalps  = kordpdfin
       end
+
+      Subroutine ABKM_Set_Input_Full(kschemepdfin,
+     $ kordpdfin,kordhqin,kordf2in,kordflin,kordf3in,kordalpsin,
+     $ rmass8in,rmass10in,msbarmin,hqscale1in,hqscale2in,hqnonsin)
+C---------------------------------------------------------------------------
+C  Wraper for INPUT common, set parameters
+C---------------------------------------------------------------------------
+      implicit none
+C Input variables:
+      double precision rmass8in,rmass10in
+      integer kschemepdfin,kordpdfin,kordhqin,kordf2in,kordflin,kordf3in,kordalpsin
+      logical msbarmin,hqnonsin
+      double precision hqscale1in,hqscale2in
+
+C Common variables:
+      integer npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
+      common /forpdfset/ npdftot,kordpdf,kschemepdf,kpdfset,kordkernel
+
+      double precision rmass,rmassp,rcharge
+      COMMON /MASSES/ rmass(150),rmassp(50),rcharge(150)
+
+      double precision q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+      double precision alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1
+      double precision hqscale2
+      integer nfeff,kordalps,kfeff,kordhq,kordf2,kordfl,kordf3,ordfl
+      logical alsmz
+      common /FORALPSRENORM/ q20,q2rep,q2s,q20alphas,alphas0,alpsz,alpss
+     , ,alpsc,alpsb,alpst,tscale,rscale,fscale,hqscale1,hqscale2
+     , ,nfeff,kordalps,kfeff
+     , ,kordhq,kordf2,kordfl,kordf3
+     , ,alsmz
+
+      logical msbarm,hqnons,bmsnfopt,bmsnnlo,vloop
+      double precision ddnnlohq
+      common /forschemedef/ ddnnlohq,msbarm,hqnons
+     ,  ,bmsnfopt,bmsnnlo,vloop
+C-------------------------------
+
+      rmass(8)  = rmass8in
+      rmass(10) = rmass10in
+      kschemepdf= kschemepdfin
+      kordpdf   = kordpdfin
+      kordhq    = kordhqin
+      kordf2    = kordf2in
+      kordfl    = kordflin
+      kordf3    = kordf3in
+      kordalps  = kordalpsin
+      msbarm    = msbarmin
+      hqscale1  = hqscale1in
+      hqscale2  = hqscale2in
+      hqnons = hqnonsin
+C--------------------------------------------------------------------------
+      end

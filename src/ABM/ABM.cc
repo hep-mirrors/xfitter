@@ -20,6 +20,9 @@ extern "C" {
   void abkm_set_input_(const int& kschemepdfin, const int& kordpdfin,
                        const double& rmass8in, const double& rmass10in, const int& msbarmin,
                        const double& hqscale1in, const double& hqscale2in, const int& flord);
+  void abkm_set_input_full_(const int& kschemepdfin, const int& kordpdfin,
+    const int& kordhqin, const int& kordf2in, const int& kordflin, const int& kordf3in, const int& kordalpsin,
+    const double& rmass8in, const double& rmass10in, const int& msbarmin, const double& hqscale1in, const double& hqscale2in, const int& hqnonsin);
   int abkm_change_order_(const int order);
   void initgridconst_();
   void pdffillgrid_();
@@ -47,7 +50,25 @@ extern "C" {
 }
   
 namespace abm {
-  void set_input(const int& kschemepdfin, const int& kordpdfin, const double& rmass8in, const double& rmass10in, const int& msbarmin, double& hqscale1in, const double& hqscale2in, const int& flord) {
+  void set_input(const int kschemepdfin, const int kordpdfin, 
+                 const double rmass8in, const double rmass10in, 
+                 const int msbarmin, double hqscale1in, const double hqscale2in, 
+                 const int flord, const bool hqnons/* = false*/,
+                 int kordpdf/* = -1*/, int kordhq/* = -1*/, int kordf2/* = -1*/, 
+                 int kordfl/* = -1*/, int kordf3/* = -1*/, int kordalps/* = -1*/
+                ) {
+    // by default set same order for pdf, light, heavy quarks
+    if (kordpdf == -1) kordpdf = kordpdfin;
+    if (kordhq == -1)  kordhq  = kordpdfin;
+    if (kordf2 == -1) kordf2 = kordpdfin;
+    if (kordfl == -1) kordfl = kordpdfin + flord; // follow recommendation of Sergey Alekhin for FL
+    if (kordf3 == -1) kordf3 = kordpdfin;
+    if (kordalps == -1) kordalps = kordpdfin;
+    // 10.10.2017 Discussion with Sergey Alekhin:
+    // The parameter HQNONS drives the nonsinglet contribution to the charm production.
+    // It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user.
+    // In ABMP16 fit it was set to .false.
+    // (makes small difference which reaches few % only at highest Q2 of the charm HERA data and is negligible for practical purposes)
     abkm_set_input_(kschemepdfin, kordpdfin, rmass8in, rmass10in,msbarmin, hqscale1in, hqscale2in, flord);
   }
 
