@@ -191,19 +191,19 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         if (_FLAG_FAST) {
           if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::l) {
             //f2 = abm::calc_point_strfun(abm::SFproc::nc, abm::SFtype::f2, abm::SFflav::l, q2[i], x[i], -1, GetCharge(dataSetID), GetPolarisation(dataSetID), _sin2thetaW, *_mzPtr);
-            f2 = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-            fl = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-            f3 = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+            f2 = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
+            fl = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
+            f3 = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
           }
           if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::c) {
-            f2c = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-            flc = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-            f3c = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+            f2c = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
+            flc = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
+            f3c = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
           }
           if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::b) {
-            f2b = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-            flb = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-            f3b = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
+            f2b = calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
+            flb = calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
+            f3b = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
           }
         }
         else {
@@ -220,13 +220,13 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
           double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
           if (_FLAG_FAST) {
             if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::l) {
-              f3_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, charge_bar);
+              f3_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, charge_bar, _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
             }
             if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::c) {
-              f3c_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, charge_bar);
+              f3c_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::c, q2[i], x[i], dataSetID, -1, charge_bar, _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
             }
             if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::b) {
-              f3b_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, charge_bar);
+              f3b_bar = calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::b, q2[i], x[i], dataSetID, -1, charge_bar, _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
             }
           }
           else {
@@ -337,12 +337,49 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
   }
 }
 
-double ReactionFFABM_DISNC::calc_point_strfun(const ReactionBaseDISNC::dataType ftype, const ReactionBaseDISNC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge) {
+double ReactionFFABM_DISNC::calc_point_strfun(const ReactionBaseDISNC::dataType ftype, const ReactionBaseDISNC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double sin2thw, const double polar, const double mz) {
   int orderALL = (order >= 0) ? order : _order[dataSetID];
   int orderHQ = (order >= 0) ? order : _orderHQ[dataSetID];
   int orderFL = (order >= 0) ? order : _ordfl;
   abm::set_scheme_and_order(_kschemepdfin, orderALL, _msbarmin, orderFL, orderHQ);
   static constexpr int nt = 1; // proton
+  switch (flav) {
+    case ReactionBaseDISNC::dataFlav::l: {
+      static constexpr double eleAxial = -0.5;
+      const double eleVec = -0.5 + 2 * sin2thw;
+      const double facgz = - eleVec - charge * polar * eleAxial;
+      const double faczz = eleVec * eleVec + eleAxial * eleAxial + 2 * charge * polar * eleAxial * eleVec;
+      const double facgzf3 = -1 * eleAxial - charge * polar * eleVec;
+      const double faczzf3 = 2 * eleAxial * eleVec + charge * polar * (eleVec * eleVec + eleAxial * eleAxial);
+      const double PZ = 1. / (4 * sin2thw * (1 - sin2thw) * (1 + mz * mz / q2));
+      switch (ftype) {
+        case ReactionBaseDISNC::dataType::f2:
+          return f2qcd_(3, nt, 22, x, q2) + facgz * PZ * f2qcd_(3, nt, 25, x, q2) + faczz * PZ * PZ * f2qcd_(3, nt, 23, x, q2);
+        case ReactionBaseDISNC::dataType::fl:
+          return flqcd_(3, nt, 22, x, q2) + facgz * PZ * flqcd_(3, nt, 25, x, q2) + faczz * PZ * PZ * flqcd_(3, nt, 23, x, q2);
+        case ReactionBaseDISNC::dataType::f3:
+          return -1 * charge * (facgzf3 * PZ * f3qcd_(3, nt, 25, x, q2) + faczzf3 * PZ * PZ * f3qcd_(3, nt, 23, x, q2));
+      }
+    }
+    case ReactionBaseDISNC::dataFlav::c:
+      switch (ftype) {
+        case ReactionBaseDISNC::dataType::f2:
+          return f2charm_ffn_(x, q2, 8);
+        case ReactionBaseDISNC::dataType::fl:
+          return flcharm_ffn_(x, q2, 8);
+        case ReactionBaseDISNC::dataType::f3:
+          return 0.;
+      }
+    case ReactionBaseDISNC::dataFlav::b:
+      switch (ftype) {
+        case ReactionBaseDISNC::dataType::f2:
+          return f2charm_ffn_(x, q2, 10);
+        case ReactionBaseDISNC::dataType::fl:
+          return flcharm_ffn_(x, q2, 10);
+        case ReactionBaseDISNC::dataType::f3:
+          return 0.;
+      }
+  }
   hf_errlog(28022501, "F: Unsupported structure function type or flavour");
   return 0; // avoid warning
 }

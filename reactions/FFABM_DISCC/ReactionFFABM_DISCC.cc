@@ -641,12 +641,3 @@ valarray<double> ReactionFFABM_DISCC::xF3(TermData *td)
   calcF2FL(td->id);
   return _f3abm[td->id];
 }
-
-/*double ReactionFFABM_DISCC::numufcalflux_sz_(const double& e) {
-  if(e < _nomad_emin || e > _nomad_emax) {
-    return 0.;
-  }
-  else {
-    return numufcalflux_(e);
-  }
-}*/

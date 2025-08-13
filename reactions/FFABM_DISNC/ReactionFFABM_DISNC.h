@@ -81,5 +81,5 @@ private:
   const double* _tmc_mpr;
   map<int, int> _ncpu;
   double combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb);
-  double calc_point_strfun(const ReactionBaseDISNC::dataType ftype, const ReactionBaseDISNC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge);
+  double calc_point_strfun(const ReactionBaseDISNC::dataType ftype, const ReactionBaseDISNC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double sin2thw, const double polar, const double mz);
 };
