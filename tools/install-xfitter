@@ -418,6 +418,9 @@ else
     elif  [[ $hoppetver == "master" ]]; then
         git clone https://github.com/hoppet-code/hoppet ./hoppet-master >> $CURRENTDIR/install.log 2>&1
         cd hoppet-master
+
+	## TEMPORARY FIX
+	git checkout 2025-05-new-mass-thresholds
     else
         echo "ERROR: HOPPET version $hoppetver not supported"
         exit
