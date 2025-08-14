@@ -15,7 +15,7 @@ class DIS_HT {
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
   public:
-    DIS_HT(TermData* td, const bool flag_cc);
+    DIS_HT(TermData* td);
     ~DIS_HT();
   private:
     // CC flag
@@ -29,12 +29,14 @@ class DIS_HT {
     std::vector<const double*> _ht_t;
     const double* _ht_alpha_2;
     const double* _ht_alpha_t;
+    const double* _ht_scale;
     // flags which store info whether the above point to newly allocated (in this class) memory
     std::vector<bool> _isnew_ht_x;
     std::vector<bool> _isnew_ht_2;
     std::vector<bool> _isnew_ht_t;
     bool _isnew_ht_alpha_2;
     bool _isnew_ht_alpha_t;
+    bool _isnew_ht_scale;
     // private methods can be used by friends
     void update();
     void apply(const double q2, const double x, double& f2, double& fl);

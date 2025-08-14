@@ -306,7 +306,7 @@ void ReactionBaseDISNC::initTerm(TermData *td)
   //}
   _ht[termID] = nullptr;
   if (td->hasParam("ht") && td->getParamI("ht") != 0) {
-    _ht[termID] = new DIS_HT(td, false);
+    _ht[termID] = new DIS_HT(td);
   }
   
   // read target mass correction parameters

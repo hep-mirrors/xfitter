@@ -62,7 +62,7 @@ void ReactionFFABM_DISNC::atStart()
 void ReactionFFABM_DISNC::initTerm(TermData *td)
 {
   Super::initTerm(td);
-  _FLAG_FAST = td->hasParam("_FLAG_FAST") ? td->getParamI("_FLAG_FAST") : 0;
+  _FLAG_FAST = td->hasParam("_FLAG_FAST") ? td->getParamI("_FLAG_FAST") : 1;
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4*m_h^2 (default scalea1 = scaleb1 = 1.0)
   _hqscale1in = 1.0;
