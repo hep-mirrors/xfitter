@@ -517,6 +517,7 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
       flb = calc_point_strfun(BaseDISCC::dataType::fl, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
       f3b = calc_point_strfun(BaseDISCC::dataType::f3, BaseDISCC::dataFlav::b, q2, x, dataSetID, -1, rd->_charge);
     }
+    //printf("%f %f %f\n", f2, fl, f3);
   }
   else {
     abkm_set_input_(_kschemepdfin, _order[dataSetID], *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
@@ -545,17 +546,22 @@ void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int 
     f3out_bar = x * combine_flavours(rd, f3_bar, f3c_bar, f3b_bar);
   }
   if (_tmc[dataSetID]) {
-    const bool flag_fl = true;
-    const bool flag_f3 = false;
-    //const bool flag_f3 = true; [not implemented]
-    _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, *_mzPtr, this);
+    if(((f2 != 0 || fl != 0 || f3 != 0) && _tmc[dataSetID]->getFlagL()) || ((f2c != 0 || flc != 0 || f3c != 0) && _tmc[dataSetID]->getFlagC()) || ((f2b != 0 || flb != 0 || f3b != 0) && _tmc[dataSetID]->getFlagB()) ) {
+      const bool flag_fl = true;
+      //const bool flag_f3 = false;
+      const bool flag_f3 = true; //[not implemented]
+      _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, flag_fl, flag_f3, q2, x, ncflag, rd->_charge, rd->_polarisation, _cos2thw, *_mzPtr, this);
+    }
   }
   // HT is applied only to F2 and FL light flavour part
   //if(_flag_ht[dataSetID]) {
   //  _ht->apply(q2, x, f2, fl);
   //}
   if(_ht[dataSetID]) {
-    _ht[dataSetID]->apply(q2, x, f2, fl);
+    if (f2 != 0 || fl != 0 || f3 != 0) {
+      //printf("%f %f %f\n", f2, fl, f3);
+      _ht[dataSetID]->apply(q2, x, f2, fl, f3);
+    }
   }      
   f2out = combine_flavours(rd, f2, f2c, f2b);
   flout = combine_flavours(rd, fl, flc, flb);
@@ -618,6 +624,8 @@ double ReactionFFABM_DISCC::combine_flavours(const BaseDISCC::ReactionData* rd, 
       return fc;
     case BaseDISCC::dataFlav::b:
       return fb;
+    case BaseDISCC::dataFlav::l:
+      return f;
     default:
       hf_errlog(28022501, "F: Unsupported flavour");
       return 0.; // avoid warning

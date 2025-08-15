@@ -331,11 +331,11 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     //fl = fl + x*x/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x*x*x/q2/gam/gam/gam/gam*I;
     //double fl0 = fl;
   }
-  /*if (flag_f3) {
+  if (flag_f3) {
     pars.flag_calc_fl = 2;
     double f3_at_xi = integrate(xi, &pars)*xi*xi;
     f3 = x/xi/gam/gam*f3_at_xi + 2*mn*mn/q2*x*x/gam/gam/gam*I;
-  }*/
+  }
   /*double fl_orig = integrate(x, &pars)*x*x;
   //fl = fl * fl_tmc / fl_orig;
   pars.order = -1;

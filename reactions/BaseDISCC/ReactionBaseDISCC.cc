@@ -369,6 +369,11 @@ void ReactionBaseDISCC::initTerm(TermData *td)
       //NOT IMPLEMENTED
       hf_errlog(18042501, "F: predictions for beauty in CC are not available (term id = " + to_string(td->id) + ")");
     }
+    else if (flavor == "l")
+    {
+      _dataFlav = BaseDISCC::dataFlav::l;
+      msg += " light flavour only";
+    }
     else
     {
       cerr << "[ERROR] Unknown flavor=\"" << flavor << "\" given to reaction \"" << getReactionName() << "\"; termID=" << td->id << endl;

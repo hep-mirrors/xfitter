@@ -14,6 +14,9 @@ class DIS_TMC {
   friend class ReactionFFABM_DISCC;
   public:
     DIS_TMC(TermData* td);
+    bool getFlagL() {return _flag_l;}
+    bool getFlagC() {return _flag_c;}
+    bool getFlagB() {return _flag_b;}
   private:
     bool _flag_l;
     bool _flag_c;

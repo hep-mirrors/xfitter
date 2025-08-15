@@ -245,7 +245,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         //  _ht->apply(q2[i], x[i], f2, fl);
         //}      
         if(_ht[dataSetID]) {
-          _ht[dataSetID]->apply(q2[i], x[i], f2, fl);
+          _ht[dataSetID]->apply(q2[i], x[i], f2, fl, f3);
         }      
         f2out = combine_flavours(GetDataFlav(dataSetID), f2, f2c, f2b);
         flout = combine_flavours(GetDataFlav(dataSetID), fl, flc, flb);
