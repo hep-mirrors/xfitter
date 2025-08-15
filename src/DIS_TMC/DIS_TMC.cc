@@ -338,7 +338,7 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     double f3_at_xi = integrate(xi, &pars)*xi*xi;
     f3 = x/xi/gam/gam*f3_at_xi + 2*mn*mn/q2*x*x/gam/gam/gam*I;
   }
-  printf("TMC F2,FL,F3[%]: %.0f,%.0f,%.0f\n", 100*(f2/f20-1), 100*(fl/fl0-1), 100*(f3/f30-1));
+  //printf("TMC F2,FL,F3: %.0f,%.0f,%.0f%%\n", 100*(f2/f20-1), 100*(fl/fl0-1), 100*(f3/f30-1));
   /*double fl_orig = integrate(x, &pars)*x*x;
   //fl = fl * fl_tmc / fl_orig;
   pars.order = -1;
