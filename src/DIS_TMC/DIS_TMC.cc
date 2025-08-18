@@ -208,6 +208,7 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
   pars.flag_flavour = flag_flavour;
   pars.order = 0;
   double I;
+  double I_F3;
   // gsl integration
   if (_integration_method == 0) {
     gsl_function F;
@@ -223,6 +224,14 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     //gsl_integration_qag (&F, x, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
     gsl_integration_workspace_free (w);
     I = result;
+    if (flag_f3) {
+      pars.flag_calc_fl = 2;
+      w = gsl_integration_workspace_alloc(alloc_space);
+      gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+      gsl_integration_workspace_free (w);
+      I_F3 = result;
+      pars.flag_calc_fl = 0;
+    }
   }
   // Simpson 1/3 integration
   else if (_integration_method == 1) {
@@ -232,6 +241,12 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
       b = 0.999;
     double sim13 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
     I = sim13;
+    if (flag_f3) {
+      pars.flag_calc_fl = 2;
+      double sim13_F3 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
+      I_F3 = sim13_F3;
+      pars.flag_calc_fl = 0;
+    }
   }
   // Simpson 1/3 integration with power approximation
   else if (_integration_method == -1) {
@@ -249,6 +264,18 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     double sim13 = (b-a)/6.*(f1pr+4*f2pr+f3pr);
     double part_power = (1-pow(xi, alpha+1))/(alpha+1);
     I = sim13 + part_power;
+    if (flag_f3) {
+      pars.flag_calc_fl = 2;
+      double f1_F3 = integrate(a, &pars);
+      double f1pr_F3 = f1_F3 - pow(a, alpha);
+      double f2_F3 = integrate((a+b)/2., &pars);
+      double f2pr_F3 = f2_F3 - pow((a+b)/2., alpha);
+      double f3_F3 = integrate(b, &pars);
+      double f3pr_F3 = f3_F3 - pow(b, alpha);
+      double sim13_F3 = (b-a)/6.*(f1pr_F3+4*f2pr_F3+f3pr_F3);
+      I_F3 = sim13_F3 + part_power;
+      pars.flag_calc_fl = 0;
+    }
   }
   // Simpson 3/8 integration
   else if (_integration_method == 2) {
@@ -259,6 +286,12 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
       b = 0.999;
     double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
     I = sim38;
+    if (flag_f3) {
+      pars.flag_calc_fl = 2;
+      double sim38_F3 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
+      I_F3 = sim38_F3;
+      pars.flag_calc_fl = 0;
+    }
   }
   // Boole integration
   else if (_integration_method == 3) {
@@ -275,6 +308,12 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     double h = (b-a)/4.;
     double boole = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
     I = boole;
+    if (flag_f3) {
+      pars.flag_calc_fl = 2;
+      double boole_F3 = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
+      I_F3 = boole_F3;
+      pars.flag_calc_fl = 0;
+    }
   }
   // cuba integration
   else if (_integration_method == 4) {
@@ -336,7 +375,7 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
   if (flag_f3) {
     pars.flag_calc_fl = 2;
     double f3_at_xi = integrate(xi, &pars)*xi*xi;
-    f3 = x/xi/gam/gam*f3_at_xi + 2*mn*mn/q2*x*x/gam/gam/gam*I;
+    f3 = x/xi/gam/gam*f3_at_xi + 2*mn*mn/q2*x*x/gam/gam/gam*I_F3;
   }
   //printf("TMC F2,FL,F3: %.0f,%.0f,%.0f%%\n", 100*(f2/f20-1), 100*(fl/fl0-1), 100*(f3/f30-1));
   /*double fl_orig = integrate(x, &pars)*x*x;

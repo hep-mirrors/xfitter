@@ -414,8 +414,10 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
     double br = *pars.br0 / (1 + *pars.br1 / e);
     val[0] *= br;
   }
-  else if (1==2) {
-    val[0] *= std::pow((MW * MW / (q2 + MW * MW)), 2.);
+  else if (1==1) {
+    if (pars.rd->_dataFlav == BaseDISCC::dataFlav::incl || pars.rd->_dataFlav == BaseDISCC::dataFlav::l) {
+      val[0] *= std::pow((MW * MW / (q2 + MW * MW)), 2.);
+    }
   }
   if (val[0] != val[0] || 1./val[0] == 0.) {
     val[0] = 0.;
