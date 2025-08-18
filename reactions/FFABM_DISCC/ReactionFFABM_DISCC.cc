@@ -26,6 +26,8 @@ struct integration_params_cuba {
   const double* br0;
   const double* br1;
   double mnucl;
+  int nomad_scaleq2mw2;
+  int nomad_scalesemilepbr;
 };
 
 // the class factories
@@ -173,6 +175,19 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
   static const double smax = 2 * mnucl * emax + mnucl * mnucl;
   double q2max = smax * xmax;
   double x(-1.), q2(-1.), y(-1.), e(-1.), s(-1.), factor(-1.);
+  if(1==2 && pars.rd->_dataFlav == BaseDISCC::dataFlav::l) {
+    double x = 0.2;
+    double q2 = 3.0;
+    //const int order = -1;
+    //double f2 = calc_point_strfun(BaseDISCC::dataType::f2, BaseDISCC::dataFlav::l, q2, x, dataSetID, order, rd->_charge);
+    double f2sum = 0.;
+    double flsum = 0.;
+    double xf3sum = 0.;
+    //printf("%d\n", pars.rd->_dataFlav == BaseDISCC::dataFlav::l);
+    pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
+    printf("F2 = %f\n", f2sum);
+    throw 2;
+  }
   if(pars.intvar == 1) { // E
     throw 42;
     if (*ndim == 2) {
@@ -191,104 +206,6 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
       factor = numufcalflux_(e) * (emax - emin) * (q2max - q2min) * (xmax - xmin);
     }
     y = (q2 + x * x * mnucl * mnucl) / s / x;
-  }
-  else if(pars.intvar == 9) { // test
-    //printf("SZ dupa\n");
-    //double x = 0.015;
-    //double q2 = 15.0;
-    double x = 1e-3 + (1e-2 - 1e-3) * inp[0];
-    double q2 = 10 + (100 - 10) * inp[1];
-    double f2sum(0.), flsum(0.), xf3sum(0.);
-    pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
-    //printf("f2sum = %f\n", f2sum);
-    //throw 1;
-    val[0] = xf3sum;
-    val[0] *= (100 - 10) * (1e-2 - 1e-3);
-    return 0;
-  }
-  else if(pars.intvar == 7) { // test
-    double f2sum(0.), flsum(0.), xf3sum(0.);
-    if(1==2){
-      double x = 0.15;
-      double q2 = 15.0;
-      double y = 0.5;
-      pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
-      double yplus = 1.0 + (1.0 - y) * (1.0 - y);
-      if (1) {
-        yplus -= 2.0 * std::pow(mnucl * x * y, 2.0)/q2;
-      }
-      double yminus = 1.0 - (1.0 - y) * (1.0 - y);
-      auto charge = pars.rd->_isBeamNu ? -1 * pars.rd->_charge : pars.rd->_charge; // swap charge for nu beam, see InitTerm()
-      val[0] = 0.5 * (1 + charge * pars.rd->_polarisation) * (yplus * f2sum - charge * yminus * xf3sum - y * y * flsum);
-      //val[0] = 2*((1.-y-std::pow((mnucl*x*y),2.0)/q2)*f2sum+y*y/2.*(f2sum-flsum)+(y-y*y/2.)*xf3sum);
-      double e = q2/(2*mnucl*x*y);
-      printf("SZ = %f %f %f %f %f %f %f %f\n", x, y, q2, mnucl, f2sum*2, flsum*2, xf3sum*2/x, val[0]);
-      double br = *pars.br0 / (1 + *pars.br1 / e);
-      val[0] *= br;
-      return 0;
-      throw 1;
-    }
-    double e = 0.15910e+02;
-    double s=2*mnucl*e;
-    double xmin1=q2min/s;
-    x = xmin1 + (xmax - xmin1) * inp[0];
-    double ymin = q2min/s/x;
-    y = ymin + (1 - ymin) * inp[1];
-    q2 = s * x * y;
-    factor = 1.0;
-    factor *= (xmax - xmin1) * (1 - ymin);
-    factor *= x;
-    factor *= e;
-    factor /= x;
-    pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
-    double yplus = 1.0 + (1.0 - y) * (1.0 - y);
-    if (1) {
-      yplus -= 2.0 * std::pow(mnucl * x * y, 2.0)/q2;
-    }
-    double yminus = 1.0 - (1.0 - y) * (1.0 - y);
-    auto charge = pars.rd->_isBeamNu ? -1 * pars.rd->_charge : pars.rd->_charge; // swap charge for nu beam, see InitTerm()
-    val[0] = 0.5 * (1 + charge * pars.rd->_polarisation) * (yplus * f2sum - charge * yminus * xf3sum - y * y * flsum);
-    val[0] *= factor;
-    double br = *pars.br0 / (1 + *pars.br1 / e);
-    val[0] *= br;
-    return 0;
-  }
-  else if(pars.intvar == 8) { // test
-    double e = 0.15910e+02;
-    s = 2 * mnucl * e + mnucl * mnucl;
-    double smax1 = 2 * mnucl * e + mnucl * mnucl;
-    q2max = smax1 * xmax;
-    double xmin1 = 1./(2.*mnucl*e);
-    x = xmin1 + inp[0] * (xmax - xmin1);
-    y = inp[1];
-    q2 = s * x * y;
-    factor = 1.0;
-    factor *= (xmax - xmin1);
-    factor *= x;
-    factor *= e;
-    double f2sum(0.), flsum(0.), xf3sum(0.);
-    pars.reaction->calc_point(q2, x, pars.dataSetID, pars.rd, f2sum, flsum, xf3sum);
-    double yplus = 1.0 + (1.0 - y) * (1.0 - y);
-    if (1) {
-      yplus -= 2.0 * std::pow(mnucl * x * y, 2.0)/q2;
-    }
-    double yminus = 1.0 - (1.0 - y) * (1.0 - y);
-    auto charge = pars.rd->_isBeamNu ? -1 * pars.rd->_charge : pars.rd->_charge; // swap charge for nu beam, see InitTerm()
-    val[0] = 0.5 * (1 + charge * pars.rd->_polarisation) * (yplus * f2sum - charge * yminus * xf3sum - y * y * flsum);
-    val[0] *= factor;
-    double br = *pars.br0 / (1 + *pars.br1 / e);
-    val[0] *= br;
-    factor /= x;
-    return 0;
-  }
-  else if(pars.intvar == 10) { // test
-    printf("SZ dupa\n");
-    const double pi = 3.1415926535897932384626433832795029;
-    double x = inp[0] * pi/2.;
-    double y = inp[1] * pi/2.;
-    val[0] = sin(x)*cos(y);
-    val[0] *= pi/2. * pi/2.;
-    return 0;
   }
   else if(pars.intvar == 11) { // E
     if (*ndim == 2) {
@@ -368,7 +285,6 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
       double spmax = 2*mnucl*e;
       double xmin1 = (1./(1+shat/q2min));
       double xmax1 = (1-shat/spmax);
-      //printf("SZ e: %f - %f, x: %f - %f\n", emin1, emax, xmin1, xmax1);
       x = xmin1 + (xmax1 - xmin1) * inp[1];
       q2 = shat * x / (1 - x);
       if (q2 < (q2min-1e-6)) {
@@ -410,12 +326,14 @@ int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, c
     factor *= e;
   }
   val[0] *= factor;
-  if ( pars.rd->_dataFlav == BaseDISCC::dataFlav::c ) {
+  if (pars.nomad_scalesemilepbr) {
     double br = *pars.br0 / (1 + *pars.br1 / e);
     val[0] *= br;
   }
-  else if (1==1) {
+  if (pars.nomad_scaleq2mw2) {
+    //printf("MW1 = %f\n", MW);
     if (pars.rd->_dataFlav == BaseDISCC::dataFlav::incl || pars.rd->_dataFlav == BaseDISCC::dataFlav::l) {
+      //printf("MW2 = %f\n", MW);
       val[0] *= std::pow((MW * MW / (q2 + MW * MW)), 2.);
     }
   }
@@ -435,9 +353,12 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
     BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
     if (td->hasParam("nomad")) {
       int intvar = td->getParamI("nomad");
+      int nomad_scaleq2mw2 = td->hasParam("nomad_scaleq2mw2") ? td->getParamI("nomad_scaleq2mw2") : 0;
+      int nomad_scalesemilepbr = td->hasParam("nomad_scalesemilepbr") ? td->getParamI("nomad_scalesemilepbr") : 0;
+      int nomad_verbose = td->hasParam("nomad_verbose") ? td->getParamI("nomad_verbose") : 0;
       auto& nomad_var  = *GetBinValues(td, "nomad_var");
       for (size_t i=0; i<nomad_var.size(); i++) {
-        calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i]);
+        calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i], nomad_scaleq2mw2, nomad_scalesemilepbr, nomad_verbose);
       }
     }
     else {
@@ -451,13 +372,12 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
 }
 
 // Calculates one data point as integral over Q2,x,E and returns values f2, fl, f3
-void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out)
+void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const int nomad_verbose)
 {
+  // load nuclear correction tables once, otherwise they will be loaded multiple time in parallel
   if (1 && _nuke[dataSetID]) {
-    printf("SZ1\n");fflush(stdout);
     double f2(1.), fl(1.), f3(1.);
     double ret = _nuke[dataSetID]->apply(0.1, 10., f2, fl, f3);
-    printf("SZ2 ret = %f\n", ret);fflush(stdout);
   }
   integration_params_cuba pars;
   pars.dataSetID = dataSetID;
@@ -473,6 +393,8 @@ void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, cons
   static const double mnt = *_tdDS[dataSetID]->getParamD("mnt");
   double mnucl = (mpr+mnt)/2.;
   pars.mnucl = mnucl;
+  pars.nomad_scaleq2mw2 = nomad_scaleq2mw2;
+  pars.nomad_scalesemilepbr = nomad_scalesemilepbr;
   const int NDIM = intvar > 0 ? 2 : 3;
   const int NCOMP = 1;
   void* USERDATA = &pars;
@@ -492,11 +414,11 @@ void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, cons
   int fail = 0;
   cubareal cuba_integral[1], cuba_error[1], prob[1];
   Cuhre(NDIM, NCOMP, integrate_nomad, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
-  printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
+  if(nomad_verbose) printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
   for(int comp = 0; comp < NCOMP; ++comp )
-    printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
-    xsec_out = cuba_integral[0];
-  printf("SZ NOMAD nomad_var[%d] = %6.2f -> xsec = %.4e +- %.4e\n", pars.intvar, pars.val, xsec_out, cuba_error[0]);
+    if(nomad_verbose) printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
+  xsec_out = cuba_integral[0];
+  if(nomad_verbose) printf("SZ NOMAD nomad_var[%d] = %6.2f -> xsec = %.4e +- %.4e\n", pars.intvar, pars.val, xsec_out, cuba_error[0]);
 }
 
 // Calculates one data point at (Q2,x) and returns values f2, fl, f3

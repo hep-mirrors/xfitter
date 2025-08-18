@@ -162,8 +162,8 @@ void DIS_HT::apply(const double q2, const double x, double& f2, double& fl, doub
   //printf("spline: %p %p %p\n", _spline_f2, _spline_ft, _spline_f3);
   const double f2_cor = _spline_f2 ? (std::pow(x, *_ht_alpha_2) * (*_spline_f2)(x) * q02 / q2) : 0.0;
   const double ft_cor = _spline_ft ? (std::pow(x, *_ht_alpha_t) * (*_spline_ft)(x) * q02 / q2) : 0.0;
-  //const double f3_cor = _spline_f3 ? (std::pow(x, *_ht_alpha_3) * (*_spline_f3)(x) * q02 / q2) : 0.0;
-  const double f3_cor = 0.;
+  const double f3_cor = _spline_f3 ? (std::pow(x, *_ht_alpha_3) * (*_spline_f3)(x) * q02 / q2) : 0.0;
+  //const double f3_cor = 0.;
   //printf("HT q2,x = %f,%f f2,ft,f3 = %f,%f,%f\n", q2, x, f2_cor/f2, ft_cor/ft, f3_cor/f3);
   f2 += f2_cor * (*_ht_scale);
   ft += ft_cor * (*_ht_scale);
