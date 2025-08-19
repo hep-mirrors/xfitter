@@ -3,6 +3,7 @@
 // H. Georgi and H. D. Politzer, Phys. Rev. D9, 416 (1974)
 
 class TermData;
+#include "ABM.h"
 
 class DIS_TMC {
   // if needed to be used by other DIS reactions, add them here
@@ -21,17 +22,21 @@ class DIS_TMC {
     bool _flag_l;
     bool _flag_c;
     bool _flag_b;
+    bool _flag_f2;
+    bool _flag_fl;
+    bool _flag_f3;
     int _integration_method;
     double _xmin;
     double _logxlogq2min;
     const double* _mpr;
-    int _FLAG_FAST = 0;
     double apply_one_flavour(double& f2, double& fl, double& f3, 
-      const bool flag_fl, const bool flag_f3, const int flag_flavour, const double q2, const double x,
-      const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz);
+      const abm::SFflav flav, const double q2, const double x, const abm::SFproc ncflag, 
+      const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm, 
+      const int charge, const double polarity, const double cos2thw, const double mz);
     // private methods can be used by friends
     void apply(double& f2, double& fl, double& f3, 
       double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
-      const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, 
-      const int charge, const double polarity, const double cos2thw, const double mz, void* ptr_reaction);
+      const double q2, const double x, const abm::SFproc ncflag, 
+      const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm, 
+      const int charge, const double polarity, const double cos2thw, const double mz);
 };

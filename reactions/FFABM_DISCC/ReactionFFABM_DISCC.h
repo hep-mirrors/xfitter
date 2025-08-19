@@ -45,18 +45,15 @@ private:
   double _cos2thw;
   double _hqscale1in;
   double _hqscale2in;
-  bool _msbarmin;
-  int _ordfl;
-  std::map<unsigned, int> _order; // term dependent
-  int _kschemepdfin;
-  int _FLAG_FAST;
-  std::map<unsigned, int> _orderHQ; // allows adjusting HQ order for specific data sets
+  std::map<unsigned, int> _order; // term dependent, allows adjustment for specific data sets
+  std::map<unsigned, bool> _msbarmin;
+  std::map<unsigned, int> _ordfl;
+  std::map<unsigned, int> _orderHQ;
   std::vector<const double*> _ckm; // CKM matrix
 
   void calcF2FL(int dataSetID);
   void calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out);
   //double calc_point_strfun(const BaseDISCC::ReactionData* rd, const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double f2c=0.);
-  double calc_point_strfun(const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double* f2c=nullptr);
   void calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const int nomad_verbose);
   static int integrate_nomad(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
   map<int, int> _ncpu;

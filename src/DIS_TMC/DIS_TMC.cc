@@ -1,4 +1,3 @@
-//#ifdef NOTCOMPILE
 #include "DIS_TMC.h"
 //#include "ReactionFFABM_DISNC.h"
 //#include "ReactionFFABM_DISCC.h"
@@ -25,17 +24,28 @@ extern "C" {
 }
 
 struct integration_params {
+  abm::SFproc sfproc;
+  abm::SFtype sftype;
+  abm::SFflav sfflav;
   double q2;
   int ncflag;
   int charge;
   double polarity;
   double cos2thw;
-  double _mz;
-  int flag_calc_fl;
-  int flag_flavour;
+  double mz;
   int order;
-  double xi;
-  int nt;
+  int orderDefault;
+  int orderHQ;
+  int orderFL;
+  bool msbarm;
+  //double xi;
+  //int nt;
+  // OBS
+  int flag_calc_sf; // 0: F2, 1: FL, 2: F3
+  int flag_calc_flav; // 0: l, 1: c, 2: b
+  double calc_point_strfun(double xip) const {
+    return abm::calc_point_strfun(sfproc, sftype, sfflav, q2, xip, order, orderDefault, orderHQ, orderFL, msbarm, charge, 1.-cos2thw, polarity, mz);
+  }
 };
 
 DIS_TMC::DIS_TMC(TermData* td){
@@ -50,6 +60,9 @@ DIS_TMC::DIS_TMC(TermData* td){
   if (tmc_str.find('b') != std::string::npos) {
     _flag_b = true;
   }
+  _flag_f2 = td->hasParam("tmc_f2") ? td->getParamI("tmc_f2") : true;
+  _flag_fl = td->hasParam("tmc_fl") ? td->getParamI("tmc_fl") : true;
+  _flag_f3 = td->hasParam("tmc_f3") ? td->getParamI("tmc_f3") : true;
   if (td->hasParam("tmc_integration_method"))
   {
     auto s = td->getParamS("tmc_integration_method");
@@ -85,152 +98,77 @@ DIS_TMC::DIS_TMC(TermData* td){
 
 void DIS_TMC::apply(double& f2, double& fl, double& f3, 
       double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
-      const bool flag_fl, const bool flag_f3, const double q2, const double x, const int ncflag, 
-      const int charge, const double polarity, const double cos2thw, const double mz, void* ptr_reaction) {
+      const double q2, const double x, const abm::SFproc ncflag, 
+      const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm,
+      const int charge, const double polarity, const double cos2thw, const double mz) {
+  if(!_flag_f2 && !_flag_fl && !_flag_f3) return;
   if ((_xmin == 0. || _xmin < x) && (_logxlogq2min == 0. || _logxlogq2min < log(x)*log(q2))) {
     if(_flag_l) {
-      /*if (ncflag == 1) {
-        ReactionFFABM_DISNC* reaction = (ReactionFFABM_DISNC*)ptr_reaction;
-        f2 = reaction->calc_point_strfun(ReactionBaseDISNC::dataType::f2, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-        fl = reaction->calc_point_strfun(ReactionBaseDISNC::dataType::fl, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-        f3 = reaction->calc_point_strfun(ReactionBaseDISNC::dataType::f3, ReactionBaseDISNC::dataFlav::l, q2[i], x[i], dataSetID, -1, GetCharge(dataSetID));
-      }*/
-      apply_one_flavour(f2, fl, f3, flag_fl, flag_f3, 1, q2, x, ncflag, charge, polarity, cos2thw, mz);
+      apply_one_flavour(f2, fl, f3, abm::SFflav::l, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz);
     }
     if(_flag_c) {
-      apply_one_flavour(f2c, flc, f3c, flag_fl, flag_f3, 2, q2, x, ncflag, charge, polarity, cos2thw, mz);
+      apply_one_flavour(f2c, flc, f3c, abm::SFflav::c, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz);
     }
     if(_flag_b) {
-      apply_one_flavour(f2b, flb, f3b, flag_fl, flag_f3, 3, q2, x, ncflag, charge, polarity, cos2thw, mz);
+      apply_one_flavour(f2b, flb, f3b, abm::SFflav::b, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz);
     }
   }
 }
 
-double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool flag_fl, const bool flag_f3, 
-  const int flag_flavour, const double q2, const double x, const int ncflag, const int charge, const double polarity, const double cos2thw, const double mz) {
-  //printf("apply_tmc q2,x = %f,%f\n", q2, x);
+double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, 
+    const abm::SFflav flav, const double q2, const double x, const abm::SFproc ncflag, 
+    const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm, 
+    const int charge, const double polarity, const double cos2thw, const double mz) {
   double mn = *_mpr;
   double gam = sqrt(1+4*x*x*mn*mn/q2);
   double xi = 2*x/(1+gam);
-  if (xi>1) {throw 42;}
+  if (xi>1) return 0.;
   auto integrate = [](double xip, void* params) {
     if(xip >= 1.) {
       return 0.;
     }
     const integration_params& integrationParams = *(integration_params*)params;
-    //printf("integrate q2,xip = %f,%f\n", integrationParams.q2, xip);
-    double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-    constexpr bool _FLAG_FAST = false;
-    if (_FLAG_FAST) {
-      throw 1;
-      /*if (integrationParams.flag_calc_fl == 0) {
-        if (integrationParams.flag_flavour == 1)
-          return calc_point_strfun(rd, BaseDISCC::dataType::f2, BaseDISCC::dataFlav::l, q2, x, dataSetID, -1, rd->_charge)/xip/xip;
-        else if (integrationParams.flag_flavour == 2)
-          return f2c/xip/xip;
-        else if (integrationParams.flag_flavour == 3)
-          return f2b/xip/xip;
-        else
-          return 0.;
-      }
-      else if (integrationParams.flag_calc_fl == 1) {
-        if (integrationParams.flag_flavour == 1)
-          return fl/xip/xip;
-        else if (integrationParams.flag_flavour == 2)
-          return flc/xip/xip;
-        else if (integrationParams.flag_flavour == 3)
-          return flb/xip/xip;
-        else
-          return 0.;
-      }
-      else if (integrationParams.flag_calc_fl == 2) {
-        if (integrationParams.flag_flavour == 1)
-          return f3/xip/xip;
-        else if (integrationParams.flag_flavour == 2)
-          return f3c/xip/xip;
-        else if (integrationParams.flag_flavour == 3)
-          return f3b/xip/xip;
-        else
-          return 0.;
-      }*/
-    }
-    else {
-      if (integrationParams.order >= 0) {
-        //abkm_set_input_(_kschemepdfin, integrationParams.order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
-        sf_abkm_wrap_order_(xip, integrationParams.q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, 1.-integrationParams.cos2thw, integrationParams.cos2thw, integrationParams._mz, integrationParams.order);
-      }
-      //if (integrationParams.order >= 0) {
-      else {
-        //abkm_set_input_(_kschemepdfin, _order, *_mcPtr, *_mbPtr, _msbarmin, _hqscale1in, _hqscale2in, _ordfl);
-        sf_abkm_wrap_(xip, integrationParams.q2, f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, integrationParams.ncflag, integrationParams.charge, integrationParams.polarity, 1.-integrationParams.cos2thw, integrationParams.cos2thw, integrationParams._mz);
-      }
-      if (integrationParams.flag_calc_fl == 0) {
-        if (integrationParams.flag_flavour == 1)
-          return f2/xip/xip;
-        else if (integrationParams.flag_flavour == 2)
-          return f2c/xip/xip;
-        else if (integrationParams.flag_flavour == 3)
-          return f2b/xip/xip;
-        else
-          return 0.;
-      }
-      else if (integrationParams.flag_calc_fl == 1) {
-        if (integrationParams.flag_flavour == 1)
-          return fl/xip/xip;
-        else if (integrationParams.flag_flavour == 2)
-          return flc/xip/xip;
-        else if (integrationParams.flag_flavour == 3)
-          return flb/xip/xip;
-        else
-          return 0.;
-      }
-      else if (integrationParams.flag_calc_fl == 2) {
-        if (integrationParams.flag_flavour == 1)
-          return f3/xip/xip;
-        else if (integrationParams.flag_flavour == 2)
-          return f3c/xip/xip;
-        else if (integrationParams.flag_flavour == 3)
-          return f3b/xip/xip;
-        else
-          return 0.;
-      }
-      throw 1;
-    }
+    return integrationParams.calc_point_strfun(xip)/xip/xip;
   };
   integration_params pars;
   pars.q2 = q2;
-  pars.ncflag = ncflag;
+  pars.sfproc = ncflag;
+  pars.sfflav = flav;
   pars.charge = charge;
   pars.polarity = polarity;
   pars.cos2thw = cos2thw;
-  pars._mz = mz;
-  pars.flag_calc_fl = 0;
-  pars.flag_flavour = flag_flavour;
-  pars.order = 0;
-  double I;
-  double I_F3;
+  pars.mz = mz;
+  pars.msbarm = msbarm;
+  pars.order = 0; // compute integrals for TMC using LO structure functions
+  pars.orderDefault = orderDefault;
+  pars.orderHQ = orderHQ;
+  pars.orderFL = orderFL;
+  double I_F2 = 0.;
+  double I_F3 = 0.;
   // gsl integration
   if (_integration_method == 0) {
     gsl_function F;
     F.function = integrate;
     F.params = &pars;
     size_t alloc_space = 1000;
-    gsl_integration_workspace * w = gsl_integration_workspace_alloc(alloc_space);
+    gsl_integration_workspace* w = nullptr;
     double epsabs = 0;
     double epsrel = 1e-3;
     int key_param = 6;
     double result, error;
-    gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-    //gsl_integration_qag (&F, x, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
-    gsl_integration_workspace_free (w);
-    I = result;
-    if (flag_f3) {
-      pars.flag_calc_fl = 2;
+    if(_flag_f2 || _flag_fl) {
+      pars.sftype = abm::SFtype::f2;
+      w = gsl_integration_workspace_alloc(alloc_space);
+      gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
+      gsl_integration_workspace_free (w);
+      I_F2 = result;
+    }
+    if (_flag_f3) {
+      pars.sftype = abm::SFtype::f3;
       w = gsl_integration_workspace_alloc(alloc_space);
       gsl_integration_qag (&F, xi, 1.0, epsabs, epsrel, alloc_space, key_param, w, &result, &error);
       gsl_integration_workspace_free (w);
       I_F3 = result;
-      pars.flag_calc_fl = 0;
     }
   }
   // Simpson 1/3 integration
@@ -239,13 +177,13 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     double b = a*5;
     if (b > 0.999) 
       b = 0.999;
-    double sim13 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
-    I = sim13;
-    if (flag_f3) {
-      pars.flag_calc_fl = 2;
-      double sim13_F3 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
-      I_F3 = sim13_F3;
-      pars.flag_calc_fl = 0;
+    if(_flag_f2 || _flag_fl) {
+      pars.sftype = abm::SFtype::f2;
+      I_F2 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
+    }
+    if (_flag_f3) {
+      pars.sftype = abm::SFtype::f3;
+      I_F3 = (b-a)/6.*(integrate(a, &pars)+4*integrate((a+b)/2., &pars)+integrate(b, &pars));
     }
   }
   // Simpson 1/3 integration with power approximation
@@ -254,27 +192,31 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     double b = a*5;
     if (b > 0.999) 
       b = 0.999;
-    double f1 = integrate(a, &pars);
-    double alpha = log(f1)/log(xi);
-    double f1pr = f1 - pow(a, alpha);
-    double f2 = integrate((a+b)/2., &pars);
-    double f2pr = f2 - pow((a+b)/2., alpha);
-    double f3 = integrate(b, &pars);
-    double f3pr = f3 - pow(b, alpha);
-    double sim13 = (b-a)/6.*(f1pr+4*f2pr+f3pr);
-    double part_power = (1-pow(xi, alpha+1))/(alpha+1);
-    I = sim13 + part_power;
-    if (flag_f3) {
-      pars.flag_calc_fl = 2;
-      double f1_F3 = integrate(a, &pars);
-      double f1pr_F3 = f1_F3 - pow(a, alpha);
-      double f2_F3 = integrate((a+b)/2., &pars);
-      double f2pr_F3 = f2_F3 - pow((a+b)/2., alpha);
-      double f3_F3 = integrate(b, &pars);
-      double f3pr_F3 = f3_F3 - pow(b, alpha);
-      double sim13_F3 = (b-a)/6.*(f1pr_F3+4*f2pr_F3+f3pr_F3);
-      I_F3 = sim13_F3 + part_power;
-      pars.flag_calc_fl = 0;
+    if(_flag_f2 || _flag_fl) {
+      pars.sftype = abm::SFtype::f2;
+      double f1 = integrate(a, &pars);
+      double alpha = log(f1)/log(xi);
+      double f1pr = f1 - pow(a, alpha);
+      double f2 = integrate((a+b)/2., &pars);
+      double f2pr = f2 - pow((a+b)/2., alpha);
+      double f3 = integrate(b, &pars);
+      double f3pr = f3 - pow(b, alpha);
+      double sim13 = (b-a)/6.*(f1pr+4*f2pr+f3pr);
+      double part_power = (1-pow(xi, alpha+1))/(alpha+1);
+      I_F2 = sim13 + part_power;
+    }
+    if (_flag_f3) {
+      pars.sftype = abm::SFtype::f3;
+      double f1 = integrate(a, &pars);
+      double alpha = log(f1)/log(xi);
+      double f1pr = f1 - pow(a, alpha);
+      double f2 = integrate((a+b)/2., &pars);
+      double f2pr = f2 - pow((a+b)/2., alpha);
+      double f3 = integrate(b, &pars);
+      double f3pr = f3 - pow(b, alpha);
+      double sim13 = (b-a)/6.*(f1pr+4*f2pr+f3pr);
+      double part_power = (1-pow(xi, alpha+1))/(alpha+1);
+      I_F3 = sim13 + part_power;
     }
   }
   // Simpson 3/8 integration
@@ -284,13 +226,13 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     double b = a*5;
     if (b > 0.999) 
       b = 0.999;
-    double sim38 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
-    I = sim38;
-    if (flag_f3) {
-      pars.flag_calc_fl = 2;
-      double sim38_F3 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
-      I_F3 = sim38_F3;
-      pars.flag_calc_fl = 0;
+    if(_flag_f2 || _flag_fl) {
+      pars.sftype = abm::SFtype::f2;
+      I_F2 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
+    }
+    if (_flag_f3) {
+      pars.sftype = abm::SFtype::f3;
+      I_F3 = (b-a)/8.*(integrate(a, &pars)+3*integrate((2*a+b)/3., &pars)+3*integrate((a+2*b)/3., &pars)+integrate(b, &pars));
     }
   }
   // Boole integration
@@ -306,13 +248,13 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     //if (b > 0.999) 
     //  b = 0.999;
     double h = (b-a)/4.;
-    double boole = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
-    I = boole;
-    if (flag_f3) {
-      pars.flag_calc_fl = 2;
-      double boole_F3 = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
-      I_F3 = boole_F3;
-      pars.flag_calc_fl = 0;
+    if(_flag_f2 || _flag_fl) {
+      pars.sftype = abm::SFtype::f2;
+      I_F2 = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
+    }
+    if (_flag_f3) {
+      pars.sftype = abm::SFtype::f3;
+      I_F3 = 2*h/45.*(7*integrate(a, &pars)+32*integrate(a+h, &pars)+12*integrate(a+2*h, &pars)+32*integrate(a+3*h, &pars)+integrate(b, &pars));
     }
   }
   // cuba integration
@@ -343,51 +285,32 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, const bool
     //    (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
     I = cuba_integral[0];*/
   }
-  //double I = result;
-  //I = sim38;
-  //I = 0;
-  //I *= 5;
   double f20 = f2;
   double fl0 = fl;
   double f30 = f3;
-  //f2 = x*x/xi/xi/gam/gam/gam*f2 + 6*x*x*x*mn*mn/q2/gam/gam/gam/gam*I;
-  pars.order = -1;
-  double f2_at_xi = integrate(xi, &pars)*xi*xi;
-  //double f2_at_xi = integrate(xi, &pars)*xi;
-  //printf("f2: %f %f\n", f2, f2_at_xi);
-  double f2_tmc = x*x/xi/xi/gam/gam/gam*f2_at_xi + 6*x*x*x*mn*mn/q2/gam/gam/gam/gam*I;
-  //double f2_orig = integrate(x, &pars)*x*x;
-  //f2 = f2 * f2_tmc / f2_orig;
-  f2 = f2_tmc;
-  if (flag_fl) {
-    //double ft = f2 - fl;
-    //ft = x*x/xi/xi/gam*ft + 2*x*x*x*mn*mn/q2/gam/gam*I;
-    pars.flag_calc_fl = 1;
+  pars.order = -1; // switch back to default order
+  if(_flag_f2 || _flag_fl) {
+    pars.sftype = abm::SFtype::f2;
+    double f2_at_xi = integrate(xi, &pars)*xi*xi;
+    double f2_tmc = x*x/xi/xi/gam/gam/gam*f2_at_xi + 6*x*x*x*mn*mn/q2/gam/gam/gam/gam*I_F2;
+    pars.sftype = abm::SFtype::fl;
     double fl_at_xi = integrate(xi, &pars)*xi*xi;
-    //double fl_at_xi = integrate(xi, &pars)*xi;
     double ft_at_xi = f2_at_xi - fl_at_xi;
-    double ft = x*x/xi/xi/gam*ft_at_xi + 2*x*x*x*mn*mn/q2/gam/gam*I;
-    double fl_tmc = f2_tmc - ft;
-    fl = fl_tmc;
-    //fl = fl + x*x/gam/gam*(1-gam*gam)*f2_at_xi/xi/xi+mn*mn*x*x*x/q2/gam/gam/gam/gam*I;
-    //double fl0 = fl;
+    double ft_tmc = x*x/xi/xi/gam*ft_at_xi + 2*x*x*x*mn*mn/q2/gam/gam*I_F2;
+    double fl_tmc = f2_tmc - ft_tmc;
+    if(_flag_f2) {
+      f2 = f2_tmc;
+    }
+    if(_flag_fl) {
+      fl = fl_tmc;
+    }
   }
-  if (flag_f3) {
-    pars.flag_calc_fl = 2;
+  if (_flag_f3) {
+    pars.sftype = abm::SFtype::f3;
     double f3_at_xi = integrate(xi, &pars)*xi*xi;
     f3 = x/xi/gam/gam*f3_at_xi + 2*mn*mn/q2*x*x/gam/gam/gam*I_F3;
   }
-  //printf("TMC F2,FL,F3: %.0f,%.0f,%.0f%%\n", 100*(f2/f20-1), 100*(fl/fl0-1), 100*(f3/f30-1));
-  /*double fl_orig = integrate(x, &pars)*x*x;
-  //fl = fl * fl_tmc / fl_orig;
-  pars.order = -1;
-  f2_at_xi = integrate(xi, &pars)*xi*xi;
-  fl_at_xi = integrate(xi, &pars)*xi*xi;
-  ft_at_xi = f2_at_xi - fl_at_xi;
-  ft = x*x/xi/xi/gam*ft_at_xi + 2*x*x*x*mn*mn/q2/gam/gam*I;
-  fl = f2-ft;*/
-  //printf("SZ [x,q2 = %f %f] gsl = %f +- %f [%f] cuba = %f +- %f [%f] sim38 = %f [%f] TMC [%f]\n", x, q2, result, error, error/result, cuba_integral[0], cuba_error[0], cuba_integral[0]/result-1, sim38, sim38/result-1, f2/f20-1);
+  //printf("TMC [x,q2 = %.2f %.1f] F2,FL,F3: %.0f,%.0f,%.0f%%\n", x, q2, 100*(f2/f20-1), 100*(fl/fl0-1), 100*(f3/f30-1));
   //printf("SZ [x,q2 = %f %f] result +- error = %f +- %f [%f] sim38 = %f [%f] [%f]\n", x, q2, result, error, error/result, sim38, sim38/result-1, f2/f20-1);
   return f2/f20-1;
 }
-//#endif
