@@ -330,13 +330,15 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
     abm::pdffillgrid();
     BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
     if (td->hasParam("nomad")) {
+      // special case of integrated cross sections: TODO refactoring is needed
       int intvar = td->getParamI("nomad");
       int nomad_scaleq2mw2 = td->hasParam("nomad_scaleq2mw2") ? td->getParamI("nomad_scaleq2mw2") : 0;
       int nomad_scalesemilepbr = td->hasParam("nomad_scalesemilepbr") ? td->getParamI("nomad_scalesemilepbr") : 0;
       int nomad_verbose = td->hasParam("nomad_verbose") ? td->getParamI("nomad_verbose") : 0;
+      double nomad_epsrel = td->hasParam("nomad_epsrel") ? *td->getParamD("nomad_epsrel") : 0.03; // somehow this provides accuracy ~ 0.1%
       auto& nomad_var  = *GetBinValues(td, "nomad_var");
       for (size_t i=0; i<nomad_var.size(); i++) {
-        calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i], nomad_scaleq2mw2, nomad_scalesemilepbr, nomad_verbose);
+        calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i], nomad_scaleq2mw2, nomad_scalesemilepbr, nomad_epsrel, nomad_verbose);
       }
     }
     else {
@@ -350,7 +352,7 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
 }
 
 // Calculates one data point as integral over Q2,x,E and returns values f2, fl, f3
-void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const int nomad_verbose)
+void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const double nomad_epsrel, const int nomad_verbose)
 {
   // load nuclear correction tables once, otherwise they will be loaded multiple time in parallel
   if (1 && _nuke[dataSetID]) {
@@ -377,9 +379,7 @@ void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, cons
   const int NCOMP = 1;
   void* USERDATA = &pars;
   const int NVEC = 1;
-  //const double EPSREL = 1e-5;
-  const double EPSREL = 1e-3;
-  //const double EPSREL = 1e-2;
+  const double EPSREL = nomad_epsrel;
   const double EPSABS = 0;
   const int FLAGS = 0;
   const int MINEVAL = 0;
