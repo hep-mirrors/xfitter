@@ -336,8 +336,10 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
       int nomad_scalesemilepbr = td->hasParam("nomad_scalesemilepbr") ? td->getParamI("nomad_scalesemilepbr") : 0;
       int nomad_verbose = td->hasParam("nomad_verbose") ? td->getParamI("nomad_verbose") : 0;
       double nomad_epsrel = td->hasParam("nomad_epsrel") ? *td->getParamD("nomad_epsrel") : 0.03; // somehow this provides accuracy ~ 0.1%
+      int nomad_threads = td->hasParam("nomad_threads") ? td->getParamI("nomad_threads") : 0;
       auto& nomad_var  = *GetBinValues(td, "nomad_var");
       for (size_t i=0; i<nomad_var.size(); i++) {
+        setenv("CUBACORES", (std::to_string(nomad_threads)).c_str(), 1);
         calc_integral(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i], nomad_scaleq2mw2, nomad_scalesemilepbr, nomad_epsrel, nomad_verbose);
       }
     }
@@ -355,10 +357,10 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
 void ReactionFFABM_DISCC::calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const double nomad_epsrel, const int nomad_verbose)
 {
   // load nuclear correction tables once, otherwise they will be loaded multiple time in parallel
-  if (1 && _nuke[dataSetID]) {
-    double f2(1.), fl(1.), f3(1.);
-    double ret = _nuke[dataSetID]->apply(0.1, 10., f2, fl, f3);
-  }
+  //if (1 && _nuke[dataSetID]) {
+  //  double f2(1.), fl(1.), f3(1.);
+  //  double ret = _nuke[dataSetID]->apply(0.1, 10., f2, fl, f3);
+  //}
   integration_params_cuba pars;
   pars.dataSetID = dataSetID;
   pars.rd = rd;

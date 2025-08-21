@@ -99,6 +99,9 @@ c I/O channel to read the data
       data ityps,kints,kords /-999,-999,-999/
       save ityps,kints,kords,xx,qq,f_nuke
       save b_nuke,c_nuke,d_nuke,b_dnuke,c_dnuke,d_dnuke
+      integer flaginit
+      data flaginit/0/
+      save flaginit
 * 
       nuke_fast=0.d0
       if ((nsf.lt.1).or.(nsf.gt.3)) return 
@@ -138,12 +141,14 @@ c I/O channel to read the data
 *  
 *...Load tables and grid 
 * 
-      if (kords.eq.kord) goto 10 
+C      if (kords.eq.kord) goto 10 
+      if (flaginit.eq.1) goto 10 
       !print*,ityp,kint1,kord,ftyp,kords
       !call flush(6)
       ityps=ityp
       kints=kint
       kords=kord
+      flaginit=1
 *  
 *...X GRID 
       do kx=1,nxbb

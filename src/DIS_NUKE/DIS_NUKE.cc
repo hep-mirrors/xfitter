@@ -11,6 +11,9 @@ DIS_NUKE::DIS_NUKE(TermData* td) {
   _kint = td->getParamI("nuke_kint");
   _kord = OrderMap(td->getParamS("Order"));
   _need_f3bar = _ftyp && _kint < 0;
+  // load nuclear correction tables once, otherwise they will be loaded multiple time in parallel
+  double f2(1.), fl(1.), f3(1.);
+  double ret = apply(0.1, 10., f2, fl, f3);
 }
 
 double DIS_NUKE::apply(const double q2, const double x, double& f2, double& fl, double& f3, double const* f3_bar_ptr/*=nullptr*/) const {
