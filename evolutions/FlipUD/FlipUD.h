@@ -26,5 +26,6 @@ class FlipUD_Evol:public BaseEvolution{
     virtual std::vector<double> getQgrid() override final;
   private:
     BaseEvolution*input;
+    double _flip; // fraction of neutron: _flip = 1 is neutron (default), _flip = 0.5 is (p+n)/2, _flip = 0 is p
 };
 }
