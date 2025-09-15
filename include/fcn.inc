@@ -7,3 +7,11 @@ C
       integer ndfMINI      
 
       Common/CFCN/IFlagFCN,nparFCN,ndfMINI,IfcnCount
+
+C
+C  Errors-on-errors
+C
+
+      double precision epsilon_value  ! Declare epsilon_value
+      integer n_iterations
+      Common/CEpsilon/epsilon_value,n_iterations 

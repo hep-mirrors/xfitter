@@ -61,7 +61,7 @@ C !> Also store for each fcn=3 call:
 
 C     Print MINUIT extra parameters
 c which are actually all parameters
-      call printminuitextrapars(iflag)
+      call printminuitextrapars(iflag, epsilon_value)
 C Copy new parameter values from MINUIT to whereever parameterisations
 c will take them from
       call copy_minuit_extrapars(parminuit)
@@ -380,7 +380,7 @@ c     endif
 c Penalty from MINUIT extra parameters constraints (only for fits)
 C However when/if LHAPDFErrors mode will be combined with minuit, this will need modification.
       if (.not. LHAPDFErrors) then
-         call getextraparsconstrchi2(extraparsconstrchi2)
+         call getextraparsconstrchi2(extraparsconstrchi2, epsilon_value)
          fchi2 = fchi2 + extraparsconstrchi2
       endif
 
@@ -532,6 +532,8 @@ C     !> Store also type of systematic source info
                FormC = ':O'
             elseif ( SysForm(jsys) .eq. isExternal ) then
                FormC = ':E'
+            elseif ( SysForm(jsys) .eq. isGVM ) then
+               FormC = ':G'
             endif
 
             if ( SysScalingType(jsys) .eq. isPoisson ) then

@@ -18,7 +18,7 @@ extern "C" {
 		extern COMMON_ExtraPars_t extrapars_;
 
 	// actual routine
-	void getextraparsconstrchi2_(double& chi2) {
+	void getextraparsconstrchi2_(double& chi2, double epsilon) {
 
 		int len=1024;
 		char parname[len];
@@ -36,13 +36,14 @@ extern "C" {
 				printf("ERROR in GetExtraParsConstrChi2: something is wrong with parameter %d\n", extrapars_.iExtraParamMinuit[p]);
 				exit(1);
 			}
-			chi2+=pow((par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p], 2.0);
+			double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+        	chi2 += (1 + 1.0 / (2 * epsilon * epsilon)) * log(1 + 2 * epsilon * epsilon * deviation * deviation);
 		}
 		//printf("chi2: %e\n", chi2);
 	}
 
 	// actual routine
-	void printminuitextrapars_(int& iflag) {
+	void printminuitextrapars_(int& iflag, double epsilon) {
 
 		int len=1024;
 		char parname[len];
@@ -76,7 +77,8 @@ extern "C" {
 				printf("%9s%9s", "", "");
 			}
 			else {
-				double shift=(par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p];
+				double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+				double shift=(1 + 1.0 / (2 * epsilon * epsilon)) * log(1 + 2 * epsilon * epsilon * deviation * deviation) + 100;
 				double reduction=unc/extrapars_.ConstrUnc[p];
 				printf("%9.4f%9.4f", shift, reduction);
 			}
@@ -96,7 +98,8 @@ extern "C" {
           printf(", %.*f, %.*f", ndigcomma, bound_l, ndigcomma, bound_h);
         }
         if(extrapars_.ConstrUnc[p]!=0.0) {
-          double shift=(par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p];
+          double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+		  double shift=(1 + 1.0 / (2 * epsilon * epsilon)) * log(1 + 2 * epsilon * epsilon * deviation * deviation) + 100;
           double reduction=unc/extrapars_.ConstrUnc[p];
           printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
         }

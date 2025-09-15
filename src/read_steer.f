@@ -150,20 +150,22 @@ C----------------------------------------------
 #include "steering.inc"
 #include "indata.inc"
 #include "for_debug.inc"
+#include "fcn.inc"
 C-----------------------------------------------
 
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8)
       integer i
-
+      
 C Main steering parameters namelist
       namelist/xFitter/
      $     LDebug,
      $     Chi2MaxError, iDH_MOD, 
      $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate, UseDataSetIndex
+     $     AsymErrorsIterations, pdfRotate, UseDataSetIndex,
+     $     epsilon_value, n_iterations
 
 C--------------------------------------------------------------
 
@@ -174,6 +176,10 @@ C     Some defaults
          Chi2ExtraParam(i) = 'undefined'
       enddo
       AsymErrorsIterations = 0
+
+      epsilon_value = 0.2D0
+      n_iterations = 4
+
 C
 C  Read the main xFitter namelist:
 C
@@ -920,6 +926,8 @@ C Initialisation:
    !  Set nuisance parameter behaviour:
          if (CorChi2Type .eq. 'Hessian') then
             SysForm(i)         =  isNuisance
+         elseif (CorChi2Type .eq. 'GVM') then
+            SysForm(i) = isGVM
          elseif (CorChi2Type .eq. 'Offset') then
             SysForm(i)         =  isOffset
          elseif (CorChi2Type .eq. 'Matrix') then
@@ -1170,6 +1178,8 @@ C
             SysScalingType(nsys) = isPoisson
          elseif ( SourceName(ii+1:ii+1) .eq.'N' ) then
             SysForm(nsys) = isNuisance
+         elseif ( SourceName(ii+1:ii+1) .eq.'G' ) then
+            SysForm(nsys) = isGVM
          elseif ( SourceName(ii+1:ii+1) .eq.'C' ) then
             SysForm(nsys) = isMatrix
          elseif ( SourceName(ii+1:ii+1) .eq.'O' ) then

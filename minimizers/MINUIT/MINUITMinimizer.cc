@@ -143,34 +143,58 @@ void MINUITMinimizer::actionAtFCN3()
 /// Error analysis
 void MINUITMinimizer::errorAnalysis()
 {
-  auto errNode = XFITTER_PARS::gParametersY["MINUIT"]["doErrors"];
-  if ( errNode ) {
-    std::string bandType = errNode.as<std::string>();
-    if ( bandType == "Pumplin" ) {
-      hf_errlog(12020506, "I: Calculation of error bands required");
-      std::string cmd = "ITERATE 10";
-      int ires;
-      mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
-      cmd = "MYSTUFF 1000";
-      mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
-      cmd = "MYSTUFF 2000";
-      mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+    auto errNode = XFITTER_PARS::gParametersY["MINUIT"]["doErrors"];
+    if ( errNode ) {
+        std::istringstream iss(errNode.as<std::string>());
+        std::string bandType;
+        std::getline(iss, bandType);
 
-      write_pars_(0);
-      error_bands_pumplin_();
+        if ( bandType == "Pumplin" ) {
+            hf_errlog(12020506, "I: Calculation of error bands required");
+            
+            // Default values
+            double errdef = 5;
+            int iterations = 10;
+
+            std::string line;
+            while (std::getline(iss, line)) {
+                if (line.find("SET ERRDEF") != std::string::npos) {
+                    errdef = std::stod(line.substr(line.find_last_of(' ') + 1));
+                } else if (line.find("ITERATE") != std::string::npos) {
+                    iterations = std::stoi(line.substr(line.find_last_of(' ') + 1));
+                }
+            }
+
+            std::string cmd = "SET ERRDEF " + std::to_string(errdef);
+            int ires;
+            mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+
+            cmd = "ITERATE " + std::to_string(iterations);
+            mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+
+            cmd = "MYSTUFF 1000";
+            mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+            cmd = "MYSTUFF 2000";
+            mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+
+            cmd = "SET ERRDEF 1";
+            mncomd_(fcn_, cmd.c_str(), ires, 0, cmd.size());
+
+            write_pars_(0);
+            error_bands_pumplin_();
+        }
+        else if ( bandType == "Hesse" ) {
+            hf_errlog(12020506, "I: Calculation of symmetric error bands required");
+            errbandssym_();
+        }
+        else if ( bandType == "None" ) {
+            return;
+        }
+        else {
+            hf_errlog(2018092201,"W: Unknown to MINUITminimizer error type requested: " + bandType);
+        }
     }
-    else if ( bandType == "Hesse" ) {
-      hf_errlog(12020506, "I: Calculation of symmetric error bands required");
-      errbandssym_();
-    }
-    else if ( bandType == "None" ) {
-      return;
-    }
-    else {
-      hf_errlog(2018092201,"W: Unknown to MINUITminimizer error type requested: " + bandType);
-    }
-  }
-  return;
+    return;
 }
 ConvergenceStatus MINUITMinimizer::convergenceStatus(){
   double d_ignore;

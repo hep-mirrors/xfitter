@@ -1,4 +1,4 @@
-find_program(apfel-config apfel-config PATHS ${CMAKE_SOURCE_DIR}/deps/apfel/bin)
+find_program(apfel-config /afs/cern.ch/user/e/ecanoner/PDFfit/xfitter-v1.1/deps/apfel/bin/apfel-config PATHS ${CMAKE_SOURCE_DIR}/deps/apfel/bin)
 if(EXISTS "${apfel-config}")
   set(APFEL_FOUND 1)
   execute_process(COMMAND ${apfel-config} --version OUTPUT_VARIABLE APFEL_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)

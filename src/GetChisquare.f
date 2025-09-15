@@ -274,21 +274,23 @@ C------------------------------------------------------------------
       subroutine Init_Chi2_calc(doMatrix, doNuisance, doExternal)
 
       implicit none
-      logical doMatrix, doNuisance, doExternal
+      logical doMatrix, doNuisance, doExternal, doGVM
       ! logical doOffset
 #include "ntot.inc"
 #include "systematics.inc"
-      integer k, n_m, n_n, n_e, n_o
+      integer k, n_m, n_n, n_e, n_o, n_g
       character*64 Msg
 C----------------------
       doMatrix   = .false.
       doNuisance = .false.
       doExternal = .false.
       doOffset = .false.
+      doGVM = .false.
       n_m = 0
       n_n = 0
       n_e = 0
       n_o = 0
+      n_g = 0
       do k=1,nsys
          if ( SysForm(k) .eq. isMatrix) then
             doMatrix = .true.
@@ -314,6 +316,10 @@ C----------------------
             doOffset = .true.
             n_o = n_o + 1
          endif
+         if ( SysForm(k) .eq. isGVM) then
+            doGVM = .true.
+            n_g = n_g + 1
+         endif
 
       enddo
 C
@@ -324,11 +330,19 @@ C
      $        n_m
          call HF_errlog(271120122,Msg)
       endif
+
       if (doNuisance ) then
          write (Msg,
      $  '(''I: Use hessian method for'',i4,'' sources'')') n_n
         call HF_errlog(271120123,Msg)
       endif
+
+      if (doGVM ) then
+         write (Msg,
+     $  '(''I: Use hessian method with GVM constraints for'',i4,'' sources'')') n_n
+        call HF_errlog(271120123,Msg)
+      endif
+
       if (doOffset) then
          write (Msg,
      $  '(''I: Use offset method for'',i4,'' sources'')') n_o
@@ -720,7 +734,7 @@ C
          if (Chi2ExtraSystRescale .and. Iterate.eq.0) then
 C Re-scale for systematic shifts:
             do j=1,NSYS
-               if ( (SysForm(j) .eq. isNuisance)
+               if ( (SysForm(j) .eq. isNuisance .or. SysForm(j) .eq. isGVM .or. SysForm(j) .eq. isExternal)
      $              .and. (SysScalingType(j) .eq. isLinear ) ) then
                   Sum = Sum - beta(j,i)*rsys_in(j)
                endif
@@ -982,6 +996,7 @@ C-------------------------------------------------------------------------------
 #include "theo.inc"
 #include "indata.inc"
 #include "steering.inc"
+#include "fcn.inc"
 C
       double precision ScaledErrors(NTOT)
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
@@ -1014,7 +1029,17 @@ C
       save lfirst,nsys_sav,n0_in_sav
 C-
       logical HaveCommonData(NsysMax, NsysMax)
+
+C New variables for GVM implementation
+      double precision shift0(NSysMax), shift1(NSysMax)
+      double precision Numerator_eps, Denominator_eps
+      double precision sum_gamma_theta0, residual, residual_2
+      double precision sum_gamma_theta0_j
+      integer l_prime
+
+      integer iter
 C--------------------------------------------------------
+
 C Check if number of sources/data points change:
       ResetCommonSyst = (nsys.ne.nsys_sav) .or. (n0_in.ne.n0_in_sav)
       nsys_sav = nsys
@@ -1068,6 +1093,11 @@ C Get extra piece, from external systematics:
   !    A * Shift = C
   !
 
+C initialisation shifts:
+      do i=1,nsys
+         shift0(i) = 0.0D0
+         shift1(i) = 0.0D0
+      enddo
 
 C Reset the matricies:
       do i=1,nsys
@@ -1082,7 +1112,7 @@ C Penalty term, unity by default
 !$OMP PARALLEL DO
 
       do l=1,nsys
-         if ( SysForm(l) .eq. isNuisance ) then
+         if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
 C Start with "C"
 
             do i1=1,n_syst_meas(l)         ! loop over all data affected by this source
@@ -1128,7 +1158,7 @@ C Now A:
             do i=1,n0_in
                do k=l,NSys
 C
-               if ( (sysform(k) .eq. isNuisance ) ! ) then
+               if ( (SysForm(k) .eq. isNuisance .or. SysForm(k) .eq. isGVM ) ! ) then
      $              .and.HaveCommonData(k,l) ) then
 
 c                  do i1 = 1,n_syst_meas(k)
@@ -1206,136 +1236,294 @@ C Ready to invert
          endif
 
          do l=1,nsys
-            if ( Sysform(l) .eq. isNuisance) then
-               rsys_in(l) = - C(l)
-               if (iflag.eq.3) then
-                  ersys_in(l) = sqrt(A(l,l))
-               endif
+            shift0(l) = - C(l)
+         enddo
+      endif
+
+C Second iteration for isGVM sources
+
+      do iter = 1, n_iterations
+         shift1(l) = 0.0D0
+
+         do i=1,nsys
+            C(i) = 0.0D0
+            do j=1, nsys
+               A(i,j) = 0.0D0
+            enddo
+C Penalty term, unity by default
+            if ( SysForm(i) .eq. isGVM ) then
+               Numerator_eps = 1.0D0 + 2.0D0 * epsilon_value**2
+               Denominator_eps = ( 1.0D0 / SysPriorScale(i) ) + 2.0D0 * epsilon_value**2 * shift0(i)**2
+               A(i,i) = A(i,i) + (Numerator_eps) / ( Denominator_eps )
+            else
+               A(i,i)  =  SysPriorScale(i)
             endif
          enddo
 
+C Update A and C for isGVM sources
+C Only the diagonal elements of A and the vector C need updating for isGVM sources
+
+         do l=1,nsys
+            if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
+               do i1=1,n_syst_meas(l)         ! loop over all data affected by this source
+                  i = syst_meas_idx(i1,l)     ! i -> index of the data
+                  if (FitSample(i) ) then
+
+                     d_minus_t1 = daten(i) - theo(i) + ShiftExternal(i)
+
+C Compute sum_gamma_theta0 = sum over s' of ScaledGamma(s', i) * shift0(s')
+
+                     sum_gamma_theta0 = 0.0D0
+                     do l_prime =1,nsys
+                        if ( SysForm(l_prime) .eq. isNuisance .or. SysForm(l_prime) .eq. isGVM ) then
+                           sum_gamma_theta0 = sum_gamma_theta0 + ScaledGamma(l_prime,i)*shift0(l_prime)
+                        endif
+                     enddo
+
+                     residual = d_minus_t1 + sum_gamma_theta0
+
+                     if ( list_covar_inv(i) .eq. 0) then
+C Diagonal error:
+                        C(l) = C(l) +  ScaledErrors(i) *ScaledGamma(l,i)*( residual )
+                     else
+
+C Covariance matrix, need more complex sum:
+                        i2 = list_covar_inv(i)  ! i2 -> covar. matrix index for i.
+                        do j1=1,n_syst_meas(l)
+                           j = syst_meas_idx(j1,l) ! j -> index of the data
+                           if (j.ge.i) then
+                              if (FitSample(j)) then
+                                 d_minus_t2 = daten(j) - theo(j) + ShiftExternal(j)
+
+C sum over s' of ScaledGamma(s',j)*shift0(s')
+                                 sum_gamma_theta0_j = 0.0D0
+                                 do l_prime =1,nsys
+                                    if ( SysForm(l_prime) .eq. isNuisance .or. SysForm(l_prime) .eq. isGVM ) then
+                                       sum_gamma_theta0_j = sum_gamma_theta0_j + ScaledGamma(l_prime,j)*shift0(l_prime)
+                                    endif
+                                 enddo
+
+                                 residual_2 = d_minus_t2 + sum_gamma_theta0_j
+
+                                 j2 = list_covar_inv(j)
+                                 if (j2 .gt. 0) then
+                                    add =  ScaledTotMatrix(i2,j2) *
+     $                              ( ScaledGamma(l,i)*residual_2 + ScaledGamma(l,j)*residual )
+                                    if (i.ne.j) then
+                                       C(l) = C(l) + add
+                                    else
+                                       C(l) = C(l) + 0.5*add
+                                    endif
+                                 endif
+                              endif
+                           endif
+                        enddo
+                     endif
+                  endif
+               enddo
+               if ( SysForm(l) .eq. isGVM ) then
+                  C(l) = C(l) + shift0(l) * (Numerator_eps) / ( Denominator_eps )
+               endif
+               if ( SysForm(l) .eq. isNuisance ) then
+                  C(l) = C(l) + shift0(l) * SysPriorScale(l)
+               endif
+
+C Now A:
+
+               do i=1,n0_in
+                  do k=l,NSys
+                     if ( (SysForm(k) .eq. isNuisance .or. SysForm(k) .eq. isGVM ) .and.HaveCommonData(k,l) ) then
+c                       do i1 = 1,n_syst_meas(k)
+c                          i = syst_meas_idx(i1,k)  
+c
+                        if ( FitSample(i) ) then
+                           if (  list_covar_inv(i) .eq. 0) then
+C Diagonal error:
+                              A(k,l) = A(k,l) + ScaledErrors(i)*ScaledGamma(l,i)*ScaledGamma(k,i)
+                           else
+C Covariance matrix:
+                              i2 = list_covar_inv(i)
+
+                              do j1=1,n_syst_meas(l)
+                                 j = syst_meas_idx(j1,l)
+                                 if ( j.ge.i .and. FitSample(j) ) then
+                                    j2 = list_covar_inv(j)
+                                    if (j2 .gt. 0) then
+                                       add = ScaledTotMatrix(i2,j2)*
+     $                                  ( ScaledGamma(l,i)*ScaledGamma(k,j) +ScaledGamma(l,j)*ScaledGamma(k,i))
+                                       if ( i.ne.j) then
+                                          A(k,l) = A(k,l) + add
+                                       else
+                                          A(k,l) = A(k,l) + 0.5*add
+                                       endif
+                                    endif
+                                 endif
+                              enddo
+                           endif
+                        endif
+c                       enddo
+                     endif
+                  enddo
+               enddo
+            endif
+         enddo
+
+C No need to update A(k,l) off-diagonal elements; they remain the same
+
+C Ready to invert
+         if (nsys.gt.0) then
+
+            if (LDebug) then
+               print *,'DUMP of Syst. shifts matrix after GVM update'
+               do l=1,nsys
+                  print *,'l=',l,C(l)
+                  do k=1,nsys
+                     print *,l,k,A(l,k)
+                  enddo
+               enddo
+            endif
+
+            if (iflag.eq.3) then
+               Call DEQInv(Nsys,A,NsysMax,IR, IFail, 1, C)
+            else
+               Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
+            endif
+
+            do l=1,nsys
+               if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
+                  shift1(l) = - C(l)
+               endif
+            enddo
+
+         endif
+
+C Combine shifts
+         do l=1,nsys
+            if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
+               shift0(l) = shift0(l) + shift1(l)
+            endif
+         enddo
+      enddo
+
+C Final combine shifts
+      do l=1,nsys
+         if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
+            rsys_in(l) = shift0(l)
+            if (iflag.eq.3) then
+               ersys_in(l) = sqrt(A(l,l))
+            endif
+         endif
+      enddo
+
 C Also dump correlation matrix for PDF eigenvectors, if present
-         if (iflag.eq.3) then
+      if (iflag.eq.3) then
 
 C Loop over all sources, find theory sources, count them.
-            nsystheo = 0
-            do l=1,nsys
-               if ( ISystType(l) .eq. iTheorySyst) then
-                  nsystheo = nsystheo + 1
-                  itheoisys(nsystheo) = l  ! reference from "theory" index to "sys" index
+         nsystheo = 0
+         do l=1,nsys
+            if ( ISystType(l) .eq. iTheorySyst) then
+               nsystheo = nsystheo + 1
+               itheoisys(nsystheo) = l  ! reference from "theory" index to "sys" index
+            endif
+         enddo
+
+
+         if (nsystheo.gt.0) then
+
+            npdf = nsystheo
+
+            Allocate(AA(npdf,npdf))
+
+            open (52,file=trim(OutDirName)//'/pdf_shifts.dat',status='unknown')
+            write (52,'(''LHAPDF set='',A32)') trim(adjustl(LHAPDFSET))
+            write (52,'(i3)') npdf
+
+            do l=1,npdf
+               write (52,'(i3,2F8.4)') l, rsys_in(itheoisys(l)), ersys_in(itheoisys(l))
+            enddo
+            close (52)
+
+
+            open (52,file=trim(OutDirName)//'/pdf_vector_cor.dat',status='unknown')
+            write (52,'(i3)') nsys-nsysdata
+            do l=1,npdf
+               write (52,'(i3,200F8.4)')  l, (A(itheoisys(k),itheoisys(l))/ersys_in(itheoisys(k))/ersys_in(itheoisys(l)),k=1,npdf)
+               do k=1,npdf
+                  AA(k,l) = A(itheoisys(k),itheoisys(l))
+               enddo
+            enddo
+            close (52)
+
+C Also rotation matrix:
+            Call MyDSYEVD(Npdf,AA,Npdf,C,ifail)
+
+C scale to take into account error reduction
+            do i=1,Npdf
+               do j=1,Npdf
+                  AA(j,i) = AA(j,i)*sqrt(C(i))
+               enddo
+            enddo
+
+C We want to preserve original directions as much as possible
+
+            Allocate(RR(Npdf,Npdf))
+            Allocate(AA2(Npdf,Npdf))
+
+            do k=npdf,1,-1
+
+               do i=1,npdf
+                  do j=1,npdf
+                     RR(i,j) = 0.
+                     if (i.eq.j) then
+                        RR(i,j) = 1.
+                     endif
+
+                     RR(i,j) = RR(i,j) + AA(k,i)*AA(k,j)
+
+                  enddo
+               enddo
+
+
+               Call MyDSYEVD(k,RR,Npdf,C,ifail)
+C rotate rotation matrix:
+               do i=1,k
+                  do j=1,k
+                     AA2(i,j) = 0.
+                     do l=1,k
+                        AA2(i,j) = AA2(i,j) + AA(i,l)*RR(l,j)
+                     enddo
+                  enddo
+               enddo
+
+
+               do i=1,k
+                  do j=1,k
+                     AA(i,j) = AA2(i,j)
+                  enddo
+               enddo
+            enddo ! loop over k.
+
+C Last loop to keep the direction of the original vectors
+            do i=1,npdf
+               if (AA(i,i).lt.0) then
+                  do j=1,npdf
+                     AA(j,i) = -AA(j,i)
+                  enddo
                endif
             enddo
 
 
-            if (nsystheo.gt.0) then
-
-               npdf = nsystheo
-
-               Allocate(AA(npdf,npdf))
-
-               open (52,file=trim(OutDirName)//'/pdf_shifts.dat',
-     $              status='unknown')
-               write (52,'(''LHAPDF set='',A32)')
-     $              trim(adjustl(LHAPDFSET))
-               write (52,'(i3)') npdf
-
-               do l=1,npdf
-                  write (52,'(i3,2F8.4)') l,
-     $                 rsys_in(itheoisys(l)),
-     $                 ersys_in(itheoisys(l))
-               enddo
-               close (52)
-
-
-               open (52,file=trim(OutDirName)//'/pdf_vector_cor.dat'
-     $              ,status='unknown')
-               write (52,'(i3)') nsys-nsysdata
-               do l=1,npdf
-                  write (52,'(i3,200F8.4)')  l, (
-     $                 A(itheoisys(k),itheoisys(l))
-     $                 /ersys_in(itheoisys(k))
-     $                 /ersys_in(itheoisys(l)),
-     $                 k=1,npdf)
-                  do k=1,npdf
-                     AA(k,l) = A(itheoisys(k),itheoisys(l))
-                  enddo
-               enddo
-               close (52)
-
-C Also rotation matrix:
-               Call MyDSYEVD(Npdf,AA,Npdf,C,ifail)
-
-C scale to take into account error reduction
-               do i=1,Npdf
-                  do j=1,Npdf
-                     AA(j,i) = AA(j,i)*sqrt(C(i))
-                  enddo
-               enddo
-
-C We want to preserve original directions as much as possible
-
-               Allocate(RR(Npdf,Npdf))
-               Allocate(AA2(Npdf,Npdf))
-
-               do k=npdf,1,-1
-
-                  do i=1,npdf
-                     do j=1,npdf
-                        RR(i,j) = 0.
-                        if (i.eq.j) then
-                           RR(i,j) = 1.
-                        endif
-
-                        RR(i,j) = RR(i,j) + AA(k,i)*AA(k,j)
-
-                     enddo
-                  enddo
-
-
-                  Call MyDSYEVD(k,RR,Npdf,C,ifail)
-C rotate rotation matrix:
-                  do i=1,k
-                     do j=1,k
-                        AA2(i,j) = 0.
-                        do l=1,k
-                           AA2(i,j) = AA2(i,j) + AA(i,l)*RR(l,j)
-                        enddo
-                     enddo
-                  enddo
-
-
-                  do i=1,k
-                     do j=1,k
-                        AA(i,j) = AA2(i,j)
-                     enddo
-                  enddo
-               enddo ! loop over k.
-
-C Last loop to keep the direction of the original vectors
-               do i=1,npdf
-                  if (AA(i,i).lt.0) then
-                     do j=1,npdf
-                        AA(j,i) = -AA(j,i)
-                     enddo
-                  endif
-               enddo
-
-
-               open (52,file=trim(OutDirName)//'/pdf_rotate.dat'
-     $              ,status='unknown')
-               write (52,'(''LHAPDF set='',A32)')
-     $              trim(adjustl(LHAPDFSET))
-               write (52,'(i4)') Npdf
-               do i=1,Npdf
+            open (52,file=trim(OutDirName)//'/pdf_rotate.dat',status='unknown')
+            write (52,'(''LHAPDF set='',A32)') trim(adjustl(LHAPDFSET))
+            write (52,'(i4)') Npdf
+            do i=1,Npdf
 C                  print *,'haha',i,C(i),ifail
-                  write (52,'(i5,200F10.6)') i,
-     $                 (AA(j,i),j=1,Npdf)
-               enddo
-               close (52)
+               write (52,'(i5,200F10.6)') i, (AA(j,i),j=1,Npdf)
+            enddo
+            close (52)
 
-               DeAllocate(AA,AA2,RR)
+            DeAllocate(AA,AA2,RR)
 
-            endif
          endif
       endif
 C--------------------------------------------------------
@@ -1405,6 +1593,7 @@ C----------------------------------------------------------------------
 #include "theo.inc"
 #include "indata.inc"
 #include "steering.inc"
+#include "fcn.inc"
 
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledErrors(Ntot)  !1/d^2, where d is scaled uncorrelated uncertainty, for each datapoint
@@ -1412,6 +1601,7 @@ C----------------------------------------------------------------------
       double precision rsys_in(NSysMax)
       integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
       double precision fchi2_in, pchi2_in(nset), fcorchi2_in
+      double precision temp_val
 
       integer i,j, i1, j1, k
       double precision d,t, chi2, sum
@@ -1503,9 +1693,19 @@ c partial chisq are not reasonably defined
 
 C Correlated chi2 part:
       fcorchi2_in = 0.d0
-      do k=1,NSys
-         fcorchi2_in = fcorchi2_in
-     $        + rsys_in(k)**2 * SysPriorScale(k)
+      do k=1, NSys
+         if (SysForm(k) .eq. isGVM) then
+            temp_val = 2 * epsilon_value**2 * rsys_in(k)**2 * SysPriorScale(k)
+            fcorchi2_in = fcorchi2_in + (1 + 1.0D0 / (2 * epsilon_value**2)) * log(1 + temp_val)
+         endif
+         if (SysForm(k) .eq. isExternal) then
+            temp_val = 2 * epsilon_value**2 * rsys_in(k)**2 * SysPriorScale(k)
+            fcorchi2_in = fcorchi2_in + (1 + 1.0D0 / (2 * epsilon_value**2)) * log(1 + temp_val)
+         endif
+         if (SysForm(k) .eq. isNuisance) then
+            fcorchi2_in = fcorchi2_in + rsys_in(k)**2 * SysPriorScale(k)
+         endif
+
 C Also, store as residuals:
          residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
       enddo
