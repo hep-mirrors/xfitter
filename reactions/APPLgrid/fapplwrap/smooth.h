@@ -29,10 +29,10 @@ typedef std::vector<std::vector<double> > covariance_t;
 inline std::ostream& operator<<( std::ostream& s, const std::vector<double>& v ) {
   //  for ( size_t i=0 ; i<v.size() ; i++ ) s << "\t" << v[i];
   for ( size_t i=0 ; i<v.size() ; i++ ) {
-    double shite = v[i];
-    if ( shite>9999 )    shite = 1000*long(shite/1000); 
-    else shite = 0.0001*long(shite*1000);
-    s << "\t" << shite;
+    double shi = v[i];
+    if ( shi>9999 )    shi = 1000*long(shi*0.001); 
+    else shi = 0.001*long(shi*1000);
+    s << "\t" << shi;
   }
     
   return s;
@@ -47,6 +47,9 @@ inline std::ostream& operator<<( std::ostream& s, const std::vector<std::vector<
 
 
 inline covariance_t operator*( const covariance_t& m0,  const covariance_t& m1 ) {
+  /// no size checks here numbers of rows of first should match columns in 
+  /// the second and vice versa - here we just treat everything as square,
+  /// and don't even bother to check
   covariance_t m(m0.size(), std::vector<double>(m0.size(),0) );
   for ( size_t i=0 ; i<m0.size() ; i++ ) {
     for ( size_t j=0 ; j<m0.size() ; j++ ) {
@@ -66,36 +69,52 @@ inline std::vector<double> operator*( const std::vector<double>& v0,  const std:
 
 
 
-inline std::vector<double>  operator*( const covariance_t& m0,  const std::vector<double>& v0 ) {
-  std::vector<double>  m(v0.size(),0);
 
-  //  std::cout << "m0:\n" << m0 << "\nv0:\n" << v0 << std::endl;   
-  
-  for ( size_t i=0 ; i<m0.size() ; i++ ) {
-    for ( size_t k=0 ; k<v0.size() ; k++ ) {
-      m[i] += m0[i][k]*v0[k];
-      //      std::cout << i << " " << k << "\t" << m0[i][k] << " " << v0[k] << "\t=\t" << m0[i][k]*v0[k] << "\tm[" << i << "] " << m[i] << std::endl;
-    }
-    //    std::cout << "  ::" << i << " " << m[i] << std::endl; 
-  }  
-  return m;
-}
+std::vector<double>  operator*( const covariance_t& m0,  const std::vector<double>& v0 );
+
 
 template<typename T>
-inline std::vector<double> operator+( std::vector<T> v, const std::vector<T>& v1) {
+inline std::vector<double>& operator+=( std::vector<T> v, const std::vector<T>& v1) {
   if ( v.size()!=v1.size() ) throw std::exception(); // ("vector size mismatch");
   for ( size_t i=0 ; i<v.size() ; i++ ) v[i] += v1[i];
   return v;
 }
 
-#if 0
-inline covariance_t operator+( const covariance_t& v0,  const covariance_t & v1 ) {
+
+template<typename T>
+inline std::vector<double> operator+( const std::vector<T>& v0, const std::vector<T>& v1) {
   if ( v0.size()!=v1.size() ) throw std::exception(); // ("vector size mismatch");
-  covariance_t  v(v0.size(),std::vector<double>(v0.size()));
+  std::vector<T> v(v0.size());
+  for ( size_t i=0 ; i<v.size() ; i++ ) v[i] = v0[i] + v1[i];
+  return v;
+}
+
+
+
+template<typename T>
+inline std::vector<double> operator-( const std::vector<T>& v0, const std::vector<T>& v1) {
+  if ( v0.size()!=v1.size() ) throw std::exception(); // ("vector size mismatch");
+  std::vector<T> v(v0.size());
+  for ( size_t i=0 ; i<v.size() ; i++ ) v[i] = v0[i] - v1[i];
+  return v;
+}
+
+
+inline covariance_t operator+( const covariance_t& v0,  const covariance_t& v1 ) {
+  if ( v0.size()!=v1.size() ) throw std::exception(); // ("vector size mismatch");
+  covariance_t  v(v0.size(),std::vector<double>(v0.size(),0));
   for ( size_t i=0 ; i<v0.size() ; i++ ) v[i] = v0[i]+v1[i];
   return v;
 }
-#endif
+
+
+inline covariance_t operator-( const covariance_t& v0,  const covariance_t& v1 ) {
+  if ( v0.size()!=v1.size() ) throw std::exception(); // ("vector size mismatch");
+  covariance_t  v(v0.size(),std::vector<double>(v0.size(),0));
+  for ( size_t i=0 ; i<v0.size() ; i++ ) v[i] = v0[i]-v1[i];
+  return v;
+}
+
 
 inline covariance_t identity( const std::vector<double>& v ) {
   covariance_t m(v.size(), std::vector<double>(v.size(),0) );
@@ -152,22 +171,30 @@ public:
 
   smooth() { } 
   
-  smooth( appl::TH1D h, appl::TH1D hr, const std::string& label="" ) : m_h(h), m_hr(hr) {
+  smooth( const appl::TH1D& h, const appl::TH1D& hr, const std::string& label="" ) : m_h(h), m_hr(hr) {
 
     //    std::cout << "smooth: label: " << label << std::endl;
     
     int n = h.size();
 
     int kn = 15;
-      
+    
     while ( kn>(n/2+1) ) {
       kn = n/2;
       if ( kn%2 == 0 ) kn += 1;
     }
 
-
     int start=0;
 
+#if 0
+    for ( size_t i=1 ; i<hr.size() ; i++ ) {
+      if ( std::fabs(hr.y(i)/hr.y(i-1))>4 ) start = i;
+      else break;
+    }
+#endif
+    
+    std::cout << "smooth: start: " << start << std::endl; 
+    
     std::vector<double> w = gaussian( kn, 1001, fitscale );
 
     //    std::cout << w << std::endl;
@@ -176,21 +203,12 @@ public:
 
     hsmooth.clear();
     
-    
-    covariance_t   t( hsmooth.size(), std::vector<double>(hsmooth.size(),0) );
-    covariance_t  t2( hsmooth.size(), std::vector<double>(hsmooth.size(),0) );
-    covariance_t cov( hsmooth.size(), std::vector<double>(hsmooth.size(),0) );
-    covariance_t cor( hsmooth.size(), std::vector<double>(hsmooth.size(),0) );
-
-
-    if ( REF == &hr ) {
-
-      t  = T;
-      t2 = T2;
-      
-    }
-    else { 
-
+    covariance_t  t( n, std::vector<double>(n,0) );
+    covariance_t  t2( n, std::vector<double>(n,0) );
+    covariance_t cov( n, std::vector<double>(n,0) );
+    covariance_t cor( n, std::vector<double>(n,0) );
+	
+    {
       const double* p = &w[0]+kn/2;
       
       int lim = kn/2;
@@ -198,7 +216,7 @@ public:
       if ( start>0 ) {
 	for ( int i=0 ; i<start ; i++ ) t[i][i] = 1;
       }
-      
+
       for ( size_t i=start ; i<t.size() ; i++ ) {	
 	for ( int k=-lim ; k<=lim ; k++ ) {
 	  
@@ -206,17 +224,16 @@ public:
 	  
 #if 1
 	  if ( j<start ) j=start;
-	  if ( j>=t.size() ) j=t.size()-1;
+	  if ( j>=int(t.size()) ) j=t.size()-1;
 #else
 	  if ( j<0 ) j=i;
-	  if ( j>=t.size() ) j=i;
+	  if ( j>=int(t.size()) ) j=i;
 #endif
-	
+
 	  t[i][j] += p[k];
 	  
 	}
       }
-     
          
       for ( size_t i=0 ; i<t.size() ; i++ ) {
 	for ( size_t j=0 ; j<t[i].size() ; j++ ) t[i][j]  *= hr.y(i)/hr.y(j);
@@ -225,18 +242,17 @@ public:
       for ( size_t i=0 ; i<t.size() ; i++ ) {
 	for ( size_t j=0 ; j<t[i].size() ; j++ ) t2[i][j] = t[i][j]*t[i][j];
       }
-
-      T  = t;
-      T2 = t2;
-
-      REF = &hr;
-      
+           
     }
+
+    //    std::cout << "\n\ntransform: " << t << "\n" << std::endl;
     
     m_hsmoothed = hsmooth;
-    
+
+    m_t = t;
+
     std::vector<double> ye2 = h.ye()*h.ye();
-    
+
     std::vector<double> sm   = t*h.y();
     std::vector<double> sme2 = t2*ye2;
 
@@ -244,8 +260,8 @@ public:
     
     for ( size_t i=ye2.size() ; i-- ; ) sme2[i] = std::sqrt(sme2[i]);
 
-
     m_hsmoothed.y()  = sm;
+
     m_hsmoothed.ye() = sme2;
     
     //    std::cout << "t: " << t << std::endl;     
@@ -258,11 +274,9 @@ public:
       }
     }
 
-
     for ( size_t i=0 ; i<h.size() ; i++ ) { 
       for ( size_t j=0 ; j<h.size() ; j++ ) cor[i][j] = cov[i][j]/(h.ye(i)*h.ye(j));
     }
-
 
     m_k.clear();
     m_k.resize(m_h.size());
@@ -270,9 +284,9 @@ public:
     for ( size_t i=0 ; i<m_h.size() ; i++ ) {
       m_k[i] = m_hsmoothed.y(i)/m_h.y(i);
     }
-
-    m_cov = cov;
     
+    m_cov = cov;
+
 #if 0
     for ( size_t i=0 ; i<cov.size() ; i++ ) {
       std::cout << "\t" << i
@@ -300,7 +314,9 @@ public:
   const std::vector<double> k() const { return m_k; }
 
   covariance_t cov() const { return m_cov; }
-  
+
+  covariance_t transform() const { return m_t; }
+
 private:
 
   appl::TH1D m_h;
@@ -311,11 +327,8 @@ private:
   std::vector<double> m_k;
 
   covariance_t m_cov;
-  
- 
-  static appl::TH1D*  REF;
-  static covariance_t T;
-  static covariance_t T2;
+
+  covariance_t m_t;
 
 };
 

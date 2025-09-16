@@ -19,13 +19,6 @@
 
 #include "smooth.h"
 
-appl::TH1D*  smooth::REF = 0;
-covariance_t smooth::T   = covariance_t(); 
-covariance_t smooth::T2  = covariance_t(); 
-
-
-
-
 
 appl::TH1D* get_histogram( const std::string& filename ) {
 
@@ -64,6 +57,17 @@ appl::TH1D* get_histogram( const std::string& filename ) {
 
 
 
+std::vector<double>  operator*( const covariance_t& m0,  const std::vector<double>& v0 ) {
+  std::vector<double>  m(m0.size(),0);
+  for ( size_t i=0 ; i<m0.size() ; i++ ) {
+    if ( m0[i].size()!=v0.size() ) throw appl::grid::exception( "matrix and vector ranks do not match" );
+    for ( size_t k=0 ; k<v0.size() ; k++ ) {
+      m[i] += m0[i][k]*v0[k];
+    }
+  }
+
+  return m;
+}
 
 
 
@@ -117,7 +121,7 @@ std::vector<double> gaussian( int fullwidth, int n, double scale ) {
   w[0] += diff;
   w[w.size()-1] += diff;
   
-  double integral = 0;
+  //  double integral = 0;
   
   for ( size_t i=0 ; i<w.size() ; i++ ) {
 
@@ -127,7 +131,7 @@ std::vector<double> gaussian( int fullwidth, int n, double scale ) {
 
     w[i] *= 1/integral0;
 
-    integral += w[i];
+    //    integral += w[i];
   }
 
     

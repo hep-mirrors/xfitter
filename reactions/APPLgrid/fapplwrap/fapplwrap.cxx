@@ -74,7 +74,7 @@ extern "C" void sfullconvolutewrap_(const int& id, double* data, double* dataerr
       data[i]    = v->y(i);
       dataerr[i] = v->ye(i);
     }
-    delete v;
+    // delete v;
   }
   else throw_exception( "No grid with id ", id );  
 }
@@ -102,7 +102,7 @@ extern "C" void sconvolute_covariancewrap_(const int& id, double* data, double* 
       data[i]    = v->y(i);
       dataerr[i] = v->ye(i);
     }
-    delete v;
+    // delete v;
   }
   else throw_exception( "No grid with id ", id );  
 }

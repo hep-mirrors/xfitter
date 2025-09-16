@@ -16,6 +16,13 @@
 #include "smooth.h"
 
 
+
+
+bool applwrap::m_fastsmooth = true;
+int  applwrap::m_ratiobase = 0;
+
+
+
 template<typename T>
 std::vector<T> operator*( const std::vector<T>& v0, const std::vector<T>& v1 ) {
 
@@ -56,11 +63,11 @@ void print_covariance( const covariance_t&  c, const std::vector<double>& v) {
 }
 
 
-void print_covariance( const covariance_t&  c ) {
+void print_covariance( const covariance_t&  c ) {  
   for ( size_t i=0 ; i<10 && i<c.size() ; i++ ) { 
     for ( size_t j=0 ; j<10 && j<c.size() ; j++ ) { 
-      if ( std::fabs(c[i][j])<1e-20 ) printf("     ---");
-      else                            printf("  %6lf",c[i][j]);
+      if ( std::fabs(c[i][j])<1e-20 ) std::printf("      ---");
+      else                            printf("   %6lf", c[i][j] );
     }
     if ( c.size()>10 ) printf("     ...");
     printf("\n");
@@ -83,79 +90,113 @@ appl::TH1D* applwrap::sconvolute(void (*pdf1)(const double& , const double&, dou
   appl::TH1D* xs[3];  /// convolutions order by order
   appl::TH1D* xr[3];  /// references order by order
   
-  std::vector<std::vector<double>  > cov = mg->getCovariance();
+  //  std::vector<std::vector<double>  > transform = mg->getCovariance();
+  covariance_t transform = mg->getCovariance();
 
-  if ( nloops!=mg->nloops() ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
+  std::cout << "convolute size: " << transform.size() << std::endl;
+  std::cout << "convolute size: " << mg->getReference()->size() << std::endl;
   
-  if ( cov.size() == 0 )    return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
+  if ( nloops!=mg->nloops() ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
 
-  /// perform the convolutions order by order
+  if ( transform.size() == 0 )    return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
+
+  /// check that we have order-by-order references ...
   
   for ( int iloops=mg->nloops()+1 ; iloops-- ; ) {
+    xr[iloops] = mg->getReference(iloops);
+    if ( xr[iloops]->size()==0 ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
+  }
 
+  /// perform the convolutions order by order
+
+  for ( int iloops=mg->nloops()+1 ; iloops-- ; ) {
+    
     xs[iloops] = mg->aconvolute( pdf1, pdf2, alphas, -1*iloops, rscale, fscale, escale );
 
-    xr[iloops] = mg->getReference(iloops);
-    
     std::vector<double> ye = xs[iloops]->y()*xr[iloops]->ye()/xr[iloops]->y();
-      
+
     xs[iloops]->ye() = ye;
     
   }
   
   /// smooth the nnlo component with the kernel stored in the
   /// covariance matrix
-  
-  appl::TH1D xsum = *xs[0] + *xs[1] + *xs[2];
 
-  smooth sm( *xs[2], *xs[0] );
+
+  appl::TH1D xsum = *xs[0];
+
+  for ( int i=1 ; i<mg->nloops()+1 ; i++ ) xsum += *xs[i];
+
+  appl::TH1D cs = *xs[2];
+
+  /// covariance ???
+
+  covariance_t   scov( cs.size(), std::vector<double>( cs.size(), 0 ) );
+
+  if ( m_fastsmooth ) { 
+
+    /// use the smoothing trasform encoded in the grid ...
+    
+    /// smooth the NNLO component ...
+    
+    cs.y() = transform*xs[2]->y();
+
+    /// calculate the covariance ...
+    
+    for ( size_t i=0 ; i<cs.size() ; i++ ) { 
+      for ( size_t j=0 ; j<cs.size() ; j++ ) { 
+	for ( size_t k=0 ; k<cs.size() ; k++ ) scov[i][j] += transform[i][k]*transform[j][k]*cs.ye(k)*cs.ye(k);
+      }
+    }
+    
+  }
+  else { 
+
+    /// generate the smoothing trasform and smooth the grid ...
+
+    /// use just the LO component ...
+    smooth sm;
+
+    /// rather than the LO+NLO component, which is usually less smooth 
+    if      ( ratiobase()==0 ) sm = smooth( *xs[2],  *xs[0] );
+    else if ( ratiobase()==1 ) sm = smooth( *xs[2], (*xs[0])+(*xs[1]) ); 
+    else std::cerr << "Incorrect smoothing base ratio" << std::endl;
+    
+    /// get the smoothed output ...
+    
+    cs = sm;
+
+    /// and the covariance
+    
+    scov = sm.cov();
+
+    /// store in the grid if required ...
+    
+    covariance_t trans = sm.transform();
+
+    mg->getCovariance() = trans;
+    
+  }
 
   appl::TH1D* sxsum = new appl::TH1D();
-  
-  *sxsum = sm;  /// smoothed NNLO component
-  
+
+  *sxsum = cs;  /// smoothed NNLO component
+
   *sxsum += *xs[0] + *xs[1]; /// add the LO and NLO
-
-  /// cobvariance ???
-
-#if 0  
-  std::cout << *sxsum << std::endl;
-
-  for ( size_t i=sxsum->size() ; i-- ; ) {
-    std::cout << "sxsum2 " << i << "\t" << (sxsum->y(i)*sxsum->y(i)) << std::endl;
-  }
-#endif
   
-  m_covariance = sm.cov();
-
-  covariance_t& scov = m_covariance;
-
   //  print_covariance(scov);
   
   //  print_covariance(scov, sxsum->ye());
+  
+  /// add the LO and NLO diagonal components ...
 
   for ( size_t i=scov.size() ; i-- ; ) {
     scov[i][i] += xs[0]->ye(i)*xs[0]->ye(i) + xs[1]->ye(i)*xs[1]->ye(i);
+    sxsum->ye(i) = std::sqrt(scov[i][i]);
   }
 
-  //  print_covariance(scov, sxsum->ye());
+  m_scovariance = scov;
 
-  
-#if 0
-  appl::TH1D* ref = mg->getReference();
-
-  /// these are the scaled uncertainties for the nominal convolution
-  /// do not need to be computed her as they are never actually used
-   
-  for ( size_t i=0 ; i<ref->size() ; i++ ) {
-
-    double er = ref->ye(i)/ref->y(i);
-
-    xsum.ye(i) = er * xsum.y(i);
-    
-  }  
-#endif
-  
   return sxsum; 
 }
 

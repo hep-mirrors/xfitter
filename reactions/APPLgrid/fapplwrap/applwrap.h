@@ -45,7 +45,7 @@ public:
   applwrap( appl::grid& g ) : mmanage(false), mg(&g) { }
 
   applwrap( const std::string& s ) : mmanage(true) {
-    std::cout << "applwrap: creating new grid: " << s << std::endl; 
+    std::cout << "applwrap: reading new grid: " << s << std::endl; 
     mg = new appl::grid(s);
   }
     
@@ -74,22 +74,33 @@ public:
   appl::TH1D* aconvolute(void (*pdf)(const double& , const double&, double* ), double (*alphas)(const double& ) ) { 
     appl::TH1D* h  = mg->aconvolute( pdf, alphas );
     appl::TH1D* hr = mg->getReference();
-    for ( int i=0 ; i<h->size() ; i++ ) h->ye(i) = hr->ye(i)*h->y(i)/hr->y(i);
+    for ( size_t i=0 ; i<h->size() ; i++ ) h->ye(i) = hr->ye(i)*h->y(i)/hr->y(i);
     return h;
   }
   
   
   appl::grid* g() { return mg; }
 
-  covariance_t covariance() const { return m_covariance; }
-  
+  covariance_t covariance() const { return m_scovariance; }
+
+protected:  
+
+  static bool& fastsmooth() { return m_fastsmooth; }
+  static void  fastsmooth(bool b) { m_fastsmooth = b; }
+
+  static int   ratiobase()        { return m_ratiobase; }
+  static void  ratiobase( int i ) { m_ratiobase=i; }
+ 
 private:
 
   bool mmanage;
 
   appl::grid* mg;
 
-  covariance_t m_covariance;
+  covariance_t m_scovariance;
+
+  static bool  m_fastsmooth;
+  static int   m_ratiobase;
   
 };
 
