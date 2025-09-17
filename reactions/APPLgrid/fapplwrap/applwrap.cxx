@@ -92,9 +92,6 @@ appl::TH1D* applwrap::sconvolute(void (*pdf1)(const double& , const double&, dou
   
   //  std::vector<std::vector<double>  > transform = mg->getCovariance();
   covariance_t transform = mg->getCovariance();
-
-  std::cout << "convolute size: " << transform.size() << std::endl;
-  std::cout << "convolute size: " << mg->getReference()->size() << std::endl;
   
   if ( nloops!=mg->nloops() ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
 
