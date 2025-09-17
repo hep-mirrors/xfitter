@@ -420,7 +420,7 @@ else
         cd hoppet-master
 
 	## TEMPORARY FIX
-	git checkout 2025-05-new-mass-thresholds
+	git checkout 2024-05-flavour-decomposed-SF
     else
         echo "ERROR: HOPPET version $hoppetver not supported"
         exit
