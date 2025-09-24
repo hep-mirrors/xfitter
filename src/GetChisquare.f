@@ -1243,7 +1243,9 @@ C Ready to invert
 C Second iteration for isGVM sources
 
       do iter = 1, n_iterations
-         shift1(l) = 0.0D0
+         do i=1,nsys
+            shift1(i) = 0.0D0
+         enddo
 
          do i=1,nsys
             C(i) = 0.0D0
@@ -1262,6 +1264,8 @@ C Penalty term, unity by default
 
 C Update A and C for isGVM sources
 C Only the diagonal elements of A and the vector C need updating for isGVM sources
+
+!$OMP PARALLEL DO
 
          do l=1,nsys
             if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
@@ -1322,6 +1326,8 @@ C sum over s' of ScaledGamma(s',j)*shift0(s')
                   endif
                enddo
                if ( SysForm(l) .eq. isGVM ) then
+                  Numerator_eps   = 1.0D0 + 2.0D0 * epsilon_value**2
+                  Denominator_eps = ( 1.0D0 / SysPriorScale(l) ) + 2.0D0 * epsilon_value**2 * shift0(l)**2
                   C(l) = C(l) + shift0(l) * (Numerator_eps) / ( Denominator_eps )
                endif
                if ( SysForm(l) .eq. isNuisance ) then
@@ -1368,7 +1374,14 @@ c                       enddo
             endif
          enddo
 
-C No need to update A(k,l) off-diagonal elements; they remain the same
+!$OMP END PARALLEL DO
+
+C Update A diagonal
+         do l=1,nsys
+            do k=1,l-1
+               A(k,l) = A(l,k)
+            enddo
+         enddo
 
 C Ready to invert
          if (nsys.gt.0) then
