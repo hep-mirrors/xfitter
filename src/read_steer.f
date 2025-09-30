@@ -131,6 +131,14 @@ C
          System(i) = ' '
       enddo
 
+C E-on-E defaults
+      EoEEnabled       = .false.
+      EoE_n_iterations = 2
+      do i=1,NSYS
+         EoEActive(i)  = .false.
+         EoEEpsilon(i) = 0.0D0
+      enddo
+
 C Check variables for common blocks:
       steering_check = 171717
       call common_check(steering_check)
@@ -164,8 +172,7 @@ C Main steering parameters namelist
      $     Chi2MaxError, iDH_MOD, 
      $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate, UseDataSetIndex,
-     $     epsilon_value, n_iterations
+     $     AsymErrorsIterations, pdfRotate, UseDataSetIndex
 
 C--------------------------------------------------------------
 
@@ -176,9 +183,6 @@ C     Some defaults
          Chi2ExtraParam(i) = 'undefined'
       enddo
       AsymErrorsIterations = 0
-
-      epsilon_value = 0.2D0
-      n_iterations = 4
 
 C
 C  Read the main xFitter namelist:
@@ -872,10 +876,23 @@ C Also add it to c++ map ...
 
       end
 
-
 C-----------------------------------------
 C
 !> Read optional systematics namelist
+!> Also handles Errors-on-Errors (EoE) via optional Epsilon vector.
+!>
+!> Usage in steering.txt:
+!>   &Systematics
+!>     ListOfSources = 'lum:N','jes:N:O','pdf:T:N'
+!>     Epsilon       = 0.02, 0.0, 0.05    ! (positional) 0.0 = disabled
+!>     EoE_n_iterations = 3               ! (optional, defaults from Set_Defaults)
+!>   /
+!>
+!> Notes:
+!>   - If Epsilon not provided: behave as if EoE absent (all disabled).
+!>   - If a single scalar Epsilon is provided: broadcast to all sources.
+!>   - If a list is provided: length must equal number of sources.
+!>   - Exactly zero means “no EoE for that source”.
 C
 C-----------------------------------------
       Subroutine read_systematicsnml
@@ -884,26 +901,36 @@ C-----------------------------------------
 #include "ntot.inc"
 #include "systematics.inc"
 #include "steering.inc"
+
       character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax),
      $     PriorScaleName(nsysmax)
       double precision ScaleByNameFactor(nsysmax),
      $     PriorScaleFactor(nsysmax)
 
-      namelist/ Systematics/ListOfSources,ScaleByNameName
+C --- EoE inputs (new)
+      double precision Epsilon(nsysmax)
+      integer          EoE_n_iterations_in
+      integer          n_iterations   ! synonym for backward-compat (optional)
+
+      namelist/ Systematics/ ListOfSources,ScaleByNameName
      $     ,ScaleByNameFactor, PriorScaleName, PriorScaleFactor
-      integer i,ii,iType
+     $     ,Epsilon, EoE_n_iterations, n_iterations
+
+      integer i,ii,ns,neps
+      logical any_active
 C----------------------------------------
 
 C Initialisation:
       nsys = 0
       do i=1,nsysmax
          SysScaleFactor(i) = 1.0D0
-         ListOfSources(i) = ' '
-         ScaleByNameName(i) = ' '
+         ListOfSources(i)  = ' '
+         ScaleByNameName(i)= ' '
          PriorScaleName(i) = ' '
-         PriorScaleFactor(i) = 1.0D0
-         SysPriorScale(i) = 1.0D0
-! Set default scaling behaviour:
+         PriorScaleFactor(i)= 1.0D0
+         SysPriorScale(i)  = 1.0D0
+
+C Default scaling behaviour from global style:
          if (CorSysScale .eq. 'Linear' ) then
             SysScalingType(i)  =  isLinear
          else if (CorSysScale .eq. 'NoRescale') then
@@ -917,31 +944,32 @@ C Initialisation:
          else
             print *,'Unknown correlated systematics scaling behaviour'
             print *,'CorSysScale=',CorSysScale
-            print *,'Check your steering'
             call hf_errlog(25112012,
      $           'F:Wrong CorSysScale value from the steering')
             call hf_stop
          endif
 
-   !  Set nuisance parameter behaviour:
+C Default chi2 form for correlated systematics:
          if (CorChi2Type .eq. 'Hessian') then
-            SysForm(i)         =  isNuisance
-         elseif (CorChi2Type .eq. 'GVM') then
-            SysForm(i) = isGVM
+            SysForm(i) =  isNuisance
          elseif (CorChi2Type .eq. 'Offset') then
-            SysForm(i)         =  isOffset
+            SysForm(i) =  isOffset
          elseif (CorChi2Type .eq. 'Matrix') then
-            SysForm(i)         =  isMatrix
+            SysForm(i) =  isMatrix
          else
-            print *,'Unknown correlated systatics treatment'
+            print *,'Unknown correlated systematic treatment'
             print *,'CorChi2Type=',CorChi2Type
-            print *,'Check your steering'
             call hf_errlog(251120123,
      $           'F:Wrong CorChi2Type value from the steering')
             call hf_stop
          endif
 
+C EoE local inputs: mark "unset"
+         Epsilon(i) = -1.0D99
       enddo
+
+      EoE_n_iterations_in = -999
+      n_iterations        = -999
 
       open (51,file='steering.txt',status='old')
       read (51,NML=Systematics,END=123,ERR=124)
@@ -949,18 +977,18 @@ C Initialisation:
       if (LDebug) then
          print Systematics
       endif
+
 C----
-C Decode:
-C
+C Decode the list of sources (builds System(:) and NSys)
       do i=1,nsysmax
          if (ListOfSources(i).ne.' ') then
             Call AddSystematics(ListOfSources(i))
          else
-            goto 77
+            exit
          endif
       enddo
- 77   continue
 
+C Apply per-name scale factors and priors
       do i=1,nsysmax
          if (ScaleByNameName(i).ne.' ') then
             do ii=1,nsys
@@ -977,6 +1005,81 @@ C
             enddo
          endif
       enddo
+
+C======================================================
+C                 Errors-on-Errors (EoE)
+C======================================================
+      ns   = nsys
+      neps = 0
+      do i=1,ns
+         if (Epsilon(i) .gt. -1.0D98) neps = neps + 1
+      enddo
+
+C Reset all EoE state first
+      do i=1,NSysMax
+         EoEActive(i)  = .false.
+         EoEEpsilon(i) = 0.0D0
+      enddo
+      EoEEnabled = .false.
+
+      if (neps.eq.0) then
+C No Epsilon provided -> behave as if EoE absent
+         continue
+
+      else if (neps.eq.1) then
+C Single scalar -> broadcast
+         do i=1,ns
+            EoEEpsilon(i) = Epsilon(1)
+            if (EoEEpsilon(i) .gt. 0.0D0) EoEActive(i) = .true.
+         enddo
+
+      else if (neps.eq.ns) then
+C Positional vector -> one per source
+         do i=1,ns
+            if (Epsilon(i) .gt. -1.0D98) then
+               EoEEpsilon(i) = max(Epsilon(i), 0.0D0)
+               EoEActive(i)  = (EoEEpsilon(i) .gt. 0.0D0)
+            endif
+         enddo
+
+      else
+C Mismatch
+         call hf_errlog(29092501,
+     $ 'F: Systematics/Epsilon must be a scalar or length(NSources)')
+         call hf_stop
+      endif
+
+C Enable globally if at least one active
+      any_active = .false.
+      do i=1,ns
+         if (EoEActive(i)) then
+            any_active = .true.
+            exit
+         endif
+      enddo
+      EoEEnabled = any_active
+
+C Optional override of iteration count
+      if (EoE_n_iterations_in .ge. 0) then
+         EoE_n_iterations = EoE_n_iterations_in
+      elseif (n_iterations .ge. 0) then
+C accept synonym "n_iterations" if user prefers
+         EoE_n_iterations = n_iterations
+      endif
+      if (EoE_n_iterations .lt. 0) then
+         call hf_errlog(29092502,'F: EoE_n_iterations must be >= 0')
+         call hf_stop
+      endif
+
+      if (LDebug) then
+         if (EoEEnabled) then
+            write (*,'(A,I4,A)') 'EoE enabled for ',ns,' sources (some may be zeroed).'
+            write (*,'(A,1X,I0)') 'EoE_n_iterations =', EoE_n_iterations
+         else
+            write (*,'(A)') 'EoE disabled (no positive Epsilon provided).'
+         endif
+      endif
+
  90   continue
 
  123  Continue
@@ -1178,8 +1281,6 @@ C
             SysScalingType(nsys) = isPoisson
          elseif ( SourceName(ii+1:ii+1) .eq.'N' ) then
             SysForm(nsys) = isNuisance
-         elseif ( SourceName(ii+1:ii+1) .eq.'G' ) then
-            SysForm(nsys) = isGVM
          elseif ( SourceName(ii+1:ii+1) .eq.'C' ) then
             SysForm(nsys) = isMatrix
          elseif ( SourceName(ii+1:ii+1) .eq.'O' ) then

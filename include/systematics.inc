@@ -35,12 +35,11 @@
       integer SysScalingType(nsysmax)      !> Store scaling behaviour              
       
       !> Type, form: 
-      integer isNuisance, isMatrix, isOffset, isExternal, isGVM   !> Store type
+      integer isNuisance, isMatrix, isOffset, isExternal, isTNuisance, isTExternal   !> Store type
       parameter (isNuisance = 1)
       parameter (isMatrix   = 2)
       parameter (isOffset   = 3)
-      parameter (isExternal = 4)        !> Use minuit to propagate
-      parameter (isGVM = 5)
+      parameter (isExternal = 4)
 
       integer SysForm(nsysmax)
 
@@ -83,3 +82,12 @@ C Keep track of data and theory systematics:
 C Penalty term for systematic sources, 1 by default.
       double precision     SysPriorScale(nsysmax)
       common/CSystPrior/SysPriorScale
+
+C  Errors-on-Errors settings
+      logical          EoEEnabled
+      integer          EoE_n_iterations
+      logical          EoEActive(NSYSMAX)
+      double precision EoEEpsilon(NSYSMAX)
+
+      common/CEonE/ EoEEnabled, EoE_n_iterations, EoEActive, EoEEpsilon
+

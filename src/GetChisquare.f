@@ -274,23 +274,22 @@ C------------------------------------------------------------------
       subroutine Init_Chi2_calc(doMatrix, doNuisance, doExternal)
 
       implicit none
-      logical doMatrix, doNuisance, doExternal, doGVM
+      logical doMatrix, doNuisance, doExternal, doTNuisance, doTExternal
       ! logical doOffset
 #include "ntot.inc"
 #include "systematics.inc"
-      integer k, n_m, n_n, n_e, n_o, n_g
+      integer k, n_m, n_n, n_e, n_o, n_eoe
       character*64 Msg
 C----------------------
       doMatrix   = .false.
       doNuisance = .false.
       doExternal = .false.
       doOffset = .false.
-      doGVM = .false.
       n_m = 0
       n_n = 0
       n_e = 0
       n_o = 0
-      n_g = 0
+      n_eoe = 0
       do k=1,nsys
          if ( SysForm(k) .eq. isMatrix) then
             doMatrix = .true.
@@ -316,9 +315,10 @@ C----------------------
             doOffset = .true.
             n_o = n_o + 1
          endif
-         if ( SysForm(k) .eq. isGVM) then
-            doGVM = .true.
-            n_g = n_g + 1
+
+C Count EoE-activated sources (overlay)
+         if (EoEEnabled .and. EoEActive(k)) then
+            n_eoe = n_eoe + 1
          endif
 
       enddo
@@ -337,10 +337,10 @@ C
         call HF_errlog(271120123,Msg)
       endif
 
-      if (doGVM ) then
+      if (n_eoe .gt. 0) then
          write (Msg,
-     $  '(''I: Use hessian method with GVM constraints for'',i4,'' sources'')') n_n
-        call HF_errlog(271120123,Msg)
+     $  '(''I: EoE (log) constraints active for'',i4,'' sources'')') n_eoe
+         call HF_errlog(25092521,Msg)
       endif
 
       if (doOffset) then
@@ -734,7 +734,7 @@ C
          if (Chi2ExtraSystRescale .and. Iterate.eq.0) then
 C Re-scale for systematic shifts:
             do j=1,NSYS
-               if ( (SysForm(j) .eq. isNuisance .or. SysForm(j) .eq. isGVM .or. SysForm(j) .eq. isExternal)
+               if ( (SysForm(j) .eq. isNuisance .or. SysForm(j) .eq. isExternal)
      $              .and. (SysScalingType(j) .eq. isLinear ) ) then
                   Sum = Sum - beta(j,i)*rsys_in(j)
                endif
@@ -1112,7 +1112,7 @@ C Penalty term, unity by default
 !$OMP PARALLEL DO
 
       do l=1,nsys
-         if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
+         if ( SysForm(l) .eq. isNuisance ) then
 C Start with "C"
 
             do i1=1,n_syst_meas(l)         ! loop over all data affected by this source
@@ -1158,7 +1158,7 @@ C Now A:
             do i=1,n0_in
                do k=l,NSys
 C
-               if ( (SysForm(k) .eq. isNuisance .or. SysForm(k) .eq. isGVM ) ! ) then
+               if ( (SysForm(k) .eq. isNuisance ) ! ) then
      $              .and.HaveCommonData(k,l) ) then
 
 c                  do i1 = 1,n_syst_meas(k)
@@ -1240,187 +1240,183 @@ C Ready to invert
          enddo
       endif
 
-C Second iteration for isGVM sources
+C EoE (errors-on-errors) iterations for nuisance sources
+      if (EoEEnabled) then
+         do iter = 1, EoE_n_iterations
 
-      do iter = 1, n_iterations
-         do i=1,nsys
-            shift1(i) = 0.0D0
-         enddo
-
-         do i=1,nsys
-            C(i) = 0.0D0
-            do j=1, nsys
-               A(i,j) = 0.0D0
+C reset incremental shifts
+            do i=1,nsys
+               shift1(i) = 0.0D0
             enddo
-C Penalty term, unity by default
-            if ( SysForm(i) .eq. isGVM ) then
-               Numerator_eps = 1.0D0 + 2.0D0 * epsilon_value**2
-               Denominator_eps = ( 1.0D0 / SysPriorScale(i) ) + 2.0D0 * epsilon_value**2 * shift0(i)**2
-               A(i,i) = A(i,i) + (Numerator_eps) / ( Denominator_eps )
-            else
-               A(i,i)  =  SysPriorScale(i)
-            endif
-         enddo
 
-C Update A and C for isGVM sources
-C Only the diagonal elements of A and the vector C need updating for isGVM sources
+C rebuild A and C; diagonal = prior
+            do i=1,nsys
+               C(i) = 0.0D0
+               do j=1, nsys
+                  A(i,j) = 0.0D0
+               enddo
+C quadratic prior by default; switch to EoE log prior if active (nuisance only)
+               if ( SysForm(i) .eq. isNuisance ) then
+                  if (EoEActive(i)) then
+                     Numerator_eps   = 1.0D0 + 2.0D0 * EoEEpsilon(i)**2
+                     Denominator_eps = ( 1.0D0 / SysPriorScale(i) )
+     $                                 + 2.0D0 * EoEEpsilon(i)**2 * shift0(i)**2
+                     A(i,i) = A(i,i) + (Numerator_eps) / (Denominator_eps)
+                  else
+                     A(i,i) = A(i,i) + SysPriorScale(i)
+                  endif
+               else
+C external, matrix, offset, etc. keep quadratic prior on the diagonal
+                  A(i,i) = A(i,i) + SysPriorScale(i)
+               endif
+            enddo
 
 !$OMP PARALLEL DO
+            do l=1,nsys
+               if ( SysForm(l) .eq. isNuisance ) then
+C build C(l) from residuals
+                  do i1=1,n_syst_meas(l)
+                     i = syst_meas_idx(i1,l)
+                     if (FitSample(i)) then
+                        d_minus_t1 = daten(i) - theo(i) + ShiftExternal(i)
 
-         do l=1,nsys
-            if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
-               do i1=1,n_syst_meas(l)         ! loop over all data affected by this source
-                  i = syst_meas_idx(i1,l)     ! i -> index of the data
-                  if (FitSample(i) ) then
+C sum_{s'} Gamma(s',i) * shift0(s') over nuisance sources
+                        sum_gamma_theta0 = 0.0D0
+                        do l_prime = 1, nsys
+                           if ( SysForm(l_prime) .eq. isNuisance ) then
+                              sum_gamma_theta0 = sum_gamma_theta0
+     $                           + ScaledGamma(l_prime,i)*shift0(l_prime)
+                           endif
+                        enddo
+                        residual = d_minus_t1 + sum_gamma_theta0
 
-                     d_minus_t1 = daten(i) - theo(i) + ShiftExternal(i)
-
-C Compute sum_gamma_theta0 = sum over s' of ScaledGamma(s', i) * shift0(s')
-
-                     sum_gamma_theta0 = 0.0D0
-                     do l_prime =1,nsys
-                        if ( SysForm(l_prime) .eq. isNuisance .or. SysForm(l_prime) .eq. isGVM ) then
-                           sum_gamma_theta0 = sum_gamma_theta0 + ScaledGamma(l_prime,i)*shift0(l_prime)
-                        endif
-                     enddo
-
-                     residual = d_minus_t1 + sum_gamma_theta0
-
-                     if ( list_covar_inv(i) .eq. 0) then
-C Diagonal error:
-                        C(l) = C(l) +  ScaledErrors(i) *ScaledGamma(l,i)*( residual )
-                     else
-
-C Covariance matrix, need more complex sum:
-                        i2 = list_covar_inv(i)  ! i2 -> covar. matrix index for i.
-                        do j1=1,n_syst_meas(l)
-                           j = syst_meas_idx(j1,l) ! j -> index of the data
-                           if (j.ge.i) then
-                              if (FitSample(j)) then
+                        if ( list_covar_inv(i) .eq. 0 ) then
+C diagonal case
+                           C(l) = C(l) + ScaledErrors(i)*ScaledGamma(l,i)*residual
+                        else
+C covariance case
+                           i2 = list_covar_inv(i)
+                           do j1=1,n_syst_meas(l)
+                              j = syst_meas_idx(j1,l)
+                              if ( j.ge.i .and. FitSample(j) ) then
                                  d_minus_t2 = daten(j) - theo(j) + ShiftExternal(j)
 
-C sum over s' of ScaledGamma(s',j)*shift0(s')
                                  sum_gamma_theta0_j = 0.0D0
-                                 do l_prime =1,nsys
-                                    if ( SysForm(l_prime) .eq. isNuisance .or. SysForm(l_prime) .eq. isGVM ) then
-                                       sum_gamma_theta0_j = sum_gamma_theta0_j + ScaledGamma(l_prime,j)*shift0(l_prime)
+                                 do l_prime = 1, nsys
+                                    if ( SysForm(l_prime) .eq. isNuisance ) then
+                                       sum_gamma_theta0_j = sum_gamma_theta0_j
+     $                                    + ScaledGamma(l_prime,j)*shift0(l_prime)
                                     endif
                                  enddo
-
                                  residual_2 = d_minus_t2 + sum_gamma_theta0_j
 
                                  j2 = list_covar_inv(j)
                                  if (j2 .gt. 0) then
-                                    add =  ScaledTotMatrix(i2,j2) *
-     $                              ( ScaledGamma(l,i)*residual_2 + ScaledGamma(l,j)*residual )
+                                    add = ScaledTotMatrix(i2,j2) *
+     $                                    ( ScaledGamma(l,i)*residual_2
+     $                                    + ScaledGamma(l,j)*residual )
                                     if (i.ne.j) then
                                        C(l) = C(l) + add
                                     else
-                                       C(l) = C(l) + 0.5*add
+                                       C(l) = C(l) + 0.5D0*add
                                     endif
                                  endif
                               endif
-                           endif
-                        enddo
+                           enddo
+                        endif
                      endif
+                  enddo
+
+C add prior contribution to C(l): quadratic or EoE log
+                  if (EoEActive(l)) then
+                     Numerator_eps   = 1.0D0 + 2.0D0 * EoEEpsilon(l)**2
+                     Denominator_eps = ( 1.0D0 / SysPriorScale(l) )
+     $                                 + 2.0D0 * EoEEpsilon(l)**2 * shift0(l)**2
+                     C(l) = C(l) + shift0(l) * (Numerator_eps) / (Denominator_eps)
+                  else
+                     C(l) = C(l) + shift0(l) * SysPriorScale(l)
                   endif
-               enddo
-               if ( SysForm(l) .eq. isGVM ) then
-                  Numerator_eps   = 1.0D0 + 2.0D0 * epsilon_value**2
-                  Denominator_eps = ( 1.0D0 / SysPriorScale(l) ) + 2.0D0 * epsilon_value**2 * shift0(l)**2
-                  C(l) = C(l) + shift0(l) * (Numerator_eps) / ( Denominator_eps )
-               endif
-               if ( SysForm(l) .eq. isNuisance ) then
-                  C(l) = C(l) + shift0(l) * SysPriorScale(l)
-               endif
 
-C Now A:
-
-               do i=1,n0_in
-                  do k=l,NSys
-                     if ( (SysForm(k) .eq. isNuisance .or. SysForm(k) .eq. isGVM ) .and.HaveCommonData(k,l) ) then
-c                       do i1 = 1,n_syst_meas(k)
-c                          i = syst_meas_idx(i1,k)  
-c
-                        if ( FitSample(i) ) then
-                           if (  list_covar_inv(i) .eq. 0) then
-C Diagonal error:
-                              A(k,l) = A(k,l) + ScaledErrors(i)*ScaledGamma(l,i)*ScaledGamma(k,i)
-                           else
-C Covariance matrix:
-                              i2 = list_covar_inv(i)
-
-                              do j1=1,n_syst_meas(l)
-                                 j = syst_meas_idx(j1,l)
-                                 if ( j.ge.i .and. FitSample(j) ) then
-                                    j2 = list_covar_inv(j)
-                                    if (j2 .gt. 0) then
-                                       add = ScaledTotMatrix(i2,j2)*
-     $                                  ( ScaledGamma(l,i)*ScaledGamma(k,j) +ScaledGamma(l,j)*ScaledGamma(k,i))
-                                       if ( i.ne.j) then
-                                          A(k,l) = A(k,l) + add
-                                       else
-                                          A(k,l) = A(k,l) + 0.5*add
+C off-diagonal A(k,l) (data term), nuisance–nuisance only
+                  do i=1,n0_in
+                     do k=l,NSys
+                        if ( (SysForm(k) .eq. isNuisance) .and. HaveCommonData(k,l) ) then
+                           if ( FitSample(i) ) then
+                              if ( list_covar_inv(i) .eq. 0 ) then
+                                 A(k,l) = A(k,l)
+     $                              + ScaledErrors(i)*ScaledGamma(l,i)*ScaledGamma(k,i)
+                              else
+                                 i2 = list_covar_inv(i)
+                                 do j1=1,n_syst_meas(l)
+                                    j = syst_meas_idx(j1,l)
+                                    if ( j.ge.i .and. FitSample(j) ) then
+                                       j2 = list_covar_inv(j)
+                                       if (j2 .gt. 0) then
+                                          add = ScaledTotMatrix(i2,j2) *
+     $                                         ( ScaledGamma(l,i)*ScaledGamma(k,j)
+     $                                           + ScaledGamma(l,j)*ScaledGamma(k,i) )
+                                          if ( i.ne.j ) then
+                                             A(k,l) = A(k,l) + add
+                                          else
+                                             A(k,l) = A(k,l) + 0.5D0*add
+                                          endif
                                        endif
                                     endif
-                                 endif
-                              enddo
+                                 enddo
+                              endif
                            endif
                         endif
-c                       enddo
-                     endif
+                     enddo
                   enddo
-               enddo
-            endif
-         enddo
-
+               endif
+            enddo
 !$OMP END PARALLEL DO
 
-C Update A diagonal
-         do l=1,nsys
-            do k=1,l-1
-               A(k,l) = A(l,k)
+C symmetrise A
+            do l=1,nsys
+               do k=1,l-1
+                  A(k,l) = A(l,k)
+               enddo
             enddo
-         enddo
 
-C Ready to invert
-         if (nsys.gt.0) then
-
-            if (LDebug) then
-               print *,'DUMP of Syst. shifts matrix after GVM update'
-               do l=1,nsys
-                  print *,'l=',l,C(l)
-                  do k=1,nsys
-                     print *,l,k,A(l,k)
+C solve
+            if (nsys.gt.0) then
+               if (LDebug) then
+                  print *,'DUMP of Syst. shifts matrix after EoE update'
+                  do l=1,nsys
+                     print *,'l=',l,C(l)
+                     do k=1,nsys
+                        print *,l,k,A(l,k)
+                     enddo
                   enddo
+               endif
+
+               if (iflag.eq.3) then
+                  Call DEQInv(Nsys,A,NsysMax,IR,IFail,1,C)
+               else
+                  Call DEQN (Nsys,A,NsysMax,IR,IFail,1,C)
+               endif
+
+               do l=1,nsys
+                  if ( SysForm(l) .eq. isNuisance ) then
+                     shift1(l) = - C(l)
+                  endif
                enddo
             endif
 
-            if (iflag.eq.3) then
-               Call DEQInv(Nsys,A,NsysMax,IR, IFail, 1, C)
-            else
-               Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
-            endif
-
+C accumulate shifts
             do l=1,nsys
-               if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
-                  shift1(l) = - C(l)
+               if ( SysForm(l) .eq. isNuisance ) then
+                  shift0(l) = shift0(l) + shift1(l)
                endif
             enddo
 
-         endif
-
-C Combine shifts
-         do l=1,nsys
-            if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
-               shift0(l) = shift0(l) + shift1(l)
-            endif
          enddo
-      enddo
+      endif   ! EoEEnabled
 
-C Final combine shifts
+C Final combine shifts → write back to rsys_in (nuisance only)
       do l=1,nsys
-         if ( SysForm(l) .eq. isNuisance .or. SysForm(l) .eq. isGVM ) then
+         if ( SysForm(l) .eq. isNuisance ) then
             rsys_in(l) = shift0(l)
             if (iflag.eq.3) then
                ersys_in(l) = sqrt(A(l,l))
@@ -1707,21 +1703,23 @@ c partial chisq are not reasonably defined
 C Correlated chi2 part:
       fcorchi2_in = 0.d0
       do k=1, NSys
-         if (SysForm(k) .eq. isGVM) then
-            temp_val = 2 * epsilon_value**2 * rsys_in(k)**2 * SysPriorScale(k)
-            fcorchi2_in = fcorchi2_in + (1 + 1.0D0 / (2 * epsilon_value**2)) * log(1 + temp_val)
-         endif
-         if (SysForm(k) .eq. isExternal) then
-            temp_val = 2 * epsilon_value**2 * rsys_in(k)**2 * SysPriorScale(k)
-            fcorchi2_in = fcorchi2_in + (1 + 1.0D0 / (2 * epsilon_value**2)) * log(1 + temp_val)
-         endif
-         if (SysForm(k) .eq. isNuisance) then
-            fcorchi2_in = fcorchi2_in + rsys_in(k)**2 * SysPriorScale(k)
+C Default: quadratic prior for both nuisance and external
+         if (SysForm(k) .eq. isNuisance .or. SysForm(k) .eq. isExternal) then
+            if (EoEEnabled .and. EoEActive(k)) then
+C EoE log constraint
+               temp_val = 2.0D0 * EoEEpsilon(k)**2 * rsys_in(k)**2 * SysPriorScale(k)
+               fcorchi2_in = fcorchi2_in
+     $            + (1.0D0 + 1.0D0/(2.0D0*EoEEpsilon(k)**2))
+     $              * log(1.0D0 + temp_val)
+            else
+C Quadratic constraint
+               fcorchi2_in = fcorchi2_in + rsys_in(k)**2 * SysPriorScale(k)
+            endif
          endif
 
 C Also, store as residuals:
          residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
-      enddo
+      enddo      
       fchi2_in = fchi2_in + fcorchi2_in
 
        ! print*,'chi2_calc3: ',fchi2_in

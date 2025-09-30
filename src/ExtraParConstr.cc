@@ -18,32 +18,30 @@ extern "C" {
 		extern COMMON_ExtraPars_t extrapars_;
 
 	// actual routine
-	void getextraparsconstrchi2_(double& chi2, double epsilon) {
+	void getextraparsconstrchi2_(double& chi2) {
+		int    len = 1024;
+		char   parname[len];
+		double par, unc, bound_l, bound_h;
+		int    status = 0;
 
-		int len=1024;
-		char parname[len];
-		double par;
-		double unc;
-		double bound_l;
-		double bound_h;
-		int status=0;
+		chi2 = 0.0;
+		for (int p = 0; p < extrapars_.nExtraParam; p++) {
+		if (extrapars_.ConstrUnc[p] == 0.0) continue;
 
-		chi2=0.0;
-		for(int p=0; p<extrapars_.nExtraParam; p++) {
-			if(extrapars_.ConstrUnc[p]==0.0) continue;
-			mnpout_(extrapars_.iExtraParamMinuit+p, parname, &par, &unc, &bound_l, &bound_h, &status, len);
-			if(status<0) {
-				printf("ERROR in GetExtraParsConstrChi2: something is wrong with parameter %d\n", extrapars_.iExtraParamMinuit[p]);
-				exit(1);
-			}
-			double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
-        	chi2 += (1 + 1.0 / (2 * epsilon * epsilon)) * log(1 + 2 * epsilon * epsilon * deviation * deviation);
+		mnpout_(extrapars_.iExtraParamMinuit + p,
+				parname, &par, &unc, &bound_l, &bound_h, &status, len);
+		if (status < 0) {
+			std::printf("ERROR in GetExtraParsConstrChi2: parameter %d\n",
+						extrapars_.iExtraParamMinuit[p]);
+			std::exit(1);
 		}
-		//printf("chi2: %e\n", chi2);
+		const double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+		chi2 += deviation * deviation;
+		}
 	}
 
 	// actual routine
-	void printminuitextrapars_(int& iflag, double epsilon) {
+	void printminuitextrapars_(int& iflag) {
 
 		int len=1024;
 		char parname[len];
@@ -75,12 +73,11 @@ extern "C" {
 			}
 			if(extrapars_.ConstrUnc[p]==0.0) {
 				printf("%9s%9s", "", "");
-			}
-			else {
-				double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
-				double shift=(1 + 1.0 / (2 * epsilon * epsilon)) * log(1 + 2 * epsilon * epsilon * deviation * deviation) + 100;
-				double reduction=unc/extrapars_.ConstrUnc[p];
-				printf("%9.4f%9.4f", shift, reduction);
+			} else {
+				const double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+				const double shift     = deviation * deviation;          // quadratic penalty
+				const double reduction = (extrapars_.ConstrUnc[p] != 0.0) ? (unc / extrapars_.ConstrUnc[p]) : 0.0;
+				std::printf("%9.4f%9.4f", shift, reduction);
 			}
 			printf("\n");
 		}
@@ -97,11 +94,11 @@ extern "C" {
         if(bound_l!=0.0&&bound_h!=0.0) {
           printf(", %.*f, %.*f", ndigcomma, bound_l, ndigcomma, bound_h);
         }
-        if(extrapars_.ConstrUnc[p]!=0.0) {
-          double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
-		  double shift=(1 + 1.0 / (2 * epsilon * epsilon)) * log(1 + 2 * epsilon * epsilon * deviation * deviation) + 100;
-          double reduction=unc/extrapars_.ConstrUnc[p];
-          printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
+        if (extrapars_.ConstrUnc[p] != 0.0) {
+          const double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+          const double shift     = deviation * deviation;
+          const double reduction = (extrapars_.ConstrUnc[p] != 0.0) ? (unc / extrapars_.ConstrUnc[p]) : 0.0;
+          std::printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
         }
         printf(" ]\n");
       }
