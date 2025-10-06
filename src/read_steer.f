@@ -139,6 +139,11 @@ C E-on-E defaults
          EoEEpsilon(i) = 0.0D0
       enddo
 
+C Global EoE defaults from &xFitter (off by default)
+      EoE_FromXFit     = .false.
+      EoE_Eps_FromXFit = 0.0D0
+      EoE_nit_FromXFit = EoE_n_iterations
+
 C Check variables for common blocks:
       steering_check = 171717
       call common_check(steering_check)
@@ -159,20 +164,25 @@ C----------------------------------------------
 #include "indata.inc"
 #include "for_debug.inc"
 #include "fcn.inc"
+#include "systematics.inc"
 C-----------------------------------------------
 
       character*32 Chi2SettingsName(5)
       character*32 Chi2Settings(5)
       character*32 Chi2ExtraParam(8)
       integer i
-      
+
+      double precision EpsilonAll
+      integer n_iterations
+ 
 C Main steering parameters namelist
       namelist/xFitter/
      $     LDebug,
      $     Chi2MaxError, iDH_MOD, 
      $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
-     $     AsymErrorsIterations, pdfRotate, UseDataSetIndex
+     $     AsymErrorsIterations, pdfRotate, UseDataSetIndex,
+     $     EpsilonAll, n_iterations
 
 C--------------------------------------------------------------
 
@@ -183,6 +193,9 @@ C     Some defaults
          Chi2ExtraParam(i) = 'undefined'
       enddo
       AsymErrorsIterations = 0
+
+      EpsilonAll = -1.0D99
+      n_iterations = -999
 
 C
 C  Read the main xFitter namelist:
@@ -207,6 +220,24 @@ C
 
       call SetChi2Style(Chi2SettingsName, Chi2Settings,
      $     Chi2ExtraParam)
+
+C Enable global EoE defaults only if Hessian and EpsilonAll > 0
+      if (EpsilonAll .gt. 0.0D0) then
+         if (CorChi2Type .eq. 'Hessian') then
+            EoE_FromXFit     = .true.
+            EoE_Eps_FromXFit = EpsilonAll
+            if (n_iterations .ge. 0) then
+               EoE_nit_FromXFit = n_iterations
+               EoE_n_iterations = n_iterations
+            else
+C   keep the default set in Set_Defaults
+               EoE_nit_FromXFit = EoE_n_iterations
+            endif
+         else
+            call hf_errlog(30092501,
+     $ 'W: &xFitter EpsilonAll ignored (CorChi2Type != Hessian, can''t implement EoE)')
+         endif
+      endif
 
       if (LDebug) then
 C Print the namelist:
@@ -877,23 +908,7 @@ C Also add it to c++ map ...
       end
 
 C-----------------------------------------
-C
-!> Read optional systematics namelist
-!> Also handles Errors-on-Errors (EoE) via optional Epsilon vector.
-!>
-!> Usage in steering.txt:
-!>   &Systematics
-!>     ListOfSources = 'lum:N','jes:N:O','pdf:T:N'
-!>     Epsilon       = 0.02, 0.0, 0.05    ! (positional) 0.0 = disabled
-!>     EoE_n_iterations = 3               ! (optional, defaults from Set_Defaults)
-!>   /
-!>
-!> Notes:
-!>   - If Epsilon not provided: behave as if EoE absent (all disabled).
-!>   - If a single scalar Epsilon is provided: broadcast to all sources.
-!>   - If a list is provided: length must equal number of sources.
-!>   - Exactly zero means “no EoE for that source”.
-C
+!> Read optional systematics namelist=
 C-----------------------------------------
       Subroutine read_systematicsnml
 
@@ -909,15 +924,14 @@ C-----------------------------------------
 
 C --- EoE inputs (new)
       double precision Epsilon(nsysmax)
-      integer          EoE_n_iterations_in
-      integer          n_iterations   ! synonym for backward-compat (optional)
+      integer n_iterations
 
       namelist/ Systematics/ ListOfSources,ScaleByNameName
      $     ,ScaleByNameFactor, PriorScaleName, PriorScaleFactor
-     $     ,Epsilon, EoE_n_iterations, n_iterations
+     $     ,Epsilon, n_iterations
 
-      integer i,ii,ns,neps
-      logical any_active
+      integer i,ii,neps
+
 C----------------------------------------
 
 C Initialisation:
@@ -968,8 +982,7 @@ C EoE local inputs: mark "unset"
          Epsilon(i) = -1.0D99
       enddo
 
-      EoE_n_iterations_in = -999
-      n_iterations        = -999
+      n_iterations = -999
 
       open (51,file='steering.txt',status='old')
       read (51,NML=Systematics,END=123,ERR=124)
@@ -1009,71 +1022,70 @@ C Apply per-name scale factors and priors
 C======================================================
 C                 Errors-on-Errors (EoE)
 C======================================================
-      ns   = nsys
-      neps = 0
-      do i=1,ns
-         if (Epsilon(i) .gt. -1.0D98) neps = neps + 1
-      enddo
 
-C Reset all EoE state first
-      do i=1,NSysMax
-         EoEActive(i)  = .false.
-         EoEEpsilon(i) = 0.0D0
-      enddo
-      EoEEnabled = .false.
-
-      if (neps.eq.0) then
-C No Epsilon provided -> behave as if EoE absent
-         continue
-
-      else if (neps.eq.1) then
-C Single scalar -> broadcast
-         do i=1,ns
-            EoEEpsilon(i) = Epsilon(1)
-            if (EoEEpsilon(i) .gt. 0.0D0) EoEActive(i) = .true.
+C --- Prefill from xFitter global defaults (applies to ALL sources)
+      if (EoE_FromXFit .and. (CorChi2Type .eq. 'Hessian')
+     $    .and. (EoE_Eps_FromXFit .gt. 0.0D0)) then
+         do i=1,NSysMax
+            EoEEpsilon(i) = EoE_Eps_FromXFit
+            EoEActive(i)  = .true.
          enddo
-
-      else if (neps.eq.ns) then
-C Positional vector -> one per source
-         do i=1,ns
-            if (Epsilon(i) .gt. -1.0D98) then
-               EoEEpsilon(i) = max(Epsilon(i), 0.0D0)
-               EoEActive(i)  = (EoEEpsilon(i) .gt. 0.0D0)
-            endif
-         enddo
-
-      else
-C Mismatch
-         call hf_errlog(29092501,
-     $ 'F: Systematics/Epsilon must be a scalar or length(NSources)')
-         call hf_stop
+         EoEEnabled       = .true.
+         EoE_n_iterations = EoE_nit_FromXFit
       endif
 
-C Enable globally if at least one active
-      any_active = .false.
-      do i=1,ns
+C --- Inspect Epsilon() from &Systematics (overrides xFitter for Hessian)
+      neps = 0
+      do i=1,nsys
+         if (Epsilon(i) .gt. -1.0D98) then
+            if (Epsilon(i) .lt. 0.0D0) then
+               call hf_errlog(29092502,'F: Epsilon(i) must be >= 0 or unset')
+               call hf_stop
+            endif
+            neps = neps + 1
+         endif
+      enddo
+
+C Only proceed if there is at least one non-negative value
+      if (neps .gt. 0) then
+         if (CorChi2Type .ne. 'Hessian') then
+            call hf_errlog(30092502,
+     $ 'W: &Systematics/Epsilon ignored (CorChi2Type != Hessian).')
+         else
+            if (neps .eq. nsys) then
+               do i=1,nsys
+                  if (Epsilon(i) .gt. 0.0D0) then
+                     EoEEpsilon(i) = Epsilon(i)
+                     EoEActive(i)  = .true.
+                  else
+                     EoEEpsilon(i) = 0.0D0
+                     EoEActive(i)  = .false.
+                  endif
+               enddo
+            else
+               call hf_errlog(29092501,
+     $ 'F: Systematics/Epsilon must be length(NSources)')
+               call hf_stop
+            endif
+         endif
+      endif
+
+C --- Final global enable if any active
+      do i=1,nsys
          if (EoEActive(i)) then
-            any_active = .true.
+            EoEEnabled = .true.
             exit
          endif
       enddo
-      EoEEnabled = any_active
 
-C Optional override of iteration count
-      if (EoE_n_iterations_in .ge. 0) then
-         EoE_n_iterations = EoE_n_iterations_in
-      elseif (n_iterations .ge. 0) then
-C accept synonym "n_iterations" if user prefers
+C --- If &Systematics provided an iteration override, use it only if EoE is enabled
+      if (n_iterations .ge. 0 .and. EoEEnabled) then
          EoE_n_iterations = n_iterations
-      endif
-      if (EoE_n_iterations .lt. 0) then
-         call hf_errlog(29092502,'F: EoE_n_iterations must be >= 0')
-         call hf_stop
       endif
 
       if (LDebug) then
          if (EoEEnabled) then
-            write (*,'(A,I4,A)') 'EoE enabled for ',ns,' sources (some may be zeroed).'
+            write (*,'(A,I4,A)') 'EoE enabled for ',nsys,' sources (some may be zeroed).'
             write (*,'(A,1X,I0)') 'EoE_n_iterations =', EoE_n_iterations
          else
             write (*,'(A)') 'EoE disabled (no positive Epsilon provided).'
@@ -1307,6 +1319,13 @@ C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then
          call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0
      $                         ,0.0D0,0.0D0,.false.,0.0D0)
+      endif
+
+C If EoE was requested globally via &xFitter, apply it to each new source:
+      if (EoE_Eps_FromXFit .gt. 0.0D0) then
+         EoEEpsilon(nsys) = EoE_Eps_FromXFit
+         EoEActive(nsys)  = .true.
+         EoEEnabled       = .true.
       endif
 
       end

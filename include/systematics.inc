@@ -91,3 +91,10 @@ C  Errors-on-Errors settings
 
       common/CEonE/ EoEEnabled, EoE_n_iterations, EoEActive, EoEEpsilon
 
+C  Optional global defaults for EoE from &xFitter
+      logical          EoE_FromXFit
+      double precision EoE_Eps_FromXFit
+      integer          EoE_nit_FromXFit
+      common/CEonEGlob/ EoE_FromXFit, EoE_Eps_FromXFit, EoE_nit_FromXFit
+
+
