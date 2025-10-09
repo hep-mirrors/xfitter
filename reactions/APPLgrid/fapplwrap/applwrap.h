@@ -24,35 +24,35 @@
 typedef std::vector<std::vector<double> > covariance_t; 
 
 
-void print_covariance( const covariance_t&  c, const std::vector<double>& v);
-
-void print_covariance( const covariance_t&  c );
-
 
 
 class applwrap { // : public appl::grid {
 
 public:
 
-  //  applwrap( appl::grid* g ) : appl::grid(*g) { mg = this; }
-
-  //  applwrap( const std::string& s ) : appl::grid(s) { mg = this; }
 
   /// better make sure that the passed in grid is not deleted ...
-  applwrap( appl::grid* g ) : mmanage(false), mg(g) { }
+  applwrap( appl::grid* g ) : mmanage(false), mg(g), m_fitorder(-1) { }
 
   /// better make sure that the passed in grid is not deleted ...
-  applwrap( appl::grid& g ) : mmanage(false), mg(&g) { }
+  applwrap( appl::grid& g ) : mmanage(false), mg(&g), m_fitorder(-1) { }
 
-  applwrap( const std::string& s ) : mmanage(true) {
+  applwrap( const std::string& s ) : mmanage(true), m_fitorder(-1) {
     std::cout << "applwrap: reading new grid: " << s << std::endl; 
     mg = new appl::grid(s);
   }
     
   virtual ~applwrap() { if ( mmanage ) delete mg; } 
 
-  std::vector<std::vector<double> >& getCovariance() { return mg->getCovariance(); }
 
+  /// control fitting or smoothing ...
+  /// default   order = -1, run smoothing
+  /// otherwise order > -1 fit polynomial, 0 is a constant, 1 is linear
+  int  fit_order() const  { return m_fitorder; }
+  void fit_order( int i ) { m_fitorder=i; }
+
+
+  /// run the "smoothed" or "fitted" convolution ...
   
   appl::TH1D* sconvolute(void   (*pdf)(const double& , const double&, double* ), double (*alphas)(const double& ) ) { 
     return sconvolute( pdf, alphas, mg->nloops() ); 
@@ -77,12 +77,14 @@ public:
     for ( size_t i=0 ; i<h->size() ; i++ ) h->ye(i) = hr->ye(i)*h->y(i)/hr->y(i);
     return h;
   }
-  
+
+  std::vector<std::vector<double> >& getCovariance() { return mg->getCovariance(); }
   
   appl::grid* g() { return mg; }
 
   covariance_t covariance() const { return m_scovariance; }
 
+ 
 protected:  
 
   static bool& fastsmooth() { return m_fastsmooth; }
@@ -99,14 +101,22 @@ private:
 
   covariance_t m_scovariance;
 
+  int          m_fitorder;  
+  
   static bool  m_fastsmooth;
   static int   m_ratiobase;
-  
+
 };
+
 
 inline std::ostream& operator<<( std::ostream& s, const applwrap& _a ) { 
   return s;
 }
+
+
+void print_covariance( const covariance_t&  c, const std::vector<double>& v);
+
+void print_covariance( const covariance_t&  c );
 
 
 #endif  // APPLWRAP_H 

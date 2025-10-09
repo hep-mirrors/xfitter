@@ -34,6 +34,9 @@ void throw_exception( const std::string& msg, int id, const std::string& s="" );
 
 
 
+std::map<int,int> fit_order;
+
+
 
 extern "C" void sconvolutewrap_(const int& id, double* data, double* dataerr, 
 				void (*pdf)(const double& , const double&, double* ),  
@@ -43,6 +46,8 @@ extern "C" void sconvolutewrap_(const int& id, double* data, double* dataerr,
   if ( gitr!=_grid.end() ) { 
     appl::grid*    g = gitr->second;
     applwrap ag(g);
+    std::map<int,int>::iterator itr = fit_order.find(id);
+    if ( itr!=fit_order.end() ) ag.fit_order(itr->second);
     appl::TH1D* v = ag.sconvolute( pdf, alphas );
     for ( unsigned i=0 ; i<v->size() ; i++ ) {
       data[i]    = v->y(i);
@@ -52,6 +57,7 @@ extern "C" void sconvolutewrap_(const int& id, double* data, double* dataerr,
   }
   else throw_exception( "No grid with id ", id );  
 }
+
 
 
 extern "C" void sconvolute_(const int& id, double* data, double* dataerr) {
@@ -69,7 +75,10 @@ extern "C" void sfullconvolutewrap_(const int& id, double* data, double* dataerr
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) { 
     appl::grid*    g = gitr->second;
-    appl::TH1D*    v = applwrap(g).sconvolute( pdf, alphas, nloops, rscale, fscale); 
+    applwrap ag(g);
+    std::map<int,int>::iterator itr = fit_order.find(id);
+    if ( itr!=fit_order.end() ) ag.fit_order(itr->second);
+    appl::TH1D*    v = ag.sconvolute( pdf, alphas, nloops, rscale, fscale); 
     for ( unsigned i=0 ; i<v->size() ; i++ ) {
       data[i]    = v->y(i);
       dataerr[i] = v->ye(i);
@@ -90,13 +99,15 @@ extern "C" void sfullconvolute_(const int& id, double* data, double* dataerr,
 
 
 extern "C" void sconvolute_covariancewrap_(const int& id, double* data, double* dataerr, 
-				void (*pdf)(const double& , const double&, double* ),  
-				double (*alphas)(const double& ) ) {  
+					   void (*pdf)(const double& , const double&, double* ),  
+					   double (*alphas)(const double& ) ) {  
 
   std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
   if ( gitr!=_grid.end() ) { 
     appl::grid*    g = gitr->second;
     applwrap ag(g);
+    std::map<int,int>::iterator itr = fit_order.find(id);
+    if ( itr!=fit_order.end() ) ag.fit_order(itr->second);
     appl::TH1D* v = ag.sconvolute( pdf, alphas );
     for ( unsigned i=0 ; i<v->size() ; i++ ) {
       data[i]    = v->y(i);
@@ -112,3 +123,24 @@ extern "C" void sconvolute_covariance_(const int& id, double* data, double* data
   sconvolute_covariancewrap_(id, data, dataerr, fnpdf_, fnalphas_); 
 }
 
+
+
+extern "C" void set_fit_order_( int& id, int& order ) {
+  std::map<int,appl::grid*>::iterator gitr = _grid.find(id);
+  if ( gitr!=_grid.end() ) {
+    std::map<int,int>::iterator itr = fit_order.find(id);
+    if ( itr==fit_order.end() ) {
+      fit_order.insert( std::map<int,int>::value_type(id, order) );
+    }
+    else {
+      itr->second = order;
+    }
+  }
+  else {
+    throw_exception( "No grid with id ", id );  
+  }
+}
+
+
+
+extern "C" void clear_fit_order_() { fit_order.clear(); }

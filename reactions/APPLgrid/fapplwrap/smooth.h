@@ -168,88 +168,36 @@ extern double fitscale;
 class smooth {
    
 public:
-
-  smooth() { } 
+  
+  smooth() : m_kn(kn_default) { }
+  
+  smooth( int k ) : m_kn(k) { } 
   
   smooth( const appl::TH1D& h, const appl::TH1D& hr, const std::string& label="" ) : m_h(h), m_hr(hr) {
-
+    
+    m_kn = kn_default;
+    
     //    std::cout << "smooth: label: " << label << std::endl;
-    
+
     int n = h.size();
-
-    int kn = 15;
     
-    while ( kn>(n/2+1) ) {
-      kn = n/2;
-      if ( kn%2 == 0 ) kn += 1;
-    }
-
-    int start=0;
-
-#if 0
-    for ( size_t i=1 ; i<hr.size() ; i++ ) {
-      if ( std::fabs(hr.y(i)/hr.y(i-1))>4 ) start = i;
-      else break;
-    }
-#endif
+    covariance_t   t( generate_transform( hr, m_kn ) ); // n, std::vector<double>(n,0) );
     
-    std::cout << "smooth: start: " << start << std::endl; 
-    
-    std::vector<double> w = gaussian( kn, 1001, fitscale );
-
-    //    std::cout << w << std::endl;
-
-    appl::TH1D hsmooth = h;
-
-    hsmooth.clear();
-    
-    covariance_t  t( n, std::vector<double>(n,0) );
     covariance_t  t2( n, std::vector<double>(n,0) );
+
+    for ( size_t i=0 ; i<t.size() ; i++ ) {
+	for ( size_t j=0 ; j<t[i].size() ; j++ ) t2[i][j] = t[i][j]*t[i][j];
+    }
+
     covariance_t cov( n, std::vector<double>(n,0) );
     covariance_t cor( n, std::vector<double>(n,0) );
-	
-    {
-      const double* p = &w[0]+kn/2;
-      
-      int lim = kn/2;
 
-      if ( start>0 ) {
-	for ( int i=0 ; i<start ; i++ ) t[i][i] = 1;
-      }
-
-      for ( size_t i=start ; i<t.size() ; i++ ) {	
-	for ( int k=-lim ; k<=lim ; k++ ) {
-	  
-	  int j = i+k;
-	  
-#if 1
-	  if ( j<start ) j=start;
-	  if ( j>=int(t.size()) ) j=t.size()-1;
-#else
-	  if ( j<0 ) j=i;
-	  if ( j>=int(t.size()) ) j=i;
-#endif
-
-	  t[i][j] += p[k];
-	  
-	}
-      }
-         
-      for ( size_t i=0 ; i<t.size() ; i++ ) {
-	for ( size_t j=0 ; j<t[i].size() ; j++ ) t[i][j]  *= hr.y(i)/hr.y(j);
-      }
-      
-      for ( size_t i=0 ; i<t.size() ; i++ ) {
-	for ( size_t j=0 ; j<t[i].size() ; j++ ) t2[i][j] = t[i][j]*t[i][j];
-      }
-           
-    }
-
-    //    std::cout << "\n\ntransform: " << t << "\n" << std::endl;
     
-    m_hsmoothed = hsmooth;
+    //    std::cout << "\n\ntransform: " << t << "\n" << std::endl;
 
-    m_t = t;
+    m_hsmoothed.clear();
+    
+    m_t = t;  /// ???
 
     std::vector<double> ye2 = h.ye()*h.ye();
 
@@ -306,7 +254,6 @@ public:
     m_h(s.m_h), m_hr(s.m_hr), m_hsmoothed(s.m_hsmoothed),
     m_k(s.m_k), m_cov(s.m_cov) { }  
 
-  
   virtual ~smooth() { } 
 
   operator appl::TH1D() const { return m_hsmoothed; }
@@ -317,6 +264,93 @@ public:
 
   covariance_t transform() const { return m_t; }
 
+
+  static covariance_t generate_transform( const appl::TH1D& hr, size_t kn=15 ) { 
+    
+    int n = hr.size();
+
+    if ( kn>=hr.size() ) {
+      kn=hr.size();
+      if ( kn%2==0 ) kn--;
+    }
+    
+    if ( kn%2==0 ) kn+=1;
+
+    
+#if 0
+    while ( kn>(n/2+1) ) {
+      kn = n/2;
+      if ( kn%2 == 0 ) kn += 1;
+    }
+#endif
+    
+    std::cout << "smooth::generate_transform: kn: " << kn << "\th size: " << hr.size() << std::endl;
+    
+    int start=0;
+
+#if 1
+    for ( size_t i=1 ; i<hr.size() ; i++ ) {
+      if ( std::fabs(hr.y(i)/hr.y(i-1))>4 ) start = i;
+      else break;
+    }
+#endif
+    
+    std::cout << "smooth: start: " << start << std::endl; 
+    
+    std::vector<double> w = gaussian( kn, 1001, fitscale );
+
+    //    std::cout << w << std::endl;
+
+    covariance_t   t( n, std::vector<double>(n,0) );
+    //  covariance_t  t2( n, std::vector<double>(n,0) );
+    //  covariance_t cov( n, std::vector<double>(n,0) );
+    //  covariance_t cor( n, std::vector<double>(n,0) );
+	
+    {
+      const double* p = &w[0]+kn/2;
+      
+      int lim = kn/2;
+
+      if ( start>0 ) {
+	for ( int i=0 ; i<start ; i++ ) t[i][i] = 1;
+      }
+
+      for ( size_t i=start ; i<t.size() ; i++ ) {	
+	for ( int k=-lim ; k<=lim ; k++ ) {
+	  
+	  int j = i+k;
+	  
+#if 1
+	  if ( j<start ) j=start;
+	  if ( j>=int(t.size()) ) j=t.size()-1;
+#else
+	  if ( j<0 ) j=i;
+	  if ( j>=int(t.size()) ) j=i;
+#endif
+
+	  t[i][j] += p[k];
+	  
+	}
+      }
+         
+      for ( size_t i=0 ; i<t.size() ; i++ ) {
+	for ( size_t j=0 ; j<t[i].size() ; j++ ) t[i][j]  *= hr.y(i)/hr.y(j);
+      }
+      
+      //      for ( size_t i=0 ; i<t.size() ; i++ ) {
+      //	for ( size_t j=0 ; j<t[i].size() ; j++ ) t2[i][j] = t[i][j]*t[i][j];
+      //      }
+           
+    }
+
+    return t;
+  }
+  
+  
+public:
+
+  static void setkn( int k ) { kn_default = k; }
+  
 private:
 
   appl::TH1D m_h;
@@ -330,6 +364,10 @@ private:
 
   covariance_t m_t;
 
+  
+  int        m_kn;
+  
+  static int kn_default;
 };
 
 inline std::ostream& operator<<( std::ostream& s, const smooth& _ ) { 

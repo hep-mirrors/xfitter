@@ -30,8 +30,8 @@ FRTLLIB =
 
 
 
-AM_CXXFLAGS = -O2 -Wall -fPIC  -I. -I.. -I$(srcdir) $(APPLCFLAGS) 
-AM_CFLAGS   = -O2 -Wall -fPIC  -I. -I.. -I$(srcdir) $(APPLCFLAGS) 
+AM_CXXFLAGS = -O2 -Wall -fPIC  -I. -I.. -I$(srcdir) $(APPLCFLAGS) $(EIGEN_CXXFLAGS)
+AM_CFLAGS   = -O2 -Wall -fPIC  -I. -I.. -I$(srcdir) $(APPLCFLAGS) $(EIGEN_CXXFLAGS)
 
 AM_LDFLAGS = $(ROOTARCH) -O2  $(FCLIBS) $(APPLLIBS) $(LHAPDFLIB) $(FRTLLIB) 
 
@@ -44,17 +44,17 @@ AM_SOFLAGS = -shared
 lib_LTLIBRARIES= libapplwrap.la libfapplwrap.la 
 libapplwrap_la_SOURCES = \
 	applwrap.cxx smooth.cxx \
-	applwrap.h smooth.h
+	applwrap.h smooth.h solve.h fit.h 
 
 libfapplwrap_la_SOURCES = \
 	fapplwrap.cxx \
 	applwrap.cxx smooth.cxx \
-	applwrap.h smooth.h
+	applwrap.h smooth.h solve.h fit.h 
 
 
 library_includedir=$(includedir)/
 
-library_include_HEADERS=applwrap.h smooth.h 
+library_include_HEADERS=applwrap.h 
 
 
 clean-local:

@@ -19,6 +19,8 @@
 
 #include "smooth.h"
 
+int smooth::kn_default = 15;
+
 
 appl::TH1D* get_histogram( const std::string& filename ) {
 

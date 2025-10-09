@@ -16,6 +16,7 @@
 #include "smooth.h"
 
 
+#include "fit.h"
 
 
 bool applwrap::m_fastsmooth = true;
@@ -92,18 +93,18 @@ appl::TH1D* applwrap::sconvolute(void (*pdf1)(const double& , const double&, dou
   
   //  std::vector<std::vector<double>  > transform = mg->getCovariance();
   covariance_t transform = mg->getCovariance();
-  
-  if ( nloops!=mg->nloops() ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
 
-  if ( transform.size() == 0 )    return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
+  if ( nloops!=mg->nloops() )  return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
+
+  if ( transform.size() == 0 && m_fitorder==-1 ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
 
   /// check that we have order-by-order references ...
-  
-  for ( int iloops=mg->nloops()+1 ; iloops-- ; ) {
-    xr[iloops] = mg->getReference(iloops);
-    if ( xr[iloops]->size()==0 ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
-  }
 
+  for ( int iloops=mg->nloops()+1 ; iloops-- ; ) {
+      xr[iloops] = mg->getReference(iloops);
+      if ( xr[iloops]->size()==0 ) return mg->aconvolute( pdf1, pdf2, alphas, nloops, rscale, fscale, escale );
+  }
+  
   /// perform the convolutions order by order
 
   for ( int iloops=mg->nloops()+1 ; iloops-- ; ) {
@@ -120,79 +121,127 @@ appl::TH1D* applwrap::sconvolute(void (*pdf1)(const double& , const double&, dou
   /// covariance matrix
 
 
-  appl::TH1D xsum = *xs[0];
+  //  appl::TH1D xsum = *xs[0];
 
-  for ( int i=1 ; i<mg->nloops()+1 ; i++ ) xsum += *xs[i];
-
-  appl::TH1D cs = *xs[2];
-
-  /// covariance ???
-
-  covariance_t   scov( cs.size(), std::vector<double>( cs.size(), 0 ) );
-
-  if ( m_fastsmooth ) { 
-
-    /// use the smoothing trasform encoded in the grid ...
-    
-    /// smooth the NNLO component ...
-    
-    cs.y() = transform*xs[2]->y();
-
-    /// calculate the covariance ...
-    
-    for ( size_t i=0 ; i<cs.size() ; i++ ) { 
-      for ( size_t j=0 ; j<cs.size() ; j++ ) { 
-	for ( size_t k=0 ; k<cs.size() ; k++ ) scov[i][j] += transform[i][k]*transform[j][k]*cs.ye(k)*cs.ye(k);
-      }
-    }
-    
-  }
-  else { 
-
-    /// generate the smoothing trasform and smooth the grid ...
-
-    /// use just the LO component ...
-    smooth sm;
-
-    /// rather than the LO+NLO component, which is usually less smooth 
-    if      ( ratiobase()==0 ) sm = smooth( *xs[2],  *xs[0] );
-    else if ( ratiobase()==1 ) sm = smooth( *xs[2], (*xs[0])+(*xs[1]) ); 
-    else std::cerr << "Incorrect smoothing base ratio" << std::endl;
-    
-    /// get the smoothed output ...
-    
-    cs = sm;
-
-    /// and the covariance
-    
-    scov = sm.cov();
-
-    /// store in the grid if required ...
-    
-    covariance_t trans = sm.transform();
-
-    mg->getCovariance() = trans;
-    
-  }
+  //  for ( int i=1 ; i<mg->nloops()+1 ; i++ ) xsum += *xs[i];
 
   appl::TH1D* sxsum = new appl::TH1D();
+    
+  if ( m_fitorder>-1 ) { 
 
-  *sxsum = cs;  /// smoothed NNLO component
+    /// fit with a polynomial ...
 
-  *sxsum += *xs[0] + *xs[1]; /// add the LO and NLO
+    /// FIXME: need to put in some limit to the fitted region to avoid
+    ///        discontinuities as in first bin of the dijet grids  
+    
+#if 0
+    std::cout << "-------------------------------------" << std::endl;
+    std::cout << " perform polynomial fit " << std::endl;
+    std::cout << "-------------------------------------" << std::endl;
+#endif
   
+    //  appl::TH1D hratio1 = *xs[1]/xr[0]->y();
+    appl::TH1D hratio2 = *xs[2]/xr[0]->y();
+    
+    //  appl::TH1D cs1 = generate( hratio1, m_fit_order ) ; 
+    appl::TH1D cs2 = generate( hratio2, m_fitorder ) ; 
+    
+    //  cs1 *= xr[0]->y();
+    cs2 *= xr[0]->y();
+    
+    *sxsum = cs2;  /// smoothed NNLO component
+    
+    *sxsum += *xs[0] + *xs[1]; /// add the LO and NLO
+    
+    /// calculate the variance ...
+
+    for ( size_t i=0 ; i<xs[0]->size() ; i++ ) {
+      sxsum->ye(i) =  std::sqrt( xs[0]->ye(i)*xs[0]->ye(i) + xs[1]->ye(i)*xs[1]->ye(i) + cs2.ye(i)*cs2.ye(i) );
+    }
+  }
+  else {  
+
+    /// smoothing ....
+
+#if 0
+    std::cout << "-------------------------------------" << std::endl;
+    std::cout << " perform GK smoothing " << std::endl;
+    std::cout << "-------------------------------------" << std::endl;
+#endif
+    
+    appl::TH1D cs = *xs[2];
+
+    /// covariance ???
+    
+    covariance_t   scov( cs.size(), std::vector<double>( cs.size(), 0 ) );
+    
+    if ( m_fastsmooth ) { 
+      
+      /// use the smoothing trasform encoded in the grid ...
+      
+      /// smooth the NNLO component ...
+      
+      cs.y() = transform*xs[2]->y();
+      
+      /// calculate the covariance ...
+      
+      for ( size_t i=0 ; i<cs.size() ; i++ ) { 
+	for ( size_t j=0 ; j<cs.size() ; j++ ) { 
+	  for ( size_t k=0 ; k<cs.size() ; k++ ) scov[i][j] += transform[i][k]*transform[j][k]*cs.ye(k)*cs.ye(k);
+	}
+      }
+      
+    }
+    else { 
+      
+      
+      smooth sm;
+      
+      /// use just the LO component ...
+      /// generate the smoothing trasform and smooth the grid ...
+      if      ( ratiobase()==0 ) sm = smooth( *xs[2],  *xs[0] );
+      else if ( ratiobase()==1 ) sm = smooth( *xs[2], (*xs[0])+(*xs[1]) ); 
+      else std::cerr << "Incorrect smoothing base ratio" << std::endl;
+      
+      /// get the smoothed output ...
+      
+      cs = sm;
+      
+      /// and the covariance
+      
+      scov = sm.cov();
+      
+      /// store in the grid if required ...
+      
+      covariance_t trans = sm.transform();
+      
+      mg->getCovariance() = trans;
+      
+    }
+    
+    *sxsum = cs;  /// smoothed NNLO component
+    
+    *sxsum += *xs[0] + *xs[1]; /// add the LO and NLO
+       
+    for ( size_t i=0 ; i<xs[0]->size() ; i++ ) {
+      sxsum->ye(i) =  std::sqrt( xs[0]->ye(i)*xs[0]->ye(i) + xs[1]->ye(i)*xs[1]->ye(i) + cs.ye(i)*cs.ye(i) );
+    }
+
+    /// calculate the full covariance ...
+    
+    for ( size_t i=scov.size() ; i-- ; ) {
+      scov[i][i] += xs[0]->ye(i)*xs[0]->ye(i) + xs[1]->ye(i)*xs[1]->ye(i);
+      sxsum->ye(i) = std::sqrt(scov[i][i]);
+    }
+    
+    m_scovariance = scov;
+  }
+   
   //  print_covariance(scov);
   
   //  print_covariance(scov, sxsum->ye());
   
   /// add the LO and NLO diagonal components ...
-
-  for ( size_t i=scov.size() ; i-- ; ) {
-    scov[i][i] += xs[0]->ye(i)*xs[0]->ye(i) + xs[1]->ye(i)*xs[1]->ye(i);
-    sxsum->ye(i) = std::sqrt(scov[i][i]);
-  }
-
-  m_scovariance = scov;
 
   return sxsum; 
 }
