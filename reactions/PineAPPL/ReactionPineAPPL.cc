@@ -328,7 +328,7 @@ void ReactionPineAPPL::atIteration() {
         if(x >= 1.) {
             return 0.;
         }
-        double pdfs[13];
+        double pdfs[14];
         int32_t id = id_in==21 ? 6 : id_in+6;
         double energyRescale = *((double*)state);
         auto x_actual = x*energyRescale;
@@ -339,7 +339,7 @@ void ReactionPineAPPL::atIteration() {
         return pdfs[id];
     };
     auto xfx1 = [](int32_t id_in, double x, double q2, void *state) {
-        double pdfs[13];
+        double pdfs[14];
         int32_t id = id_in==21 ? 6 : id_in+6;
         double energyRescale = *((double*)state);
         auto x_actual = x*energyRescale;
