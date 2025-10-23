@@ -5,7 +5,6 @@ endif()
 
 add_library(fapplwrap STATIC
     applwrap.cxx
-    fapplwrap.cxx
     smooth.cxx
 )
 
