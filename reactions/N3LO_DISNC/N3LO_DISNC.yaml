@@ -1,8 +1,4 @@
 #N3LO_DISNC:               # Reaction-specific settings, no parameters at the moment
   xGrid: [[100, 1e-5, 3], [60, 1e-1, 3], [50, 6e-1, 3], [50, 8e-1, 3]]
   QGrid: [30, 1, 225, 3]
-  massive_sx: 0
-  massive_A: 0
-  massive_B: 0
-  massive_C: 0
-  massive_D: 0
+  imod: 0
