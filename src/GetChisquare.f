@@ -36,6 +36,8 @@ C---------------------------------------------------------
       double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
 
+      double precision sum_eps2, sum_btheta
+
       integer NDiag, NCovar   ! Number of diagonal and full covariance input data points
       integer List_Diag(Ntot), List_Covar(Ntot), List_Covar_inv(Ntot)
 
@@ -257,6 +259,21 @@ c     export uncorrelated errors
 c         print *,i,1./sqrt(ScaledErrors(i))
       enddo
 
+c     compute Bartlett factors
+      sum_btheta = 0.0D0
+      sum_eps2   = 0.0D0
+
+      if (BartlettEnabled .and. EoEEnabled) then
+         do i = 1, nsys
+            if ( (SysForm(i) == isNuisance .or. SysForm(i) == isExternal) .and. EoEActive(i) ) then
+               sum_btheta = sum_btheta + BartlettSysFactor(i)
+               sum_eps2   = sum_eps2   + EoEEpsilon(i)**2
+            end if
+         end do
+      end if
+
+      BartlettGoFFactor = 1.5D0*sum_eps2 - 0.5D0*sum_btheta
+      BartlettLRFactor  = BartlettGoFFactor
 
       return
       end
@@ -278,6 +295,7 @@ C------------------------------------------------------------------
       ! logical doOffset
 #include "ntot.inc"
 #include "systematics.inc"
+
       integer k, n_m, n_n, n_e, n_o, n_eoe
       character*64 Msg
 C----------------------
@@ -457,6 +475,7 @@ C---------------------------------------------------------
       integer GetParameterIndex
       character*80 parname
       double precision val, err, xlo, xhi
+      double precision eps2, j_ii, sigma_u2, ratio, b_theta
       integer ipar
 C-------------------------------------------------
       do i=1,NSys
@@ -474,7 +493,17 @@ C-------------------------------------------------
             if (IFlag.eq.3) then
                call mnpout(iExtraParamMinuit(idx)
      $              ,parname,val,err,xlo,xhi,ipar)
-               ersys_in(i) = err
+
+               BartlettSysFactor(i) = 0.0D0
+               if (BartlettEnabled .and. EoEActive(i)) then
+                  eps2 = EoEEpsilon(i)*EoEEpsilon(i)
+                  j_ii = err*err
+                  sigma_u2 = ( 1.0D0 / SysPriorScale(i) ) + ( 2.0D0*eps2*rsys_in(i)*rsys_in(i) ) / ( 1.0D0 + 2.0D0*eps2 )
+                  ratio   = j_ii / sigma_u2 
+                  b_theta = ( 4.0D0*ratio - ratio*ratio ) * eps2
+                  BartlettSysFactor(i) = b_theta
+               endif
+               ersys_in(i) = err * sqrt(1.0D0 + BartlettSysFactor(i))
             endif
          endif
       enddo
@@ -1030,14 +1059,15 @@ C
 C-
       logical HaveCommonData(NsysMax, NsysMax)
 
-C New variables for GVM implementation
-      double precision shift0(NSysMax), shift1(NSysMax)
+C New variables for EonE implementation
+      double precision shift0(NSysMax), shift1(NSysMax), ersys0(NSysMax)
       double precision Numerator_eps, Denominator_eps
       double precision sum_gamma_theta0, residual, residual_2
       double precision sum_gamma_theta0_j
       integer l_prime
-
       integer iter
+
+      double precision eps2, j_ii, sigma_u2, ratio, b_theta
 C--------------------------------------------------------
 
 C Check if number of sources/data points change:
@@ -1237,6 +1267,7 @@ C Ready to invert
 
          do l=1,nsys
             shift0(l) = - C(l)
+            ersys0(l) = sqrt(A(l,l))
          enddo
       endif
 
@@ -1414,12 +1445,33 @@ C accumulate shifts
          enddo
       endif   ! EoEEnabled
 
+C Account for Bartlett factors
+      if (iflag.eq.3) then 
+         if (BartlettEnabled .and. EoEEnabled) then
+            do i = 1, nsys
+               if (SysForm(i) .eq. isNuisance) then
+                  BartlettSysFactor(i) = 0.0D0
+                  if (EoEActive(i)) then
+                     eps2 = EoEEpsilon(i)*EoEEpsilon(i)
+                     j_ii = A(i,i)
+                     sigma_u2 = ( 1.0D0 / SysPriorScale(i) ) + ( 2.0D0*eps2*shift0(i)*shift0(i) ) / ( 1.0D0 + 2.0D0*eps2 )
+
+                     ratio   = j_ii / sigma_u2 
+
+                     b_theta = ( 4.0D0*ratio - ratio*ratio ) * eps2
+                     BartlettSysFactor(i) = b_theta
+                  endif
+               endif
+            enddo
+         endif
+      endif
+
 C Final combine shifts → write back to rsys_in (nuisance only)
       do l=1,nsys
          if ( SysForm(l) .eq. isNuisance ) then
             rsys_in(l) = shift0(l)
             if (iflag.eq.3) then
-               ersys_in(l) = sqrt(A(l,l))
+               ersys_in(l) = sqrt(A(l,l)) * ( 1 + BartlettSysFactor(l))
             endif
          endif
       enddo

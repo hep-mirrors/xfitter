@@ -139,8 +139,17 @@ C E-on-E defaults
          EoEEpsilon(i) = 0.0D0
       enddo
 
+C Bartlett defaults (unity factors; enabled unless explicitly disabled)
+      BartlettEnabled          = .true.
+      BartlettLRFactor         = 0.0D0
+      BartlettGoFFactor        = 0.0D0
+      do i=1,NSYSMAX
+         BartlettSysFactor(i)  = 0.0D0
+      enddo
+
 C Global EoE defaults from &xFitter (off by default)
       EoE_FromXFit     = .false.
+      BartlettEnabled_FromXFit = .true.
       EoE_Eps_FromXFit = 0.0D0
       EoE_nit_FromXFit = EoE_n_iterations
 
@@ -174,6 +183,7 @@ C-----------------------------------------------
 
       double precision EpsilonAll
       integer n_iterations
+      logical Enable_Bartlett
  
 C Main steering parameters namelist
       namelist/xFitter/
@@ -182,7 +192,7 @@ C Main steering parameters namelist
      $     ControlFitSplit,
      $     Chi2SettingsName, Chi2Settings, Chi2ExtraParam,
      $     AsymErrorsIterations, pdfRotate, UseDataSetIndex,
-     $     EpsilonAll, n_iterations
+     $     EpsilonAll, n_iterations, Enable_Bartlett
 
 C--------------------------------------------------------------
 
@@ -196,6 +206,7 @@ C     Some defaults
 
       EpsilonAll = -1.0D99
       n_iterations = -999
+      Enable_Bartlett = .true.
 
 C
 C  Read the main xFitter namelist:
@@ -237,6 +248,10 @@ C   keep the default set in Set_Defaults
             call hf_errlog(30092501,
      $ 'W: &xFitter EpsilonAll ignored (CorChi2Type != Hessian, can''t implement EoE)')
          endif
+      endif
+
+      if (.not. Enable_Bartlett) then
+         BartlettEnabled_FromXFit = .false.
       endif
 
       if (LDebug) then
@@ -925,10 +940,11 @@ C-----------------------------------------
 C --- EoE inputs (new)
       double precision Epsilon(nsysmax)
       integer n_iterations
+      logical Enable_Bartlett
 
       namelist/ Systematics/ ListOfSources,ScaleByNameName
      $     ,ScaleByNameFactor, PriorScaleName, PriorScaleFactor
-     $     ,Epsilon, n_iterations
+     $     ,Epsilon, n_iterations, Enable_Bartlett
 
       integer i,ii,neps
 
@@ -983,6 +999,7 @@ C EoE local inputs: mark "unset"
       enddo
 
       n_iterations = -999
+      Enable_Bartlett = .true.
 
       open (51,file='steering.txt',status='old')
       read (51,NML=Systematics,END=123,ERR=124)
@@ -1032,6 +1049,7 @@ C --- Prefill from xFitter global defaults (applies to ALL sources)
          enddo
          EoEEnabled       = .true.
          EoE_n_iterations = EoE_nit_FromXFit
+         BartlettEnabled = BartlettEnabled_FromXFit
       endif
 
 C --- Inspect Epsilon() from &Systematics (overrides xFitter for Hessian)
@@ -1081,6 +1099,11 @@ C --- Final global enable if any active
 C --- If &Systematics provided an iteration override, use it only if EoE is enabled
       if (n_iterations .ge. 0 .and. EoEEnabled) then
          EoE_n_iterations = n_iterations
+      endif
+
+C --- If &Systematics provided an Enable_Bartlett override, use it
+      if (.not. Enable_Bartlett) then
+         BartlettEnabled = .false.
       endif
 
       if (LDebug) then

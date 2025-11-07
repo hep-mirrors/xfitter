@@ -149,6 +149,10 @@ C--------------------------------------------------------------
       double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
       double precision pchi2(nset),chi2_log
       double precision pchi2offs(nset)
+      
+      double precision chi2out_print, chi2off_print, fcorchi2_print
+      double precision chi2_log_print, pchi2_print, chi2_poi_print
+      double precision c_bart_chi2, c_bart_ci
 
 *     ---------------------------------------------------------
 *     declaration related to code flow/debug
@@ -165,6 +169,7 @@ C--------------------------------------------------------------
       integer iq, ix, nndi, ndi,ndi2
       character*300 base_pdfname
       integer npts(nset)
+      integer nPOI, nExtSyst
       double precision f2SM,f1SM,flSM
       integer i,j,jsys,ndf,n0,h1iset,jflag,k,pr,nwds
       logical refresh
@@ -405,6 +410,7 @@ c Print time, number of calls, chi2
      $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out,
      $        ndf, chi2out/ndf
       call flush
+
 ! ----------------  RESULTS OUTPUT ---------------------------------
 ! Reopen "Results.txt" file if it is not open
 ! It does not get opened by this point when using CERES
@@ -418,19 +424,64 @@ c Print time, number of calls, chi2
       endif
 
       if (iflag.eq.3) then
+
+         ! ----- Bartlett-only-for-printing scaling -----
+         nExtSyst = 0
+         do i=1,nsys
+            if ( SysForm(i) .eq. isExternal) then
+               nExtSyst = nExtSyst + 1
+            endif
+         enddo
+
+         nPOI = nparFCN - nExtSyst
+         print *, 'External systs = ', nExtSyst
+         c_bart_chi2 = 1.0D0
+         c_bart_ci = 1.0D0
+         if (BartlettEnabled .and. EoEEnabled) then
+            if (ndf .gt. 0) then
+               c_bart_chi2 = 1.0D0 / ( 1.0D0 + BartlettGoFFactor / dble(ndf) )
+               c_bart_ci   = sqrt(1.0D0 + BartlettLRFactor / dble(nPOI))
+               ! Warn only when Bartlett is active and reduces printed values
+               if (c_bart_chi2 .lt. 1.0D0) then
+                  call hf_errlog(25100101,
+     $'W: c_bart_chi2 < 1; mathematically should be <=1, consider setting Enable_Bartlett = .false.')
+               endif
+            endif
+         endif
+
+         ! Scale ONLY what we print:
+         chi2out_print = chi2out * c_bart_chi2
+         if (doOffset) then
+            chi2off_print = (chi2out + OffsDchi2) * c_bart_chi2
+         endif
 !          write(85,*),'NFCN3 ',nfcn3
-         write(85,'(''After minimisation '',F10.2,I6,F10.3)') chi2out,ndf,chi2out/ndf
+         write(85,'(''After minimisation '',F10.2,I6,F10.3)') chi2out_print,ndf,chi2out_print/ndf
 !          if (doOffset .and. iflag.eq.3)
          if (doOffset)
-     $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+     $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2off_print,ndf,chi2off_print/ndf
          write(85,*)
 
+         if (BartlettEnabled .and. EoEEnabled) then
+            write(85,'(A,F12.6)') 'Chi2 Bartlett factor (rescales the chi2) = ', 
+     $        c_bart_chi2
+            write(85,'(A,F12.6)') 'Confidence Intervals Bartlett factor (rescales PDF uncertainties) = ', 
+     $        c_bart_ci
+         endif
+
          write(6,*)
-         write(6,'(''After minimisation '',F10.2,I6,F10.3)') chi2out,ndf,chi2out/ndf
+         write(6,'(''After minimisation '',F10.2,I6,F10.3)') chi2out_print,ndf,chi2out_print/ndf
 !          if (doOffset .and. iflag.eq.3)
          if (doOffset)
-     $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+     $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2off_print,ndf,(chi2off_print)/ndf
          write(6,*)
+
+         if (BartlettEnabled .and. EoEEnabled) then
+            write(6,'(A,F12.6)') 'Chi2 Bartlett factor (rescales the chi2) = ', 
+     $        c_bart_chi2
+            write(6,'(A,F12.6)') 'Confidence Intervals Bartlett factor (rescales PDF uncertainties) = ', 
+     $        c_bart_ci
+         endif
+
 ! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
          ! Store minuit parameters
@@ -477,38 +528,42 @@ c     $           ,chi2_cont/NControlPoints
             if ( Chi2PoissonCorr ) then
                if (npts(h1iset).gt.0) then
                   chi2_log = chi2_log + chi2_poi(h1iset)
+                  
+                  pchi2_print    = pchi2(h1iset)    * c_bart_chi2
+                  chi2_poi_print = chi2_poi(h1iset) * c_bart_chi2
+
                   write(6,'(''Dataset '',i4,F10.2,''('',SP,F6.2,SS,'')'',
      $                 i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
-     $                 ,datasetlabel(h1iset)
-                  write(85,'(''Dataset '',i4,F10.2,
-     $                 ''('',SP,F6.2,SS,'')'',
+     $               h1iset, pchi2_print, chi2_poi_print, npts(h1iset),
+     $               datasetlabel(h1iset)
+
+                  write(85,'(''Dataset '',i4,F10.2,''('',SP,F6.2,SS,'')'',
      $                 i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
-     $                 ,datasetlabel(h1iset)
+     $               h1iset, pchi2_print, chi2_poi_print, npts(h1iset),
+     $               datasetlabel(h1iset)
                endif
             else
                if (npts(h1iset).gt.0) then
-                  write(6,'(''Dataset '',i4,F10.2,
-     $                 i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset)
-     $                 ,npts(h1iset)
-     $                 ,datasetlabel(h1iset)
+                  pchi2_print = pchi2(h1iset) * c_bart_chi2
+                  write(6,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
+     $               h1iset, pchi2_print, npts(h1iset), datasetlabel(h1iset)
                   write(85,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset),npts(h1iset)
-     $                 ,datasetlabel(h1iset)
+     $               h1iset, pchi2_print, npts(h1iset), datasetlabel(h1iset)
                endif
             endif
          enddo
          write(85,*)
-         write(85,*) 'Correlated Chi2 ', fcorchi2
+
+         fcorchi2_print = fcorchi2 * c_bart_chi2
+         write(85,*) 'Correlated Chi2 ', fcorchi2_print
 ! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
-         write(6,*) 'Correlated Chi2 ', fcorchi2
+         write(6,*) 'Correlated Chi2 ', fcorchi2_print
 
          if (Chi2PoissonCorr) then
-            write(6,*) 'Log penalty Chi2 ', chi2_log
-            write(85,*) 'Log penalty Chi2 ', chi2_log
+            chi2_log_print = chi2_log * c_bart_chi2
+            write(6,*)  'Log penalty Chi2 ', chi2_log_print
+            write(85,*) 'Log penalty Chi2 ', chi2_log_print
          endif
 
          base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
@@ -522,8 +577,15 @@ c     $           ,chi2_cont/NControlPoints
 c WS: print NSYS --- needed for batch Offset runs
          write(85,*) 'Systematic shifts ',NSYS
          write(85,*) ' '
-         write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)')
-     $        ' ', 'Name     ', 'Shift','Error',' ','Type'
+         if (BartlettEnabled) then
+            ! header with Bartlett column
+            write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A10,A4)') 
+     $     ' ', 'Name     ', 'Shift','Error','Bartlett','Type'
+         else
+            ! header without Bartlett column (original)
+            write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)') 
+     $     ' ', 'Name     ', 'Shift','Error',' ','Type'
+         endif
          do jsys=1,nsys
 C     !> Store also type of systematic source info
             if ( SysForm(jsys) .eq. isNuisance ) then
@@ -550,9 +612,14 @@ C     !> Store also type of systematic source info
                TypeD = ':T'
             endif
 
-            write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
-     $           jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC,
-     $           TypeC,TypeD
+            if (BartlettEnabled) then
+               write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,F10.4,A8,3A2)') 
+     $     jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys)*(1.0D0 + BartlettSysFactor(jsys)),
+     $     1.0D0 + BartlettSysFactor(jsys), ' ', FormC, TypeC, TypeD
+            else
+               write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)') 
+     $     jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),' ', FormC, TypeC, TypeD
+            endif
          enddo
 
 C Trigger reactions:

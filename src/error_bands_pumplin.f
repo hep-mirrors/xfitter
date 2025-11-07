@@ -16,7 +16,8 @@
       double precision a
       dimension a(MNE)
 
-      integer i,j,npar,idx,idx2,kflag,ii
+      integer i,j,npar,nPOI,nExtSyst,idx,idx2,kflag,ii
+      double precision c_BartLR, bart_scale
       character*48 name,name2
       character*300 base,base2
       character tag(40)*3
@@ -97,8 +98,24 @@ C
          write (6,*) 'internal=',ind,' external=',iexint(ind)
       enddo
 
-
       npar = MNE !> npar runs over external parameters.
+
+      nExtSyst = 0
+      do i=1,nsys
+         if ( SysForm(i) .eq. isExternal) then
+            nExtSyst = nExtSyst + 1
+         endif
+      enddo
+      
+      nPOI = nparFCN - nExtSyst
+      c_BartLR   = 1.0D0
+      bart_scale = 1.0D0
+      if (BartlettEnabled .and. EoEEnabled) then
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
 
       allocate(TheoVars(NTOT,2,mpar))
 C
@@ -147,6 +164,7 @@ C
                     call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)   !> MW&FG for scaling with DeltaChi2>1.0                                           
                     shift = shift_dir * GetUmat(iint,j)*SQRT(errdef)       !> MW&FG for scaling with DeltaChi2>1.0                                      
                   endif
+                  shift = shift * bart_scale
                   a(i) = a(i) + shift
                endif
             enddo  ! i
@@ -266,10 +284,11 @@ C-----------------------------------------
       external fcn
       integer icond
       double precision fmin, fedm, errdef
-      integer npari, nparx, istat, ifail
+      integer npari, nPOI, nExtSyst, nparx, istat, ifail
       integer i,j, k, ind, ind2, mpar, jext
       double precision, allocatable :: Amat(:,:)
       double precision, allocatable :: eigenvalues(:)
+      double precision c_BartLR, denom_bartlr, bart_scale
 C
       integer  iunint(MNE)  ! internal param. number
       integer  iexint(MNE)  ! external param. number
@@ -360,6 +379,30 @@ C scale the matirx
       do i=1,npari
          do j=1,npari
             Amat(j,i) = Amat(j,i) * sqrt(Eigenvalues(i))
+         enddo
+      enddo
+
+C inset bartlett corrections
+      nExtSyst = 0
+      do i=1,nsys
+         if ( SysForm(i) .eq. isExternal) then
+            nExtSyst = nExtSyst + 1
+         endif
+      enddo
+
+      nPOI = nparFCN - nExtSyst     
+      c_BartLR = 1.0D0
+      bart_scale = 1.0D0
+      if (BartlettEnabled .and. EoEEnabled) then
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
+
+      do i=1,npari
+         do j=1,npari
+            Amat(j,i) = Amat(j,i) * bart_scale
          enddo
       enddo
 
