@@ -179,15 +179,20 @@ void ReactionN3LO_DISNC::atIteration()
     }
   else //general mass VFN -> FONLL
     {
+      int msvordmax = 3;
+      if (yamlNode["msvordmax"]) 
+	{
+	  msvordmax = yamlNode["msvordmax"].as<int>();
+	}
       // Initialize structure functions
-      //const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, std::min(PerturbativeOrder,2), as, fBq);
-      //const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, std::min(PerturbativeOrder,2), as, fBq);
-      //const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, std::min(PerturbativeOrder,2), as, fBq);
-      //const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, std::min(PerturbativeOrder,2), as, fBq);
-      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, PerturbativeOrder, as, fBq);
-      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, PerturbativeOrder, as, fBq);
-      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, PerturbativeOrder, as, fBq);
-      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, PerturbativeOrder, as, fBq);
+      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
+      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
+      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
+      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
+      //const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, PerturbativeOrder, as, fBq);
+      //const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, PerturbativeOrder, as, fBq);
+      //const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, PerturbativeOrder, as, fBq);
+      //const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, PerturbativeOrder, as, fBq);
       
       // Tabulate Structure functions
       const apfel::TabulateObject<apfel::Distribution> F2light {[&] (double const& Q) -> apfel::Distribution{ return F2.at(1).Evaluate(Q) + F2.at(2).Evaluate(Q) + F2.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
