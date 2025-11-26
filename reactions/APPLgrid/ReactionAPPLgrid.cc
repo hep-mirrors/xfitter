@@ -14,6 +14,10 @@
 #include<memory>
 #include"BaseEvolution.h"
 
+#ifdef APPLWRAP_FOUND
+#include"applwrap.h"
+#endif
+
 #ifdef PLOUGHSHARE_FOUND
 #include "ploughshare/ploughshare.h"
 #endif
@@ -191,18 +195,25 @@ void ReactionAPPLgrid::compute(TermData*td,valarray<double>&val,map<string,valar
       double eScale=gd.eScale;
       gridVals.resize(grid->Nobs());
       if(!data.flagUseReference){
-	auto const grid_ckm =  grid->getckm();
-	if (grid_ckm.size()>0) // the grid is for W
-	  {
-	    // When setting CKM, keep ellements that are zero in the grid zeros (important for V_{tx})
-	    vector< vector<double> > loc_ckm{ {1,0,0}, {0.,1.,0}, {0.,0.,1} };
-	    for ( int irow=0; irow<3; irow+=1)
-	      for ( int icol=0; icol<3; icol+=1)
-		loc_ckm[irow][icol] =  grid_ckm[irow][icol] == 0 ? 0 : _ckm[irow][icol];
-	    grid->setckm(loc_ckm);
-	  }
+        auto const grid_ckm =  grid->getckm();
+        if (grid_ckm.size()>0) // the grid is for W
+        {
+          vector< vector<double> > loc_ckm{ {1,0,0}, {0.,1.,0}, {0.,0.,1} };
+          for ( int irow=0; irow<3; irow+=1)
+            for ( int icol=0; icol<3; icol+=1)
+              loc_ckm[irow][icol] =  grid_ckm[irow][icol] == 0 ? 0 : _ckm[irow][icol];
+          grid->setckm(loc_ckm);
+        }
         td->actualizeWrappers();
-        gridVals=grid->vconvolute(pdf_xfxq_wrapper_,pdf_xfxq_wrapper1_,alphas_wrapper_,order-1,muR,muF,eScale);
+	#ifdef APPLWRAP_FOUND
+        // --- Use applwrap sconvolute instead of vconvolute ---
+	appl::TH1D* hres = applwrap(grid).sconvolute(pdf_xfxq_wrapper_, pdf_xfxq_wrapper1_, alphas_wrapper_, order-1, muR, muF, eScale);
+	gridVals = hres->y();
+	delete hres;
+	#else
+	// --- Use standard vconvolute function ---
+	gridVals=grid->vconvolute(pdf_xfxq_wrapper_,pdf_xfxq_wrapper1_,alphas_wrapper_,order-1,muR,muF,eScale);
+	#endif
       }else{
         // use reference histogram
         TH1D*ref=gd.reference;
