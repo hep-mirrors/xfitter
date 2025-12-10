@@ -56,8 +56,10 @@ namespace xfitter
     std::function<double(double const& Q)>                                  _AlphaQCD;
     /// pertirbative order
     int _PtOrder;
-    /// resummation scale coeeficient
+    /// resummation scale coefficient
     double _xi;
+    /// ratio of resummation scale in alphaS evolution over resummation scale in PDF evolution
+    double _xi_aspdf;
     /// pointer to alphas parameter
     double* _alphas;
     /// Evolution starting scale:

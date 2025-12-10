@@ -4,6 +4,7 @@ QGrid: [50, 1, 1000, 3]
 QGridAs: [100, 0.9, 1001, 3]
 heavyQuarkMassScheme : "Pole" # or "MSBar"
 xi : 1.0 # ratio of resummation scale over Q
+xi_aspdf : 1.0 # ratio of resummation scale in alphaS evolution over resummation scale in PDF evolution
 kmc : 1.0 # ratio between charm quark threshold and mass
 kmb : 1.0 # ratio between bottom quark threshold and mass
 kmt : 1.0 # ratio between top quark threshold and mass

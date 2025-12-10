@@ -45,6 +45,7 @@ namespace xfitter
 
     // resummation scale variation
     _xi = yamlNode["xi"].as<double>();
+    _xi_aspdf = yamlNode["xi_aspdf"].as<double>();
 
     const YAML::Node xGrid = yamlNode["xGrid"];
     vector<apfel::SubGrid> sgv;
@@ -118,7 +119,7 @@ namespace xfitter
     // value to be fitted.
     if (_heavyQuarkMassScheme == "Pole") {
       //apfel::AlphaQCD a{*_alphas, *_alphas_q0, _Masses, _Thresholds, _PtOrder};
-      apfel::AlphaQCDxi a{*_alphas, *_alphas_q0, _Masses, _Thresholds, _PtOrder, _xi};
+      apfel::AlphaQCDxi a{*_alphas, *_alphas_q0, _Masses, _Thresholds, _PtOrder, _xi * _xi_aspdf};
       //const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
       const YAML::Node QGridAs   = yamlNode["QGridAs"];
       const apfel::TabulateObject<double> Alphas{a, 
@@ -130,7 +131,7 @@ namespace xfitter
       _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
     }
     else if (_heavyQuarkMassScheme == "MSBar") {
-      if (_xi != 1.) {
+      if (_xi != 1. || _xi_aspdf != 1.) {
         hf_errlog(2025031001, "F: MSbar masses and resummation scale mu != 1.0 is unavailable");
       }
       apfel::AlphaQCDMSbarMass a{*_alphas, *_alphas_q0, _Masses, _Thresholds, _PtOrder};
