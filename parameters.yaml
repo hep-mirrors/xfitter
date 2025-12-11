@@ -194,6 +194,8 @@ Profiler:
   WriteTheo: "Off"              # Can be "Off", "On" or "Asymmetric" (to store asymmetric variations)
   getChi2: "Off"                # determine and report chi2 for each variation
   enableExternalProfiler: "Off" # enable creation of additional files, needed for xfitter draw
+  T2: 1                         # Scale squared beta terms in the profiling by tolerance factor T2
+  NRemovePrior: 0               # Remove penalty terms for the last N PDF eigenvectors
 
 OutputDirectory: "output" #Can be omitted, default is "output"
 
