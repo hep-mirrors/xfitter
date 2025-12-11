@@ -34,10 +34,10 @@ namespace xfitter
     std::pair <std::valarray<double>,double> evaluatePredictions();
 
     /// add symmetric systematic uncertainty with the name and corresponding variations
-    void addSystematics( std::string const& name, std::valarray<double> uncertainties );
+    void addSystematics( std::string const& name, std::valarray<double> uncertainties, double prior = 1. );
 
     /// add asymmetric systematic uncertainty with the name and corresponding variations
-    void addSystematics( std::string const& name, std::valarray<double> uncertaintiesP,  std::valarray<double> uncertaintieM );
+    void addSystematics( std::string const& name, std::valarray<double> uncertaintiesP,  std::valarray<double> uncertaintieM, double prior = 1. );
 
     /// profile single parameter which is already identified to be present on gParameters list.
     void profileParameter( std::string const& name, YAML::Node const& node) ;
@@ -72,6 +72,12 @@ namespace xfitter
 
     /// keep info of the number of input syst. sources
     int _nSourcesOrig{0};
+
+    /// Add a tolerance penalty factor to the profiling
+    float _T2{1.0};
+
+    /// Remove prior for the last N PDF members
+    int _nremoveprior{0};
 
     /// store pdf files or not (for plotting)
     bool _storePdfs{false};

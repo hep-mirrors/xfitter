@@ -105,13 +105,14 @@ namespace xfitter
 
   }
   
-  void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertainties ) {
+  void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertainties, double prior ) {
 
     // Fortran inteface
     size_t npt = uncertainties.size();
     int nsys = systema_.nsys;
     addsystematics_(name.c_str(), name.size());
     sysmeas_.n_syst_meas[nsys] = npt;
+    csystprior_.syspriorscale[nsys] = prior;
     for (int j = 0; j < npt; j++) {
       sysmeas_.syst_meas_idx[nsys][j] = j + 1;
       systema_.beta[j][nsys] =  -uncertainties[j];
@@ -125,13 +126,14 @@ namespace xfitter
     return;
   }
 
-  void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertaintiesP,   std::valarray<double> uncertaintiesM) {
+  void Profiler::addSystematics( std::string const& name, std::valarray<double> uncertaintiesP,   std::valarray<double> uncertaintiesM, double prior ) {
 
     // Fortran inteface
     size_t npt = uncertaintiesP.size();
     int nsys = systema_.nsys;
     addsystematics_(name.c_str(), name.size());
     sysmeas_.n_syst_meas[nsys] = npt;
+    csystprior_.syspriorscale[nsys] = prior;
     for (int j = 0; j < npt; j++) {
       sysmeas_.syst_meas_idx[nsys][j] = j + 1;
       
@@ -170,6 +172,18 @@ namespace xfitter
     if (node["scalePdfs"]) {
       _scalePdfs = node["scalePdfs"].as<float>();
       cerr << "[INFO] Rescaling PDF eigenvectors by factor: " <<node["scalePdfs"].as<float>()<<endl;
+    }
+
+    //Tolerance factor
+    if (node["T2"]) {
+      _T2 = node["T2"].as<float>();
+      cerr << "[INFO] Scale squared beta terms in the profiling by tolerance factor T2 = " <<node["T2"].as<float>()<<endl;
+    }
+
+    //Remove prior
+    if (node["NRemovePrior"]) {
+      _nremoveprior = node["NRemovePrior"].as<int>();
+      cerr << "[INFO] Remove penalty terms for the last " << node["NRemovePrior"].as<int>() << " PDF eigenvectors" << endl;
     }
     
     // extra info for xfitter-draw and xfitter-profile:
@@ -557,14 +571,30 @@ namespace xfitter
         // Depending on error type, do nuisance parameters addition
         if ( errorType == "symmhessian" ) {
           for (int imember = first; imember<=last; imember++) {
-            addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T",(preds[imember-first+1]-preds[0])/preds[0]/_scalePdfs);
+	    double prior = _T2;
+	    if (last-imember <= _nremoveprior)
+	      {
+		cerr << "[INFO] Remove prior for syst " << "PDF_nuisance_param_"+std::to_string( ++_ipdf ) << endl;
+		string msg = (string) "I: Remove prior for systematic " + "PDF_nuisance_param_"+std::to_string( ++_ipdf );
+		hf_errlog_(15082401, msg.c_str(), msg.size());
+		prior = 0.;
+	      }
+            addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T",(preds[imember-first+1]-preds[0])/preds[0]/_scalePdfs,prior);
           }
         }
         else if ( errorType == "hessian") {
           for (int imember = first; imember<=last; imember += 2) {
+	    double prior = _T2;
+	    if (last-imember <= 2*_nremoveprior)
+	      {
+		cerr << "[INFO] Remove prior for syst " << "PDF_nuisance_param_"+std::to_string( ++_ipdf ) << endl;
+		string msg = (string) "I: Remove prior for systematic " + "PDF_nuisance_param_"+std::to_string( ++_ipdf );
+		hf_errlog_(15082401, msg.c_str(), msg.size());
+		prior = 0.;
+	      }
             addSystematics("PDF_nuisance_param_"+std::to_string( ++_ipdf )+":T"
                            ,(preds[imember-first+1]-preds[0])/preds[0]/_scalePdfs
-                           ,(preds[imember+1-first+1]-preds[0])/preds[0]/_scalePdfs);
+                           ,(preds[imember+1-first+1]-preds[0])/preds[0]/_scalePdfs,prior);
           }
         }
         else if ( errorType == "replicas") {
