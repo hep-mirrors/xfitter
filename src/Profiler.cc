@@ -572,7 +572,7 @@ namespace xfitter
         if ( errorType == "symmhessian" ) {
           for (int imember = first; imember<=last; imember++) {
 	    double prior = _T2;
-	    if (last-imember <= _nremoveprior)
+	    if (last-imember < _nremoveprior)
 	      {
 		cerr << "[INFO] Remove prior for syst " << "PDF_nuisance_param_"+std::to_string( ++_ipdf ) << endl;
 		string msg = (string) "I: Remove prior for systematic " + "PDF_nuisance_param_"+std::to_string( ++_ipdf );
@@ -585,7 +585,7 @@ namespace xfitter
         else if ( errorType == "hessian") {
           for (int imember = first; imember<=last; imember += 2) {
 	    double prior = _T2;
-	    if (last-imember <= 2*_nremoveprior)
+	    if (last-imember < 2*_nremoveprior)
 	      {
 		cerr << "[INFO] Remove prior for syst " << "PDF_nuisance_param_"+std::to_string( ++_ipdf ) << endl;
 		string msg = (string) "I: Remove prior for systematic " + "PDF_nuisance_param_"+std::to_string( ++_ipdf );
