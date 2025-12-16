@@ -50,6 +50,10 @@ extern"C" {
   void getnewchisquare_(int &flag_in, int &n0_in, double &fchi2_in, double *rsys_in, double *ersys_in, double *pchi2_in, double &fcorchi2_in);
 
   extern struct {
+    double T2;
+  } tolerance_;
+  
+  extern struct {
     double alpha[NTOT_C];       // Total uncorrelated errors
     double alpha_mod[NTOT_C];   // Total uncorrelated errors modified
     double beta[NTOT_C][NSYSMAX_C];   // Influence of systematic errors on measurements

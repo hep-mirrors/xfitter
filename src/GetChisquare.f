@@ -17,6 +17,7 @@ C---------------------------------------------------------
 #include "systematics.inc"
 #include "indata.inc"
 #include "datasets.inc"
+#include "tolerance.inc"
 
       integer n0_in, flag_in
       double precision fchi2_in, ERSYS_in(NSYSMax), RSYS_in(NSYSMax)
@@ -214,7 +215,6 @@ C !> Calculate chi2
      $     ndiag, list_diag, ncovar, list_covar,
      $     fchi2_in, pchi2_in, fcorchi2_in)
 
-
 C !> Add log term
       if ( Chi2PoissonCorr ) then
          call chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
@@ -228,6 +228,7 @@ C !> Add log term
       endif
        ! print*,'fchi2_in=',fchi2_in
 
+      fchi2_in = fchi2_in/T2
 
 C
 C !> Store extra output for FCN = 3:
@@ -982,6 +983,7 @@ C-------------------------------------------------------------------------------
 #include "theo.inc"
 #include "indata.inc"
 #include "steering.inc"
+#include "tolerance.inc"
 C
       double precision ScaledErrors(NTOT)
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
@@ -1240,6 +1242,7 @@ C Loop over all sources, find theory sources, count them.
                write (52,'(i3)') npdf
 
                do l=1,npdf
+                  ersys_in(itheoisys(l))=ersys_in(itheoisys(l))*sqrt(T2)
                   write (52,'(i3,2F8.4)') l,
      $                 rsys_in(itheoisys(l)),
      $                 ersys_in(itheoisys(l))
@@ -1252,12 +1255,12 @@ C Loop over all sources, find theory sources, count them.
                write (52,'(i3)') nsys-nsysdata
                do l=1,npdf
                   write (52,'(i3,200F8.4)')  l, (
-     $                 A(itheoisys(k),itheoisys(l))
+     $                 A(itheoisys(k),itheoisys(l))*T2
      $                 /ersys_in(itheoisys(k))
      $                 /ersys_in(itheoisys(l)),
      $                 k=1,npdf)
                   do k=1,npdf
-                     AA(k,l) = A(itheoisys(k),itheoisys(l))
+                     AA(k,l) = A(itheoisys(k),itheoisys(l))*T2
                   enddo
                enddo
                close (52)

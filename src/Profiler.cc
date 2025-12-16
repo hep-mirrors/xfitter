@@ -179,6 +179,7 @@ namespace xfitter
       _T2 = node["T2"].as<float>();
       cerr << "[INFO] Scale squared beta terms in the profiling by tolerance factor T2 = " <<node["T2"].as<float>()<<endl;
     }
+    tolerance_.T2 = _T2;
 
     //Remove prior
     if (node["NRemovePrior"]) {
@@ -587,8 +588,8 @@ namespace xfitter
 	    double prior = _T2;
 	    if (last-imember < 2*_nremoveprior)
 	      {
-		cerr << "[INFO] Remove prior for syst " << "PDF_nuisance_param_"+std::to_string( ++_ipdf ) << endl;
-		string msg = (string) "I: Remove prior for systematic " + "PDF_nuisance_param_"+std::to_string( ++_ipdf );
+		cerr << "[INFO] Remove prior for syst " << "PDF_nuisance_param_"+std::to_string( _ipdf+1 ) << endl;
+		string msg = (string) "I: Remove prior for systematic " + "PDF_nuisance_param_"+std::to_string( _ipdf+1 );
 		hf_errlog_(15082401, msg.c_str(), msg.size());
 		prior = 0.;
 	      }
