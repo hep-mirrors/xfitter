@@ -30,6 +30,26 @@ C New user routines for PDFs and alpha_S have to be provided in this version
       RETURN
       END
 
+C------------------
+!      DOUBLE PRECISION FUNCTION XQG0(k,iq,xb,ix)
+!      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+
+!!  The PDF input at the evolution starting scale
+
+!      xqg0=0.
+
+!      IF (IQ.EQ.1) XQG0=2.37*xb**(-0.3)*(1-xb)**12.                   ! gluon
+!      IF (IQ.EQ.2) XQG0=(0.145*xb**(-0.27)+1.6*xb**0.6)*(1-xb)**4.5   ! d
+!      IF (IQ.EQ.4) XQG0=(0.16*xb**(-0.26)+3.5*xb**0.7)*(1-xb)**3.7    ! u
+!      IF (IQ.EQ.6) XQG0=0.108*xb**(-0.29)*(1-xb)**10.                 ! s
+!      IF (IQ.EQ.3) XQG0=0.14*xb**(-0.275)*(1-xb)**7                   ! dbar
+!      IF (IQ.EQ.5) XQG0=0.14*xb**(-0.275)*(1-xb)**9                   ! ubar
+!      IF (IQ.EQ.7) XQG0=0.108*xb**(-0.29)*(1-xb)**10.                 ! sbar
+
+!      RETURN
+!      END
+c-----------------------
+
       DOUBLE PRECISION FUNCTION DiLog(X)
       double precision x
       double precision ddilog

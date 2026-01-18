@@ -41,4 +41,7 @@ namespace abm {
   double calc_point_strfun_NC(const SFtype ftype, const SFflav flav, const double q2, const double x, 
     const int order, const int orderDefault, const int orderHQ, const int orderFL, const bool msbar, 
     const int charge, const double sin2thw, const double polar, const double mz);
+  void set_scheme_and_order_for_evolution(double mc, double mb);
+  double alphas(const double& q2);
+  double xqg(const int& iq, const double& xb, const double& q2, const int& kp);
 }

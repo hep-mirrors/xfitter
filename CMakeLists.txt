@@ -176,6 +176,7 @@ add_subdirectory(evolutions/FlipCharge)
 add_subdirectory(evolutions/FlipUD)
 add_subdirectory(evolutions/LHAPDF)
 add_subdirectory(evolutions/HOPPET)
+add_subdirectory(evolutions/OPENQCDRAD)
 
 #Reactions
 add_subdirectory(reactions/NC_SIA)
@@ -204,8 +205,6 @@ add_subdirectory(reactions/fastNLO)
 add_subdirectory(reactions/CIJET)
 add_subdirectory(reactions/DYTurbo)
 add_subdirectory(reactions/PineAPPL)
-add_subdirectory(reactions/HOPPET_DISNC)
-add_subdirectory(reactions/HOPPET_DISCC)
 add_subdirectory(reactions/EFT)
 
 #Tools

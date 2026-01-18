@@ -5,6 +5,7 @@ extern "C" {
   // PDFs
   void initgridconst_();
   void pdffillgrid_();
+  void apeqsol_();
   // structure functions
   double f2qcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
   double flqcd_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2);
@@ -14,6 +15,10 @@ extern "C" {
   double f2nucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
   double ftnucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
   double f3nucharm_(const int& nb, const int& nt, const int& ni, const double& xb, const double& q2, const int& nq);
+  // PDF and alphaS evolution    
+  double alphas_(const double& q2);
+  double xqg_(const int& iq, const double& xb, const double& q2, const int& kp);
+  double xqg0_(const int& k, const int& iq, const double& xb, const int& ix) {throw 42;};
   
   struct COMMON_masses
   {
@@ -50,7 +55,6 @@ extern "C" {
   };
   extern COMMON_forpdfset forpdfset_;
 
-
   struct COMMON_forschemedef
   {
     double ddnnlohq;
@@ -58,6 +62,14 @@ extern "C" {
     double bmsnfopt,bmsnnlo,vloop;
   };
   extern COMMON_forschemedef forschemedef_;
+
+  struct COMMON_qcdpar {
+    double cf,cg,tr,qsum[6],qsum0[6],vfnth[6];
+    double vqu,aqu,vqd,aqd,vaq2u,vaq2d,vaq2sum[6],vaqsum[6];
+    double vlu,alu,vld,ald,val2u,val2d;
+    int nc,nf,nfe,nfc;
+  };
+  extern COMMON_qcdpar qcdpar_;
 }
 
 #include <cstdio>
@@ -229,5 +241,46 @@ namespace abm {
     }
     hf_errlog(28022501, "F: Unsupported structure function type or flavour");
     return 0; // avoid warning
+  }
+
+  void set_scheme_and_order_for_evolution(double mc, double mb) {
+    foralpsrenorm_.kordalps=2; // NNLO evolution of \alpha_s (1: NLO) 
+    forpdfset_.kordkernel=2; // NNLO evolution kernels (1: NLO)
+    foralpsrenorm_.kordhq=1; // NLO OMEs for the 4- and 5-flavour matching 
+
+    qcdpar_.nf=5; // maximal number of flavours to be generated
+
+    forschemedef_.msbarm=1; // MSbar-definition of the massive OMEs
+    masses_.rmass[7]=mc; // MSbar c-quark mass
+    qcdpar_.vfnth[3]=mc; // 4-flavour PDF matching at m_c 
+    masses_.rmass[9]=mb; // MSbar b-quark mass
+    qcdpar_.vfnth[5]=mb; // 5-flavour PDF matching at m_c 
+
+    foralpsrenorm_.q20alphas=0.894427*0.894427; // starting scale of the \alpha_s evolution
+    foralpsrenorm_.alphas0=0.4448619; // 3-flavour \alpha_s at evolution starting scale 
+
+    foralpsrenorm_.q20=9e0; // starting scale of the PDF evolution
+
+    gridset_.q2max=1e8; //2.1e4; // upper scale margin of the PDF evolution
+    gridset_.q2min=0.65; //1e0; // low scale margin of the PDF evolution
+    gridset_.xbmin=5e-7; //5e-6; // low margin of the x-grid
+
+    //the number of nodes in the x-grid at x>0.3 and x<0.3, respectively
+    gridset_.nxpgrid=100;              
+    gridset_.nxmgrid=100; 
+    // the number of nodes in the x-grid at Q2>Q20 and Q2<Q20, respectively
+    gridset_.nspgrid=60;
+    gridset_.nsmgrid=3;
+
+    initgridconst_();
+    apeqsol_();
+  }
+
+  double alphas(const double& q2) {
+    return alphas_(q2);
+  }
+
+  double xqg(const int& iq, const double& xb, const double& q2, const int& kp) {
+    return xqg_(iq, xb, q2, kp);
   }
 }

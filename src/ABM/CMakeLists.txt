@@ -1,8 +1,10 @@
 add_library(ABM SHARED
   alphasvfn.f
+  apsolve.f
   asy-hpcc.f
   asympcoef.f
   CMakeLists.txt
+  cq.f
   dishq.f
   dislt.f
   disqpm.f
