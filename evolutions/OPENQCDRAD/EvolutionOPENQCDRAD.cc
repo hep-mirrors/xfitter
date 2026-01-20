@@ -11,6 +11,7 @@ using namespace std;
 xfitter::BasePdfDecomposition *gPdfDecomp = nullptr;
 extern "C" {
   double xqg0_(const int& k, const int& iq, const double& xb, const int& ix) {
+    //printf("xqg0_ k,iq,xb,ix = %d,%d,%e,%d\n", k,iq,xb,ix);
     std::map<int, int> ip =
       {{1, 21},{2, 1},{3, -1}, {4, 2}, {5, -2}, {6, 3}, {7, -3}};
     if(ip.find(iq) != ip.end()) {

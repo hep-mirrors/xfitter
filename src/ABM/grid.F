@@ -344,7 +344,10 @@ C------------------
 
       xb=min(xx,xbmax)
 
-      if(q2.gt.q2max.or.q2.lt.q2min)
+      ! SZ 2026.01.19 avoid warning if |q2-q2max|<eps
+      !if(q2.gt.q2max.or.q2.lt.q2min)
+      eps = 1.d-8
+      if(q2-q2max.gt.eps.or.q2.lt.q2min)
      -            print*,'q2 out of range in xqg:',q2,q2min,q2max
       s=log(log(q2/0.04)/log(q2ini(kp)/0.04))
       if (s.ge.0.) then

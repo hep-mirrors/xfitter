@@ -248,7 +248,7 @@ namespace abm {
     forpdfset_.kordkernel=2; // NNLO evolution kernels (1: NLO)
     foralpsrenorm_.kordhq=1; // NLO OMEs for the 4- and 5-flavour matching 
 
-    qcdpar_.nf=5; // maximal number of flavours to be generated
+    qcdpar_.nf=3; // maximal number of flavours to be generated
 
     forschemedef_.msbarm=1; // MSbar-definition of the massive OMEs
     masses_.rmass[7]=mc; // MSbar c-quark mass
@@ -259,18 +259,18 @@ namespace abm {
     foralpsrenorm_.q20alphas=0.894427*0.894427; // starting scale of the \alpha_s evolution
     foralpsrenorm_.alphas0=0.4448619; // 3-flavour \alpha_s at evolution starting scale 
 
-    foralpsrenorm_.q20=9e0; // starting scale of the PDF evolution
+    foralpsrenorm_.q20=9.0e0; // starting scale of the PDF evolution
 
-    gridset_.q2max=1e8; //2.1e4; // upper scale margin of the PDF evolution
-    gridset_.q2min=0.65; //1e0; // low scale margin of the PDF evolution
-    gridset_.xbmin=5e-7; //5e-6; // low margin of the x-grid
+    gridset_.q2max=1.01e5; //2.1e4; // upper scale margin of the PDF evolution
+    gridset_.q2min=0.799; //1e0; // low scale margin of the PDF evolution
+    gridset_.xbmin=0.99e-6; //5e-6; // low margin of the x-grid
 
     //the number of nodes in the x-grid at x>0.3 and x<0.3, respectively
     gridset_.nxpgrid=100;              
     gridset_.nxmgrid=100; 
     // the number of nodes in the x-grid at Q2>Q20 and Q2<Q20, respectively
-    gridset_.nspgrid=60;
-    gridset_.nsmgrid=3;
+    gridset_.nspgrid=150;
+    gridset_.nsmgrid=30;
 
     initgridconst_();
     apeqsol_();
