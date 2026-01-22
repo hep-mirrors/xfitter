@@ -131,7 +131,7 @@ C
          System(i) = ' '
       enddo
 
-C E-on-E defaults (no steering from &xFitter)
+C E-on-E defaults
       EoEEnabled       = .false.
       EoE_n_iterations = 2
       do i=1,NSYSMAX
@@ -139,7 +139,7 @@ C E-on-E defaults (no steering from &xFitter)
          EoEEpsilon(i) = 0.0D0
       enddo
 
-C Bartlett defaults (unity factors; enabled unless explicitly disabled)
+C Bartlett defaults 
       BartlettEnabled          = .true.
       BartlettLRFactor         = 0.0D0
       BartlettGoFFactor        = 0.0D0

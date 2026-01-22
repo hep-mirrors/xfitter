@@ -614,7 +614,7 @@ C     !> Store also type of systematic source info
 
             if (BartlettEnabled) then
                write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,F10.4,A8,3A2)') 
-     $     jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys)*(1.0D0 + BartlettSysFactor(jsys)),
+     $     jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),
      $     1.0D0 + BartlettSysFactor(jsys), ' ', FormC, TypeC, TypeD
             else
                write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)') 

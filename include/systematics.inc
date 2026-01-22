@@ -83,7 +83,7 @@ C Penalty term for systematic sources, 1 by default.
       double precision     SysPriorScale(nsysmax)
       common/CSystPrior/SysPriorScale
 
-C  Errors-on-Errors settings (steered only via &Systematics)
+C  Errors-on-Errors settings
       logical          EoEEnabled
       integer          EoE_n_iterations
       logical          EoEActive(NSYSMAX)
@@ -91,7 +91,7 @@ C  Errors-on-Errors settings (steered only via &Systematics)
 
       common/CEonE/ EoEEnabled, EoE_n_iterations, EoEActive, EoEEpsilon
 
-C --- Bartlett corrections for EoE (steered only via &Systematics)
+C --- Bartlett corrections for EoE
       logical BartlettEnabled
       double precision BartlettLRFactor     
       double precision BartlettGoFFactor    

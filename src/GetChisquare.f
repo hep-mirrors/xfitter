@@ -1466,12 +1466,12 @@ C Account for Bartlett factors
          endif
       endif
 
-C Final combine shifts → write back to rsys_in (nuisance only)
+C Apply Bartlett factors to ersys_in
       do l=1,nsys
          if ( SysForm(l) .eq. isNuisance ) then
             rsys_in(l) = shift0(l)
             if (iflag.eq.3) then
-               ersys_in(l) = sqrt(A(l,l)) * ( 1 + BartlettSysFactor(l))
+               ersys_in(l) = sqrt(A(l,l)) * sqrt( 1 + BartlettSysFactor(l))
             endif
          endif
       enddo
@@ -1755,16 +1755,13 @@ c partial chisq are not reasonably defined
 C Correlated chi2 part:
       fcorchi2_in = 0.d0
       do k=1, NSys
-C Default: quadratic prior for both nuisance and external
          if (SysForm(k) .eq. isNuisance .or. SysForm(k) .eq. isExternal) then
             if (EoEEnabled .and. EoEActive(k)) then
-C EoE log constraint
                temp_val = 2.0D0 * EoEEpsilon(k)**2 * rsys_in(k)**2 * SysPriorScale(k)
                fcorchi2_in = fcorchi2_in
      $            + (1.0D0 + 1.0D0/(2.0D0*EoEEpsilon(k)**2))
      $              * log(1.0D0 + temp_val)
             else
-C Quadratic constraint
                fcorchi2_in = fcorchi2_in + rsys_in(k)**2 * SysPriorScale(k)
             endif
          endif
