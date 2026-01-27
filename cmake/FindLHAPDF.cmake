@@ -1,4 +1,4 @@
-find_program(lhapdf-config /afs/cern.ch/user/e/ecanoner/PDFfit/xfitter-v1.1/deps/lhapdf/bin/lhapdf-config PATHS ${CMAKE_SOURCE_DIR}/deps/lhapdf/bin)
+find_program(lhapdf-config lhapdf-config PATHS ${CMAKE_SOURCE_DIR}/deps/lhapdf/bin)
 if(EXISTS "${lhapdf-config}")
   set(LHAPDF_FOUND 1)
   execute_process(COMMAND ${lhapdf-config} --version OUTPUT_VARIABLE LHAPDF_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
