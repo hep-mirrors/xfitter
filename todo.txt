@@ -1,0 +1,4 @@
+# cuba problem (dyturbo disabled):
+cp /home/zenaiev/soft/dyturbo-1.4.2/build/include/dyturbo/cuba.h reactions/FFABM_DISCC/
+cp /home/zenaiev/soft/dyturbo-1.4.2/build/include/dyturbo/cubature.h reactions/FFABM_DISCC/
+sudo cp /home/zenaiev/soft/dyturbo-1.4.2/build/lib/libcuba.a /usr/lib/aarch64-linux-gnu
