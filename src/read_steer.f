@@ -980,6 +980,31 @@ C Decode the list of sources (builds System(:) and NSys)
       do i=1,nsysmax
          if (ListOfSources(i).ne.' ') then
             Call AddSystematics(ListOfSources(i))
+
+C Extract embedded epsilon if present (@eps= suffix)
+            ii = index(ListOfSources(i),'@eps=')
+            if (ii.gt.0) then
+               read(ListOfSources(i)(ii+5:),*,ERR=125) EoEEpsilon(nsys)
+               if (EoEEpsilon(nsys) .gt. 0.0D0) then
+                  EoEActive(nsys) = .true.
+               else if (EoEEpsilon(nsys) .eq. 0.0D0) then
+                  EoEActive(nsys) = .false.
+               else
+                  call hf_errlog(29092503,
+     $                 'F: Embedded epsilon must be >= 0')
+                  call hf_stop
+               endif
+
+C Validate that EoE is only used with compatible forms (N or E)
+               if (SysForm(nsys) .ne. isNuisance .and.
+     $             SysForm(nsys) .ne. isExternal) then
+                  if (EoEEpsilon(nsys) .gt. 0.0D0) then
+                     call hf_errlog(29092504,
+     $'W: EoE (@eps) only applies to :N or :E forms, ignored for: '
+     $                    //System(nsys))
+                  endif
+               endif
+            endif
          else
             exit
          endif
@@ -1007,7 +1032,8 @@ C======================================================
 C                 Errors-on-Errors (EoE)
 C======================================================
 
-C --- Inspect Epsilon() from &Systematics
+C --- Legacy Epsilon array processing (kept for backward compatibility)
+C --- Note: New format uses embedded @eps= syntax in ListOfSources
       neps = 0
       do i=1,nsys
          if (Epsilon(i) .gt. -1.0D98) then
@@ -1072,6 +1098,10 @@ C --- If &Systematics provided an Enable_Bartlett use it
       return
 
  124  print '(''Error reading namelist &systematics, STOP'')'
+      Call HF_stop
+
+ 125  print '(''Error parsing embedded @eps= value, STOP'')'
+      print '(''Expected format: sourcename:modifiers@eps=0.5'')'
       Call HF_stop
 
 C----------------------------------------
@@ -1215,10 +1245,16 @@ C-----------------------------------------------------------------------------
 
       character*64 SourceName
 
-      integer ii,iasym
+      integer ii,iasym,ieps
 C-----------------------------------------
 
       SourceName = SName
+
+C Strip @eps= suffix before processing modifiers
+      ieps = index(SourceName,'@eps=')
+      if (ieps.gt.0) then
+         SourceName = SourceName(1:ieps-1)
+      endif
 
       nsys = nsys + 1
       if (NSYS.gt.NSysMax) then

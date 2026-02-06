@@ -153,6 +153,7 @@ C--------------------------------------------------------------
       double precision chi2out_print, chi2off_print, fcorchi2_print
       double precision chi2_log_print, pchi2_print, chi2_poi_print
       double precision c_bart_chi2, c_bart_ci
+      double precision ersys_raw, bart_weight, eps_i, b_theta_i
 
 *     ---------------------------------------------------------
 *     declaration related to code flow/debug
@@ -449,16 +450,28 @@ c Print time, number of calls, chi2
             endif
          endif
 
-         ! Scale ONLY what we print:
-         chi2out_print = chi2out * c_bart_chi2
+         ! Print RAW chi2 (unscaled minimization output)
+         write(85,'(''Chi2 after minimisation      '',F10.2,I6,F10.3)')
+     $        chi2out,ndf,chi2out/ndf
          if (doOffset) then
-            chi2off_print = (chi2out + OffsDchi2) * c_bart_chi2
+            write(85,'(''  Offset corrected (raw)     '',F10.2,I6,F10.3)')
+     $           chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          endif
-!          write(85,*),'NFCN3 ',nfcn3
-         write(85,'(''After minimisation '',F10.2,I6,F10.3)') chi2out_print,ndf,chi2out_print/ndf
-!          if (doOffset .and. iflag.eq.3)
-         if (doOffset)
-     $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2off_print,ndf,chi2off_print/ndf
+
+         ! Print Bartlett-corrected chi2 if enabled
+         if (BartlettEnabled .and. EoEEnabled) then
+            chi2out_print = chi2out * c_bart_chi2
+            write(85,'(''Corrected Chi2               '',F10.2,I6,F10.3)')
+     $           chi2out_print,ndf,chi2out_print/ndf
+            if (doOffset) then
+               chi2off_print = (chi2out + OffsDchi2) * c_bart_chi2
+               write(85,'(''  Offset corrected (Bartlett)'',F10.2,I6,F10.3)')
+     $              chi2off_print,ndf,chi2off_print/ndf
+            endif
+         else
+            chi2out_print = chi2out
+            if (doOffset) chi2off_print = chi2out + OffsDchi2
+         endif
          write(85,*)
 
          if (BartlettEnabled .and. EoEEnabled) then
@@ -469,18 +482,26 @@ c Print time, number of calls, chi2
          endif
 
          write(6,*)
-         write(6,'(''After minimisation '',F10.2,I6,F10.3)') chi2out_print,ndf,chi2out_print/ndf
-!          if (doOffset .and. iflag.eq.3)
-         if (doOffset)
-     $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2off_print,ndf,(chi2off_print)/ndf
-         write(6,*)
-
-         if (BartlettEnabled .and. EoEEnabled) then
-            write(6,'(A,F12.6)') 'Chi2 Bartlett factor (rescales the chi2) = ', 
-     $        c_bart_chi2
-            write(6,'(A,F12.6)') 'Confidence Intervals Bartlett factor (rescales PDF uncertainties) = ', 
-     $        c_bart_ci
+         write(6,'(''Chi2 after minimisation      '',F10.2,I6,F10.3)')
+     $        chi2out,ndf,chi2out/ndf
+         if (doOffset) then
+            write(6,'(''  Offset corrected (raw)     '',F10.2,I6,F10.3)')
+     $           chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
          endif
+         if (BartlettEnabled .and. EoEEnabled) then
+            write(6,'(''Corrected Chi2               '',F10.2,I6,F10.3)')
+     $           chi2out_print,ndf,chi2out_print/ndf
+            if (doOffset) then
+               write(6,'(''  Offset corrected (Bartlett)'',F10.2,I6,F10.3)')
+     $              chi2off_print,ndf,chi2off_print/ndf
+            endif
+            write(6,*)
+            write(6,'(A,F12.6)')
+     $        'Chi2 Bartlett factor (rescales the chi2) = ', c_bart_chi2
+            write(6,'(A,F12.6)')
+     $        'CI Bartlett factor (rescales PDF uncertainties) = ',c_bart_ci
+         endif
+         write(6,*)
 
 ! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
@@ -554,16 +575,29 @@ c     $           ,chi2_cont/NControlPoints
          enddo
          write(85,*)
 
-         fcorchi2_print = fcorchi2 * c_bart_chi2
-         write(85,*) 'Correlated Chi2 ', fcorchi2_print
+         ! Print raw Correlated Chi2
+         write(85,*) 'Correlated Chi2 ', fcorchi2
+         write(6,*)  'Correlated Chi2 ', fcorchi2
+
+         ! Print Bartlett-corrected Correlated Chi2 if enabled
+         if (BartlettEnabled .and. EoEEnabled) then
+            fcorchi2_print = fcorchi2 * c_bart_chi2
+            write(85,*) 'Corrected Correlated Chi2 ', fcorchi2_print
+            write(6,*)  'Corrected Correlated Chi2 ', fcorchi2_print
+         endif
 ! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
-         write(6,*) 'Correlated Chi2 ', fcorchi2_print
-
          if (Chi2PoissonCorr) then
-            chi2_log_print = chi2_log * c_bart_chi2
-            write(6,*)  'Log penalty Chi2 ', chi2_log_print
-            write(85,*) 'Log penalty Chi2 ', chi2_log_print
+            ! Print raw Log penalty Chi2
+            write(85,*) 'Log penalty Chi2 ', chi2_log
+            write(6,*)  'Log penalty Chi2 ', chi2_log
+
+            ! Print Bartlett-corrected Log penalty Chi2 if enabled
+            if (BartlettEnabled .and. EoEEnabled) then
+               chi2_log_print = chi2_log * c_bart_chi2
+               write(85,*) 'Corrected Log penalty Chi2 ',chi2_log_print
+               write(6,*)  'Corrected Log penalty Chi2 ',chi2_log_print
+            endif
          endif
 
          base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
@@ -577,14 +611,20 @@ c     $           ,chi2_cont/NControlPoints
 c WS: print NSYS --- needed for batch Offset runs
          write(85,*) 'Systematic shifts ',NSYS
          write(85,*) ' '
-         if (BartlettEnabled) then
-            ! header with Bartlett column
-            write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A10,A4)') 
-     $     ' ', 'Name     ', 'Shift','Error','Bartlett','Type'
+         if (BartlettEnabled .and. EoEEnabled) then
+            ! Extended header with all EoE/Bartlett columns
+            write(85,'(A5,1X,A35,1X,A9,1X,A9,1X,A9,1X,A7,1X,A10,1X,A12,
+     $           1X,A6)')
+     $        'Index','Name','Shift','Error','Corr Err','Epsilon',
+     $        'b_theta','GoF Contrib','Type'
+         elseif (BartlettEnabled) then
+            ! Original Bartlett header (legacy)
+            write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A10,A4)')
+     $        ' ', 'Name     ', 'Shift','Error','Bartlett','Type'
          else
-            ! header without Bartlett column (original)
-            write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)') 
-     $     ' ', 'Name     ', 'Shift','Error',' ','Type'
+            ! No Bartlett header
+            write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)')
+     $        ' ', 'Name     ', 'Shift','Error',' ','Type'
          endif
          do jsys=1,nsys
 C     !> Store also type of systematic source info
@@ -612,15 +652,74 @@ C     !> Store also type of systematic source info
                TypeD = ':T'
             endif
 
-            if (BartlettEnabled) then
-               write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,F10.4,A8,3A2)') 
-     $     jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),
-     $     1.0D0 + BartlettSysFactor(jsys), ' ', FormC, TypeC, TypeD
+            if (BartlettEnabled .and. EoEEnabled) then
+               ! Extended format with EoE columns
+               eps_i = EoEEpsilon(jsys)
+               b_theta_i = BartlettSysFactor(jsys)
+
+               ! Raw error: divide out the Bartlett correction if applied
+               if (1.0D0 + b_theta_i .gt. 0.0D0) then
+                  ersys_raw = ersys(jsys) / sqrt(1.0D0 + b_theta_i)
+               else
+                  ersys_raw = ersys(jsys)
+               endif
+
+               ! GoF contribution: 1.5*eps^2 - 0.5*b_theta (only for active EoE sources)
+               if (EoEActive(jsys) .and.
+     $             (SysForm(jsys).eq.isNuisance .or.
+     $              SysForm(jsys).eq.isExternal)) then
+                  bart_weight = 1.5D0*eps_i*eps_i - 0.5D0*b_theta_i
+               else
+                  bart_weight = 0.0D0
+               endif
+
+               write(85,'(I5,1X,A35,1X,F9.4,1X,F9.4,1X,F9.4,1X,F7.4,
+     $              1X,F10.5,1X,F12.5,1X,3A2)')
+     $           jsys, SYSTEM(jsys), rsys(jsys), ersys_raw, ersys(jsys),
+     $           eps_i, b_theta_i, bart_weight, FormC, TypeC, TypeD
+
+            elseif (BartlettEnabled) then
+               ! Legacy Bartlett format (1 + b_theta)
+               write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,
+     $              F10.4,A8,3A2)')
+     $           jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),
+     $           1.0D0 + BartlettSysFactor(jsys), ' ', FormC, TypeC, TypeD
             else
-               write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)') 
-     $     jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),' ', FormC, TypeC, TypeD
+               ! No Bartlett format
+               write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,
+     $              A8,3A2)')
+     $           jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),
+     $           ' ', FormC, TypeC, TypeD
             endif
          enddo
+
+C Print legend for Bartlett corrections
+         if (BartlettEnabled .and. EoEEnabled) then
+            write(85,*)
+            write(85,'(A)') '--- Bartlett Correction Legend ---'
+            write(85,'(A)')
+     $        'Error     : Raw uncertainty on nuisance parameter'
+            write(85,'(A)')
+     $        'Corr Err  : Corrected = Error * sqrt(1 + b_theta)'
+            write(85,'(A)')
+     $        'Epsilon   : Error-on-error parameter for this source'
+            write(85,'(A)')
+     $        'b_theta   : Per-source Bartlett correction factor'
+            write(85,'(A)')
+     $        'GoF Contrib: 1.5*eps^2 - 0.5*b_theta (sums to GoF factor)'
+            write(85,'(A)') ''
+            write(85,'(A)') 'Global factors:'
+            write(85,'(A)')
+     $        '  Chi2 Bartlett = 1 / (1 + sum(GoF Contrib)/ndf)'
+            write(85,'(A)')
+     $        '  CI Bartlett   = sqrt(1 + sum(GoF Contrib)/nPOI)'
+            write(85,'(A)') ''
+            write(85,'(A)')
+     $        'Type: :N=Nuisance :C=Covar :O=Offset :E=External'
+            write(85,'(A)')
+     $        '      :P=Poisson :A=Additive :M=Mult :D=Data :T=Theory'
+            write(85,*)
+         endif
 
 C Trigger reactions:
          call fcn3action

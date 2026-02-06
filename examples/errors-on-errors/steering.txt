@@ -8,13 +8,13 @@
   ! Input files:
 
      InputFileNames = 
-     '../../datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
-     '../../datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
-     '../../datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
-     '../../datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
-     '../../datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
-     '../../datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
-     '../../datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat',
+     'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat',
 
 &End
 
@@ -56,18 +56,57 @@
 &End
 
 &Systematics
-  ! EPS map (same order):
-  ! 0.7 → sysHZComb1036, sysHZComb1042, sysHZComb1111, sysHZComb1121, sysHZComb1131, proc_nrl, proc_tb21, proc_tb22, proc_tb23, proc_tb24, proc_gp, proc_had
-  ! 0.5 → sysHZComb1015, sysHZComb1030, sysHZComb1044, sysHZComb1045, sysHZComb1046, sysHZComb1047, sysHZComb1048, sysHZComb1049, sysHZComb1050, sysHZComb1051, sysHZComb1052, sysHZComb1053, sysHZComb1054, sysHZComb1055, sysHZComb1056, sysHZComb1089, sysHZComb1110, sysHZComb1146, sysHZComb1149, sysHZComb1155
-  ! 0.3 → sysHZComb1041, sysHZComb1085, sysHZComb1094, sysHZComb1122, sysHZComb1123, sysHZComb1124, sysHZComb1125, sysHZComb1126, sysHZComb1127, sysHZComb1134, sysHZComb1154, sysHZComb1156
-  
-  !Systematics list
-  ListOfSources = 'sysHZComb1036:N','sysHZComb1042:N','sysHZComb1111:N','sysHZComb1121:N','sysHZComb1131:N','proc_nrl:N','proc_tb21:E','proc_tb22:N','proc_tb23:N','proc_tb24:N','proc_gp:N','proc_had:N','sysHZComb1015:N','sysHZComb1030:N','sysHZComb1044:N','sysHZComb1045:N','sysHZComb1046:N','sysHZComb1047:N','sysHZComb1048:N','sysHZComb1049:N','sysHZComb1050:N','sysHZComb1051:N','sysHZComb1052:N','sysHZComb1053:E','sysHZComb1054:N','sysHZComb1055:E','sysHZComb1056:N','sysHZComb1089:N','sysHZComb1110:N','sysHZComb1146:N','sysHZComb1149:N','sysHZComb1155:N','sysHZComb1041:N','sysHZComb1085:N','sysHZComb1094:N','sysHZComb1122:N','sysHZComb1123:N','sysHZComb1124:N','sysHZComb1125:N','sysHZComb1126:N','sysHZComb1127:N','sysHZComb1134:N','sysHZComb1154:N','sysHZComb1156:N'
+  ! Errors-on-Errors configuration with embedded epsilon values
+  ! New format: each source has @eps=value embedded in the string
+  ! This avoids the need to manually sync parallel arrays
 
-  !EoE vector
-  Epsilon = 0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3
+  ListOfSources =
+    'sysHZComb1036:N@eps=0.7',
+    'sysHZComb1042:N@eps=0.7',
+    'sysHZComb1111:N@eps=0.7',
+    'sysHZComb1121:N@eps=0.7',
+    'sysHZComb1131:N@eps=0.7',
+    'proc_nrl:N@eps=0.7',
+    'proc_tb21:E@eps=0.7',
+    'proc_tb22:N@eps=0.7',
+    'proc_tb23:N@eps=0.7',
+    'proc_tb24:N@eps=0.7',
+    'proc_gp:N@eps=0.7',
+    'proc_had:N@eps=0.7',
+    'sysHZComb1015:N@eps=0.5',
+    'sysHZComb1030:N@eps=0.5',
+    'sysHZComb1044:N@eps=0.5',
+    'sysHZComb1045:N@eps=0.5',
+    'sysHZComb1046:N@eps=0.5',
+    'sysHZComb1047:N@eps=0.5',
+    'sysHZComb1048:N@eps=0.5',
+    'sysHZComb1049:N@eps=0.5',
+    'sysHZComb1050:N@eps=0.5',
+    'sysHZComb1051:N@eps=0.5',
+    'sysHZComb1052:N@eps=0.5',
+    'sysHZComb1053:E@eps=0.5',
+    'sysHZComb1054:N@eps=0.5',
+    'sysHZComb1055:E@eps=0.5',
+    'sysHZComb1056:N@eps=0.5',
+    'sysHZComb1089:N@eps=0.5',
+    'sysHZComb1110:N@eps=0.5',
+    'sysHZComb1146:N@eps=0.5',
+    'sysHZComb1149:N@eps=0.5',
+    'sysHZComb1155:N@eps=0.5',
+    'sysHZComb1041:N@eps=0.3',
+    'sysHZComb1085:N@eps=0.3',
+    'sysHZComb1094:N@eps=0.3',
+    'sysHZComb1122:N@eps=0.3',
+    'sysHZComb1123:N@eps=0.3',
+    'sysHZComb1124:N@eps=0.3',
+    'sysHZComb1125:N@eps=0.3',
+    'sysHZComb1126:N@eps=0.3',
+    'sysHZComb1127:N@eps=0.3',
+    'sysHZComb1134:N@eps=0.3',
+    'sysHZComb1154:N@eps=0.3',
+    'sysHZComb1156:N@eps=0.3'
 
-  n_iterations = 4
+  n_iterations = 2
   Enable_Bartlett = .true.
 &End
 
