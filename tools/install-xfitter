@@ -482,10 +482,11 @@ else
     cd - >& /dev/null
 
     export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
-    export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$CURRENTDIR/deps/applgrid/lib/:$LD_LIBRARY_PATH
     
  #applwrap
     echo "Installing APPLWRAP $applwrapver..."
+    echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
     APPLWRAP_URL=https://applgrid.hepforge.org/downloads/applwrap-"$applwrapver".tar.gz
     if [[ $http == "curl" ]]
     then
@@ -516,7 +517,7 @@ else
     cd - >& /dev/null
 
     export PATH=$CURRENTDIR/deps/applwrap/bin/:$PATH
-    export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applwrap/lib/:\$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$CURRENTDIR/deps/applwrap/lib/:$LD_LIBRARY_PATH
     
  #apfel
     echo "Installing APFEL $apfelver..."
