@@ -485,7 +485,6 @@ else
     
  #applwrap
     echo "Installing APPLWRAP $applwrapver..."
-    echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
     APPLWRAP_URL=https://applgrid.hepforge.org/downloads/applwrap-"$applwrapver".tar.gz
     if [[ $http == "curl" ]]
     then
