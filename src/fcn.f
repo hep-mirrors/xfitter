@@ -23,6 +23,12 @@ C---------------------------------------------------------
 #include "fcn.inc"
 #include "endmini.inc"
 #include "for_debug.inc"
+
+clk25
+#ifdef FANTOMAS_XFITTER
+      include "fantomas.inc"
+#endif
+      
       integer i
       double precision chi2data_theory !function
 
@@ -84,6 +90,15 @@ c will take them from
       call MntShowVValues(chi2out)
 #endif
       call flush
+
+#ifdef FANTOMAS_XFITTER
+clk25 If chi2 has improved, save the Fantomas steering card
+      if (chi2out.lt.chimin) then
+        chimin = chi2out
+        call writefantoout()
+      endif
+#endif
+      
       return
       end
 C------------------------------------------------------
@@ -136,6 +151,11 @@ C--------------------------------------------------------------
 #include "polarity.inc"
 #include "endmini.inc"
 #include "fractal.inc"
+
+clk25
+#ifdef FANTOMAS_XFITTER
+      include "fantomas.inc"
+#endif      
 
 *     ---------------------------------------------------------
 *     declaration related to chisquare
@@ -388,6 +408,13 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
      $     shift_polRHp**2+shift_polRHm**2+
      $     shift_polLHp**2+shift_polLHm**2+
      $     shift_polL**2+shift_polT**2
+
+#ifdef FANTOMAS_XFITTER
+clk25 add chi2 penalty from fantomas conditions here
+      call getfantochi2(fantochi)
+      chi2out = chi2out + fantochi
+#endif
+      
 c If for any reason we got chi2==NaN, set it to +inf so that that
 c a minimizer would treat it as very bad
       if(chi2out/=chi2out)then !if chi2out is NaN
