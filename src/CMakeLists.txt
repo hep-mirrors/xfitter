@@ -61,6 +61,13 @@ set(xfitter_SOURCES
   FitPars_base.cc
   FTNFitPars.cc
   ../tools/draw/src/pdferrors.cc
+#lk25 added path to FantoWrapper.cc for write functions
+  ../pdfparams/Fantomas/FantoWrapper.cc
+  ../pdfparams/Fantomas/metamorphCollection.cc
+  ../pdfparams/Fantomas/metamorphCollectionPrior.cc
+  ../pdfparams/Fantomas/metamorph.cc
+  ../pdfparams/Fantomas/cl2DArray.h
+  ../pdfparams/Fantomas/LUPinverse.cc
 )
 #Conditionally compiled sources
 if(QCDNUM_FOUND)
