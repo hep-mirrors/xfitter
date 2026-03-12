@@ -67,6 +67,7 @@ C -------------------------------------------
 #include "indata.inc"
 #include "for_debug.inc"
 #include "extrapars.inc"
+#include "bartlett_ci.inc"
 
       integer i
 C------------------------------------------------------
@@ -139,13 +140,14 @@ C E-on-E defaults
          EoEEpsilon(i) = 0.0D0
       enddo
 
-C Bartlett defaults 
+C Bartlett defaults
       BartlettEnabled          = .true.
       BartlettLRFactor         = 0.0D0
       BartlettGoFFactor        = 0.0D0
       do i=1,NSYSMAX
          BartlettSysFactor(i)  = 0.0D0
       enddo
+      xfitter_bart_ci          = 1.0D0
 
 C Check variables for common blocks:
       steering_check = 171717

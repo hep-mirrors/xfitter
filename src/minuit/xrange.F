@@ -5,6 +5,7 @@ c Study the allowed displacements for each coordinate...
 c
 #include "./d506dp.inc"
 #include "./d506cm.inc"
+#include "bartlett_ci.inc"
 	EXTERNAL FCN,FUTIL
 	CHARACTER CBF1*22
 
@@ -13,9 +14,16 @@ c
 	common /umatco/ hquad(MNI,MNI), umat(MNI,MNI), vmat(MNI,MNI), 
      &	                tvec(MNI), errmat(MNI,MNI)
 
-	write(isyswr,100) 
+	write(isyswr,100)
 100     format(1x,'XRANGE: find allowed displacements ',
      &         'according to Hessian, for DeltaChisq=1.0')
+	if (xfitter_bart_ci .ne. 1.0d0) then
+	   write(isyswr,101) xfitter_bart_ci
+101        format(1x,'NOTE: Bartlett CI factor = ',f10.6,
+     &        ' is applied to the +/- values below.',/,
+     &        1x,'      The MINUIT parameter table (above) shows',
+     &        ' raw uncorrected errors.')
+	endif
 
 c save initial x vector, assumed to be the location of the minimum...
 	do j = 1, npar
@@ -85,7 +93,8 @@ c give UP according to the quadratic approximation...
 	   enddo
 	   CALL FCALL(FS2,amin4,x0best,FCN,FUTIL)
 
-	   write(isyswr,120) ipar, nexofi(ipar), x0(ipar), abs(xvec(ipar))
+	   write(isyswr,120) ipar, nexofi(ipar), x0(ipar),
+     &        abs(xvec(ipar)) * xfitter_bart_ci
  120       format(/1x,'Par=',i2,' TruePar=',i2,' at',e13.5,' +/-',
      &     e13.5,' for DeltaChisq=1.0')
 

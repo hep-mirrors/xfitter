@@ -406,6 +406,8 @@ C-------------------------------------------------------------
 #include "fcn.inc"
 #include "endmini.inc"
 #include "steering.inc"
+#include "ntot.inc"
+#include "systematics.inc"
       integer ifcn3
 
       integer i
@@ -413,6 +415,11 @@ C-------------------------------------------------------------
       integer ipar
       character*32 parname
       character*300 fname
+
+      integer nExtSyst, isys, nPOI
+      double precision bart_scale, c_BartLR
+      logical is_ext_syst
+      integer jsys_check, jsys_ext
 
       double precision, allocatable :: errIterate(:,:)
 
@@ -436,9 +443,54 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
 !        call GetErrMatScaled(errIterate)
 !     endif
 
+C
+C     Apply Bartlett CI correction to parameter errors in parsout_0.
+C     Uses the same formula as error_bands_pumplin.f and fcn.f.
+C     Only applied to parsout_0 (ifcn3==0); intermediate parsout_N files
+C     written during minimisation are left uncorrected.
+C     External systematic parameters (:E form) receive a per-source correction
+C     sqrt(1+b_theta_i) instead of the global POI bart_scale.  The per-source
+C     correction matches the 'Corr Err' column in Results.txt.  Using bart_scale
+C     (which has nPOI in the denominator, excluding external systs) would
+C     over-inflate their errors with a factor calibrated for the POI only.
+C
+      bart_scale = 1.0D0
+      if (ifcn3.eq.0 .and. BartlettEnabled .and. EoEEnabled) then
+         nExtSyst = 0
+         do isys=1,nsys
+            if (SysForm(isys) .eq. isExternal) nExtSyst = nExtSyst + 1
+         enddo
+         nPOI = nparFCN - nExtSyst
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
+
       do i=1,mne
          parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
+C        For external systematic parameters (:E form): apply per-source
+C        Bartlett correction sqrt(1+b_theta_i), which matches the 'Corr Err'
+C        column in Results.txt (set by Chi2_calc_readExternal:506).
+C        Do NOT apply the global POI bart_scale to them: nPOI was computed
+C        by excluding them, so bart_scale would over-inflate their errors.
+         is_ext_syst = .false.
+         jsys_ext = 0
+         do jsys_check = 1, nsys
+            if (SysForm(jsys_check) .eq. isExternal .and.
+     $           Trim(parname) .eq. Trim(System(jsys_check))) then
+               is_ext_syst = .true.
+               jsys_ext = jsys_check
+            endif
+         enddo
+         if (is_ext_syst) then
+            if (ifcn3.eq.0 .and. BartlettEnabled .and. EoEEnabled) then
+               err = err * sqrt(1.0D0 + BartlettSysFactor(jsys_ext))
+            endif
+         else
+            err = err * bart_scale
+         endif
 
 C
 C For bands, replace by "iterate" estimate, if present
@@ -478,15 +530,22 @@ C--------------------------------------------------------------------
       Subroutine FindBestFCN3
 
       implicit none
+#include "fcn.inc"
 #include "endmini.inc"
 #include "steering.inc"
+#include "ntot.inc"
+#include "systematics.inc"
       integer i,iminCont
       double precision aminCont
-
 
       double precision val,err,xlo,xhi
       integer ipar
       character*32 parname
+
+      integer nExtSyst, isys, nPOI
+      double precision bart_scale, c_BartLR
+      logical is_ext_syst
+      integer jsys_check, jsys_ext
 
 C-------------------------------------------------------------------
       aminCont = 1.D30
@@ -532,10 +591,41 @@ C store the optimal values
       call print_lhapdf6_opt()
 
 
+C     Compute Bartlett CI scale for parseout_opt, same logic as write_pars(0).
+      bart_scale = 1.0D0
+      if (BartlettEnabled .and. EoEEnabled) then
+         nExtSyst = 0
+         do isys=1,nsys
+            if (SysForm(isys) .eq. isExternal) nExtSyst = nExtSyst + 1
+         enddo
+         nPOI = nparFCN - nExtSyst
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
+
       open (71,file=TRIM(OutDirName)//'/parseout_opt',status='unknown')
       do i=1,mne
          parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
+C        POI get global bart_scale; external systematics get per-source correction.
+         is_ext_syst = .false.
+         jsys_ext = 0
+         do jsys_check = 1, nsys
+            if (SysForm(jsys_check) .eq. isExternal .and.
+     $           Trim(parname) .eq. Trim(System(jsys_check))) then
+               is_ext_syst = .true.
+               jsys_ext = jsys_check
+            endif
+         enddo
+         if (is_ext_syst) then
+            if (BartlettEnabled .and. EoEEnabled) then
+               err = err * sqrt(1.0D0 + BartlettSysFactor(jsys_ext))
+            endif
+         else
+            err = err * bart_scale
+         endif
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then
                write (71,72) i, Trim(parname), pkeep3(i,iminCont),err

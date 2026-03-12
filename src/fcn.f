@@ -138,6 +138,7 @@ C--------------------------------------------------------------
 #include "polarity.inc"
 #include "endmini.inc"
 #include "fractal.inc"
+#include "bartlett_ci.inc"
 
 *     ---------------------------------------------------------
 *     declaration related to chisquare
@@ -449,6 +450,8 @@ c Print time, number of calls, chi2
                endif
             endif
          endif
+C        Store CI Bartlett factor for use by XRANGE (minuit.out.txt / xfitter-draw)
+         xfitter_bart_ci = c_bart_ci
 
          ! Print RAW chi2 (unscaled minimization output)
          write(85,'(''Chi2 after minimisation      '',F10.2,I6,F10.3)')
