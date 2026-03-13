@@ -24,7 +24,8 @@ C---------------------------------------------------------
 #include "endmini.inc"
 #include "for_debug.inc"
 
-clk25
+      
+c Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
 #ifdef FANTOMAS_XFITTER
       include "fantomas.inc"
 #endif
@@ -91,6 +92,7 @@ c will take them from
 #endif
       call flush
 
+c Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
 #ifdef FANTOMAS_XFITTER
 clk25 If chi2 has improved, save the Fantomas steering card
       if (chi2out.lt.chimin) then
@@ -152,7 +154,7 @@ C--------------------------------------------------------------
 #include "endmini.inc"
 #include "fractal.inc"
 
-clk25
+c Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
 #ifdef FANTOMAS_XFITTER
       include "fantomas.inc"
 #endif      
@@ -409,6 +411,7 @@ C However when/if LHAPDFErrors mode will be combined with minuit, this will need
      $     shift_polLHp**2+shift_polLHm**2+
      $     shift_polL**2+shift_polT**2
 
+c Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
 #ifdef FANTOMAS_XFITTER
 clk25 add chi2 penalty from fantomas conditions here
       call getfantochi2(fantochi)

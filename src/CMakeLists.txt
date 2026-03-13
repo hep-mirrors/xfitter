@@ -61,6 +61,7 @@ set(xfitter_SOURCES
   FitPars_base.cc
   FTNFitPars.cc
   ../tools/draw/src/pdferrors.cc
+# Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
 #lk25 added path to FantoWrapper.cc for write functions
   ../pdfparams/Fantomas/FantoWrapper.cc
   ../pdfparams/Fantomas/metamorphCollection.cc

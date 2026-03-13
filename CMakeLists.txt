@@ -108,7 +108,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   endif()
 endif()
 
-#lk25
+#  Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DFANTOMAS_XFITTER")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DFANTOMAS_XFITTER")
 
@@ -155,7 +155,7 @@ add_subdirectory(pdfparams/ABMPvalence)
 add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
 add_subdirectory(pdfparams/Chebyschev)
-#lk25
+#  Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
 add_subdirectory(pdfparams/Fantomas)
 
 #Decompositions
@@ -165,7 +165,8 @@ add_subdirectory(pdfdecomps/LHAPDF)
 add_subdirectory(pdfdecomps/SU3_Pion)
 add_subdirectory(pdfdecomps/UvDvUbarDbarSSbar)
 
-#lk25 For the Fantomas pion fit: one mandatory decomposition, two optional ones
+# Modifications for Fantomas Bézier parametrizations (FIO: March 2026)
+# For the Fantomas pion fit: SU3_PositivePion is mandatory, the other two are optional
 add_subdirectory(pdfdecomps/SU3_PositivePion)
 add_subdirectory(pdfdecomps/SU3_Pion_gluon)
 add_subdirectory(pdfdecomps/SU3_PositivePion_gluon)
