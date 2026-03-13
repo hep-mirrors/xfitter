@@ -1,0 +1,43 @@
+# Parameters of the functional from each metamorph
+# xf(x) = <xf>*x^Sc1*(1-x)^Sc2*(1+fbezier(x))
+
+# gluon -- metamorph 0
+<xf> = 0.268883
+Carrier parameters:
+Sc[1] = -0.374672
+Sc[2] = 2.80802
+Values of control points:
+Sm[3] = 0
+Sm[4] = 0
+Bernstein coefficients:
+C[0] = 0
+C[1] = 0
+Condition number =3.47504
+
+# sea  -- metamorph 1
+<xf> = 0.180275
+Carrier parameters:
+Sc[1] = 0.718655
+Sc[2] = 8.07727
+Values of control points:
+Sm[3] = 0
+Sm[4] = 0
+Bernstein coefficients:
+C[0] = 0
+C[1] = 0
+Condition number =3.47504
+
+# valence  -- metamorph 2
+<xf> = 0.550842
+Carrier parameters:
+Sc[1] = 0.74067
+Sc[2] = 0.948556
+Values of control points:
+Sm[3] = 0
+Sm[4] = 0
+Bernstein coefficients:
+C[0] = 0
+C[1] = 0
+Condition number =3.47504
+
+Total momentum fraction = 1

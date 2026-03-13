@@ -1,0 +1,174 @@
+*  Namelist to control input data
+*
+
+&InFiles
+  !NInputFiles=2
+  InputFileNames =
+  'datafiles/fixedTarget/NA10/thexp-0.dat',
+  'datafiles/fixedTarget/NA10/thexp-1.dat',
+  'datafiles/fixedTarget/NA10/thexp-2.dat',
+  'datafiles/fixedTarget/NA10/thexp-3.dat',
+  'datafiles/fixedTarget/NA10/thexp-4.dat',
+  'datafiles/fixedTarget/NA10/thexp-5.dat',
+  'datafiles/fixedTarget/NA10/thexp-6.dat',
+  'datafiles/fixedTarget/NA10/thexp-7.dat',
+  'datafiles/fixedTarget/NA10/thexp-8.dat',
+  'datafiles/fixedTarget/WA70/thexp-0.dat',
+  'datafiles/fixedTarget/WA70/thexp-1.dat',
+  'datafiles/fixedTarget/WA70/thexp-2.dat',
+  'datafiles/fixedTarget/WA70/thexp-3.dat',
+  'datafiles/fixedTarget/WA70/thexp-4.dat',
+  'datafiles/fixedTarget/WA70/thexp-5.dat',
+  'datafiles/fixedTarget/WA70/thexp-6.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-0.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-1.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-2.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-3.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-4.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-5.dat',
+  'datafiles/fixedTarget/WA70positive/thexp-6.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-0.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-1.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-2.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-3.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-4.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-5.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-6.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-7.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-8.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-9.dat',
+  'datafiles/fixedTarget/NA10-286/thexp-10.dat',
+  'datafiles/fixedTarget/E615/thexp-0.dat',
+  'datafiles/fixedTarget/E615/thexp-1.dat',
+  'datafiles/fixedTarget/E615/thexp-2.dat',
+  'datafiles/fixedTarget/E615/thexp-3.dat',
+  'datafiles/fixedTarget/E615/thexp-4.dat',
+  'datafiles/fixedTarget/E615/thexp-5.dat',
+  'datafiles/fixedTarget/E615/thexp-6.dat',
+  'datafiles/fixedTarget/E615/thexp-7.dat',
+  'datafiles/fixedTarget/E615/thexp-8.dat',
+  'datafiles/fixedTarget/E615/thexp-9.dat',
+  'datafiles/fixedTarget/E615/thexp-13.dat',
+  'datafiles/fixedTarget/E615/thexp-14.dat',
+  'datafiles/fixedTarget/E615/thexp-15.dat',
+  'datafiles/fixedTarget/E615/thexp-16.dat',
+  'datafiles/fixedTarget/E615/thexp-17.dat',
+  'datafiles/hera/F2pionEff/h1LeadingNeutronPN221111.dat',
+  ! 'datafiles/hera/F2pionEff/h1LeadingNeutronLK221129.dat',
+&End
+
+&InCorr
+  ! Number of correlation (statistical, systematical or full) files
+    NCorrFiles = 0
+ 
+  ! Correlation files:
+  !  CorrFileNames(1) = 'datafiles/hera/h1/jets/0904.3870/H1_NormInclJets_HighQ2_99-07___H1_NormInclJets_HighQ2_99-07.corr'
+&End
+
+&ReduceSyst
+    ! even with tolerance =0 the following flag may speed up calculations
+  do_reduce = .false.  ! turn-on to simplify/speedup chi2 calculation.
+    ! tolerance = 0.0 for exact calculation, > 0.0 for improved speed.
+  tolerance = 0.0
+    ! depending on blas library, toggling the following flag may improve chi2 computation speed:
+  useBlas = .false.
+&End
+
+&CovarToNuisance
+   ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .False.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+
+   ! (Optional) -- try to subtract diagonal stat. uncertainties from total covariance when determining uncorrelated uncertainites
+  LSubtractStat = .false.
+
+   ! The following lines allow to adjust error scaling properties (default: :M)
+  DataName     = 'CMS electon Asymmetry rapidity', 'CMS W muon asymmetry'
+  DataSystType = ':A', ':A'
+&End
+
+
+*
+* (Optional) List systematic sources, modify their scaling properties:
+*
+&Systematics
+ !C      List sources, Results.txt file would list them first. Use the usual :A, :P, 
+ !C      qualifiers to change the scalling properties
+ !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
+ !C      Modify the prior in chi2 definition (1.0 is default):
+ !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
+ !  PriorScaleFactor = 0.0, 0.0 
+&End
+
+
+*
+* Main steering cards
+*
+&xFitter 
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
+
+
+  CHI2SettingsName='StatScale','UncorSysScale','CorSysScale','UncorChi2Type','CorChi2Type'
+  Chi2Settings    ='Poisson'  ,'Poisson'      ,'Linear'     ,'Diagonal'     ,'Hessian'
+  Chi2ExtraParam  ='ExtraSystRescale'
+  LDEBUG=False
+&End
+
+
+&Output
+  ! -- Q2 values at which the pdfs & errors are done (up to 20)
+  Q2VAL=1.9, 36.
+  ! How many x points to write (standard = 101)
+  OUTNX=200
+  ! x-range of output (standard = 1E-4 1.0)
+  OUTXRANGE = 1E-3, 1.0
+  WriteLHAPDF5=false
+&End
+
+&Cuts
+&End
+
+*
+* (Optional) MC errors steering cards
+*
+&MCErrors
+  ! Activate MC method for error estimation if lRand = True
+  lRAND   = False
+  
+  ! Use data (true, default) or theory (false) for the central values of the MC replica
+  lRANDDATA = True
+
+  ! MC method Seed
+  ISeedMC = 123456 
+
+  ! --- Choose what distribution for the random number generator 
+  ! STATYPE (SYS_TYPE)  =   1  gauss
+  ! STATYPE (SYS_TYPE)  =   2  uniform
+  ! STATYPE (SYS_TYPE)  =   3  lognormal
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  !
+  ! STATYPE = SYS_TYPE = 0 with lRANDDATA = False and lRAND   = True yeilds in substitution of data by theory (useful for sensitivity tests)
+  !
+  STATYPE =  1
+  SYSTYPE =  1
+&End
+
