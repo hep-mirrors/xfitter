@@ -246,8 +246,8 @@ Published in Nucl. Phys. B 373 (1992) 295
 from http://www.ge.infn.it/~ridolfi/hvqlibx.tgz
 
 
-## Fant\F4mas package
-"Fant\F4mas unconfined: global QCD fits with B\E9zier parameterizations"
+## Fantomas package
+"Fantomas unconfined: global QCD fits with Bezier parameterizations"
 L. Kotz, A. Courtoy, T.J. Hobbs, P. Nadolsky, F.I. Olness, M. Ponce-Chavez, V. Purohit
 Published in: Comput.Phys.Commun. 320 (2026), 109969; arXiv:2507.22969 [hep-ph]
 
@@ -256,7 +256,7 @@ Published in: Comput.Phys.Commun. 320 (2026), 109969; arXiv:2507.22969 [hep-ph]
 L. Kotz, A. Courtoy, P. Nadolsky, M. Ponce-Chavez 
 Published in: Phys.Rev.D 112 (2025) 7, L071502; arXiv: 2505.13594 [hep-ph]
 
-"Analysis of parton distributions in a pion with B\E9zier parametrizations"
+"Analysis of parton distributions in a pion with Bezier parametrizations"
 L. Kotz, A. Courtoy, P. Nadolsky, F.I. Olness, M. Ponce-Chavez
 Published in: Phys.Rev.D 109 (2024) 7, 074027; arXiv: 2311.08447 [hep-ph]
 
