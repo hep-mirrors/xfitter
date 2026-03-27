@@ -30,6 +30,9 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   virtual void xF3 BASE_PARS override final;
 
  private:
+  double F2thr,F2asy,F2dmp;
+  double FLthr,FLasy,FLdmp;
+
   map <unsigned,valarray<double>> _f2fonll;
   map <unsigned,valarray<double>> _flfonll;
   map <unsigned,valarray<double>> _f3fonll;
