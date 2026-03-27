@@ -1,4 +1,9 @@
 #N3LO_DISNC:               # Reaction-specific settings, no parameters at the moment
   xGrid: [[100, 1e-5, 3], [60, 1e-1, 3], [50, 6e-1, 3], [50, 8e-1, 3]]
   QGrid: [30, 1, 225, 3]
-  imod: 0
+  F2dmp: 1
+  FLdmp: 1
+  F2asy: 0
+  FLasy: 0
+  F2thr: 0
+  FLthr: 0
