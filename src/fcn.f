@@ -520,7 +520,7 @@ c     $           ,chi2_cont/NControlPoints
 c WS: print NSYS --- needed for batch Offset runs
          write(85,*) 'Systematic shifts ',NSYS
          write(85,*) ' '
-         write(85,'(A5,'' '',A35,'' '',A9,''   +/-'',A9,A10,A4)')
+         write(85,'(A5,'' '',A55,'' '',A9,''   +/-'',A9,A10,A4)')
      $        ' ', 'Name     ', 'Shift','Error',' ','Type'
          do jsys=1,nsys
 C     !> Store also type of systematic source info
@@ -548,7 +548,7 @@ C     !> Store also type of systematic source info
                TypeD = ':T'
             endif
 
-            write(85,'(I5,''  '',A35,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
+            write(85,'(I5,''  '',A55,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
      $           jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC,
      $           TypeC,TypeD
          enddo
