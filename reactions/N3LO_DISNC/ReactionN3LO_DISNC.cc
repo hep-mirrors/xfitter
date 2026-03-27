@@ -49,14 +49,15 @@ void ReactionN3LO_DISNC::atStart()
   FLObj = InitializeFLNCObjectsZM(*Grid, Thresholds);
   F3Obj = InitializeF3NCObjectsZM(*Grid, Thresholds);
 
-  int  IMod = 0;
-  //imod 0 : central
-  //imod 1 : down variation
-  //imod 2 : up variation
-  IMod = yamlNode["imod"].as<int>();
+  F2thr = yamlNode["F2thr"].as<int>();
+  F2asy = yamlNode["F2asy"].as<int>();
+  F2dmp = yamlNode["F2dmp"].as<int>();
+  FLthr = yamlNode["FLthr"].as<int>();
+  FLasy = yamlNode["FLasy"].as<int>();
+  FLdmp = yamlNode["FLdmp"].as<int>();
 
-  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, IMod);
-  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, IMod);
+  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
+  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
   F2ObjM0 = InitializeF2NCObjectsMassiveZero(*Grid, Thresholds);
   FLObjM0 = InitializeFLNCObjectsMassiveZero(*Grid, Thresholds);
 }
