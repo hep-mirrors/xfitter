@@ -45,10 +45,24 @@ C---------------------------------------------------------
 
       integer omegaIteration
       Logical doMatrix, doNuisance, doExternal, LStop
+
+C Timing variables for profiling (xf_wtime = wall-clock if OpenMP, cpu_time otherwise)
+      double precision t_start, t_gamma, t_covar, t_stat, t_sumcovar
+      double precision t_syst_shifts, t_chi2, t_total
+      double precision xf_wtime
+      external xf_wtime
+      logical lPrintTiming
+      data lPrintTiming/.true./  ! Set to .false. to disable timing output
+
 c Global initialisation
+
+      if (lPrintTiming) t_start = xf_wtime()
 
       if (LFirst) then
          LFirst = .false.
+
+C    !> Initialize LAPACK solver settings
+         call init_lapack_solver()
 
 C    !> Determine which mechanisms for syst. errors should be used:
          Call Init_Chi2_calc(doMatrix, doNuisance, doExternal)
@@ -101,6 +115,11 @@ C !> Read external (minuit) systematic sources if present:
       if (.not. Chi2FirstIterationRescale  .or. flag_in.eq.1) then
 C !> Calculated scaled syst. uncertainties:
          call Chi2_calc_GetGamma(ScaledGamma, ScaledOmega)
+         if (lPrintTiming) then
+            t_gamma = xf_wtime()
+            print '(A,F8.3,A)', ' TIMING: GetGamma      = ',
+     $           t_gamma-t_start,' s'
+         endif
 
 C !> Store rescaled gamma (important for asymmetric errors ):
          do k=1,nsys
@@ -115,6 +134,11 @@ C !> Rebuild syst. covariance matrix
             Call Chi2_calc_covar(ScaledGamma
      $           ,ScaledSystMatrix
      $           ,List_Covar_Inv,n0_in)
+            if (lPrintTiming) then
+               t_covar = xf_wtime()
+               print '(A,F8.3,A)', ' TIMING: Chi2_covar    = ',
+     $              t_covar-t_gamma,' s'
+            endif
          endif
       else
 C !> Restore saved gamma:
@@ -124,6 +148,9 @@ C !> Restore saved gamma:
                ScaledGamma(k,j) = ScaledGammaSav(k,j)
             enddo
          enddo
+         if (lPrintTiming) then
+            t_covar = xf_wtime()
+         endif
       endif
 
 
@@ -133,9 +160,15 @@ C !> Get uncor errors/nuisance parameters.
 c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
          if (.not. Chi2FirstIterationRescale .or. flag_in.eq.1 .or.
      $  Chi2OffsRecalc) then
+            if (lPrintTiming) t_covar = xf_wtime()  ! Reset timing reference
             Call Chi2_calc_stat_uncor(ScaledErrors
      $           ,ScaledErrorMatrix
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
+            if (lPrintTiming) then
+               t_stat = xf_wtime()
+               print '(A,F8.3,A)', ' TIMING: stat_uncor    = ',
+     $              t_stat-t_covar,' s'
+            endif
 
 C  !> Sum covariance matricies and invert the total:
 
@@ -143,6 +176,15 @@ C  !> Sum covariance matricies and invert the total:
                Call Chi2_calc_SumCovar(ScaledErrorMatrix,
      $              ScaledSystMatrix,
      $              ScaledTotMatrix, NCovar)
+               if (lPrintTiming) then
+                  t_sumcovar = xf_wtime()
+                  print '(A,F8.3,A)', ' TIMING: SumCovar+Inv  = ',
+     $                 t_sumcovar-t_stat,' s'
+               endif
+            else
+               if (lPrintTiming) then
+                  t_sumcovar = xf_wtime()
+               endif
             endif
 
 C !> same for diagonal part:
@@ -182,6 +224,11 @@ c               stop
      $              ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
      $              ,scaledOmega)
             endif
+            if (lPrintTiming) then
+               t_syst_shifts = xf_wtime()
+               print '(A,F8.3,A)', ' TIMING: syst_shifts   = ',
+     $              t_syst_shifts-t_sumcovar,' s'
+            endif
 
 C !> Asymmetric errors loop:
             Call UseOmegaScale(ScaledGamma
@@ -213,6 +260,15 @@ C !> Calculate chi2
      $     rsys_in,
      $     ndiag, list_diag, ncovar, list_covar,
      $     fchi2_in, pchi2_in, fcorchi2_in)
+      if (lPrintTiming) then
+         t_chi2 = xf_wtime()
+         print '(A,F8.3,A)', ' TIMING: chi2_calc     = ',
+     $        t_chi2-t_syst_shifts,' s'
+         t_total = xf_wtime()
+         print '(A,F8.3,A)', ' TIMING: TOTAL chi2    = ',
+     $        t_total-t_start,' s'
+         print *, '----------------------------------------'
+      endif
 
 
 C !> Add log term
@@ -495,6 +551,8 @@ c#include "steering.inc"
       double precision scale
       logical lfirstPass/.true./
 C-----------------------------------------------------
+C OpenMP parallelization over systematic sources
+!$OMP PARALLEL DO PRIVATE(scaling_type,i1,i,scale)
       do k=1,NSYS
          scaling_type = SysScalingType(k)
 
@@ -526,6 +584,7 @@ C-----------------------------------------------------
             ScaledOmega(k,i) = omega(k,i)*scale
          enddo
       enddo
+!$OMP END PARALLEL DO
       lfirstPass = .false.
 C-----------------------------------------------------
       end
@@ -712,8 +771,9 @@ c
 C-------------------------------------------------------
 
 C
-C Start with diagonal part
+C Start with diagonal part - parallelized over data points
 C
+!$OMP PARALLEL DO PRIVATE(Stat,StatConst,Unc,sum,j,Offs)
       do i=1,n0_in
          Call GetPointErrors(i, Stat, StatConst, Unc)
          sum=0.
@@ -740,6 +800,7 @@ C Re-scale for systematic shifts:
          ScaledErrorsSyst(i)=sqrt(Unc**2+Offs*daten(i)**2)
          ScaledErrors(i)=sqrt(ScaledErrorsStat(i)**2+ScaledErrorsSyst(i)**2)
       enddo
+!$OMP END PARALLEL DO
 
 C
 C Do also covariance part:
@@ -845,7 +906,6 @@ C
       integer ifail
       integer IR(2*NSysMax)
 
-      double precision time1, time2
 C--------------------------------------------------------------------------------------------
 C Reset the matricies:
       do i=1,nsys
@@ -880,16 +940,14 @@ C  Diagonal error:
          enddo
       enddo
 
-      call cpu_time(time1)
-
-
       if ( .not. UseBlas ) then
 
-!$OMP PARALLEL DO
-
-         do i=1,n0_in
-            do l=1,nsys
-               do k=l,NSys
+C OpenMP parallelization: parallelize over l (systematic index)
+C Each thread computes different A(k,l) elements for its l value, no reduction needed
+!$OMP PARALLEL DO PRIVATE(i,k) SCHEDULE(dynamic)
+         do l=1,nsys
+            do k=l,NSys
+               do i=1,n0_in
 c Diagonal error:
                   A(k,l) = A(k,l) +
      $                 AS(i,l)
@@ -926,11 +984,6 @@ C Penalty term, unity by default
          A(i,i) = A(i,i) + SysPriorScale(i)
       enddo
 
-c      print *,A(1,1),A(nsys,nsys)
-
-      call cpu_time(time2)
-      print *,'CPU LOOP=',time2-time1
-      call flush
 C
 C Under diagonal:
 C
@@ -943,14 +996,13 @@ C
 C Ready to invert
       if (nsys.gt.0) then
 
-         Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
+         Call DEQN_AUTO(Nsys,A,NsysMax,IR,IFail,1,C)
 
          do l=1,nsys
             rsys_in(l) = - C(l)
          enddo
       endif
 
-      call cpu_time(time1)
 C--------------------------------------------------------------------------------------------
       end
 
@@ -1008,6 +1060,11 @@ C
       integer nsystheo, itheoisys(NSysMax)
       integer nsys_sav, n0_in_sav
 
+C Timing variables (xf_wtime = wall-clock if OpenMP, cpu_time otherwise)
+      double precision t1, t2, t3, t4
+      double precision xf_wtime
+      external xf_wtime
+
       logical lfirst
       data lfirst /.true./
       data nsys_sav,n0_in_sav/0,0/
@@ -1015,6 +1072,7 @@ C
 C-
       logical HaveCommonData(NsysMax, NsysMax)
 C--------------------------------------------------------
+      t1 = xf_wtime()
 C Check if number of sources/data points change:
       ResetCommonSyst = (nsys.ne.nsys_sav) .or. (n0_in.ne.n0_in_sav)
       nsys_sav = nsys
@@ -1029,6 +1087,8 @@ C Determine pairs of syst. uncertainties which share  data
 
          call expand_syst_lists(scaledtotmatrix,list_covar_inv,n0_in)
 
+C Parallelize HaveCommonData computation (O(nsys^2) calls)
+!$OMP PARALLEL DO SCHEDULE(dynamic) PRIVATE(k,n_com_list,com_list)
          do l=1,nsys
             do k=l,nsys
                Call Sys_Data_List12(l,k,n_com_list,com_list)
@@ -1039,6 +1099,7 @@ C Determine pairs of syst. uncertainties which share  data
                endif
             enddo
          enddo
+!$OMP END PARALLEL DO
       endif
 
 C Get extra piece, from external systematics:
@@ -1079,7 +1140,15 @@ C Penalty term, unity by default
          A(i,i)  =  SysPriorScale(i)
       enddo
 
-!$OMP PARALLEL DO
+      t2 = xf_wtime()
+      print '(A,F8.3,A,I6,A,I6)', '   syst_shifts init:   ',
+     $     t2-t1,' s  (nsys=',nsys,' n0_in=',n0_in,')'
+
+C OpenMP parallelization over systematic sources
+C Each thread handles different l values, so A(k,l) and C(l) have no race conditions
+C Using dynamic scheduling for load balancing (different systematics have different n_syst_meas)
+!$OMP PARALLEL DO SCHEDULE(dynamic) 
+!$OMP& PRIVATE(i1,i,i2,j1,j,j2,k,d_minus_t1,d_minus_t2,add)
 
       do l=1,nsys
          if ( SysForm(l) .eq. isNuisance ) then
@@ -1176,6 +1245,9 @@ c                  enddo
 
 !$OMP END PARALLEL DO
 
+      t3 = xf_wtime()
+      print '(A,F8.3,A)', '   syst_shifts OMP loop:',t3-t2,' s'
+
 C
 C Under diagonal:
 C
@@ -1198,12 +1270,14 @@ C Ready to invert
             enddo
          endif
 
-
          if (iflag.eq.3) then
             Call DEQInv(Nsys,A,NsysMax,IR, IFail, 1, C)
          else
-            Call DEQN(Nsys,A,NsysMax,IR,IFail,1,C)
+            Call DEQN_AUTO(Nsys,A,NsysMax,IR,IFail,1,C)
          endif
+
+         t4 = xf_wtime()
+         print '(A,F8.3,A)', '   syst_shifts matrix solve:',t4-t3,' s'
 
          do l=1,nsys
             if ( Sysform(l) .eq. isNuisance) then

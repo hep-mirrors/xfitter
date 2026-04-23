@@ -11,6 +11,9 @@
 #include"BaseMinimizer.h"
 #include "BasePdfParam.h"
 #include <unistd.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 
 using std::string;
@@ -50,6 +53,20 @@ BaseEvolution*get_evolution(string name){
   pid_t xf_fork(int NCPU) {
     auto out = fork();
     if (out == 0) {
+      // Child: tear down inherited OpenMP pool. fork() kills all non-calling
+      // threads, so libgomp's worker pool is zombie in the child - the next
+      // parallel region would deadlock.
+      // setenv is kept as an additional hint (some
+      // runtimes re-read env vars). This is just a lazy safety net -
+      // the real fix is 
+      // TODO: to not fork() when OpenMP threads > 1 (see xf_ncpu).
+#ifdef _OPENMP
+      omp_set_num_threads(1);
+#endif
+      setenv("OMP_NUM_THREADS", "1", 1);
+      setenv("OPENBLAS_NUM_THREADS", "1", 1);
+
+
       // Get currently availiable number of CPUs
       auto it=XFITTER_PARS::gParametersI.find("NCPUmax");
       if(it != XFITTER_PARS::gParametersI.end()){
@@ -68,10 +85,32 @@ BaseEvolution*get_evolution(string name){
   
   const int xf_ncpu(int NCPU) {
     if (NCPU == 0) return 0;
-    
+
+    // If OpenMP threading is active, shared-memory parallelism in GetChisquare
+    // already uses all requested cores. Forking children that each also try
+    // to thread would oversubscribe. Force fork counts to 1 unless the user
+    // opts out via OpenMP.allowForkWithThreads: true. 
+    // TODO: allowForkWithThreads is untested for now.
+    auto itOmp = XFITTER_PARS::gParametersI.find("OMP_NUM_THREADS");
+    if (itOmp != XFITTER_PARS::gParametersI.end() && itOmp->second > 1 && NCPU > 1) {
+      auto itAllow = XFITTER_PARS::gParametersI.find("allowForkWithThreads");
+      bool allow = (itAllow != XFITTER_PARS::gParametersI.end() && itAllow->second != 0);
+      if (!allow) {
+        static bool warned = false;
+        if (!warned) {
+          hf_errlog(2024040103,
+                    "I: OpenMP threads="+std::to_string(itOmp->second)+
+                    " active; forcing fork-parallel counts to 1 "
+                    "(set OpenMP.allowForkWithThreads: true to override).");
+          warned = true;
+        }
+        return 1;
+      }
+    }
+
     auto it=XFITTER_PARS::gParametersI.find("NCPUmax");
     if(it != XFITTER_PARS::gParametersI.end()){
-    
+
       int nCPUmax = XFITTER_PARS::gParametersI.at("NCPUmax");
 
       // determine automatically
@@ -80,7 +119,7 @@ BaseEvolution*get_evolution(string name){
 	hf_errlog(2023111601,"I: Will use "+std::to_string(nCPUmax)+" maximum nCPU");
 	XFITTER_PARS::gParametersI.at("NCPUmax") = nCPUmax;
       }
-      
+
       if (nCPUmax > 0) {
 	return min(NCPU,nCPUmax);
       }
