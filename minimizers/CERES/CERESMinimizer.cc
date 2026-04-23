@@ -221,7 +221,13 @@ class CostFuntionrDataAndDerivative : public ceres::CostFunction {
       vector <double> result;
       result.resize(nres);
 
-      if (_nCPU==0) {
+      // Resolve effective NCPU up-front. xf_ncpu() returns 1 when OpenMP
+      // threads > 1, to avoid fork()+libgomp deadlocks (a forked child
+      // inherits a zombie thread-pool from the parent). NCPU<=1 means no
+      // parallelism gain from forking - fall through to the serial path.
+      int NCPU = (_nCPU > 0) ? xf_ncpu(_nCPU) : 0;
+
+      if (NCPU <= 1) {
         for (int ipar=0; ipar<npar; ipar+=1) {
           auto res = derivative<FUNCTORDATA>(parameters,residuals, ipar, npar, nres, result.data());
           for (int j=0; j<nres; j+=1) {
@@ -250,7 +256,6 @@ class CostFuntionrDataAndDerivative : public ceres::CostFunction {
 
         std::cout << "N CPU: " << _nCPU << std::endl;
 
-        int NCPU = xf_ncpu(_nCPU);
         int chunkSize = npar / NCPU;
         int reminder  = npar % NCPU;
         int startIndex = 0;
