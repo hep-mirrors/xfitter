@@ -25,6 +25,10 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 // Fortran bindings:
 extern "C" {
@@ -905,6 +909,59 @@ void ensureMapValidity(const string&nodeName){
   }
 }
 
+// Read the OpenMP: block from parameters.yaml and apply runtime settings.
+// Schema:
+//   OpenMP:
+//     threads: 8              # -1 = auto (all cores); <=1 = serial. Default 1.
+//     useLapackSolver: true   # DEQN -> LAPACK DGESV. Default false.
+//     allowForkWithThreads: false  # if false and threads>1, xf_ncpu forces fork counts to 1.
+//
+// Results are stashed in gParametersI under the keys OMP_NUM_THREADS, UseLapackSolver,
+// and allowForkWithThreads so that Fortran code and xf_ncpu can see them cheaply.
+static void apply_openmp_settings() {
+  using namespace XFITTER_PARS;
+
+  int    threads              = 1;
+  bool   useLapackSolver      = false;
+  bool   allowForkWithThreads = false;
+
+  auto it = gParametersY.find("OpenMP");
+  if (it != gParametersY.end()) {
+    const YAML::Node& n = it->second;
+    if (n["threads"])              threads              = n["threads"].as<int>();
+    if (n["useLapackSolver"])      useLapackSolver      = n["useLapackSolver"].as<bool>();
+    if (n["allowForkWithThreads"]) allowForkWithThreads = n["allowForkWithThreads"].as<bool>();
+  }
+
+  if (threads < 0) {
+    long nproc = sysconf(_SC_NPROCESSORS_ONLN);
+    threads = (nproc > 0) ? static_cast<int>(nproc) : 1;
+  }
+  if (threads < 1) threads = 1;
+
+#ifdef _OPENMP
+  omp_set_num_threads(threads);
+  hf_errlog(2024040101,
+            "I: OpenMP threads = " + std::to_string(threads));
+#else
+  if (threads > 1) {
+    hf_errlog(2024040102,
+              "W: OpenMP.threads requested but binary was built without OpenMP - ignored.");
+  }
+  threads = 1;
+#endif
+
+  // Keep LAPACK/BLAS single-threaded by default - for this workload extra BLAS
+  // threads measurably slow DGESV down and fight OpenMP for cores.
+  setenv("OPENBLAS_NUM_THREADS", "1", 1);
+  setenv("MKL_NUM_THREADS",      "1", 1);
+  setenv("BLIS_NUM_THREADS",     "1", 1);
+
+  gParametersI["OMP_NUM_THREADS"]      = threads;
+  gParametersI["UseLapackSolver"]      = useLapackSolver ? 1 : 0;
+  gParametersI["allowForkWithThreads"] = allowForkWithThreads ? 1 : 0;
+}
+
 void parse_params_(){
   using namespace XFITTER_PARS;
   rootNode=loadYamlFile("parameters.yaml");
@@ -915,6 +972,7 @@ void parse_params_(){
   ensureMapValidity("Evolutions");
   ensureMapValidity("byReaction");
   parse_node(rootNode,gParameters,gParametersI,gParametersS,gParametersV,gParametersVS,gParametersY);
+  apply_openmp_settings();
   ParsToFortran();
   createParameters();
   createParameterisations();
