@@ -1,6 +1,8 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter:with_docker"
 # image: "gitlab-registry.cern.ch/fitters/xfitter"
 
+variables:
+  DS_EXCLUDED_ANALYZERS: "gemnasium-python"
 
 stages:
  - test
