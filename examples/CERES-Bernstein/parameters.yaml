@@ -1,0 +1,122 @@
+Minimizer: CERES
+
+CERES:
+  offset: 2
+  tolerance: 1e-5
+  strategy: 0
+  covariance: 1
+
+Parameters:
+  Ag   :  DEPENDENT
+  Adbar: [ 0.159695, 0.005564 ]
+  Adv  :  DEPENDENT
+  Agp: [ 0.172434, 0.563835 ]
+  Aubar: [ 0.0, 0.0 ] # not used (Aubar=Adbar)
+  Auv  :  DEPENDENT
+  Bdbar: [ -0.128396, 0.004533 ]
+  Bdv: [ 1.000377, 0.070670 ]
+  Bubar: [ 0.0, 0.0  ] # not used (Bubar=Bdbar)
+  Bg: [ -0.065160, 0.285266 ]
+  Bgp: [ -0.382911, 0.201784 ]
+  Buv: [ 0.801520, 0.020858 ]
+  Cdbar: [ 9.508550, 1.436720 ]
+  Cdv: [ 4.555476, 0.327847 ]
+  Cg: [ 5.656989, 1.023362 ]
+  Cgp  : [ 25.0, 0.]  # fix C of negative gluon
+  Cubar: [ 3.418150, 2.502822 ]
+  Cuv: [ 4.754314, 0.232385 ]
+  Dubar: [ -1.488523, 3.293230 ]
+  Duv  : [    0     ]
+  Eubar: [ 1.071407, 4.238140 ]
+  Euv: [ -5.070364, 1.168042 ]
+  ZERO : [ 0. ]          # zero
+  fs   :   0.4   #no step means fixed
+  DbarToS: "=fs/(1-fs)"
+
+Parameterisations:
+  par_uv:
+    class: Bernstein
+    parameters: [Auv,Buv,Cuv,Duv,Euv]
+  par_dv:
+    class: Bernstein
+    parameters: [Adv,Bdv,Cdv]
+  par_ubar:
+    class: Bernstein
+    parameters: [Adbar,Bdbar,Cubar,Dubar,Eubar]
+  par_dbar:
+    class: Bernstein
+    parameters: [Adbar,Bdbar,Cdbar]
+  par_s: # s=fs/(1-fs) * Dbar
+    class: Factor
+    factor: DbarToS #name of parameter
+    input: par_dbar
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
+
+Evolutions:
+
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton
+
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+
+? !include constants.yaml
+
+alphas : 0.118
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+    threads: 4
+
+    # Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification
+
+OutputDirectory: "output" #Can be omitted, default is "output"
+
+WriteLHAPDF6:
+  name: "proton"
+  description: "..."
+  authors: "..."
+  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  preferInternalGrid:
+    # or define grid
+  #Xrange: [1e-4, 1]
+  #Qrange: [1,1000]
+  #Xnpoints: 200
+  #Qnpoints: 120
+
+#
+# Possible levels to stop program execution:
+#  1 - will stop on warnings
+#  2 - will stop on errors (default)
+#  3 - will stop on severe errors
+#  4 - will stop on fatal
+#  5 - will not stop on any error
+
+MaxErrAllowed: 2
