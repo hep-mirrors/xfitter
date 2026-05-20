@@ -44,17 +44,14 @@ namespace xfitter
 
     // Initialize QCD evolution objects
     //_DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
-    std::vector<int>  IMod = {0, 0, 0, 0, 0, 0, 0}; // , 0, 0, 0};
+    std::vector<int>  IMod = {0, 0, 0, 0};
     //imod 1 : A
     //imod 2 : B
     //imod 0 : (A+B)/2
-    IMod[0] = yamlNode["P3NSp"].as<int>();
-    IMod[1] = yamlNode["P3NSm"].as<int>();
-    IMod[2] = yamlNode["P3NSs"].as<int>();
-    IMod[3] = yamlNode["P3SGps"].as<int>();
-    IMod[4] = yamlNode["P3SGqg"].as<int>();
-    IMod[5] = yamlNode["P3SGgq"].as<int>();
-    IMod[6] = yamlNode["P3SGgg"].as<int>();
+    IMod[0] = yamlNode["P3SGps"].as<int>();
+    IMod[1] = yamlNode["P3SGqg"].as<int>();
+    IMod[2] = yamlNode["P3SGgq"].as<int>();
+    IMod[3] = yamlNode["P3SGgg"].as<int>();
     bool n3lo = OrderMap(XFITTER_PARS::getParamS("Order"))-1 >= 3;
 
     //IMod[7] = yamlNode["aHg"].as<int>();
