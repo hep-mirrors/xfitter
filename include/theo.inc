@@ -7,9 +7,11 @@
      & THEO_UNC(NTOT),             !> Uncorrelated uncertainty on theory predictions
      & THEO_TOT_UP(NTOT),              !> Total up uncertainty on theory predictions
      & THEO_TOT_DOWN(NTOT),            !> Total down uncertainty on theory predictions
+     & THEO_PUMPLIN_UP(NTOT),          !> Pumplin/Hessian up uncertainty (set by GetTheoErrors*)
+     & THEO_PUMPLIN_DOWN(NTOT),        !> Pumplin/Hessian down uncertainty (set by GetTheoErrors*)
      $ Theo_stat(NTOT)                ! Stat. theo uncertainty 
       common/c_theo/theo,theo_mod, theo_fix,theo_unc,theo_tot_up,
-     $     theo_tot_down, theo_stat
+     $     theo_tot_down, theo_pumplin_up, theo_pumplin_down, theo_stat
 
       double precision TheoFCN3(NTOT)
       double precision TheoModFCN3(NTOT)
