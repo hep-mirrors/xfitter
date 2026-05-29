@@ -147,7 +147,7 @@
    ProcessName(1)     = 'NC SIA NF4'
    Variable(1)        = 'x'
    CutValueMin(1)     = 0.0
-   CutValueMax(1)     = 0.9
+   CutValueMax(1)     = 10.9
 
 !--------------------- FF inclusive pion --------------------------
   ! Rule #1: Q2 cuts
@@ -187,7 +187,7 @@
    ProcessName(6)     = 'NC SIA ct'
    Variable(6)        = 'x'
    CutValueMin(6)     = 0.02
-   CutValueMax(6)     = 0.9
+   CutValueMax(6)     = 0.99
 
 
 

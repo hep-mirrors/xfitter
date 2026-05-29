@@ -34,7 +34,8 @@ class ReactionNC_SIA : public ReactionTheory
     inclNorNF4,
     inclCH,
     inclBT,
-    inclLi
+    inclLi,
+    diff
   }; //!< Define final state.
  protected:
   virtual valarray<double> OBS(TermData*td);

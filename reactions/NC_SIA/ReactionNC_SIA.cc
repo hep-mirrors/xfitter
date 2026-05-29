@@ -99,6 +99,11 @@ void ReactionNC_SIA::initTerm(TermData *td)
       _dataObs[termID] = dataObs::inclLi;
       msg += "light";
     }
+    else if (flavObs == "diff")
+    {
+      _dataObs[termID] = dataObs::diff;
+      msg += "diff";
+    }
     else
     {
       char buffer[256];
@@ -183,41 +188,60 @@ void ReactionNC_SIA::atIteration()
       case dataObs::inclLi:
           APFEL::SetFKObservable("SIA_NORM_XSEC_L");
 
-          break;
+          break;      
     }
 
     auto *q2p = td->getBinColumnOrNull("Q2");
     auto *xp = td->getBinColumnOrNull("x");
-    auto *yp = td->getBinColumnOrNull("cosTheta");
+    auto *cosThp = td->getBinColumnOrNull("cosTheta");
     auto q2 = *q2p;
     auto x = *xp;
-    auto y = *yp;
-
+    auto cosTh = *cosThp;
+    auto y = (1+cosTh)/2.0;
+    auto c2 = 0.75 * (1.0 - 2.0*y + 2.0*y*y);
+    auto cL = 0.75 * (-1.0 + 6.0*y - 6.0*y*y);
+    
     const size_t Np = GetNpoint(termID);
     // Resize arrays.
     _obs[termID].resize(Np);
     double Q2save = 0;
 
-    for (size_t i = 0; i < Np; i++)
-    {
-      // Skip all points with Q2 < 1 GeV^2.
-      std::cout << "x,y,q2:" << x[i] << " "<< y[i] << " " <<q2[i] << std::endl;
-      if (q2[i] < 1)
-        continue;
+    if ( GetDataObs(termID) == dataObs::diff) {
+      for (size_t i = 0; i < Np; i++)
+	{
+	  // Skip all points with Q2 < 1 GeV^2.
+	  if (q2[i] < 1)
+	    continue;
+	     	  
+	  const double Q = sqrt(q2[i]);
+	  // std::cout << "x,y,q2:" << x[i] << " "<< y[i] << " " <<q2[i] << std::endl;
+	  APFEL::SetFKObservable("SIA_FL");
+	  APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
+	  double FL = APFEL::FKObservables(x[i],Q,0.01);
+	  //	  std::cout << "Prediction  FL" << FL << std::endl;
+	  APFEL::SetFKObservable("SIA_F2");
+	  APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
+	  double F2 = APFEL::FKObservables(x[i],Q,0.01);
+	  // std::cout << "Prediction  F2" << F2 << std::endl;
+	  Q2save = q2[i];
+	  double sigma = c2[i] * F2 + cL[i] * FL;
+	  
+	  _obs[termID][i] = sigma;
+	}
+    }
+    else {
+      for (size_t i = 0; i < Np; i++)
+	{
+	  // Skip all points with Q2 < 1 GeV^2.
+	  if (q2[i] < 1)
+	    continue;
+	  const double Q = sqrt(q2[i]);
 
-        const double Q = sqrt(q2[i]);
-        APFEL::SetFKObservable("SIA_FL");
-        APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
-        _obs[termID][i] = APFEL::FKObservables(x[i],Q,0.01);
-      Q2save = q2[i];
-      std::cout << "Prediction  FL" << _obs[termID][i] << std::endl;
-
-        APFEL::SetFKObservable("SIA_F2");
-        APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
-        _obs[termID][i] = APFEL::FKObservables(x[i],Q,0.01);
-      Q2save = q2[i];
-      std::cout << "Prediction  F2" << _obs[termID][i] << std::endl;
-
+	  Q2save = q2[i];
+	  APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
+	  _obs[termID][i] = APFEL::FKObservables(x[i],Q,0.01);
+	  Q2save = q2[i];	  
+	}
     }
   }
 }
