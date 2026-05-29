@@ -14,6 +14,7 @@
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
 #include <cstring>
+#include <iostream>
 using namespace std;
 
 // The class factory
@@ -187,8 +188,10 @@ void ReactionNC_SIA::atIteration()
 
     auto *q2p = td->getBinColumnOrNull("Q2");
     auto *xp = td->getBinColumnOrNull("x");
+    auto *yp = td->getBinColumnOrNull("cosTheta");
     auto q2 = *q2p;
     auto x = *xp;
+    auto y = *yp;
 
     const size_t Np = GetNpoint(termID);
     // Resize arrays.
@@ -198,13 +201,23 @@ void ReactionNC_SIA::atIteration()
     for (size_t i = 0; i < Np; i++)
     {
       // Skip all points with Q2 < 1 GeV^2.
+      std::cout << "x,y,q2:" << x[i] << " "<< y[i] << " " <<q2[i] << std::endl;
       if (q2[i] < 1)
         continue;
 
         const double Q = sqrt(q2[i]);
+        APFEL::SetFKObservable("SIA_FL");
         APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
         _obs[termID][i] = APFEL::FKObservables(x[i],Q,0.01);
       Q2save = q2[i];
+      std::cout << "Prediction  FL" << _obs[termID][i] << std::endl;
+
+        APFEL::SetFKObservable("SIA_F2");
+        APFEL::ComputeStructureFunctionsAPFEL(Q0, Q);
+        _obs[termID][i] = APFEL::FKObservables(x[i],Q,0.01);
+      Q2save = q2[i];
+      std::cout << "Prediction  F2" << _obs[termID][i] << std::endl;
+
     }
   }
 }
