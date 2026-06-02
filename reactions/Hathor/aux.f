@@ -13,7 +13,6 @@ c--------------
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
       real*8 aa(2),bb(2),xx(2)
-      print*,'ttbarr'
 
       del=1d-7
 
