@@ -9,6 +9,7 @@
 #include "ReactionHathor.h"
 #include "HathorPdfxFitter.h"
 #include "Hathor.h"
+#include "HathorFast.h"
 #include "cstring"
 #include "xfitter_cpp.h"
 #include <unistd.h>
@@ -66,7 +67,8 @@ void ReactionHathor::atStart()
   rlxd_get(_rndStore);
 
   // instantiate one Hathor instance for all terms
-  _hathor = new Hathor(*_pdf);
+  //_hathor = new Hathor(*_pdf);
+  _hathor = new HathorFast(*_pdf);
 }
 
 void ReactionHathor::initTerm(TermData *td)
@@ -272,7 +274,7 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   if (mf<0.) {
     mf = mf*-1./mt;
   }
-  //printf("getXsection\n");
+  printf("getXsection\n");
   _hathor->getXsection(mt, mr, mf);
   double dum = 0.0;
   double xsec = 0.0;

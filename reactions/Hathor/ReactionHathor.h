@@ -16,6 +16,7 @@
   */
 
 class Hathor;
+class HathorFast;
 class HathorPdfxFitter;
 
 class ReactionHathor : public ReactionTheory
@@ -43,7 +44,8 @@ protected:
   //std::map<int, Hathor*> _hathorArray;
 
   //Global Hathor instance for all terms
-  Hathor* _hathor;
+  //Hathor* _hathor;
+  HathorFast* _hathor;
 
   HathorPdfxFitter* _pdf;
   int* _rndStore;
