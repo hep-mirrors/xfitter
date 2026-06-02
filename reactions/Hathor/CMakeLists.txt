@@ -5,7 +5,7 @@ endif()
 
 set(TARGET reactionHathor)
 #add_library(${TARGET} MODULE ReactionHathor.cc HathorPdfxFitter.cc)
-add_library(${TARGET} MODULE ReactionHathor.cc HathorPdfxFitter.cc HathorFast.cc aux.f sk.f TEST.cc)
+add_library(${TARGET} MODULE ReactionHathor.cc HathorPdfxFitter.cc HathorGenericIntegrator.cc aux.f sk.f)
 target_link_libraries(${TARGET} PRIVATE xfitter HATHOR)
 target_include_directories(${TARGET} PRIVATE include)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})

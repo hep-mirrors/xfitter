@@ -16,7 +16,7 @@
   */
 
 class Hathor;
-class HathorFast;
+class HathorGenericIntegrator;
 class HathorPdfxFitter;
 
 class ReactionHathor : public ReactionTheory
@@ -45,7 +45,7 @@ protected:
 
   //Global Hathor instance for all terms
   //Hathor* _hathor;
-  HathorFast* _hathor;
+  HathorGenericIntegrator* _hathor;
 
   HathorPdfxFitter* _pdf;
   int* _rndStore;

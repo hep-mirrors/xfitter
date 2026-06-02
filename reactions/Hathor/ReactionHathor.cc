@@ -9,7 +9,7 @@
 #include "ReactionHathor.h"
 #include "HathorPdfxFitter.h"
 #include "Hathor.h"
-#include "HathorFast.h"
+#include "HathorGenericIntegrator.h"
 #include "cstring"
 #include "xfitter_cpp.h"
 #include <unistd.h>
@@ -68,7 +68,7 @@ void ReactionHathor::atStart()
 
   // instantiate one Hathor instance for all terms
   //_hathor = new Hathor(*_pdf);
-  _hathor = new HathorFast(*_pdf);
+  _hathor = new HathorGenericIntegrator(*_pdf);
 }
 
 void ReactionHathor::initTerm(TermData *td)
