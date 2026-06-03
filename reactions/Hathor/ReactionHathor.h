@@ -2,7 +2,6 @@
 #pragma once
 
 #include "ReactionTheory.h"
-#include "Hathor.h"
 
 /**
   @class' ReactionHathor
@@ -15,8 +14,9 @@
   @date 2017-08-07
   */
 
+//class Hathor;
+template <class Integrand> class HathorGenericIntegrator;
 class Hathor;
-class HathorGenericIntegrator;
 class HathorPdfxFitter;
 
 class ReactionHathor : public ReactionTheory
@@ -45,7 +45,7 @@ protected:
 
   //Global Hathor instance for all terms
   //Hathor* _hathor;
-  HathorGenericIntegrator* _hathor;
+  HathorGenericIntegrator<Hathor>* _hathor;
 
   HathorPdfxFitter* _pdf;
   int* _rndStore;

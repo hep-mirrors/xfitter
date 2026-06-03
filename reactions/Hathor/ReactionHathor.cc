@@ -68,7 +68,7 @@ void ReactionHathor::atStart()
 
   // instantiate one Hathor instance for all terms
   //_hathor = new Hathor(*_pdf);
-  _hathor = new HathorGenericIntegrator(*_pdf);
+  _hathor = new HathorGenericIntegrator<Hathor>(*_pdf);
 }
 
 void ReactionHathor::initTerm(TermData *td)
