@@ -33,12 +33,13 @@ public:
     ~ReactionHathorSingleTop();
     
     //vector<double> asFactors(SgTop *XS, double muOLD, double muNEW);
-    vector<double> asFactors(IHathorGenericIntegrator *XS, double muOLD, double muNEW);
+    vector<double> asFactors(int msMass, double nfl, int orderI, IHathorGenericIntegrator *XS, double muOLD, double muNEW);
     
     virtual string getReactionName() const { return  "HathorSingleTop" ;};
     virtual void initTerm(TermData *td) override final;
     virtual void atStart();
     virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err);
+    virtual void atIteration();
 protected:
     virtual int parseOptions(){ return 0;};
   
@@ -47,30 +48,33 @@ protected:
     //std::map<int, HathorSgTopT*> _hathorTArray;
     //std::map<int, HathorSgTopS*> _hathorSArray;
     //std::map<int, HathorSgTopWt*> _hathorWtArray;
-    std::map<int, HathorGenericIntegrator<HathorSgTopT>*> _hathorTArray;
-    std::map<int, HathorGenericIntegrator<HathorSgTopS>*> _hathorSArray;
-    std::map<int, HathorGenericIntegrator<HathorSgTopWt>*> _hathorWtArray;
-  
+    ///std::map<int, HathorGenericIntegrator<HathorSgTopT>*> _hathorTArray;
+    //std::map<int, HathorGenericIntegrator<HathorSgTopS>*> _hathorSArray;
+    //std::map<int, HathorGenericIntegrator<HathorSgTopWt>*> _hathorWtArray;
+    HathorGenericIntegrator<HathorSgTopT>* _hathorT;
+    HathorGenericIntegrator<HathorSgTopS>* _hathorS;
+    HathorGenericIntegrator<HathorSgTopWt>* _hathorWt;
+    
     HathorPdfxFitter* _pdf;
     int* _rndStore;
-    map<unsigned, int> _scheme;
-    map<unsigned, const double*> _mtop;
-    map<unsigned, const double*> _mr;
-    map<unsigned, const double*> _mf;
+    //map<unsigned, int> _scheme;
+    //map<unsigned, const double*> _mtop;
+    //map<unsigned, const double*> _mr;
+    //map<unsigned, const double*> _mf;
     // store term data for later access
     map<unsigned, TermData*> _tdDS;
   
-    double nfl;  //#active flavors
-    int orderI;  //Perturbative order (numerical stencil can't rely on "scheme")
-    int msMass;  //0=POLE scheme, 1=MSBAR scheme
+    //double nfl;  //#active flavors
+    //int orderI;  //Perturbative order (numerical stencil can't rely on "scheme")
+    //int msMass;  //0=POLE scheme, 1=MSBAR scheme
 
     //Flags for which processes to include in the computation
-    std::map<int, int> tchannel;
-    std::map<int, int> schannel;
-    std::map<int, int> Wtchannel;
+    //std::map<int, int> tchannel;
+    //std::map<int, int> schannel;
+    //std::map<int, int> Wtchannel;
 
     //NNLO t-channel K-factors
-    map<unsigned, double> _kfactors_nnlo_tch;
+    //map<unsigned, double> _kfactors_nnlo_tch;
 
 
     // constants
@@ -79,5 +83,6 @@ protected:
     double const z3 = 1.202056903159594;
     double const ln2= 0.693147180559945;
 
+    std::map<std::string, double> _convolved;
+    static bool init1;
 };
-

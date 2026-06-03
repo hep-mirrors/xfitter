@@ -68,7 +68,7 @@ void ReactionHathor::atStart()
 
   // instantiate one Hathor instance for all terms
   //_hathor = new Hathor(*_pdf);
-  _hathor = new HathorGenericIntegrator<Hathor>(*_pdf);
+  _hathor = new HathorGenericIntegrator<HathorLikeSgTop>(*_pdf);
 }
 
 void ReactionHathor::initTerm(TermData *td)
@@ -109,12 +109,6 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   }
   if(td->hasParam("MS_MASS")) {
     calc_name += "_MS_MASS";
-  }
-  if(td->hasParam("muR")) {
-    calc_name += "muR"+std::to_string(*td->getParamD("muR"));
-  }
-  if(td->hasParam("muF")) {
-    calc_name += "muF"+std::to_string(*td->getParamD("muF"));
   }
   if(td->hasParam("NFlavour")) {
     calc_name += "NFlavour"+std::to_string(td->getParamI("NFlavour"));

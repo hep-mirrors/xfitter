@@ -44,6 +44,16 @@ public:
   virtual void getResult(int pdfset, double &integral, double &err, double & chi2a) = 0;
 };
 
+class HathorLikeSgTop : public Hathor {
+  public:
+    HathorLikeSgTop(Pdf & pdf_) : Hathor(pdf_) {;};
+    // dummy staff which is never called for Hathor
+    void setCkmMatrix(const double ckm[3][3]) {;};
+    void getCkmMatrix(double ckm[3][3]) {;};
+    void PrintCkmMatrix() {;};
+    void setParticle(SgTop::PARTICLE p) {;};
+};
+
 template <class Integrand> 
 class HathorGenericIntegrator : public IHathorGenericIntegrator, public Integrand {
   public:

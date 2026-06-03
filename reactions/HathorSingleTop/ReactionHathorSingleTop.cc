@@ -11,6 +11,7 @@
 #include "HathorGenericIntegrator.h"
 #include "cstring"
 #include "xfitter_cpp.h"
+#include <unistd.h>
 
 // the class factories
 extern "C" ReactionHathorSingleTop* create() {
@@ -29,6 +30,9 @@ ReactionHathorSingleTop::ReactionHathorSingleTop()
 {
     _pdf = NULL;
     _rndStore = NULL;
+    _hathorS = NULL;
+    _hathorT = NULL;
+    _hathorWt = NULL;
 }
 
 ReactionHathorSingleTop::~ReactionHathorSingleTop()
@@ -67,7 +71,7 @@ ReactionHathorSingleTop::~ReactionHathorSingleTop()
 //  Common factor for all orders:
 //    asFactor *= asNEW/asOLD;
 //vector<double> ReactionHathorSingleTop::asFactors(SgTop* XS, 
-vector<double> ReactionHathorSingleTop::asFactors(IHathorGenericIntegrator* XS, 
+vector<double> ReactionHathorSingleTop::asFactors(int msMass, double nfl, int orderI, IHathorGenericIntegrator* XS, 
                                                   double muOLD, double muNEW)
 {
     vector<double> ret;   //n:th component will be the factor for as^(n+2)
@@ -107,15 +111,73 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     _tdDS[dataSetID] = td;
 
     // check if dataset with provided ID already exists
-    if(_hathorTArray.find( dataSetID) != _hathorTArray.end() ||
-       _hathorSArray.find( dataSetID) != _hathorSArray.end() ||
-       _hathorWtArray.find(dataSetID) != _hathorWtArray.end()  )
-    {
-        char str[256];
-        sprintf(str, "F: dataset with id = %d already exists", dataSetID);
-        hf_errlog(19060401, str);
+    //if(_hathorTArray.find( dataSetID) != _hathorTArray.end() ||
+    //   _hathorSArray.find( dataSetID) != _hathorSArray.end() ||
+    //   _hathorWtArray.find(dataSetID) != _hathorWtArray.end()  )
+    //{
+    //    char str[256];
+    //    sprintf(str, "F: dataset with id = %d already exists", dataSetID);
+    //    hf_errlog(19060401, str);
+    //}
+}
+
+// Initialize at the start of the computation
+void ReactionHathorSingleTop::atStart()
+{
+    // PDFs for Hathor
+    _pdf = new HathorPdfxFitter(this);
+    
+    // random number generator
+    rlxd_init(1, 1);
+    int nRnd = rlxd_size();
+    //std::cout << " Size of random number array = " << nRnd << "\n";
+    _rndStore = new int[nRnd];
+    rlxd_get(_rndStore);
+
+    _hathorS = new HathorGenericIntegrator<HathorSgTopS>(*_pdf);
+    _hathorT = new HathorGenericIntegrator<HathorSgTopT>(*_pdf);
+    _hathorWt = new HathorGenericIntegrator<HathorSgTopWt>(*_pdf);
+}
+void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
+{
+    // avoid calculating the same cross section again
+    std::string calc_name = "";
+    std::vector<std::string> v_double_pars = {"SqrtS", "convFac", "mtp", "muR", "muF"};
+    std::vector<std::string> v_int_pars = {"precisionLevel", "MS_MASS", "NFlavour", "ppbar", "tSgTop", "sSgTop", "WtSgTop", "antitopquark"};
+    std::vector<std::string> v_str_pars = {"Order", "evolution", "evolution1", "evolution2", "integrator"};
+    for (auto& p : v_double_pars) {
+        if(td->hasParam(p)) {
+            calc_name += "_" + p + std::to_string(*td->getParamD(p));
+        }
+    }
+    for (auto& p : v_int_pars) {
+        if(td->hasParam(p)) {
+            calc_name += "_" + p + std::to_string(td->getParamI(p));
+        }
+    }
+    for (auto& p : v_str_pars) {
+        if(td->hasParam(p)) {
+            calc_name += "_" + p + td->getParamS(p);
+        }
+    }
+    if (_convolved.find(calc_name) != _convolved.end()) {
+        val = _convolved[calc_name];
+        return;
     }
 
+    td->actualizeWrappers();
+    _pdf->IsValid = true;
+    int dataSetID = td->id;
+    rlxd_reset(_rndStore);
+
+    //Suppress Hathor output
+    int o;
+    if (!steering_.ldebug) {
+        o = dup(fileno(stdout));
+        if (freopen("/dev/null", "a", stdout)) {
+        }
+    }
+    
     // read centre-of-mass energy from provided dataset parameters
     // (must be provided)
     double sqrtS = 0.0;
@@ -174,40 +236,48 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
     }
 
     // read enabled processes. By default, enable everything
-    tchannel[dataSetID]=1;
-    schannel[dataSetID]=1;
-    Wtchannel[dataSetID]=1;
-    if(td->hasParam("tSgTop") ) tchannel[dataSetID]  = td->getParamI("tSgTop");
-    if(td->hasParam("sSgTop") ) schannel[dataSetID]  = td->getParamI("sSgTop");
-    if(td->hasParam("WtSgTop")) Wtchannel[dataSetID] = td->getParamI("WtSgTop");
-    if (tchannel[dataSetID]!=1 && schannel[dataSetID]!=1 && Wtchannel[dataSetID]!=1) {
+    int tchannel=1;
+    int schannel=1;
+    int Wtchannel=1;
+    if(td->hasParam("tSgTop") ) tchannel  = td->getParamI("tSgTop");
+    if(td->hasParam("sSgTop") ) schannel  = td->getParamI("sSgTop");
+    if(td->hasParam("WtSgTop")) Wtchannel = td->getParamI("WtSgTop");
+    if (tchannel!=1 && schannel!=1 && Wtchannel!=1) {
         hf_errlog(21121001,"F: ERROR all channels disabled in ReactionHathorSingleTop");
 	} else {
-        if (tchannel[dataSetID] ==0) hf_errlog(21121002,"I: Disabled t-channel processes in ReactionHathorSingleTop");
-        if (schannel[dataSetID] ==0) hf_errlog(21121003,"I: Disabled s-channel processes in ReactionHathorSingleTop");
-        if (Wtchannel[dataSetID]==0) hf_errlog(21121004,"I: Disabled W+t final state processes in ReactionHathorSingleTop");
+        if (tchannel ==0) hf_errlog(21121002,"I: Disabled t-channel processes in ReactionHathorSingleTop");
+        if (schannel ==0) hf_errlog(21121003,"I: Disabled s-channel processes in ReactionHathorSingleTop");
+        if (Wtchannel==0) hf_errlog(21121004,"I: Disabled W+t final state processes in ReactionHathorSingleTop");
 	}
     
-    // instantiate Hathor objects for different processes
-    HathorGenericIntegrator<HathorSgTopT>*  hathorT;
-    HathorGenericIntegrator<HathorSgTopS>*  hathorS;
-    HathorGenericIntegrator<HathorSgTopWt>* hathorWt;
+    // Hathor objects for different processes
     vector<IHathorGenericIntegrator*> hathorChannels;
-    //vector<IHathorGenericIntegrator*> hathorChannels;
-    if (tchannel[dataSetID]) {
-        hathorT  = new HathorGenericIntegrator<HathorSgTopT>( *_pdf);
-        hathorChannels.push_back(hathorT);
+    if (tchannel) {
+        hathorChannels.push_back(_hathorT);
     }
-    if (schannel[dataSetID]) {
-        hathorS  = new HathorGenericIntegrator<HathorSgTopS>( *_pdf);
-        hathorChannels.push_back(hathorS);
+    if (schannel) {
+        hathorChannels.push_back(_hathorS);
     }
-    if (Wtchannel[dataSetID]) {
-        hathorWt = new HathorGenericIntegrator<HathorSgTopWt>(*_pdf);
-        hathorChannels.push_back(hathorWt);
+    if (Wtchannel) {
+        hathorChannels.push_back(_hathorWt);
     }
     
-    bool init1 = true;  //Print most info only when initializing 1st channel
+    int msMass = 0; // pole mass by default
+
+    // top quark mass
+    const double* mtop = td->getParamD("mtp");
+
+    // renorm. scale
+    const double* mr = td->getParamD("muR");
+
+    // fact. scale
+    const double* mf = td->getParamD("muF");
+
+    std::string order = td->getParamS("Order");
+    int scheme = Hathor::LO;  //POLE uses this
+    int orderI = 0;  //MSBAR uses this
+    double kfactors_nnlo_tch = 1.0;
+    
     for (auto hathor : hathorChannels) {
     
         // set collision type
@@ -271,111 +341,64 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
         }
     
         // scheme (perturbative order and pole/MSbar mass treatment)
-        std::string order = td->getParamS("Order");
-        _scheme[dataSetID] = Hathor::LO;  //POLE uses this
-        orderI = 0;                       //MSBAR uses this
-        _kfactors_nnlo_tch[dataSetID] = 1.0;
         if (order == "NLO") {
-            _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;  
+            scheme = scheme | Hathor::NLO;  
             orderI = 1;                                             
         } else if (order == "NNLO") {
             hf_errlog(21121005,"W: Standard Hathor-2.0 has no NNLO single top processes. ReactionHathorSingleTop reverts to NLO.");
-            _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;  
+            scheme = scheme | Hathor::NLO;  
             orderI = 1;                                             
             // NNLO/NLO K-factor as given in ABMP16 paper arXiv:1701.05838 with refs. to arXiv:1404.7116 and arXiv:1608.05212
-            _kfactors_nnlo_tch[dataSetID] = 0.984;
+            kfactors_nnlo_tch = 0.984;
 			/* NNLO not implemented in Hathor-2.0. If updated, remove the above 3 
 			 *lines and uncomment the below */
-            //_scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO  | Hathor::NNLO;
+            //scheme = scheme | Hathor::NLO  | Hathor::NNLO;
             //orderI = 2;                                             
         } else if (order != "LO") {
             if (init1) std::cout << " ReactionHathorSingleTop: perturbative order "
                                  << order 
                                  <<  " not supported. Defaulting to NLO."
                                  << std::endl;
-            _scheme[dataSetID] = _scheme[dataSetID] | Hathor::NLO;
+            scheme = scheme | Hathor::NLO;
             orderI = 1;                                             
         }
-        msMass = 0; // pole mass by default
         if(td->hasParam("MS_MASS")) msMass = td->getParamI("MS_MASS");
-        if(msMass) _scheme[dataSetID] = _scheme[dataSetID] | Hathor::MS_MASS;
-        hathor->setScheme(_scheme[dataSetID]);
+        if(msMass) scheme = scheme | Hathor::MS_MASS;
+        hathor->setScheme(scheme);
         if (init1) std::cout << "ReactionHathorSingleTop: Setting the scheme"
                              << std::endl;
     
         // set precision level
         hathor->setPrecision(precisionLevel);
-    
-        // top quark mass
-        _mtop[dataSetID] = td->getParamD("mtp");
-    
-        // renorm. scale
-        _mr[dataSetID] = td->getParamD("muR");
-    
-        // fact. scale
-        _mf[dataSetID] = td->getParamD("muF");
-    
+        
         if (init1) {
             std::cout << " Hathor will use:";
-            std::cout << " mtop = " << *_mtop[dataSetID] << "[GeV] ";
-            std::cout << " renorm. scale = " << *_mr[dataSetID] * (*_mtop[dataSetID]) << "[GeV] ";
-            std::cout << " fact. scale = " << *_mf[dataSetID] * (*_mtop[dataSetID]) << "[GeV]";
+            std::cout << " mtop = " << *mtop << "[GeV] ";
+            std::cout << " renorm. scale = " << *mr * (*mtop) << "[GeV] ";
+            std::cout << " fact. scale = " << *mf * (*mtop) << "[GeV]";
             std::cout << std::endl;
         } 
     
     }
 
-    // done
-    if (tchannel[dataSetID]) {
-        hathorT->PrintOptions(); 
-        _hathorTArray[dataSetID] = hathorT;
-	}
-    if (schannel[dataSetID]) {
-        hathorS->PrintOptions(); 
-        _hathorSArray[dataSetID] = hathorS;    
+    if (init1) {
+        if (tchannel) {
+            _hathorT->PrintOptions(); 
+        }
+        if (schannel) {
+            _hathorS->PrintOptions(); 
+        }
+        if (Wtchannel) {
+            _hathorWt->PrintOptions();
+        }
     }
-    if (Wtchannel[dataSetID]) {
-        hathorWt->PrintOptions();
-        _hathorWtArray[dataSetID] = hathorWt;
-    }
-}
 
-// Initialize at the start of the computation
-void ReactionHathorSingleTop::atStart()
-{
-    // PDFs for Hathor
-    _pdf = new HathorPdfxFitter(this);
-    
-    // random number generator
-    rlxd_init(1, 1);
-    int nRnd = rlxd_size();
-    //std::cout << " Size of random number array = " << nRnd << "\n";
-    _rndStore = new int[nRnd];
-    rlxd_get(_rndStore);
-}
-void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
-{
-    td->actualizeWrappers();
-    _pdf->IsValid = true;
-    int dataSetID = td->id;
-    rlxd_reset(_rndStore);
-
-    HathorGenericIntegrator<HathorSgTopT>*  hathorT;
-    HathorGenericIntegrator<HathorSgTopS>*  hathorS;
-    HathorGenericIntegrator<HathorSgTopWt>* hathorWt;
-    vector<IHathorGenericIntegrator*> hathorChannels;
-
-    if (tchannel[dataSetID] ) {
-		hathorT = _hathorTArray.at(dataSetID);
-		hathorChannels.push_back(hathorT);
-	}
-    if (schannel[dataSetID] ) {
-		hathorS = _hathorSArray.at(dataSetID);
-		hathorChannels.push_back(hathorS);
-	}
-    if (Wtchannel[dataSetID]) {
-		hathorWt = _hathorWtArray.at(dataSetID);
-		hathorChannels.push_back(hathorWt);
+    //Resume standard output
+    if (!steering_.ldebug)
+    {
+        //freopen ("/dev/tty", "a", stdout);
+        dup2(o,fileno(stdout));
+        close(o);
     }
 
     val[0] = 0.;  //Final result will be stored here
@@ -388,11 +411,11 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
     
             double valtclo, valtclop, valtclom, valtcnlo, valtcnlop, valtcnlom, valtcnnlo;
             double err1, chi1;
-            double aspi  = hathor->getAlphas(*_mtop[dataSetID])/(pi);
-            double dmtms = *_mtop[dataSetID]/100.;  //For numerical derivative w.r.t mt
+            double aspi  = hathor->getAlphas(*mtop)/(pi);
+            double dmtms = *mtop/100.;  //For numerical derivative w.r.t mt
     
             // decoupling coefficients
-            nfl = 5.;
+            double nfl = 5.;
             double Lrbar = 0.;  //The logarithm is zero when mt evaluated at mu_r = mu_m = mt (*)
             double d1dec = ( 4./3. + Lrbar );
             double d2dec = ( 307./32. + 2.*z2 + 2./3.*z2*ln2 - z3/6.
@@ -404,41 +427,41 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
         
             // LO
             //hathor->setScheme(Hathor::LO);
-            hathor->setScheme(_scheme[dataSetID]);
+            hathor->setScheme(scheme);
             // all order result
-            hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+            hathor->getXsection(*mtop,*mtop,*mf*(*mtop), td->getParamS("integrator"));
             hathor->getResult(0,valtclo,err1,chi1);
     
             if (orderI > 0) {
                 // LO derivatives
                 hathor->setScheme(Hathor::LO);
-                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+                hathor->getXsection(*mtop+dmtms,*mtop,*mf*(*mtop), td->getParamS("integrator"));
                 hathor->getResult(0,valtclop,err1,chi1);
-                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+                hathor->getXsection(*mtop-dmtms,*mtop,*mf*(*mtop), td->getParamS("integrator"));
                 hathor->getResult(0,valtclom,err1,chi1);
     
                 // NLO
                 //hathor->setScheme(Hathor::NLO);
-                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+                //hathor->getXsection(*mtop,*mtop,*mf*(*mtop), td->getParamS("integrator"));
                 //hathor->getResult(0,valtcnlo,err1,chi1);
             }
     
             if (orderI > 1) {
                 // NLO derivatives
                 hathor->setScheme(Hathor::NLO);
-                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+                hathor->getXsection(*mtop+dmtms,*mtop,*mf*(*mtop), td->getParamS("integrator"));
                 hathor->getResult(0,valtcnlop,err1,chi1);
-                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+                hathor->getXsection(*mtop-dmtms,*mtop,*mf*(*mtop), td->getParamS("integrator"));
                 hathor->getResult(0,valtcnlom,err1,chi1);
     
                 // NNLO
                 //hathor->setScheme(Hathor::NNLO);
-                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+                //hathor->getXsection(*mtop,*mtop,*mf*(*mtop), td->getParamS("integrator"));
                 //hathor->getResult(0,valtcnnlo,err1,chi1);
             }
     
             //Coefficients for generalizing cross-section to arbitrary alpha_s(mu_r)
-            vector<double> asFac = asFactors(hathor,*_mtop[dataSetID],*_mr[dataSetID]*(*_mtop[dataSetID]));
+            vector<double> asFac = asFactors(msMass, nfl, orderI, hathor,*mtop,*mr*(*mtop));
             if (asFac.size()!=3) {
                 hf_errlog(21120901,"F: ERROR in calculating as conversion factors in ReactionHathorSingleTop.cc");
                 return;
@@ -454,21 +477,21 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
                    + (orderI > 1 ? asNNLO*valtcnnlo : 0.);  //Common NNLO
             //Numerical derivative contributions
             if (orderI > 0) {
-                NLOder = aspi*d1dec*(*_mtop[dataSetID])/(2.*dmtms)*(valtclop-valtclom);
+                NLOder = aspi*d1dec*(*mtop)/(2.*dmtms)*(valtclop-valtclom);
                 crst  += asNLO*NLOder;
             }
             if (orderI > 1) {
                 //N.B. csNLO terms include one factor of aspi on 2nd line
-                NNLOder = pow(aspi,2)*d2dec*(*_mtop[dataSetID])/(2.*dmtms)*(valtclop - valtclom)                  
-                         +       aspi*d1dec*(*_mtop[dataSetID])/(2.*dmtms)*(valtcnlop - valtcnlom)
-                         +pow(aspi*d1dec*(*_mtop[dataSetID])/dmtms,2)/2.*(valtclop - 2.*valtclo + valtclom);
+                NNLOder = pow(aspi,2)*d2dec*(*mtop)/(2.*dmtms)*(valtclop - valtclom)                  
+                         +       aspi*d1dec*(*mtop)/(2.*dmtms)*(valtcnlop - valtcnlom)
+                         +pow(aspi*d1dec*(*mtop)/dmtms,2)/2.*(valtclop - 2.*valtclo + valtclom);
                 crst  += asNNLO*NNLOder;            
             }
             //printf("xsec,err: %f %f [%.3f%%]\n", crst, err1, err1/crst*100.);
                        
         } else {  //POLE scheme calculated in Hathor, no ext. numerical derivatives
     
-            hathor->getXsection(*_mtop[dataSetID], *_mr[dataSetID]*(*_mtop[dataSetID]), *_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
+            hathor->getXsection(*mtop, *mr*(*mtop), *mf*(*mtop), td->getParamS("integrator"));
             double dum = 0.0;
             hathor->getResult(0, crst, dum);
             //printf("xsec,err: %f %f [%.3f%%]\n", crst, dum, dum/crst*100.);
@@ -478,9 +501,18 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
         val[0] += crst;
 
     }
-    if (tchannel[dataSetID] == 1 && schannel[dataSetID] == 0 && Wtchannel[dataSetID] == 0) {
-        val[0] *= _kfactors_nnlo_tch[dataSetID];
+    if (tchannel == 1 && schannel == 0 && Wtchannel == 0) {
+        val[0] *= kfactors_nnlo_tch;
     }
-  
+
+    _convolved.insert(std::make_pair(calc_name, val[0]));
+
+    init1 = false;
 }
 
+void ReactionHathorSingleTop::atIteration() {
+    //printf("clearing %ld Hathor saved xsecs\n", _convolved.size());
+    _convolved.clear();
+}
+
+bool ReactionHathorSingleTop::init1 = true;
