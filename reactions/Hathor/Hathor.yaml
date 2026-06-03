@@ -3,3 +3,4 @@
   muR: 1.
   muF: 1.
   RATIO: 0
+  integrator: vegas

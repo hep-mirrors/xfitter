@@ -131,6 +131,9 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   if(td->hasParam("evolution2")) {
     calc_name += "_evolution2_" + td->getParamS("evolution2");
   }
+  if(td->hasParam("integrator")) {
+    calc_name += "_integrator_" + td->getParamS("integrator");
+  }
   if (_convolved.find(calc_name) != _convolved.end()) {
     val = _convolved[calc_name];
     return;
@@ -274,8 +277,8 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   if (mf<0.) {
     mf = mf*-1./mt;
   }
-  printf("getXsection\n");
-  _hathor->getXsection(mt, mr, mf);
+  _hathor->getXsection(mt, mr, mf, td->getParamS("integrator"));
+  //printf("getXsection ncalls = %ld\n", _ncalls);
   double dum = 0.0;
   double xsec = 0.0;
   _hathor->getResult(0, xsec, dum);
