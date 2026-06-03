@@ -7,6 +7,8 @@ set(TARGET reactionHathorSingleTop)
 add_library(${TARGET} MODULE 
   ReactionHathorSingleTop.cc 
   HathorPdfxFitter.cc
+  aux.f
+  sk.f
 )
 target_link_libraries(${TARGET} PRIVATE xfitter HATHOR)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})

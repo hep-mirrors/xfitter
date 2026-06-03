@@ -8,6 +8,7 @@
 #include "ReactionHathorSingleTop.h"
 #include "HathorPdfxFitter.h"
 #include "Hathor.h"
+#include "HathorGenericIntegrator.h"
 #include "cstring"
 #include "xfitter_cpp.h"
 
@@ -65,7 +66,8 @@ ReactionHathorSingleTop::~ReactionHathorSingleTop()
 //    asFactor += pow((asNEW*4*pi),2)*( Lmu*bar1 + pow(Lmu*bar0,2) );
 //  Common factor for all orders:
 //    asFactor *= asNEW/asOLD;
-vector<double> ReactionHathorSingleTop::asFactors(SgTop* XS, 
+//vector<double> ReactionHathorSingleTop::asFactors(SgTop* XS, 
+vector<double> ReactionHathorSingleTop::asFactors(IHathorGenericIntegrator* XS, 
                                                   double muOLD, double muNEW)
 {
     vector<double> ret;   //n:th component will be the factor for as^(n+2)
@@ -187,20 +189,21 @@ void ReactionHathorSingleTop::initTerm(TermData *td)
 	}
     
     // instantiate Hathor objects for different processes
-    HathorSgTopT*  hathorT;
-    HathorSgTopS*  hathorS;
-    HathorSgTopWt* hathorWt;
-    vector<SgTop*> hathorChannels;
+    HathorGenericIntegrator<HathorSgTopT>*  hathorT;
+    HathorGenericIntegrator<HathorSgTopS>*  hathorS;
+    HathorGenericIntegrator<HathorSgTopWt>* hathorWt;
+    vector<IHathorGenericIntegrator*> hathorChannels;
+    //vector<IHathorGenericIntegrator*> hathorChannels;
     if (tchannel[dataSetID]) {
-        hathorT  = new HathorSgTopT( *_pdf);
+        hathorT  = new HathorGenericIntegrator<HathorSgTopT>( *_pdf);
         hathorChannels.push_back(hathorT);
     }
     if (schannel[dataSetID]) {
-        hathorS  = new HathorSgTopS( *_pdf);
+        hathorS  = new HathorGenericIntegrator<HathorSgTopS>( *_pdf);
         hathorChannels.push_back(hathorS);
     }
     if (Wtchannel[dataSetID]) {
-        hathorWt = new HathorSgTopWt(*_pdf);
+        hathorWt = new HathorGenericIntegrator<HathorSgTopWt>(*_pdf);
         hathorChannels.push_back(hathorWt);
     }
     
@@ -357,10 +360,10 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
     int dataSetID = td->id;
     rlxd_reset(_rndStore);
 
-    HathorSgTopT*  hathorT;
-    HathorSgTopS*  hathorS;
-    HathorSgTopWt* hathorWt;
-    vector<SgTop*> hathorChannels;
+    HathorGenericIntegrator<HathorSgTopT>*  hathorT;
+    HathorGenericIntegrator<HathorSgTopS>*  hathorS;
+    HathorGenericIntegrator<HathorSgTopWt>* hathorWt;
+    vector<IHathorGenericIntegrator*> hathorChannels;
 
     if (tchannel[dataSetID] ) {
 		hathorT = _hathorTArray.at(dataSetID);
@@ -377,7 +380,7 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
 
     val[0] = 0.;  //Final result will be stored here
     
-    for (SgTop* hathor : hathorChannels) {
+    for (auto hathor : hathorChannels) {
 
         double crst=0.;  //Total inclusive cross section for one process
 
@@ -403,34 +406,34 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
             //hathor->setScheme(Hathor::LO);
             hathor->setScheme(_scheme[dataSetID]);
             // all order result
-            hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+            hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
             hathor->getResult(0,valtclo,err1,chi1);
     
             if (orderI > 0) {
                 // LO derivatives
                 hathor->setScheme(Hathor::LO);
-                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
                 hathor->getResult(0,valtclop,err1,chi1);
-                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
                 hathor->getResult(0,valtclom,err1,chi1);
     
                 // NLO
                 //hathor->setScheme(Hathor::NLO);
-                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
                 //hathor->getResult(0,valtcnlo,err1,chi1);
             }
     
             if (orderI > 1) {
                 // NLO derivatives
                 hathor->setScheme(Hathor::NLO);
-                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+                hathor->getXsection(*_mtop[dataSetID]+dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
                 hathor->getResult(0,valtcnlop,err1,chi1);
-                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+                hathor->getXsection(*_mtop[dataSetID]-dmtms,*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
                 hathor->getResult(0,valtcnlom,err1,chi1);
     
                 // NNLO
                 //hathor->setScheme(Hathor::NNLO);
-                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]));
+                //hathor->getXsection(*_mtop[dataSetID],*_mtop[dataSetID],*_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
                 //hathor->getResult(0,valtcnnlo,err1,chi1);
             }
     
@@ -465,7 +468,7 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
                        
         } else {  //POLE scheme calculated in Hathor, no ext. numerical derivatives
     
-            hathor->getXsection(*_mtop[dataSetID], *_mr[dataSetID]*(*_mtop[dataSetID]), *_mf[dataSetID]*(*_mtop[dataSetID]));
+            hathor->getXsection(*_mtop[dataSetID], *_mr[dataSetID]*(*_mtop[dataSetID]), *_mf[dataSetID]*(*_mtop[dataSetID]), td->getParamS("integrator"));
             double dum = 0.0;
             hathor->getResult(0, crst, dum);
             //printf("xsec,err: %f %f [%.3f%%]\n", crst, dum, dum/crst*100.);

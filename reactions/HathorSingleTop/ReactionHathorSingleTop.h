@@ -19,6 +19,8 @@
 //   s-channel and W+t final state processes in addition to previous t-channel.
   */
 
+class IHathorGenericIntegrator;
+template <class Integrand> class HathorGenericIntegrator;
 class SgTop;
 class HathorSgTopT;
 class HathorSgTopS;
@@ -30,7 +32,8 @@ public:
     ReactionHathorSingleTop();
     ~ReactionHathorSingleTop();
     
-    vector<double> asFactors(SgTop *XS, double muOLD, double muNEW);
+    //vector<double> asFactors(SgTop *XS, double muOLD, double muNEW);
+    vector<double> asFactors(IHathorGenericIntegrator *XS, double muOLD, double muNEW);
     
     virtual string getReactionName() const { return  "HathorSingleTop" ;};
     virtual void initTerm(TermData *td) override final;
@@ -41,9 +44,12 @@ protected:
   
     // this is map of key = dataset, value = pointer to Hathor instances,
     // one instance per one dataset
-    std::map<int, HathorSgTopT*> _hathorTArray;
-    std::map<int, HathorSgTopS*> _hathorSArray;
-    std::map<int, HathorSgTopWt*> _hathorWtArray;
+    //std::map<int, HathorSgTopT*> _hathorTArray;
+    //std::map<int, HathorSgTopS*> _hathorSArray;
+    //std::map<int, HathorSgTopWt*> _hathorWtArray;
+    std::map<int, HathorGenericIntegrator<HathorSgTopT>*> _hathorTArray;
+    std::map<int, HathorGenericIntegrator<HathorSgTopS>*> _hathorSArray;
+    std::map<int, HathorGenericIntegrator<HathorSgTopWt>*> _hathorWtArray;
   
     HathorPdfxFitter* _pdf;
     int* _rndStore;

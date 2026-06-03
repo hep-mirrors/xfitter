@@ -1,4 +1,4 @@
-//#include "Hathor.h"
+#include "AbstractHathor.h"
 #include "cstring"
 #include "xfitter_cpp.h"
 
@@ -7,12 +7,106 @@ extern "C" {
   double sd2_(double* acc, double (*f)(double*), void (*r)(int, double*, double*, double*));
 }
 
+class IHathorGenericIntegrator {
+public:
+  virtual ~IHathorGenericIntegrator() = default;
+
+  virtual double getXsection(double m, double mur,
+                             double muf,
+                             const std::string& integrator) = 0;
+
+  virtual void setPartonicEnergy(const double x[]) = 0;
+  virtual void evaluatePDFs(const double h1[], const double h2[], 
+			    const double h2left[] = 0, 
+			    const double h2right[] = 0) = 0;
+  virtual void evaluateScalingFunctions() = 0;
+  virtual double evaluateIntegral(double as, double wgt) = 0;
+
+  //virtual void setColliderType(AbstractHathor::COLLIDERTYPE type) = 0;
+  //virtual void sethc2(double x) = 0;
+  virtual void setSwq(double x) = 0;
+  virtual void setAlpha(double x) = 0;
+  virtual void setCkmMatrix(const double ckm[3][3]) = 0;
+  virtual void getCkmMatrix(double ckm[3][3]) = 0;
+  virtual void PrintCkmMatrix() = 0;
+  //virtual void setSqrtShad(double x) = 0;
+  virtual void setParticle(SgTop::PARTICLE p) = 0;
+  //virtual void setScheme(int s) = 0;
+  //virtual void setPrecision(int p) = 0;
+
+  virtual double getAlphas(double mur) = 0;
+  virtual void setColliderType(AbstractHathor::COLLIDERTYPE type) = 0;
+  virtual void setScheme(unsigned int newscheme) = 0;
+  virtual void sethc2(double hcq_) = 0;
+  virtual void setSqrtShad(double sqrts) = 0;
+  virtual void setPrecision(int n) = 0;
+  virtual void getResult(int pdfset, double &integral, double &err) = 0;
+  virtual void getResult(int pdfset, double &integral, double &err, double & chi2a) = 0;
+};
+
 template <class Integrand> 
-class HathorGenericIntegrator : public Integrand {
+class HathorGenericIntegrator : public IHathorGenericIntegrator, public Integrand {
   public:
     HathorGenericIntegrator(Pdf & pdf_) : Integrand(pdf_) {
       hathor = this;
     };
+    void setPartonicEnergy(const double x[]) override {
+      Integrand::setPartonicEnergy(x);
+    };
+    void evaluatePDFs(const double h1[], const double h2[], 
+			    const double h2left[] = 0, 
+			    const double h2right[] = 0) override {
+      Integrand::evaluatePDFs(h1, h2, h2left, h2right);
+    };
+    void evaluateScalingFunctions() override {
+      Integrand::evaluateScalingFunctions();
+    };
+    double evaluateIntegral(double as, double wgt) override {
+      return Integrand::evaluateIntegral(as, wgt);
+    };
+    void setSwq(double x) override {
+      Integrand::setSwq(x);
+    };
+    void setAlpha(double x) override {
+      Integrand::setAlpha(x);
+    };
+    void setCkmMatrix(const double ckm[3][3]) override {
+      Integrand::setCkmMatrix(ckm);
+    };
+    void getCkmMatrix(double ckm[3][3]) override {
+      Integrand::getCkmMatrix(ckm);
+    };
+    void PrintCkmMatrix() override {
+      Integrand::PrintCkmMatrix();
+    };
+    void setParticle(SgTop::PARTICLE p) override {
+      Integrand::setParticle(p);
+    };
+    double getAlphas(double mur) override {
+      return Integrand::getAlphas(mur);
+    }
+    void setColliderType(AbstractHathor::COLLIDERTYPE type) override {
+      Integrand::setColliderType(type);
+    }
+    void setScheme(unsigned int newscheme) override {
+      Integrand::setScheme(newscheme);
+    }
+    void sethc2(double hcq_) override {
+      Integrand::sethc2(hcq_);
+    }
+    void setSqrtShad(double sqrts) override {
+      Integrand::setSqrtShad(sqrts);
+    }
+    void setPrecision(int n) override {
+      Integrand::setPrecision(n);
+    }
+    void getResult(int pdfset, double &integral, double &err) override {
+      Integrand::getResult(pdfset, integral, err);
+    }
+    void getResult(int pdfset, double &integral, double &err, double & chi2a) override {
+      Integrand::getResult(pdfset, integral, err, chi2a);
+    }
+
     double getXsection(double m, double mur, double muf, const std::string& integrator);
     // number of cross section evaluation calls
     unsigned long _ncalls;
