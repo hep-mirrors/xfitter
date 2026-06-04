@@ -57,7 +57,7 @@ ReactionHathor::~ReactionHathor()
 void ReactionHathor::atStart()
 {
   // PDFs for Hathor
-  _pdf = new HathorPdfxFitter(this);
+  _pdf = new HathorPdfxFitter();
 
     // random number generator
   rlxd_init(1, 1);

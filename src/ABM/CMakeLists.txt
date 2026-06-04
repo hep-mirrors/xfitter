@@ -19,7 +19,6 @@ add_library(ABM SHARED
   ome.f
   s2nlo.f
   sf_abkm_wrap.f
-  spline.f
   split.f
   WGPLG.f
   ABM.cc

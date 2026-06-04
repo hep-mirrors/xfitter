@@ -1,18 +1,25 @@
 #include "HathorPdfxFitter.h"
-#include "ReactionHathorSingleTop.h"
 #include <iostream>
 #include <valarray>
+#include "TermData.h"
 
-HathorPdfxFitter::HathorPdfxFitter(ReactionHathorSingleTop *ptrReactionTheory)
+HathorPdfxFitter::HathorPdfxFitter()
 {
   PDFname = "xFitterPdf";
   imember = 0;
-  _reactionTheory = ptrReactionTheory;
   IsValid = false;
 }
 
 void HathorPdfxFitter::GetPdf(double x, double muf, double h[13])
 {
+  /*static double xmin = 1.0;
+  static double xmax = 0.0;
+  if(x < xmin)
+    xmin = x;
+  if(x > xmax)
+    xmax = x;
+  printf("HATHORGetPdf x = %f  [%12.8f%12.8f]\n", x, xmin, xmax);*/
+
   if(!IsValid)
     return;
 

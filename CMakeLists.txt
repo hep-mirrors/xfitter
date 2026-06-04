@@ -141,6 +141,8 @@ add_subdirectory(src/ABM)
 add_subdirectory(src/DIS_HT)
 add_subdirectory(src/DIS_TMC)
 add_subdirectory(src/DIS_NUKE)
+# common stuff for HATHOR reactions
+add_subdirectory(src/HATHOR_utils)
 
 #==Dynamically-loaded modules==
 
