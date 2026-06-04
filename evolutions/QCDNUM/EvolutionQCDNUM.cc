@@ -194,6 +194,9 @@ namespace xfitter {
 
     // For now VFNS only and NFlavour = 3 only
     int nflavour = XFITTER_PARS::gParametersI.at("NFlavour");
+    if (yQCDNUM["NFlavour"]) {
+      nflavour = yQCDNUM["NFlavour"].as<int>();
+    }
     if(nflavour < 3 || nflavour > 6)
       hf_errlog(110520201, "F: Unsupported NFlavour = " + std::to_string(nflavour));
     int isFFNS = 0; // VFNS by default
