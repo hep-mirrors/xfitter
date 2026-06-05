@@ -161,30 +161,30 @@ double HathorGenericIntegrator<Integrand>::getXsection(double m_, double mur_, d
 
 template <class Integrand>
 double HathorGenericIntegrator<Integrand>::getXsectionVegas(double m_, double mur_, double muf_) {
-  hathor->m = m_; hathor->mur = mur_; hathor->muf = muf_;
-  hathor->update();
+  hathor->Integrand::m = m_; hathor->Integrand::mur = mur_; hathor->Integrand::muf = muf_;
+  hathor->Integrand::update();
   
-  Vegas<AbstractHathor> integrator(*this, hathor->pdfmax);
+  Vegas<AbstractHathor> integrator(*this, hathor->Integrand::pdfmax);
   //integrator.setnprn(1);
   integrator.vegas();
   
-  for (int i = 0; i < hathor->pdfmax; i++) {
-    hathor->integral[i] = integrator.avgi_[i];
-    hathor->error[i] = integrator.sd_[i];
-    hathor->chi2a[i] = integrator.chi2a_[i];
+  for (int i = 0; i < hathor->Integrand::pdfmax; i++) {
+    hathor->Integrand::integral[i] = integrator.avgi_[i];
+    hathor->Integrand::error[i] = integrator.sd_[i];
+    hathor->Integrand::chi2a[i] = integrator.chi2a_[i];
   }
   
   // reset pdf member
-  if (hathor->pdfmax > 1)
-    hathor->pdf.InitMember(0);
+  if (hathor->Integrand::pdfmax > 1)
+    hathor->Integrand::pdf.InitMember(0);
   
   return integrator.avgi;
 }
 
 template <class Integrand>
 double HathorGenericIntegrator<Integrand>::getXsectionSd2(double m_, double mur_, double muf_) {
-  hathor->m = m_; hathor->mur = mur_; hathor->muf = muf_;
-  hathor->update();
+  hathor->Integrand::m = m_; hathor->Integrand::mur = mur_; hathor->Integrand::muf = muf_;
+  hathor->Integrand::update();
   
   double wgt;
   double x[MAXDIM];
@@ -195,15 +195,15 @@ double HathorGenericIntegrator<Integrand>::getXsectionSd2(double m_, double mur_
   double s1=sd2_(&acc, callback, callback_region);
   //printf("getXsection _ncalls, s0, s1 = %ld, %f, %f\n", _ncalls,s0,s1);
   
-  for (int i = 0; i < hathor->pdfmax; i++) {
-    hathor->integral[i] = s1;//integrator.avgi_[i];
-    hathor->error[i] = 0.;//integrator.sd_[i];
-    hathor->chi2a[i] = 0.;//integrator.chi2a_[i];
+  for (int i = 0; i < hathor->Integrand::pdfmax; i++) {
+    hathor->Integrand::integral[i] = s1;//integrator.avgi_[i];
+    hathor->Integrand::error[i] = 0.;//integrator.sd_[i];
+    hathor->Integrand::chi2a[i] = 0.;//integrator.chi2a_[i];
   }
   
   // reset pdf member
-  if (hathor->pdfmax > 1)
-    hathor->pdf.InitMember(0);
+  if (hathor->Integrand::pdfmax > 1)
+    hathor->Integrand::pdf.InitMember(0);
   
   return s1;
 }
@@ -220,7 +220,7 @@ double HathorGenericIntegrator<Integrand>::f(const double x[], const double wgt,
   // calculate kinematic variables
   hathor->setPartonicEnergy(x);
   
-  if ((hathor->delta > 0) && (hathor->x2 + hathor->delta > 1.))
+  if ((hathor->Integrand::delta > 0) && (hathor->Integrand::x2 + hathor->Integrand::delta > 1.))
     return 0.;
   
   // evaluate partonic cross sections
@@ -228,35 +228,35 @@ double HathorGenericIntegrator<Integrand>::f(const double x[], const double wgt,
   
   double hi[13], hj[13], hjleft[13], hjright[13];
   // loop over pdf set members
-  for(int ipdf = 0; ipdf < hathor->pdfmax; ipdf++) {
-    if (hathor->pdfmax > 1)
-      hathor->pdf.InitMember(ipdf);
+  for(int ipdf = 0; ipdf < hathor->Integrand::pdfmax; ipdf++) {
+    if (hathor->Integrand::pdfmax > 1)
+      hathor->Integrand::pdf.InitMember(ipdf);
 
-    hathor->pdf.GetPdf(hathor->x1, hathor->muf, hi);
-    hathor->pdf.GetPdf(hathor->x2, hathor->muf, hj);
+    hathor->Integrand::pdf.GetPdf(hathor->Integrand::x1, hathor->Integrand::muf, hi);
+    hathor->Integrand::pdf.GetPdf(hathor->Integrand::x2, hathor->Integrand::muf, hj);
 
-    if (hathor->delta > 0) {
-      hathor->pdf.GetPdf(hathor->x2-hathor->delta, hathor->muf, hjleft);
-      hathor->pdf.GetPdf(hathor->x2+hathor->delta, hathor->muf, hjright);
+    if (hathor->Integrand::delta > 0) {
+      hathor->Integrand::pdf.GetPdf(hathor->Integrand::x2-hathor->Integrand::delta, hathor->Integrand::muf, hjleft);
+      hathor->Integrand::pdf.GetPdf(hathor->Integrand::x2+hathor->Integrand::delta, hathor->Integrand::muf, hjright);
     }
     
-    if (hathor->collider == hathor->PPBAR) {
+    if (hathor->Integrand::collider == hathor->Integrand::PPBAR) {
       ChargeConjugation(hj);
-      if (hathor->delta > 0) {
+      if (hathor->Integrand::delta > 0) {
 	ChargeConjugation(hjleft);
 	ChargeConjugation(hjright);
       }
     }
     
     // evaluate parton fluxes
-    if (hathor->delta > 0) {
+    if (hathor->Integrand::delta > 0) {
       hathor->evaluatePDFs(hi, hj, hjleft, hjright);
     } else {
       hathor->evaluatePDFs(hi, hj);
     }
     
     // calculate full integral
-    res[ipdf] = hathor->evaluateIntegral(hathor->as_pdf[ipdf], wgt);
+    res[ipdf] = hathor->evaluateIntegral(hathor->Integrand::as_pdf[ipdf], wgt);
   }
   
   return res[0];
