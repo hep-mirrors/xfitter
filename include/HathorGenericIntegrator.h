@@ -4,7 +4,6 @@
 #include "xfitter_cpp.h"
 
 extern "C" {
-  void ttbarr_(int ll, double* xx, double* aa, double* bb);
   double sd2_(double* acc, double (*f)(double*), void (*r)(int, double*, double*, double*));
 }
 
@@ -118,6 +117,14 @@ class HathorGenericIntegrator : public IHathorGenericIntegrator, public Integran
       double ret = hathor->f(x, wgt, res);
       return ret;
     }
+    static void callback_region(int ll, double* xx, double* aa, double* bb)
+    {
+      const double del = 1e-7;
+      aa[0] = del;
+      bb[0] = 1.0 - del;
+      aa[1] = del;
+      bb[1] = 1.0 - del;
+    }
     // private methods taken from AbstractHathor.h
     double f(const double x[], const double wgt, double res[]);
     static inline void ChargeConjugation(double h[13]) {
@@ -183,9 +190,9 @@ double HathorGenericIntegrator<Integrand>::getXsectionSd2(double m_, double mur_
   double x[MAXDIM];
   double res[FDIMMAX];
   double acc = 0.;
-  double s0=sd2_(&acc, callback, ttbarr_);
+  double s0=sd2_(&acc, callback, callback_region);
   acc = s0 * 1. / this->calls;
-  double s1=sd2_(&acc, callback, ttbarr_);
+  double s1=sd2_(&acc, callback, callback_region);
   //printf("getXsection _ncalls, s0, s1 = %ld, %f, %f\n", _ncalls,s0,s1);
   
   for (int i = 0; i < hathor->pdfmax; i++) {

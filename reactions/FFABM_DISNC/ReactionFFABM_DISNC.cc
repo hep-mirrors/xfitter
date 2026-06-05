@@ -126,6 +126,11 @@ void ReactionFFABM_DISNC::atIteration()
     (_flabm[ds])[0] = -100.;
     (_f3abm[ds])[0] = -100.;
   }
+
+  auto td = _tdDS.begin()->second;
+  //td->actualizeWrappers();
+  //abm::pdffillgrid();
+  _need_pdffillgrid = true;
 }
 
 // Place calculations in one function, to optimize calls.
@@ -134,8 +139,12 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
   if ((_f2abm[dataSetID][0] < -99.))
   { // compute
     auto td = _tdDS[dataSetID];
-    td->actualizeWrappers();
-    abm::pdffillgrid();
+    bool need_update = td->actualizeWrappers();
+    if (_need_pdffillgrid || need_update) {
+      printf("ReactionFFABM_DISNC pdffillgrid()\n");
+      abm::pdffillgrid();
+      _need_pdffillgrid = false;
+    }
 
     double charge = GetCharge(dataSetID);
     double polarity = GetPolarisation(dataSetID);

@@ -15,6 +15,20 @@
   @date 2017-10-09
   */
 
+struct ReactionFFABM_DISCC;
+struct nomad_integration_params {
+  int intvar;
+  double val;
+  unsigned dataSetID;
+  const BaseDISCC::ReactionData* rd;
+  ReactionFFABM_DISCC* reaction;
+  const double* br0;
+  const double* br1;
+  double mnucl;
+  int nomad_scaleq2mw2;
+  int nomad_scalesemilepbr;
+};
+
 class ReactionFFABM_DISCC : public ReactionBaseDISCC
 {
 private:
@@ -50,12 +64,18 @@ private:
   std::map<unsigned, int> _ordfl;
   std::map<unsigned, int> _orderHQ;
   std::vector<const double*> _ckm; // CKM matrix
+  bool _need_pdffillgrid;
 
   void calcF2FL(int dataSetID);
   void calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out);
   //double calc_point_strfun(const BaseDISCC::ReactionData* rd, const BaseDISCC::dataType ftype, const BaseDISCC::dataFlav flav, const double q2, const double x, const int dataSetID, const int order, const int charge, const double f2c=0.);
-  void calc_integral(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const double nomad_epsrel, const int nomad_verbose);
-  static int integrate_nomad(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
+  void calc_integral_cuba(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const double nomad_epsrel, const int nomad_verbose);
+  static int integrate_nomad_cubareal(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
+  static int integrate_nomad(const int* ndim, const double* x, const int *ncomp, double* ff, void *userdata);
+  double integrand_sd2(double x[]);
+  void integrand_sd2_region(int ll, double* xx, double* aa, double* bb);
+  int _sd2_nomad_var;
+  nomad_integration_params _sd2_nomad_pars;
   map<int, int> _ncpu;
   double combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb);
 };

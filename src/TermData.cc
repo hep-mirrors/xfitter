@@ -444,9 +444,14 @@ BaseEvolution* TermData::getPDF(int ind) {
   if (hasParam(parName)) return get_evolution(getParamS(parName));
   return get_evolution(); //returns default evolution
 }
-void TermData::actualizeWrappers() {
-  wrappedPDFs[0] = getPDF(0);
-  wrappedPDFs[1] = getPDF(1);
+bool TermData::actualizeWrappers() {
+  // useful to return bool flag showing if this update was needed: useful to decide e.g. whether PDF grids should be re-filled or not
+  bool needed_update = (wrappedPDFs[0] != getPDF(0)) || (wrappedPDFs[1] != getPDF(1));
+  if (needed_update) {
+    wrappedPDFs[0] = getPDF(0);
+    wrappedPDFs[1] = getPDF(1);
+  }
+  return needed_update;
 }
 const valarray<double>& TermData::getBinColumn(const string& n)
 {

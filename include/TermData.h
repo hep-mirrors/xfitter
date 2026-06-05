@@ -39,7 +39,7 @@ public:
   int          getParamI(const string&parameterName);
   string       getParamS(const string&parameterName);
   ReactionTheory*reaction;
-  void actualizeWrappers();//see wrappers below
+  bool actualizeWrappers();//see wrappers below
   xfitter::BaseEvolution*getPDF(int i=0);//i is either 0 for evolution1, or 1 for evolution2
   //The following methods are used to get binning information for the dataset of this term
   size_t getNbins(){return parent->getNbins();}

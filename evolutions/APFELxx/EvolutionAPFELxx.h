@@ -74,5 +74,9 @@ namespace xfitter
     double _mch_last;
     double _mbt_last;
     double _mtp_last;
+    // ncalls
+    unsigned long _ncalls_xfxQmap;
+    unsigned long _ncalls_xfxQ;
+    unsigned long _ncalls_xfxQarray;
   };
 }

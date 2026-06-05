@@ -52,6 +52,7 @@ private:
   std::map<unsigned, bool> _msbarmin;
   std::map<unsigned, int> _ordfl;
   std::map<unsigned, int> _orderHQ;
+  bool _need_pdffillgrid;
 
   void calcF2FL(unsigned dataSetID);
 

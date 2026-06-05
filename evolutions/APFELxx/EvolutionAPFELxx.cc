@@ -19,6 +19,10 @@ namespace xfitter
   //_________________________________________________________________________________
   void EvolutionAPFELxx::atStart()
   {
+    _ncalls_xfxQarray = 0;
+    _ncalls_xfxQ = 0;
+    _ncalls_xfxQmap = 0;
+
     // APFEL++ banner
     apfel::Banner();
 
@@ -88,6 +92,10 @@ namespace xfitter
   //_________________________________________________________________________________
   void EvolutionAPFELxx::atIteration()
   {
+    printf("APFELxx LAST CALLS: _ncalls_xfxQarray,_ncalls_xfxQ,_ncalls_xfxQmap = %ld,%ld,%ld\n", _ncalls_xfxQarray, _ncalls_xfxQ, _ncalls_xfxQmap);
+    _ncalls_xfxQarray = 0;
+    _ncalls_xfxQ = 0;
+    _ncalls_xfxQmap = 0;
     const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Restart from scratch at each iteration, e.g. when fitting heavy-quark masses (fast enough)
     if (yamlNode["restart_at_each_iteration"] && yamlNode["restart_at_each_iteration"].as<int>() == 1) {
@@ -145,12 +153,15 @@ namespace xfitter
           QGrid[3].as<int>()});
   }
   std::map<int,double>EvolutionAPFELxx::xfxQmap(double x,double Q){
+    _ncalls_xfxQmap++;
     return apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x,Q));
   }
   double EvolutionAPFELxx::xfxQ(int i,double x,double Q){
+    _ncalls_xfxQ++;
     return _TabulatedPDFs->EvaluatexQ(i,x,Q);
   }
   void EvolutionAPFELxx::xfxQarray(double x,double Q,double*pdfs){
+    _ncalls_xfxQarray++;
     // Get map of PDFs
     const std::map<int,double> fset = apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x, Q));
     pdfs[0] =fset.at(-6);
