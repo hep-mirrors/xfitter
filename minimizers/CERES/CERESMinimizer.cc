@@ -12,7 +12,7 @@
 #include "xfitter_steer.h"
 
 #include "ceres/ceres.h"
-#include "glog/logging.h"
+//#include "glog/logging.h"
 #include "ceres/dynamic_numeric_diff_cost_function.h"
 #include "ceres/covariance.h"
 #include "ceres/numeric_diff_options.h"
@@ -97,8 +97,15 @@ struct CostFunctorData {
         if (calctotoff) {
           if (CERESMinimizer::glboff > 0.)
             CERESMinimizer::offset[j] = CERESMinimizer::glboff;
-          else
+          else {
+            if(cdatapoi_.chi2_poi_data[j] < 0) {
+              std::cout << j << "Warning: NEG " << cdatapoi_.chi2_poi_data[j] << std::endl;
+              cout << "Warning: negative squared residual for i " << j << " res^2 " << cdatapoi_.chi2_poi_data[j] << " is used as offset" << endl;
+              string message = "W: Negative squared residual is used as offset in CERES minimisation";
+              hf_errlog_(26060901, message.c_str(), message.size());
+            }
             CERESMinimizer::offset[j] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
+          }
           CERESMinimizer::totoffset += CERESMinimizer::offset[j];
         }
         residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j]));
@@ -323,7 +330,7 @@ CERESMinimizer::CERESMinimizer(const std::string& inName) : BaseMinimizer(inName
 void CERESMinimizer::atStart() {
   //There's a suppressed warning here
   //warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
-  google::InitGoogleLogging((char*)"");
+  //google::InitGoogleLogging((char*)"");
   // also init xfitter logging:
   iofilenamesmini_();
   reset_extra_parameters_();
