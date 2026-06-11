@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <string>
+#include <cstring>
 
 extern "C" { 
 	
@@ -46,6 +47,7 @@ extern "C" {
 
 		int len=1024;
 		char parname[len];
+		memset(parname, 0, sizeof(parname));
 		double par;
 		double unc;
 		double bound_l;
