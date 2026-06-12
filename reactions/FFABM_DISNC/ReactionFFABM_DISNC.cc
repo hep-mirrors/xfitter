@@ -225,28 +225,23 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 
     if (ncpu == 1) {
       for (size_t i = 0; i < Np; i++) {
-        double f2, fl, f3;
+        double _f2abm[dataSetID][i], _flabm[dataSetID][i], _f3abm[dataSetID][i];
         calc_point(i, f2, fl, f3);
-        _f2abm[dataSetID][i] = f2;
-        _flabm[dataSetID][i] = fl;
-        _f3abm[dataSetID][i] = f3;
       }
     }
     else {
-    ForkPool pool(ncpu);
-    auto shm = pool.make_shared<double>(3 * Np);
-    double* f2 = shm.data<double>();
-    double* fl = f2 + Np;
-    double* f3 = fl + Np;
-    pool.parallel_for(Np,
-      [&](size_t i) {
-        double vf2, vfl, vf3;
-        calc_point(i, vf2, vfl, vf3);
-        f2[i] = vf2;
-        fl[i] = vfl;
-        f3[i] = vf3;
-      });
-      /*// Shared memory for predictions
+      if(1) {ForkPool pool(ncpu);
+      ForkPool::SharedMemory shm(sizeof(double) * 3 * Np);
+      double* f2 = shm.data<double>();
+      double* fl = f2 + Np;
+      double* f3 = fl + Np;
+      pool.parallel_for(Np, [&](size_t i) {calc_point(i, f2[i], fl[i], f3[i]);});
+      for (size_t i = 0; i < Np; i++) {
+        _f2abm[dataSetID][i] = f2[i];
+        _flabm[dataSetID][i] = fl[i];
+        _f3abm[dataSetID][i] = f3[i];
+      }}
+      if(0) {// Shared memory for predictions
       int shmid;
       double* sharedArray;
       shmid = shmget(IPC_PRIVATE, sizeof(double) * Np * 3, IPC_CREAT | 0666);
@@ -270,6 +265,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         if (icpu < reminder) {
           endIndex += 1;
         }
+        printf("icpu = %d startIndex = %d endIndex = %d\n", icpu, startIndex, endIndex);
         pid_t pid = xfitter::xf_fork( std::min(ncpu, int(Np))  );
         if ( pid == 0) {       
           // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
@@ -306,7 +302,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       }    
       // Detach and remove shared memory segments
       shmdt(sharedArray);
-      shmctl(shmid, IPC_RMID, NULL);*/
+      shmctl(shmid, IPC_RMID, NULL);}
     }
   }
 }
