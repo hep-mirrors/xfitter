@@ -92,15 +92,47 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   _sin2thwPtr = td->getParamD("sin2thW");
 
   // parallel
-  _ncpu[td->id] = 1;
-  //printf("td->hasParam(threads) = %d\n", td->hasParam("threads"));
-  if (td->hasParam("threads")) 
-    _ncpu[td->id] = td->getParamI("threads");
-  if (_ncpu[td->id] == -1) {
-    _ncpu[td->id] = sysconf(_SC_NPROCESSORS_ONLN);
-    hf_errlog(2023061401,"I: Will use "+std::to_string(_ncpu[td->id])+" threads");
+  _ncpu[td->id] = getNCPU(td);
+
+  _data_points[td->id] = std::vector<DataPoint>(nBins);
+  auto& vec = _data_points[td->id];
+  const auto& q2 = *GetBinValues(td, "Q2");
+  const auto& x = *GetBinValues(td, "x");
+  for(int i = 0; i < nBins; i++) {
+    auto& point = vec[i];
+    point.datasetID = td->id;
+    point.i = i;
+    point.flav = GetDataFlav(td->id);
+    point.ord = _order[td->id];
+    point.ordHQ = _orderHQ[td->id];
+    point.ordFL = _order[td->id];
+    point.msbarmin = _msbarmin[td->id];
+    point.charge = GetCharge(td->id);
+    point.charge = GetPolarisation(td->id);
+    point.sin2thetaW = _sin2thetaW;
+    point.mz = *_mzPtr;
+    point.q2 = q2[i];
+    point.x = x[i];
+    point.f2 = 0.0;
+    point.fl = 0.0;
+    point.f3 = 0.0;
   }
-  //printf("_ncpu = %d\n", _ncpu[td->id]);
+  // groups for parallel
+  std::string group = "default";
+  if(td->hasParam("group_parallel")) {
+    group = td->getParamS("group_parallel");
+  }
+  auto it = _grouped_data_points.find(group);
+  if(it == _grouped_data_points.end()) {
+    it = _grouped_data_points.insert(std::make_pair(group, std::vector<DataPoint>(nBins))).first;
+  }
+  else {
+    it->second.resize(_grouped_data_points[group].size() + nBins);
+  }
+  auto& vec2 = it->second;
+  for(int i = 0; i < nBins; i++) {
+    vec2[i] = vec[i];
+  }
 }
 
 //
@@ -132,6 +164,35 @@ void ReactionFFABM_DISNC::atIteration()
   //td->actualizeWrappers();
   //abm::pdffillgrid();
   _need_pdffillgrid = true;
+
+  // parallel computaion for groups of data points
+  if (ReactionTheory::_ncpu > 1 || _flagComputeAtIteration) {
+    for(auto& it : _grouped_data_points) {
+      for(auto& point : it.second) {
+        point.calc();
+        _f2abm[point.datasetID][point.i] = point.f2;
+        _flabm[point.datasetID][point.i] = point.fl;
+        _f3abm[point.datasetID][point.i] = point.f3;
+      }
+    }
+  }
+  else {
+    for(auto& it : _grouped_data_points) {
+      auto& vec = it.second;
+      ForkPool pool(ReactionTheory::_ncpu);
+      int np = vec.size();
+      ForkPool::SharedMemory shm(sizeof(double) * 3 * np);
+      double* f2 = shm.data<double>();
+      double* fl = f2 + np;
+      double* f3 = fl + np;
+      pool.parallel_for(np, [](DataPoint& point) {point.calc();});
+      for (auto& point : vec) {
+        _f2abm[point.datasetID][point.i] = point.f2;
+        _flabm[point.datasetID][point.i] = point.fl;
+        _f3abm[point.datasetID][point.i] = point.f3;
+      }
+    }
+  }
 }
 
 // Place calculations in one function, to optimize calls.
@@ -160,68 +221,18 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     const size_t Np = xp->size();
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
-    double cos2thw = 1.0 - *_sin2thwPtr;
-
-    // Calculate i-th data point, return values f2, fl, f3
-    auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
-      f2out = flout = f3out = 0.;
-      if (q2[i] > 1.0)
-      {
-        if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::l) {
-          f2 = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::l, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          fl = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::l, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          f3 = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-        }
-        if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::c) {
-          f2c = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::c, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          flc = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::c, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          f3c = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-        }
-        if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::b) {
-          f2b = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::b, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          flb = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::b, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          f3b = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], GetCharge(dataSetID), _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-        }
-                    
-        double f3out_bar = 0.;
-        if(_nuke[dataSetID] && _nuke[dataSetID]->need_f3bar()) {
-          // need F3bar for nuclear corrections and antineutrino
-          // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
-          int charge_bar = -1 * charge;
-          double f2_bar(0), f2b_bar(0), f2c_bar(0), fl_bar(0), flc_bar(0), flb_bar(0), f3_bar(0), f3c_bar(0), f3b_bar(0);
-          if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::l) {
-            f3_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], charge_bar, _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          }
-          if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::c) {
-            f3c_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], charge_bar, _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          }
-          if (GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::incl || GetDataFlav(dataSetID) == ReactionBaseDISNC::dataFlav::b) {
-            f3b_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2[i], x[i], -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], charge_bar, _sin2thetaW, GetPolarisation(dataSetID), *_mzPtr);
-          }
-          f3out_bar = x[i] * combine_flavours(GetDataFlav(dataSetID), f3_bar, f3c_bar, f3b_bar);
-        }
-        if (_tmc[dataSetID]) {
-          static constexpr abm::SFproc ncflag = abm::SFproc::nc;
-          _tmc[dataSetID]->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, q2[i], x[i], ncflag, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], charge, polarity, cos2thw, *_mzPtr);
-        }
-        if(_ht[dataSetID]) {
-          // HT is applied only to F2 and FL light flavour part
-          _ht[dataSetID]->apply(q2[i], x[i], f2, fl, f3);
-        }      
-        f2out = combine_flavours(GetDataFlav(dataSetID), f2, f2c, f2b);
-        flout = combine_flavours(GetDataFlav(dataSetID), fl, flc, flb);
-        f3out = x[i] * combine_flavours(GetDataFlav(dataSetID), f3, f3c, f3b);
-            // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
-        if (_nuke[dataSetID]) {
-          _nuke[dataSetID]->apply(q2[i], x[i], f2out, flout, f3out, &f3out_bar);
-        }
-      }
-    };
+    //double cos2thw = 1.0 - *_sin2thwPtr;
 
     //printf("FFABM _ncpu = %d\n", _ncpu[dataSetID]);
     int ncpu =  xfitter::xf_ncpu(_ncpu[dataSetID]);
     //printf("FFABM ncpu = %d\n", ncpu);
 
+    auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
+      _data_points[dataSetID][i].calc();
+      f2out = f2;
+      flout = fl;
+      f3out = f3;
+    };
 
     if (ncpu == 1) {
       for (size_t i = 0; i < Np; i++) {
@@ -304,6 +315,61 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       shmdt(sharedArray);
       shmctl(shmid, IPC_RMID, NULL);}
     }
+  }
+}
+
+// Calculates one data point at (Q2,x) and returns values f2, fl, f3
+void ReactionFFABM_DISNC::DataPoint::calc()
+{
+  f2 = fl = f3 = 0.;
+  double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
+  if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::l) {
+    f2 = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    fl = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    f3 = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+  }
+  if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::c) {
+    f2c = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    flc = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    f3c = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+  }
+  if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::b) {
+    f2b = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    flb = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    f3b = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+  }
+                
+  double f3lout_bar = 0.;
+  if(nuke && nuke->need_f3bar()) {
+    // need F3bar for nuclear corrections and antineutrino
+    // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
+    int charge_bar = -1 * charge;
+    double f2l_bar(0), f2b_bar(0), f2c_bar(0), fll_bar(0), flc_bar(0), flb_bar(0), f3l_bar(0), f3c_bar(0), f3b_bar(0);
+    if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::l) {
+      f3l_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, sin2thetaW, polar, mz);
+    }
+    if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::c) {
+      f3c_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, sin2thetaW, polar, mz);
+    }
+    if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::b) {
+      f3b_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, sin2thetaW, polar, mz);
+    }
+    f3lout_bar = x * ReactionFFABM_DISNC::combine_flavours(flav, f3l_bar, f3c_bar, f3b_bar);
+  }
+  if (tmc) {
+    static constexpr abm::SFproc ncflag = abm::SFproc::nc;
+    tmc->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, q2, x, ncflag, ord, ordHQ, ordFL, msbarmin, charge, polar, 1.-sin2thetaW, mz);
+  }
+  if(ht) {
+    // HT is applied only to F2 and FL light flavour part
+    ht->apply(q2, x, f2, fl, f3);
+  }      
+  f2 = ReactionFFABM_DISNC::combine_flavours(flav, f2, f2c, f2b);
+  fl = ReactionFFABM_DISNC::combine_flavours(flav, fl, flc, flb);
+  f3 = x * combine_flavours(flav, f3, f3c, f3b);
+  // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
+  if (nuke) {
+    nuke->apply(q2, x, f2, fl, f3);
   }
 }
 

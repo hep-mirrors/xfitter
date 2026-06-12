@@ -79,5 +79,31 @@ private:
   map<int, double> _tmc_logxlogq2min;
   const double* _tmc_mpr;
   map<int, int> _ncpu;
-  double combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb);
+  static double combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb);
+
+  struct DataPoint {
+    int datasetID;
+    int i;
+    ReactionBaseDISNC::dataFlav flav;
+    int ord;
+    int ordHQ;
+    int ordFL;
+    int msbarmin;
+    double charge;
+    double polar;
+    double sin2thetaW;
+    double mz;
+    double q2;
+    double x;
+    DIS_NUKE* nuke;
+    DIS_TMC* tmc;
+    DIS_HT* ht;
+    double f2;
+    double fl;
+    double f3;
+    void calc();
+  };
+  // todo optimize memory
+  std::map<int, std::vector<DataPoint> > _data_points;
+  std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
 };

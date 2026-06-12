@@ -8,7 +8,25 @@
 #include "ReactionTheory.h"
 #include <unistd.h>
 #include "xfitter_cpp.h"
-void ReactionTheory::atStart(){}
+#include "xfitter_pars.h"
+void ReactionTheory::atStart(){
+  // todo: need to generalise this code, I want to get "threads" from reaction or global
+  const std::string BY_REACTION = "byReaction";
+  const std::string parName = "threads";
+  YAML::Node byReactionNode = XFITTER_PARS::rootNode[BY_REACTION];
+  if (byReactionNode.IsMap()) {
+    YAML::Node reactionNode = byReactionNode[getReactionName()];
+    if (reactionNode.IsMap()) {
+      _ncpu = reactionNode[parName].as<int>();
+    }
+  }
+  else if(XFITTER_PARS::gParameters.count(parName) > 0 or XFITTER_PARS::rootNode[parName].IsDefined()) {
+    _ncpu = XFITTER_PARS::rootNode[parName].as<int>();
+  }
+  else {
+    _ncpu = 1;
+  }
+}
 void ReactionTheory::atIteration(){}
 void ReactionTheory::initTerm(TermData*td){
   // parallel
@@ -31,3 +49,14 @@ void ReactionTheory::reinitTerm(TermData*td){
 };
 void ReactionTheory::atFCN3(){}
 void ReactionTheory::atMakeErrorBands(int i){}
+int ReactionTheory::getNCPU(TermData* td) {
+  int ncpu = 1;
+  if (td->hasParam("threads")) {
+    ncpu = td->getParamI("threads");
+  }
+  if (ncpu == -1) {
+    ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+    hf_errlog(2026061200,"I: Will use "+std::to_string(ncpu)+" threads");
+  }
+  return ncpu;
+}
