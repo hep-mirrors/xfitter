@@ -21,6 +21,7 @@
 #include <sys/shm.h>
 #include <sys/wait.h>
 #include "xfitter_steer.h"
+#include "ForkPool.h"
 
 
 // the class factories
@@ -232,7 +233,20 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       }
     }
     else {
-      // Shared memory for predictions
+    ForkPool pool(ncpu);
+    auto shm = pool.make_shared<double>(3 * Np);
+    double* f2 = shm.data<double>();
+    double* fl = f2 + Np;
+    double* f3 = fl + Np;
+    pool.parallel_for(Np,
+      [&](size_t i) {
+        double vf2, vfl, vf3;
+        calc_point(i, vf2, vfl, vf3);
+        f2[i] = vf2;
+        fl[i] = vfl;
+        f3[i] = vf3;
+      });
+      /*// Shared memory for predictions
       int shmid;
       double* sharedArray;
       shmid = shmget(IPC_PRIVATE, sizeof(double) * Np * 3, IPC_CREAT | 0666);
@@ -292,7 +306,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       }    
       // Detach and remove shared memory segments
       shmdt(sharedArray);
-      shmctl(shmid, IPC_RMID, NULL);
+      shmctl(shmid, IPC_RMID, NULL);*/
     }
   }
 }

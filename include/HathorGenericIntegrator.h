@@ -153,7 +153,7 @@ double HathorGenericIntegrator<Integrand>::getXsection(double m_, double mur_, d
   }
   else {
     char str[256];
-    sprintf(str, "F: unknow integrator %s for HATHOR", integrator.c_str());
+    sprintf(str, "F: unknown integrator %s for HATHOR", integrator.c_str());
     hf_errlog_(26060301, str, strlen(str));
   }
   return result;

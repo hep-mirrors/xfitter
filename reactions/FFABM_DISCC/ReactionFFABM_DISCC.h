@@ -72,10 +72,13 @@ private:
   void calc_integral_cuba(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const double nomad_epsrel, const int nomad_verbose);
   static int integrate_nomad_cubareal(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
   static int integrate_nomad(const int* ndim, const double* x, const int *ncomp, double* ff, void *userdata);
-  double integrand_sd2(double x[]);
-  void integrand_sd2_region(int ll, double* xx, double* aa, double* bb);
+  static long unsigned _ncalls_nomad;
+  static double integrand_sd2(double x[]);
+  static void integrand_sd2_region(int ll, double* xx, double* aa, double* bb);
   int _sd2_nomad_var;
+  nomad_integration_params make_integration_params(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr);
   nomad_integration_params _sd2_nomad_pars;
+  static nomad_integration_params _sd2_nomad_pars_static;
   map<int, int> _ncpu;
   double combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb);
 };

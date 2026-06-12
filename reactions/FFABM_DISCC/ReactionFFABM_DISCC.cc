@@ -17,6 +17,7 @@
 #include "cuba.h"
 #include "cubature.h"
 #include <spline.h>
+#include <cstring>
 
 // the class factories
 extern "C" ReactionFFABM_DISCC* create() {
@@ -27,6 +28,9 @@ extern "C" {
   double numufcalflux_(const double& e); // NOMAD E(nu) flux
 }
 
+extern "C" {
+  double sd2_(double* acc, double (*f)(double*), void (*r)(int, double*, double*, double*));
+}
 
 // Initialize at the start of the computation
 void ReactionFFABM_DISCC::atStart()
@@ -144,7 +148,10 @@ int ReactionFFABM_DISCC::integrate_nomad_cubareal(const int* ndim, const cubarea
   return ret;
 }
 
+long unsigned ReactionFFABM_DISCC::_ncalls_nomad;
+
 int ReactionFFABM_DISCC::integrate_nomad(const int* ndim, const cubareal* inp, const int *ncomp, cubareal* val, void *params) {
+  _ncalls_nomad++;
   //(void)ndim; // Unused parameter
   const nomad_integration_params& pars = *(nomad_integration_params*)params;
   static const double mnucl = pars.mnucl;
@@ -348,6 +355,7 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
       std::string nomad_integrator = td->hasParam("nomad_integrator") ? td->getParamS("nomad_integrator") : "cuba";
       auto& nomad_var  = *GetBinValues(td, "nomad_var");
       for (size_t i=0; i<nomad_var.size(); i++) {
+        _ncalls_nomad = 0;
         if (nomad_integrator == "cuba") {
           setenv("CUBACORES", (std::to_string(nomad_threads)).c_str(), 1);
           calc_integral_cuba(intvar, nomad_var[i], dataSetID, rd, _f2abm[dataSetID][i], nomad_scaleq2mw2, nomad_scalesemilepbr, nomad_epsrel, nomad_verbose);
@@ -357,25 +365,27 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
           _sd2_nomad_var = intvar;
           _sd2_nomad_pars = nomad_integration_params();
           _sd2_nomad_pars.dataSetID = dataSetID;
-          _sd2_nomad_pars.rd = rd;
-          _sd2_nomad_pars.reaction = this;
-          _sd2_nomad_pars.intvar = *_tdDS[dataSetID]->getParamD("nomad");
-          _sd2_nomad_pars.val = nomad_var[i];
-          static const double* br0 = _tdDS[dataSetID]->getParamD("br_cmu_0");
-          static const double* br1 = _tdDS[dataSetID]->getParamD("br_cmu_1");
-          _sd2_nomad_pars.br0 = br0;
-          _sd2_nomad_pars.br1 = br1;
-          static const double mpr = *_tdDS[dataSetID]->getParamD("mpr");
-          static const double mnt = *_tdDS[dataSetID]->getParamD("mnt");
-          double mnucl = (mpr+mnt)/2.;
-          _sd2_nomad_pars.mnucl = mnucl;
-          _sd2_nomad_pars.nomad_scaleq2mw2 = nomad_scaleq2mw2;
-          _sd2_nomad_pars.nomad_scalesemilepbr = nomad_scalesemilepbr;
+          _sd2_nomad_pars_static = make_integration_params(intvar, nomad_var[i], dataSetID, rd, nomad_scaleq2mw2, nomad_scalesemilepbr);
           double acc = 0.;
-          double s0=1.;
-          //double s0=sd2_(&acc, integrand_sd2, integrand_sd2_region);
+          //double s0=1.;
+          double s0=sd2_(&acc, integrand_sd2, integrand_sd2_region);
           acc = s0 * nomad_epsrel;
-          //double s1=sd2_(&acc, callback, ttbarr_);
+          double s1=sd2_(&acc, integrand_sd2, integrand_sd2_region);
+          if(nomad_verbose)
+          {
+            printf("s0 = %e\n", s0);
+            printf("s1 = %e\n", s1);
+          }
+          _f2abm[dataSetID][i] = s1;
+        }
+        else {
+          char str[256];
+          sprintf(str, "F: unknown integrator %s", nomad_integrator.c_str());
+          hf_errlog_(26061101, str, strlen(str));
+        }
+        if(nomad_verbose)
+        {
+          printf("_ncalls_nomad = %ld\n", _ncalls_nomad);
         }
       }
     }
@@ -392,25 +402,28 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
 double ReactionFFABM_DISCC::integrand_sd2(double x[]) {
   //integrate_nomad(const int* ndim, const cubareal* inp, const int *ncomp, cubareal* val, void *params)
   //return ret;
+  //return 0.001;
+  const int ndim = 2;
+  const int ncomp = 1;
+  cubareal val = 0.0;
+  integrate_nomad(&ndim, x, &ncomp, &val, &_sd2_nomad_pars_static);
+  return val;
 }
 
 void ReactionFFABM_DISCC::integrand_sd2_region(int ll, double* xx, double* aa, double* bb)
 {
-  const double del = 1e-7;
+  (void)ll;
+  (void)xx;
+  const double del = 1e-8;
+  //const double del = 0.0;
   aa[0] = del;
   bb[0] = 1.0 - del;
   aa[1] = del;
   bb[1] = 1.0 - del;
 }
 
-// Calculates one data point as integral over Q2,x,E and returns values f2, fl, f3
-void ReactionFFABM_DISCC::calc_integral_cuba(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const double nomad_epsrel, const int nomad_verbose)
+nomad_integration_params ReactionFFABM_DISCC::make_integration_params(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr)
 {
-  // load nuclear correction tables once, otherwise they will be loaded multiple time in parallel
-  //if (1 && _nuke[dataSetID]) {
-  //  double f2(1.), fl(1.), f3(1.);
-  //  double ret = _nuke[dataSetID]->apply(0.1, 10., f2, fl, f3);
-  //}
   nomad_integration_params pars;
   pars.dataSetID = dataSetID;
   pars.rd = rd;
@@ -427,6 +440,20 @@ void ReactionFFABM_DISCC::calc_integral_cuba(const int intvar, const double val,
   pars.mnucl = mnucl;
   pars.nomad_scaleq2mw2 = nomad_scaleq2mw2;
   pars.nomad_scalesemilepbr = nomad_scalesemilepbr;
+  return pars;
+}
+
+nomad_integration_params ReactionFFABM_DISCC::_sd2_nomad_pars_static;
+
+// Calculates one data point as integral over Q2,x,E and returns values f2, fl, f3
+void ReactionFFABM_DISCC::calc_integral_cuba(const int intvar, const double val, const int dataSetID, const BaseDISCC::ReactionData *rd, double& xsec_out, const int nomad_scaleq2mw2, const int nomad_scalesemilepbr, const double nomad_epsrel, const int nomad_verbose)
+{
+  // load nuclear correction tables once, otherwise they will be loaded multiple time in parallel
+  //if (1 && _nuke[dataSetID]) {
+  //  double f2(1.), fl(1.), f3(1.);
+  //  double ret = _nuke[dataSetID]->apply(0.1, 10., f2, fl, f3);
+  //}
+  nomad_integration_params pars = make_integration_params(intvar, val, dataSetID, rd, nomad_scaleq2mw2, nomad_scalesemilepbr);
   const int NDIM = intvar > 0 ? 2 : 3;
   const int NCOMP = 1;
   void* USERDATA = &pars;
