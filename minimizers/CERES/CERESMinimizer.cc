@@ -437,6 +437,9 @@ void CERESMinimizer::doMinimization() {
   soloptions.minimizer_progress_to_stdout = true;
 
   soloptions.function_tolerance = ceresNode["tolerance"].as<double>(); // typical chi2 is ~1000
+  if (ceresNode["max_num_iterations"]) {
+    soloptions.max_num_iterations = ceresNode["max_num_iterations"].as<int>(); // default is 50
+  }
 
   int strategy_type = ceresNode["strategy"].as<int>();
   switch (strategy_type) {
