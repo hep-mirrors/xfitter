@@ -54,13 +54,14 @@ class ForkPool {
       return SharedMemory(sizeof(T) * n);
     }
 
-    template<typename Func>
-    void parallel_for(size_t N, Func func) const {
+    template<typename Func, typename FuncArg>
+    void parallel_for(std::vector<FuncArg>& vec, Func func) const {
+      size_t N = vec.size();
       if (N == 0)
         return;
       int nworkers = std::min<int>(ncpu_, N);
       if (nworkers == 1) {
-        for (size_t i = 0; i < N; i++) {
+        for (size_t i = 0; i < vec.size(); i++) {
           func(i);
         }
         return;

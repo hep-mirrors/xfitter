@@ -22,6 +22,7 @@
 #include <sys/wait.h>
 #include "xfitter_steer.h"
 #include "ForkPool.h"
+#include <numeric>
 
 
 // the class factories
@@ -123,15 +124,20 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
     group = td->getParamS("group_parallel");
   }
   auto it = _grouped_data_points.find(group);
+  size_t offset = 0;
   if(it == _grouped_data_points.end()) {
+    printf("nBins = %lu\n", nBins);fflush(stdout);
     it = _grouped_data_points.insert(std::make_pair(group, std::vector<DataPoint>(nBins))).first;
   }
   else {
-    it->second.resize(_grouped_data_points[group].size() + nBins);
+    size_t size0 = it->second.size();
+    printf("size0,nBins = %lu,%lu\n", size0, nBins);fflush(stdout);
+    it->second.resize(size0 + nBins);
+    offset = size0;
   }
   auto& vec2 = it->second;
   for(int i = 0; i < nBins; i++) {
-    vec2[i] = vec[i];
+    vec2[offset + i] = vec[i];
   }
 }
 
@@ -166,30 +172,33 @@ void ReactionFFABM_DISNC::atIteration()
   _need_pdffillgrid = true;
 
   // parallel computaion for groups of data points
+  printf("atIteration\n");fflush(stdout);
   if (ReactionTheory::_ncpu > 1 || _flagComputeAtIteration) {
-    for(auto& it : _grouped_data_points) {
-      for(auto& point : it.second) {
-        point.calc();
-        _f2abm[point.datasetID][point.i] = point.f2;
-        _flabm[point.datasetID][point.i] = point.fl;
-        _f3abm[point.datasetID][point.i] = point.f3;
+    if(ReactionTheory::_ncpu) {
+      for(auto& it : _grouped_data_points) {
+        for(auto& point : it.second) {
+          point.calc();
+          _f2abm[point.datasetID][point.i] = point.f2;
+          _flabm[point.datasetID][point.i] = point.fl;
+          _f3abm[point.datasetID][point.i] = point.f3;
+        }
       }
     }
-  }
-  else {
-    for(auto& it : _grouped_data_points) {
-      auto& vec = it.second;
-      ForkPool pool(ReactionTheory::_ncpu);
-      int np = vec.size();
-      ForkPool::SharedMemory shm(sizeof(double) * 3 * np);
-      double* f2 = shm.data<double>();
-      double* fl = f2 + np;
-      double* f3 = fl + np;
-      pool.parallel_for(np, [](DataPoint& point) {point.calc();});
-      for (auto& point : vec) {
-        _f2abm[point.datasetID][point.i] = point.f2;
-        _flabm[point.datasetID][point.i] = point.fl;
-        _f3abm[point.datasetID][point.i] = point.f3;
+    else {
+      for(auto& it : _grouped_data_points) {
+        auto& vec = it.second;
+        ForkPool pool(ReactionTheory::_ncpu);
+        int np = vec.size();
+        ForkPool::SharedMemory shm(sizeof(double) * 3 * np);
+        double* f2 = shm.data<double>();
+        double* fl = f2 + np;
+        double* f3 = fl + np;
+        pool.parallel_for(vec, [&vec](size_t i) {vec[i].calc();});
+        for (auto& point : vec) {
+          _f2abm[point.datasetID][point.i] = point.f2;
+          _flabm[point.datasetID][point.i] = point.fl;
+          _f3abm[point.datasetID][point.i] = point.f3;
+        }
       }
     }
   }
@@ -198,6 +207,7 @@ void ReactionFFABM_DISNC::atIteration()
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 {
+  printf("calcF2FL\n");fflush(stdout);
   if ((_f2abm[dataSetID][0] < -99.))
   { // compute
     auto td = _tdDS[dataSetID];
@@ -218,7 +228,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     // Number of data points
     // SZ perhaps GetNpoint does not work for integrated cross sections (not tested)
     //const size_t Np = GetNpoint(dataSetID);
-    const size_t Np = xp->size();
+    const size_t np = xp->size();
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     //double cos2thw = 1.0 - *_sin2thwPtr;
@@ -227,35 +237,39 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     int ncpu =  xfitter::xf_ncpu(_ncpu[dataSetID]);
     //printf("FFABM ncpu = %d\n", ncpu);
 
-    auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
-      _data_points[dataSetID][i].calc();
-      f2out = f2;
-      flout = fl;
-      f3out = f3;
-    };
+    //auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
+    //  _data_points[dataSetID][i].calc();
+    //  f2out = f2;
+    //  flout = fl;
+    //  f3out = f3;
+    //};
 
+    auto& vec = _data_points[dataSetID];
     if (ncpu == 1) {
-      for (size_t i = 0; i < Np; i++) {
-        double _f2abm[dataSetID][i], _flabm[dataSetID][i], _f3abm[dataSetID][i];
-        calc_point(i, f2, fl, f3);
+      for (size_t i = 0; i < np; i++) {
+        auto& point = vec[i];
+        point.calc();
+        _f2abm[dataSetID][i] = point.f2;
+        _flabm[dataSetID][i] = point.fl;
+        _f3abm[dataSetID][i] = point.f3;
       }
     }
     else {
       if(1) {ForkPool pool(ncpu);
-      ForkPool::SharedMemory shm(sizeof(double) * 3 * Np);
+      ForkPool::SharedMemory shm(sizeof(double) * 3 * np);
       double* f2 = shm.data<double>();
-      double* fl = f2 + Np;
-      double* f3 = fl + Np;
-      pool.parallel_for(Np, [&](size_t i) {calc_point(i, f2[i], fl[i], f3[i]);});
-      for (size_t i = 0; i < Np; i++) {
-        _f2abm[dataSetID][i] = f2[i];
-        _flabm[dataSetID][i] = fl[i];
-        _f3abm[dataSetID][i] = f3[i];
+      double* fl = f2 + np;
+      double* f3 = fl + np;
+      pool.parallel_for(vec, [&vec](size_t i) {vec[i].calc();});
+      for (auto& v : vec) {
+        _f2abm[dataSetID][v.i] = v.f2;
+        _flabm[dataSetID][v.i] = v.fl;
+        _f3abm[dataSetID][v.i] = v.f3;
       }}
-      if(0) {// Shared memory for predictions
+      /*if(0) {// Shared memory for predictions
       int shmid;
       double* sharedArray;
-      shmid = shmget(IPC_PRIVATE, sizeof(double) * Np * 3, IPC_CREAT | 0666);
+      shmid = shmget(IPC_PRIVATE, sizeof(double) * np * 3, IPC_CREAT | 0666);
       if (shmid < 0) {
         hf_errlog(2023060200,"F: Failed to create shared memory segment");
       }
@@ -264,20 +278,20 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
         hf_errlog(2023060201,"F: Failed to attach shared memory segment");
       }
       // define Chunks
-      int chunkSize = Np / ncpu;
-      int reminder  = Np % ncpu; 
+      int chunkSize = np / ncpu;
+      int reminder  = np % ncpu; 
       int first = 0;
       int startIndex = 0;
       int endIndex = 0;
       // loop over all
-      for (int icpu = 0; icpu < std::min(ncpu, int(Np)); icpu++) {
+      for (int icpu = 0; icpu < std::min(ncpu, int(np)); icpu++) {
         startIndex = endIndex;
         endIndex   = startIndex + chunkSize;
         if (icpu < reminder) {
           endIndex += 1;
         }
         printf("icpu = %d startIndex = %d endIndex = %d\n", icpu, startIndex, endIndex);
-        pid_t pid = xfitter::xf_fork( std::min(ncpu, int(Np))  );
+        pid_t pid = xfitter::xf_fork( std::min(ncpu, int(np))  );
         if ( pid == 0) {       
           // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
           int fdlimit = (int)sysconf(_SC_OPEN_MAX);
@@ -291,8 +305,8 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
             calc_point(i, f2, fl, f3);
             //printf("CPU %d computing %d f2,fl,f3 = %f %f %f\n", icpu, i, f2,fl,f3);
             sharedArray[i] = f2;
-            sharedArray[i+Np] = fl;
-            sharedArray[i+2*Np] = f3;
+            sharedArray[i+np] = fl;
+            sharedArray[i+2*np] = f3;
           }
           exit(0);	    
         }
@@ -306,14 +320,14 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       //struct rusage usage;
       //while (wait3(&status, 0, &usage) > 0);    
       // Store result
-      for (size_t i = 0; i<Np; i++) {
+      for (size_t i = 0; i<np; i++) {
         _f2abm[dataSetID][i] = sharedArray[i];
-        _flabm[dataSetID][i] = sharedArray[i+Np];
-        _f3abm[dataSetID][i] = sharedArray[i+2*Np];
+        _flabm[dataSetID][i] = sharedArray[i+np];
+        _f3abm[dataSetID][i] = sharedArray[i+2*np];
       }    
       // Detach and remove shared memory segments
       shmdt(sharedArray);
-      shmctl(shmid, IPC_RMID, NULL);}
+      shmctl(shmid, IPC_RMID, NULL);}*/
     }
   }
 }
