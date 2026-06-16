@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ReactionBaseDISNC.h"
+#include "ForkPool.h"
 //#include "cuba.h"
 
 /**
@@ -105,6 +106,7 @@ private:
     double f3;
     void calc();
   };
+  ForkPool::TaskDistribution _task_distr; // 0 is chunky, 1 is cyclic
   // todo optimize memory
   std::map<int, std::vector<DataPoint> > _data_points;
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;

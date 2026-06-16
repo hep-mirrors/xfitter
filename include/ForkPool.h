@@ -11,9 +11,16 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
+#include "xfitter_cpp_base.h"
+#include "xfitter_steer.h"
 
 class ForkPool {
   public:
+    enum class TaskDistribution
+    {
+      chunky,
+      cyclic,
+    };
     class SharedMemory {
     public:
       SharedMemory(size_t bytes) {
@@ -47,7 +54,7 @@ class ForkPool {
       void* ptr_ = nullptr;
     };
 
-    ForkPool(int ncpu) : ncpu_(ncpu) {}
+    ForkPool(int ncpu, TaskDistribution distr = TaskDistribution::chunky) : ncpu_(ncpu), _distr(distr) {}
 
     template<typename T>
     SharedMemory make_shared(size_t n) {
@@ -57,8 +64,9 @@ class ForkPool {
     template<typename Func, typename FuncArg>
     void parallel_for(std::vector<FuncArg>& vec, Func func) const {
       size_t N = vec.size();
-      if (N == 0)
+      if (N == 0) {
         return;
+      }
       int nworkers = std::min<int>(ncpu_, N);
       if (nworkers == 1) {
         for (size_t i = 0; i < vec.size(); i++) {
@@ -71,7 +79,12 @@ class ForkPool {
       for (int worker = 0; worker < nworkers; worker++) {
         size_t begin = worker * N / nworkers;
         size_t end   = (worker + 1) * N / nworkers;
-        printf("worker = %d [%lu jobs] begin = %lu end = %lu\n", worker, end - begin, begin, end);
+        if(_distr == TaskDistribution::chunky) {
+          printf("worker = %d [%lu jobs] begin = %lu end = %lu (chunky)\n", worker, end - begin, begin, end);
+        }
+        else if(_distr == TaskDistribution::cyclic) {
+          printf("worker = %d begin = %d step = %d (cyclic)\n", worker, worker, nworkers);
+        }
         pid_t pid = xfitter::xf_fork(std::min(ncpu_, int(N)));
         if (pid < 0) {
           hf_errlog(2026061201,"F: ForkPool failed to fork");
@@ -82,8 +95,15 @@ class ForkPool {
           for (int i = STDERR_FILENO + 1; i < fdlimit; i++) {
             close(i);
           }
-          for (size_t i = begin; i < end; i++) {
-            func(i);
+          if(_distr == TaskDistribution::chunky) {
+            for (size_t i = begin; i < end; i++) {
+              func(i);
+            }
+          }
+          else if(_distr == TaskDistribution::cyclic) {
+            for (size_t i = worker; i < N; i += nworkers) {
+              func(i);
+            }
           }
           _exit(0);
         }
@@ -105,5 +125,6 @@ class ForkPool {
     }
 
   private:
-    int ncpu_;
+    const int ncpu_;
+    const TaskDistribution _distr;
 };

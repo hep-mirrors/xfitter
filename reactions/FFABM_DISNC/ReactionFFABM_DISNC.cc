@@ -136,6 +136,20 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
     iActive++;
   }
   // groups for parallel
+  _task_distr = ForkPool::TaskDistribution::chunky;
+  if(td->hasParam("parallel_task_distribution")) {
+    auto str = td->getParamS("parallel_task_distribution");
+    if(str == "chunky") {
+      _task_distr = ForkPool::TaskDistribution::chunky;
+    }
+    else if(str == "cyclic") {
+      _task_distr = ForkPool::TaskDistribution::cyclic;
+    }
+    else {
+      auto msg = "F: unknown task distribution " + str;
+      hf_errlog(2026061601,msg);
+    }
+  }
   std::string group = "default";
   if(td->hasParam("group_parallel")) {
     group = td->getParamS("group_parallel");
@@ -143,12 +157,12 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   size_t offset = 0;
   auto it = _grouped_data_points.find(group);
   if(it == _grouped_data_points.end()) {
-    //printf("inserting group = %s with nBinsActive = %lu\n", group.c_str(), nBinsActive);fflush(stdout);
+    printf("inserting group = %s with nBinsActive = %lu\n", group.c_str(), nBinsActive);fflush(stdout);
     it = _grouped_data_points.insert(std::make_pair(group, std::vector<DataPoint>(nBinsActive))).first;
   }
   else {
     size_t size0 = it->second.size();
-    //printf("size0,nBinsActive = %lu,%lu\n", size0, nBinsActive);fflush(stdout);
+    printf("found group = %s size0,nBinsActive = %lu,%lu\n", group.c_str(), size0, nBinsActive);fflush(stdout);
     it->second.resize(size0 + nBinsActive);
     offset = size0;
   }
@@ -211,7 +225,7 @@ void ReactionFFABM_DISNC::atIteration()
     else {
       for(auto& it : _grouped_data_points) {
         auto& vec = it.second;
-        ForkPool pool(ReactionTheory::_ncpu);
+        ForkPool pool(ReactionTheory::_ncpu, _task_distr);
         int np = vec.size();
         ForkPool::SharedMemory shm(sizeof(double) * 3 * np + sizeof(int) * np * 2);
         double* f2 = shm.data<double>();
@@ -296,7 +310,7 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       }
     }
     else {
-      if(1) {ForkPool pool(ncpu);
+      if(1) {ForkPool pool(ncpu, _task_distr);
       size_t np = vec.size();
       ForkPool::SharedMemory shm(sizeof(double) * 3 * np);
       double* f2 = shm.data<double>();
