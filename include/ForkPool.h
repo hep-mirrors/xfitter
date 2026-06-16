@@ -71,7 +71,7 @@ class ForkPool {
       for (int worker = 0; worker < nworkers; worker++) {
         size_t begin = worker * N / nworkers;
         size_t end   = (worker + 1) * N / nworkers;
-        printf("worker = %d begin = %lu end = %lu\n", worker, begin, end);
+        printf("worker = %d [%lu jobs] begin = %lu end = %lu\n", worker, end - begin, begin, end);
         pid_t pid = xfitter::xf_fork(std::min(ncpu_, int(N)));
         if (pid < 0) {
           hf_errlog(2026061201,"F: ForkPool failed to fork");

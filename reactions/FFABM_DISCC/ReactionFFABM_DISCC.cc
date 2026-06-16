@@ -67,6 +67,8 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
     abm::set_xbmin(*td->getParamD("xbmin"));
   if(td->hasParam("xbmax"))
     abm::set_xbmax(*td->getParamD("xbmax"));
+  if(td->hasParam("q2mincomp"))
+    _q2mincomp = *td->getParamD("q2mincomp");
   
   abm::initgridconst();
 
@@ -482,7 +484,7 @@ void ReactionFFABM_DISCC::calc_integral_cuba(const int intvar, const double val,
 void ReactionFFABM_DISCC::calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out)
 {
   f2out = flout = f3out = 0.;
-  if (q2 < 1.0) return;
+  if (q2 < _q2mincomp) return;
   double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
   if (rd->_dataFlav == BaseDISCC::dataFlav::incl || rd->_dataFlav == BaseDISCC::dataFlav::l) {
     f2 = abm::calc_point_strfun_CC(abm::SFtype::f2, abm::SFflav::l, q2, x, -1, _order[dataSetID], _orderHQ[dataSetID], _ordfl[dataSetID], _msbarmin[dataSetID], rd->_charge);

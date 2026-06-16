@@ -80,6 +80,8 @@ private:
   const double* _tmc_mpr;
   map<int, int> _ncpu;
   static double combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb);
+  double _q2mincomp;
+  map<int, bool> _calcf2fldone;
 
   struct DataPoint {
     int datasetID;
@@ -91,7 +93,7 @@ private:
     int msbarmin;
     double charge;
     double polar;
-    double sin2thetaW;
+    const double* sin2thetaWPtr;
     double mz;
     double q2;
     double x;

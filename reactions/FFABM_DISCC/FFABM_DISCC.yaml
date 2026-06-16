@@ -6,3 +6,4 @@
   scaleb1: 1.0
   xbmin: 5e-6
   xbmax: 0.999
+  q2mincomp: 1.0

@@ -263,6 +263,7 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
 }
 void ReactionBaseDISCC::initTerm(TermData *td)
 {
+  ReactionTheory::initTerm(td);
   unsigned termID = td->id;
   _dsIDs.push_back(termID);
   _tdDS[termID] = td;

@@ -23,6 +23,8 @@
 #include "xfitter_steer.h"
 #include "ForkPool.h"
 #include <numeric>
+#include <iterator>
+#include <algorithm>
 
 
 // the class factories
@@ -36,6 +38,7 @@ void ReactionFFABM_DISNC::atStart()
 {
   // do not call parent atStart(): it initialises QCDNUM
   // Super::atStart();
+  ReactionTheory::atStart();
 }
 
 void ReactionFFABM_DISNC::initTerm(TermData *td)
@@ -66,6 +69,8 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
     abm::set_xbmin(*td->getParamD("xbmin"));
   if(td->hasParam("xbmax"))
     abm::set_xbmax(*td->getParamD("xbmax"));
+  if(td->hasParam("q2mincomp"))
+    _q2mincomp = *td->getParamD("q2mincomp");
 
   abm::initgridconst();
 
@@ -95,12 +100,20 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   // parallel
   _ncpu[td->id] = getNCPU(td);
 
-  _data_points[td->id] = std::vector<DataPoint>(nBins);
-  auto& vec = _data_points[td->id];
   const auto& q2 = *GetBinValues(td, "Q2");
   const auto& x = *GetBinValues(td, "x");
+  size_t nBinsActive = std::count_if(std::begin(q2), std::end(q2), [this](double q2) { return q2 >= this->_q2mincomp; });
+  _data_points[td->id] = std::vector<DataPoint>(nBinsActive);
+  auto& vec = _data_points[td->id];
+  size_t iActive = 0;
   for(int i = 0; i < nBins; i++) {
-    auto& point = vec[i];
+    if(q2[i] <= _q2mincomp) {
+      _f2abm[i] = 0.0;
+      _flabm[i] = 0.0;
+      _f3abm[i] = 0.0;
+      continue;
+    }
+    auto& point = vec[iActive];
     point.datasetID = td->id;
     point.i = i;
     point.flav = GetDataFlav(td->id);
@@ -109,34 +122,39 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
     point.ordFL = _order[td->id];
     point.msbarmin = _msbarmin[td->id];
     point.charge = GetCharge(td->id);
-    point.charge = GetPolarisation(td->id);
-    point.sin2thetaW = _sin2thetaW;
+    point.polar = GetPolarisation(td->id);
+    point.sin2thetaWPtr = _sin2thwPtr;
     point.mz = *_mzPtr;
     point.q2 = q2[i];
     point.x = x[i];
+    point.ht = _ht[td->id];
+    point.tmc = _tmc[td->id];
+    point.nuke = _nuke[td->id];
     point.f2 = 0.0;
     point.fl = 0.0;
     point.f3 = 0.0;
+    iActive++;
   }
   // groups for parallel
   std::string group = "default";
   if(td->hasParam("group_parallel")) {
     group = td->getParamS("group_parallel");
   }
-  auto it = _grouped_data_points.find(group);
   size_t offset = 0;
+  auto it = _grouped_data_points.find(group);
   if(it == _grouped_data_points.end()) {
-    printf("nBins = %lu\n", nBins);fflush(stdout);
-    it = _grouped_data_points.insert(std::make_pair(group, std::vector<DataPoint>(nBins))).first;
+    //printf("inserting group = %s with nBinsActive = %lu\n", group.c_str(), nBinsActive);fflush(stdout);
+    it = _grouped_data_points.insert(std::make_pair(group, std::vector<DataPoint>(nBinsActive))).first;
   }
   else {
     size_t size0 = it->second.size();
-    printf("size0,nBins = %lu,%lu\n", size0, nBins);fflush(stdout);
-    it->second.resize(size0 + nBins);
+    //printf("size0,nBinsActive = %lu,%lu\n", size0, nBinsActive);fflush(stdout);
+    it->second.resize(size0 + nBinsActive);
     offset = size0;
   }
   auto& vec2 = it->second;
-  for(int i = 0; i < nBins; i++) {
+  //printf("offset = %lu\n", offset);fflush(stdout);
+  for(int i = 0; i < nBinsActive; i++) {
     vec2[offset + i] = vec[i];
   }
 }
@@ -161,9 +179,10 @@ void ReactionFFABM_DISNC::atIteration()
   // Flag for internal arrays
   for (auto ds : _dsIDs)
   {
-    (_f2abm[ds])[0] = -100.;
-    (_flabm[ds])[0] = -100.;
-    (_f3abm[ds])[0] = -100.;
+    //(_f2abm[ds])[0] = -100.;
+    //(_flabm[ds])[0] = -100.;
+    //(_f3abm[ds])[0] = -100.;
+    _calcf2fldone[ds] = false;
   }
 
   auto td = _tdDS.begin()->second;
@@ -172,9 +191,14 @@ void ReactionFFABM_DISNC::atIteration()
   _need_pdffillgrid = true;
 
   // parallel computaion for groups of data points
-  printf("atIteration\n");fflush(stdout);
+  printf("atIteration ReactionTheory::_ncpu = %d _flagComputeAtIteration = %d\n", ReactionTheory::_ncpu, _flagComputeAtIteration);fflush(stdout);
   if (ReactionTheory::_ncpu > 1 || _flagComputeAtIteration) {
-    if(ReactionTheory::_ncpu) {
+    auto td = _tdDS.begin()->second;
+    td->actualizeWrappers();
+    printf("ReactionFFABM_DISNC pdffillgrid()\n");
+    abm::pdffillgrid();
+    _need_pdffillgrid = false;
+    if(ReactionTheory::_ncpu == 1) {
       for(auto& it : _grouped_data_points) {
         for(auto& point : it.second) {
           point.calc();
@@ -189,17 +213,30 @@ void ReactionFFABM_DISNC::atIteration()
         auto& vec = it.second;
         ForkPool pool(ReactionTheory::_ncpu);
         int np = vec.size();
-        ForkPool::SharedMemory shm(sizeof(double) * 3 * np);
+        ForkPool::SharedMemory shm(sizeof(double) * 3 * np + sizeof(int) * np * 2);
         double* f2 = shm.data<double>();
         double* fl = f2 + np;
         double* f3 = fl + np;
-        pool.parallel_for(vec, [&vec](size_t i) {vec[i].calc();});
-        for (auto& point : vec) {
-          _f2abm[point.datasetID][point.i] = point.f2;
-          _flabm[point.datasetID][point.i] = point.fl;
-          _f3abm[point.datasetID][point.i] = point.f3;
+        int* datasetID = (int*)(f3 + np);
+        int* i_orig = datasetID + np;
+        pool.parallel_for(vec, [&vec, f2, fl, f3, datasetID, i_orig](size_t i) {
+          auto& point = vec[i];
+          point.calc();
+          f2[i] = point.f2;
+          fl[i] = point.fl;
+          f3[i] = point.f3;
+          datasetID[i] = point.datasetID;
+          i_orig[i] = point.i;
+        });
+        for(size_t i = 0; i < np; i++) {
+          _f2abm[datasetID[i]][i_orig[i]] = f2[i];
+          _flabm[datasetID[i]][i_orig[i]] = fl[i];
+          _f3abm[datasetID[i]][i_orig[i]] = f3[i];
         }
       }
+    }
+    for (auto ds : _dsIDs) {
+      _calcf2fldone[ds] = true;
     }
   }
 }
@@ -208,8 +245,11 @@ void ReactionFFABM_DISNC::atIteration()
 void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 {
   printf("calcF2FL\n");fflush(stdout);
-  if ((_f2abm[dataSetID][0] < -99.))
+  //if ((_f2abm[dataSetID][0] < -99.))
+  //if ((_f2abm[dataSetID][0] == 0.))
+  if(!_calcf2fldone[dataSetID])
   { // compute
+    printf("calcF2FL comp\n");fflush(stdout);
     auto td = _tdDS[dataSetID];
     bool need_update = td->actualizeWrappers();
     if (_need_pdffillgrid || need_update) {
@@ -228,14 +268,14 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     // Number of data points
     // SZ perhaps GetNpoint does not work for integrated cross sections (not tested)
     //const size_t Np = GetNpoint(dataSetID);
-    const size_t np = xp->size();
+    //const size_t np = xp->size();
 
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     //double cos2thw = 1.0 - *_sin2thwPtr;
 
-    //printf("FFABM _ncpu = %d\n", _ncpu[dataSetID]);
+    printf("FFABM _ncpu = %d\n", _ncpu[dataSetID]);
     int ncpu =  xfitter::xf_ncpu(_ncpu[dataSetID]);
-    //printf("FFABM ncpu = %d\n", ncpu);
+    printf("FFABM ncpu = %d\n", ncpu);
 
     //auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
     //  _data_points[dataSetID][i].calc();
@@ -246,25 +286,37 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 
     auto& vec = _data_points[dataSetID];
     if (ncpu == 1) {
-      for (size_t i = 0; i < np; i++) {
-        auto& point = vec[i];
-        point.calc();
-        _f2abm[dataSetID][i] = point.f2;
-        _flabm[dataSetID][i] = point.fl;
-        _f3abm[dataSetID][i] = point.f3;
+      //for (size_t i = 0; i < np; i++) {
+        //auto& point = vec[i];
+      for (auto& v : vec) {
+        v.calc();
+        _f2abm[dataSetID][v.i] = v.f2;
+        _flabm[dataSetID][v.i] = v.fl;
+        _f3abm[dataSetID][v.i] = v.f3;
       }
     }
     else {
       if(1) {ForkPool pool(ncpu);
+      size_t np = vec.size();
       ForkPool::SharedMemory shm(sizeof(double) * 3 * np);
       double* f2 = shm.data<double>();
       double* fl = f2 + np;
       double* f3 = fl + np;
-      pool.parallel_for(vec, [&vec](size_t i) {vec[i].calc();});
-      for (auto& v : vec) {
-        _f2abm[dataSetID][v.i] = v.f2;
-        _flabm[dataSetID][v.i] = v.fl;
-        _f3abm[dataSetID][v.i] = v.f3;
+      pool.parallel_for(vec, [&vec, f2, fl, f3](size_t i) {
+        auto& point = vec[i];
+        point.calc();
+        f2[i] = point.f2;
+        fl[i] = point.fl;
+        f3[i] = point.f3;
+      });
+      size_t icomp = 0;
+      for (size_t i = 0; i < xp->size(); i++) {
+        if(q2[i] > _q2mincomp) {
+          _f2abm[dataSetID][i] = f2[icomp];
+          _flabm[dataSetID][i] = fl[icomp];
+          _f3abm[dataSetID][i] = f3[icomp];
+          icomp++;
+        }
       }}
       /*if(0) {// Shared memory for predictions
       int shmid;
@@ -329,29 +381,34 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
       shmdt(sharedArray);
       shmctl(shmid, IPC_RMID, NULL);}*/
     }
+    _calcf2fldone[dataSetID] = true;
   }
 }
 
 // Calculates one data point at (Q2,x) and returns values f2, fl, f3
 void ReactionFFABM_DISNC::DataPoint::calc()
 {
+  //printf("point::calc() x,q2  %f,%f\n", x, q2);fflush(stdout);
   f2 = fl = f3 = 0.;
   double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
   if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::l) {
-    f2 = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
-    fl = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
-    f3 = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    //printf("q2, x, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz = %f, %f, %d, %d, %d, %d, %f, %f, %f, %f\n", q2, x, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);fflush(stdout);
+    f2l = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    fll = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f3l = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    //printf("f2l, fll, f3l = %f, %f, %f\n", f2l, fll, f3l);fflush(stdout);
   }
   if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::c) {
-    f2c = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
-    flc = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
-    f3c = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    f2c = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    flc = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f3c = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
   }
   if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::b) {
-    f2b = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
-    flb = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
-    f3b = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz);
+    f2b = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    flb = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f3b = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
   }
+  //printf("f2l, f2c, f2b = %f, %f, %f\n", f2l, f2c, f2b);fflush(stdout);
                 
   double f3lout_bar = 0.;
   if(nuke && nuke->need_f3bar()) {
@@ -360,31 +417,33 @@ void ReactionFFABM_DISNC::DataPoint::calc()
     int charge_bar = -1 * charge;
     double f2l_bar(0), f2b_bar(0), f2c_bar(0), fll_bar(0), flc_bar(0), flb_bar(0), f3l_bar(0), f3c_bar(0), f3b_bar(0);
     if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::l) {
-      f3l_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, sin2thetaW, polar, mz);
+      f3l_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
     }
     if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::c) {
-      f3c_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, sin2thetaW, polar, mz);
+      f3c_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
     }
     if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::b) {
-      f3b_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, sin2thetaW, polar, mz);
+      f3b_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
     }
     f3lout_bar = x * ReactionFFABM_DISNC::combine_flavours(flav, f3l_bar, f3c_bar, f3b_bar);
   }
   if (tmc) {
     static constexpr abm::SFproc ncflag = abm::SFproc::nc;
-    tmc->apply(f2, fl, f3, f2c, flc, f3c, f2b, flb, f3b, q2, x, ncflag, ord, ordHQ, ordFL, msbarmin, charge, polar, 1.-sin2thetaW, mz);
+    tmc->apply(f2l, fll, f3l, f2c, flc, f3c, f2b, flb, f3b, q2, x, ncflag, ord, ordHQ, ordFL, msbarmin, charge, polar, 1.-*sin2thetaWPtr, mz);
   }
   if(ht) {
     // HT is applied only to F2 and FL light flavour part
-    ht->apply(q2, x, f2, fl, f3);
-  }      
-  f2 = ReactionFFABM_DISNC::combine_flavours(flav, f2, f2c, f2b);
-  fl = ReactionFFABM_DISNC::combine_flavours(flav, fl, flc, flb);
-  f3 = x * combine_flavours(flav, f3, f3c, f3b);
+    ht->apply(q2, x, f2l, fll, f3l);
+  }
+  //printf("f2l, f2c, f2b = %f, %f, %f\n", f2l, f2c, f2b);fflush(stdout);
+  f2 = ReactionFFABM_DISNC::combine_flavours(flav, f2l, f2c, f2b);
+  fl = ReactionFFABM_DISNC::combine_flavours(flav, fll, flc, flb);
+  f3 = x * combine_flavours(flav, f3l, f3c, f3b);
   // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
   if (nuke) {
     nuke->apply(q2, x, f2, fl, f3);
   }
+  //printf("f2, fl, f3 = %f, %f, %f %p\n", f2, fl, f3, this);fflush(stdout);
 }
 
 double ReactionFFABM_DISNC::combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb)

@@ -81,5 +81,6 @@ private:
   static nomad_integration_params _sd2_nomad_pars_static;
   map<int, int> _ncpu;
   double combine_flavours(const BaseDISCC::ReactionData* rd, const double f, const double fc, const double fb);
+  double _q2mincomp;
 };
 

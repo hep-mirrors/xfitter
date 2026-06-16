@@ -159,6 +159,7 @@ void ReactionBaseDISNC::atIteration()
 //
 void ReactionBaseDISNC::initTerm(TermData *td)
 {
+  ReactionTheory::initTerm(td);
   unsigned termID = td->id;
 
   {
