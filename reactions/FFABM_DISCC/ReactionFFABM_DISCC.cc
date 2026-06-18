@@ -341,7 +341,7 @@ void ReactionFFABM_DISCC::calcF2FL(int dataSetID) {
     auto td = _tdDS[dataSetID];
     bool need_update = td->actualizeWrappers();
     if (_need_pdffillgrid || need_update) {
-      printf("ReactionFFABM_DISCC pdffillgrid()\n");
+      //printf("ReactionFFABM_DISCC pdffillgrid()\n");
       abm::pdffillgrid();
       _need_pdffillgrid = false;
     }

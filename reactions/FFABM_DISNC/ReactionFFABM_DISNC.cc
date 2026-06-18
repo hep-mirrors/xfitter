@@ -205,11 +205,11 @@ void ReactionFFABM_DISNC::atIteration()
   _need_pdffillgrid = true;
 
   // parallel computaion for groups of data points
-  printf("atIteration ReactionTheory::_ncpu = %d _flagComputeAtIteration = %d\n", ReactionTheory::_ncpu, _flagComputeAtIteration);fflush(stdout);
+  //printf("atIteration ReactionTheory::_ncpu = %d _flagComputeAtIteration = %d\n", ReactionTheory::_ncpu, _flagComputeAtIteration);fflush(stdout);
   if (ReactionTheory::_ncpu > 1 || _flagComputeAtIteration) {
     auto td = _tdDS.begin()->second;
     td->actualizeWrappers();
-    printf("ReactionFFABM_DISNC pdffillgrid()\n");
+    //printf("ReactionFFABM_DISNC pdffillgrid()\n");
     abm::pdffillgrid();
     _need_pdffillgrid = false;
     if(ReactionTheory::_ncpu == 1) {
@@ -258,16 +258,16 @@ void ReactionFFABM_DISNC::atIteration()
 // Place calculations in one function, to optimize calls.
 void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
 {
-  printf("calcF2FL\n");fflush(stdout);
+  //printf("calcF2FL\n");fflush(stdout);
   //if ((_f2abm[dataSetID][0] < -99.))
   //if ((_f2abm[dataSetID][0] == 0.))
   if(!_calcf2fldone[dataSetID])
   { // compute
-    printf("calcF2FL comp\n");fflush(stdout);
+    //printf("calcF2FL comp\n");fflush(stdout);
     auto td = _tdDS[dataSetID];
     bool need_update = td->actualizeWrappers();
     if (_need_pdffillgrid || need_update) {
-      printf("ReactionFFABM_DISNC pdffillgrid()\n");
+      //printf("ReactionFFABM_DISNC pdffillgrid()\n");
       abm::pdffillgrid();
       _need_pdffillgrid = false;
     }
@@ -287,9 +287,9 @@ void ReactionFFABM_DISNC::calcF2FL(unsigned dataSetID)
     double f2(0), f2b(0), f2c(0), fl(0), flc(0), flb(0), f3(0), f3b(0), f3c(0);
     //double cos2thw = 1.0 - *_sin2thwPtr;
 
-    printf("FFABM _ncpu = %d\n", _ncpu[dataSetID]);
+    //printf("FFABM _ncpu = %d\n", _ncpu[dataSetID]);
     int ncpu =  xfitter::xf_ncpu(_ncpu[dataSetID]);
-    printf("FFABM ncpu = %d\n", ncpu);
+    //printf("FFABM ncpu = %d\n", ncpu);
 
     //auto calc_point = [&](int i, double& f2out, double& flout, double& f3out) {
     //  _data_points[dataSetID][i].calc();
