@@ -9,6 +9,7 @@ class DIS_NUKE {
   friend class ReactionBaseDISCC;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
+  friend class ReactionFFABM_DISNC_CC;
   public:
     DIS_NUKE(TermData* td);
   private:

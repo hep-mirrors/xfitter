@@ -14,6 +14,7 @@ class DIS_HT {
   friend class ReactionBaseDISCC;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
+  friend class ReactionFFABM_DISNC_CC;
   public:
     DIS_HT(TermData* td);
     ~DIS_HT();

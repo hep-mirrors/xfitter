@@ -16,63 +16,8 @@ class DIS_NUKE;
   @version 0.1
   @date 2017-10-05
   */
-class ReactionBaseDISCC : public ReactionTheory
-{
-public:
-  ReactionBaseDISCC(){};
-  virtual ~ReactionBaseDISCC();
 
-public:
-  virtual string getReactionName() const override { return "BaseDISCC"; };
-  virtual void atStart() override;
-  virtual void initTerm(TermData *) override;
-  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
-
-protected:
-
-   enum class dataType
-   {
-      signonred,
-      sigred,
-      f2,
-      fl,
-      f3,
-      sigred_nof3
-   }; //!< Define compute output.
-
-  virtual valarray<double> FL(TermData *td);
-  virtual valarray<double> F2(TermData *td);
-  virtual valarray<double> xF3(TermData *td);
-
-  double _Gf;
-  double _convfac;
-
-  vector<unsigned> _dsIDs; //!< list of termIDs managed by the reaction.
-  map<unsigned, TermData*> _tdDS; //! store term data for later access.
-
-  // for integrated cross sections
-  // method is based on legacy subroutine GetIntegratedDisXsection
-  // is the map with pointers IntegrateDIS* outdated (seems to be in ReactionData)? --SZ
-  //map<unsigned, IntegrateDIS *> _integrated;
-  virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
-  //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
-
-  // higher twist
-  //DIS_HT* _ht = nullptr;
-  //map<unsigned, bool> _flag_ht;
-  map<int, DIS_HT*> _ht;
-  // target mass corrections
-  map<int, DIS_TMC*> _tmc;
-  // nuclear corrections
-  map<int, DIS_NUKE*> _nuke;
-
-  // nuclear corrections
-  map<unsigned, int> _nucl_kint;
-  map<unsigned, int> _nucl_ftyp;
-  map<unsigned, int> _nucl_kord;
-};
-
-/// Helper classes and functions:
+  /// Helper classes and functions:
 namespace BaseDISCC
 {
   enum class dataFlav
@@ -129,3 +74,69 @@ namespace BaseDISCC
     return &td->getBinColumn(binName);
   };
 } // namespace BaseDISCC
+
+class ReactionBaseDISCC : public ReactionTheory
+{
+public:
+  ReactionBaseDISCC(){};
+  virtual ~ReactionBaseDISCC();
+
+public:
+  virtual string getReactionName() const override { return "BaseDISCC"; };
+  virtual void atStart() override;
+  virtual void initTerm(TermData *) override;
+  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
+
+protected:
+   enum class dataFlav
+   {
+      incl,
+      c,
+      b,
+      l
+   }; //!< Define final state.
+   enum class dataType
+   {
+      signonred,
+      sigred,
+      f2,
+      fl,
+      f3,
+      sigred_nof3
+   }; //!< Define compute output.
+
+  virtual valarray<double> FL(TermData *td);
+  virtual valarray<double> F2(TermData *td);
+  virtual valarray<double> xF3(TermData *td);
+
+  double _Gf;
+  double _convfac;
+
+  vector<unsigned> _dsIDs; //!< list of termIDs managed by the reaction.
+  map<unsigned, TermData*> _tdDS; //! store term data for later access.
+
+  // for integrated cross sections
+  // method is based on legacy subroutine GetIntegratedDisXsection
+  // is the map with pointers IntegrateDIS* outdated (seems to be in ReactionData)? --SZ
+  //map<unsigned, IntegrateDIS *> _integrated;
+  virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
+  //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
+   //const dataFlav GetDataFlav(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_dataFlav; }
+   const BaseDISCC::dataFlav GetDataFlav(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_dataFlav; }
+   const double GetPolarisation(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_polarisation; }
+   const double GetCharge(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_charge; }
+
+  // higher twist
+  //DIS_HT* _ht = nullptr;
+  //map<unsigned, bool> _flag_ht;
+  map<int, DIS_HT*> _ht;
+  // target mass corrections
+  map<int, DIS_TMC*> _tmc;
+  // nuclear corrections
+  map<int, DIS_NUKE*> _nuke;
+
+  // nuclear corrections
+  map<unsigned, int> _nucl_kint;
+  map<unsigned, int> _nucl_ftyp;
+  map<unsigned, int> _nucl_kord;
+};

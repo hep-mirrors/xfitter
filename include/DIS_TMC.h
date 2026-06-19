@@ -13,6 +13,7 @@ class DIS_TMC {
   friend class ReactionBaseDISCC;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
+  friend class ReactionFFABM_DISNC_CC;
   public:
     DIS_TMC(TermData* td);
     bool getFlagL() {return _flag_l;}
