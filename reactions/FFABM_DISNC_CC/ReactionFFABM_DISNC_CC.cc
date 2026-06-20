@@ -333,25 +333,26 @@ void ReactionFFABM_DISNC_CC::calcF2FL(unsigned dataSetID)
 // Calculates one data point at (Q2,x) and returns values f2, fl, f3
 void ReactionFFABM_DISNC_CC::DataPoint::calc()
 {
+  static constexpr abm::SFproc ncflag = abm::SFproc::cc;
   //printf("point::calc() x,q2  %f,%f\n", x, q2);fflush(stdout);
   f2 = fl = f3 = 0.;
   double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
   if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::l) {
     //printf("q2, x, ord, ordHQ, ordFL, msbarmin, charge, sin2thetaW, polar, mz = %f, %f, %d, %d, %d, %d, %f, %f, %f, %f\n", q2, x, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);fflush(stdout);
-    f2l = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
-    fll = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
-    f3l = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f2l = abm::calc_point_strfun(ncflag, abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    fll = abm::calc_point_strfun(ncflag, abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f3l = abm::calc_point_strfun(ncflag, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
     //printf("f2l, fll, f3l = %f, %f, %f\n", f2l, fll, f3l);fflush(stdout);
   }
   if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::c) {
-    f2c = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
-    flc = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
-    f3c = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f2c = abm::calc_point_strfun(ncflag, abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    flc = abm::calc_point_strfun(ncflag, abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f3c = abm::calc_point_strfun(ncflag, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
   }
   if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::b) {
-    f2b = abm::calc_point_strfun_NC(abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
-    flb = abm::calc_point_strfun_NC(abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
-    f3b = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f2b = abm::calc_point_strfun(ncflag, abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    flb = abm::calc_point_strfun(ncflag, abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
+    f3b = abm::calc_point_strfun(ncflag, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, mz);
   }
   //printf("f2l, f2c, f2b = %f, %f, %f\n", f2l, f2c, f2b);fflush(stdout);
                 
@@ -362,13 +363,13 @@ void ReactionFFABM_DISNC_CC::DataPoint::calc()
     int charge_bar = -1 * charge;
     double f2l_bar(0), f2b_bar(0), f2c_bar(0), fll_bar(0), flc_bar(0), flb_bar(0), f3l_bar(0), f3c_bar(0), f3b_bar(0);
     if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::l) {
-      f3l_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
+      f3l_bar = abm::calc_point_strfun(ncflag, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
     }
     if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::c) {
-      f3c_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
+      f3c_bar = abm::calc_point_strfun(ncflag, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
     }
     if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::b) {
-      f3b_bar = abm::calc_point_strfun_NC(abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
+      f3b_bar = abm::calc_point_strfun(ncflag, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, mz);
     }
     f3lout_bar = x * ReactionFFABM_DISNC_CC::combine_flavours(flav, f3l_bar, f3c_bar, f3b_bar);
   }
