@@ -6,21 +6,9 @@
 #include "ForkPool.h"
 //#include "cuba.h"
 
-/**
-  @class' ReactionFFABM_DISNC_CC
-
-  @brief A wrapper class for FFABM_DISNC reaction
-
-  Based on the ReactionTheory class. Reads options produces 3d cross section.
-
-  @version 0.1
-  @date 2017-09-29
-  */
-
 class ReactionFFABM_DISNC_CC : public ReactionBaseDISCC
 //class ReactionFFABM_DISNC_CC : public ReactionBaseDISNC, public ReactionBaseDISCC
 {
-  friend DIS_TMC; // TODO modify DIS_TMC to call public methods only
 private:
   typedef ReactionBaseDISCC Super;
 
@@ -43,19 +31,9 @@ private:
   map<int, valarray<double>> _flabm;
   map<int, valarray<double>> _f3abm;
 
-  // parameters initialised at iteration
-  // (pointers for those parameters which can change at each iteration)
+  // pointers to those parameters which can change at each iteration
   const double* _mcPtr;
   const double* _mbPtr;
-  const double* _mzPtr;
-  const double* _sin2thwPtr;
-  double _hqscale1in;
-  double _hqscale2in;
-  std::map<unsigned, int> _order; // term dependent, allows adjustment for specific data sets
-  std::map<unsigned, bool> _msbarmin;
-  std::map<unsigned, int> _ordfl;
-  std::map<unsigned, int> _orderHQ;
-  bool _need_pdffillgrid;
 
   double apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
     const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i);
@@ -95,7 +73,7 @@ private:
     double charge;
     double polar;
     const double* sin2thetaWPtr;
-    double mz;
+    const double* mz;
     double q2;
     double x;
     DIS_NUKE* nuke;

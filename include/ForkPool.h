@@ -85,6 +85,7 @@ class ForkPool {
         else if(_distr == TaskDistribution::cyclic) {
           printf("worker = %d begin = %d step = %d (cyclic)\n", worker, worker, nworkers);
         }
+        setbuf(stdout, nullptr);
         pid_t pid = xfitter::xf_fork(std::min(ncpu_, int(N)));
         if (pid < 0) {
           hf_errlog(2026061201,"F: ForkPool failed to fork");
@@ -105,7 +106,9 @@ class ForkPool {
               func(i);
             }
           }
+          //fflush(nullptr);
           _exit(0);
+          //exit(0);
         }
         pids.push_back(pid);
       }
