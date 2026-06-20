@@ -5,6 +5,7 @@ endif()
 
 set(TARGET reactionFFABM_DISNC_CC)
 add_library(${TARGET} MODULE ReactionFFABM_DISNC_CC.cc)
-target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISCC ABM)
+#target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISCC ABM)
+target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISNC reactionBaseDISCC ABM)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 install(FILES FFABM_DISNC_CC.yaml DESTINATION ${DEST_YAML}/reactions)

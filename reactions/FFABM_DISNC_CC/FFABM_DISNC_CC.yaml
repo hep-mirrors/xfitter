@@ -4,8 +4,11 @@
 #FFABM_DISNC:
   runm: 1
   ordfl: 1
+  OrderHQ: '' # same as Order
   scalea1: 1.0
   scaleb1: 1.0
   xbmin: 5e-6
   xbmax: 0.999
   q2mincomp: 1.0
+  group_parallel: default
+  parallel_task_distribution: chunky

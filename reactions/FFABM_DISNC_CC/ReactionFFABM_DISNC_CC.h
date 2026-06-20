@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "ReactionBaseDISNC.h"
 #include "ReactionBaseDISCC.h"
 #include "ForkPool.h"
 //#include "cuba.h"
@@ -17,6 +18,7 @@
   */
 
 class ReactionFFABM_DISNC_CC : public ReactionBaseDISCC
+//class ReactionFFABM_DISNC_CC : public ReactionBaseDISNC, public ReactionBaseDISCC
 {
   friend DIS_TMC; // TODO modify DIS_TMC to call public methods only
 private:
@@ -55,8 +57,6 @@ private:
   std::map<unsigned, int> _orderHQ;
   bool _need_pdffillgrid;
 
-  void calcF2FL(unsigned dataSetID);
-
   double apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
     const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i);
   //static int Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
@@ -82,9 +82,9 @@ private:
   map<int, int> _ncpu;
   static double combine_flavours(const ReactionBaseDISCC::dataFlav flav, const double f, const double fc, const double fb);
   double _q2mincomp;
-  map<int, bool> _calcf2fldone;
 
   struct DataPoint {
+    TermData* td;
     int datasetID;
     int i;
     ReactionBaseDISCC::dataFlav flav;
@@ -107,7 +107,5 @@ private:
     void calc();
   };
   ForkPool::TaskDistribution _task_distr; // 0 is chunky, 1 is cyclic
-  // todo optimize memory
-  std::map<int, std::vector<DataPoint> > _data_points;
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
 };
