@@ -154,6 +154,12 @@ void ReactionBaseDISNC::atIteration()
     (_flu[ds])[0] = -100.;
     (_xf3u[ds])[0] = -100.;
   }
+
+  for (auto ht : _ht) {
+    if (ht.second) {
+      ht.second->update();
+    }
+  }
 }
 
 //

@@ -1,22 +1,22 @@
 
 #pragma once
 
-#include "ReactionBaseDISCC.h"
+#include "ReactionBaseDISNC.h"
 #include "ReactionBaseFFABM.h"
 #include "ForkPool.h"
 
-class ReactionFFABM_DISNC_CC : public ReactionBaseFFABM, public ReactionBaseDISCC
+class ReactionFFABM_DISNC_NC : public ReactionBaseFFABM, public ReactionBaseDISNC
 {
 private:
-  typedef ReactionBaseDISCC Super;
+  typedef ReactionBaseDISNC Super;
 
 public:
-  virtual string getReactionName() const override { return "FFABM_DISNC_CC"; };
+  virtual string getReactionName() const override { return "FFABM_DISNC_NC"; };
   virtual void initTerm(TermData *td) { Super::initTerm(td); ReactionBaseFFABM::initTerm(td); };
   virtual void atIteration() override { Super::atIteration(); ReactionBaseFFABM::atIteration(); };
 
 private:
-  virtual abm::SFproc GetProc() { return abm::SFproc::cc; };
+  virtual abm::SFproc GetProc() { return abm::SFproc::nc; };
   virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors) {return Super::compute(td, val, errors); };
   virtual const valarray<double> *GetBinValues(TermData *td, const string &binName) { return Super::GetBinValues(td, binName); }
   virtual const double GetPolarisation(unsigned termID) { return Super::GetPolarisation(termID); };
@@ -27,7 +27,7 @@ private:
   DIS_NUKE* getNUKE(unsigned termID) { return _nuke[termID]; };
 
 protected:
-  virtual valarray<double> F2(TermData *td) override final { return _f2abm[td->id]; };
-  virtual valarray<double> FL(TermData *td) override final { return _flabm[td->id]; };
-  virtual valarray<double> xF3(TermData *td) override final { return _f3abm[td->id]; };
+  virtual void F2 BASE_PARS override final { val = _f2abm[td->id]; };
+  virtual void FL BASE_PARS override final { val = _flabm[td->id]; };
+  virtual void xF3 BASE_PARS override final { val = _f3abm[td->id]; };
 };

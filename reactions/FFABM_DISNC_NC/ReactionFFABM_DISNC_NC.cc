@@ -1,5 +1,5 @@
 
-#include "ReactionFFABM_DISNC_CC.h"
+#include "ReactionFFABM_DISNC_NC.h"
 #include "ABM.h"
 #include "DIS_HT.h"
 #include "DIS_TMC.h"
@@ -21,20 +21,20 @@
 
 
 // the class factories
-extern "C" ReactionFFABM_DISNC_CC *create()
+extern "C" ReactionFFABM_DISNC_NC *create()
 {
-  return new ReactionFFABM_DISNC_CC();
+  return new ReactionFFABM_DISNC_NC();
 }
 /*
 // Initialize at the start of the computation
-void ReactionFFABM_DISNC_CC::atStart()
+void ReactionFFABM_DISNC_NC::atStart()
 {
   // do not call parent atStart(): it initialises QCDNUM
   // Super::atStart();
   ReactionTheory::atStart();
 }
 
-void ReactionFFABM_DISNC_CC::initTerm(TermData *td)
+void ReactionFFABM_DISNC_NC::initTerm(TermData *td)
 {
   Super::initTerm(td);
   unsigned termID = td->id;
@@ -150,7 +150,7 @@ void ReactionFFABM_DISNC_CC::initTerm(TermData *td)
 }
 
 //
-void ReactionFFABM_DISNC_CC::atIteration()
+void ReactionFFABM_DISNC_NC::atIteration()
 {
   Super::atIteration();
   abm::set_hq_masses(*_mcPtr, *_mbPtr);
@@ -209,15 +209,15 @@ void ReactionFFABM_DISNC_CC::atIteration()
   }
 }
 
-double ReactionFFABM_DISNC_CC::combine_flavours(const ReactionBaseDISCC::dataFlav flav, const double f, const double fc, const double fb)
+double ReactionFFABM_DISNC_NC::combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb)
 {
   switch (flav)
   {
-    case ReactionBaseDISCC::dataFlav::incl:
+    case ReactionBaseDISNC::dataFlav::incl:
       return f + fc + fb;
-    case ReactionBaseDISCC::dataFlav::c:
+    case ReactionBaseDISNC::dataFlav::c:
       return fc;
-    case ReactionBaseDISCC::dataFlav::b:
+    case ReactionBaseDISNC::dataFlav::b:
       return fb;
     default:
       hf_errlog(28022501, "F: Unsupported flavour");
@@ -225,23 +225,23 @@ double ReactionFFABM_DISNC_CC::combine_flavours(const ReactionBaseDISCC::dataFla
   }
 }
 
-valarray<double> ReactionFFABM_DISNC_CC::F2(TermData *td)
+valarray<double> ReactionFFABM_DISNC_NC::F2(TermData *td)
 {
   return _f2abm[td->id];
 }
 
-valarray<double> ReactionFFABM_DISNC_CC::FL(TermData *td)
+valarray<double> ReactionFFABM_DISNC_NC::FL(TermData *td)
 {
   return _flabm[td->id];
 }
 
-valarray<double> ReactionFFABM_DISNC_CC::xF3(TermData *td)
+valarray<double> ReactionFFABM_DISNC_NC::xF3(TermData *td)
 {
   return _f3abm[td->id];
 }
 
 // Calculates one data point at (Q2,x) and returns values f2, fl, f3
-void ReactionFFABM_DISNC_CC::DataPoint::calc()
+void ReactionFFABM_DISNC_NC::DataPoint::calc()
 {
   static constexpr abm::SFproc proc_NCCC = abm::SFproc::cc;
   bool need_pdffillgrid = td->actualizeWrappers();
@@ -253,17 +253,17 @@ void ReactionFFABM_DISNC_CC::DataPoint::calc()
   //printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
   f2 = fl = f3 = 0.;
   double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
-  if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::l) {
+  if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::l) {
     f2l = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     fll = abm::calc_point_strfun(proc_NCCC, abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     f3l = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
   }
-  if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::c) {
+  if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::c) {
     f2c = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     flc = abm::calc_point_strfun(proc_NCCC, abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     f3c = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
   }
-  if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::b) {
+  if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::b) {
     f2b = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     flb = abm::calc_point_strfun(proc_NCCC, abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     f3b = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
@@ -275,16 +275,16 @@ void ReactionFFABM_DISNC_CC::DataPoint::calc()
     // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
     int charge_bar = -1 * charge;
     double f2l_bar(0), f2b_bar(0), f2c_bar(0), fll_bar(0), flc_bar(0), flb_bar(0), f3l_bar(0), f3c_bar(0), f3b_bar(0);
-    if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::l) {
+    if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::l) {
       f3l_bar = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
-    if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::c) {
+    if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::c) {
       f3c_bar = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
-    if (flav == ReactionBaseDISCC::dataFlav::incl || flav == ReactionBaseDISCC::dataFlav::b) {
+    if (flav == ReactionBaseDISNC::dataFlav::incl || flav == ReactionBaseDISNC::dataFlav::b) {
       f3b_bar = abm::calc_point_strfun(proc_NCCC, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
-    f3lout_bar = x * ReactionFFABM_DISNC_CC::combine_flavours(flav, f3l_bar, f3c_bar, f3b_bar);
+    f3lout_bar = x * ReactionFFABM_DISNC_NC::combine_flavours(flav, f3l_bar, f3c_bar, f3b_bar);
   }
   if (tmc) {
     static constexpr abm::SFproc ncflag = abm::SFproc::nc;
@@ -294,8 +294,8 @@ void ReactionFFABM_DISNC_CC::DataPoint::calc()
     // HT is applied only to F2 and FL light flavour part
     ht->apply(q2, x, f2l, fll, f3l);
   }
-  f2 = ReactionFFABM_DISNC_CC::combine_flavours(flav, f2l, f2c, f2b);
-  fl = ReactionFFABM_DISNC_CC::combine_flavours(flav, fll, flc, flb);
+  f2 = ReactionFFABM_DISNC_NC::combine_flavours(flav, f2l, f2c, f2b);
+  fl = ReactionFFABM_DISNC_NC::combine_flavours(flav, fll, flc, flb);
   f3 = x * combine_flavours(flav, f3l, f3c, f3b);
   // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
   if (nuke) {

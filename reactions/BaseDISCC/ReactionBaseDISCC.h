@@ -85,7 +85,9 @@ public:
   virtual string getReactionName() const override { return "BaseDISCC"; };
   virtual void atStart() override;
   virtual void initTerm(TermData *) override;
-  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
+  virtual void atIteration() override;
+  //virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
+  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override;
 
 protected:
    enum class dataFlav
@@ -127,8 +129,6 @@ protected:
    const double GetCharge(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_charge; }
 
   // higher twist
-  //DIS_HT* _ht = nullptr;
-  //map<unsigned, bool> _flag_ht;
   map<int, DIS_HT*> _ht;
   // target mass corrections
   map<int, DIS_TMC*> _tmc;
@@ -136,7 +136,7 @@ protected:
   map<int, DIS_NUKE*> _nuke;
 
   // nuclear corrections
-  map<unsigned, int> _nucl_kint;
-  map<unsigned, int> _nucl_ftyp;
-  map<unsigned, int> _nucl_kord;
+  //map<unsigned, int> _nucl_kint;
+  //map<unsigned, int> _nucl_ftyp;
+  //map<unsigned, int> _nucl_kord;
 };

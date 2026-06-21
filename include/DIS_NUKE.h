@@ -7,6 +7,7 @@ class DIS_NUKE {
   // TODO check if this can be used at the level of BaseDIS reaction classes
   friend class ReactionBaseDISNC;
   friend class ReactionBaseDISCC;
+  friend class ReactionBaseFFABM;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
   friend class ReactionFFABM_DISNC_CC;
