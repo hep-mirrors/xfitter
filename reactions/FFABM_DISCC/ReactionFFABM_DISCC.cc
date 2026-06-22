@@ -32,6 +32,12 @@ extern "C" {
   double sd2_(double* acc, double (*f)(double*), void (*r)(int, double*, double*, double*));
 }
 
+ReactionFFABM_DISCC::~ReactionFFABM_DISCC() {
+  for (auto ht : _ht) delete ht.second;
+  for (auto tmc : _tmc) delete tmc.second;
+  for (auto nk : _nuke) delete nk.second;
+}
+
 // Initialize at the start of the computation
 void ReactionFFABM_DISCC::atStart()
 {
@@ -88,6 +94,22 @@ void ReactionFFABM_DISCC::initTerm(TermData *td)
   _ckm[7] = td->getParamD("Vts");
   _ckm[8] = td->getParamD("Vtb");
 
+  // read higher twist parameters
+  _ht[termID] = nullptr;
+  if (td->hasParam("ht") && td->getParamI("ht") != 0) {
+    _ht[termID] = new DIS_HT(td);
+  }
+  // read target mass correction parameters
+  _tmc[termID] = nullptr;
+  if (td->hasParam("tmc")) {
+    _tmc[termID] = new DIS_TMC(td);
+  }
+  // read nuclear correction parameters
+  _nuke[termID] = nullptr;
+  if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
+    _nuke[termID] = new DIS_NUKE(td);
+  }
+
   printf("---------------------------------------------\n");
   printf("INFO from ReactionFFABM_DISCC:\n");
   printf("FF ABM running mass def? T(rue), (F)alse: %c\n", _msbarmin[termID] ? 'T' : 'F');
@@ -117,9 +139,6 @@ void ReactionFFABM_DISCC::atIteration() {
   abm::set_hq_masses(*_mcPtr, *_mbPtr);
   abm::update_ckm_matrix(_ckm);
 
-  //if (_ht) {
-  //  _ht->update();
-  //}
   for (auto ht : _ht) {
     if (ht.second) {
       ht.second->update();

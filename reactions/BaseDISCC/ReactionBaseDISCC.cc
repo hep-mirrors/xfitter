@@ -15,9 +15,6 @@
 #include "BaseEvolution.h"
 #include "EvolutionQCDNUM.h"
 #include "xfitter_cpp_base.h"
-#include "DIS_HT.h"
-#include "DIS_TMC.h"
-#include "DIS_NUKE.h"
 
 // Helpers for QCDNUM (CC):
 
@@ -67,12 +64,6 @@ extern "C" ReactionBaseDISCC *create()
 }
 
 ReactionBaseDISCC::~ReactionBaseDISCC() {
-  //if(_ht) {
-  //  delete _ht;
-  //}
-  for (auto ht : _ht) delete ht.second;
-  for (auto tmc : _tmc) delete tmc.second;
-  for (auto nk : _nuke) delete nk.second;
 }
 
 // Initialize at the start of the computation
@@ -84,11 +75,6 @@ void ReactionBaseDISCC::atStart()
 void ReactionBaseDISCC::atIteration()
 {
   printf("ReactionBaseDISCC::atIteration()\n");
-  for (auto ht : _ht) {
-    if (ht.second) {
-      ht.second->update();
-    }
-  }
 }
 
 valarray<double> GetF(TermData *td, const int id)
@@ -405,31 +391,6 @@ void ReactionBaseDISCC::initTerm(TermData *td)
     _npoints = td->getNbins();
   }
   hf_errlog(17041001, msg);
-
-  // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
-  //_flag_ht[termID] = false;
-  //if (td->hasParam("ht") && td->getParamI("ht") != 0) {
-  //  _flag_ht[termID] = td->getParamI("ht");
-  //  if (_flag_ht[termID] && !_ht) {
-  //    _ht = new DIS_HT(td, true);
-  //  }
-  //}
-  _ht[termID] = nullptr;
-  if (td->hasParam("ht") && td->getParamI("ht") != 0) {
-    _ht[termID] = new DIS_HT(td);
-  }
-
-  // read target mass correction parameters
-  _tmc[termID] = nullptr;
-  if (td->hasParam("tmc")) {
-    _tmc[termID] = new DIS_TMC(td);
-  }
-  
-  // read nuclear correction parameters
-  _nuke[termID] = nullptr;
-  if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
-    _nuke[termID] = new DIS_NUKE(td);
-  }
 }
 
 const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const string &binName)

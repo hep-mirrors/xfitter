@@ -33,6 +33,12 @@ extern "C" ReactionFFABM_DISNC *create()
   return new ReactionFFABM_DISNC();
 }
 
+ReactionFFABM_DISNC::~ReactionFFABM_DISNC() {
+  for (auto ht : _ht) delete ht.second;
+  for (auto tmc : _tmc) delete tmc.second;
+  for (auto nk : _nuke) delete nk.second;
+}
+
 // Initialize at the start of the computation
 void ReactionFFABM_DISNC::atStart()
 {
@@ -77,6 +83,22 @@ void ReactionFFABM_DISNC::initTerm(TermData *td)
   // heavy quark masses
   _mcPtr = td->getParamD("mch");
   _mbPtr = td->getParamD("mbt");
+
+  // read higher twist parameters
+  _ht[termID] = nullptr;
+  if (td->hasParam("ht") && td->getParamI("ht") != 0) {
+    _ht[termID] = new DIS_HT(td);
+  }
+  // read target mass correction parameters
+  _tmc[termID] = nullptr;
+  if (td->hasParam("tmc")) {
+    _tmc[termID] = new DIS_TMC(td);
+  }
+  // read nuclear correction parameters
+  _nuke[termID] = nullptr;
+  if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
+    _nuke[termID] = new DIS_NUKE(td);
+  }
 
   printf("---------------------------------------------\n");
   printf("INFO from ReactionFFABM_DISNC:\n");
@@ -181,9 +203,6 @@ void ReactionFFABM_DISNC::atIteration()
 
   abm::set_hq_masses(*_mcPtr, *_mbPtr);
 
-  //if (_ht) {
-  //  _ht->update();
-  //}
   for (auto ht : _ht) {
     if (ht.second) {
       ht.second->update();

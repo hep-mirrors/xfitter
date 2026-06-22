@@ -22,9 +22,6 @@ private:
   virtual const double GetPolarisation(unsigned termID) { return Super::GetPolarisation(termID); };
   virtual const double GetCharge(unsigned termID)  { return Super::GetCharge(termID); };
   const ReactionBaseFFABM::dataFlav GetDataFlav(unsigned termID) { return ReactionBaseFFABM::dataFlav(Super::GetDataFlav(termID)); }
-  DIS_HT* getHT(unsigned termID) { return _ht[termID]; };
-  DIS_TMC* getTMC(unsigned termID) { return _tmc[termID]; };
-  DIS_NUKE* getNUKE(unsigned termID) { return _nuke[termID]; };
 
 protected:
   virtual valarray<double> F2(TermData *td) override final { return _f2abm[td->id]; };

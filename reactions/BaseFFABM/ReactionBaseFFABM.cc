@@ -18,6 +18,11 @@
 #include <iterator>
 #include <algorithm>
 
+ReactionBaseFFABM::~ReactionBaseFFABM() {
+  for (auto ht : _ht) delete ht.second;
+  for (auto tmc : _tmc) delete tmc.second;
+  for (auto nk : _nuke) delete nk.second;
+}
 
 // Initialize at the start of the computation
 //void ReactionBaseFFABM::atStart()
@@ -56,6 +61,22 @@ void ReactionBaseFFABM::initTerm(TermData *td)
   // heavy quark masses
   _mcPtr = td->getParamD("mch");
   _mbPtr = td->getParamD("mbt");
+
+  // read higher twist parameters
+  _ht[termID] = nullptr;
+  if (td->hasParam("ht") && td->getParamI("ht") != 0) {
+    _ht[termID] = new DIS_HT(td);
+  }
+  // read target mass correction parameters
+  _tmc[termID] = nullptr;
+  if (td->hasParam("tmc")) {
+    _tmc[termID] = new DIS_TMC(td);
+  }
+  // read nuclear correction parameters
+  _nuke[termID] = nullptr;
+  if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
+    _nuke[termID] = new DIS_NUKE(td);
+  }
 
   printf("---------------------------------------------\n");
   printf("INFO from %s: ", getReactionName().c_str());
@@ -132,9 +153,9 @@ void ReactionBaseFFABM::initTerm(TermData *td)
     point.mz = mzPtr;
     point.q2 = q2[i];
     point.x = x[i];
-    point.ht = getHT(td->id);
-    point.tmc = getTMC(td->id);
-    point.nuke = getNUKE(td->id);
+    point.ht = _ht[td->id];
+    point.tmc = _tmc[td->id];
+    point.nuke = _nuke[td->id];
     point.f2 = 0.0;
     point.fl = 0.0;
     point.f3 = 0.0;
@@ -148,6 +169,11 @@ void ReactionBaseFFABM::atIteration()
   printf("ReactionBaseFFABM::atIteration()\n");
   Super::atIteration();
   abm::set_hq_masses(*_mcPtr, *_mbPtr);
+  for (auto ht : _ht) {
+    if (ht.second) {
+      ht.second->update();
+    }
+  }
   _grouped_data_points.begin()->second[0].td->actualizeWrappers();
   abm::pdffillgrid();
 

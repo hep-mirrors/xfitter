@@ -3,10 +3,6 @@
 #include "ReactionTheory.h"
 #include <IntegrateDIS.h>
 
-class DIS_HT;
-class DIS_TMC;
-class DIS_NUKE;
-
 /**
   @class' ReactionBaseDISNC
 
@@ -136,15 +132,4 @@ protected:
    // method is based on legacy subroutine GetIntegratedDisXsection
    map<unsigned, IntegrateDIS *> _integrated;
    virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
-
-   // higher twist
-   //DIS_HT* _ht = nullptr;
-   //map<unsigned, bool> _flag_ht;
-  map<int, DIS_HT*> _ht;
-
-  // target mass corrections
-  map<int, DIS_TMC*> _tmc;
-
-  // nuclear corrections
-  map<int, DIS_NUKE*> _nuke;
 };

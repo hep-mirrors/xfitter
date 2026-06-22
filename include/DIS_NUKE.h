@@ -5,12 +5,9 @@ class TermData;
 // S.A. Kulagin and R. Petti, Nucl.Phys.A 765 (2006) 126-187 [hep-ph/0412425]
 class DIS_NUKE {
   // TODO check if this can be used at the level of BaseDIS reaction classes
-  friend class ReactionBaseDISNC;
-  friend class ReactionBaseDISCC;
   friend class ReactionBaseFFABM;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
-  friend class ReactionFFABM_DISNC_CC;
   public:
     DIS_NUKE(TermData* td);
   private:

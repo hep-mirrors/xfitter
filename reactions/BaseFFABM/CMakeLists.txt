@@ -5,7 +5,7 @@
 
 set(TARGET reactionBaseFFABM)
 add_library(${TARGET} SHARED ReactionBaseFFABM.cc)
-target_link_libraries(${TARGET} PRIVATE xfitter ABM)
+target_link_libraries(${TARGET} PRIVATE xfitter ABM DIS_HT DIS_TMC DIS_NUKE)
 target_include_directories(${TARGET} PUBLIC .)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 #install(FILES BaseFFABM.yaml DESTINATION ${DEST_YAML}/reactions)

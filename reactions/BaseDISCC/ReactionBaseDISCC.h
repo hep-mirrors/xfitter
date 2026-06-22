@@ -2,10 +2,6 @@
 #include "ReactionTheory.h"
 #include "IntegrateDIS.h"
 
-class DIS_HT;
-class DIS_TMC;
-class DIS_NUKE;
-
 /**
   @class' ReactionBaseDISCC
 
@@ -127,16 +123,4 @@ protected:
    const BaseDISCC::dataFlav GetDataFlav(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_dataFlav; }
    const double GetPolarisation(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_polarisation; }
    const double GetCharge(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_charge; }
-
-  // higher twist
-  map<int, DIS_HT*> _ht;
-  // target mass corrections
-  map<int, DIS_TMC*> _tmc;
-  // nuclear corrections
-  map<int, DIS_NUKE*> _nuke;
-
-  // nuclear corrections
-  //map<unsigned, int> _nucl_kint;
-  //map<unsigned, int> _nucl_ftyp;
-  //map<unsigned, int> _nucl_kord;
 };

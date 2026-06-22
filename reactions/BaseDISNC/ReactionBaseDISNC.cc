@@ -16,9 +16,6 @@
 #include "hf_errlog.h"
 #include "BaseEvolution.h"
 #include "EvolutionQCDNUM.h"
-#include "DIS_HT.h"
-#include "DIS_TMC.h"
-#include "DIS_NUKE.h"
 
 template <typename T>
 void print(T d)
@@ -55,12 +52,6 @@ extern "C" ReactionBaseDISNC *create()
 }
 
 ReactionBaseDISNC::~ReactionBaseDISNC() {
-  //if(_ht) {
-  //  delete _ht;
-  //}
-  for (auto ht : _ht) delete ht.second;
-  for (auto tmc : _tmc) delete tmc.second;
-  for (auto nk : _nuke) delete nk.second;
 }
 
 // Initialize at the start of the computation
@@ -153,12 +144,6 @@ void ReactionBaseDISNC::atIteration()
     (_f2u[ds])[0] = -100.;
     (_flu[ds])[0] = -100.;
     (_xf3u[ds])[0] = -100.;
-  }
-
-  for (auto ht : _ht) {
-    if (ht.second) {
-      ht.second->update();
-    }
   }
 }
 
@@ -302,31 +287,6 @@ void ReactionBaseDISNC::initTerm(TermData *td)
     _npoints[termID] = (*q2p).size();
   }
   hf_errlog(17041001, msg);
-
-  // read higher twist parameters (do it only once: use the same HT parametrisation for all terms)
-  //_flag_ht[termID] = false;
-  //if (td->hasParam("ht") && td->getParamI("ht") != 0) {
-  //  _flag_ht[termID] = td->getParamI("ht");
-  //  if (_flag_ht[termID] && !_ht) {
-  //    _ht = new DIS_HT(td, false);
-  //  }
-  //}
-  _ht[termID] = nullptr;
-  if (td->hasParam("ht") && td->getParamI("ht") != 0) {
-    _ht[termID] = new DIS_HT(td);
-  }
-  
-  // read target mass correction parameters
-  _tmc[termID] = nullptr;
-  if (td->hasParam("tmc")) {
-    _tmc[termID] = new DIS_TMC(td);
-  }
-
-  // read nuclear correction parameters
-  _nuke[termID] = nullptr;
-  if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
-    _nuke[termID] = new DIS_NUKE(td);
-  }
 
   // Allocate internal arrays:
   _f2u[termID].resize(_npoints[termID]);
@@ -631,39 +591,3 @@ void ReactionBaseDISNC::kappa(TermData *td, valarray<double> &k)
 
   k = 1. / (4 * _sin2thetaW * cos2thetaW) * (*q2p) / ((*q2p) + _Mz * _Mz);
 }
-
-/*void ReactionBaseDISNC::ApplyHigherTwist(TermData *td, const int f_type, valarray<double>& val, map<string, valarray<double>>& err, valarray<double>* f2)
-{
-  throw 42;
-  unsigned termID = td->id;
-  const double q02 = 1.;
-  auto &x = *GetBinValues(td, "x");
-  auto &q2 = *GetBinValues(td, "Q2");
-  std::vector<double> ht_x(_ht_x[termID].size());
-  std::vector<double> ht_f2(_ht_x[termID].size());
-  std::vector<double> ht_ft(_ht_x[termID].size());
-  for (size_t i = 0; i < ht_x.size(); i++)
-  {
-    ht_x[i] = *_ht_x[termID][i];
-    ht_f2[i] = *_ht_2[termID][i];
-    ht_ft[i] = *_ht_t[termID][i];
-  }
-  tk::spline spline;
-  if (f_type == 1) {
-    valarray<double> ft = *f2 - val;
-    spline.set_points(ht_x, ht_ft);
-    auto &x = *GetBinValues(td, "x");
-    auto &q2 = *GetBinValues(td, "Q2");
-    for (size_t ip = 0; ip < ft.size(); ip++) {
-      ft[ip] += pow(x[ip], *_ht_alpha_t[termID]) * spline(x[ip]) * q02 / q2[ip];
-    }
-    // F_L = F_2 - F_T
-    val = *f2 - ft;
-  }
-  else if (f_type == 2) {
-    spline.set_points(ht_x, ht_f2);
-    for (size_t ip = 0; ip < val.size(); ip++) {
-      val[ip] += pow(x[ip], *_ht_alpha_2[termID]) * spline(x[ip]) * q02 / q2[ip];
-    }
-  }
-}*/

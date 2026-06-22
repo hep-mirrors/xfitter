@@ -16,14 +16,17 @@
   @date 2017-09-29
   */
 
+class DIS_HT;
+class DIS_TMC;
+class DIS_NUKE;
 class ReactionFFABM_DISNC : public ReactionBaseDISNC
 {
-  friend DIS_TMC; // TODO modify DIS_TMC to call public methods only
 private:
   typedef ReactionBaseDISNC Super;
 
 public:
   ReactionFFABM_DISNC(){};
+  ~ReactionFFABM_DISNC();
 
 public:
   virtual string getReactionName() const override { return "FFABM_DISNC"; };
@@ -57,8 +60,6 @@ private:
 
   void calcF2FL(unsigned dataSetID);
 
-  double apply_tmc(const int method, double& f2, double& fl, double& f3, const int flag_flavour, const std::valarray<double>& q2, const std::valarray<double>& x,
-    const int ncflag, const int charge, const double polarity, const double cos2thw, const size_t i);
   //static int Integrand_Cuhre(const int* ndim, const cubareal* x, const int *ncomp, cubareal* ff, void *userdata);
   struct integration_params {
     std::valarray<double> q2;
@@ -74,11 +75,6 @@ private:
     int order;
     double xi;
   };
-  map<int, int> _flag_tmc;
-  map<int, int> _tmc_integration_method;
-  map<int, double> _tmc_xmin;
-  map<int, double> _tmc_logxlogq2min;
-  const double* _tmc_mpr;
   map<int, int> _ncpu;
   static double combine_flavours(const ReactionBaseDISNC::dataFlav flav, const double f, const double fc, const double fb);
   double _q2mincomp;
@@ -110,4 +106,13 @@ private:
   // todo optimize memory
   std::map<int, std::vector<DataPoint> > _data_points;
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
+
+ // higher twist
+  map<int, DIS_HT*> _ht;
+
+  // target mass corrections
+  map<int, DIS_TMC*> _tmc;
+
+  // nuclear corrections
+  map<int, DIS_NUKE*> _nuke;
 };

@@ -10,12 +10,9 @@ class DIS_HT {
   // if needed to be used by other DIS reactions, add them here
   // NOTE: HT is applied only to F2 and FL light flavour part
   // it is not possible to implement it at the level of BaseDIS classes
-  friend class ReactionBaseDISNC;
-  friend class ReactionBaseDISCC;
   friend class ReactionBaseFFABM;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
-  friend class ReactionFFABM_DISNC_CC;
   public:
     DIS_HT(TermData* td);
     ~DIS_HT();

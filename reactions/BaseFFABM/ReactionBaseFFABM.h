@@ -16,6 +16,7 @@ private:
 
 public:
   ReactionBaseFFABM(){};
+  ~ReactionBaseFFABM();
 
 public:
   //virtual string getReactionName() const override { return "BaseFFABM"; };
@@ -48,20 +49,19 @@ private:
   const double* _mcPtr;
   const double* _mbPtr;
 
+  // minimum Q^2
   double _q2mincomp;
+
+  // higher twist
+  map<int, DIS_HT*> _ht;
+  // target mass corrections
+  map<int, DIS_TMC*> _tmc;
+  // nuclear corrections
+  map<int, DIS_NUKE*> _nuke;
 
   virtual const valarray<double> *GetBinValues(TermData *td, const string &binName) = 0;
   virtual const double GetPolarisation(unsigned termID) = 0;
   virtual const double GetCharge(unsigned termID) = 0;
-  // higher twist
-  //map<int, DIS_HT*> _ht;
-  // target mass corrections
-  //map<int, DIS_TMC*> _tmc;
-  // nuclear corrections
-  //map<int, DIS_NUKE*> _nuke;
-  virtual DIS_HT* getHT(unsigned termID) = 0;
-  virtual DIS_TMC* getTMC(unsigned termID) = 0;
-  virtual DIS_NUKE* getNUKE(unsigned termID) = 0;
   struct DataPoint {
     TermData* td;
     int datasetID;

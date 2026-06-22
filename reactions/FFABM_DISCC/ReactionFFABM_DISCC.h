@@ -15,6 +15,9 @@
   @date 2017-10-09
   */
 
+class DIS_HT;
+class DIS_TMC;
+class DIS_NUKE;
 struct ReactionFFABM_DISCC;
 struct nomad_integration_params {
   int intvar;
@@ -35,6 +38,7 @@ private:
   typedef ReactionBaseDISCC Super;
 public:
   ReactionFFABM_DISCC(){};
+  ~ReactionFFABM_DISCC();
   virtual string getReactionName() const override { return  "FFABM_DISCC" ;};
   void virtual atStart() override final;
   virtual void initTerm(TermData *td) override final;
@@ -50,6 +54,7 @@ private:
   map <int,valarray<double> > _flabm;
   map <int,valarray<double> > _f3abm;
 
+  
   // parameters initialised at iteration
   // (pointers for those parameters which can change at each iteration)
   const double* _mcPtr;
@@ -65,6 +70,13 @@ private:
   std::map<unsigned, int> _orderHQ;
   std::vector<const double*> _ckm; // CKM matrix
   bool _need_pdffillgrid;
+
+  // higher twist
+  map<int, DIS_HT*> _ht;
+  // target mass corrections
+  map<int, DIS_TMC*> _tmc;
+  // nuclear corrections
+  map<int, DIS_NUKE*> _nuke;
 
   void calcF2FL(int dataSetID);
   void calc_point(const double q2, const double x, const int dataSetID, const BaseDISCC::ReactionData *rd, double& f2out, double& flout, double& f3out);
