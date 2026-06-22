@@ -4,12 +4,13 @@
 
 class TermData;
 #include "ABM.h"
+namespace abm { enum class SFproc; };
 
 class DIS_TMC {
   // if needed to be used by other DIS reactions, add them here
   // NOTE: TMC are applied to F2, FL and different flavours separately
   // it is not possible to implement it at the level of BaseDIS classes
-  friend class ReactionBaseFFABM;
+  template<class BaseDISC, abm::SFproc Proc> friend class ReactionBaseFFABM;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
   public:

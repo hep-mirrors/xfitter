@@ -1,11 +1,13 @@
 #pragma once
 class TermData;
+namespace abm { enum class SFproc; };
+
 
 // DIS nuclear corrections according to 
 // S.A. Kulagin and R. Petti, Nucl.Phys.A 765 (2006) 126-187 [hep-ph/0412425]
 class DIS_NUKE {
   // TODO check if this can be used at the level of BaseDIS reaction classes
-  friend class ReactionBaseFFABM;
+  template<class BaseDIS, abm::SFproc Proc> friend class ReactionBaseFFABM;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
   public:

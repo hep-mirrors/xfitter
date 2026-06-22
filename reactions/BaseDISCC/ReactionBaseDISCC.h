@@ -79,9 +79,7 @@ public:
 
 public:
   virtual string getReactionName() const override { return "BaseDISCC"; };
-  virtual void atStart() override;
   virtual void initTerm(TermData *) override;
-  virtual void atIteration() override;
   //virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
   virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override;
 

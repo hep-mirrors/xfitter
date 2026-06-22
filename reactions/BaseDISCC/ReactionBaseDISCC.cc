@@ -66,20 +66,9 @@ extern "C" ReactionBaseDISCC *create()
 ReactionBaseDISCC::~ReactionBaseDISCC() {
 }
 
-// Initialize at the start of the computation
-void ReactionBaseDISCC::atStart()
-{
-  printf("ReactionBaseDISCC::atStart()\n");
-}
-
-void ReactionBaseDISCC::atIteration()
-{
-  printf("ReactionBaseDISCC::atIteration()\n");
-}
-
 valarray<double> GetF(TermData *td, const int id)
 {
-  printf("ReactionBaseDISCC::GetF\n");fflush(stdout);
+  //printf("ReactionBaseDISCC::GetF\n");fflush(stdout);
   /*F   id incl   c       isNegative
   FL  1  CCEP2F CCEP2Fc F
   F2  2  CCEP2F CCEP2Fc F
@@ -148,7 +137,7 @@ valarray<double> ReactionBaseDISCC::xF3(TermData *td) { return GetF(td, 3); }
 // Main function to compute results at an iteration
 void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal)
 {
-  printf("ReactionBaseDISCC::compute()\n");
+  //printf("ReactionBaseDISCC::compute()\n");
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   const double MW = *rd->Mw;
 
@@ -262,7 +251,7 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
 }
 void ReactionBaseDISCC::initTerm(TermData *td)
 {
-  printf("ReactionBaseDISCC::initTerm()\n");
+  //printf("ReactionBaseDISCC::initTerm()\n");
   ReactionTheory::initTerm(td);
   unsigned termID = td->id;
   _dsIDs.push_back(termID);

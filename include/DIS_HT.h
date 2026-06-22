@@ -3,6 +3,7 @@
 
 class TermData;
 namespace tk {class spline;}
+namespace abm { enum class SFproc; };
 
 
 // DIS higher twist spline parametrisation
@@ -10,7 +11,7 @@ class DIS_HT {
   // if needed to be used by other DIS reactions, add them here
   // NOTE: HT is applied only to F2 and FL light flavour part
   // it is not possible to implement it at the level of BaseDIS classes
-  friend class ReactionBaseFFABM;
+  template<class BaseDIS, abm::SFproc Proc> friend class ReactionBaseFFABM;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
   public:

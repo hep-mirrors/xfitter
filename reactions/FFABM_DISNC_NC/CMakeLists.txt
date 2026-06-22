@@ -5,6 +5,7 @@ endif()
 
 set(TARGET reactionFFABM_DISNC_NC)
 add_library(${TARGET} MODULE ReactionFFABM_DISNC_NC.cc)
-target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISNC reactionBaseFFABM ABM)
+target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISNC ABM DIS_HT DIS_TMC DIS_NUKE)
+target_include_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/reactions/BaseFFABM)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 install(FILES FFABM_DISNC_NC.yaml DESTINATION ${DEST_YAML}/reactions)

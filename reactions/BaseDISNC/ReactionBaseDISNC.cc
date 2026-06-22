@@ -54,11 +54,6 @@ extern "C" ReactionBaseDISNC *create()
 ReactionBaseDISNC::~ReactionBaseDISNC() {
 }
 
-// Initialize at the start of the computation
-void ReactionBaseDISNC::atStart()
-{
-}
-
 // Main function to compute results at an iteration
 void ReactionBaseDISNC::compute(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal)
 {

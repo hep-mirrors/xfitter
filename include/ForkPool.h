@@ -54,7 +54,11 @@ class ForkPool {
       void* ptr_ = nullptr;
     };
 
-    ForkPool(int ncpu, TaskDistribution distr = TaskDistribution::chunky) : ncpu_(ncpu), _distr(distr) {}
+    ForkPool(int ncpu, TaskDistribution distr = TaskDistribution::chunky) : ncpu_(ncpu), _distr(distr) {
+      if(ncpu <= 0) {
+        hf_errlog(2026062201,"F: ForkPool got invalid ncpu = " + std::to_string(ncpu));
+      }
+    }
 
     template<typename T>
     SharedMemory make_shared(size_t n) {
