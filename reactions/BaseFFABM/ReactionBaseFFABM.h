@@ -74,6 +74,33 @@ public:
       _nuke[termID] = new DIS_NUKE(td);
     }
 
+    Binning datapoint_binning = Binning::point_at_q2x;
+    const std::valarray<double>* q2_ptr = nullptr;
+    const std::valarray<double>* x_ptr = nullptr;
+    const std::valarray<double>* onedimvar_ptr = nullptr;
+    if (td->hasParam("binning")) {
+      auto binning = td->getParamS("binning");
+      if(binning == "e") {
+        datapoint_binning = Binning::point_at_e;
+        onedimvar_ptr = td->getBinColumnOrNull("e");
+      }
+      else if(binning == "x") {
+        datapoint_binning = Binning::point_at_x;
+        onedimvar_ptr = td->getBinColumnOrNull("x");
+      }
+      else if(binning == "sqrtshat") {
+        datapoint_binning = Binning::point_at_sqrtshat;
+        onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
+      }
+      else {
+        hf_errlog(2026062202, "F: Unsupported data point binning " + binning);
+      }
+    }
+    else {
+      q2_ptr = td->getBinColumnOrNull("Q2");
+      x_ptr = td->getBinColumnOrNull("x");
+    }
+
     printf("---------------------------------------------\n");
     printf("INFO from %s: ", BaseDIS::getReactionName().c_str());
     printf("running mass = %c", msbarmin ? 'T' : 'F');
@@ -91,8 +118,6 @@ public:
     const double* mzPtr = td->getParamD("Mz");
     const double* sin2thwPtr = td->getParamD("sin2thW");
 
-    const auto& q2 = *BaseDIS::GetBinValues(td, "Q2");
-    const auto& x = *BaseDIS::GetBinValues(td, "x");
     // groups for parallel
     const auto& parallel_task_distribution = td->getParamS("parallel_task_distribution");
     _task_distr = ForkPool::TaskDistribution::chunky;
@@ -109,7 +134,10 @@ public:
     const auto& group = td->getParamS("group_parallel");
     printf("group = %s\n", group.c_str());
     size_t offset = 0;
-    size_t nBinsActive = std::count_if(std::begin(q2), std::end(q2), [this](double q2) { return q2 >= this->_q2mincomp; });
+    size_t nBinsActive = td->getNbins();
+    if(datapoint_binning == Binning::point_at_q2x) {
+      nBinsActive = std::count_if(std::begin(*q2_ptr), std::end(*q2_ptr), [this](double q2) { return q2 >= this->_q2mincomp; });
+    }
     auto it = _grouped_data_points.find(group);
     if(it == _grouped_data_points.end()) {
       printf("inserting group = %s with nBinsActive = %lu\n", group.c_str(), nBinsActive);
@@ -124,13 +152,23 @@ public:
     auto& vec2 = it->second;
     int iActive = 0;
     for(int i = 0; i < nBins; i++) {
-      if(q2[i] <= _q2mincomp) {
-        _f2abm[i] = 0.0;
-        _flabm[i] = 0.0;
-        _f3abm[i] = 0.0;
-        continue;
+      if(datapoint_binning == Binning::point_at_q2x) {
+        if((*q2_ptr)[i] <= _q2mincomp) {
+          _f2abm[i] = 0.0;
+          _flabm[i] = 0.0;
+          _f3abm[i] = 0.0;
+          continue;
+        }
       }
       auto& point = vec2[offset + iActive];
+      point.binning = datapoint_binning;
+      if(datapoint_binning == Binning::point_at_q2x) {
+        point.q2 = (*q2_ptr)[i];
+        point.x = (*x_ptr)[i];
+      }
+      else if(datapoint_binning == Binning::point_at_e || datapoint_binning == Binning::point_at_x || datapoint_binning == Binning::point_at_sqrtshat) {
+        point.onedimvar = (*onedimvar_ptr)[i];
+      }
       point.td = td;
       point.datasetID = td->id;
       point.i = i;
@@ -143,8 +181,6 @@ public:
       point.polar = BaseDIS::GetPolarisation(td->id);
       point.sin2thetaWPtr = sin2thwPtr;
       point.mz = mzPtr;
-      point.q2 = q2[i];
-      point.x = x[i];
       point.ht = _ht[td->id];
       point.tmc = _tmc[td->id];
       point.nuke = _nuke[td->id];
@@ -249,7 +285,14 @@ private:
   virtual const valarray<double> *GetBinValues(TermData *td, const string &binName) { return BaseDIS::GetBinValues(td, binName); };
   virtual const double GetPolarisation(unsigned termID) { return BaseDIS::GetPolarisation(termID); };
   virtual const double GetCharge(unsigned termID) { return BaseDIS::GetCharge(termID); };
+  enum class Binning {
+    point_at_q2x, // requires q2, x
+    point_at_e, // requires onedimvar
+    point_at_x, // requires onedimvar
+    point_at_sqrtshat, // requires onedimvar
+  };
   struct DataPoint {
+    Binning binning;
     TermData* td;
     int datasetID;
     int i;
@@ -262,8 +305,11 @@ private:
     double polar;
     const double* sin2thetaWPtr;
     const double* mz;
+    const double* br0;
+    const double* br1;
     double q2;
     double x;
+    double onedimvar;
     DIS_NUKE* nuke;
     DIS_TMC* tmc;
     DIS_HT* ht;
@@ -271,6 +317,15 @@ private:
     double fl;
     double f3;
     void calc() {
+      switch (binning)
+      {
+        case Binning::point_at_q2x:
+          calc_at_q2x();
+        //case Binning::point_at_e:
+        //  calc_at_e();
+      }
+    }
+    void calc_at_q2x() {
       auto combine_flavours = [](const dataFlav flav, const double f, const double fc, const double fb) {
         switch (flav)
         {
@@ -344,6 +399,18 @@ private:
         nuke->apply(q2, x, f2, fl, f3);
       }
     }
+  };
+  struct integration_params {
+    Binning binning;
+    double val;
+    unsigned dataSetID;
+    //const BaseDISCC::ReactionData* rd;
+    BaseDIS* reaction;
+    const double* br0;
+    const double* br1;
+    //double mnucl;
+    //int nomad_scaleq2mw2;
+    bool scalesemilepbr;
   };
   ForkPool::TaskDistribution _task_distr; // 0 is chunky, 1 is cyclic
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
