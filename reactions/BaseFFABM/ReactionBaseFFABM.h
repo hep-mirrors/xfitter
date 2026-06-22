@@ -46,6 +46,18 @@ public:
     _mcPtr = td->getParamD("mch");
     _mbPtr = td->getParamD("mbt");
 
+    // CKM matrix
+    _ckm.resize(9);
+    _ckm[0] = td->getParamD("Vud");
+    _ckm[1] = td->getParamD("Vus");
+    _ckm[2] = td->getParamD("Vub");
+    _ckm[3] = td->getParamD("Vcd");
+    _ckm[4] = td->getParamD("Vcs");
+    _ckm[5] = td->getParamD("Vcb");
+    _ckm[6] = td->getParamD("Vtd");
+    _ckm[7] = td->getParamD("Vts");
+    _ckm[8] = td->getParamD("Vtb");
+
     // read higher twist parameters
     _ht[termID] = nullptr;
     if (td->hasParam("ht") && td->getParamI("ht") != 0) {
@@ -147,6 +159,7 @@ public:
     printf("ReactionBaseFFABM::atIteration()\n");
     BaseDIS::atIteration();
     abm::set_hq_masses(*_mcPtr, *_mbPtr);
+    abm::update_ckm_matrix(_ckm);
     for (auto ht : _ht) {
       if (ht.second) {
         ht.second->update();
@@ -213,6 +226,7 @@ private:
   // pointers to those parameters which can change at each iteration
   const double* _mcPtr;
   const double* _mbPtr;
+  std::vector<const double*> _ckm; // CKM matrix
 
   // minimum Q^2
   double _q2mincomp;
