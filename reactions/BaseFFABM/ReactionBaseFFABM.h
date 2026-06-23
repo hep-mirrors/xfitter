@@ -439,12 +439,6 @@ private:
       integrand(&ndim, x, &ncomp, &val, &_integration_params_static);
       return val;
     }
-    static int integrand_cuba(const int* ndim, const cubareal* inp, const int *ncomp, cubareal* val_cubareal, void *params) {
-      double val = 0.0;
-      int ret = integrand(ndim, inp, ncomp, &val, params);
-      val_cubareal[0] = val;
-      return ret;
-    }
     static int integrand(const int* ndim, const double* inp, const int *ncomp, double* val, void *pars_voidptr) {
       //(void)ndim; // Unused parameter
       static constexpr double xmax = 0.99;
@@ -603,7 +597,7 @@ private:
           int fail = 0;
           cubareal cuba_integral[1], cuba_error[1], prob[1];
           setenv("CUBACORES", "0", 1);
-          Cuhre(NDIM, NCOMP, integrand_cuba, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
+          Cuhre(NDIM, NCOMP, integrand, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
           if(integrator_verbose) {
             printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
           }
@@ -619,7 +613,6 @@ private:
           break;
         }
       }
-      printf("integrator_verbose = %d\n", integrator_verbose);
       if(integrator_verbose) {
         printf("ncalls = %ld\n", _integration_params_static.ncalls);
       }
