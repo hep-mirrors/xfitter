@@ -6,7 +6,7 @@
 #include "DIS_TMC.h"
 #include "DIS_NUKE.h"
 #include "ForkPool.h"
-#include "cuba.h"
+//#include "cuba.h"
 
 extern "C" {
   double numufcalflux_(const double& e); // NOMAD E(nu) flux
@@ -160,9 +160,9 @@ public:
     if(integrator_str == "sd2") {
       integrator = Integrator::sd2;
     }
-    else if(integrator_str == "cuba") {
+    /*else if(integrator_str == "cuba") {
       integrator = Integrator::cuba;
-    }
+    }*/
     else {
       hf_errlog(26061101, "F: unknown integrator " + integrator_str);
     }
@@ -385,7 +385,7 @@ private:
   };
   enum class Integrator {
     sd2,
-    cuba,
+    //cuba,
   };
   struct DataPoint;
   struct integration_params {
@@ -579,7 +579,7 @@ private:
           f2 = s1;
           break;
         }
-        case Integrator::cuba: {
+        /*case Integrator::cuba: {
           const int NDIM = 2;
           const int NCOMP = 1;
           void* USERDATA = &_integration_params_static;
@@ -611,7 +611,7 @@ private:
           }
           f2 = cuba_integral[0];
           break;
-        }
+        }*/
       }
       if(integrator_verbose) {
         printf("ncalls = %ld\n", _integration_params_static.ncalls);
