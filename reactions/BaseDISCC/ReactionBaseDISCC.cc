@@ -155,6 +155,7 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   {
   case BaseDISCC::dataType::signonred:
   {
+    //val = f2;break;
     // Basic formulae for CC cross section:
     const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
     valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
@@ -242,7 +243,8 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   if (iDIS)
   {
     // integrated cross sections
-    valExternal = iDIS->compute(val);
+    //valExternal = iDIS->compute(val);
+    valExternal = val;
   }
   else
   {

@@ -83,28 +83,72 @@ public:
     const std::valarray<double>* q2_ptr = nullptr;
     const std::valarray<double>* x_ptr = nullptr;
     const std::valarray<double>* onedimvar_ptr = nullptr;
-    if (td->hasParam("binning")) {
-      auto binning = td->getParamS("binning");
-      if(binning == "e") {
-        datapoint_binning = Binning::point_at_e;
-        onedimvar_ptr = td->getBinColumnOrNull("e");
-      }
-      else if(binning == "x") {
-        datapoint_binning = Binning::point_at_x;
-        onedimvar_ptr = td->getBinColumnOrNull("x");
-      }
-      else if(binning == "sqrtshat") {
-        datapoint_binning = Binning::point_at_sqrtshat;
-        onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
+    const std::valarray<double>* q2min_ptr = nullptr;
+    const std::valarray<double>* q2max_ptr = nullptr;
+    const std::valarray<double>* ymin_ptr = nullptr;
+    const std::valarray<double>* ymax_ptr = nullptr;
+    double energy;
+    auto find_binning = [td,&datapoint_binning,&q2_ptr,&x_ptr,&onedimvar_ptr,&q2min_ptr,&q2max_ptr,&ymin_ptr,&ymax_ptr,&energy]() {
+      if (td->hasParam("binning")) {
+        auto binning = td->getParamS("binning");
+        if(binning == "E") {
+          datapoint_binning = Binning::point_at_e;
+          onedimvar_ptr = td->getBinColumnOrNull("E");
+        }
+        else if(binning == "x") {
+          datapoint_binning = Binning::point_at_x;
+          onedimvar_ptr = td->getBinColumnOrNull("x");
+        }
+        else if(binning == "sqrtshat") {
+          datapoint_binning = Binning::point_at_sqrtshat;
+          onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
+        }
+        else if(binning == "bin_q2y") {
+          datapoint_binning = Binning::bin_q2y;
+          q2min_ptr = td->getBinColumnOrNull("q2min");
+          q2max_ptr = td->getBinColumnOrNull("q2max");
+          ymin_ptr = td->getBinColumnOrNull("ymin");
+          ymax_ptr = td->getBinColumnOrNull("ymax");
+          energy = *td->getParamD("energy");
+        }
+        else {
+          hf_errlog(2026062202, "F: Unsupported data point binning " + binning);
+        }
+        return;
       }
       else {
-        hf_errlog(2026062202, "F: Unsupported data point binning " + binning);
+        q2_ptr = td->getBinColumnOrNull("Q2");
+        x_ptr = td->getBinColumnOrNull("x");
+        if(!q2_ptr || !x_ptr) {
+          onedimvar_ptr = td->getBinColumnOrNull("E");
+          if(onedimvar_ptr) {
+            datapoint_binning = Binning::point_at_e;
+            return;
+          }
+          onedimvar_ptr = td->getBinColumnOrNull("x");
+          if(onedimvar_ptr) {
+            datapoint_binning = Binning::point_at_x;
+            return;
+          }
+          onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
+          if(onedimvar_ptr) {
+            datapoint_binning = Binning::point_at_sqrtshat;
+            return;
+          }
+          q2min_ptr = td->getBinColumnOrNull("q2min");
+          q2max_ptr = td->getBinColumnOrNull("q2max");
+          ymin_ptr = td->getBinColumnOrNull("ymin");
+          ymax_ptr = td->getBinColumnOrNull("ymax");
+          energy = *td->getParamD("energy");
+          if(q2min_ptr && q2max_ptr && ymax_ptr) {
+            datapoint_binning = Binning::bin_q2y;
+            return;
+          }
+        }
       }
-    }
-    else {
-      q2_ptr = td->getBinColumnOrNull("Q2");
-      x_ptr = td->getBinColumnOrNull("x");
-    }
+      hf_errlog(26062301, "F: cannot determine binning");
+    };
+    find_binning();
     const int scalesemilepbr = td->getParamI("scalesemilepbr");
     const double* br0 = td->getParamD("br_cmu_0");
     const double* br1 = td->getParamD("br_cmu_1");
@@ -131,7 +175,8 @@ public:
     printf(", order = %d", order);
     printf(", order HQ = %d", orderHQ);
     printf(", O(alpha_S) F_L - O(alpha_S) F2 = %d", ordfl);
-    printf(", factorisation scale for heavy quarks = sqrt(%f * Q^2 + %f * 4m_q^2\n", hqscale1in, hqscale2in);
+    printf(", factorisation scale for heavy quarks = sqrt(%f * Q^2 + %f * 4m_q^2", hqscale1in, hqscale2in);
+    printf(", binning = %d\n", int(datapoint_binning));
     printf("---------------------------------------------\n");
 
     auto nBins = td->getNbins();
@@ -192,6 +237,18 @@ public:
       }
       else if(datapoint_binning == Binning::point_at_e || datapoint_binning == Binning::point_at_x || datapoint_binning == Binning::point_at_sqrtshat) {
         point.onedimvar = (*onedimvar_ptr)[i];
+      }
+      else if(datapoint_binning == Binning::bin_q2y) {
+        point.q2min = (*q2min_ptr)[i];
+        point.q2max = (*q2max_ptr)[i];
+        if(ymin_ptr) {
+          point.ymin = (*ymin_ptr)[i];
+        }
+        else {
+          point.ymin = 0.0;
+        }
+        point.ymax = (*ymax_ptr)[i];
+        point.energy = energy;
       }
       point.mnucl = mnucl;
       point.mw = mw;
@@ -324,6 +381,7 @@ private:
     point_at_e, // requires onedimvar
     point_at_x, // requires onedimvar
     point_at_sqrtshat, // requires onedimvar
+    bin_q2y, // requires q2min, q2max, ymin, ymax (ymin is optional)
   };
   enum class Integrator {
     sd2,
@@ -342,6 +400,11 @@ private:
     double q2;
     double x;
     double onedimvar;
+    double q2min;
+    double q2max;
+    double ymin;
+    double ymax;
+    double energy;
     int scalesemilepbr;
     Integrator integrator;
     double integrator_epsrel;
@@ -431,6 +494,23 @@ private:
           factor *= (xmax1 - xmin1) * (pars.emax - emin1);
           break;
         }
+        case Binning::bin_q2y: {
+          s = pars.point->energy * pars.point->energy;
+          q2 = pars.point->q2min + (pars.point->q2max - pars.point->q2min) * inp[0];
+          double ymin1 = std::max(pars.point->q2min / s, pars.point->ymin);
+          y = ymin1 + (1 - ymin1) * inp[1];
+          x = q2 / s / y;
+          //printf("q2,x,y = %f,%f,%f\n", q2,x,y);
+          factor = (pars.point->q2max - pars.point->q2min) * (1 - ymin1);
+          break;
+        }
+        default:
+          hf_errlog(26062302, "F: Unsupported integration with binning " + std::to_string(int(pars.point->binning)));
+          return 0.; // avoid warning
+      }
+      if (x <= 0. || x >= 1.) {
+        val[0] = 0.;
+        return 0;
       }
       if (y <= 0. || y >= 1.) {
         val[0] = 0.;
@@ -480,8 +560,11 @@ private:
       if(binning == Binning::point_at_q2x) {
         calc_at_q2x();
       }
-      else if(binning == Binning::point_at_e || binning == Binning::point_at_x || binning == Binning::point_at_sqrtshat) {
+      else if(binning == Binning::point_at_e || binning == Binning::point_at_x || binning == Binning::point_at_sqrtshat || binning == Binning::bin_q2y) {
         calc_2d_integral();
+      }
+      else {
+        hf_errlog(2026062203, "F: Unsupported data point binning " + std::to_string(int(binning)));
       }
     }
     void calc_2d_integral() {
@@ -536,6 +619,7 @@ private:
           break;
         }
       }
+      printf("integrator_verbose = %d\n", integrator_verbose);
       if(integrator_verbose) {
         printf("ncalls = %ld\n", _integration_params_static.ncalls);
       }
