@@ -141,12 +141,6 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   const double MW = *rd->Mw;
 
-  // Basic formulae for CC cross section:
-  const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
-
-  valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
-  valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
-
   valarray<double> f2 = F2(td);
   valarray<double> fl = FL(td);
   valarray<double> xf3 = xF3(td);
@@ -161,6 +155,10 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   {
   case BaseDISCC::dataType::signonred:
   {
+    // Basic formulae for CC cross section:
+    const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
+    valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
+    valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
     //if (charge > 0)
     //  val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
     //else
@@ -212,6 +210,9 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   }
   case BaseDISCC::dataType::sigred:
   {
+    const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
+    valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
+    valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
     //polarity *= -1;
     //if (charge > 0)
     //  val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);

@@ -6,7 +6,12 @@
 #include "DIS_TMC.h"
 #include "DIS_NUKE.h"
 #include "ForkPool.h"
-//#include "cuba.h"
+#include "cuba.h"
+
+extern "C" {
+  double numufcalflux_(const double& e); // NOMAD E(nu) flux
+  double sd2_(double* acc, double (*f)(double*), void (*r)(int, double*, double*, double*)); // integrator
+}
 
 template <class BaseDIS, abm::SFproc Proc>
 class ReactionBaseFFABM : public BaseDIS {
@@ -18,7 +23,7 @@ public:
   }
 
   virtual void initTerm(TermData *td) override {
-    printf("ReactionBaseFFABM::initTerm()\n");
+    //printf("ReactionBaseFFABM::initTerm()\n");
     BaseDIS::initTerm(td);
     unsigned termID = td->id;
 
@@ -100,6 +105,25 @@ public:
       q2_ptr = td->getBinColumnOrNull("Q2");
       x_ptr = td->getBinColumnOrNull("x");
     }
+    const int scalesemilepbr = td->getParamI("scalesemilepbr");
+    const double* br0 = td->getParamD("br_cmu_0");
+    const double* br1 = td->getParamD("br_cmu_1");
+    const double mnucl = *td->getParamD("mpr");
+    const double mw = *td->getParamD("Mw");
+    //const double mnucl = (*td->getParamD("mpr") + *td->getParamD("mnt"))/2.;
+    const auto& integrator_str = td->getParamS("integrator");
+    Integrator integrator;
+    if(integrator_str == "sd2") {
+      integrator = Integrator::sd2;
+    }
+    else if(integrator_str == "cuba") {
+      integrator = Integrator::cuba;
+    }
+    else {
+      hf_errlog(26061101, "F: unknown integrator " + integrator_str);
+    }
+    const double integrator_epsrel = *td->getParamD("integrator_epsrel");
+    const int integrator_verbose = td->getParamI("integrator_verbose");
 
     printf("---------------------------------------------\n");
     printf("INFO from %s: ", BaseDIS::getReactionName().c_str());
@@ -169,9 +193,17 @@ public:
       else if(datapoint_binning == Binning::point_at_e || datapoint_binning == Binning::point_at_x || datapoint_binning == Binning::point_at_sqrtshat) {
         point.onedimvar = (*onedimvar_ptr)[i];
       }
+      point.mnucl = mnucl;
+      point.mw = mw;
+      point.scalesemilepbr = scalesemilepbr;
+      point.br0 = br0;
+      point.br1 = br1;
+      point.integrator = integrator;
+      point.integrator_epsrel = integrator_epsrel;
+      point.integrator_verbose = integrator_verbose;
       point.td = td;
-      point.datasetID = td->id;
       point.i = i;
+      point.is_beam_nu = BaseDIS::IsBeamNu(td->id);
       point.flav = dataFlav(BaseDIS::GetDataFlav(td->id));
       point.ord = order;
       point.ordHQ = orderHQ;
@@ -195,7 +227,9 @@ public:
     printf("ReactionBaseFFABM::atIteration()\n");
     BaseDIS::atIteration();
     abm::set_hq_masses(*_mcPtr, *_mbPtr);
-    abm::update_ckm_matrix(_ckm);
+    if(Proc == abm::SFproc::cc) {
+      abm::update_ckm_matrix(_ckm);
+    }
     for (auto ht : _ht) {
       if (ht.second) {
         ht.second->update();
@@ -205,14 +239,14 @@ public:
     abm::pdffillgrid();
 
     // parallel computaion for groups of data points
-    printf("atIteration _ncpu = %d\n", BaseDIS::_ncpu);
+    //printf("atIteration _ncpu = %d\n", BaseDIS::_ncpu);
     if(BaseDIS::_ncpu == 1) {
       for(auto& it : _grouped_data_points) {
         for(auto& point : it.second) {
           point.calc();
-          _f2abm[point.datasetID][point.i] = point.f2;
-          _flabm[point.datasetID][point.i] = point.fl;
-          _f3abm[point.datasetID][point.i] = point.f3;
+          _f2abm[point.td->id][point.i] = point.f2;
+          _flabm[point.td->id][point.i] = point.fl;
+          _f3abm[point.td->id][point.i] = point.f3;
         }
       }
     }
@@ -220,9 +254,9 @@ public:
       for(auto& it : _grouped_data_points) {
         auto& vec = it.second;
         bool need_pdffillgrid = vec[0].td->actualizeWrappers();
-        printf("checking pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].datasetID);
+        printf("checking pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
         if(need_pdffillgrid) {
-          printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].datasetID);
+          printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
           abm::pdffillgrid();
         }
         ForkPool pool(BaseDIS::_ncpu, _task_distr);
@@ -239,7 +273,7 @@ public:
           f2[i] = point.f2;
           fl[i] = point.fl;
           f3[i] = point.f3;
-          datasetID[i] = point.datasetID;
+          datasetID[i] = point.td->id;
           i_orig[i] = point.i;
         });
         for(size_t i = 0; i < np; i++) {
@@ -291,12 +325,31 @@ private:
     point_at_x, // requires onedimvar
     point_at_sqrtshat, // requires onedimvar
   };
+  enum class Integrator {
+    sd2,
+    cuba,
+  };
+  struct DataPoint;
+  struct integration_params {
+    DataPoint* point;
+    double (*eflux)(const double& e);
+    double emin;
+    double emax;
+    unsigned long ncalls;
+  };
   struct DataPoint {
     Binning binning;
+    double q2;
+    double x;
+    double onedimvar;
+    int scalesemilepbr;
+    Integrator integrator;
+    double integrator_epsrel;
+    int integrator_verbose;
     TermData* td;
-    int datasetID;
     int i;
     dataFlav flav;
+    bool is_beam_nu;
     int ord;
     int ordHQ;
     int ordFL;
@@ -307,34 +360,198 @@ private:
     const double* mz;
     const double* br0;
     const double* br1;
-    double q2;
-    double x;
-    double onedimvar;
+    double mnucl;
+    double mw;
     DIS_NUKE* nuke;
     DIS_TMC* tmc;
     DIS_HT* ht;
     double f2;
     double fl;
     double f3;
+    static integration_params _integration_params_static;
+    static double integrand_sd2(double x[]) {
+      const int ndim = 2;
+      const int ncomp = 1;
+      double val = 0.0;
+      integrand(&ndim, x, &ncomp, &val, &_integration_params_static);
+      return val;
+    }
+    static int integrand_cuba(const int* ndim, const cubareal* inp, const int *ncomp, cubareal* val_cubareal, void *params) {
+      double val = 0.0;
+      int ret = integrand(ndim, inp, ncomp, &val, params);
+      val_cubareal[0] = val;
+      return ret;
+    }
+    static int integrand(const int* ndim, const double* inp, const int *ncomp, double* val, void *pars_voidptr) {
+      //(void)ndim; // Unused parameter
+      static constexpr double xmax = 0.99;
+      static constexpr double q2min = 1.;
+      integration_params& pars = *(integration_params*)pars_voidptr;
+      pars.ncalls++;
+      double x(-1.), q2(-1.), y(-1.), e(-1.), s(-1.), factor(-1.);
+      switch(pars.point->binning) {
+        case Binning::point_at_e: {
+          e = pars.point->onedimvar;
+          s = 2 * pars.point->mnucl * e;
+          double xmin1 = q2min / s;
+          x = xmin1 + (xmax - xmin1) * inp[0];
+          double ymin = q2min / s / x;
+          y = ymin + (1 - ymin) * inp[1];
+          q2 = s * x * y;
+          factor = (xmax - xmin1) * (1 - ymin);
+          break;
+        }
+        case Binning::point_at_x: {
+          x = pars.point->onedimvar;
+          double alim = q2min / x / 2. / pars.point->mnucl;
+          double emin1 = std::max(std::min(alim, pars.emax), pars.emin);
+          e = emin1 + (pars.emax - emin1) * inp[0];
+          double ymin1 = alim / e;
+          y = ymin1 + (1 - ymin1) * inp[1];
+          s = 2 * pars.point->mnucl * e;
+          q2 = s * x * y;
+          factor = pars.eflux(e);
+          factor *= (pars.emax - emin1) * (1 - ymin1);
+          factor *= e;
+          break;
+        }
+        case Binning::point_at_sqrtshat: {
+          double sqrtshat = pars.point->onedimvar;
+          double shat = sqrtshat*sqrtshat;
+          double emin1 = std::min(std::max(pars.emin, (q2min + shat) / 2. / pars.point->mnucl), pars.emax);
+          e = emin1 + (pars.emax - emin1) * inp[0];
+          double spmax = 2 * pars.point->mnucl * e;
+          double xmin1 = 1. / (1 + shat / q2min);
+          double xmax1 = 1 - shat / spmax;
+          x = xmin1 + (xmax1 - xmin1) * inp[1];
+          q2 = shat * x / (1 - x);
+          y = q2 / (2 * e * pars.point->mnucl * x);
+          factor = pars.eflux(e);
+          factor *= 1. / (2 * pars.point->mnucl * (1 - x));
+          factor *= (xmax1 - xmin1) * (pars.emax - emin1);
+          break;
+        }
+      }
+      if (y <= 0. || y >= 1.) {
+        val[0] = 0.;
+        return 0;
+      }
+      pars.point->q2 = q2;
+      pars.point->x = x;
+      pars.point->calc_at_q2x();
+      double yplus = 1.0 + (1.0 - y) * (1.0 - y);
+      if (1) {
+        yplus -= 2.0 * std::pow(pars.point->mnucl * x * y, 2.0) / q2;
+      }
+      double yminus = 1.0 - (1.0 - y) * (1.0 - y);
+      auto charge_mod = pars.point->is_beam_nu ? -1 * pars.point->charge : pars.point->charge; // swap charge for nu beam, see InitTerm()
+      val[0] = 0.5 * (1 + charge_mod * pars.point->polar) * (yplus * pars.point->f2 - charge_mod * yminus * pars.point->f3 - y * y * pars.point->fl);
+      val[0] *= factor;
+      if (pars.point->scalesemilepbr) {
+        double br = *pars.point->br0 / (1 + *pars.point->br1 / e);
+        val[0] *= br;
+      }
+      if (pars.point->flav == dataFlav::incl || pars.point->flav == dataFlav::l) {
+        val[0] *= std::pow((pars.point->mw * pars.point->mw / (q2 + pars.point->mw * pars.point->mw)), 2.);
+      }
+      //if (pars.nomad_scaleq2mw2) {
+      //  if (pars.rd->_dataFlav == BaseDISCC::dataFlav::incl || pars.rd->_dataFlav == BaseDISCC::dataFlav::l) {
+      //    val[0] *= std::pow((MW * MW / (q2 + MW * MW)), 2.);
+      //  }
+      //}
+      if (val[0] != val[0] || 1. / val[0] == 0.) {
+        val[0] = 0.;
+      }
+      return 0;
+    }
+    static void integrand_sd2_region(int ll, double* xx, double* aa, double* bb)
+    {
+      (void)ll;
+      (void)xx;
+      const double del = 1e-8;
+      //const double del = 0.0;
+      aa[0] = del;
+      bb[0] = 1.0 - del;
+      aa[1] = del;
+      bb[1] = 1.0 - del;
+    }
+
     void calc() {
-      switch (binning)
-      {
-        case Binning::point_at_q2x:
-          calc_at_q2x();
-        //case Binning::point_at_e:
-        //  calc_at_e();
+      if(binning == Binning::point_at_q2x) {
+        calc_at_q2x();
+      }
+      else if(binning == Binning::point_at_e || binning == Binning::point_at_x || binning == Binning::point_at_sqrtshat) {
+        calc_2d_integral();
+      }
+    }
+    void calc_2d_integral() {
+      _integration_params_static.point = this;
+      _integration_params_static.eflux = numufcalflux_;
+      _integration_params_static.emin = 6.;
+      _integration_params_static.emax = 300.;
+      _integration_params_static.ncalls = 0;
+      switch(integrator) {
+        case Integrator::sd2: {
+          double acc = 0.;
+          double s0=sd2_(&acc, integrand_sd2, integrand_sd2_region);
+          acc = s0 * integrator_epsrel;
+          double s1=sd2_(&acc, integrand_sd2, integrand_sd2_region);
+          if(integrator_verbose) {
+            printf("binning,onedimvar = %d,%e s0,s1 = %e,%e\n", int(_integration_params_static.point->binning), _integration_params_static.point->onedimvar, s0, s1);
+          }
+          f2 = s1;
+          break;
+        }
+        case Integrator::cuba: {
+          const int NDIM = 2;
+          const int NCOMP = 1;
+          void* USERDATA = &_integration_params_static;
+          const int NVEC = 1;
+          const double EPSREL = integrator_epsrel;
+          const double EPSABS = 0;
+          const int FLAGS = 0;
+          const int MINEVAL = 0;
+          const int MAXEVAL = 500000;
+          const int KEY = 0;
+          const char* STATEFILE = nullptr;
+          void* SPIN = nullptr;
+          int nregions = 0;
+          int neval = 0;
+          int fail = 0;
+          cubareal cuba_integral[1], cuba_error[1], prob[1];
+          setenv("CUBACORES", "0", 1);
+          Cuhre(NDIM, NCOMP, integrand_cuba, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
+          if(integrator_verbose) {
+            printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
+          }
+          for(int comp = 0; comp < NCOMP; ++comp ) {
+            if(integrator_verbose) {
+              printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
+            }
+          }
+          if(integrator_verbose) {
+            printf("binning = %d var = %6.2f -> xsec = %.4e +- %.4e\n", int(binning), onedimvar, cuba_integral[0], cuba_error[0]);
+          }
+          f2 = cuba_integral[0];
+          break;
+        }
+      }
+      if(integrator_verbose) {
+        printf("ncalls = %ld\n", _integration_params_static.ncalls);
       }
     }
     void calc_at_q2x() {
-      auto combine_flavours = [](const dataFlav flav, const double f, const double fc, const double fb) {
+      auto combine_flavours = [](const dataFlav flav, const double l, const double c, const double b) {
         switch (flav)
         {
           case dataFlav::incl:
-            return f + fc + fb;
+            return l + c + b;
+          case dataFlav::l:
+            return l;
           case dataFlav::c:
-            return fc;
+            return c;
           case dataFlav::b:
-            return fb;
+            return b;
           default:
             hf_errlog(28022501, "F: Unsupported flavour");
             return 0.; // avoid warning
@@ -343,7 +560,7 @@ private:
 
       bool need_pdffillgrid = td->actualizeWrappers();
       if(need_pdffillgrid) {
-        printf("extra pdffillgrid() by datasetID = %d point = %d (proc_NCCC = %d)\n", datasetID, i, int(Proc));
+        printf("extra pdffillgrid() by datasetID = %d point = %d (proc_NCCC = %d)\n", td->id, i, int(Proc));
         //fflush(stdout);
         abm::pdffillgrid();
       }
@@ -384,8 +601,7 @@ private:
         f3lout_bar = x * combine_flavours(flav, f3l_bar, f3c_bar, f3b_bar);
       }
       if (tmc) {
-        static constexpr abm::SFproc ncflag = abm::SFproc::nc;
-        tmc->apply(f2l, fll, f3l, f2c, flc, f3c, f2b, flb, f3b, q2, x, ncflag, ord, ordHQ, ordFL, msbarmin, charge, polar, 1.-*sin2thetaWPtr, *mz);
+        tmc->apply(f2l, fll, f3l, f2c, flc, f3c, f2b, flb, f3b, q2, x, Proc, ord, ordHQ, ordFL, msbarmin, charge, polar, 1.-*sin2thetaWPtr, *mz);
       }
       if(ht) {
         // HT is applied only to F2 and FL light flavour part
@@ -400,18 +616,9 @@ private:
       }
     }
   };
-  struct integration_params {
-    Binning binning;
-    double val;
-    unsigned dataSetID;
-    //const BaseDISCC::ReactionData* rd;
-    BaseDIS* reaction;
-    const double* br0;
-    const double* br1;
-    //double mnucl;
-    //int nomad_scaleq2mw2;
-    bool scalesemilepbr;
-  };
   ForkPool::TaskDistribution _task_distr; // 0 is chunky, 1 is cyclic
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
 };
+
+template <class BaseDIS, abm::SFproc Proc>
+typename ReactionBaseFFABM<BaseDIS, Proc>::integration_params ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::_integration_params_static;

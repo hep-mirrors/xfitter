@@ -110,6 +110,7 @@ protected:
    const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
    const dataFlav GetDataFlav(unsigned termID) { return _dataFlav[termID]; }
    TermData* GetTermData(unsigned termID) { return _tdDS[termID];}
+   const bool IsBeamNu(unsigned termID) { return false; } // not used in NC
 
    // Another decomposition:
    virtual void GetF2ud(TermData *td, valarray<double> &f2u, valarray<double> &f2d);

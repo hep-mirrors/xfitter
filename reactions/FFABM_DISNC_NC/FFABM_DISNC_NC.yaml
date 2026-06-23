@@ -6,5 +6,9 @@
   xbmin: 5e-6
   xbmax: 0.999
   q2mincomp: 1.0
+  scalesemilepbr: 0 # 1 for charm CC muon final state
+  integrator: sd2
+  integrator_verbose: 0
+  integrator_epsrel: 1e-3
   group_parallel: default
   parallel_task_distribution: chunky

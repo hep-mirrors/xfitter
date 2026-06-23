@@ -119,6 +119,7 @@ protected:
   //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
    //const dataFlav GetDataFlav(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_dataFlav; }
    const BaseDISCC::dataFlav GetDataFlav(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_dataFlav; }
+   const bool IsBeamNu(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_isBeamNu; }
    const double GetPolarisation(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_polarisation; }
    const double GetCharge(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_charge; }
 };
