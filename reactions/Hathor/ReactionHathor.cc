@@ -13,6 +13,7 @@
 #include "cstring"
 #include "xfitter_cpp.h"
 #include <unistd.h>
+#include <numeric>
 
 // the class factories
 extern "C" ReactionHathor* create()
@@ -56,6 +57,8 @@ ReactionHathor::~ReactionHathor()
 
 void ReactionHathor::atStart()
 {
+  ReactionTheory::atStart();
+
   // PDFs for Hathor
   _pdf = new HathorPdfxFitter();
 
@@ -73,10 +76,7 @@ void ReactionHathor::atStart()
 
 void ReactionHathor::initTerm(TermData *td)
 {
-  //These two lines were added by Sasha Zenaiev but they are not needed
-  //ReactionTheory::initTerm(td);
-  //_tdDS[dataSetID] = td;
-
+  ReactionTheory::initTerm(td);
   int dataSetID = td->id;
 
   // check if dataset with provided ID already exists
@@ -87,35 +87,28 @@ void ReactionHathor::initTerm(TermData *td)
     hf_errlog_(17080701, str, strlen(str));
   }
 
-  // instantiate Hathor for each term
-  //Hathor* hathor = new Hathor(*_pdf);
-  //_hathorArray[dataSetID] = _hathor;
-}
+  _integrator = td->getParamS("integrator");
+  _mtopPerInstance[dataSetID] = td->getParamD("mtp");
+  _mfPerInstance[dataSetID] = *td->getParamD("muR");
+  _mrPerInstance[dataSetID] = *td->getParamD("muF");
+  _orderPerInstance[dataSetID] = td->getParamS("Order");
+  _NfPerInstance[dataSetID] = td->hasParam("NFlavour") ? td->getParamI("NFlavour") : 5;
+  _MsbarPerInstance[dataSetID] = td->getParamI("MS_MASS");
+  _precisionLevelPerInstance[dataSetID] = td->getParamI("precisionLevel");
+  _sqrtSPerInstance[dataSetID] = *td->getParamD("SqrtS");
+  _ppbarPerInstance[dataSetID] = td->getParamI("ppbar");
 
-// Main function to compute results at an iteration
-void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
-{
-  // avoid calculating the same cross section again
-  std::string calc_name = "";
-  std::vector<std::string> v_double_pars = {"SqrtS", "convFac", "mtp", "muR", "muF"};
-  for (auto& p : v_double_pars) {
-    if(td->hasParam(p)) {
-      calc_name += "_" + p + std::to_string(*td->getParamD(p));
-    }
-  }
-  calc_name += "_Order" + std::string(td->getParamS("Order"));
-  if(td->hasParam("precisionLevel")) {
-    calc_name += "_precisionLevel" + std::to_string(td->getParamI("precisionLevel"));
-  }
-  if(td->hasParam("MS_MASS")) {
-    calc_name += "_MS_MASS";
-  }
-  if(td->hasParam("NFlavour")) {
-    calc_name += "NFlavour"+std::to_string(td->getParamI("NFlavour"));
-  }
-  if(td->hasParam("ppbar")) {
-    calc_name += "_ppbar";
-  }
+
+  // avoid calculating the same cross section many times
+  std::string calc_name = "mtp" + std::to_string((unsigned long long)(void**)_mtopPerInstance[dataSetID]);
+  calc_name += std::string("_") + "muF" + std::to_string(_mfPerInstance[dataSetID]);
+  calc_name += std::string("_") + "muR" + std::to_string(_mrPerInstance[dataSetID]);
+  calc_name += std::string("_") + "Order" + _orderPerInstance[dataSetID];
+  calc_name += std::string("_") + "NFlavour" + std::to_string(_NfPerInstance[dataSetID]);
+  calc_name += std::string("_") + "MS_MASS" + std::to_string(_MsbarPerInstance[dataSetID]);
+  calc_name += std::string("_") + "precisionLevel" + std::to_string(_precisionLevelPerInstance[dataSetID]);
+  calc_name += std::string("_") + "SqrtS" + std::to_string(_sqrtSPerInstance[dataSetID]);
+  calc_name += std::string("_") + "ppbar" + std::to_string(_ppbarPerInstance[dataSetID]);
   if(td->hasParam("evolution")) {
     calc_name += "_evolution_" + td->getParamS("evolution");
   }
@@ -125,164 +118,150 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   if(td->hasParam("evolution2")) {
     calc_name += "_evolution2_" + td->getParamS("evolution2");
   }
-  if(td->hasParam("integrator")) {
-    calc_name += "_integrator_" + td->getParamS("integrator");
+  if (_convolved.find(calc_name) == _convolved.end()) {
+    //printf("adding calc_name = %s\n", calc_name.c_str());
+    _convolved[calc_name] = std::make_pair<double, std::vector<TermData*> >(0., {});
+    _convolved_vector_of_keys.push_back(calc_name);
   }
-  if (_convolved.find(calc_name) != _convolved.end()) {
-    val = _convolved[calc_name];
-    return;
-  }
+  //printf("adding calc_name = %s td = %p\n", calc_name.c_str(), td);
+  _convolved[calc_name].second.push_back(td);
+}
 
-  td->actualizeWrappers();
-  int dataSetID = td->id;
-  _pdf->IsValid = true;
-  rlxd_reset(_rndStore);
-
-  //Suppress Hathor output
-  // SZ 2023.11.11 freopen breaks pipe redicrection, see https://c-faq.com/stdio/undofreopen.html
-  // Solution from https://stackoverflow.com/questions/1908687/how-to-redirect-the-output-back-to-the-screen-after-freopenout-txt-a-stdo
-  int o;
-  if (!steering_.ldebug) {
-    o = dup(fileno(stdout));
-    if (freopen("/dev/null", "a", stdout)) {
+// Main function to compute results at an iteration
+void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err)
+{
+  for(const auto& it : _convolved) {
+    for(const auto& p : it.second.second) {
+      if(td == p) {
+        val = std::valarray<double>(1);
+        val[0] = it.second.first;
+        return;
+      }
     }
   }
-  
-  //_hathor->getXsection(_mtop, _mr, _mf);
-
-  // set collision type
-  // read ppbar (0 for pp, 1 for ppbar) from provided dataset parameters
-  // if not specified assume it is 0 (pp collisions)
-  // here local value is preferred over global one (to allow different data sets for different collision types)
-  int ppbar = false;
-  if(td->hasParam("ppbar"))
-    ppbar = td->getParamI("ppbar");
-  else if(td->hasParam("ppbar"))
-    ppbar = td->getParamI("ppbar");
-  if(ppbar)
-    _hathor->setColliderType(Hathor::PPBAR);
-  else
-    _hathor->setColliderType(Hathor::PP);
-
-  // read centre-of-mass energy from provided dataset parameters (must be provided)
-  // here local value is preferred over global one (to allow different data sets with difference centre-of-mass energies)
-  double sqrtS = 0.0;
-  if(td->hasParam("SqrtS"))
-    sqrtS = *td->getParamD("SqrtS");
-  else
-    hf_errlog(17080702, "F: no SqrtS for dataset with id = " + std::to_string(dataSetID));
-  _hathor->setSqrtShad(sqrtS);
-
-  // set conversion factor
-  double convFac_in = 0.389379323e9;  //HATHOR default value
-  if(td->hasParam("convFac")) convFac_in = *td->getParamD("convFac");
-  _hathor->sethc2(convFac_in);
-  std::cout << " ReactionHathor: hc2 set to " << convFac_in << std::endl;
-
-  // set mass
-  double mtop = 0;
-  if(td->hasParam("mtp"))
-    mtop = *td->getParamD("mtp");
-  
-  // here local value is preferred over global one (to allow calculations with several mass values, e.g. for translation into MSbar mass scheme)
-  _mtopPerInstance[dataSetID] = std::shared_ptr<double>(new double(mtop));
-  if(td->hasParam("mtp"))
-    *_mtopPerInstance[dataSetID] = mtop;
-
-  // set renorm. scale
-  _mrPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
-  if(td->hasParam("muR"))
-    *_mrPerInstance[dataSetID] *= *td->getParamD("muR");
-
-  // set fact. scale
-  _mfPerInstance[dataSetID] = std::shared_ptr<double>(new double(*_mtopPerInstance[dataSetID]));
-  if(td->hasParam("muF"))
-    *_mfPerInstance[dataSetID] *= *td->getParamD("muF");
-
-  // set perturbative order
-  // here local value is preferred over global one (to allow LO and NLO calculations in one run, e.g. for translation into MSbar mass scheme)
-  std::string schemeName = td->getParamS("Order");
-  int scheme = Hathor::LO;
-  if(schemeName == "NLO")
-    scheme = scheme | Hathor::NLO;
-  else if(schemeName == "NNLO")
-    scheme = scheme | Hathor::NLO | Hathor::NNLO;
-  // set mass scheme (default is pole mass scheme)
-  // here local value is preferred over global one
-  int msMass = 0; // pole mass by default
-  if(td->hasParam("MS_MASS"))
-    msMass = td->getParamI("MS_MASS");
-  if(msMass)
-    scheme = scheme | Hathor::MS_MASS;
-  _hathor->setScheme(scheme);
-  // number of massless flavours
-  int nf = td->hasParam("NFlavour") ? td->getParamI("NFlavour") : 5;
-  _hathor->setNf(nf);
-
-  // set precision level
-  // read precision level from provided dataset parameters
-  // if not specified set to default 2 -> Hathor::MEDIUM
-  int precisionLevel = 2;
-  if(td->hasParam("precisionLevel"))
-    precisionLevel = td->getParamI("precisionLevel");
-  precisionLevel = std::pow(10, 2 + precisionLevel);
-  // check that this setting is allowed
-  // see in AbstractHathor.h:
-  //   enum ACCURACY { LOW=1000, MEDIUM=10000, HIGH=100000 };
-  // and
-  // precisionLevel = 1 -> Hathor::LOW
-  // precisionLevel = 2 -> Hathor::MEDIUM
-  // precisionLevel = 3 -> Hathor::HIGH
-  if(precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH)
-    hf_errlog(17081102, "F: provided precision level = " + std::to_string(precisionLevel) + " not supported by Hathor");
-  _hathor->setPrecision(precisionLevel);
-
-  //Resume standard output
-  if (!steering_.ldebug)
-  {
-    //freopen ("/dev/tty", "a", stdout);
-    dup2(o,fileno(stdout));
-    close(o);
-  }
-
-  if (steering_.ldebug)
-    {
-      std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
-      double mt = *_mtopPerInstance[dataSetID];
-
-      std::cout << " mtop = " << mt << "[GeV] " << std::endl;
-      std::cout << " renorm. scale = " << *_mrPerInstance[dataSetID] << "[GeV] " << std::endl;
-      std::cout << " factor. scale = " << *_mfPerInstance[dataSetID] << "[GeV] " << std::endl;
-      std::cout << " SqrtS = " << sqrtS << std::endl;
-      std::cout << " scheme: " << scheme << std::endl;
-      std::cout << " precisionLevel: " << precisionLevel << std::endl;
-      std::cout << std::endl;
-
-      // done
-      _hathor->PrintOptions();
-    }
-
-  double mt = _mtopPerInstance[dataSetID] ? (*_mtopPerInstance[dataSetID]) : mtop;
-  double mr = *_mrPerInstance[dataSetID];
-  double mf = *_mfPerInstance[dataSetID];
-  if (mr<0.) {
-    mr = mr*-1./mt;
-  }
-  if (mf<0.) {
-    mf = mf*-1./mt;
-  }
-  _hathor->getXsection(mt, mr, mf, td->getParamS("integrator"));
-  //printf("getXsection ncalls = %ld\n", _ncalls);
-  double dum = 0.0;
-  double xsec = 0.0;
-  _hathor->getResult(0, xsec, dum);
-  //printf("mt,mr,mf,xsec,err: %f %f %f %f %f [%.3f%%]\n", mt, mr, mf, xsec, dum, dum/xsec*100.);
-  val = xsec;
-  //printf("VAL ************ %f\n", val[0]);
-  _convolved.insert(std::make_pair(calc_name, xsec));
+  hf_errlog(2026062401, "F: HATHOR no computed cross section for datasetID = " + std::to_string(td->id));
 }
 
 void ReactionHathor::atIteration() {
-    //printf("clearing %ld Hathor saved xsecs\n", _convolved.size());
-    _convolved.clear();
+  ReactionTheory::atIteration();
+
+  auto calc_one = [&](int i, double& xsec) {
+    TermData* td = _convolved[_convolved_vector_of_keys[i]].second[0];
+    td->actualizeWrappers();
+    int dataSetID = td->id;
+    _pdf->IsValid = true;
+    rlxd_reset(_rndStore);
+
+    //Suppress Hathor output
+    // SZ 2023.11.11 freopen breaks pipe redicrection, see https://c-faq.com/stdio/undofreopen.html
+    // Solution from https://stackoverflow.com/questions/1908687/how-to-redirect-the-output-back-to-the-screen-after-freopenout-txt-a-stdo
+    int o;
+    if (!steering_.ldebug) {
+      o = dup(fileno(stdout));
+      if (freopen("/dev/null", "a", stdout)) {
+      }
+    }
+
+    // collision type
+    if(_ppbarPerInstance[dataSetID])
+      _hathor->setColliderType(Hathor::PPBAR);
+    else
+      _hathor->setColliderType(Hathor::PP);
+
+    // read centre-of-mass energy
+    _hathor->setSqrtShad(_sqrtSPerInstance[dataSetID]);
+
+    // set conversion factor
+    static constexpr double convFac_in = 0.389379323e9;  //HATHOR default value
+    _hathor->sethc2(convFac_in);
+
+    // set perturbative order and mass scheme
+    int scheme = Hathor::LO;
+    if(_orderPerInstance[dataSetID] == "NLO")
+      scheme = scheme | Hathor::NLO;
+    else if(_orderPerInstance[dataSetID] == "NNLO")
+      scheme = scheme | Hathor::NLO | Hathor::NNLO;
+    if(_MsbarPerInstance[dataSetID])
+      scheme = scheme | Hathor::MS_MASS;
+    _hathor->setScheme(scheme);
+
+    // number of massless flavours
+    _hathor->setNf(_NfPerInstance[dataSetID]);
+
+    // set precision level
+    int precisionLevel = std::pow(10, 2 + _precisionLevelPerInstance[dataSetID]);
+    // check that this setting is allowed
+    // see in AbstractHathor.h:
+    //   enum ACCURACY { LOW=1000, MEDIUM=10000, HIGH=100000 };
+    // and
+    // precisionLevel = 1 -> Hathor::LOW
+    // precisionLevel = 2 -> Hathor::MEDIUM
+    // precisionLevel = 3 -> Hathor::HIGH
+    if(precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH)
+      hf_errlog(17081102, "F: provided precision level = " + std::to_string(precisionLevel) + " not supported by Hathor");
+    _hathor->setPrecision(precisionLevel);
+
+    // quark mass and scales
+    double mt = *_mtopPerInstance[dataSetID];
+    double mr = _mrPerInstance[dataSetID] * mt;
+    double mf = _mfPerInstance[dataSetID] * mt;
+    if (mr<0.) {
+      mr = mr*-1./mt;
+    }
+    if (mf<0.) {
+      mf = mf*-1./mt;
+    }
+
+    //Resume standard output
+    if (!steering_.ldebug)
+    {
+      //freopen ("/dev/tty", "a", stdout);
+      dup2(o,fileno(stdout));
+      close(o);
+    }
+
+    if (steering_.ldebug)
+      {
+        std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
+        std::cout << " mtop = " << mt << "[GeV] " << std::endl;
+        std::cout << " renorm. scale = " << mr << "[GeV] " << std::endl;
+        std::cout << " factor. scale = " << mf << "[GeV] " << std::endl;
+        std::cout << " SqrtS = " << _sqrtSPerInstance[dataSetID] << std::endl;
+        std::cout << " scheme: " << scheme << std::endl;
+        std::cout << " precisionLevel: " << precisionLevel << std::endl;
+        std::cout << std::endl;
+
+        // done
+        _hathor->PrintOptions();
+      }
+
+    _hathor->getXsection(mt, mr, mf, td->getParamS("integrator"));
+    //printf("getXsection ncalls = %ld\n", _ncalls);
+    double dum = 0.0;
+    _hathor->getResult(0, xsec, dum);
+    //printf("mt,mr,mf,xsec,err: %f %f %f %f %f [%.3f%%]\n", mt, mr, mf, xsec, dum, dum/xsec*100.);
+  };
+
+  //int ncpu =  xfitter::xf_ncpu(_ncpu);
+  int ncpu = _ncpu;
+  size_t n = _convolved.size();
+  std::cout << ncpu << " " << n << std::endl;
+  if (ncpu == 1) {
+    for (int i = 0; i < n; i++) {
+      calc_one(i, _convolved[_convolved_vector_of_keys[i]].first);
+    }
+  }
+  else {
+    ForkPool pool(ncpu, _task_distr);
+    ForkPool::SharedMemory shm(sizeof(double) * n);
+    double* val = shm.data<double>();
+    std::vector<int> vec(n);
+    std::iota(vec.begin(), vec.end(), 0);
+    pool.parallel_for(vec, [&](size_t i) {
+      calc_one(i, val[i]);
+    });
+    for (size_t i = 0; i < n; i++) {
+      _convolved[_convolved_vector_of_keys[i]].first = val[i];
+    }
+  }
 }

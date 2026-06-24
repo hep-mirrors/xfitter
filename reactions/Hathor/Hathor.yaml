@@ -2,5 +2,6 @@
   MS_MASS: 0
   muR: 1.
   muF: 1.
-  RATIO: 0
+  ppbar: 0
   integrator: vegas
+  precisionLevel: 2

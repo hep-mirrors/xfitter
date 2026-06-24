@@ -49,12 +49,17 @@ protected:
 
   HathorPdfxFitter* _pdf;
   int* _rndStore;
-  //double _mtop;
-  std::map<int, std::shared_ptr<double> > _mtopPerInstance;
-  std::map<int, std::shared_ptr<double> > _mrPerInstance;
-  std::map<int, std::shared_ptr<double> > _mfPerInstance;
-  // store term data for later access (never used)
-  //map<unsigned, TermData*> _tdDS;
-  std::map<std::string, double> _convolved;
+  std::string _integrator;
+  std::map<int, const double* > _mtopPerInstance;
+  std::map<int, double > _mrPerInstance;
+  std::map<int, double > _mfPerInstance;
+  std::map<int, std::string > _orderPerInstance;
+  std::map<int, int > _NfPerInstance;
+  std::map<int, int > _MsbarPerInstance;
+  std::map<int, int > _precisionLevelPerInstance;
+  std::map<int, double > _sqrtSPerInstance;
+  std::map<int, int > _ppbarPerInstance;
+  std::map<std::string, std::pair<double, std::vector<TermData*> > > _convolved;
+  std::vector<std::string> _convolved_vector_of_keys; // for parallel execuion
 };
 
