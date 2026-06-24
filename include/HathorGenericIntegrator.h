@@ -29,6 +29,7 @@ public:
   virtual void setPrecision(int n) = 0;
   virtual void getResult(int pdfset, double &integral, double &err) = 0;
   virtual void getResult(int pdfset, double &integral, double &err, double & chi2a) = 0;
+  virtual void PrintOptions() = 0;
 };
 
 class HathorLikeSgTop : public Hathor {
@@ -102,6 +103,9 @@ class HathorGenericIntegrator : public IHathorGenericIntegrator, public Integran
     }
     void getResult(int pdfset, double &integral, double &err, double & chi2a) override {
       Integrand::getResult(pdfset, integral, err, chi2a);
+    }
+    void PrintOptions() {
+      Integrand::PrintOptions();
     }
 
     double getXsection(double m, double mur, double muf, const std::string& integrator);

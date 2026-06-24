@@ -43,46 +43,37 @@ public:
 protected:
     virtual int parseOptions(){ return 0;};
   
-    // this is map of key = dataset, value = pointer to Hathor instances,
-    // one instance per one dataset
-    //std::map<int, HathorSgTopT*> _hathorTArray;
-    //std::map<int, HathorSgTopS*> _hathorSArray;
-    //std::map<int, HathorSgTopWt*> _hathorWtArray;
-    ///std::map<int, HathorGenericIntegrator<HathorSgTopT>*> _hathorTArray;
-    //std::map<int, HathorGenericIntegrator<HathorSgTopS>*> _hathorSArray;
-    //std::map<int, HathorGenericIntegrator<HathorSgTopWt>*> _hathorWtArray;
     HathorGenericIntegrator<HathorSgTopT>* _hathorT;
     HathorGenericIntegrator<HathorSgTopS>* _hathorS;
     HathorGenericIntegrator<HathorSgTopWt>* _hathorWt;
     
     HathorPdfxFitter* _pdf;
     int* _rndStore;
-    //map<unsigned, int> _scheme;
-    //map<unsigned, const double*> _mtop;
-    //map<unsigned, const double*> _mr;
-    //map<unsigned, const double*> _mf;
-    // store term data for later access
-    map<unsigned, TermData*> _tdDS;
   
-    //double nfl;  //#active flavors
-    //int orderI;  //Perturbative order (numerical stencil can't rely on "scheme")
-    //int msMass;  //0=POLE scheme, 1=MSBAR scheme
-
+    std::string _integrator;
+    const double* _sin2thW;
+    const double* _alphaem;
+    double _ckm[3][3];
     //Flags for which processes to include in the computation
-    //std::map<int, int> tchannel;
-    //std::map<int, int> schannel;
-    //std::map<int, int> Wtchannel;
+    std::map<int, int> _tchannel;
+    std::map<int, int> _schannel;
+    std::map<int, int> _Wtchannel;
+    std::map<int, int> _antiquark;
+    std::map<int, const double* > _mtopPerInstance;
+    std::map<int, double > _mrPerInstance;
+    std::map<int, double > _mfPerInstance;
+    std::map<int, std::string > _orderPerInstance;
+    std::map<int, int > _MsbarPerInstance;
+    std::map<int, int > _precisionLevelPerInstance;
+    std::map<int, double > _sqrtSPerInstance;
+    std::map<int, int > _ppbarPerInstance;
 
-    //NNLO t-channel K-factors
-    //map<unsigned, double> _kfactors_nnlo_tch;
-
+    std::map<std::string, std::pair<double, std::vector<TermData*> > > _convolved;
+    std::vector<std::string> _convolved_vector_of_keys; // for parallel execuion
 
     // constants
-    double const pi = 3.141592653589793;
-    double const z2 = 1.644934066848226;
-    double const z3 = 1.202056903159594;
-    double const ln2= 0.693147180559945;
-
-    std::map<std::string, double> _convolved;
-    static bool init1;
+    static constexpr double pi = 3.141592653589793;
+    static constexpr double z2 = 1.644934066848226;
+    static constexpr double z3 = 1.202056903159594;
+    static constexpr double ln2= 0.693147180559945;
 };

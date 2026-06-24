@@ -245,7 +245,6 @@ void ReactionHathor::atIteration() {
   //int ncpu =  xfitter::xf_ncpu(_ncpu);
   int ncpu = _ncpu;
   size_t n = _convolved.size();
-  std::cout << ncpu << " " << n << std::endl;
   if (ncpu == 1) {
     for (int i = 0; i < n; i++) {
       calc_one(i, _convolved[_convolved_vector_of_keys[i]].first);
