@@ -1,6 +1,5 @@
 
 #pragma once
-#include "ReactionTheory.h"
 #include "ABM.h"
 #include "DIS_HT.h"
 #include "DIS_TMC.h"
