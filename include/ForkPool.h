@@ -131,6 +131,20 @@ class ForkPool {
       }
     }
 
+    static TaskDistribution getTaskDistrFromStr(const std::string& str) {
+      if(str == "chunky") {
+        return TaskDistribution::chunky;
+      }
+      else if(str == "cyclic") {
+        return TaskDistribution::cyclic;
+      }
+      else {
+        auto msg = "F: unknown task distribution " + str;
+        hf_errlog(2026061601,msg);
+      }
+      return TaskDistribution::chunky; // avoid warning
+    }
+
   private:
     const int ncpu_;
     const TaskDistribution _distr;

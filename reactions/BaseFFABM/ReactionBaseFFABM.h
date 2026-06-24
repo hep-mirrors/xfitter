@@ -125,6 +125,5 @@ private:
     void calc_2d_integral();
     void calc_at_q2x();
   };
-  ForkPool::TaskDistribution _task_distr; // 0 is chunky, 1 is cyclic
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
 };

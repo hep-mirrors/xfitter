@@ -303,7 +303,7 @@ void ReactionPineAPPL::initTerm(TermData*td) {
     for (const auto&  g : data->grids) {
         std::string key = std::to_string((unsigned long long)(void**)g) + "_" + key_pars;
         if (_convolved.find(key) == _convolved.end()) {
-            _convolved[key] = std::make_pair(vector<double>(), td);
+            _convolved[key] = std::make_pair(vector<double>(pineappl_grid_bin_count(g)), td);
             _convolved_vector_of_keys.push_back(key);
         }
     }
@@ -356,7 +356,7 @@ void ReactionPineAPPL::atIteration() {
     // as this is already done elsewhere before passing PDFs to PineAPPL
     int32_t PDGID = 2212;  //DO NOT MODIFY
 
-    auto calc_one = [&](int i, std::vector<double>& gridVals) {
+    auto calc_one = [&](int i, double* gridVals) {
         const std::string& key = _convolved_vector_of_keys[i];
         auto& it = _convolved[_convolved_vector_of_keys[i]];
         TermData* td = it.second;
@@ -367,7 +367,6 @@ void ReactionPineAPPL::atIteration() {
         for (int i=0; i<data.Nord; ++i) order_mask[i] = data.ordervec[i];
         for (int i=0; i<data.Nlumi; ++i) lumi_mask[i] = data.lumivec[i];
         pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
-        gridVals.resize(pineappl_grid_bin_count(grid));
         //See function specification in deps/pineappl/include/pineappl_capi/pineappl_capi.h
         _pacount++;
         pineappl_grid_convolute_with_two(grid, 
@@ -377,95 +376,51 @@ void ReactionPineAPPL::atIteration() {
                                             (void*)&data.energyRescale,//"state" is energyRescale
                                             data.Nord>0 ? order_mask : nullptr,
                                             data.Nlumi>0 ? lumi_mask : nullptr,
-                                            *data.muR, *data.muF, gridVals.data());
+                                            *data.muR, *data.muF, gridVals);
         //scale by bin width
-        if (data.flagNorm) for(size_t i=0; i<gridVals.size(); i++) {
-            vector<double> bin_sizes;
-            bin_sizes.resize(pineappl_grid_bin_count(grid));
-            pineappl_grid_bin_normalizations(grid, bin_sizes.data());
-            gridVals[i] *= bin_sizes[i]*std::pow(data.energyRescale, 2.);
+        if (data.flagNorm) {
+            auto nbins = pineappl_grid_bin_count(grid);
+            vector<double> bin_sizes(nbins);
+            for(size_t i=0; i<nbins; i++) {
+                pineappl_grid_bin_normalizations(grid, bin_sizes.data());
+                gridVals[i] *= bin_sizes[i]*std::pow(data.energyRescale, 2.);
+            }
         }
     };
 
     int ngrids = _convolved.size();
-    int ncpu =  xfitter::xf_ncpu(_ncpu);
+    //int ncpu =  xfitter::xf_ncpu(_ncpu);
+    int ncpu = _ncpu;
     if (ncpu == 1) {
-        for (int i = 0; i < ngrids; i++) {
-            calc_one(i, _convolved[_convolved_vector_of_keys[i]].first);
+        for (int igrid = 0; igrid < ngrids; igrid++) {
+            calc_one(igrid, &_convolved[_convolved_vector_of_keys[igrid]].first[0]);
         }
     }
     else {
         std::vector<int> positions(ngrids);
-        int nbins = 0;
-        for (size_t igrid = 0; igrid < _convolved_vector_of_keys.size(); igrid++) {
-            positions[igrid] = nbins;
+        std::vector<int> nbins(ngrids);
+        size_t ngrids = _convolved_vector_of_keys.size();
+        int nbins_total = 0;
+        for (size_t igrid = 0; igrid < ngrids; igrid++) {
+            positions[igrid] = nbins_total;
             const std::string& key = _convolved_vector_of_keys[igrid];
             pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
-            nbins += pineappl_grid_bin_count(grid);
+            nbins[igrid] = pineappl_grid_bin_count(grid);
+            nbins_total += nbins[igrid];
         }
-        // Shared memory for predictions
-        int shmid;
-        double* sharedArray;
-        shmid = shmget(IPC_PRIVATE, sizeof(double) * nbins, IPC_CREAT | 0666);
-        if (shmid < 0) {
-        hf_errlog(2023060200,"F: Failed to create shared memory segment");
+        ForkPool pool(ReactionTheory::_ncpu, _task_distr);
+        ForkPool::SharedMemory shm(sizeof(double) * nbins_total);
+        double* val = shm.data<double>();
+        std::vector<int> vec(ngrids);
+        std::iota(vec.begin(), vec.end(), 0);
+        pool.parallel_for(vec, [&](size_t igrid) {
+            calc_one(igrid, val + positions[igrid]);
+        });
+        for (size_t igrid = 0; igrid < ngrids; igrid++) {
+            for(int ibin = 0; ibin < nbins[igrid]; ibin++) {
+                _convolved[_convolved_vector_of_keys[igrid]].first[ibin] = val[positions[igrid] + ibin];
+            }
         }
-        sharedArray = static_cast<double*>(shmat(shmid, nullptr, 0));
-        if (sharedArray == reinterpret_cast<double*>(-1)) {
-        hf_errlog(2023060201,"F: Failed to attach shared memory segment");
-        }
-        // define Chunks
-        int chunkSize = ngrids / ncpu;
-        int reminder  = ngrids % ncpu; 
-        int first = 0;
-        int startIndex = 0;
-        int endIndex = 0;
-        // loop over all
-        for (int icpu = 0; icpu < min(ncpu, ngrids); icpu++) {
-            startIndex = endIndex;
-            endIndex   = startIndex + chunkSize;
-            if (icpu < reminder) {
-                endIndex += 1;
-            }
-            pid_t pid = xfitter::xf_fork( min(ncpu, ngrids)  );
-            if ( pid == 0) {       
-                    // close all open files (e.g. minuit.out.txt) to avoid multiple buffered output
-                    int fdlimit = (int)sysconf(_SC_OPEN_MAX);
-                    for (int i = STDERR_FILENO + 1; i < fdlimit; i++) {
-                    close(i);
-                }
-                for (int i = first+startIndex; i < first+endIndex; i++) {
-                    //printf("CPU %d computing %d\n", icpu, i);
-                    std::vector<double> gridVals = std::vector<double>();
-                    calc_one(i, gridVals);
-                    //printf("computed\n");
-                    const std::string& key = _convolved_vector_of_keys[i];
-                    pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
-                    for (size_t ibin = 0; ibin < gridVals.size(); ibin++)
-                        sharedArray[positions[i] + ibin] = gridVals[ibin];
-                }
-                exit(0);	    
-            }
-            else if (pid<0) {
-                hf_errlog(2023060204,"F: Failed to create a fork process");	
-            }
-        }	
-        // Wait ...
-        int status;
-        while (wait(&status) > 0);    
-        // Store result
-        for (size_t i = 0; i<ngrids; i++) {
-            const std::string& key = _convolved_vector_of_keys[i];
-            pineappl_grid* grid = (pineappl_grid*)stoull(key.substr(0, key.std::string::find('_')));
-            nbins = pineappl_grid_bin_count(grid);
-            _convolved[_convolved_vector_of_keys[i]].first.resize(nbins);
-            for(int ibin = 0; ibin < nbins; ibin++) {
-                _convolved[_convolved_vector_of_keys[i]].first[ibin] = sharedArray[positions[i] + ibin];
-            }
-        }    
-        // Detach and remove shared memory segments
-        shmdt(sharedArray);
-        shmctl(shmid, IPC_RMID, NULL);
     }
 }
 

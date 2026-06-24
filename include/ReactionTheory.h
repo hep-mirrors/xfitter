@@ -1,6 +1,7 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 #include "TermData.h"
+#include "ForkPool.h"
 
 /**
   @class ReactionTheory
@@ -40,6 +41,7 @@ public:
   virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors)=0;
 protected:
   int _ncpu; // number of parallel threads
+  ForkPool::TaskDistribution _task_distr; // 0 is chunky, 1 is cyclic
   int getNCPU(TermData* td);
-  bool _flagComputeAtIteration = false;
+  bool _flagComputeAtIteration = false; // not sure if it is used/needed
 };

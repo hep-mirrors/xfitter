@@ -6,3 +6,4 @@
   #LumiMask : "1,0,0"
   #^Formatting example. Comment masks out to use all in grid;
   #otherwise their lengths must agree w/ order and lumi counts in grid
+  parallel_task_distribution: cyclic

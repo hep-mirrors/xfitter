@@ -36,6 +36,10 @@ void ReactionTheory::initTerm(TermData*td){
       td->_ncpu = sysconf(_SC_NPROCESSORS_ONLN);
       hf_errlog(2023061401,"I: Will use "+std::to_string(td->_ncpu)+" threads");
   }
+  _task_distr = ForkPool::TaskDistribution::cyclic;
+  if (td->hasParam("parallel_task_distribution")) {
+    _task_distr = ForkPool::getTaskDistrFromStr(td->getParamS("parallel_task_distribution"));
+  }
   if (td->hasParam("computeAtIteration")) {
     _flagComputeAtIteration = td->getParamI("computeAtIteration");
   }

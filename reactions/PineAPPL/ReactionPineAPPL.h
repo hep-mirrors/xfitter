@@ -1,5 +1,6 @@
 #pragma once
 #include"ReactionTheory.h"
+#include "ForkPool.h"
 class pineappl_grid;
 /**
   @class' ReactionPineAPPL

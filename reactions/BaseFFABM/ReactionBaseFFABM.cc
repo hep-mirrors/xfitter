@@ -181,18 +181,6 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   const double* sin2thwPtr = td->getParamD("sin2thW");
 
   // groups for parallel
-  const auto& parallel_task_distribution = td->getParamS("parallel_task_distribution");
-  _task_distr = ForkPool::TaskDistribution::chunky;
-  if(parallel_task_distribution == "chunky") {
-    _task_distr = ForkPool::TaskDistribution::chunky;
-  }
-  else if(parallel_task_distribution == "cyclic") {
-    _task_distr = ForkPool::TaskDistribution::cyclic;
-  }
-  else {
-    auto msg = "F: unknown task distribution " + parallel_task_distribution;
-    hf_errlog(2026061601,msg);
-  }
   const auto& group = td->getParamS("group_parallel");
   printf("group = %s\n", group.c_str());
   size_t offset = 0;
@@ -310,7 +298,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
         printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
         abm::pdffillgrid();
       }
-      ForkPool pool(BaseDIS::_ncpu, _task_distr);
+      ForkPool pool(BaseDIS::_ncpu, BaseDIS::_task_distr);
       int np = vec.size();
       ForkPool::SharedMemory shm(sizeof(double) * 3 * np + sizeof(int) * np * 2);
       double* f2 = shm.data<double>();
