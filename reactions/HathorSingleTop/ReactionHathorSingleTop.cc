@@ -333,8 +333,9 @@ void ReactionHathorSingleTop::atIteration() {
         // precisionLevel = 1 -> Hathor::LOW
         // precisionLevel = 2 -> Hathor::MEDIUM
         // precisionLevel = 3 -> Hathor::HIGH
-        if(precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH)
-        hf_errlog(17081102, "F: provided precision level = " + std::to_string(precisionLevel) + " not supported by Hathor");
+        if(_integrator == "vegas" && precisionLevel !=  Hathor::LOW && precisionLevel !=  Hathor::MEDIUM && precisionLevel !=  Hathor::HIGH) {
+            hf_errlog(17081102, "F: provided precision level = " + std::to_string(precisionLevel) + " not supported by Hathor");
+        }
         hathor->setPrecision(precisionLevel);
 
         //Resume standard output

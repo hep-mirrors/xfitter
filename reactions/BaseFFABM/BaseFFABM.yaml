@@ -18,4 +18,4 @@
   integrator_epsrel: 1e-2 # good for sd2 (3e-2 is good for cuba)
   integrator_verbose: 0
   group_parallel: default
-  parallel_task_distribution: chunky
+  parallel_task_distribution: cyclic

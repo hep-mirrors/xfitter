@@ -83,12 +83,12 @@ class ForkPool {
       for (int worker = 0; worker < nworkers; worker++) {
         size_t begin = worker * N / nworkers;
         size_t end   = (worker + 1) * N / nworkers;
-        if(_distr == TaskDistribution::chunky) {
-          printf("worker = %d [%lu jobs] begin = %lu end = %lu (chunky)\n", worker, end - begin, begin, end);
-        }
-        else if(_distr == TaskDistribution::cyclic) {
-          printf("worker = %d begin = %d step = %d (cyclic)\n", worker, worker, nworkers);
-        }
+        //if(_distr == TaskDistribution::chunky) {
+        //  printf("worker = %d [%lu jobs] begin = %lu end = %lu (chunky)\n", worker, end - begin, begin, end);
+        //}
+        //else if(_distr == TaskDistribution::cyclic) {
+        //  printf("worker = %d begin = %d step = %d (cyclic)\n", worker, worker, nworkers);
+        //}
         setbuf(stdout, nullptr);
         pid_t pid = xfitter::xf_fork(std::min(ncpu_, int(N)));
         if (pid < 0) {
