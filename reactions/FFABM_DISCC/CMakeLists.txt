@@ -1,16 +1,11 @@
-if(NOT QCDNUM_FOUND)
-  message(STATUS "Skipping optional reaction FFABM_DISCC because QCDNUM library was not found")
-  return()
-endif()
+#if(NOT QCDNUM_FOUND)
+#  message(STATUS "Skipping optional reaction FFABM_DISNC because QCDNUM library was not found")
+#  return()
+#endif()
+# not sure if QCDNUM is needed
 
 set(TARGET reactionFFABM_DISCC)
-#add_library(${TARGET} MODULE ReactionFFABM_DISCC.cc)
-add_library(${TARGET} MODULE ReactionFFABM_DISCC.cc numufcalflux1.F)
-#target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISCC ABM)
-#target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISCC ABM GSL)
-target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISCC ABM GSL cuba DIS_HT DIS_TMC DIS_NUKE)
-#target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseDISCC ABM GSL cubature)
+add_library(${TARGET} MODULE ReactionFFABM_DISCC.cc)
+target_link_libraries(${TARGET} PRIVATE xfitter reactionBaseFFABM reactionBaseDISCC)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
 install(FILES FFABM_DISCC.yaml DESTINATION ${DEST_YAML}/reactions)
-# 2026.05.06 tmp for cuba
-target_link_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

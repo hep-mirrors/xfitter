@@ -5,7 +5,14 @@
   scaleb1: 1.0
   xbmin: 5e-6
   xbmax: 0.999
-  q2mincomp: 1.0
+  ht: 0 # no higher twist
+  tmc: '' #  no higher twist, set to "l" to apply target mass corrections to light flavour part
+  tmc_f3: 0 # do not apply TMC to F3
+  tmc_integration_method: 'boole'
+  tmc_xmin: 0.04 # do not apply TMC to x < tmc_xmin
+  tmc_logxlogq2min: -5 # do not apply TMC to log(x)*log(Q^2) < tmc_logxlogq2min
+  nuke_ftyp: 0 # no nuclear corrections
+  q2mincomp: 1.0 # skip points with Q^2 < q2mincomp (set F2=FL=F3=0)
   scalesemilepbr: 0 # 1 for charm CC muon final state to be scaled with 1 / (br0 / (1 + br1 / E(nu)))
   integrator: sd2 # alternative cuba, but need to comment out and recompile
   integrator_epsrel: 1e-2 # good for sd2 (3e-2 is good for cuba)

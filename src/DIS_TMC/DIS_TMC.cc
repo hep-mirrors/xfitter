@@ -76,8 +76,8 @@ DIS_TMC::DIS_TMC(TermData* td){
       _integration_method = 2;
     else if (s == "boole")
       _integration_method = 3;
-    else if (s == "cuba")
-      _integration_method = 4;
+    //else if (s == "cuba")
+    //  _integration_method = 4;
     else {
       string msg = "F: unknown tmc_integration_method = " + td->getParamS("tmc_integration_method");
       hf_errlog(24052201, msg);
@@ -258,8 +258,8 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3,
     }
   }
   // cuba integration
-  else if (_integration_method == 4) {
-    /*const int NDIM = 2;
+  /*else if (_integration_method == 4) {
+    const int NDIM = 2;
     const int NCOMP = 1;
     pars.xi = xi;
     void* USERDATA = &pars;
@@ -283,8 +283,8 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3,
     //for(int comp = 0; comp < NCOMP; ++comp )
     //  printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n",
     //    (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
-    I = cuba_integral[0];*/
-  }
+    I = cuba_integral[0];
+  }*/
   double f20 = f2;
   double fl0 = fl;
   double f30 = f3;

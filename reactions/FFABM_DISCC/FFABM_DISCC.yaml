@@ -1,9 +1,1 @@
-# runm: 0 for pole mass (default); 1 for MSbar running mass
-#FFABM_DISCC:
-  runm: 1
-  ordfl: 1
-  scalea1: 1.0
-  scaleb1: 1.0
-  xbmin: 5e-6
-  xbmax: 0.999
-  q2mincomp: 1.0
+  ? !include reactions/BaseFFABM.yaml

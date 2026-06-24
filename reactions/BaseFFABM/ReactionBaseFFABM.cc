@@ -67,7 +67,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   }
   // read target mass correction parameters
   _tmc[termID] = nullptr;
-  if (td->hasParam("tmc")) {
+  if (td->hasParam("tmc") && td->getParamS("tmc") != "") {
     _tmc[termID] = new DIS_TMC(td);
   }
   // read nuclear correction parameters
@@ -76,7 +76,6 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
     _nuke[termID] = new DIS_NUKE(td);
   }
 
-  Binning datapoint_binning = Binning::point_at_q2x;
   const std::valarray<double>* q2_ptr = nullptr;
   const std::valarray<double>* x_ptr = nullptr;
   const std::valarray<double>* onedimvar_ptr = nullptr;
@@ -85,67 +84,64 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   const std::valarray<double>* ymin_ptr = nullptr;
   const std::valarray<double>* ymax_ptr = nullptr;
   double energy;
-  auto find_binning = [td,&datapoint_binning,&q2_ptr,&x_ptr,&onedimvar_ptr,&q2min_ptr,&q2max_ptr,&ymin_ptr,&ymax_ptr,&energy]() {
+  auto find_binning = [td,&q2_ptr,&x_ptr,&onedimvar_ptr,&q2min_ptr,&q2max_ptr,&ymin_ptr,&ymax_ptr,&energy]() {
     if (td->hasParam("binning")) {
       auto binning = td->getParamS("binning");
       if(binning == "E") {
-        datapoint_binning = Binning::point_at_e;
         onedimvar_ptr = td->getBinColumnOrNull("E");
+        return Binning::point_at_e;
       }
       else if(binning == "x") {
-        datapoint_binning = Binning::point_at_x;
         onedimvar_ptr = td->getBinColumnOrNull("x");
+        return Binning::point_at_x;
       }
       else if(binning == "sqrtshat") {
-        datapoint_binning = Binning::point_at_sqrtshat;
         onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
+        return Binning::point_at_sqrtshat;
       }
       else if(binning == "bin_q2y") {
-        datapoint_binning = Binning::bin_q2y;
         q2min_ptr = td->getBinColumnOrNull("q2min");
         q2max_ptr = td->getBinColumnOrNull("q2max");
         ymin_ptr = td->getBinColumnOrNull("ymin");
         ymax_ptr = td->getBinColumnOrNull("ymax");
         energy = *td->getParamD("energy");
+        return Binning::bin_q2y;
       }
       else {
         hf_errlog(2026062202, "F: Unsupported data point binning " + binning);
       }
-      return;
     }
     else {
       q2_ptr = td->getBinColumnOrNull("Q2");
       x_ptr = td->getBinColumnOrNull("x");
-      if(!q2_ptr || !x_ptr) {
-        onedimvar_ptr = td->getBinColumnOrNull("E");
-        if(onedimvar_ptr) {
-          datapoint_binning = Binning::point_at_e;
-          return;
-        }
-        onedimvar_ptr = td->getBinColumnOrNull("x");
-        if(onedimvar_ptr) {
-          datapoint_binning = Binning::point_at_x;
-          return;
-        }
-        onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
-        if(onedimvar_ptr) {
-          datapoint_binning = Binning::point_at_sqrtshat;
-          return;
-        }
-        q2min_ptr = td->getBinColumnOrNull("q2min");
-        q2max_ptr = td->getBinColumnOrNull("q2max");
-        ymin_ptr = td->getBinColumnOrNull("ymin");
-        ymax_ptr = td->getBinColumnOrNull("ymax");
-        energy = *td->getParamD("energy");
-        if(q2min_ptr && q2max_ptr && ymax_ptr) {
-          datapoint_binning = Binning::bin_q2y;
-          return;
-        }
+      if(q2_ptr && x_ptr) {
+        return Binning::point_at_q2x;
+      }
+      onedimvar_ptr = td->getBinColumnOrNull("E");
+      if(onedimvar_ptr) {
+        return Binning::point_at_e;
+      }
+      onedimvar_ptr = td->getBinColumnOrNull("x");
+      if(onedimvar_ptr) {
+        return Binning::point_at_x;
+      }
+      onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
+      if(onedimvar_ptr) {
+        return Binning::point_at_sqrtshat;
+      }
+      q2min_ptr = td->getBinColumnOrNull("q2min");
+      q2max_ptr = td->getBinColumnOrNull("q2max");
+      ymin_ptr = td->getBinColumnOrNull("ymin");
+      ymax_ptr = td->getBinColumnOrNull("ymax");
+      energy = *td->getParamD("energy");
+      if(q2min_ptr && q2max_ptr && ymax_ptr) {
+        return Binning::bin_q2y;
       }
     }
     hf_errlog(26062301, "F: cannot determine binning");
+    return Binning::bin_q2y; // avoid warning
   };
-  find_binning();
+    Binning datapoint_binning = find_binning();
   const int scalesemilepbr = td->getParamI("scalesemilepbr");
   const double* br0 = td->getParamD("br_cmu_0");
   const double* br1 = td->getParamD("br_cmu_1");
@@ -555,7 +551,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
 
   bool need_pdffillgrid = td->actualizeWrappers();
   if(need_pdffillgrid) {
-    printf("extra pdffillgrid() by datasetID = %d point = %d (proc_NCCC = %d)\n", td->id, i, int(Proc));
+    printf("extra pdffillgrid() in calc_at_q2x() by datasetID = %d point = %d (proc_NCCC = %d)\n", td->id, i, int(Proc));
     //fflush(stdout);
     abm::pdffillgrid();
   }
@@ -607,7 +603,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
   f3 = x * combine_flavours(flav, f3l, f3c, f3b);
   // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
   if (nuke) {
-    nuke->apply(q2, x, f2, fl, f3);
+    nuke->apply(q2, x, f2, fl, f3, &f3lout_bar);
   }
 }
 
