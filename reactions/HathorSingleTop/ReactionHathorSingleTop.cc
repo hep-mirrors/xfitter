@@ -12,7 +12,6 @@
 #include "cstring"
 #include "xfitter_cpp.h"
 #include <unistd.h>
-#include <numeric>
 
 // the class factories
 extern "C" ReactionHathorSingleTop* create() {
@@ -239,9 +238,10 @@ void ReactionHathorSingleTop::atIteration() {
     // SZ 2023.11.11 freopen breaks pipe redicrection, see https://c-faq.com/stdio/undofreopen.html
     // Solution from https://stackoverflow.com/questions/1908687/how-to-redirect-the-output-back-to-the-screen-after-freopenout-txt-a-stdo
     int o;
-    if (!steering_.ldebug) {
+    if (!steering_.ldebug && _init) {
       o = dup(fileno(stdout));
-      if (freopen("/dev/null", "a", stdout)) {
+      if (!freopen("/dev/null", "a", stdout)) {
+        hf_errlog(2026062501, "F: Failed to redirect stdout to /dev/null");
       }
     }
 
@@ -338,24 +338,15 @@ void ReactionHathorSingleTop::atIteration() {
         }
         hathor->setPrecision(precisionLevel);
 
-        //Resume standard output
-        if (!steering_.ldebug)
+        if (steering_.ldebug || !_init)
         {
-        //freopen ("/dev/tty", "a", stdout);
-        dup2(o,fileno(stdout));
-        close(o);
-        }
-
-        if (steering_.ldebug)
-        {
-            std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):" << std::endl;
-            std::cout << " mtop = " << mt << "[GeV] " << std::endl;
-            std::cout << " renorm. scale = " << mr << "[GeV] " << std::endl;
-            std::cout << " factor. scale = " << mf << "[GeV] " << std::endl;
-            std::cout << " SqrtS = " << _sqrtSPerInstance[dataSetID] << std::endl;
-            std::cout << " scheme: " << scheme << std::endl;
+            std::cout << " Hathor will use for this instance (" + std::to_string(dataSetID) + "):";
+            std::cout << " mtop = " << mt << "[GeV] ";
+            std::cout << " renorm. scale = " << mr << "[GeV] ";
+            std::cout << " factor. scale = " << mf << "[GeV] ";
+            std::cout << " SqrtS = " << _sqrtSPerInstance[dataSetID];
+            std::cout << " scheme: " << scheme;
             std::cout << " precisionLevel: " << precisionLevel << std::endl;
-            std::cout << std::endl;
 
             // done
             hathor->PrintOptions();
@@ -464,6 +455,12 @@ void ReactionHathorSingleTop::atIteration() {
     if (_tchannel[dataSetID] == 1 && _schannel[dataSetID] == 0 && _Wtchannel[dataSetID] == 0) {
         xsec *= kfactors_nnlo_tch;
     }
+    //Resume standard output
+    if (!steering_.ldebug && _init)
+    {
+        dup2(o,fileno(stdout));
+        close(o);
+    }
     //printf("getXsection ncalls = %ld\n", _ncalls);
     //printf("mt,mr,mf,xsec,err: %f %f %f %f %f [%.3f%%]\n", mt, mr, mf, xsec, dum, dum/xsec*100.);
   };
@@ -480,13 +477,12 @@ void ReactionHathorSingleTop::atIteration() {
     ForkPool pool(ncpu, _task_distr);
     ForkPool::SharedMemory shm(sizeof(double) * n);
     double* val = shm.data<double>();
-    std::vector<int> vec(n);
-    std::iota(vec.begin(), vec.end(), 0);
-    pool.parallel_for(vec, [&](size_t i) {
+    pool.parallel_for(n, [&](size_t i) {
       calc_one(i, val[i]);
     });
     for (size_t i = 0; i < n; i++) {
       _convolved[_convolved_vector_of_keys[i]].first = val[i];
     }
   }
+  _init = true;
 }

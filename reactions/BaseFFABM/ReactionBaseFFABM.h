@@ -1,7 +1,6 @@
 
 #pragma once
 #include "ABM.h"
-#include "ForkPool.h"
 #include <map>
 #include <valarray>
 #include <vector>
@@ -126,4 +125,5 @@ private:
     void calc_at_q2x();
   };
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
+  //std::map<std::string, ForkPool::SharedMemory* > _grouped_shared_memory;
 };

@@ -40,21 +40,18 @@ public:
     virtual void atStart();
     virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err);
     virtual void atIteration();
+
 protected:
-    virtual int parseOptions(){ return 0;};
-  
     HathorGenericIntegrator<HathorSgTopT>* _hathorT;
     HathorGenericIntegrator<HathorSgTopS>* _hathorS;
     HathorGenericIntegrator<HathorSgTopWt>* _hathorWt;
-    
     HathorPdfxFitter* _pdf;
     int* _rndStore;
-  
+    bool _init = false;
     std::string _integrator;
     const double* _sin2thW;
     const double* _alphaem;
     double _ckm[3][3];
-    //Flags for which processes to include in the computation
     std::map<int, int> _tchannel;
     std::map<int, int> _schannel;
     std::map<int, int> _Wtchannel;
@@ -67,7 +64,6 @@ protected:
     std::map<int, int > _precisionLevelPerInstance;
     std::map<int, double > _sqrtSPerInstance;
     std::map<int, int > _ppbarPerInstance;
-
     std::map<std::string, std::pair<double, std::vector<TermData*> > > _convolved;
     std::vector<std::string> _convolved_vector_of_keys; // for parallel execuion
 

@@ -37,18 +37,10 @@ public:
   virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double> > &err);
   virtual void atIteration();
 protected:
-  virtual int parseOptions(){ return 0;};
-
-  // this is map of key = dataset, value = pointer to Hathor instances,
-  // one instance per one dataset
-  //std::map<int, Hathor*> _hathorArray;
-
-  //Global Hathor instance for all terms
-  //Hathor* _hathor;
   HathorGenericIntegrator<HathorLikeSgTop>* _hathor;
-
   HathorPdfxFitter* _pdf;
   int* _rndStore;
+  bool _init = false;
   std::string _integrator;
   std::map<int, const double* > _mtopPerInstance;
   std::map<int, double > _mrPerInstance;

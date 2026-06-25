@@ -411,9 +411,7 @@ void ReactionPineAPPL::atIteration() {
         ForkPool pool(ReactionTheory::_ncpu, _task_distr);
         ForkPool::SharedMemory shm(sizeof(double) * nbins_total);
         double* val = shm.data<double>();
-        std::vector<int> vec(ngrids);
-        std::iota(vec.begin(), vec.end(), 0);
-        pool.parallel_for(vec, [&](size_t igrid) {
+        pool.parallel_for(ngrids, [&](size_t igrid) {
             calc_one(igrid, val + positions[igrid]);
         });
         for (size_t igrid = 0; igrid < ngrids; igrid++) {

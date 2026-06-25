@@ -5,6 +5,8 @@
 #include "DIS_TMC.h"
 #include "DIS_NUKE.h"
 #include "TermData.h"
+#include "ForkPool.h"
+#include "xfitter_cpp_base.h"
 
 extern "C" {
   double numufcalflux_(const double& e); // NOMAD E(nu) flux
@@ -16,6 +18,7 @@ ReactionBaseFFABM<BaseDIS, Proc>::~ReactionBaseFFABM() {
   for (auto ht : _ht) delete ht.second;
   for (auto tmc : _tmc) delete tmc.second;
   for (auto nk : _nuke) delete nk.second;
+  //for (const auto& it : _grouped_shared_memory) delete it.second;
 }
 
 template <class BaseDIS, abm::SFproc Proc>
@@ -301,12 +304,16 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
       ForkPool pool(BaseDIS::_ncpu, BaseDIS::_task_distr);
       int np = vec.size();
       ForkPool::SharedMemory shm(sizeof(double) * 3 * np + sizeof(int) * np * 2);
+      //if(_grouped_shared_memory.find(it.first) == _grouped_shared_memory.end()) {
+      //  _grouped_shared_memory[it.first] = new ForkPool::SharedMemory(sizeof(double) * 3 * np + sizeof(int) * np * 2);
+      //}
+      //ForkPool::SharedMemory& shm = *_grouped_shared_memory[it.first];
       double* f2 = shm.data<double>();
       double* fl = f2 + np;
       double* f3 = fl + np;
       int* datasetID = (int*)(f3 + np);
       int* i_orig = datasetID + np;
-      pool.parallel_for(vec, [&vec, f2, fl, f3, datasetID, i_orig](size_t i) {
+      pool.parallel_for(np, [&vec, f2, fl, f3, datasetID, i_orig](size_t i) {
         auto& point = vec[i];
         point.calc();
         f2[i] = point.f2;
