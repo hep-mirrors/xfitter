@@ -31,7 +31,6 @@ void ReactionTheory::initTerm(TermData*td){
   td->_ncpu = 1;
   if (td->hasParam("threads"))
     td->_ncpu = td->getParamI("threads");
-  printf("td->_ncpu = %d\n", td->_ncpu);
   if (td->_ncpu == -1) {
       td->_ncpu = sysconf(_SC_NPROCESSORS_ONLN);
       hf_errlog(2023061401,"I: Will use "+std::to_string(td->_ncpu)+" threads");

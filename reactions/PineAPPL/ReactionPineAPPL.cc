@@ -389,8 +389,8 @@ void ReactionPineAPPL::atIteration() {
     };
 
     int ngrids = _convolved.size();
-    //int ncpu =  xfitter::xf_ncpu(_ncpu);
-    int ncpu = _ncpu;
+    int ncpu =  xfitter::xf_ncpu(_ncpu);
+    //int ncpu = _ncpu;
     if (ncpu == 1) {
         for (int igrid = 0; igrid < ngrids; igrid++) {
             calc_one(igrid, &_convolved[_convolved_vector_of_keys[igrid]].first[0]);

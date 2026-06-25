@@ -12,6 +12,7 @@ set(xfitter_SOURCES
   expression_utils.cc
   ExtraParConstr.cc
   fcn.f
+  ForkPool.cc
   fortran_interface.cc
   fortran_io.f
   ftheor_eval.cc

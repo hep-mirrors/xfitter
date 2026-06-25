@@ -12,6 +12,7 @@
 #include "HathorGenericIntegrator.h"
 #include "cstring"
 #include "xfitter_cpp.h"
+#include "xfitter_steer.h"
 #include <unistd.h>
 
 // the class factories
@@ -242,8 +243,8 @@ void ReactionHathor::atIteration() {
     //printf("mt,mr,mf,xsec,err: %f %f %f %f %f [%.3f%%]\n", mt, mr, mf, xsec, dum, dum/xsec*100.);
   };
 
-  //int ncpu =  xfitter::xf_ncpu(_ncpu);
-  int ncpu = _ncpu;
+  int ncpu =  xfitter::xf_ncpu(_ncpu);
+  //int ncpu = _ncpu;
   size_t n = _convolved.size();
   if (ncpu == 1) {
     for (int i = 0; i < n; i++) {

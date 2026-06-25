@@ -7,6 +7,7 @@
 #include "TermData.h"
 #include "ForkPool.h"
 #include "xfitter_cpp_base.h"
+#include "xfitter_steer.h"
 
 extern "C" {
   double numufcalflux_(const double& e); // NOMAD E(nu) flux
@@ -282,7 +283,8 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
 
   // parallel computaion for groups of data points
   //printf("atIteration _ncpu = %d\n", BaseDIS::_ncpu);
-  if(BaseDIS::_ncpu == 1) {
+  int ncpu =  xfitter::xf_ncpu(BaseDIS::_ncpu);
+  if(ncpu == 1) {
     for(auto& it : _grouped_data_points) {
       for(auto& point : it.second) {
         point.calc();
@@ -301,7 +303,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
         printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
         abm::pdffillgrid();
       }
-      ForkPool pool(BaseDIS::_ncpu, BaseDIS::_task_distr);
+      ForkPool pool(ncpu, BaseDIS::_task_distr);
       int np = vec.size();
       ForkPool::SharedMemory shm(sizeof(double) * 3 * np + sizeof(int) * np * 2);
       //if(_grouped_shared_memory.find(it.first) == _grouped_shared_memory.end()) {
