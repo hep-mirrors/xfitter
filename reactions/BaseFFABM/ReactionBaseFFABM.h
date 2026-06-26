@@ -4,6 +4,7 @@
 #include <map>
 #include <valarray>
 #include <vector>
+#include <string>
 //#include "cuba.h"
 
 using std::map;
