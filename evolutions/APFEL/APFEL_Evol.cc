@@ -94,7 +94,9 @@ void APFEL_Evol::atStart()
   // Read yaml steering
   _yAPFEL = XFITTER_PARS::getEvolutionNode(_name);
   const int iSplineOrder = _yAPFEL["SplineOrder"].as<int>();
-
+  const string fragmen = XFITTER_PARS::getParamS("Frag");  // hamed FF  
+  
+  // const string fragmen = "off";
   vector<double> xGrid = getSeq<double>(_yAPFEL["xGrid"]);
   vector<int> nxGrid = getSeq<int>(_yAPFEL["nxGrid"]);
 
@@ -110,7 +112,7 @@ void APFEL_Evol::atStart()
   const string heavyQuarkMassRunning = _yAPFEL["heavyQuarkMassRunning"].as<string>();
   const string theoryType = _yAPFEL["theoryType"].as<string>();
   const string nllxResummation = _yAPFEL["nllxResummation"].as<string>();
-  const string fragmen = _yAPFEL["fragmentation"].as<string>();
+  // const string fragmen = _yAPFEL["fragmentation"].as<string>(); // hamed FF 
 
   if (theoryType == "QCD")
   {
@@ -189,7 +191,7 @@ void APFEL_Evol::atStart()
   APFEL::SetAlphaQCDRef(*alphas, *Mz);
   APFEL::SetPerturbativeOrder(PtOrder - 1); //APFEL counts from 0
   if (fragmen == "On")
-  {
+  { 
     APFEL::SetTimeLikeEvolution(true);
   }
   // Set Parameters
@@ -288,7 +290,7 @@ std::map<int, double> APFEL_Evol::xfxQmap(double x, double Q)
   double pdfs[14];
   xfxQarray(x, Q, pdfs);
   std::map<int, double> res;
-
+ 
   int npdfMax = (_evolType == evolType::QCD) ? 6 : 7;
 
   for (int ipdf = -6; ipdf <= npdfMax; ipdf++)
@@ -299,6 +301,7 @@ std::map<int, double> APFEL_Evol::xfxQmap(double x, double Q)
       ii = 22;
     res[ii] = pdfs[ipdf+6];
   }
+
   return res;
 }
 
@@ -326,7 +329,7 @@ void APFEL_Evol::xfxQarray(double x, double Q, double *pdfs)
   else if (_evolType == evolType::QUniD)
   {
     APFEL::xPDFallPhoton(x, pdfs);
-  }
+  }  
 }
 
 double APFEL_Evol::getAlphaS(double Q)
@@ -338,7 +341,9 @@ vector<double> APFEL_Evol::getXgrid() {
   vector<double> xGrid;
   int Nx = APFEL::nIntervals() + 1;
   xGrid.resize(Nx);
-  for (int i=0; i<Nx; ++i) xGrid[i] = APFEL::xGrid(i);
+  for (int i=0; i<Nx; ++i) {
+   xGrid[i] = APFEL::xGrid(i);
+   }
   return xGrid;
 }
 
@@ -350,4 +355,36 @@ std::vector<double> APFEL_Evol::getQgrid() {
   return qGrid;
 }
 
+
+extern "C" void externalsetapfel1_(double &x,double &Q,double *xf)
+{
+  std::cout<<"externalsetapfel1_\n";
+}
+
+extern "C" void externalsetapfelrep_(double &x,double &Q,double *xf)
+{
+  std::cout<<"externalsetapfelrep_\n";
+}
+
+extern "C" void externalsetapfelrep1_(double &x,double &Q,double *xf)
+{
+  std::cout<<"externalsetapfelrep1_\n";
+}
+extern "C" void externalsetapfellept_(
+    double &x,
+    double &Q,
+    int &i,
+    double *xl,
+    double *xf)
+{
+  std::cout << "externalsetapfellept_\n";
+}
+extern "C" void pretabulatedpdfsrep_(
+    int &ig,
+    int &alpha,
+    int &i,
+    double *xf)
+{
+  std::cout << "pretabulatedpdfsrep_\n";
+}
 } // namespace xfitter

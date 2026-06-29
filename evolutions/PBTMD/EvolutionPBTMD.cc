@@ -70,7 +70,7 @@ double funcstart_(int *ipdf, double *x) {
     {-6,-6}, {-5,-5}, {-4,-4}, {-3,-3}, {-2,-2}, {-1,-1}, {1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6},
     {0,21},{7,22}, {8,23}, {9,24}, {10,-24}, {11,25}
   };  
-  // std::cout << " in PBTMD in funcSTART " << *ipdf << " " << *x << std::endl;
+  //std::cout << " in PBTMD in funcSTART " << *ipdf << " " << *x << std::endl;
   //std::cout << " in PBTMD in funcSTART " << gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)]<< std::endl;
   return gPdfDecomp->xfxMap(*x)[ip.at(*ipdf)];
   }
@@ -147,7 +147,7 @@ namespace xfitter {
 //        cout << " PBTMD at iteration: as = " << alS << " " << MZ << endl;
       QCDNUM::setalf( alS, MZ * MZ );
 
-      QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
+//      QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
 
   }
 
@@ -166,7 +166,7 @@ namespace xfitter {
      double* mt   = XFITTER_PARS::getParamD("mtp");
      // cout << " in PBTMD xfxQmap: mc = " << *mc << " mb = " << *mb << endl;
      
-     //std::cout<< " in PBTMD xfxQmap " << x << " " << q2 << std::endl;
+     // std::cout<< " in PBTMD xfxQmap " << x << " " << q2 << std::endl;
      int npdfMax = 11 ;
 //     int npdfMax = 9 ;
      
@@ -185,7 +185,7 @@ namespace xfitter {
      //stringToFortran(file, 132, name);
      // std::cout << " file = "<< file << " length " << length<< std::endl;
      
-   // if (  x != xSav || q2 != Q2Sav) {  
+   if (  x != xSav || q2 != Q2Sav) {  
         for (int ipdf = -6; ipdf <= npdfMax; ipdf++){
             int ii = (ipdf == 0) ? 21 : ipdf;
             // photon PDF:
@@ -200,7 +200,7 @@ namespace xfitter {
         }
         xSav = x; Q2Sav = q2;        
 //        cout << " xfxQmap [22,23} = " << res[22] << " " << res[23] << endl;
-    // }
+     }
     
   return res;
   }

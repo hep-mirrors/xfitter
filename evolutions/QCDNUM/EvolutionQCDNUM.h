@@ -34,7 +34,8 @@ namespace xfitter
     virtual std::vector<double> getQgrid() override final;
 
     /// Helper to get PDF type
-    const int getPdfType() const {return _itype;}
+    const int getPdfType() const {
+    return _itype;}
 
   private:
     /// PDFs called outside boundaries check:

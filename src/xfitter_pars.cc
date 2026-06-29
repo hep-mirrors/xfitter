@@ -103,7 +103,7 @@ void* createDynamicObject(const string& moduleType, const string& className,cons
     libpath = module_prefix + "lib" + moduleType + className + ".dylib";
 
   //load the library
-  void* shared_library = dlopen(libpath.c_str(), RTLD_NOW);
+  void* shared_library = dlopen(libpath.c_str(), RTLD_NOW );
   //by the way, do we ever call dlclose? I don't think so... Maybe we should call it eventually. --Ivan Novikov
 
   //error if failed to load library

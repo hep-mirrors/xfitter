@@ -145,9 +145,9 @@ c      write(6,*) ' PBTMBsubr icall = ',  ipdf,xf(ipdf)
       Integer IudGridfile /0/
       character testfiles*132
       
-      Logical test
-c      data test /.true./
-      data test /.false./
+      Logical StartOnly
+c      data StartOnly /.true./
+      data StartOnly /.false./
       
       Logical first,ex
       data first/.true./
@@ -171,11 +171,11 @@ c      idebug =1
       eps_set = 0.0001 ! default
 c      eps_set = 0.00001 
 c      eps_set = 0.000001 
-c	eps_set = 0.001 
+c	eps_set = 0.01 ! not good
 
 c      Write (6,*) ' in TMDconv ',x,sqrt(q2)
         nseg = 10 ! needed for released grids 
-c        nseg = 30  ! Sara
+cc        nseg = 30  ! Sara
         xx = x
         q2x = q2
         xxkt = xkt
@@ -187,10 +187,10 @@ c           mygridfiles=trim(trim(outdir)//'/tmd-grid-gluon_int.dat'//char(0))
         endif 
         if(idebug.eq.1) write(6,*) ' idebug: TMDconv mygridfiles = ',mygridfiles_d, ' q2x = ',q2x
 
-      if(q2x.le.2.0.or.test) then
-        do ipart=-5,5
+      if(q2x.le.2.0.or.StartOnly) then
+c        do ipart=-6,6
           call TMDstart(xx,q2x,xTMD)
-        end do
+c        end do
       else
 c         write(6,*) ' TMDconv: beginn  x,q2,xTMD ',x,sqrt(q2),xTMD(0),xTMD(7),xTMD(0)-xTMD(7)
         
@@ -323,196 +323,7 @@ c      endif
      
       return
       end
-      Function iTMDq(xt)
-      Implicit None
-      Double Precision iTMDq
-      Double Precision xt
-      double precision xr,pr,xpqr(-6:11),xpqru(-6:11)
-      double precision xpqrtest(-6:11)
-      double precision xpqrdbar(-6:11),xpqrubar(-6:11)
-      Double Precision x0,xmin,xmax,wt,test
-      Double Precision xstart,qstart,xpq0(-6:11)
-      Integer iparton
-      Double precision x,q2,xkt
-      Common /myvalues/x,q2,xkt,iparton
-c      Double Precision func22
-c      External func22
-c      Logical First_dum,Fccfm1,Fccfm2
-c      Common/ myfirst/First_dum,Fccfm1,Fccfm2
-
-      character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
-      
-      Logical first/.true./
-      
-      Double Precision Kaa,Kab,Kac,Kad,Kae,Kaf,Kaabar,Kabbar,Kacbar,Kadbar,Kaebar,Kafbar
-      Double Precision Kaa_u,Kab_u,Kac_u,Kad_u,Kae_u,Kaf_u,Kaabar_u,Kabbar_u,Kacbar_u,Kadbar_u,Kaebar_u,Kafbar_u
-      Integer i
-c      write(6,*) ' iTMD pdf-composition ',PDF_DECOMPOSITION
-      pr = sqrt(q2)
-      xmin=x
-c	xmax=0.99999
-      xmax=0.9999999999
-c    generate x0 with 1/x
-      wt = log(xmax/xmin)
-      x0= xmin*(xmax/xmin)**xt
-
-      test = 0.
-      xr = x/x0
-      if(xkt.lt.0) then  
-c        write(6,*) ' iTMDq: ',First_dum,Fccfm1,Fccfm2
-c        write(6,*) ' before iTMDgridq ',xr,pr
-c        write(6,*) ' before iTMDgridq ', mygridfiles 
-c        call iTMDgridq(xr,pr,xpqr)
-        if(mygridfiles_u.ne.' ') then
-c          write(6,*) ' we have u- and d- type quark grid files', mygridfiles, mygridfiles_u
-c          mygridfiles_u=mygridfiles
-          call iTMDgridq_d(xr,pr,xpqr)
-          call iTMDgridq_u(xr,pr,xpqru)
-          if(mygridfiles_ubar.ne.' ') then
-            call iTMDgridq_dbar(xr,pr,xpqrdbar)
-            call iTMDgridq_ubar(xr,pr,xpqrubar)
-          else
-            do i=-6,11
-              xpqrdbar(-i) = xpqr(i)
-              xpqrubar(-i) = xpqru(i)
-            end do
-          endif 
-        else
-          call iTMDgridq(xr,pr,xpqrtest)
-          do i=-6,11
-c              xpqr(i) = xpqrtest(i)
-              xpqr(i) = 0
-              xpqru(i)= 0
-              xpqrdbar(i) = 0
-              xpqrubar(i) = 0
-          end do
-          
-          xpqr(0) = xpqrtest(0)
-          
-          xpqr(1)=xpqrtest(-3)
-          xpqr(2)=(xpqrtest(-2)+xpqrtest(-1))/2.
-          xpqr(3)=(xpqrtest(-2)+xpqrtest(-1))/2.
-          xpqr(-1)=xpqrtest(3)
-          xpqr(-2)=(xpqrtest(2)+xpqrtest(1))/2.
-          xpqr(-3)=(xpqrtest(2)+xpqrtest(1))/2.
-          xpqr(4)=xpqrtest(-4)
-          xpqr(5)=xpqrtest(-5)
-          xpqr(-4)=xpqrtest(4)
-          xpqr(-5)=xpqrtest(5)
-
-          xpqru(1) = (xpqrtest(-2)+xpqrtest(-1))/2.
-          xpqru(2) = xpqrtest(-3)
-          xpqru(3) = (xpqrtest(-2)+xpqrtest(-1))/2. ! test
-          xpqru(-1) = (xpqrtest(2)+xpqrtest(1))/2.
-          xpqru(-2) = xpqrtest(3)
-          xpqru(-3) = (xpqrtest(2)+xpqrtest(1))/2. ! test
-          xpqru(4) = xpqrtest(-4)
-          xpqru(5) = xpqrtest(-5)
-          xpqru(-4) = xpqrtest(4)
-          xpqru(-5) = xpqrtest(5)
-          
-          xpqrdbar(1) = xpqrtest(3)
-          xpqrdbar(-1) = xpqrtest(-3)
-          xpqrdbar(2) = (xpqrtest(2)+xpqrtest(1))/2.
-          xpqrdbar(-2) = (xpqrtest(-2)+xpqrtest(-1))/2.
-          xpqrdbar(3) = (xpqrtest(2)+xpqrtest(1))/2.
-          xpqrdbar(-3) = (xpqrtest(-2)+xpqrtest(-1))/2.
-          xpqrdbar(4) = xpqrtest(4)
-          xpqrdbar(5) = xpqrtest(5)
-          xpqrdbar(-4) = xpqrtest(-4)
-          xpqrdbar(-5) = xpqrtest(-5)
-
-
-          xpqrubar(1) = (xpqrtest(2)+xpqrtest(1))/2. 
-          xpqrubar(2) = xpqrtest(3)
-          xpqrubar(3) = (xpqrtest(2)+xpqrtest(1))/2. 
-          xpqrubar(-1) = (xpqrtest(-2)+xpqrtest(-1))/2.
-          xpqrubar(-2) = xpqrtest(-3)
-          xpqrubar(-3) = (xpqrtest(-2)+xpqrtest(-1))/2.
-          xpqrubar(4) = xpqrtest(4)
-          xpqrubar(5) = xpqrtest(5)
-          xpqrubar(-4) = xpqrtest(-4)
-          xpqrubar(-5) = xpqrtest(-5)
-          
-        endif
-c        write(6,*) ' after iTMDgridq ',xr,pr,xpqr(0)
-        else
-c        call TMDgridq(xr,xkt,pr,xpqr)
-        if(mygridfiles_u.ne.' ') then
-c          write(6,*) ' we have u- and d- type quark TMD grid files' 
-          call TMDgridq(xr,xkt,pr,xpqr)
-          call TMDgridq_u(xr,xkt,pr,xpqru)
-          do i=-6,11
-            xpqrdbar(-i) = xpqr(i)
-            xpqrubar(-i) = xpqru(i)
-          end do
-        endif
-      endif
-
-      xstart=x0 
-      call TMDstart(xstart,qstart,xpq0)
-
-C electroweak: W+ (iparton=9 ):  -1, -3, -5, 2, 4, 6     -> u, c, t          u-quark
-C electroweak: W+ (iparton=9 ):  -1, -3, -5, 2, 4, 6     -> dbar, sbar, bbar u-quark
-C electroweak: W- (iparton=10):  -2, -4, -6, 1, 3, 5     -> d, s, b          d-quark
-C electroweak: W- (iparton=10):  -2, -4, -6, 1, 3, 5     -> ubar, cbar, tbar ubar-quark
-
-      if(iabs(iparton).le.11) then
-         if(iparton.eq.0) then 
-            test = xpqr(0)*(xpq0(1)+xpq0(2)+xpq0(3)+xpq0(-1)+xpq0(-2)+xpq0(-3))/x0
-         elseif(iparton.eq.1) then 
-            test = (xpqr(1)*xpq0(1) + xpqru(1)*xpq0(2)+ xpqr(3)*xpq0(3)
-     +            + xpqrdbar(1)*xpq0(-1)+ xpqrubar(1)*xpq0(-2) + xpqrdbar(3)*xpq0(-3))/x0
-         elseif(iparton.eq.-1) then 
-            test = (xpqr(-1)*xpq0(1) + xpqru(-1)*xpq0(2)+ xpqr(-3)*xpq0(3)
-     +            + xpqrdbar(-1)*xpq0(-1)+ xpqrubar(-1)*xpq0(-2) + xpqrdbar(-3)*xpq0(-3))/x0
-         elseif(iparton.eq.2) then 
-            test = (xpqr(2)*xpq0(1) + xpqru(2)*xpq0(2)+ xpqr(3)*xpq0(3)
-     +            + xpqrdbar(2)*xpq0(-1)+ xpqrubar(2)*xpq0(-2) + xpqrdbar(3)*xpq0(-3))/x0
-         elseif(iparton.eq.-2) then 
-            test = (xpqr(-2)*xpq0(1) + xpqru(-2)*xpq0(2)+ xpqr(-3)*xpq0(3)
-     +            + xpqrdbar(-2)*xpq0(-1)+ xpqrubar(-2)*xpq0(-2) + xpqrdbar(-3)*xpq0(-3))/x0
-         elseif(iparton.eq.3) then 
-            test = (xpqr(3)*xpq0(1) + xpqru(3)*xpq0(2)+ xpqr(1)*xpq0(3)
-     +            + xpqrdbar(3)*xpq0(-1)+ xpqrubar(3)*xpq0(-2) + xpqrdbar(1)*xpq0(-3))/x0
-cc            test = (xpqr(3)*xpq0(1) + xpqru(1)*xpq0(2)+ xpqr(1)*xpq0(3)
-cc     +            + xpqrdbar(3)*xpq0(-1)+ xpqrubar(1)*xpq0(-2) + xpqrdbar(1)*xpq0(-3))/x0
-c            test = ((xpqr(-3)+xpqr(-2))/2.*xpq0(1) + (xpqr(-3)+xpqr(-2))/2.*xpq0(2)+ xpqr(1)*xpq0(3)
-c     +            + (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-1)+ (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-2) + xpqrdbar(1)*xpq0(-3))/x0
-         elseif(iparton.eq.-3) then 
-            test = (xpqr(-3)*xpq0(1) + xpqru(-3)*xpq0(2)+ xpqr(-1)*xpq0(3)
-     +            + xpqrdbar(-3)*xpq0(-1)+ xpqrubar(-3)*xpq0(-2) + xpqrdbar(-1)*xpq0(-3))/x0
-cc           test = (xpqr(-3)*xpq0(1) + xpqru(-1)*xpq0(2)+ xpqr(-1)*xpq0(3)
-cc     +            + xpqrdbar(-3)*xpq0(-1)+ xpqrubar(-1)*xpq0(-2) + xpqrdbar(-1)*xpq0(-3))/x0
-c            test = ((xpqr(-3)+xpqr(-2))/2.*xpq0(1) + (xpqr(-3)+xpqr(-2))/2.*xpq0(2)+ xpqr(-1)*xpq0(3)
-c     +            + (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-1)+ (xpqrdbar(-3)+xpqrdbar(-2))/2.*xpq0(-2) + xpqrdbar(-1)*xpq0(-3))/x0
-         elseif(iabs(iparton).ge.4.and.iabs(iparton).le.6) then 
-            test = (xpqr(iparton)*xpq0(1) + xpqru(iparton)*xpq0(2)+ xpqr(iparton)*xpq0(3)
-     +            + xpqrdbar(iparton)*xpq0(-1)+ xpqrubar(iparton)*xpq0(-2) + xpqrdbar(iparton)*xpq0(-3))/x0
-         elseif(iparton.ge.7.and.iparton.le.8) then
-            test = (xpqr(iparton)*(xpq0(1)+xpq0(3)) + xpqru(iparton)*(xpq0(2)+xpq0(4)) 
-     +            + xpqrdbar(iparton)*(xpq0(-1)+xpq0(-3)) + xpqrubar(iparton)*(xpq0(-2)+xpq0(-4)) )/x0   ! gamma, Z0
-         elseif(iparton.eq.9) then  
-            test = (xpqru(iparton)*xpq0(2)+xpqrdbar(iparton)*xpq0(-1)+xpqrdbar(iparton)*xpq0(-3))/x0 ! Wplus
-         elseif(iparton.eq.10) then 
-            test = (xpqr(iparton)*xpq0(1)+xpqr(iparton)*xpq0(3)+xpqrubar(iparton)*xpq0(-2))/x0 ! Wminus         
-         elseif(iparton.eq.11) then
-            test = xpqr(iparton)*(xpq0(1)+xpq0(3)+xpq0(-1)+xpq0(-3))/x0 +
-     +          xpqru(iparton)*(xpq0(2)+xpq0(-2))/x0 
-         else
-            write(6,*) ' iTMDq; wrong iparton ', iparton 
-         endif
-       endif
-234    continue       
-c      write(6,*) ' iTMD ',iparton,iker,x,q2,xr,pr**2,xpqr(iker),x0
-       iTMDq = test * wt * x0
-c      if(iabs(iparton).ge.8.and.xpqr(8).ne.0 ) then 
-c         write(6,*) ' iTMDq ',xpqr(iparton),xpq0(1),x0
-c      endif 
-      return
-      end
-
+#include "iTMDq.f-new"
 
       subroutine TMDstart(xstart,Qstart,xpq0)
       Implicit none
@@ -550,7 +361,14 @@ c new convention
       xpq0(2)=funcSTART(2,x0)
       xpq0(-3)=funcSTART(-3,x0)
       xpq0(3)=funcSTART(3,x0)
+      xpq0(-4)=funcSTART(-4,x0)
+      xpq0(4)=funcSTART(4,x0)
+      xpq0(-5)=funcSTART(-5,x0)
+      xpq0(5)=funcSTART(5,x0)
+      xpq0(-6)=funcSTART(-6,x0)
+      xpq0(6)=funcSTART(6,x0)
       
+c      write(6,*) ' TMDstart ', (xpq0(i),i=-6,6) 
       
       Do i=-6,7
 c      write(6,*) ' starting distribution ',i,xpq0(i),pdf(i)

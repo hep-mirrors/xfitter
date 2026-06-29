@@ -32,6 +32,7 @@ double Pion_FF_PdfParam::operator()(double x)const{
   const double d=*pars[3];
   const double e=*pars[2] + *pars[4]+1;
   double norm = *pars[0]/(exp(lgamma(b)+lgamma(c)-lgamma(b+c)) + d*exp(lgamma(b)+lgamma(e)-lgamma(b+e)));
+  // double norm = *pars[0];
 
   double power= x*pow(x,(*pars[1]))*pow((1-x),(*pars[2]));
   double poly = 1;

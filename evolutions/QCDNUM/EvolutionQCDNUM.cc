@@ -106,7 +106,7 @@ namespace xfitter {
     }
 
     // Evolution order:
-    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) ;
+    int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) ;
 
     const double* Q0         = XFITTER_PARS::getParamD("Q0");
     double q20 = (*Q0) * (*Q0);
@@ -123,6 +123,16 @@ namespace xfitter {
     _icheck      = yQCDNUM["ICheck"].as<int>();
     _splineOrder = yQCDNUM["SplineOrder"].as<int>();
     _readTables  = yQCDNUM["Read_QCDNUM_Tables"].as<int>();
+    _itype       = yQCDNUM["Itype"].as<int>();
+    
+    if (_itype == 3 ) {
+      PtOrder    = min(2,PtOrder) ; 
+      std::cout << " QCDnum swichted to NLO for evolution of FF " << std::endl;
+    } 
+    PtOrder    = 2  ; 
+      std::cout << " QCDnum swichted order = " << PtOrder <<  std::endl;
+    
+    std::cout << " QCDnum init: itype " << _itype << std::endl;
 
     // Get grids
     vector<double> xGrid   = getSeq<double>(yQCDNUM["xGrid"]);
@@ -212,12 +222,13 @@ namespace xfitter {
     // Init SF
     int id1=0;      int id2=0;      int nw=0;      int ierr=1;
     if (_readTables>0 ) {
-      QCDNUM::readwt(22,"unpolarised.wgt",id1,id2,nw,ierr);
+      QCDNUM::readwt(22,"QCDnumWeightTable.wgt",id1,id2,nw,ierr);
     }
     // Fill the tables if did not read correctly
     if (ierr != 0) {
-      QCDNUM::fillwt(0,id1,id2,nw);
-      QCDNUM::dmpwgt(1,22,"unpolarised.wgt");
+      if(_itype == 0) QCDNUM::fillwt(0,id1,id2,nw);
+      if(_itype > 0) QCDNUM::fillwt(_itype,id1,id2,nw);
+      QCDNUM::dmpwgt(_itype,22,"QCDnumWeightTable.wgt");
     }
 
     //Special case for QCDNUM, allow for external PDFs
@@ -235,6 +246,7 @@ namespace xfitter {
   void EvolutionQCDNUM::atConfigurationChange(){}
 
   void EvolutionQCDNUM::atIteration(){
+    std::cout << " QCDNum iteration itype = " << _itype << std::endl;
     if (_itype <5 ) {
       const double* q0 = XFITTER_PARS::getParamD("Q0");
       int iq0  = QCDNUM::iqfrmq( (*q0) * (*q0) );
@@ -250,7 +262,7 @@ namespace xfitter {
 
       const double MZ = *Mz;
       QCDNUM::setalf( alS, MZ * MZ );
-
+      std::cout << " QCDnum: iq0 = "<<iq0 << " q0 = " << *q0 << std::endl;
       QCDNUM::evolfg(_itype,funcPDF,qcdnumDef,iq0,epsi);
     }
   }
@@ -258,12 +270,14 @@ namespace xfitter {
   void EvolutionQCDNUM::afterIteration(){
     if (_itype != 5) return;
     // External evolution
+    // std::cout << " QCDNum after iteration itype = " << _itype << std::endl;
     double epsi = 0;
     QCDNUM::extpdf(funcPDFext,_itype,_nExt,0.001,epsi);
   }
 
   std::map<int,double>EvolutionQCDNUM::xfxQmap(double x,double Q){
     std::map<int, double> res;
+    // std::cout << " QCDNum evolution itype = " << _itype << std::endl;
     for (int ipdf =-6; ipdf<7; ipdf++) {
       int ii = ( ipdf == 0 ) ? 21 : ipdf ;
       res[ii] = QCDNUM::fvalxq(_itype,ipdf,x,Q*Q,_icheck);
@@ -272,10 +286,12 @@ namespace xfitter {
   }
 
   void EvolutionQCDNUM::xfxQarray(double x,double Q,double*pdfs){
+    // std::cout << " QCDNum xfxQarray itype = " << _itype << std::endl;
     QCDNUM::allfxq(_itype,x,Q*Q,pdfs,_nExt,_icheck);
   }
 
   double EvolutionQCDNUM::xfxQ(int i,double x,double Q){
+    // std::cout << " QCDNum xfxQitype = " << _itype << std::endl;
     return QCDNUM::fvalxq(_itype,i,x,Q*Q,_icheck);
   }
 
