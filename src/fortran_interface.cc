@@ -11,10 +11,22 @@
 using namespace std;
 //PDFs
 extern "C" void hf_get_pdfsq_(double const&x,double const&Q,double*pdfs){
-  xfitter::defaultEvolutionInstance()->xfxQarray(x,Q,pdfs);//returns through *pdfs
+  auto evol = xfitter::defaultEvolutionInstance();//returns through *pdfs
+  if (evol) {
+    evol->xfxQarray(x,sqrt(Q),pdfs);//returns through *pdfs
+  }
+  else {
+    std::fill_n(pdfs, 13, 0.0);
+  }
 }
 extern "C" void hf_get_pdfs_(double const&x,double const&Q2,double*pdfs){
-  xfitter::defaultEvolutionInstance()->xfxQarray(x,sqrt(Q2),pdfs);//returns through *pdfs
+  auto evol = xfitter::defaultEvolutionInstance();
+  if (evol) {
+    evol->xfxQarray(x,sqrt(Q2),pdfs);//returns through *pdfs
+  }
+  else {
+    std::fill_n(pdfs, 13, 0.0);
+  }
 }
 //alpha_s
 extern "C" double hf_get_alphasq_(double const&Q){

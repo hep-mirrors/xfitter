@@ -43,8 +43,9 @@ BaseEvolution*get_evolution(string name){
   try{
     return XFITTER_PARS::gEvolutions.at(name);
   }catch(const std::out_of_range&){
-    cerr<<"[ERROR] Evolution \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
-    throw;
+    //cerr<<"[ERROR] Evolution \""<<name<<"\" does not exist; rethrowing out_of_range"<<endl;
+    //throw;
+    return nullptr;
   }
 }
 
