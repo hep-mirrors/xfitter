@@ -28,7 +28,7 @@ public:
   ~ReactionBaseFFABM();
   virtual void initTerm(TermData *td) override;
   virtual void atIteration() override;
-  virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors) { return BaseDIS::compute(td, val, errors); };
+  //virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors) { return BaseDIS::compute(td, val, errors); };
 
 protected:
   map<int, valarray<double>> _f2abm;

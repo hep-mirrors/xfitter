@@ -80,8 +80,7 @@ public:
 public:
   virtual string getReactionName() const override { return "BaseDISCC"; };
   virtual void initTerm(TermData *) override;
-  //virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
-  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override;
+  virtual void compute(TermData *, valarray<double> &val, map<string, valarray<double>> &errors) override final;
 
 protected:
    enum class dataFlav
@@ -116,8 +115,6 @@ protected:
   // is the map with pointers IntegrateDIS* outdated (seems to be in ReactionData)? --SZ
   //map<unsigned, IntegrateDIS *> _integrated;
   virtual const valarray<double> *GetBinValues(TermData *td, const string &binName); //! interface for integerated sigma
-  //const dataType GetDataType(unsigned termID) { return _dataType[termID]; }
-   //const dataFlav GetDataFlav(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_dataFlav; }
    const BaseDISCC::dataFlav GetDataFlav(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_dataFlav; }
    const bool IsBeamNu(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_isBeamNu; }
    const double GetPolarisation(unsigned termID) { return ((BaseDISCC::ReactionData*) _tdDS[termID]->reactionData)->_polarisation; }

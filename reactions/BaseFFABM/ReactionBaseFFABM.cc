@@ -24,7 +24,6 @@ ReactionBaseFFABM<BaseDIS, Proc>::~ReactionBaseFFABM() {
 
 template <class BaseDIS, abm::SFproc Proc>
 void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
-  //printf("ReactionBaseFFABM::initTerm()\n");
   BaseDIS::initTerm(td);
   unsigned termID = td->id;
 
@@ -267,7 +266,6 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
 
 template <class BaseDIS, abm::SFproc Proc>
 void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
-  printf("ReactionBaseFFABM::atIteration()\n");
   BaseDIS::atIteration();
   abm::set_hq_masses(*_mcPtr, *_mbPtr);
   if(Proc == abm::SFproc::cc) {

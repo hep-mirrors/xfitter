@@ -461,17 +461,15 @@ void ReactionBaseDISNC::sred BASE_PARS
 
   valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
   valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
-  //val = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
   // take into account proton mass
   auto *xp = GetBinValues(td, "x");
   auto x = *xp;
   auto *q2p = GetBinValues(td, "Q2");
   auto q2 = *q2p;
-  double mp = (*td->getParamD("mpr"));
+  double mp = td->hasParam("mpr") ? *td->getParamD("mpr") : 0.0;
   double mp2 = mp*mp;
-  // lepton mass is neglected
-  //double rmu2 = 0.105658*0.105658;
-  //double rmu2 = 0;
+  //val = f2 - y * y / yplus * fl + (yminus / yplus) * xf3;
+  // lepton mass squared (rmu2) is neglected
   //val = ((1-y-x*y*mp*mp/(q2/x/y))*f2+(y*y/2)*(1-2*rmu2/q2)*(f2-fl))/(1-y+y*y/2) + (yminus / yplus) * xf3;
   val = ((1.0-y-x*y*mp2/(q2/x/y))*f2+(y*y/2)*(f2-fl))/(1.0-y+y*y/2) + (yminus / yplus) * xf3;
 }

@@ -137,7 +137,6 @@ valarray<double> ReactionBaseDISCC::xF3(TermData *td) { return GetF(td, 3); }
 // Main function to compute results at an iteration
 void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map<string, valarray<double>> &errExternal)
 {
-  //printf("ReactionBaseDISCC::compute()\n");
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
   const double MW = *rd->Mw;
 
@@ -155,57 +154,16 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   {
   case BaseDISCC::dataType::signonred:
   {
-    //val = f2;break;
     // Basic formulae for CC cross section:
     const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
     valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
     valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
-    //if (charge > 0)
-    //  val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
-    //else
-    //  val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
     val = 0.5 * (1 + charge*polarity) * (yplus * f2 - charge * yminus * xf3 - y * y * fl);
     // extra factor for non-reduced cross section
     auto &x = *BaseDISCC::GetBinValues(td, "x"),
         &q2 = *BaseDISCC::GetBinValues(td, "Q2");
     const double pi = 3.1415926535897932384626433832795029;
     valarray<double> factor = (MW * MW * MW * MW / pow((q2 + MW * MW), 2)) * _Gf * _Gf / (2 * pi * x) * _convfac;
-    //factor = 1.;
-    val *= factor;
-    break;
-    //
-    //s = 2*mpr*e + mpr*mpr;
-    //factor = q2 / x / y / e;
-    factor = 1.;
-    double mp = 0.93827208816;
-    double mn = 0.93956542052;
-    double mnucl = (mp+mn)/2.;
-    //mnucl = mp;
-    auto e = q2 / (2*mnucl*x*y);
-    //auto e = (q2 / (x*y) - mnucl*mnucl) / (2*mnucl);
-    auto ft = f2-fl;
-    //printf("SZ charge = %f\n", charge);
-    //val = (1-charge*polarity)*_convfac*_Gf*_Gf*mnucl*e/(pi*pow((1+q2/(MW*MW)), 2.)) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft+charge*y*(1-y/2.)*xf3);
-    //val = _convfac*_Gf*_Gf*mnucl*e/(pi*pow((1+q2/(MW*MW)), 2.)) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft-charge*y*(1-y/2.)*xf3);
-    //val = _convfac*_Gf*_Gf*mnucl*e/(pi*pow((1+q2/(MW*MW)), 2.)) * ((1-y)*f2+y*y/2.*ft+charge*y*(1-y/2.)*xf3);
-    //val = _convfac*_Gf*_Gf*mnucl*e/(pi) * ((1-y)*f2+y*y/2.*ft+charge*y*(1-y/2.)*xf3);
-    //val *= y/q2;
-    //val *= 1e9;
-    //val *= 1e1;
-    auto f1 = (f2-fl)/(2*x);
-    double mmu = 0.10566;
-    auto cf1 = y*y*x+mmu*mmu*y/(2*e*mnucl);
-    auto cf2 = (1-mmu*mmu/(4*e*e))-(1+mnucl*x/(2*e))*y;
-    auto cf3 = y*(1-y/2.)-mmu*mmu*y/(4*e*mnucl);
-    //val = (1+charge*polarity) * (cf1*f1+cf2*f2-charge*cf3*xf3);
-    //val = (1+charge*polarity) * ((1-y-mnucl*x*y/(2*e))*f2+y*y/2.*ft-charge*y*(1-y/2.)*xf3);
-    val = (1+charge*polarity) * ((1-y)*f2+y*y/2.*ft-charge*y*(1-y/2.)*xf3);
-    //
-    auto factor_best = _convfac*_Gf*_Gf*mnucl*e/(100*pi*pow((1+q2/(MW*MW)), 2.));
-    auto factor_exp = _convfac*_Gf*_Gf*mnucl*e/(100*pi);
-    //val *= factor_best / factor_exp;
-    //val *= (q2 / (2*mnucl*x*y)) / ((q2 / (x*y) - mnucl*mnucl) / (2*mnucl));
-    //
     val *= factor;
     break;
   }
@@ -214,11 +172,6 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
     const valarray<double> &y = *BaseDISCC::GetBinValues(td, "y");
     valarray<double> yplus = 1.0 + (1.0 - y) * (1.0 - y);
     valarray<double> yminus = 1.0 - (1.0 - y) * (1.0 - y);
-    //polarity *= -1;
-    //if (charge > 0)
-    //  val = 0.5 * (1 + polarity) * (yplus * f2 - yminus * xf3 - y * y * fl);
-    //else
-    //  val = 0.5 * (1 - polarity) * (yplus * f2 + yminus * xf3 - y * y * fl);
     val = 0.5 * (1 + charge*polarity) * (yplus * f2 - charge * yminus * xf3 - y * y * fl);
     break;
   }
@@ -243,6 +196,7 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   if (iDIS)
   {
     // integrated cross sections
+    // TODO restore integrated cross sections
     //valExternal = iDIS->compute(val);
     valExternal = val;
   }
@@ -254,7 +208,6 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
 }
 void ReactionBaseDISCC::initTerm(TermData *td)
 {
-  //printf("ReactionBaseDISCC::initTerm()\n");
   ReactionTheory::initTerm(td);
   unsigned termID = td->id;
   _dsIDs.push_back(termID);
@@ -297,8 +250,6 @@ void ReactionBaseDISCC::initTerm(TermData *td)
     // in reverse (anti)neutrino scattering, this is the charge of W+- which is oppositite to the lepton charge (echarge)
     rd->_charge *= -1;
   }
-  //rd->_charge = -1;
-  //rd->_polarisation = +1;
 
   // Store QCDNUM evolution
   rd->ipdfSet = static_cast<xfitter::EvolutionQCDNUM*> (td->getPDF())->getPdfType();
@@ -387,7 +338,6 @@ void ReactionBaseDISCC::initTerm(TermData *td)
 
 const valarray<double> *ReactionBaseDISCC::GetBinValues(TermData *td, const string &binName)
 {
-  //unsigned termID = td->id;
   BaseDISCC::ReactionData *rd = (BaseDISCC::ReactionData *)td->reactionData;
 
   if (!rd->_integrated)
