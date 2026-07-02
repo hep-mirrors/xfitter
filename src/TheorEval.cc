@@ -566,7 +566,7 @@ void TheorEval::Evaluate(valarray<double> &vte )
     {
       // concatenate the terms
       int narg = it->narg;
-      printf("SZ concat narg = %d\n", narg);
+      //printf("SZ concat narg = %d\n", narg);
       std::valarray<double> result;
       for (int i = 0; i < narg; i++) 
       {

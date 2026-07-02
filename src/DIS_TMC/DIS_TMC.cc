@@ -8,21 +8,6 @@
 #include <cmath>
 #include <gsl/gsl_integration.h>
 
-extern "C" {
-  void sf_abkm_wrap_(const double& x, const double& q2,
-                     const double& f2abkm, const double& flabkm, const double& f3abkm,
-                     const double& f2cabkm, const double& flcabkm, const double& f3cabkm,
-                     const double& f2babkm, const double& flbabkm, const double& f3babkm,
-                     const int& ncflag, const double& charge, const double& polar,
-                     const double& sin2thw, const double& cos2thw, const double& MZ, const int& nt=1);
-  void sf_abkm_wrap_order_(const double &x, const double &q2,
-                     const double &f2abkm, const double &flabkm, const double &f3abkm,
-                     const double &f2cabkm, const double &flcabkm, const double &f3cabkm,
-                     const double &f2babkm, const double &flbabkm, const double &f3babkm,
-                     const int &ncflag, const double &charge, const double &polar,
-                     const double &sin2thw, const double &cos2thw, const double &MZ, const int& kordpdfin, const int& nt=1);
-}
-
 struct integration_params {
   abm::SFproc sfproc;
   abm::SFtype sftype;
