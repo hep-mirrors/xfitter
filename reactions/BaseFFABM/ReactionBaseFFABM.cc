@@ -146,9 +146,9 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   };
     Binning datapoint_binning = find_binning();
   const int scalesemilepbr = td->getParamI("scalesemilepbr");
-  const double* br0 = td->getParamD("br_cmu_0");
-  const double* br1 = td->getParamD("br_cmu_1");
-  const double mnucl = *td->getParamD("mpr");
+  const double* br0 = td->hasParam("br_cmu_0") ? td->getParamD("br_cmu_0") : nullptr;
+  const double* br1 = td->hasParam("br_cmu_1") ? td->getParamD("br_cmu_1") : nullptr;
+  const double mnucl = td->hasParam("mpr") ? *td->getParamD("mpr") : 0.0;
   const double mw = *td->getParamD("Mw");
   //const double mnucl = (*td->getParamD("mpr") + *td->getParamD("mnt"))/2.;
   const auto& integrator_str = td->getParamS("integrator");
@@ -248,7 +248,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
     point.flav = dataFlav(BaseDIS::GetDataFlav(td->id));
     point.ord = order;
     point.ordHQ = orderHQ;
-    point.ordFL = order;
+    point.ordFL = ordfl;
     point.msbarmin = msbarmin;
     point.charge = BaseDIS::GetCharge(td->id);
     point.polar = BaseDIS::GetPolarisation(td->id);
@@ -415,15 +415,15 @@ int ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::integrand(const int* ndim, cons
   pars.point->q2 = q2;
   pars.point->x = x;
   pars.point->calc_at_q2x();
-  double yplus = 1.0 + (1.0 - y) * (1.0 - y);
-  if (1) {
-    yplus -= 2.0 * std::pow(pars.point->mnucl * x * y, 2.0) / q2;
-  }
+  double yplus = 1.0 + (1.0 - y) * (1.0 - y) - 2.0 * std::pow(pars.point->mnucl * x * y, 2.0) / q2;
   double yminus = 1.0 - (1.0 - y) * (1.0 - y);
   auto charge_mod = pars.point->is_beam_nu ? -1 * pars.point->charge : pars.point->charge; // swap charge for nu beam, see InitTerm()
   val[0] = 0.5 * (1 + charge_mod * pars.point->polar) * (yplus * pars.point->f2 - charge_mod * yminus * pars.point->f3 - y * y * pars.point->fl);
   val[0] *= factor;
   if (pars.point->scalesemilepbr) {
+    if(!pars.point->br0 || !pars.point->br1) {
+      hf_errlog(2026070201, "F: Parameters br_cmu_0 or br_cmu_1 were not provided");
+    }
     double br = *pars.point->br0 / (1 + *pars.point->br1 / e);
     val[0] *= br;
   }

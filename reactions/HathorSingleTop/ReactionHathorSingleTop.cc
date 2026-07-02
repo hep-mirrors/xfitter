@@ -216,8 +216,7 @@ void ReactionHathorSingleTop::compute(TermData *td, valarray<double> &val, map<s
   for(const auto& it : _convolved) {
     for(const auto& p : it.second.second) {
       if(td == p) {
-        val = std::valarray<double>(1);
-        val[0] = it.second.first;
+        val = it.second.first;
         return;
       }
     }

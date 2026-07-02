@@ -24,6 +24,10 @@ void ReactionTheory::atStart(){
       _ncpu = reactionNode[parName].as<int>();
     }
   }
+  if (_ncpu == -1) {
+      _ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+      hf_errlog(2023061401,"I: Will use "+std::to_string(_ncpu)+" threads");
+  }
 }
 void ReactionTheory::atIteration(){}
 void ReactionTheory::initTerm(TermData*td){

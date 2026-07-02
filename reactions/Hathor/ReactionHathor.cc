@@ -123,7 +123,6 @@ void ReactionHathor::initTerm(TermData *td)
     _convolved[calc_name] = std::make_pair<double, std::vector<TermData*> >(0., {});
     _convolved_vector_of_keys.push_back(calc_name);
   }
-  //printf("adding calc_name = %s td = %p\n", calc_name.c_str(), td);
   _convolved[calc_name].second.push_back(td);
 }
 
@@ -133,8 +132,7 @@ void ReactionHathor::compute(TermData *td, valarray<double> &val, map<string, va
   for(const auto& it : _convolved) {
     for(const auto& p : it.second.second) {
       if(td == p) {
-        val = std::valarray<double>(1);
-        val[0] = it.second.first;
+        val = it.second.first;
         return;
       }
     }

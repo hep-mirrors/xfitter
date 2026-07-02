@@ -25,9 +25,7 @@ alphas : 0.118
 
 byReaction:
   Hathor:
+     ? !include reactions/Hathor.yaml
      MS_MASS: 1
-     muR: 1.
-     muF: 1.
-     RATIO: 0
 
 OutputDirectory: "output" #Can be omitted, default is "output"
