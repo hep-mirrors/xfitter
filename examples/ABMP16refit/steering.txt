@@ -1,0 +1,217 @@
+
+&InFiles
+     InputFileNames = 
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_920-thexp.dat'
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_820-thexp.dat'
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_575-thexp.dat'
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCep_460-thexp.dat'
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_NCem-thexp.dat'
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCep-thexp.dat'
+      'datafiles/hera/h1zeusCombined/inclusiveDis/1506.06042/HERA1+2_CCem-thexp.dat'
+      'datafiles/hera/h1zeusCombined/charmProduction/1211.1182/H1ZEUS_Charm_combined-thexp.dat'
+      'datafiles/hera/zeus/beautyProduction/1405.6915/ZEUS_Beauty_vertex-thexp.dat'
+      'datafiles/hera/h1/beautyProduction/0907.2643/H1_beauty-thexp.dat'
+      'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.100gev-thexp.dat'
+      'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.120gev-thexp.dat'
+      'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.200gev-thexp.dat'
+      'datafiles/fixedTarget/bcdms/inclusiveDis/cern-ep-89-06/BCDMS_F2p.280gev-thexp.dat'
+      'datafiles/fixedTarget/nmc/inclusiveDis/NPB_483_1997_3/nmc-90gev.dat'
+      'datafiles/fixedTarget/nmc/inclusiveDis/NPB_483_1997_3/nmc-120gev.dat'
+      'datafiles/fixedTarget/nmc/inclusiveDis/NPB_483_1997_3/nmc-200gev.dat'
+      'datafiles/fixedTarget/nmc/inclusiveDis/NPB_483_1997_3/nmc-280gev.dat'
+      'datafiles/fixedTarget/slac/inclusiveDis/SLAC-REPORT-357/slac-49a.dat'
+      'datafiles/fixedTarget/slac/inclusiveDis/SLAC-REPORT-357/slac-49b.dat'
+      'datafiles/fixedTarget/slac/inclusiveDis/SLAC-REPORT-357/slac-87.dat'
+      'datafiles/fixedTarget/slac/inclusiveDis/SLAC-REPORT-357/slac-89b.dat'
+      'datafiles/fixedTarget/nutev/0102049/nutev-nu.dat'
+      'datafiles/fixedTarget/nutev/0102049/nutev-nubar.dat'
+      'datafiles/fixedTarget/ccfr/charmProduction/PRD64_2001_112006/CCFR-charm-nu.dat'
+      'datafiles/fixedTarget/ccfr/charmProduction/PRD64_2001_112006/CCFR-charm-nubar.dat'
+      'datafiles/fixedTarget/nomad/1308.4750/nomad-e.dat'
+      'datafiles/fixedTarget/nomad/1308.4750/nomad-x.dat'
+      'datafiles/fixedTarget/nomad/1308.4750/nomad-sqrts.dat'
+      'datafiles/fixedTarget/chorus/charmProduction/1107.0613/CHORUS-charm.dat'
+      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_Wplus_SMP_14_022_fewz.dat'
+      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_Wminus_SMP_14_022_fewz.dat'
+      'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1203.4051/WP_applgrid_nnlo_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1203.4051/WM_applgrid_nnlo_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1203.4051/Z0_applgrid_nnlo_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1603.09222/Z0_el_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1603.09222/WP_el_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1603.09222/WM_el_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1603.09222/Z0_mu_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1603.09222/WP_mu_fewz.dat'
+      'datafiles/lhc/atlas/wzProduction/1603.09222/WM_mu_fewz.dat'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/WP_fewz.dat'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/WM_fewz.dat'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/Z_fewz.dat'
+      'datafiles/lhc/lhcb/wzProduction/1503.00963/Z_fewz.dat'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/WP_fewz.dat'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/WM_fewz.dat'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/Z_fewz.dat'
+      'datafiles/tevatron/d0/wzProduction/1309.2591/D0_Wmu_pt25_asymmetry_fewz.dat'
+      'datafiles/tevatron/d0/wzProduction/1412.2862/D0_Wel_pt25_asymmetry_fewz.dat'
+      'datafiles/tevatron/e866/dy/0103030/x2-hi-mass-fewz.dat'
+      'datafiles/tevatron/e866/dy/0103030/x2-mid-mass-fewz.dat'
+      'datafiles/tevatron/e866/dy/0103030/x2-low-mass-fewz.dat'
+      'datafiles/fixedTarget/E605/dy/PRD43_1991_2815/E605_fewz.dat'
+      'datafiles/tevatron/d0cdfCombined/topProduction/1309.7570/D0CDF-COMBINED-TOP-TOT-thexp-mtpole170.dat'
+      'datafiles/lhc/cms/topProduction/CMS-PAS-TOP-15-016/ttbar_5tev.dat'
+      'datafiles/lhc/cms/topProduction/1302.0508/ttbar_7tev.dat'
+      'datafiles/lhc/atlas/topProduction/ATLAS-CONF-2012-031/ttbar_7tev.dat'
+      'datafiles/lhc/cms/topProduction/1301.5755/ttbar_7tev.dat'
+      'datafiles/lhc/atlas/topProduction/1211.7205/ttbar_7tev.dat'
+      'datafiles/lhc/cms/topProduction/1203.6810/ttbar_7tev.dat'
+      'datafiles/lhc/atlas/topProduction/1506.05074/ttbar_7tev.dat'
+      'datafiles/lhc/atlas/topProduction/ATLAS-CONF-2012-131/ttbar_7tev.dat'
+      'datafiles/lhc/cms/topProduction/1602.09024/ttbar_7tev.dat'
+      'datafiles/lhc/cms/topProduction/1603.02303/ttbar_7tev.dat'
+      'datafiles/lhc/atlas/topProduction/1406.5375/ttbar_7tev.dat'
+      'datafiles/lhc/atlas/topProduction/1407.0573/ttbar_7tev.dat'
+      'datafiles/lhc/cms/topProduction/1603.02303/ttbar_8tev.dat'
+      'datafiles/lhc/cms/topProduction/1407.6643/ttbar_8tev.dat'
+      'datafiles/lhc/cms/topProduction/1602.09024/ttbar_8tev.dat'
+      'datafiles/lhc/atlas/topProduction/1504.04251/ttbar_8tev.dat'
+      'datafiles/lhc/cms/topProduction/1509.06076/ttbar_8tev.dat'
+      'datafiles/lhc/atlas/topProduction/1406.5375/ttbar_8tev.dat'
+      'datafiles/lhc/cms/topProduction/CMS-PAS-TOP-16-013/ttbar_13tev.dat'
+      'datafiles/lhc/cms/topProduction/CMS-PAS-TOP-15-005/ttbar_13tev.dat'
+      'datafiles/lhc/cms/topProduction/1510.05302/ttbar_13tev.dat'
+      'datafiles/lhc/cms/topProduction/1611.04040/ttbar_13tev.dat'
+      'datafiles/lhc/atlas/topProduction/1606.02699/ttbar_13tev.dat'
+      'datafiles/lhc/atlas/singleTopProduction/1406.7844/singletop_quark_7tev.dat'
+      'datafiles/lhc/atlas/singleTopProduction/1406.7844/singletop_antiquark_7tev.dat'
+      'datafiles/lhc/atlas/singleTopProduction/1411.7627/singletop_quark_antiquark_8tev.dat'
+      'datafiles/lhc/atlas/singleTopProduction/1609.03920/singletop_quark_13tev.dat'
+      'datafiles/lhc/atlas/singleTopProduction/1609.03920/singletop_antiquark_13tev.dat'
+      'datafiles/lhc/cms/singleTopProduction/1209.4533/singletop_quark_antiquark_7tev.dat'
+      'datafiles/lhc/cms/singleTopProduction/1403.7366/singletop_quark_8tev.dat'
+      'datafiles/lhc/cms/singleTopProduction/1403.7366/singletop_antiquark_8tev.dat'
+      'datafiles/lhc/cms/singleTopProduction/1610.00678/singletop_quark_13tev.dat'
+      'datafiles/lhc/cms/singleTopProduction/1610.00678/singletop_antiquark_13tev.dat'
+      'datafiles/tevatron/d0cdfcombined/singleTopProduction/1503.05027/singletop_quark_antiquark_1.96tev.dat'
+      'datafiles/tevatron/d0cdfcombined/singleTopProduction/1402.5126/singletop_quark_antiquark_1.96tev.dat'
+&End
+
+&InCorr
+    CorrFileNames = 
+      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_Wplus_SMP_14_022___CMS_Wplus_SMP_14_022.corr'
+      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_Wminus_SMP_14_022___CMS_Wminus_SMP_14_022.corr'
+      'datafiles/lhc/cms/wzProduction/1603.01803/CMS_Wplus_SMP_14_022___CMS_Wminus_SMP_14_022.corr'
+      'datafiles/lhc/cms/wzProduction/1312.6283/CMS_mAsymmetry_SMP_12_021___CMS_mAsymmetry_SMP_12_021.corr'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/Z__Z.corr'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/WP__WP.corr'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/WM__WM.corr'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/WP__WM.corr'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/Z__WP.corr'
+      'datafiles/lhc/lhcb/wzProduction/1505.07024/Z__WM.corr'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/WP__WP.corr'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/WM__WM.corr'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/Z__Z.corr'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/WP__WM.corr'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/Z__WP.corr'
+      'datafiles/lhc/lhcb/wzProduction/1511.08039/Z__WM.corr'
+&End
+
+&xFitter 
+ ! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ !
+ ! Chi2 definition. Following options are supported:
+ !  
+ ! -- Bias corrections for uncertainties --
+ ! 'StatScale'    :  'Poisson',  'NoRescale' ( see also 'ExtraSystRescale' below )
+ ! 'UncorSysScale':  'Poisson',  'Linear',  'NoRescale'
+ ! 'CorSysScale'  :  'Linear',   'NoRescale'
+ ! 
+ ! -- Treatment of systematics in chi2 ---
+ ! 'UncorChi2Type':  'Diagonal'  
+ ! 'CorChi2Type'  :  'Hessian', 'Matrix', 'Offset'
+ !
+ ! -- Extra corrections ---
+ !   are given as comma separated list for Chi2ExtraParam, they are off by default.
+ !  'PoissonCorr'            : extra log correction accounting for changing uncertainties 
+ !  'FirstIterationRescale' : re-scale uncertainties at the first iteration only 
+ !  'ExtraSystRescale'      : additional re-scaling of stat. uncertainty to account for syst. shifts.
+
+   CHI2SettingsName = 'StatScale', 'UncorSysScale', 'CorSysScale', 'UncorChi2Type', 'CorChi2Type'
+   !Chi2Settings     = 'Poisson'  , 'Linear',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2Settings     = 'NoRescale'  , 'NoRescale',        'Linear'     , 'Diagonal'     , 'Hessian'
+   Chi2ExtraParam = 'PoissonCorr'
+
+ ! Debug flag
+  LDEBUG     = False
+
+ ! Quadratic approximation for asymmetric uncertainties
+ ! AsymErrorsIterations = 10
+&End
+
+&Output 
+  Q2VAL = 0.8, 1.9, 5., 9., 100., 1000., 8317
+  OUTNX = 101
+  OUTXRANGE = 1E-6, 0.9999
+&End
+
+&Cuts
+  !--------------------- NC ep  --------------------------
+   ProcessName(1)     = 'NC e+-p'
+   Variable(1)        = 'Q2'
+   CutValueMin(1)     = 2.5
+   CutValueMax(1)     = 1000000.0
+   ProcessName(2)     = 'NC e+-p'
+   Variable(2)        = 'x'
+   CutValueMin(2)     = 0.000001 
+   CutValueMax(2)     = 1.0
+
+  !---------------------  CC ep  ------------------
+   ProcessName(3)     = 'CC e+-p'
+   Variable(3)        = 'Q2'
+   CutValueMin(3)     = 2.5
+   CutValueMax(3)     = 1000000.0
+   ProcessName(4)     = 'CC e+-p'
+   Variable(4)        = 'x'
+   CutValueMin(4)     = 0.000001 
+   CutValueMax(4)     = 1.0
+   
+  !--------------------- NC mup  --------------------------
+   ProcessName(5)     = 'muon p'
+   Variable(5)        = 'Q2'
+   CutValueMin(5)     = 2.498
+   CutValueMax(5)     = 1000000.0
+
+  !--------------------- CC nuDIS charm  --------------------------
+   ProcessName(6)     = 'nu p charm'
+   Variable(6)        = 'Q2'
+   CutValueMin(6)     = 1.0
+   CutValueMax(6)     = 1000000.0
+&End
+
+&MCErrors
+  ! Activate MC method for error estimation if lRand = True
+  lRAND   = False
+  
+  ! Use data (true, default) or theory (false) for the central values of the MC replica
+  lRANDDATA = True
+
+  ! MC method Seed
+  ISeedMC = 123456 
+
+  ! --- Choose what distribution for the random number generator 
+  ! STATYPE (SYS_TYPE)  =   1  gauss
+  ! STATYPE (SYS_TYPE)  =   2  uniform
+  ! STATYPE (SYS_TYPE)  =   3  lognormal
+  ! STATYPE (SYS_TYPE)  =   4  poisson (only for lRANDDATA = False !)
+  !
+  ! STATYPE = SYS_TYPE = 0 with lRANDDATA = False and lRAND   = True yeilds in substitution of data by theory (useful for sensitivity tests)
+  !
+  STATYPE =  1
+  SYSTYPE =  1
+&End
+
+&CovarToNuisance
+  ! Global switch for using nuisance param representation for covariance mat.
+  LConvertCovToNui = .true.
+
+   ! Tolerance -- zero means exact transformation
+  Tolerance = 0.0
+&End
