@@ -59,12 +59,18 @@ function tolerateDiff()
 checkFile()
 {
   printf "$diff $1 $2 ... "
+  SKIP='MINUIT RELEASE' # skip the first minout line which might differ due to the maximum number of parameters
+  f1=$(mktemp)
+  f2=$(mktemp)
+  grep -Fv "$SKIP" "$1" >"$f1"
+  grep -Fv "$SKIP" "$2" >"$f2"
   if [[ $diff == *'numdiff'* ]]; then
-      $diff -s ' \t\n,' $1 $2 > /dev/null
+      $diff -s ' \t\n,' $f1 $f2 > /dev/null
   else
       $diff  $1 $2 > /dev/null
   fi
   exitcode=$?
+  rm -f $f1 $f2
   
   #if [ $exitcode = 1 ]; then
   #  # check if we can tolerate small differences in some tests
@@ -147,6 +153,9 @@ runTest()
   # also copy any .dat files
   cp ${INPUTDIR}/*.dat $rundir
   ln -s `pwd`/datafiles $rundir/datafiles
+  if [ -e `pwd`/fewzgrids ]; then
+    ln -s `pwd`/fewzgrids $rundir/fewzgrids
+  fi
 
   cd $rundir
   #echo -e "run \n bt" | gdb ${xfitter} | tee ${xflogfile}
