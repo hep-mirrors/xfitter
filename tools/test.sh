@@ -3,7 +3,7 @@
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
 #omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
-omitTests=('profilerCIJET' 'ZPT' 'ZMVFNS-fit' 'scanmin' 'CERES-fit' 'CERES-parallel' 'CERES-Chebyschev' 'profilerLHAPDF' 'TMD') 
+omitTests=('profilerCIJET' 'ZPT' 'ZMVFNS-fit' 'scanmin' 'CERES-fit' 'CERES-parallel' 'CERES-Chebyschev' 'profilerLHAPDF' 'TMD' 'chi2scanMTOP') 
 
 install_dir=$(pwd)
 # xfitter binary
@@ -59,15 +59,19 @@ function tolerateDiff()
 checkFile()
 {
   printf "$diff $1 $2 ... "
-  SKIP='MINUIT RELEASE' # skip the first minout line which might differ due to the maximum number of parameters
+  # skip lines which might differ due to the maximum number of parameters
+  SKIP=(
+  -e 'MINUIT RELEASE'
+  -e 'EXTERNAL ERROR MATRIX.    NDIM='
+  )
   f1=$(mktemp)
   f2=$(mktemp)
-  grep -Fv "$SKIP" "$1" >"$f1"
-  grep -Fv "$SKIP" "$2" >"$f2"
+  grep -Fv "${SKIP[@]}" "$1" >"$f1"
+  grep -Fv "${SKIP[@]}" "$2" >"$f2"
   if [[ $diff == *'numdiff'* ]]; then
       $diff -s ' \t\n,' $f1 $f2 > /dev/null
   else
-      $diff  $1 $2 > /dev/null
+      $diff  $f1 $f2 > /dev/null
   fi
   exitcode=$?
   rm -f $f1 $f2

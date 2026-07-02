@@ -197,8 +197,8 @@ void ReactionBaseDISCC::compute(TermData *td, valarray<double> &valExternal, map
   {
     // integrated cross sections
     // TODO restore integrated cross sections
-    //valExternal = iDIS->compute(val);
-    valExternal = val;
+    valExternal = iDIS->compute(val);
+    //valExternal = val;
   }
   else
   {

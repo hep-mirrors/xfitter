@@ -87,19 +87,23 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   const std::valarray<double>* ymin_ptr = nullptr;
   const std::valarray<double>* ymax_ptr = nullptr;
   double energy;
-  auto find_binning = [td,&q2_ptr,&x_ptr,&onedimvar_ptr,&q2min_ptr,&q2max_ptr,&ymin_ptr,&ymax_ptr,&energy]() {
+  int nBins;
+  auto find_binning = [this,td,&nBins,&q2_ptr,&x_ptr,&onedimvar_ptr,&q2min_ptr,&q2max_ptr,&ymin_ptr,&ymax_ptr,&energy]() {
     if (td->hasParam("binning")) {
       auto binning = td->getParamS("binning");
       if(binning == "E") {
         onedimvar_ptr = td->getBinColumnOrNull("E");
+        nBins = onedimvar_ptr->size();
         return Binning::point_at_e;
       }
       else if(binning == "x") {
         onedimvar_ptr = td->getBinColumnOrNull("x");
+        nBins = onedimvar_ptr->size();
         return Binning::point_at_x;
       }
       else if(binning == "sqrtshat") {
         onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
+        nBins = onedimvar_ptr->size();
         return Binning::point_at_sqrtshat;
       }
       else if(binning == "bin_q2y") {
@@ -108,6 +112,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
         ymin_ptr = td->getBinColumnOrNull("ymin");
         ymax_ptr = td->getBinColumnOrNull("ymax");
         energy = *td->getParamD("energy");
+        nBins = q2min_ptr->size();
         return Binning::bin_q2y;
       }
       else {
@@ -115,21 +120,27 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
       }
     }
     else {
-      q2_ptr = td->getBinColumnOrNull("Q2");
-      x_ptr = td->getBinColumnOrNull("x");
+      //q2_ptr = td->getBinColumnOrNull("Q2");
+      //x_ptr = td->getBinColumnOrNull("x");
+      q2_ptr = GetBinValues(td, "Q2");
+      x_ptr = GetBinValues(td, "x");
       if(q2_ptr && x_ptr) {
+        nBins = q2_ptr->size();
         return Binning::point_at_q2x;
       }
       onedimvar_ptr = td->getBinColumnOrNull("E");
       if(onedimvar_ptr) {
+        nBins = onedimvar_ptr->size();
         return Binning::point_at_e;
       }
       onedimvar_ptr = td->getBinColumnOrNull("x");
       if(onedimvar_ptr) {
+        nBins = onedimvar_ptr->size();
         return Binning::point_at_x;
       }
       onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
       if(onedimvar_ptr) {
+        nBins = onedimvar_ptr->size();
         return Binning::point_at_sqrtshat;
       }
       q2min_ptr = td->getBinColumnOrNull("q2min");
@@ -138,6 +149,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
       ymax_ptr = td->getBinColumnOrNull("ymax");
       energy = *td->getParamD("energy");
       if(q2min_ptr && q2max_ptr && ymax_ptr) {
+        nBins = q2min_ptr->size();
         return Binning::bin_q2y;
       }
     }
@@ -175,7 +187,6 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   printf(", binning = %d\n", int(datapoint_binning));
   printf("---------------------------------------------\n");
 
-  auto nBins = td->getNbins();
   _f2abm[termID].resize(nBins);
   _flabm[termID].resize(nBins);
   _f3abm[termID].resize(nBins);
@@ -187,7 +198,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   const auto& group = td->getParamS("group_parallel");
   printf("group = %s\n", group.c_str());
   size_t offset = 0;
-  size_t nBinsActive = td->getNbins();
+  size_t nBinsActive = nBins;
   if(datapoint_binning == Binning::point_at_q2x) {
     nBinsActive = std::count_if(std::begin(*q2_ptr), std::end(*q2_ptr), [this](double q2) { return q2 >= this->_q2mincomp; });
   }
@@ -550,7 +561,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     //fflush(stdout);
     abm::pdffillgrid();
   }
-  //printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
+  printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
   f2 = fl = f3 = 0.;
   double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
   if (flav == dataFlav::incl || flav == dataFlav::l) {
