@@ -18,9 +18,7 @@ protected:
   };
 
 private:
-  double _hqscale1in;
-  double _hqscale2in;
-  int _order;
-  int _ordfl;
-  int _orderHQ;
+  //int _order;
+  //int _ordfl;
+  //int _orderHQ;
 };

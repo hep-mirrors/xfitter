@@ -29,15 +29,18 @@ public:
   virtual void initTerm(TermData *td) override;
   virtual void atIteration() override;
 
-protected:
-  map<int, valarray<double>> _f2abm;
-  map<int, valarray<double>> _flabm;
-  map<int, valarray<double>> _f3abm;
+  double _hqscale1in;
+  double _hqscale2in;
 
   // pointers to those parameters which can change at each iteration
   const double* _mcPtr;
   const double* _mbPtr;
   std::vector<const double*> _ckm; // CKM matrix
+
+protected:
+  map<int, valarray<double>> _f2abm;
+  map<int, valarray<double>> _flabm;
+  map<int, valarray<double>> _f3abm;
 
   // minimum Q^2
   double _q2mincomp;
@@ -95,6 +98,7 @@ protected:
     double integrator_epsrel;
     int integrator_verbose;
     TermData* td;
+    ReactionBaseFFABM* reaction;
     int i;
     dataFlav flav;
     bool is_beam_nu;
@@ -123,6 +127,7 @@ protected:
     void calc();
     void calc_2d_integral();
     virtual void calc_at_q2x();
+    //virtual ReactionBaseFFABM* get_reaction() { return reaction; };
   };
   std::map<std::string, std::vector<DataPoint*> > _grouped_data_points;
   //std::map<std::string, ForkPool::SharedMemory* > _grouped_shared_memory;

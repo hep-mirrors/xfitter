@@ -262,6 +262,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
     point.integrator_epsrel = integrator_epsrel;
     point.integrator_verbose = integrator_verbose;
     point.td = td;
+    point.reaction = this;
     point.i = i;
     point.is_beam_nu = BaseDIS::IsBeamNu(td->id);
     point.flav = dataFlav(BaseDIS::GetDataFlav(td->id));
@@ -577,12 +578,12 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     // need F3bar for nuclear corrections and antineutrino
     // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
     int charge_bar = -1 * charge;
-    double f2l_bar(0), f2b_bar(0), f2c_bar(0), fll_bar(0), flc_bar(0), flb_bar(0), f3l_bar(0), f3c_bar(0), f3b_bar(0);
+    double f3l_bar(0), f3c_bar(0), f3b_bar(0);
     if (flav == dataFlav::incl || flav == dataFlav::l) {
-      f3l_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
+      f3l_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
     if (flav == dataFlav::incl || flav == dataFlav::c) {
-      f3c_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
+      f3c_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
     if (flav == dataFlav::incl || flav == dataFlav::b) {
       f3b_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
@@ -611,6 +612,7 @@ double ReactionBaseFFABM<BaseDIS, Proc>::combine_flavours(const dataFlav flav, c
   {
     case dataFlav::incl:
       return l + c + b;
+      //return l;
     case dataFlav::l:
       return l;
     case dataFlav::c:
