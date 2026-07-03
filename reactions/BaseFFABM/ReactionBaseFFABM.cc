@@ -561,7 +561,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     //fflush(stdout);
     abm::pdffillgrid();
   }
-  printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
+  //printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
   f2 = fl = f3 = 0.;
   double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
   if (flav == dataFlav::incl || flav == dataFlav::l) {
