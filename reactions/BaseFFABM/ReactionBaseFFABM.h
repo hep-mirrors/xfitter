@@ -28,7 +28,6 @@ public:
   ~ReactionBaseFFABM();
   virtual void initTerm(TermData *td) override;
   virtual void atIteration() override;
-  //virtual void compute(TermData *td, valarray<double> &val, map<string, valarray<double>> &errors) { return BaseDIS::compute(td, val, errors); };
 
 protected:
   map<int, valarray<double>> _f2abm;
@@ -73,7 +72,11 @@ private:
     sd2,
     //cuba,
   };
+
+protected:
   struct DataPoint;
+
+private:
   struct integration_params {
     DataPoint* point;
     double (*eflux)(const double& e);
@@ -81,6 +84,8 @@ private:
     double emax;
     unsigned long ncalls;
   };
+
+protected:
   struct DataPoint {
     Binning binning;
     double q2;
@@ -123,7 +128,7 @@ private:
     static void integrand_sd2_region(int ll, double* xx, double* aa, double* bb);
     void calc();
     void calc_2d_integral();
-    void calc_at_q2x();
+    virtual void calc_at_q2x();
   };
   std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
   //std::map<std::string, ForkPool::SharedMemory* > _grouped_shared_memory;

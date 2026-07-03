@@ -1,7 +1,7 @@
-#include "ReactionBaseFFABM.h"
+#include "ReactionBaseTBSF.h"
 #include "ReactionBaseDISNC.h"
 #include "ReactionBaseDISCC.h"
-#include "DIS_HT.h"
+/*#include "DIS_HT.h"
 #include "DIS_TMC.h"
 #include "DIS_NUKE.h"
 #include "TermData.h"
@@ -168,9 +168,6 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   if(integrator_str == "sd2") {
     integrator = Integrator::sd2;
   }
-  /*else if(integrator_str == "cuba") {
-    integrator = Integrator::cuba;
-  }*/
   else {
     hf_errlog(26061101, "F: unknown integrator " + integrator_str);
   }
@@ -497,39 +494,6 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_2d_integral() {
       f2 = s1;
       break;
     }
-    /*case Integrator::cuba: {
-      const int NDIM = 2;
-      const int NCOMP = 1;
-      void* USERDATA = &_integration_params_static;
-      const int NVEC = 1;
-      const double EPSREL = integrator_epsrel;
-      const double EPSABS = 0;
-      const int FLAGS = 0;
-      const int MINEVAL = 0;
-      const int MAXEVAL = 500000;
-      const int KEY = 0;
-      const char* STATEFILE = nullptr;
-      void* SPIN = nullptr;
-      int nregions = 0;
-      int neval = 0;
-      int fail = 0;
-      cubareal cuba_integral[1], cuba_error[1], prob[1];
-      setenv("CUBACORES", "0", 1);
-      Cuhre(NDIM, NCOMP, integrand, USERDATA, NVEC, EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY, STATEFILE, SPIN, &nregions, &neval, &fail, cuba_integral, cuba_error, prob);
-      if(integrator_verbose) {
-        printf("CUHRE RESULT:\tnregions %d\tneval %d\tfail %d\n", nregions, neval, fail);
-      }
-      for(int comp = 0; comp < NCOMP; ++comp ) {
-        if(integrator_verbose) {
-          printf("CUHRE RESULT:\t%.8f +- %.8f\tp = %.3f\n", (double)cuba_integral[comp], (double)cuba_error[comp], (double)prob[comp]);
-        }
-      }
-      if(integrator_verbose) {
-        printf("binning = %d var = %6.2f -> xsec = %.4e +- %.4e\n", int(binning), onedimvar, cuba_integral[0], cuba_error[0]);
-      }
-      f2 = cuba_integral[0];
-      break;
-    }*/
   }
   if(integrator_verbose) {
     printf("ncalls = %ld\n", _integration_params_static.ncalls);
@@ -561,7 +525,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     //fflush(stdout);
     abm::pdffillgrid();
   }
-  //printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
+  printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
   f2 = fl = f3 = 0.;
   double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
   if (flav == dataFlav::incl || flav == dataFlav::l) {
@@ -615,6 +579,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
 
 template <class BaseDIS, abm::SFproc Proc>
 typename ReactionBaseFFABM<BaseDIS, Proc>::integration_params ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::_integration_params_static;
+*/
 
-template class ReactionBaseFFABM<ReactionBaseDISNC, abm::SFproc::nc>;
-template class ReactionBaseFFABM<ReactionBaseDISCC, abm::SFproc::cc>;
+template class ReactionBaseTBSF<ReactionBaseDISNC, abm::SFproc::nc>;
+template class ReactionBaseTBSF<ReactionBaseDISCC, abm::SFproc::cc>;
