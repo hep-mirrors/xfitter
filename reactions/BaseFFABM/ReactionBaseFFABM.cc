@@ -156,7 +156,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
     hf_errlog(26062301, "F: cannot determine binning");
     return Binning::bin_q2y; // avoid warning
   };
-    Binning datapoint_binning = find_binning();
+  Binning datapoint_binning = find_binning();
   const int scalesemilepbr = td->getParamI("scalesemilepbr");
   const double* br0 = td->hasParam("br_cmu_0") ? td->getParamD("br_cmu_0") : nullptr;
   const double* br1 = td->hasParam("br_cmu_1") ? td->getParamD("br_cmu_1") : nullptr;
@@ -587,10 +587,10 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     int charge_bar = -1 * charge;
     double f2l_bar(0), f2b_bar(0), f2c_bar(0), fll_bar(0), flc_bar(0), flb_bar(0), f3l_bar(0), f3c_bar(0), f3b_bar(0);
     if (flav == dataFlav::incl || flav == dataFlav::l) {
-      f3l_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
+      f3l_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
     if (flav == dataFlav::incl || flav == dataFlav::c) {
-      f3c_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordHQ, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
+      f3c_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
     if (flav == dataFlav::incl || flav == dataFlav::b) {
       f3b_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
