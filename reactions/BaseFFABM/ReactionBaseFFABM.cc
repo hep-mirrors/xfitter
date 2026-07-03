@@ -19,6 +19,11 @@ ReactionBaseFFABM<BaseDIS, Proc>::~ReactionBaseFFABM() {
   for (auto ht : _ht) delete ht.second;
   for (auto tmc : _tmc) delete tmc.second;
   for (auto nk : _nuke) delete nk.second;
+  for (auto& it : _grouped_data_points) {
+    for (auto& p : it.second) {
+      delete p;
+    }
+  }
   //for (const auto& it : _grouped_shared_memory) delete it.second;
 }
 
@@ -205,12 +210,15 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   auto it = _grouped_data_points.find(group);
   if(it == _grouped_data_points.end()) {
     printf("inserting group = %s with nBinsActive = %lu\n", group.c_str(), nBinsActive);
-    it = _grouped_data_points.insert(std::make_pair(group, std::vector<DataPoint>(nBinsActive))).first;
+    std::vector<DataPoint*> vec_dp(nBinsActive);
+    std::generate(vec_dp.begin(), vec_dp.end(), [] { return new DataPoint; });
+    it = _grouped_data_points.insert(std::make_pair(group, vec_dp)).first;
   }
   else {
     size_t size0 = it->second.size();
     printf("found group = %s size0,nBinsActive = %lu,%lu\n", group.c_str(), size0, nBinsActive);
     it->second.resize(size0 + nBinsActive);
+    std::generate(it->second.begin() + size0, it->second.end(), [] { return new DataPoint; });
     offset = size0;
   }
   auto& vec2 = it->second;
@@ -224,7 +232,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
         continue;
       }
     }
-    auto& point = vec2[offset + iActive];
+    auto& point = *vec2[offset + iActive];
     point.binning = datapoint_binning;
     if(datapoint_binning == Binning::point_at_q2x) {
       point.q2 = (*q2_ptr)[i];
@@ -287,7 +295,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
       ht.second->update();
     }
   }
-  _grouped_data_points.begin()->second[0].td->actualizeWrappers();
+  _grouped_data_points.begin()->second[0]->td->actualizeWrappers();
   abm::pdffillgrid();
 
   // parallel computaion for groups of data points
@@ -295,7 +303,8 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
   int ncpu =  xfitter::xf_ncpu(BaseDIS::_ncpu);
   if(ncpu == 1) {
     for(auto& it : _grouped_data_points) {
-      for(auto& point : it.second) {
+      for(auto& point_ptr : it.second) {
+        auto& point = *point_ptr;
         point.calc();
         _f2abm[point.td->id][point.i] = point.f2;
         _flabm[point.td->id][point.i] = point.fl;
@@ -306,10 +315,10 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
   else {
     for(auto& it : _grouped_data_points) {
       auto& vec = it.second;
-      bool need_pdffillgrid = vec[0].td->actualizeWrappers();
-      printf("checking pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
+      bool need_pdffillgrid = vec[0]->td->actualizeWrappers();
+      printf("checking pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0]->td->id);
       if(need_pdffillgrid) {
-        printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
+        printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0]->td->id);
         abm::pdffillgrid();
       }
       ForkPool pool(ncpu, BaseDIS::_task_distr);
@@ -325,7 +334,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
       int* datasetID = (int*)(f3 + np);
       int* i_orig = datasetID + np;
       pool.parallel_for(np, [&vec, f2, fl, f3, datasetID, i_orig](size_t i) {
-        auto& point = vec[i];
+        auto& point = *vec[i];
         point.calc();
         f2[i] = point.f2;
         fl[i] = point.fl;
@@ -538,23 +547,6 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_2d_integral() {
 
 template <class BaseDIS, abm::SFproc Proc>
 void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
-  auto combine_flavours = [](const dataFlav flav, const double l, const double c, const double b) {
-    switch (flav)
-    {
-      case dataFlav::incl:
-        return l + c + b;
-      case dataFlav::l:
-        return l;
-      case dataFlav::c:
-        return c;
-      case dataFlav::b:
-        return b;
-      default:
-        hf_errlog(28022501, "F: Unsupported flavour");
-        return 0.; // avoid warning
-    }
-  };
-
   bool need_pdffillgrid = td->actualizeWrappers();
   if(need_pdffillgrid) {
     printf("extra pdffillgrid() in calc_at_q2x() by datasetID = %d point = %d (proc_NCCC = %d)\n", td->id, i, int(Proc));
@@ -612,6 +604,24 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     nuke->apply(q2, x, f2, fl, f3, &f3lout_bar);
   }
 }
+
+template <class BaseDIS, abm::SFproc Proc>
+double ReactionBaseFFABM<BaseDIS, Proc>::combine_flavours(const dataFlav flav, const double l, const double c, const double b) {
+  switch (flav)
+  {
+    case dataFlav::incl:
+      return l + c + b;
+    case dataFlav::l:
+      return l;
+    case dataFlav::c:
+      return c;
+    case dataFlav::b:
+      return b;
+    default:
+      hf_errlog(28022501, "F: Unsupported flavour");
+      return 0.; // avoid warning
+  }
+};
 
 template <class BaseDIS, abm::SFproc Proc>
 typename ReactionBaseFFABM<BaseDIS, Proc>::integration_params ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::_integration_params_static;

@@ -14,6 +14,9 @@ class DIS_HT {
   template<class BaseDIS, abm::SFproc Proc> friend class ReactionBaseFFABM;
   friend class ReactionFFABM_DISNC;
   friend class ReactionFFABM_DISCC;
+  template<class BaseDIS, abm::SFproc Proc> friend class ReactionBaseTBSF;
+  friend class ReactionTBSF_DISNC;
+  friend class ReactionTBSF_DISCC;
   public:
     DIS_HT(TermData* td);
     ~DIS_HT();

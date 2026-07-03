@@ -34,7 +34,6 @@ protected:
   map<int, valarray<double>> _flabm;
   map<int, valarray<double>> _f3abm;
 
-private:
   // pointers to those parameters which can change at each iteration
   const double* _mcPtr;
   const double* _mbPtr;
@@ -72,11 +71,7 @@ private:
     sd2,
     //cuba,
   };
-
-protected:
   struct DataPoint;
-
-private:
   struct integration_params {
     DataPoint* point;
     double (*eflux)(const double& e);
@@ -85,7 +80,6 @@ private:
     unsigned long ncalls;
   };
 
-protected:
   struct DataPoint {
     Binning binning;
     double q2;
@@ -130,6 +124,8 @@ protected:
     void calc_2d_integral();
     virtual void calc_at_q2x();
   };
-  std::map<std::string, std::vector<DataPoint> > _grouped_data_points;
+  std::map<std::string, std::vector<DataPoint*> > _grouped_data_points;
   //std::map<std::string, ForkPool::SharedMemory* > _grouped_shared_memory;
+
+  static double combine_flavours(const dataFlav flav, const double l, const double c, const double b);
 };

@@ -1,14 +1,14 @@
 #include "ReactionBaseTBSF.h"
 #include "ReactionBaseDISNC.h"
 #include "ReactionBaseDISCC.h"
-/*#include "DIS_HT.h"
+#include "DIS_HT.h"
 #include "DIS_TMC.h"
 #include "DIS_NUKE.h"
 #include "TermData.h"
 #include "ForkPool.h"
 #include "xfitter_cpp_base.h"
 #include "xfitter_steer.h"
-
+/*
 extern "C" {
   double numufcalflux_(const double& e); // NOMAD E(nu) flux
   double sd2_(double* acc, double (*f)(double*), void (*r)(int, double*, double*, double*)); // integrator
@@ -19,64 +19,69 @@ ReactionBaseFFABM<BaseDIS, Proc>::~ReactionBaseFFABM() {
   for (auto ht : _ht) delete ht.second;
   for (auto tmc : _tmc) delete tmc.second;
   for (auto nk : _nuke) delete nk.second;
+  for (auto& it : _grouped_data_points) {
+    for (auto& p : _grouped_data_points.second) {
+      delete p;
+    }
+  }
   //for (const auto& it : _grouped_shared_memory) delete it.second;
-}
+}*/
 
 template <class BaseDIS, abm::SFproc Proc>
-void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
+void ReactionBaseTBSF<BaseDIS, Proc>::initTerm(TermData *td) {
   BaseDIS::initTerm(td);
   unsigned termID = td->id;
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4 * m_h^2 (default scalea1 = scaleb1 = 1.0)
-  const double hqscale1in = *td->getParamD("scalea1");
-  const double hqscale2in = *td->getParamD("scaleb1");
-  abm::set_hq_scales(hqscale1in, hqscale2in);
+  _hqscale1in = *td->getParamD("scalea1");
+  _hqscale2in = *td->getParamD("scaleb1");
 
   // pole or MCbar running mass treatment (default pole)
-  const int msbarmin = td->getParamI("runm");
+  const int msbarmin = td->getParamI("runm"); // TODO use it
+  if(msbarmin != 1) {
+    hf_errlog(2026070701, "F: Unsupported msbarmin " + std::to_string(msbarmin));
+  }
 
   // O(alpha_S) F_L = O(alpha_S) F_2 + ordfl (default ordfl = 1)
-  const int ordfl = td->getParamI("ordfl");
-  const int order = OrderMap(td->getParamS("Order")) - 1;
+  _ordfl = td->getParamI("ordfl");
+  _order = OrderMap(td->getParamS("Order")) - 1;
   const auto& str_orderhq = td->getParamS("OrderHQ");
-  const int orderHQ = str_orderhq == "" ? -1 : OrderMap(str_orderhq) - 1;
+  _orderHQ = str_orderhq == "" ? -1 : OrderMap(str_orderhq) - 1;
 
-  // control x range (certain PDF sets have limited x_min, x_max)
-  abm::set_xbmin(*td->getParamD("xbmin"));
-  abm::set_xbmax(*td->getParamD("xbmax"));
-  _q2mincomp = *td->getParamD("q2mincomp");
-  abm::initgridconst();
+  // minimum Q^2 for computation
+  this->_q2mincomp = *td->getParamD("q2mincomp");
 
   // heavy quark masses
-  _mcPtr = td->getParamD("mch");
-  _mbPtr = td->getParamD("mbt");
+  this->_mcPtr = td->getParamD("mch");
+  this->_mbPtr = td->getParamD("mbt");
 
   // CKM matrix
-  _ckm.resize(9);
-  _ckm[0] = td->getParamD("Vud");
-  _ckm[1] = td->getParamD("Vus");
-  _ckm[2] = td->getParamD("Vub");
-  _ckm[3] = td->getParamD("Vcd");
-  _ckm[4] = td->getParamD("Vcs");
-  _ckm[5] = td->getParamD("Vcb");
-  _ckm[6] = td->getParamD("Vtd");
-  _ckm[7] = td->getParamD("Vts");
-  _ckm[8] = td->getParamD("Vtb");
+  // TODO use it
+  this->_ckm.resize(9);
+  this->_ckm[0] = td->getParamD("Vud");
+  this->_ckm[1] = td->getParamD("Vus");
+  this->_ckm[2] = td->getParamD("Vub");
+  this->_ckm[3] = td->getParamD("Vcd");
+  this->_ckm[4] = td->getParamD("Vcs");
+  this->_ckm[5] = td->getParamD("Vcb");
+  this->_ckm[6] = td->getParamD("Vtd");
+  this->_ckm[7] = td->getParamD("Vts");
+  this->_ckm[8] = td->getParamD("Vtb");
 
   // read higher twist parameters
-  _ht[termID] = nullptr;
+  this->_ht[termID] = nullptr;
   if (td->hasParam("ht") && td->getParamI("ht") != 0) {
-    _ht[termID] = new DIS_HT(td);
+    this->_ht[termID] = new DIS_HT(td);
   }
   // read target mass correction parameters
-  _tmc[termID] = nullptr;
+  this->_tmc[termID] = nullptr;
   if (td->hasParam("tmc") && td->getParamS("tmc") != "") {
-    _tmc[termID] = new DIS_TMC(td);
+    this->_tmc[termID] = new DIS_TMC(td);
   }
   // read nuclear correction parameters
-  _nuke[termID] = nullptr;
+  this->_nuke[termID] = nullptr;
   if (td->hasParam("nuke_ftyp") && td->getParamI("nuke_ftyp") != 0) {
-    _nuke[termID] = new DIS_NUKE(td);
+    this->_nuke[termID] = new DIS_NUKE(td);
   }
 
   const std::valarray<double>* q2_ptr = nullptr;
@@ -94,17 +99,17 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
       if(binning == "E") {
         onedimvar_ptr = td->getBinColumnOrNull("E");
         nBins = onedimvar_ptr->size();
-        return Binning::point_at_e;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_e;
       }
       else if(binning == "x") {
         onedimvar_ptr = td->getBinColumnOrNull("x");
         nBins = onedimvar_ptr->size();
-        return Binning::point_at_x;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_x;
       }
       else if(binning == "sqrtshat") {
         onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
         nBins = onedimvar_ptr->size();
-        return Binning::point_at_sqrtshat;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_sqrtshat;
       }
       else if(binning == "bin_q2y") {
         q2min_ptr = td->getBinColumnOrNull("q2min");
@@ -113,7 +118,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
         ymax_ptr = td->getBinColumnOrNull("ymax");
         energy = *td->getParamD("energy");
         nBins = q2min_ptr->size();
-        return Binning::bin_q2y;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::bin_q2y;
       }
       else {
         hf_errlog(2026062202, "F: Unsupported data point binning " + binning);
@@ -122,26 +127,26 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
     else {
       //q2_ptr = td->getBinColumnOrNull("Q2");
       //x_ptr = td->getBinColumnOrNull("x");
-      q2_ptr = GetBinValues(td, "Q2");
-      x_ptr = GetBinValues(td, "x");
+      q2_ptr = ReactionBaseFFABM<BaseDIS, Proc>::GetBinValues(td, "Q2");
+      x_ptr = ReactionBaseFFABM<BaseDIS, Proc>::GetBinValues(td, "x");
       if(q2_ptr && x_ptr) {
         nBins = q2_ptr->size();
-        return Binning::point_at_q2x;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_q2x;
       }
       onedimvar_ptr = td->getBinColumnOrNull("E");
       if(onedimvar_ptr) {
         nBins = onedimvar_ptr->size();
-        return Binning::point_at_e;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_e;
       }
       onedimvar_ptr = td->getBinColumnOrNull("x");
       if(onedimvar_ptr) {
         nBins = onedimvar_ptr->size();
-        return Binning::point_at_x;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_x;
       }
       onedimvar_ptr = td->getBinColumnOrNull("sqrtshat");
       if(onedimvar_ptr) {
         nBins = onedimvar_ptr->size();
-        return Binning::point_at_sqrtshat;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_sqrtshat;
       }
       q2min_ptr = td->getBinColumnOrNull("q2min");
       q2max_ptr = td->getBinColumnOrNull("q2max");
@@ -150,13 +155,13 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
       energy = *td->getParamD("energy");
       if(q2min_ptr && q2max_ptr && ymax_ptr) {
         nBins = q2min_ptr->size();
-        return Binning::bin_q2y;
+        return ReactionBaseFFABM<BaseDIS, Proc>::Binning::bin_q2y;
       }
     }
     hf_errlog(26062301, "F: cannot determine binning");
-    return Binning::bin_q2y; // avoid warning
+    return ReactionBaseFFABM<BaseDIS, Proc>::Binning::bin_q2y; // avoid warning
   };
-    Binning datapoint_binning = find_binning();
+  typename ReactionBaseFFABM<BaseDIS, Proc>::Binning datapoint_binning = find_binning();
   const int scalesemilepbr = td->getParamI("scalesemilepbr");
   const double* br0 = td->hasParam("br_cmu_0") ? td->getParamD("br_cmu_0") : nullptr;
   const double* br1 = td->hasParam("br_cmu_1") ? td->getParamD("br_cmu_1") : nullptr;
@@ -164,9 +169,9 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   const double mw = *td->getParamD("Mw");
   //const double mnucl = (*td->getParamD("mpr") + *td->getParamD("mnt"))/2.;
   const auto& integrator_str = td->getParamS("integrator");
-  Integrator integrator;
+  typename ReactionBaseFFABM<BaseDIS, Proc>::Integrator integrator;
   if(integrator_str == "sd2") {
-    integrator = Integrator::sd2;
+    integrator = ReactionBaseFFABM<BaseDIS, Proc>::Integrator::sd2;
   }
   else {
     hf_errlog(26061101, "F: unknown integrator " + integrator_str);
@@ -177,16 +182,16 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   printf("---------------------------------------------\n");
   printf("INFO from %s: ", BaseDIS::getReactionName().c_str());
   printf("running mass = %c", msbarmin ? 'T' : 'F');
-  printf(", order = %d", order);
-  printf(", order HQ = %d", orderHQ);
-  printf(", O(alpha_S) F_L - O(alpha_S) F2 = %d", ordfl);
-  printf(", factorisation scale for heavy quarks = sqrt(%f * Q^2 + %f * 4m_q^2", hqscale1in, hqscale2in);
+  printf(", order = %d", _order);
+  printf(", order HQ = %d", _orderHQ);
+  printf(", O(alpha_S) F_L - O(alpha_S) F2 = %d", _ordfl);
+  printf(", factorisation scale for heavy quarks = sqrt(%f * Q^2 + %f * 4m_q^2", _hqscale1in, _hqscale2in);
   printf(", binning = %d\n", int(datapoint_binning));
   printf("---------------------------------------------\n");
 
-  _f2abm[termID].resize(nBins);
-  _flabm[termID].resize(nBins);
-  _f3abm[termID].resize(nBins);
+  this->_f2abm[termID].resize(nBins);
+  this->_flabm[termID].resize(nBins);
+  this->_f3abm[termID].resize(nBins);
 
   const double* mzPtr = td->getParamD("Mz");
   const double* sin2thwPtr = td->getParamD("sin2thW");
@@ -196,41 +201,44 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   printf("group = %s\n", group.c_str());
   size_t offset = 0;
   size_t nBinsActive = nBins;
-  if(datapoint_binning == Binning::point_at_q2x) {
+  if(datapoint_binning == ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_q2x) {
     nBinsActive = std::count_if(std::begin(*q2_ptr), std::end(*q2_ptr), [this](double q2) { return q2 >= this->_q2mincomp; });
   }
-  auto it = _grouped_data_points.find(group);
-  if(it == _grouped_data_points.end()) {
+  auto it = this->_grouped_data_points.find(group);
+  if(it == this->_grouped_data_points.end()) {
     printf("inserting group = %s with nBinsActive = %lu\n", group.c_str(), nBinsActive);
-    it = _grouped_data_points.insert(std::make_pair(group, std::vector<DataPoint>(nBinsActive))).first;
+    std::vector<typename ReactionBaseFFABM<BaseDIS, Proc>::DataPoint*> vec_dp(nBinsActive);
+    std::generate(vec_dp.begin(), vec_dp.end(), [] { return new DataPoint(); });
+    it = this->_grouped_data_points.insert(std::make_pair(group, vec_dp)).first;
   }
   else {
     size_t size0 = it->second.size();
     printf("found group = %s size0,nBinsActive = %lu,%lu\n", group.c_str(), size0, nBinsActive);
     it->second.resize(size0 + nBinsActive);
+    std::generate(it->second.begin() + size0, it->second.end(), [] { return new DataPoint; });
     offset = size0;
   }
   auto& vec2 = it->second;
   int iActive = 0;
   for(int i = 0; i < nBins; i++) {
-    if(datapoint_binning == Binning::point_at_q2x) {
-      if((*q2_ptr)[i] <= _q2mincomp) {
-        _f2abm[i] = 0.0;
-        _flabm[i] = 0.0;
-        _f3abm[i] = 0.0;
+    if(datapoint_binning == ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_q2x) {
+      if((*q2_ptr)[i] <= this->_q2mincomp) {
+        this->_f2abm[i] = 0.0;
+        this->_flabm[i] = 0.0;
+        this->_f3abm[i] = 0.0;
         continue;
       }
     }
-    auto& point = vec2[offset + iActive];
+    auto& point = *vec2[offset + iActive];
     point.binning = datapoint_binning;
-    if(datapoint_binning == Binning::point_at_q2x) {
+    if(datapoint_binning == ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_q2x) {
       point.q2 = (*q2_ptr)[i];
       point.x = (*x_ptr)[i];
     }
-    else if(datapoint_binning == Binning::point_at_e || datapoint_binning == Binning::point_at_x || datapoint_binning == Binning::point_at_sqrtshat) {
+    else if(datapoint_binning == ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_e || datapoint_binning == ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_x || datapoint_binning == ReactionBaseFFABM<BaseDIS, Proc>::Binning::point_at_sqrtshat) {
       point.onedimvar = (*onedimvar_ptr)[i];
     }
-    else if(datapoint_binning == Binning::bin_q2y) {
+    else if(datapoint_binning == ReactionBaseFFABM<BaseDIS, Proc>::Binning::bin_q2y) {
       point.q2min = (*q2min_ptr)[i];
       point.q2max = (*q2max_ptr)[i];
       if(ymin_ptr) {
@@ -253,18 +261,18 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
     point.td = td;
     point.i = i;
     point.is_beam_nu = BaseDIS::IsBeamNu(td->id);
-    point.flav = dataFlav(BaseDIS::GetDataFlav(td->id));
-    point.ord = order;
-    point.ordHQ = orderHQ;
-    point.ordFL = ordfl;
+    point.flav = typename ReactionBaseFFABM<BaseDIS, Proc>::dataFlav(BaseDIS::GetDataFlav(td->id));
+    point.ord = _order;
+    point.ordHQ = _orderHQ;
+    point.ordFL = _ordfl;
     point.msbarmin = msbarmin;
     point.charge = BaseDIS::GetCharge(td->id);
     point.polar = BaseDIS::GetPolarisation(td->id);
     point.sin2thetaWPtr = sin2thwPtr;
     point.mz = mzPtr;
-    point.ht = _ht[td->id];
-    point.tmc = _tmc[td->id];
-    point.nuke = _nuke[td->id];
+    point.ht = this->_ht[td->id];
+    point.tmc = this->_tmc[td->id];
+    point.nuke = this->_nuke[td->id];
     point.f2 = 0.0;
     point.fl = 0.0;
     point.f3 = 0.0;
@@ -272,7 +280,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::initTerm(TermData *td) {
   }
 }
 
-template <class BaseDIS, abm::SFproc Proc>
+/*template <class BaseDIS, abm::SFproc Proc>
 void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
   BaseDIS::atIteration();
   abm::set_hq_masses(*_mcPtr, *_mbPtr);
@@ -284,7 +292,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
       ht.second->update();
     }
   }
-  _grouped_data_points.begin()->second[0].td->actualizeWrappers();
+  _grouped_data_points.begin()->second[0]->td->actualizeWrappers();
   abm::pdffillgrid();
 
   // parallel computaion for groups of data points
@@ -292,7 +300,8 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
   int ncpu =  xfitter::xf_ncpu(BaseDIS::_ncpu);
   if(ncpu == 1) {
     for(auto& it : _grouped_data_points) {
-      for(auto& point : it.second) {
+      for(auto& point_ptr : it.second) {
+        auto& point = *point_ptr;
         point.calc();
         _f2abm[point.td->id][point.i] = point.f2;
         _flabm[point.td->id][point.i] = point.fl;
@@ -303,10 +312,10 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
   else {
     for(auto& it : _grouped_data_points) {
       auto& vec = it.second;
-      bool need_pdffillgrid = vec[0].td->actualizeWrappers();
-      printf("checking pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
+      bool need_pdffillgrid = vec[0]->td->actualizeWrappers();
+      printf("checking pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0]->td->id);
       if(need_pdffillgrid) {
-        printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0].td->id);
+        printf("extra pdffillgrid() group = %s, datasetID = %d\n", it.first.c_str(), vec[0]->td->id);
         abm::pdffillgrid();
       }
       ForkPool pool(ncpu, BaseDIS::_task_distr);
@@ -322,7 +331,7 @@ void ReactionBaseFFABM<BaseDIS, Proc>::atIteration() {
       int* datasetID = (int*)(f3 + np);
       int* i_orig = datasetID + np;
       pool.parallel_for(np, [&vec, f2, fl, f3, datasetID, i_orig](size_t i) {
-        auto& point = vec[i];
+        auto& point = *vec[i];
         point.calc();
         f2[i] = point.f2;
         fl[i] = point.fl;
@@ -498,37 +507,20 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_2d_integral() {
   if(integrator_verbose) {
     printf("ncalls = %ld\n", _integration_params_static.ncalls);
   }
-}
+}*/
 
 template <class BaseDIS, abm::SFproc Proc>
-void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
-  auto combine_flavours = [](const dataFlav flav, const double l, const double c, const double b) {
-    switch (flav)
-    {
-      case dataFlav::incl:
-        return l + c + b;
-      case dataFlav::l:
-        return l;
-      case dataFlav::c:
-        return c;
-      case dataFlav::b:
-        return b;
-      default:
-        hf_errlog(28022501, "F: Unsupported flavour");
-        return 0.; // avoid warning
-    }
-  };
-
-  bool need_pdffillgrid = td->actualizeWrappers();
-  if(need_pdffillgrid) {
-    printf("extra pdffillgrid() in calc_at_q2x() by datasetID = %d point = %d (proc_NCCC = %d)\n", td->id, i, int(Proc));
-    //fflush(stdout);
-    abm::pdffillgrid();
-  }
-  printf("q2,x = %f,%f\n", q2, x);fflush(stdout);
-  f2 = fl = f3 = 0.;
+void ReactionBaseTBSF<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
+  bool need_pdffillgrid = this->td->actualizeWrappers();
+  //if(need_pdffillgrid) {
+  //  printf("extra pdffillgrid() in calc_at_q2x() by datasetID = %d point = %d (proc_NCCC = %d)\n", td->id, i, int(Proc));
+  //  //fflush(stdout);
+  //  abm::pdffillgrid();
+  //}
+  printf("q2,x = %f,%f\n", this->q2, this->x);fflush(stdout);
+  this->f2 = this->fl = this->f3 = 0.;
   double f2l(0), f2b(0), f2c(0), fll(0), flc(0), flb(0), f3l(0), f3b(0), f3c(0);
-  if (flav == dataFlav::incl || flav == dataFlav::l) {
+  /*if (flav == dataFlav::incl || flav == dataFlav::l) {
     f2l = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     fll = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     f3l = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
@@ -542,10 +534,10 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     f2b = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     flb = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
     f3b = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
-  }
+  }*/
                 
   double f3lout_bar = 0.;
-  if(nuke && nuke->need_f3bar()) {
+  /*if(nuke && nuke->need_f3bar()) {
     // need F3bar for nuclear corrections and antineutrino
     // we can calculate it now, because HT and TMC (calculated later) do not apply to F3
     int charge_bar = -1 * charge;
@@ -560,24 +552,24 @@ void ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
       f3b_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge_bar, *sin2thetaWPtr, polar, *mz);
     }
     f3lout_bar = x * combine_flavours(flav, f3l_bar, f3c_bar, f3b_bar);
+  }*/
+  if (this->tmc) {
+    this->tmc->apply(f2l, fll, f3l, f2c, flc, f3c, f2b, flb, f3b, this->q2, this->x, Proc, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, this->polar, 1.-*this->sin2thetaWPtr, *this->mz);
   }
-  if (tmc) {
-    tmc->apply(f2l, fll, f3l, f2c, flc, f3c, f2b, flb, f3b, q2, x, Proc, ord, ordHQ, ordFL, msbarmin, charge, polar, 1.-*sin2thetaWPtr, *mz);
-  }
-  if(ht) {
+  if(this->ht) {
     // HT is applied only to F2 and FL light flavour part
-    ht->apply(q2, x, f2l, fll, f3l);
+    this->ht->apply(this->q2, this->x, f2l, fll, f3l);
   }
-  f2 = combine_flavours(flav, f2l, f2c, f2b);
-  fl = combine_flavours(flav, fll, flc, flb);
-  f3 = x * combine_flavours(flav, f3l, f3c, f3b);
+  this->f2 = ReactionBaseFFABM<BaseDIS, Proc>::combine_flavours(this->flav, f2l, f2c, f2b);
+  this->fl = ReactionBaseFFABM<BaseDIS, Proc>::combine_flavours(this->flav, fll, flc, flb);
+  this->f3 = this->x * ReactionBaseFFABM<BaseDIS, Proc>::combine_flavours(this->flav, f3l, f3c, f3b);
   // apply nuclear corrections to the sum of light+c+b because corrections for charm and non-charm (kint=4,5) are not implemented
-  if (nuke) {
-    nuke->apply(q2, x, f2, fl, f3, &f3lout_bar);
+  if (this->nuke) {
+    this->nuke->apply(this->q2, this->x, this->f2, this->fl, this->f3, &f3lout_bar);
   }
 }
 
-template <class BaseDIS, abm::SFproc Proc>
+/*template <class BaseDIS, abm::SFproc Proc>
 typename ReactionBaseFFABM<BaseDIS, Proc>::integration_params ReactionBaseFFABM<BaseDIS, Proc>::DataPoint::_integration_params_static;
 */
 

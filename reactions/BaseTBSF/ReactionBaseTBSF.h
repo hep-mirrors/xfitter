@@ -9,11 +9,18 @@ template <class BaseDIS, abm::SFproc Proc>
 class ReactionBaseTBSF : public ReactionBaseFFABM<BaseDIS, Proc> {
 public:
   //~ReactionBaseTBSF();
-  //virtual void initTerm(TermData *td) override;
+  virtual void initTerm(TermData *td) override;
   //virtual void atIteration() override;
 
 protected:
   struct DataPoint: public ReactionBaseFFABM<BaseDIS, Proc>::DataPoint {
-    virtual void calc_at_q2x();
+    virtual void calc_at_q2x() override;
   };
+
+private:
+  double _hqscale1in;
+  double _hqscale2in;
+  int _order;
+  int _ordfl;
+  int _orderHQ;
 };
