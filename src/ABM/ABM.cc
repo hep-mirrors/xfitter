@@ -109,7 +109,6 @@ namespace abm {
     // It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user.
     // In ABMP16 fit it was set to .false.
     // (makes small difference which reaches few % only at highest Q2 of the charm HERA data and is negligible for practical purposes)
-    printf("hqnons = %d\n", hqnons);
     forschemedef_.hqnons = hqnons;
     //abkm_set_input_full_(kschemepdf, kordpdf, kordhq, kordf2, kordfl, kordf3, kordalps, rmass8, rmass10, msbarm, hqscale1, hqscale2, flord);
   }
@@ -166,7 +165,6 @@ namespace abm {
         const double facgzf3 = -1 * eleAxial - charge * polar * eleVec;
         const double faczzf3 = 2 * eleAxial * eleVec + charge * polar * (eleVec * eleVec + eleAxial * eleAxial);
         const double PZ = 1. / (4 * sin2thw * (1 - sin2thw) * (1 + mz * mz / q2));
-        //const double PZ = 0.0;
         switch (ftype) {
           case SFtype::f2:
             return f2qcd_(3, nt, 22, x, q2) + facgz * PZ * f2qcd_(3, nt, 25, x, q2) + faczz * PZ * PZ * f2qcd_(3, nt, 23, x, q2);
