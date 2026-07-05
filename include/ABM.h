@@ -34,13 +34,13 @@ namespace abm {
   void set_xbmax(const double val);
   double calc_point_strfun(const SFproc proc, const SFtype ftype, const SFflav flav, const double q2, const double x, 
     const int order, const int orderDefault, const int orderHQ, const int orderFL, const bool msbar, 
-    const int charge, const double sin2thw, const double polar, const double mz, const double* f2c=nullptr);
+    const int charge, const double sin2thw, const double polar, const double mz, const double* f2c, const bool hqnons);
   double calc_point_strfun_CC(const SFtype ftype, const SFflav flav, const double q2, const double x, 
     const int order, const int orderDefault, const int orderHQ, const int orderFL, const bool msbar, 
-    const int charge, const double* f2c=nullptr);
+    const int charge, const double* f2c, const bool hqnons);
   double calc_point_strfun_NC(const SFtype ftype, const SFflav flav, const double q2, const double x, 
     const int order, const int orderDefault, const int orderHQ, const int orderFL, const bool msbar, 
-    const int charge, const double sin2thw, const double polar, const double mz);
+    const int charge, const double sin2thw, const double polar, const double mz, const bool hqnons);
   void set_scheme_and_order_for_evolution(double mc, double mb);
   double alphas(const double& q2);
   double xqg(const int& iq, const double& xb, const double& q2, const int& kp);

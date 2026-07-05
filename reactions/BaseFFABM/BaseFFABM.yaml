@@ -1,6 +1,7 @@
   runm: 1 # 0 for pole mass (default); 1 for MSbar running mass
   ordfl: 1 # 1 for O(alpha_S) in F_L = O(alpha_S) + 1 in F_2 (default); 0 for O(alpha_S) in F_L = O(alpha_S) in F_2
   OrderHQ: '' # same as Order
+  hqnons: 1
   scalea1: 1.0 # scale for heavy quarks mu^2 = scalea1 * Q^2 + scaleb1 * 4 * m_h^2
   scaleb1: 1.0
   xbmin: 5e-6

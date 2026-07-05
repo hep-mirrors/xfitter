@@ -35,11 +35,11 @@ class DIS_TMC {
     double apply_one_flavour(double& f2, double& fl, double& f3, 
       const abm::SFflav flav, const double q2, const double x, const abm::SFproc ncflag, 
       const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm, 
-      const int charge, const double polarity, const double cos2thw, const double mz);
+      const int charge, const double polarity, const double cos2thw, const double mz, const bool hqnons);
     // private methods can be used by friends
     void apply(double& f2, double& fl, double& f3, 
       double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
       const double q2, const double x, const abm::SFproc ncflag, 
       const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm, 
-      const int charge, const double polarity, const double cos2thw, const double mz);
+      const int charge, const double polarity, const double cos2thw, const double mz, const bool hqnons);
 };
