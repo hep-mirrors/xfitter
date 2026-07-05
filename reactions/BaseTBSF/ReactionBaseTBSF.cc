@@ -33,7 +33,10 @@ void ReactionBaseTBSF<BaseDIS, Proc>::initTerm(TermData *td) {
   BaseDIS::initTerm(td);
   unsigned termID = td->id;
 
-  HQ::t_interp_H2gg3reg	= [](double eta, double chi){return 0.;};
+  HQ::t_interp_H2gg3reg	= [](double eta, double chi){
+    //printf("called HQ::t_interp_H2gg3reg\n");
+    return 0.;
+  };
 
   // scales mu^2 = scalea1 * Q^2 + scaleb1 * 4 * m_h^2 (default scalea1 = scaleb1 = 1.0)
   this->_hqscale1in = *td->getParamD("scalea1");
@@ -46,17 +49,29 @@ void ReactionBaseTBSF<BaseDIS, Proc>::initTerm(TermData *td) {
   }
 
   // O(alpha_S) F_L = O(alpha_S) F_2 + ordfl (default ordfl = 1)
-  const int ordfl = td->getParamI("ordfl");
+  int ordfl = td->getParamI("ordfl");
   const int order = OrderMap(td->getParamS("Order")) - 1;
+  if(order >= 2 and ordfl > 0) {
+    hf_errlog(2026070501, "I: TBSF resetting unsupported ordfl = " + std::to_string(ordfl) + " to 0 (order = " + std::to_string(order) + ")");
+    ordfl = 0;
+  }
   const auto& str_orderhq = td->getParamS("OrderHQ");
   const int orderHQ = str_orderhq == "" ? order : OrderMap(str_orderhq) - 1;
+  const bool hqnons = td->getParamI("hqnons");
 
   // minimum Q^2 for computation
   this->_q2mincomp = *td->getParamD("q2mincomp");
 
+  // TODO check
+  if(orderHQ >= 2) {
+    C2HSCALE::initTables();
+    C2HINTERP::initTables();
+  }
+
   // TODO to be removed later
   abm::set_xbmin(*td->getParamD("xbmin"));
   abm::set_xbmax(*td->getParamD("xbmax"));
+  abm::set_hq_scales(this->_hqscale1in, this->_hqscale2in);
   abm::initgridconst();
 
   // heavy quark masses
@@ -83,7 +98,7 @@ void ReactionBaseTBSF<BaseDIS, Proc>::initTerm(TermData *td) {
   }
   // read target mass correction parameters
   this->_tmc[termID] = nullptr;
-  if (td->hasParam("tmc") && td->getParamS("tmc") != "") {
+  if (td->hasParam("tmc") && td->getParamS("tmc") != "" && td->getParamS("tmc") != "0") {
     this->_tmc[termID] = new DIS_TMC(td);
   }
   // read nuclear correction parameters
@@ -193,6 +208,7 @@ void ReactionBaseTBSF<BaseDIS, Proc>::initTerm(TermData *td) {
   printf(", order = %d", order);
   printf(", order HQ = %d", orderHQ);
   printf(", O(alpha_S) F_L - O(alpha_S) F2 = %d", ordfl);
+  printf(", hqnons = %d", hqnons);
   printf(", factorisation scale for heavy quarks = sqrt(%f * Q^2 + %f * 4m_q^2", this->_hqscale1in, this->_hqscale2in);
   printf(", binning = %d\n", int(datapoint_binning));
   printf("---------------------------------------------\n");
@@ -274,6 +290,7 @@ void ReactionBaseTBSF<BaseDIS, Proc>::initTerm(TermData *td) {
     point.ord = order;
     point.ordHQ = orderHQ;
     point.ordFL = ordfl;
+    point.hqnons = hqnons;
     point.msbarmin = msbarmin;
     point.charge = BaseDIS::GetCharge(td->id);
     point.polar = BaseDIS::GetPolarisation(td->id);
@@ -550,33 +567,34 @@ void ReactionBaseTBSF<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     //const int	ITER	= 5;
     const bool useparam = true;
   if (this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::incl || this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::l) {
-    //f2l = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
-    //fll = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
-    f3l = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz);
+    //f2l = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz, nullptr, this->hqnons);
+    //fll = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::l, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz, nullptr, this->hqnons);
+    f3l = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
     const double mu2 = this->q2;
     f2l = F2(this->x, this->q2, mu2, NF, this->ord, useparam, EPSABS, EPSREL, ITER);
     fll = FL(this->x, this->q2, mu2, NF, this->ord + this->ordFL, useparam, EPSABS, EPSREL, ITER);
-    //double f2l0 = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::l, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz);
+    //const double f2l0 = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::l, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
+    //printf("flav,ch = %d,%d  q2,x = %f,%f f2 = %f,%f\n", int(this->flav), int(this->charge), this->q2, this->x, f2l, f2l0);fflush(stdout);
   }
   if (this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::incl || this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::c) {
-    //f2c = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
-    //flc = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
-    f3c = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz);
+    //f2c = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz, nullptr, this->hqnons);
+    //flc = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::c, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz, nullptr, this->hqnons);
+    f3c = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
     const double m2 = (*this->reaction->_mcPtr)*(*this->reaction->_mcPtr);
     const double mu2 = this->reaction->_hqscale1in * this->q2 + this->reaction->_hqscale2in * 4 * m2;
     const int HQidx			= 3; ///< charm
     const int ord_hq = (this->ordHQ == -1 ? this->ord : this->ordHQ) + 1;
     f2c = F2H(this->x, this->q2, mu2, NF, ord_hq, m2, HQidx, EPSABS, EPSREL, ITER);
     flc = FLH(this->x, this->q2, mu2, NF, ord_hq + this->ordFL, m2, HQidx, EPSABS, EPSREL, ITER);
-    double f2c0 = f2c = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::c, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz);
+    double f2c0 = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::c, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
     //printf("c f2,fl=%d,%d\n", this->ord, this->ord + this->ordFL);
     //printf("c f2,fl=%d,%d\n", ord_hq, ord_hq + this->ordFL);
     printf("flav,ch = %d,%d  q2,x = %f,%f f2 = %f,%f\n", int(this->flav), int(this->charge), this->q2, this->x, f2c, f2c0);fflush(stdout);
   }
   if (this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::incl || this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::b) {
-    //f2b = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
-    //flb = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz);
-    f3b = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz);
+    //f2b = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz, nullptr, this->hqnons);
+    //flb = abm::calc_point_strfun(Proc, abm::SFtype::fl, abm::SFflav::b, q2, x, -1, ord, ordHQ, ordFL, msbarmin, charge, *sin2thetaWPtr, polar, *mz, nullptr, this->hqnons);
+    f3b = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
     const double m2 = (*this->reaction->_mbPtr)*(*this->reaction->_mbPtr);
     const double mu2 = this->reaction->_hqscale1in * this->q2 + this->reaction->_hqscale2in * 4 * m2;
     const int HQidx			= 4; ///< beauty
@@ -584,8 +602,8 @@ void ReactionBaseTBSF<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     f2b = F2H(this->x, this->q2, mu2, NF, ord_hq, m2, HQidx, EPSABS, EPSREL, ITER);
     flb = FLH(this->x, this->q2, mu2, NF, ord_hq + this->ordFL, m2, HQidx, EPSABS, EPSREL, ITER);
     //printf("b f2,fl=%d,%d\n", ord_hq, ord_hq + this->ordFL);
-    const double f2b0 = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::b, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz);
-    printf("flav,ch = %d,%d  q2,x = %f,%f f2 = %f,%f\n", int(this->flav), int(this->charge), this->q2, this->x, f2b, f2b0);fflush(stdout);
+    //const double f2b0 = abm::calc_point_strfun(Proc, abm::SFtype::f2, abm::SFflav::b, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
+    //printf("flav,ch = %d,%d  q2,x = %f,%f f2 = %f,%f\n", int(this->flav), int(this->charge), this->q2, this->x, f2b, f2b0);fflush(stdout);
   }
                 
   double f3lout_bar = 0.;
@@ -595,19 +613,19 @@ void ReactionBaseTBSF<BaseDIS, Proc>::DataPoint::calc_at_q2x() {
     int charge_bar = -1 * this->charge;
     double f3l_bar(0), f3c_bar(0), f3b_bar(0);
     if (this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::incl || this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::l) {
-      f3l_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, charge_bar, *this->sin2thetaWPtr, this->polar, *this->mz);
+      f3l_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::l, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, charge_bar, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
     }
     if (this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::incl || this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::c) {
-      f3c_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, charge_bar, *this->sin2thetaWPtr, this->polar, *this->mz);
+      f3c_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::c, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, charge_bar, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
     }
     if (this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::incl || this->flav == ReactionBaseFFABM<BaseDIS, Proc>::dataFlav::b) {
-      f3b_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, charge_bar, *this->sin2thetaWPtr, this->polar, *this->mz);
+      f3b_bar = abm::calc_point_strfun(Proc, abm::SFtype::f3, abm::SFflav::b, this->q2, this->x, -1, this->ord, this->ordHQ, this->ordFL, this->msbarmin, charge_bar, *this->sin2thetaWPtr, this->polar, *this->mz, nullptr, this->hqnons);
     }
     f3lout_bar = this->x * ReactionBaseFFABM<BaseDIS, Proc>::combine_flavours(this->flav, f3l_bar, f3c_bar, f3b_bar);
   }
   if (this->tmc) {
     hf_errlog(2026070302, "F: TMC not yet supported in TBSF");
-    this->tmc->apply(f2l, fll, f3l, f2c, flc, f3c, f2b, flb, f3b, this->q2, this->x, Proc, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, this->polar, 1.-*this->sin2thetaWPtr, *this->mz);
+    this->tmc->apply(f2l, fll, f3l, f2c, flc, f3c, f2b, flb, f3b, this->q2, this->x, Proc, this->ord, this->ordHQ, this->ordFL, this->msbarmin, this->charge, this->polar, 1.-*this->sin2thetaWPtr, *this->mz, this->hqnons);
   }
   if(this->ht) {
     // HT is applied only to F2 and FL light flavour part
