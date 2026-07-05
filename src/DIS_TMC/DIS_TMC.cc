@@ -23,13 +23,14 @@ struct integration_params {
   int orderHQ;
   int orderFL;
   bool msbarm;
+  bool hqnons;
   //double xi;
   //int nt;
   // OBS
   int flag_calc_sf; // 0: F2, 1: FL, 2: F3
   int flag_calc_flav; // 0: l, 1: c, 2: b
   double calc_point_strfun(double xip) const {
-    return abm::calc_point_strfun(sfproc, sftype, sfflav, q2, xip, order, orderDefault, orderHQ, orderFL, msbarm, charge, 1.-cos2thw, polarity, mz);
+    return abm::calc_point_strfun(sfproc, sftype, sfflav, q2, xip, order, orderDefault, orderHQ, orderFL, msbarm, charge, 1.-cos2thw, polarity, mz, nullptr, hqnons);
   }
 };
 
@@ -85,17 +86,17 @@ void DIS_TMC::apply(double& f2, double& fl, double& f3,
       double& f2c, double& flc, double& f3c, double& f2b, double& flb, double& f3b, 
       const double q2, const double x, const abm::SFproc ncflag, 
       const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm,
-      const int charge, const double polarity, const double cos2thw, const double mz) {
+      const int charge, const double polarity, const double cos2thw, const double mz, const bool hqnons) {
   if(!_flag_f2 && !_flag_fl && !_flag_f3) return;
   if ((_xmin == 0. || _xmin < x) && (_logxlogq2min == 0. || _logxlogq2min < log(x)*log(q2))) {
     if(_flag_l) {
-      apply_one_flavour(f2, fl, f3, abm::SFflav::l, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz);
+      apply_one_flavour(f2, fl, f3, abm::SFflav::l, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz, hqnons);
     }
     if(_flag_c) {
-      apply_one_flavour(f2c, flc, f3c, abm::SFflav::c, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz);
+      apply_one_flavour(f2c, flc, f3c, abm::SFflav::c, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz, hqnons);
     }
     if(_flag_b) {
-      apply_one_flavour(f2b, flb, f3b, abm::SFflav::b, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz);
+      apply_one_flavour(f2b, flb, f3b, abm::SFflav::b, q2, x, ncflag, orderDefault, orderHQ, orderFL, msbarm, charge, polarity, cos2thw, mz, hqnons);
     }
   }
 }
@@ -103,7 +104,7 @@ void DIS_TMC::apply(double& f2, double& fl, double& f3,
 double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3, 
     const abm::SFflav flav, const double q2, const double x, const abm::SFproc ncflag, 
     const int orderDefault, const int orderHQ, const int orderFL, const bool msbarm, 
-    const int charge, const double polarity, const double cos2thw, const double mz) {
+    const int charge, const double polarity, const double cos2thw, const double mz, const bool hqnons) {
   double mn = *_mpr;
   double gam = sqrt(1+4*x*x*mn*mn/q2);
   double xi = 2*x/(1+gam);
@@ -128,6 +129,7 @@ double DIS_TMC::apply_one_flavour(double& f2, double& fl, double& f3,
   pars.orderDefault = orderDefault;
   pars.orderHQ = orderHQ;
   pars.orderFL = orderFL;
+  pars.hqnons = hqnons;
   double I_F2 = 0.;
   double I_F3 = 0.;
   // gsl integration

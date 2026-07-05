@@ -109,6 +109,7 @@ namespace abm {
     // It is infrared unsafe in the NNLO therefore there are pro and contra for including it and it is up to user.
     // In ABMP16 fit it was set to .false.
     // (makes small difference which reaches few % only at highest Q2 of the charm HERA data and is negligible for practical purposes)
+    printf("hqnons = %d\n", hqnons);
     forschemedef_.hqnons = hqnons;
     //abkm_set_input_full_(kschemepdf, kordpdf, kordhq, kordf2, kordfl, kordf3, kordalps, rmass8, rmass10, msbarm, hqscale1, hqscale2, flord);
   }
@@ -133,12 +134,12 @@ namespace abm {
 
   double calc_point_strfun(const SFproc proc, const SFtype ftype, const SFflav flav, const double q2, const double x, 
     const int order, const int orderDefault, const int orderHQ, const int orderFL, const bool msbar, 
-    const int charge, const double sin2thw, const double polar, const double mz, const double* f2c/*=nullptr*/) {
+    const int charge, const double sin2thw, const double polar, const double mz, const double* f2c, const bool hqnons) {
     if (proc == SFproc::nc) {
-      return calc_point_strfun_NC(ftype, flav, q2, x, order, orderDefault, orderHQ, orderFL, msbar, charge, sin2thw, polar, mz);
+      return calc_point_strfun_NC(ftype, flav, q2, x, order, orderDefault, orderHQ, orderFL, msbar, charge, sin2thw, polar, mz, hqnons);
     }
     else if (proc == SFproc::cc) {
-      return calc_point_strfun_CC(ftype, flav, q2, x, order, orderDefault, orderHQ, orderFL, msbar, charge, f2c);
+      return calc_point_strfun_CC(ftype, flav, q2, x, order, orderDefault, orderHQ, orderFL, msbar, charge, f2c, hqnons);
     }
     else {
       hf_errlog(19082501, "F: Unsupported process");
@@ -148,13 +149,13 @@ namespace abm {
 
   double calc_point_strfun_NC(const SFtype ftype, const SFflav flav, const double q2, const double x, 
     const int order, const int orderDefault, const int orderHQin, const int orderFLin, const bool msbar, 
-    const int charge, const double sin2thw, const double polar, const double mz) {
+    const int charge, const double sin2thw, const double polar, const double mz, const bool hqnons) {
     int orderALL = (order >= 0) ? order : orderDefault;
     int orderHQ = (order >= 0) ? order : orderHQin;
     int orderFL = (order >= 0) ? order : orderFLin;
     // Take the 3-flavour scheme as a default
     int kschemepdfin = 0;
-    abm::set_scheme_and_order(kschemepdfin, orderALL, msbar, orderFL, orderHQ);
+    abm::set_scheme_and_order(kschemepdfin, orderALL, msbar, orderFL, orderHQ, -1, -1, -1, -1, hqnons);
     static constexpr int nt = 1; // proton
     switch (flav) {
       case SFflav::l: {
@@ -165,6 +166,7 @@ namespace abm {
         const double facgzf3 = -1 * eleAxial - charge * polar * eleVec;
         const double faczzf3 = 2 * eleAxial * eleVec + charge * polar * (eleVec * eleVec + eleAxial * eleAxial);
         const double PZ = 1. / (4 * sin2thw * (1 - sin2thw) * (1 + mz * mz / q2));
+        //const double PZ = 0.0;
         switch (ftype) {
           case SFtype::f2:
             return f2qcd_(3, nt, 22, x, q2) + facgz * PZ * f2qcd_(3, nt, 25, x, q2) + faczz * PZ * PZ * f2qcd_(3, nt, 23, x, q2);
@@ -199,7 +201,7 @@ namespace abm {
 
   double calc_point_strfun_CC(const SFtype ftype, const SFflav flav, const double q2, const double x, 
       const int order, const int orderDefault, const int orderHQin, const int orderFLin, const bool msbar, 
-      const int charge, const double* f2c/*=nullptr*/) {
+      const int charge, const double* f2c/*=nullptr*/, const bool hqnons) {
     if (flav == abm::SFflav::b) {
       return 0;
     }
@@ -208,7 +210,7 @@ namespace abm {
     int orderFL = (order >= 0) ? order : orderFLin;
     // Take the 3-flavour scheme as a default
     int kschemepdfin = 0;
-    abm::set_scheme_and_order(kschemepdfin, orderALL, msbar, orderFL, orderHQ);
+    abm::set_scheme_and_order(kschemepdfin, orderALL, msbar, orderFL, orderHQ, -1, -1, -1, -1, hqnons);
     static constexpr int nt = 1; // proton
     static constexpr int ni = 24; // CC
     const int nb = charge > 0 ? 6 : 7;

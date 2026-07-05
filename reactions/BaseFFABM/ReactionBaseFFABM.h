@@ -110,6 +110,7 @@ private:
     const double* br1;
     double mnucl;
     double mw;
+    bool hqnons;
     DIS_NUKE* nuke;
     DIS_TMC* tmc;
     DIS_HT* ht;
