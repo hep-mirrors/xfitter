@@ -165,6 +165,7 @@ namespace abm {
         const double facgzf3 = -1 * eleAxial - charge * polar * eleVec;
         const double faczzf3 = 2 * eleAxial * eleVec + charge * polar * (eleVec * eleVec + eleAxial * eleAxial);
         const double PZ = 1. / (4 * sin2thw * (1 - sin2thw) * (1 + mz * mz / q2));
+        //printf("PZ = %f\n", PZ);
         switch (ftype) {
           case SFtype::f2:
             return f2qcd_(3, nt, 22, x, q2) + facgz * PZ * f2qcd_(3, nt, 25, x, q2) + faczz * PZ * PZ * f2qcd_(3, nt, 23, x, q2);
