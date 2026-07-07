@@ -90,12 +90,17 @@ c          write(6,*) ' PBTMDsubr ',qmu2
         xkt = -9999.
         mc2 = mc**2
         mb2 = mb**2
+c        if(sqrt(qmu2).lt.5) then
+c           write(6,*) ' PBTMDsubr x = ',x,' mu2 = ',qmu2        
+c        endif
 c      write(6,*) ' PBTMDsubr x = ',x,' mu2 = ',qmu2
 c      write(6,*) ' PBTMDsubr ', ixold,iq2old
         call TMDconv(x, xkt , qmu2, xTMD)
         do i=-6,11
 c        do i=-6,6
-           xf(i)= max(0.d0,xTMD(i))
+ccc           xf(i)= max(0.d0,xTMD(i))  ! require positivity of PDF
+           xf(i)= xTMD(i)
+           
           if(qmu2.le.mc2.and.iabs(i).eq.4)  xf(i) = 0. 
           if(qmu2.le.mb2.and.iabs(i).eq.5)  xf(i) = 0.
 c check          
@@ -178,6 +183,9 @@ c      Write (6,*) ' in TMDconv ',x,sqrt(q2)
 cc        nseg = 30  ! Sara
         xx = x
         q2x = q2
+c        if(sqrt(q2x).lt.5) then
+c           write(6,*) ' TMDconv q < 5 ', sqrt(q2x)
+c        endif
         xxkt = xkt
         if(xkt.lt.0) then 
 c           mygridfiles=trim(trim(outdir)//'/tmd-grid-gluon_int.dat'//char(0))
@@ -287,6 +295,11 @@ c      write(6,*) ' TMDconv: x,q2,xTMD ',x,sqrt(q2),xTMD(0),xTMD(7),xTMD(0)-xTMD
       Common/ myfirst/First_dum,Fccfm1,Fccfm2
 c      write(6,*) ' iTMD pdf-composition ',PDF_DECOMPOSITION
       pr = sqrt(q2)
+      
+c      if(pr.lt.5) then
+c         write(6,*) 'iTMDg: pr lt 5 ',pr,q2      
+c      endif
+      
       xmin=x
       xmax=0.9999999999
 c    generate x0 with 1/x
@@ -323,7 +336,9 @@ c      endif
      
       return
       end
+cc#include "iTMDq.f-orig"
 #include "iTMDq.f-new"
+cc#include "iTMDq.f-old"
 
       subroutine TMDstart(xstart,Qstart,xpq0)
       Implicit none
@@ -342,7 +357,7 @@ c      endif
       Do i=-6,7
         xpq0(i) = 0
       end do
-      Qstart = 1.9*1.9
+c      Qstart = 1.9*1.9
 c old QCDnum convention
 c      xpq0(0)=func22(0,x0)
 cc      xpq0(-1)=func22(5,x0)
@@ -901,6 +916,8 @@ C        can be set to zero, in which case only the other is used.
       
       character mygridfile_old*132
       
+      Double Precision rmaxLim
+      
       Logical lwrite/.true./
             
       Integer inter
@@ -1005,24 +1022,25 @@ c888               continue
                   xx(i) = rx
                   px(k) = rp
 c                  write(6,*) ' check read ',i,exp(xx(i)),k,exp(px(k))
-                  f_grid0(i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
 c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
 c                   write(6,*) rx,rp
                enddo
@@ -1067,7 +1085,7 @@ c         write(6,*) '  parton densities read from file unit 30 '
          n2min = n2min + 1  
          if(n2min.lt.10) then 
             write(6,*) ' iTMDgridg: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridg: p out of range ',xa(2),px(1)
+            write(6,*) ' iTMDgridg: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -1148,24 +1166,24 @@ cc         write(6,*) ' glu ',glu,glun
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(down.gt.0.) xpq(1) = down
-      if(usea.gt.0) xpq(-2) = usea
-      if(dsea.gt.0) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
 c      if(z0.gt.0) then
 c         write(6,*) ' iTMDgridg x,p,xpq',x,p,xpq(8)
 ccc         write(6,*) ' i,j,k ',i,j,k
@@ -1226,6 +1244,7 @@ c      write(6,*) ' new iTMDgridg x,q2,p,xpq',x,q2,p,glu
       
       Logical lwrite/.true./
       
+      Double Precision rmaxLim
       Integer inter
       data inter/1/
       
@@ -1319,24 +1338,25 @@ c                  write(6,*) ' grid output format ',RX,RP
 
                   xx(i) = rx
                   px(k) = rp
-                  f_grid0(i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
 c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
 c                   write(6,*) rx,rp
                enddo
@@ -1368,7 +1388,7 @@ c         write(6,*) '  parton densities read from file unit 30 '
 
          if(n2min.lt.10) then 
             write(6,*) ' iTMDgridq-d: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_d: p out of range ',xa(2),px(1)
+            write(6,*) ' iTMDgridq_d: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -1442,24 +1462,24 @@ c check if interpolation or grid wanted
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(down.gt.0.) xpq(1) = down
-      if(usea.gt.0) xpq(-2) = usea
-      if(dsea.gt.0) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
 c      if(z0.gt.0) then
 c         write(6,*) ' iTMDgridq x,p,xpq',x,p,xpq(8)
 ccc         write(6,*) ' i,j,k ',i,j,k
@@ -1520,6 +1540,7 @@ c         write(6,*) ' new iTMDgrid x,q2,p,xpq',x,q2,p,glu
       
       Logical lwrite/.true./
       
+      Double Precision rmaxLim
       Integer inter
       data inter/1/
       
@@ -1616,24 +1637,25 @@ c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,
 
                   xx(i) = rx
                   px(k) = rp
-                  f_grid0(i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
 c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
 c                   write(6,*) rx,rp
                enddo
@@ -1665,7 +1687,7 @@ c         write(6,*) '  parton densities read from file unit 30 '
          
          if(n2min.lt.10) then 
             write(6,*) ' iTMDgridq_u: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_u: p out of range ',xa(2),px(1)
+            write(6,*) ' iTMDgridq_u: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_u: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -1739,24 +1761,24 @@ c check if interpolation or grid wanted
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(down.gt.0.) xpq(1) = down
-      if(usea.gt.0) xpq(-2) = usea
-      if(dsea.gt.0) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
 c      if(z0.gt.0) then
 c         write(6,*) ' iTMDgridq_u x,p,xpq',x,p,xpq(8)
 ccc         write(6,*) ' i,j,k ',i,j,k
@@ -1815,6 +1837,7 @@ c         write(6,*) ' new iTMDgridu x,q2,p,xpq',x,q2,p,glu
       
       character mygridfile_old*132
       
+      Double Precision rmaxLim
       Logical lwrite/.true./
       
       Integer inter
@@ -1913,24 +1936,25 @@ c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,
 
                   xx(i) = rx
                   px(k) = rp
-                  f_grid0(i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
 c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
 c                   write(6,*) rx,rp
                enddo
@@ -1962,7 +1986,7 @@ c         write(6,*) '  parton densities read from file unit 30 '
          
          if(n2min.lt.10) then 
             write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_d: p out of range ',xa(2),px(1)
+            write(6,*) ' iTMDgridq_d: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -2036,24 +2060,24 @@ c check if interpolation or grid wanted
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(down.gt.0.) xpq(1) = down
-      if(usea.gt.0) xpq(-2) = usea
-      if(dsea.gt.0) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
 c      if(z0.gt.0) then
 c         write(6,*) ' iTMDgridq_d x,p,xpq',x,p,xpq(8)
 ccc         write(6,*) ' i,j,k ',i,j,k
@@ -2112,6 +2136,7 @@ c         write(6,*) ' new iTMDgridu x,q2,p,xpq',x,q2,p,glu
       
       character mygridfile_old*132
       
+      Double Precision rmaxLim
       Logical lwrite/.true./
       
       Integer inter
@@ -2210,24 +2235,25 @@ c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,
 
                   xx(i) = rx
                   px(k) = rp
-                  f_grid0(i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
 c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
 c                   write(6,*) rx,rp
                enddo
@@ -2259,7 +2285,7 @@ c         write(6,*) '  parton densities read from file unit 30 '
          
          if(n2min.lt.10) then 
             write(6,*) ' iTMDgridq_dbar: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_dbar: p out of range ',xa(2),px(1)
+            write(6,*) ' iTMDgridq_dbar: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_dbar: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -2333,24 +2359,24 @@ c check if interpolation or grid wanted
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(down.gt.0.) xpq(1) = down
-      if(usea.gt.0) xpq(-2) = usea
-      if(dsea.gt.0) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
 c      if(z0.gt.0) then
 c         write(6,*) ' iTMDgridq_dbar x,p,xpq',x,p,xpq(8)
 ccc         write(6,*) ' i,j,k ',i,j,k
@@ -2411,6 +2437,7 @@ c         write(6,*) ' new iTMDgridu x,q2,p,xpq',x,q2,p,glu
       
       Logical lwrite/.true./
       
+      Double Precision rmaxLim
       Integer inter
       data inter/1/
       
@@ -2507,24 +2534,25 @@ c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,
 
                   xx(i) = rx
                   px(k) = rp
-                  f_grid0(i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
 c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
 c                   write(6,*) rx,rp
                enddo
@@ -2556,7 +2584,7 @@ c         write(6,*) '  parton densities read from file unit 30 '
          
          if(n2min.lt.10) then 
             write(6,*) ' iTMDgridq_ubar: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_ubar: p out of range ',xa(2),px(1)
+            write(6,*) ' iTMDgridq_ubar: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_ubar: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -2630,24 +2658,24 @@ c check if interpolation or grid wanted
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(down.gt.0.) xpq(1) = down
-      if(usea.gt.0) xpq(-2) = usea
-      if(dsea.gt.0) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
 c      if(z0.gt.0) then
 c         write(6,*) ' iTMDgridq_ubar x,p,xpq',x,p,xpq(8)
 ccc         write(6,*) ' i,j,k ',i,j,k
@@ -2791,6 +2819,7 @@ C
       Real QCDlam
       LOGICAL FIRST
       DATA FIRST/.TRUE./
+      
 
             
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
@@ -2798,6 +2827,7 @@ C
       
       character mygridfile_old*132
       
+      Double Precision rmaxLim
       Logical lwrite/.true./
      
 
@@ -2892,24 +2922,25 @@ c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6
                   xx(i) = rx
                   q2x(j) = rq2
                   px(k) = rp
-                  f_grid0(j,i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(j,i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(j,i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(j,i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(j,i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(j,i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(j,i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(j,i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(j,i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(j,i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(j,i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(j,i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(j,i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(j,i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(j,i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(j,i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(j,i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(j,i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(j,i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(j,i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(j,i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(j,i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(j,i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(j,i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(j,i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(j,i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(j,i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(j,i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(j,i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(j,i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(j,i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(j,i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(j,i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(j,i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(j,i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(j,i,k) = max(rmaxLim,rkms6b)*scal
 c                  write(6,*)f_grid(j,i,k) 
                enddo
             enddo
@@ -3093,24 +3124,24 @@ c           write(6,*) ' new TMDgridg x,q2,p,xpq',x,q2,p,glu
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(usea.gt.0.) xpq(-2) = usea
-      if(down.gt.0.) xpq(1) = down
-      if(dsea.gt.0.) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
       if(glu.gt.5E6) then
          write(6,*) ' new TMDgridg gluon x,q2,p,xpq',x,q2,p,glu
 c         write(6,*) ' i,j,k ',i,j,k
@@ -3172,6 +3203,7 @@ c         write(6,*) ' i,j,k ',i,j,k
       Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
       
       character mygridfile_old*132
+      Double Precision rmaxLim
       
       Logical lwrite/.true./
 
@@ -3262,24 +3294,25 @@ c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6
                   xx(i) = rx
                   q2x(j) = rq2
                   px(k) = rp
-                  f_grid0(j,i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(j,i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(j,i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(j,i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(j,i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(j,i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(j,i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(j,i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(j,i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(j,i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(j,i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(j,i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(j,i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(j,i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(j,i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(j,i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(j,i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(j,i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(j,i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(j,i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(j,i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(j,i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(j,i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(j,i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(j,i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(j,i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(j,i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(j,i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(j,i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(j,i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(j,i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(j,i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(j,i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(j,i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(j,i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(j,i,k) = max(rmaxLim,rkms6b)*scal
                enddo
             enddo
          enddo
@@ -3461,24 +3494,24 @@ c         write(6,*) ' new TMDgridqd x,q2,p ',x,q2,p,glu,uval,dval,usea,dsea,sse
       DO  IP=-6,11
          XPQ(IP)=0.0
       ENDDO
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(usea.gt.0.) xpq(-2) = usea
-      if(down.gt.0.) xpq(1) = down
-      if(dsea.gt.0.) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
       if(glu.gt.5E6) then
          write(6,*) ' new TMDgridq_d gluon x,q2,p,xpq',x,q2,p,glu
 c         write(6,*) ' i,j,k ',i,j,k
@@ -3541,6 +3574,7 @@ c         write(6,*) ' i,j,k ',i,j,k
       
       character mygridfile_old*132
       
+      Double Precision rmaxLim
       Logical lwrite/.true./
 
 c         write(6,*) ' TMDgridqu: files ',mygridfiles,mygridfile_old
@@ -3631,24 +3665,25 @@ c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6
                   xx(i) = rx
                   q2x(j) = rq2
                   px(k) = rp
-                  f_grid0(j,i,k) = max(0.d0,rkms0)*scal
-                  f_grid1(j,i,k) = max(0.d0,rkms1)*scal
-                  f_grid2(j,i,k) = max(0.d0,rkms2)*scal
-                  f_grid3(j,i,k) = max(0.d0,rkms3)*scal
-                  f_grid4(j,i,k) = max(0.d0,rkms4)*scal
-                  f_grid5(j,i,k) = max(0.d0,rkms5)*scal
-                  f_grid6(j,i,k) = max(0.d0,rkms6)*scal
-                  f_grid7(j,i,k) = max(0.d0,rkms7)*scal
-                  f_grid8(j,i,k) = max(0.d0,rkms8)*scal
-                  f_grid9(j,i,k) = max(0.d0,rkms9)*scal
-                  f_grid10(j,i,k) = max(0.d0,rkms10)*scal
-                  f_grid11(j,i,k) = max(0.d0,rkms11)*scal
-                  f_grid1m(j,i,k) = max(0.d0,rkms1b)*scal
-                  f_grid2m(j,i,k) = max(0.d0,rkms2b)*scal
-                  f_grid3m(j,i,k) = max(0.d0,rkms3b)*scal
-                  f_grid4m(j,i,k) = max(0.d0,rkms4b)*scal
-                  f_grid5m(j,i,k) = max(0.d0,rkms5b)*scal
-                  f_grid6m(j,i,k) = max(0.d0,rkms6b)*scal
+			rmaxLim = -1.E12
+                  f_grid0(j,i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(j,i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(j,i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(j,i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(j,i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(j,i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(j,i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(j,i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(j,i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(j,i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(j,i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(j,i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(j,i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(j,i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(j,i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(j,i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(j,i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(j,i,k) = max(rmaxLim,rkms6b)*scal
                enddo
             enddo
          enddo
@@ -3834,24 +3869,24 @@ c         write(6,*) ' new TMDgridqu x,q2,p ',x,q2,p,glu,uval,dval,usea,dsea,sse
          XPQ(IP)=0.0
       ENDDO
             
-      if(glu.gt.0.) xpq(0) = glu
-      if(up.gt.0.) xpq(2) = up
-      if(usea.gt.0.) xpq(-2) = usea
-      if(down.gt.0.) xpq(1) = down
-      if(dsea.gt.0.) xpq(-1) = dsea
-      if(str.gt.0.) xpq(3) = str
-      if(ssea.gt.0.) xpq(-3) = ssea
-      if(charm.gt.0.) xpq(4) = charm
-      if(csea.gt.0.) xpq(-4) = csea
-      if(bot.gt.0.) xpq(5) = bot
-      if(bsea.gt.0.) xpq(-5) = bsea
-      if(top.gt.0.) xpq(6) = top
-      if(tsea.gt.0.) xpq(-6) = tsea
-      if(phot.gt.0.) xpq(7) = phot
-      if(z0.gt.0.) xpq(8) = z0
-      if(wplus.gt.0.) xpq(9) = wplus
-      if(wminus.gt.0.) xpq(10) = wminus
-      if(higgs.gt.0.) xpq(11) = higgs
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
       if(glu.gt.5E6) then
          write(6,*) ' new TMDgridq_u gluon x,q2,p,xpq',x,q2,p,glu
 c         write(6,*) ' i,j,k ',i,j,k

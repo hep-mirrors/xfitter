@@ -62,8 +62,9 @@ namespace xfitter
       { 4,cbar},
       { 5,bbar},
       { 6,0},
-      {21,g}
+      {21,g}      
     };
+
   }
 }
 

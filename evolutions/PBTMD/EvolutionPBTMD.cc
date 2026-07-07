@@ -45,7 +45,8 @@ double static   qcdnumDef[] = {
   0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.  // t
 };
 
-
+    double* Q0save;
+    
 extern "C" {
 
 
@@ -111,15 +112,17 @@ namespace xfitter {
 /// Global initialization
   void EvolutionPBTMD::atStart()
   {
-  std::cout<< " using PBTMD evolution  " << _name << std::endl;
+    std::cout<< " using PBTMD evolution  " << _name << std::endl;
     YAML::Node yPBTMD=XFITTER_PARS::getEvolutionNode(_name);
 
     //Evolution gets its decomposition from YAML
     gPdfDecomp=XFITTER_PARS::getInputDecomposition(yPBTMD);
     Mz = XFITTER_PARS::getParamD("Mz");
     alphas = XFITTER_PARS::getParamD("alphas");
-    const double* Q0         = XFITTER_PARS::getParamD("Q0");
-    double q20 = (*Q0) * (*Q0);
+    // const double* Q0         = XFITTER_PARS::getParamD("Q0");
+    Q0save         = XFITTER_PARS::getParamD("Q0");
+    double q20 = (*Q0save) * (*Q0save);
+    std::cout<< " with Q0 = " << *Q0save << std::endl;
    }
 
   void EvolutionPBTMD::atConfigurationChange(){
@@ -160,6 +163,7 @@ namespace xfitter {
   {
      //std::map<int, double> res;
      double q2 = Q*Q ;
+     // cout << " in xfxQmap: Q = " << Q << " Q0 = " << *Q0save<<  endl;
      //double test(-6,11);
      double* mc   = XFITTER_PARS::getParamD("mch");
      double* mb   = XFITTER_PARS::getParamD("mbt");
@@ -194,8 +198,11 @@ namespace xfitter {
             if (ipdf == 9) ii = 24;
             if (ipdf == 10) ii = -24;
             if (ipdf == 11) ii = 25;
+            res[ii] = 0. ;
             // std::cout<< " ipdf = " << ipdf << " ii = " << ii << " x = " << x << " q2 = " << q2 << std::endl;
-            res[ii] = pbtmdsubr(ipdf, x, q2, mc, mb, file, length);
+            if(q2 >= (*Q0save)*(*Q0save) ) res[ii] = pbtmdsubr(ipdf, x, q2, mc, mb, file, length);
+            // if(sqrt(q2) >= 5.0 ) res[ii] = pbtmdsubr(ipdf, x, q2, mc, mb, file, length);
+           // res[ii] = pbtmdsubr(ipdf, x, q2, mc, mb, file, length);
             
         }
         xSav = x; Q2Sav = q2;        

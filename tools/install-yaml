@@ -31,8 +31,8 @@ echo "Get yaml++"
 mkdir -p $dir
 cd $dir
 
-#wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/${yamlppver}.tar.gz > $CURRENTDIR/install_yam.log  2>&1
-#tar xfz ${yamlppver}.tar.gz
+wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/${yamlppver}.tar.gz > $CURRENTDIR/install_yam.log  2>&1
+tar xfz ${yamlppver}.tar.gz
 cd yaml-cpp-${yamlppver}
 mkdir build
 cd build

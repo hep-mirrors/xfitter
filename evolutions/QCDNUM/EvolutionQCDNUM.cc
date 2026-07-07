@@ -129,10 +129,13 @@ namespace xfitter {
       PtOrder    = min(2,PtOrder) ; 
       std::cout << " QCDnum swichted to NLO for evolution of FF " << std::endl;
     } 
-    PtOrder    = 2  ; 
-      std::cout << " QCDnum swichted order = " << PtOrder <<  std::endl;
+     PtOrder    = 2  ; 
+    std::cout << " QCDnum swichted order = " << PtOrder <<  std::endl;
     
-    std::cout << " QCDnum init: itype " << _itype << std::endl;
+    std::cout << " QCDnum init: itype = " << _itype << std::endl;
+    std::cout << " QCDnum defintion: itype = 1: Spacelike " << std::endl;
+    std::cout << " QCDnum defintion: itype = 2: Spacelike pol " << std::endl;
+    std::cout << " QCDnum defintion: itype = 3: Timelike " << std::endl;
 
     // Get grids
     vector<double> xGrid   = getSeq<double>(yQCDNUM["xGrid"]);
