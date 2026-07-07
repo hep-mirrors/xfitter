@@ -83,8 +83,6 @@ C     Reset dataset flags for statistical and systematic correlation matrices
          enddo
       enddo
 
-      print *, 'DEBUG: NCorrFiles = ', NCorrFiles
-      
 c     First Loop on correlation files
 c     to check conflicts of incompatible correlation/covariance files associated 
 c     to the same pair of datasets
