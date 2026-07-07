@@ -232,7 +232,7 @@ C
 C  Read statistical correlations namelist:
 C
 C reset defaults:
-      NCorrFiles = 0
+      NCorrFiles = -1
       do i = 1,NSET
          CorrFileNames(i) = ''
       enddo
@@ -247,7 +247,7 @@ C Determine how many files to process. First count them:
          endif
       enddo
 
-      if ( NCorrFiles.eq.0) then
+      if ( NCorrFiles.lt.0) then
          NCorrFiles = nf       ! by default use all files
       else
          if (NCorrFiles.gt.nf) then
