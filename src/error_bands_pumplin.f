@@ -18,7 +18,7 @@
 
       integer i,j,npar,nPOI,nExtSyst,idx,idx2,kflag,ii
       double precision c_BartLR, bart_scale
-      character*48 name,name2
+      character*300 name,name2
       character*300 base,base2
       character tag(40)*3
       data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
@@ -300,8 +300,8 @@ C
 
       character *64 parname
 
-      character*48 name,name2
-      character*48 base,base2
+      character*300 name,name2
+      character*300 base,base2
       character tag(40)*3
       data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
      +     's06','s07','s08','s09','s10',

@@ -33,8 +33,8 @@ C--------------------------------------------------------------
       double precision xnu, xrho, Qsimple
       double precision F123(3)
 
-      character*48 name
-      character*48 h1name
+      character*300 name
+      character*300 h1name
       character*(*) base
       character*25 fsfc
       character*25 namefsfc
