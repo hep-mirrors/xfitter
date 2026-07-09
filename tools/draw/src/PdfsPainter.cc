@@ -693,10 +693,11 @@ vector <TCanvas*> PdfsPainter(double q2, pdftype ipdf)
   TLegend * leg2;
   if (ipdf == ubar || ipdf == dbar || ipdf == s || ipdf == Sea || ipdf == g)
     //leg2 = new TLegend(lmarg+0.03, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.01);
-    leg2 = new TLegend(lmarg+0.03, 1-tmarg-0.07-pdfgraphs.size()*0.05, lmarg+0.33, 1-tmarg-0.03);
+    leg2 = new TLegend(opts.legend_xmove==0.0 ? (lmarg+0.03) : opts.legend_xmove, 1-tmarg-0.07-pdfgraphs.size()*0.05, opts.legend_xmove==0.0 ? (lmarg+0.33) : (opts.legend_xmove+0.27), 1-tmarg-0.03);
   else
     //leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.05-pdfgraphs.size()*0.05, lmarg+0.45, 1-tmarg-0.01);
-    leg2 = new TLegend(lmarg+0.18, 1-tmarg-0.07-pdfgraphs.size()*0.05, lmarg+0.45, 1-tmarg-0.03);
+    leg2 = new TLegend(opts.legend_xmove==0.0 ? (lmarg+0.18) : opts.legend_xmove, 1-tmarg-0.07-pdfgraphs.size()*0.05, opts.legend_xmove==0.0 ? (lmarg+0.45) : (opts.legend_xmove+0.27), 1-tmarg-0.03);
+  //leg2 = new TLegend(lmarg+0.28, 1-tmarg-0.07-pdfgraphs.size()*0.05, lmarg+0.55, 1-tmarg-0.03);
   leg2->SetTextFont(opts.rootfont);
   leg2->SetTextSize(txtsize);
   leg2->SetFillColor(0);

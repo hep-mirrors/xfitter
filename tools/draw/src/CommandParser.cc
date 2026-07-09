@@ -16,6 +16,7 @@ float bmarg = 0.1;
 float marg0 = 0.003;
 
 CommandParser::CommandParser(int argc, char **argv):
+  legend_xmove(0.0),
   dobands(false),
   scale68(false),
   q2label("Q^{2}"),
@@ -359,6 +360,10 @@ CommandParser::CommandParser(int argc, char **argv):
       }
       else if (*it == "--filledbands")
         filledbands = true;
+      else if (*it == "--legend_xmove") {
+        legend_xmove = std::stof(*(it+1));
+        allargs.erase(it+1);
+      }
       else if (*it == "--transparentbands")
 	transparentbands = true;
       else if (*it == "--ratiorange")

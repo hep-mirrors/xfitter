@@ -25,6 +25,7 @@ class CommandParser
   CommandParser(int argc, char **argv);
 
   //pdf options
+  float legend_xmove;
   bool dobands, filledbands, transparentbands, asym, logx;
   float rmin, rmax;
   double xmin, xmax;
