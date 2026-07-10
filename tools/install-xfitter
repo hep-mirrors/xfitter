@@ -8,21 +8,21 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ## Programs versions
 lhapdfver=6.5.4
 hathorver=2.0
-#hoppetver=1.2.0
-hoppetver=master # needed for HOPPET structure functions (to be replaced with upcoming 1.3.0 version)
+hoppetver=2.3.0
 applgridver=1.6.47
 applwrapver=1.0.5
 # This is the frozen version of the package
 qcdnumver=18-00-00
 apfelver=3.0.6
 apfelgridver=1.0.5
-apfelxxver=4.8.0
+apfelxxver=4.10.0
 dyturbover=1.4.2
 pineapplver="0.6.0-alpha.17"
 rusttag="unknown-linux-gnu"
 rustver=1.66.0
 cargocver=0.9.14
 PLOUGHSHARE_VERSION="0.0.20"
+ceresver="master"
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
@@ -351,6 +351,39 @@ else
     rm -rf deps >& /dev/null
     mkdir deps
     cd deps
+
+# ceres
+    if  [[ $ceresver == "master" ]]; then
+        echo "Installing CERES $ceresver..."
+        git clone --recurse-submodules https://github.com/ceres-solver/ceres-solver.git >> $CURRENTDIR/install.log 2>&1
+        cd ceres-solver
+        mkdir build
+        cd build
+        export Ceres_DIR=$CURRENTDIR/deps/ceres-solver-install
+        cmake -DCMAKE_INSTALL_PREFIX=$Ceres_DIR .. >> $CURRENTDIR/install.log 2>&1
+        make -j8 install >> $CURRENTDIR/install.log 2>&1
+    fi
+
+	## TEMPORARY FIX
+	git checkout 2024-05-flavour-decomposed-SF
+    else
+        echo "ERROR: HOPPET version $hoppetver not supported"
+        exit
+    fi
+    ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+        echo "Error, check install.log for details"
+        exit
+    fi
+    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+    if [[ $? != 0 ]]
+    then
+        echo "Error, check install.log for details"
+       exit
+    fi
+    cd - >& /dev/null
+
 #lhapdf:
     echo "Installing LHAPDF $lhapdfver..."
     if (( `echo $lhapdfver |cut -d. -f1` >= 6 ))
@@ -416,27 +449,53 @@ else
         fi
         tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
         cd hoppet-${hoppetver}
-    elif  [[ $hoppetver == "master" ]]; then
+        ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+        exit
+        fi
+    else if [[ $hoppetver == "master" ]]; then
         git clone https://github.com/hoppet-code/hoppet ./hoppet-master >> $CURRENTDIR/install.log 2>&1
         cd hoppet-master
-
-	## TEMPORARY FIX
-	git checkout 2024-05-flavour-decomposed-SF
+        ## TEMPORARY FIX
+        git checkout 2024-05-flavour-decomposed-SF
+        ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+            exit
+        fi
+        make -j 8 install  >> $CURRENTDIR/install.log  2>&1
+        if [[ $? != 0 ]]
+        then
+            echo "Error, check install.log for details"
+        exit
+        fi
+    else if [[ $hoppetver == "2.3.0" ]]; then
+        if [[ $http == "curl" ]]
+        then
+            curl https://github.com/hoppet-code/hoppet/archive/refs/tags/hoppet-${hoppetver}.tar.gz > hoppet-${hoppetver}.tar.gz 2 >> $CURRENTDIR/install.log
+        else
+            wget --no-check-certificate https://github.com/hoppet-code/hoppet/archive/refs/tags/hoppet-${hoppetver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        fi
+        tar xfz hoppet-${hoppetver}.tgz  >> $CURRENTDIR/install.log  2>&1
+        mv hoppet-hoppet-${hoppetver} hoppet-${hoppetver}
+        cd hoppet-${hoppetver}
+        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
+        cmake build -LH  >> $CURRENTDIR/install.log  2>&1
+        cmake --build  build -j  >> $CURRENTDIR/install.log  2>&1
+        ctest --test-dir build  -j4  >> $CURRENTDIR/install.log  2>&1
+        cmake --install build  >> $CURRENTDIR/install.log  2>&1
     else
         echo "ERROR: HOPPET version $hoppetver not supported"
         exit
-    fi
-    ./configure --prefix=$CURRENTDIR/deps/hoppet  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-        exit
-    fi
-    make -j 8 install  >> $CURRENTDIR/install.log  2>&1
-    if [[ $? != 0 ]]
-    then
-        echo "Error, check install.log for details"
-       exit
     fi
     cd - >& /dev/null
 
@@ -863,6 +922,10 @@ echo "export PATH=$CURRENTDIR/deps/apfelxx/bin:\$PATH" >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin:\$PATH" >> setup.sh
 if [[ $skip_rust == 0 ]]; then
     echo "export PATH=$CARGODIR/bin:\$PATH" >> setup.sh 
+fi
+if [[ $ceresver != "" ]]; then
+    echo "export Ceres_DIR=$Ceres_DIR" >> setup.sh
+    echo "export LD_LIBRARY_PATH=$Ceres_DIR/lib:\$LD_LIBRARY_PATH" >> setup.sh 
 fi
 
 echo `lhapdf-config --prefix`/lib*/python*/site-packages > /tmp/xf_py1234_a
