@@ -541,7 +541,6 @@ else
     cd - >& /dev/null
 
     export PATH=$CURRENTDIR/deps/applgrid/bin/:$PATH
-    export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applgrid/lib/:\$LD_LIBRARY_PATH
     
  #applwrap
     echo "Installing APPLWRAP $applwrapver..."
@@ -575,7 +574,6 @@ else
     cd - >& /dev/null
 
     export PATH=$CURRENTDIR/deps/applwrap/bin/:$PATH
-    export LD_LIBRARY_PATH=\$CURRENTDIR/deps/applwrap/lib/:\$LD_LIBRARY_PATH
     
  #apfel
     echo "Installing APFEL $apfelver..."

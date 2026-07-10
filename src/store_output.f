@@ -284,6 +284,7 @@ C--------------------------------------------------
 
       integer i,j,index,PlotVarColIdx,PreviousPlots
       double precision PlotVar,PullVar
+      double precision SYST_UP(NTOT), SYST_DN(NTOT)
 
       integer GetBinIndex
 
@@ -291,31 +292,37 @@ C--------------------------------------------------
       write(90,*)ndatasets
 
       PreviousPlots = 0
-C Update theory errors, sum up what is already in and theory sources
+C Compute :T systematic contribution fresh into local arrays (no global state),
+C then combine in quadrature with THEO_PUMPLIN set by GetTheoErrors* (or zero).
+C This avoids double-counting on repeated calls and preserves Pumplin errors.
       do i=1,NPoints
-         THEO_TOT_UP(i) = 0
-         THEO_TOT_DOWN(i) = 0
+         SYST_UP(i) = 0d0
+         SYST_DN(i) = 0d0
       enddo
       do i=1,NPoints
          do j=1,NSys
             if (ISystType(j).eq.iTheorySyst) then
                 if (LAsymSyst(j)) then
-                  THEO_TOT_DOWN(i) = sqrt(THEO_TOT_DOWN(i)**2 +
+                  SYST_DN(i) = sqrt(SYST_DN(i)**2 +
      +                    (THEO(i)*MAX(MAX(BetaAsym(j,1,i),
      +                    BetaAsym(j,2,i)),
      +                    0d0)) ** 2)
-                  THEO_TOT_UP(i) = sqrt(THEO_TOT_UP(i)**2 +
+                  SYST_UP(i) = sqrt(SYST_UP(i)**2 +
      +                    (THEO(i)*MAX(MAX(-BetaAsym(j,1,i),
      +                    -BetaAsym(j,2,i)),
      +                    0d0)) ** 2)
                else          !Symmetric errors
-                  THEO_TOT_UP(i) = sqrt(THEO_TOT_UP(i)**2
+                  SYST_UP(i) = sqrt(SYST_UP(i)**2
      +                    + (THEO(i)*Beta(j, i)) ** 2)
-                  THEO_TOT_DOWN(i) = sqrt(THEO_TOT_DOWN(i)**2
+                  SYST_DN(i) = sqrt(SYST_DN(i)**2
      +                    + (THEO(i)*Beta(j, i)) ** 2)
                endif
             endif
          enddo
+      enddo
+      do i=1,NPoints
+         THEO_TOT_UP(i)   = sqrt(THEO_PUMPLIN_UP(i)**2   + SYST_UP(i)**2)
+         THEO_TOT_DOWN(i) = sqrt(THEO_PUMPLIN_DOWN(i)**2 + SYST_DN(i)**2)
       enddo
       do i=1,ndatasets
          write(90,*)DATASETNUMBER(i)
