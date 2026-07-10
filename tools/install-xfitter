@@ -422,10 +422,10 @@ else
     echo "Installing Hathor $hathorver..."
     hathor="Hathor"
     if [[ $http == "curl" ]]
-    then
-        curl https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
+    then 
+        curl https://gitlab.cern.ch/fitters/xfitter/-/raw/master/tools/Hathor-${hathorver}.tar.gz > Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget https://gitlab.cern.ch/fitters/xfitter/-/raw/master/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
