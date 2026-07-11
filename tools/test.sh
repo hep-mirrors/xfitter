@@ -154,14 +154,17 @@ runTest()
   cp ${INPUTDIR}/steering.txt $rundir
   cp ${INPUTDIR}/parameters.yaml $rundir
   cp ${INPUTDIR}/constants.yaml $rundir
+  if [ -f "${INPUTDIR}/prepare.sh" ]; then
+    cp ${INPUTDIR}/prepare.sh $rundir
+  fi
   # also copy any .dat files
   cp ${INPUTDIR}/*.dat $rundir
   ln -s `pwd`/datafiles $rundir/datafiles
-  if [ -e `pwd`/fewzgrids ]; then
-    ln -s `pwd`/fewzgrids $rundir/fewzgrids
-  fi
 
   cd $rundir
+  if [ -f "prepare.sh" ]; then
+    ./prepare.sh
+  fi
   #echo -e "run \n bt" | gdb ${xfitter} | tee ${xflogfile}
   ${xfitter} >& ${xflogfile}
   cd - > /dev/null
