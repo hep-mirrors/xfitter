@@ -40,7 +40,7 @@ cmake3='cmake3'
 if ! command -v cmake3 >/dev/null 2>&1; then
   cmake3='cmake'
 fi
-$cmake3  -DBUILD_SHARED_LIBS=ON  -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
+$cmake3  -DBUILD_SHARED_LIBS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_CXX_FLAGS="-include cstdint" -DCMAKE_INSTALL_PREFIX=$CURRENTDIR/$dir/yaml-cpp .. >> $CURRENTDIR/install_yam.log 2>&1 
 make -j 12 install >> $CURRENTDIR/install_yam.log 2>&1 
 
 if [[ $? != 0 ]]
