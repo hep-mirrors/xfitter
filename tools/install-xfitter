@@ -406,9 +406,11 @@ else
     hathor="Hathor"
     if [[ $http == "curl" ]]
     then 
-        curl https://gitlab.cern.ch/fitters/xfitter/-/raw/${xfitter_branch}/tools/Hathor-${hathorver}.tar.gz > Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
+        #curl https://gitlab.cern.ch/fitters/xfitter/-/raw/master/tools/Hathor-${hathorver}.tar.gz > Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
+        curl https://gitlab.cern.ch/fitters/xfitter/-/raw/fixhathor/tools/Hathor-${hathorver}.tar.gz > Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
     else
-        wget https://gitlab.cern.ch/fitters/xfitter/-/raw/${xfitter_branch}/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        #wget https://gitlab.cern.ch/fitters/xfitter/-/raw/master/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget https://gitlab.cern.ch/fitters/xfitter/-/raw/fixhathor/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
     fi
     tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
     cd Hathor-${hathorver}/lib
