@@ -107,28 +107,48 @@ Parameters:
 
 Parameterisations:
   par_uv:
-    class: ABMPvalence
-    parameters: [ABM_uv_A, ABM_uv_a, ABM_uv_b, ZERO, ABM_uv_g1, ABM_uv_g2, ABM_uv_g3]
+    class: Expression
+    expression: "ABM_uv_A*x^(ABM_uv_a+ABM_uv_g1*x+ABM_uv_g2*x^2+ABM_uv_g3*x^3)*(1-x)^ABM_uv_b"
   par_dv:
-    class: ABMPvalence
-    parameters: [ABM_dv_A, ABM_dv_a, ABM_dv_b, ZERO, ABM_dv_g1, ABM_dv_g2, ABM_dv_g3]
+    class: Expression
+    expression: "ABM_dv_A*x^(ABM_dv_a+ABM_dv_g1*x+ABM_dv_g2*x^2+ABM_dv_g3*x^3)*(1-x)^ABM_dv_b"
   par_ubar:
-    class: ABMPsea
-    parameters: [ABM_us_A, ABM_us_a, ABM_us_b, ABM_us_gm1, ABM_us_g1, ZERO, ZERO]
+    class: Expression
+    expression: "ABM_us_A*x^(ABM_us_a*(1+ABM_us_gm1*ln(x))*(1+ABM_us_g1*x))*(1-x)^ABM_us_b"
   par_dbar:
-    class: ABMPsea
-    parameters: [ABM_ds_A, ABM_ds_a, ABM_ds_b, ZERO, ABM_ds_g1, ZERO, ZERO]
+    class: Expression
+    expression: "ABM_ds_A*x^(ABM_ds_a*(1+ABM_ds_g1*x))*(1-x)^ABM_ds_b"
   par_s:
-    class: ABMPsea
-    parameters: [ABM_ss_A, ABM_ss_a, ABM_ss_b, ZERO, ZERO, ZERO, ZERO]
+    class: Expression
+    expression: "ABM_ss_A*x^ABM_ss_a*(1-x)^ABM_ss_b"
   par_sbar:
-    class: ABMPsea
-    parameters: [ABM_ss_A, ABM_ss_a, ABM_ss_b, ZERO, ZERO, ZERO, ZERO]
-    #class: ABMPPdfParam
-    #parameters: [ABM_ssbar_A, ABM_ssbar_a, ABM_ssbar_b, ZERO, ZERO, ZERO, ZERO]
+    class: Expression
+    expression: "ABM_ss_A*x^ABM_ss_a*(1-x)^ABM_ss_b"
   par_g:
-    class: ABMPgluon
-    parameters: [ABM_g_A, ABM_g_a, ABM_g_b, ZERO, ABM_g_g1, ZERO, ZERO]
+    class: Expression
+    expression: "ABM_g_A*x^(ABM_g_a*(1+ABM_g_g1*x))*(1-x)^ABM_g_b"
+# equivalent old style via ABMPvalence, ABMPsea, ABMPgluon classes
+  #par_uv:
+  #  class: ABMPvalence
+  #  parameters: [ABM_uv_A, ABM_uv_a, ABM_uv_b, ZERO, ABM_uv_g1, ABM_uv_g2, ABM_uv_g3]
+  #par_dv:
+  #  class: ABMPvalence
+  #  parameters: [ABM_dv_A, ABM_dv_a, ABM_dv_b, ZERO, ABM_dv_g1, ABM_dv_g2, ABM_dv_g3]
+  #par_ubar:
+  #  class: ABMPsea
+  #  parameters: [ABM_us_A, ABM_us_a, ABM_us_b, ABM_us_gm1, ABM_us_g1, ZERO, ZERO]
+  #par_dbar:
+  #  class: ABMPsea
+  #  parameters: [ABM_ds_A, ABM_ds_a, ABM_ds_b, ZERO, ABM_ds_g1, ZERO, ZERO]
+  #par_s:
+  #  class: ABMPsea
+  #  parameters: [ABM_ss_A, ABM_ss_a, ABM_ss_b, ZERO, ZERO, ZERO, ZERO]
+  #par_sbar:
+  #  class: ABMPsea
+  #  parameters: [ABM_ss_A, ABM_ss_a, ABM_ss_b, ZERO, ZERO, ZERO, ZERO]
+  #par_g:
+  #  class: ABMPgluon
+  #  parameters: [ABM_g_A, ABM_g_a, ABM_g_b, ZERO, ABM_g_g1, ZERO, ZERO]
 
 DefaultDecomposition: proton-param
 Decompositions:
@@ -200,7 +220,9 @@ byReaction:
   FFABM_DISNC:
     ? !include reactions/FFABM_DISNC.yaml
     evolution: proton-nf3
+    runm: 1
     ordfl: 1
+    hqnons: 0
     ht: 1
     tmc: "l"
     q2mincomp: 2.498
@@ -208,7 +230,9 @@ byReaction:
   FFABM_DISCC:
     ? !include reactions/FFABM_DISCC.yaml
     evolution: proton-nf3
+    runm: 1
     ordfl: 1
+    hqnons: 0
     ht: 1
     ht_val_scale: 0.5
     ht_vals_f2: htns_f2_1,htns_f2_2,htns_f2_3,htns_f2_4,htns_f2_5,htns_f2_6,htns_f2_7
