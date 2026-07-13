@@ -10,7 +10,7 @@ lhapdfver=6.5.5
 hathorver=2.0
 #hoppetver=1.2.0
 hoppetver=master
-applgridver=1.6.48
+applgridver=1.6.49
 applwrapver=1.0.7
 # This is the frozen version of the package
 qcdnumver=18-00-00
@@ -30,7 +30,6 @@ skip_apfelgrid=0
 skip_dyturbo=1
 skip_rust=1
 skip_pineappl=0
-skip_pineappl=1
 # fetch precompiled files for pineappl if possible, avoiding heavy rust deps
 pineappl_lite=1
 skip_ploughshare=0
