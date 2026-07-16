@@ -520,7 +520,14 @@ void CERESMinimizer::doMinimization() {
   }
 
   writePars(covmat);
-  writeOutput(summary, covmat);
+  std::ofstream f;
+  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/ceres.out.txt");
+  if(!f.is_open()) {
+    hf_errlog(16042807,"W: Failed to open ceres.out.txt for writing");
+    return;
+  }
+  writeOutput(summary, covmat, f);
+  f.close();
 
   // after mini actions
   myFCN(chi2, parVals, 3);
@@ -542,18 +549,6 @@ void CERESMinimizer::doMinimization() {
   }
   cout << "----- End of parameters in YAML format" << endl;
   cout << endl;
-  cout << std::endl << "Correlation matrix " << std::endl;
-  cout << std::setw(14) << " ";
-  for (int i = 0; i < npars; i++)
-    cout << std::setw(14) << _allParameterNames[i];
-  cout << std::endl;
-  cout << setprecision(4);
-  for (int i = 0; i < npars; i++) {
-    cout << std::setw(14) << _allParameterNames[i];;
-    for (int j =0; j<npars; j++)
-      cout << std::setw(14) << covmat[i*npars+j]/sqrt(covmat[i*npars+i])/sqrt(covmat[j*npars+j]);
-    cout << std::endl;
-  }
 
   Eigen::MatrixXd cov(npars,npars);
   for (int i = 0; i < npars; i++)
@@ -565,10 +560,7 @@ void CERESMinimizer::doMinimization() {
   for (int i = 0; i < npars; i++)
     rhok[i] = sqrt(1. - 1./(cov(i,i)*inv(i,i)));
 
-  cout << endl;
-  cout << "Global correlation coefficient" << endl;
-  for (int i = 0; i< npars; i++)
-    cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
+  writeOutput(summary, covmat, std::cout);
 
   if (chi2options_.chi2poissoncorr)
     delete[] offset;
@@ -628,43 +620,37 @@ void CERESMinimizer::writePars(const double* covmat) {
 
 }
 
-void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* covmat) {
-  std::ofstream f;
-  f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/ceres.out.txt");
-  if(!f.is_open()) {
-    hf_errlog(16042807,"W: Failed to open ceres.out.txt for writing");
-    return;
-  }
+void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* covmat, std::ostream& f) {
 
   //f << summary.FullReport() << "\n";
 
   int npars =  getNpars() ;
 
   //Write Covariance matrix
-  f << std::endl << "COVARIANCE MATRIX " << std::endl;
+  f << std::endl << "COVARIANCE MATRIX" << std::endl;
   f << std::setw(14) << " ";
   for (int i = 0; i < npars; i++)
-    f << std::setw(14) << _allParameterNames[i];
+    f << std::setw(14) << _allParameterNames[i] << " ";
   f << std::endl;
   f << setprecision(4);
   for (int i = 0; i < npars; i++) {
-    f << std::setw(14) << _allParameterNames[i];;
+    f << std::setw(14) << _allParameterNames[i] << " ";
     for (int j =0; j<npars; j++)
-      f << std::setw(14) << covmat[i*npars+j];
+      f << std::setw(14) << covmat[i*npars+j] << " ";
     f << std::endl;
   }
 
   //Write Correlation matrix
-  f << std::endl << "CORRELATION MATRIX " << std::endl;
+  f << std::endl << "CORRELATION MATRIX" << std::endl;
   f << std::setw(14) << " ";
   for (int i = 0; i < npars; i++)
-    f << std::setw(14) << _allParameterNames[i];
+    f << std::setw(14) << _allParameterNames[i] << " ";
   f << std::endl;
   f << setprecision(4);
   for (int i = 0; i < npars; i++) {
-    f << std::setw(14) << _allParameterNames[i];;
+    f << std::setw(14) << _allParameterNames[i] << " ";
     for (int j =0; j<npars; j++)
-      f << std::setw(14) << covmat[i*npars+j]/sqrt(covmat[i*npars+i])/sqrt(covmat[j*npars+j]);
+      f << std::setw(14) << covmat[i*npars+j]/sqrt(covmat[i*npars+i])/sqrt(covmat[j*npars+j]) << " ";
     f << std::endl;
   }
 
@@ -681,8 +667,6 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* c
   f << "GLOBAL CORRELATION COEFFICIENT" << endl;
   for (int i = 0; i< npars; i++)
     f << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
-
-  f.close();
 }
 
 }

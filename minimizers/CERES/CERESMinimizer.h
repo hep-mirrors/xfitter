@@ -27,7 +27,7 @@ namespace xfitter {
 
     //Output functions
     void writePars(const double* covmat);
-    void writeOutput(ceres::Solver::Summary mySummary, const double* covmat);
+    void writeOutput(ceres::Solver::Summary mySummary, const double* covmat, std::ostream& f);
 
     /// Optional initialization at the first call
     virtual void atStart() override final;

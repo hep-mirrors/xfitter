@@ -336,9 +336,7 @@ C            npari = npari + 1
 C          enddo
 C          close (51)
       else
-C         call MNCOMD(fcn,'SET ERRDEF 9',icond,0)
          call MNCOMD(fcn,'HESSE',icond,0)
-C         call MNCOMD(fcn,'ITERATE 10',icond,0)
 C     Check the covariance matrix:
          call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
          print *,'Covariance matrix status =',istat,npari
@@ -381,22 +379,7 @@ C     Check the covariance matrix:
 
 
       if (ReadParsFromFile) then
-C         Allocate(Amat_read(Npari, Npari))
-C         call ReadParCovMatrix(CovFileName, Amat_read, Npari)
          call ReadParCovMatrix(ParsFileName, CovFileName, Amat, Npari)
-         !do i=1,npari
-         !enddo
-         !do i=1,npari
-         !   do j=1,npari
-         !      Amat(i,j)=Amat(i,j)*parerr_keep(i)*parerr_keep(j)
-               !if (i.ne.j) then 
-               !  Amat(i,j)=0
-               !endif
-         !   enddo
-         !enddo
-         !do i=1,npari
-         !   print '(100E10.2)' ,( Amat(j,i),j=1,npari )
-         !enddo
       else
          call MNEMAT( Amat, Npari)
       endif
@@ -540,18 +523,30 @@ C         pidx(ind) = ii
       double precision parerr_keep(70)
       integer npar_input
       character parname_input(70)*100
-      character*100 parname
+      character parname_read(70)*100
+      character*1000 parname
 C---------------------------------------------------
       print *,'npars = ',npars
       print *,'Reading parameter names from '//trim(FileNamePars)
       npar_input = 0
       open (51,file=FileNamePars, status='old',err=3)
+      read(51,'(A)',end=33) parname
+      if (index(parname,'Parameters:').eq.0) call hf_errlog(2026071602,'F: File with parameters should start with Parameters:')
  1    npar_input = npar_input + 1
       if (npar_input.gt.70) then
         print *,'ERROR: increase fixed-size arrays: 70 < npar_input = ', npar_input
         call hf_errlog(11022501,'F: increase fixed-size arrays npar_input > 70')
       endif
       read (51,'(A120)',end=2, err=4) parname_input(npar_input)
+      i = index(parname_input(npar_input),':')
+      if (i.ne.0) then
+         parname_input(npar_input) = parname_input(npar_input)(:i-1)
+      endif
+      j=1
+      do while (parname_input(npar_input)(j:j) .eq. ' ')
+         j=j+1
+      enddo
+      parname_input(npar_input) = parname_input(npar_input)(j:)
       goto 1
  2    close (51)
       npar_input = npar_input - 1
@@ -593,21 +588,44 @@ C---------------------------------------------------
       print *,'Read covariance matrix from '//trim(FileNameCov)
       Allocate(Cov_input(npar_input, npar_input))
       open (51, file=FileNameCov, status='old', err=11)
+ 21   read(51,'(A)',end=33) parname
+      if (index(parname,'COVARIANCE MATRIX').eq.0) goto 21
+      read(51,*) (parname_read(i),i=1,Npars)
+      do i=1,Npars
+         j=1
+         do while (parname_read(i)(j:j) .eq. ' ')
+            j=j+1
+         enddo
+         parname_read(i) = parname_read(i)(j:)
+         if (trim(parname_read(i)).ne.trim(parname_input(i))) then
+            print *,'Expected: ',trim(parname_input(i))
+            print *,'Found: ',trim(parname_read(i))
+            goto 44
+         endif
+      enddo
       do i=1,npar_input
-         read (51,*,err=22,end=33) ( Cov_input(j,i),j=1,npar_input )
+         read (51,*,err=22,end=33) parname, ( Cov_input(j,i),j=1,npar_input )
+C         read (51,*,err=22,end=33) parname, ( Cov(j,i),j=1,npar_input )
+         j=1
+         do while (parname_read(i)(j:j) .eq. ' ')
+            j=j+1
+         enddo
+         parname_read(i) = parname_read(i)(j:)
+         if (trim(parname).ne.trim(parname_input(i))) then
+            print *,'Expected: ',trim(parname_input(i))
+            print *,'Found   : ',trim(parname)
+            goto 44
+         endif
       enddo
       close (51)
       do i=1,npari
          do j=1,npari
-            !Cov(i,j) = Cov_input(paridx(i),paridx(j))*parerr_keep(i)*parerr_keep(j)
-            Cov(i,j) = Cov_input(paridx_back(i),paridx_back(j))*parerr_keep(i)*parerr_keep(j)
-            !Cov(i,j) = Cov_input(paridx(i),paridx(j))*parerr_keep(i)*parerr_keep(j)
-            !if (i.ne.j) Cov(i,j) = 0
+C            Cov(i,j) = Cov_input(paridx_back(i),paridx_back(j))*parerr_keep(i)*parerr_keep(j)
+            Cov(i,j) = Cov_input(paridx_back(i),paridx_back(j))
          enddo
       enddo
       deallocate(Cov_input)
       do i=1,npari
-         !print '(100E10.2)' ,( Cov(j,i),j=1,npari )
          print '(100E14.6)' ,( Cov(j,i),j=1,npari )
       enddo
       call flush(6)
@@ -625,4 +643,6 @@ C---------------------------------------------------
  33    call hf_errlog(16042822,
      $    'F: Unexpected end of file with parameters covariance matrix '
      $     //trim(FileNameCov)//', STOP')
+ 44    call hf_errlog(2026071601, 'F: Parameter names in covariance matrix do not match, STOP')
       end
+
