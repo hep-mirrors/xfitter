@@ -1,3 +1,9 @@
+# not sure if QCDNUM is needed, but...
+if(NOT QCDNUM_FOUND)
+  message(STATUS "Skipping optional reaction BaseFFABM because QCDNUM library was not found")
+  return()
+endif()
+
 set(TARGET reactionBaseFFABM)
 add_library(${TARGET} SHARED
   ReactionBaseFFABM.cc

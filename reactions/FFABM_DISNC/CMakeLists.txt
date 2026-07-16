@@ -1,8 +1,8 @@
-#if(NOT QCDNUM_FOUND)
-#  message(STATUS "Skipping optional reaction FFABM_DISNC because QCDNUM library was not found")
-#  return()
-#endif()
-# not sure if QCDNUM is needed
+# not sure if QCDNUM is needed, but...
+if(NOT QCDNUM_FOUND)
+  message(STATUS "Skipping optional reaction FFABM_DISNC because QCDNUM library was not found")
+  return()
+endif()
 
 set(TARGET reactionFFABM_DISNC)
 add_library(${TARGET} MODULE ReactionFFABM_DISNC.cc)
