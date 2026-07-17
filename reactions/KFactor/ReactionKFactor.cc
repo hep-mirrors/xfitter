@@ -11,6 +11,8 @@
 #include <fstream>
 #include <sstream>
 #include"hf_errlog.h"
+#include "CRunDec.h"
+#include "xfitter_cpp_base.h"
 using namespace std;
 
 // the class factories
@@ -19,6 +21,11 @@ extern "C" ReactionKFactor* create()
   return new ReactionKFactor();
 }
 struct ReactionData{
+  ~ReactionData() {
+    if(crd) {
+      delete crd;
+    }
+  }
   valarray<double>_values;
   const double*parameter=nullptr;
   /* If parameter "Parameter" is given, KFactor returns column with all values equal to that parameter
@@ -27,11 +34,17 @@ struct ReactionData{
    * If DataColumn is given, the constant column is read from the datafile
   */
   size_t Npoints=0;//if parameter!=nullptr, this is the size of returned array. Usually it is the number of datapoints in the dataset, but can be overridden using option "N"
+  ReactionKFactor::Convert convert;
+  CRunDec* crd;
+  int nf;
+  int nl;
 };
 // Initialisze for a given dataset:
 void ReactionKFactor::initTerm(TermData*td){
   ReactionData*rd=new ReactionData;
   td->reactionData=(void*)rd;
+  rd->convert=ReactionKFactor::Convert::None;
+  rd->crd = nullptr;
   // check if kfactors should be read from separate file
   if(td->hasParam("FileName")){
     // file name to read kfactors
@@ -120,6 +133,13 @@ void ReactionKFactor::initTerm(TermData*td){
     }else{
       rd->Npoints=td->getNbins();
     }
+    if(td->hasParam("MSBAR_to_pole") && td->getParamS("MSBAR_to_pole") != "" && td->getParamS("MSBAR_to_pole") != "0")
+    {
+      rd->convert = ReactionKFactor::Convert::MSBAR_to_Pole;
+      rd->nf = td->getParamI("NFlavour");
+      rd->nl = OrderMap(td->getParamS("Order"));
+      rd->crd = new CRunDec(rd->nf);
+    }
   }
   else
     hf_errlog(17102804, "F: FileName or DataColumn or Parameter must be provided for KFactor");
@@ -130,8 +150,18 @@ void ReactionKFactor::compute(TermData*td, valarray<double> &val, map<string, va
 {
   ReactionData*rd=(ReactionData*)td->reactionData;
   if(rd->parameter){
-    double parval=*rd->parameter;
-    val=valarray<double>(parval,rd->Npoints);
+    if(rd->convert == ReactionKFactor::Convert::None) {
+      double parval=*rd->parameter;
+      val=valarray<double>(parval,rd->Npoints);
+    }
+    if(rd->convert == ReactionKFactor::Convert::MSBAR_to_Pole) {
+      double m_msbar=*rd->parameter;
+      td->actualizeWrappers();
+      double as = alphas_wrapper_(m_msbar);
+      double m_pole = rd->crd->mMS2mOS(m_msbar, nullptr, as, m_msbar, rd->nf, rd->nl);
+      //printf("m_msbar -> m_pole: %f -> %f\n", m_msbar, m_pole);
+      val=valarray<double>(m_pole,rd->Npoints);
+    }
   }else{ // kfactor is constant value read in setDatasetParameters()
     val=rd->_values;
   }

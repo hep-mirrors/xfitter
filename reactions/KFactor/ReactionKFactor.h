@@ -14,6 +14,8 @@
   @date 2017-10-28
   */
 
+class CRunDec;
+
 class ReactionKFactor : public ReactionTheory{
 public:
   ReactionKFactor(){};
@@ -21,5 +23,12 @@ public:
   virtual void initTerm(TermData*) override final;
   virtual void freeTerm(TermData*) override final;
   virtual void compute(TermData*,valarray<double>&val,map<string,valarray<double> >&errors) override final;
+  enum class Convert {
+    None,
+    MSBAR_to_Pole,
+  };
+private:
+  CRunDec* _crd;
+  //Convert _convert;
 };
 
