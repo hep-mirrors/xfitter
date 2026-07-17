@@ -1,6 +1,12 @@
 set(TARGET reactionKFactor)
-#add_library(${TARGET} MODULE ReactionKFactor.cc)
-# https://www.ttp.kit.edu/_media/preprints/2017/ttp17-011.pdf?utm_source=chatgpt.com
-add_library(${TARGET} MODULE ReactionKFactor.cc CRunDec.cpp)
-target_link_libraries(${TARGET} PRIVATE xfitter)
+add_library(${TARGET} MODULE ReactionKFactor.cc)
+
+if (CRUNDEC_FOUND)
+  message(STATUS "Found CRunDec, including in KFactor install ")
+  add_definitions(-DCRUNDEC_FOUND)
+  target_include_directories(${TARGET} PRIVATE ${CRUNDEC_INCLUDE_DIR})
+  target_link_libraries(${TARGET} PRIVATE xfitter CRUNDEC)
+else ()
+  target_link_libraries(${TARGET} PRIVATE xfitter)
+endif()
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})

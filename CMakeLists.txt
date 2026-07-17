@@ -45,6 +45,7 @@ find_package(ZLIB)
 find_package(PineAPPL)
 find_package(Ploughshare)
 find_package(HOPPET)
+find_package(CRunDec)
 
 #set(CMAKE_CXX_FLAGS "-fsanitize=address,undefined ${CMAKE_CXX_FLAGS}")
 

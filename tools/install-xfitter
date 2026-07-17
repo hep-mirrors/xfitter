@@ -24,6 +24,7 @@ rustver=1.66.0
 cargocver=0.9.14
 PLOUGHSHARE_VERSION="0.0.20"
 ceresver="master"
+crundecver='3.1.2'
 
 # skip some packages depending on xfitter version
 skip_apfelgrid=0
@@ -366,6 +367,22 @@ else
     rm -rf deps >& /dev/null
     mkdir deps
     cd deps
+
+#crundec
+    if [ ! -z $crundecver ]; then
+        echo "Installing CRunDec $crundecver..."
+        if [[ $http == "curl" ]]
+        then
+            curl https://www.ttp.kit.edu/_media/progdata/2017/crundec3.tar.gz > crundec3.tar.gz 2>> $CURRENTDIR/install.log
+        else
+            wget --no-check-certificate https://www.ttp.kit.edu/_media/progdata/2017/crundec3.tar.gz >> $CURRENTDIR/install.log 2>&1
+        fi
+        tar xfz crundec3.tar.gz  >> $CURRENTDIR/install.log 2>&1
+        cd crundec3/CRunDec${crundecver}
+        g++ -O3 -fPIC -shared CRunDec.cpp -o libCRunDec.so >> $CURRENTDIR/install.log  2>&1
+        cd - >& /dev/null
+        exit 0
+    fi
 
 #lhapdf:
     echo "Installing LHAPDF $lhapdfver..."
@@ -958,6 +975,9 @@ echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/qcdnum/lib/:\$LD_LIBRARY_PATH >> s
 echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/dyturbo-${dyturbover}/lib/:\$LD_LIBRARY_PATH >> setup.sh
 echo "export PATH=$CURRENTDIR/deps/qcdnum/bin:\$PATH" >> setup.sh
 echo export PATH=$CURRENTDIR/deps/ploughshare/bin:\$PATH >> $CURRENTDIR/setup.sh
+if [ ! -z $crundecver ]; then
+    echo export LD_LIBRARY_PATH=\$CURRENTDIR/deps/crundec3/CRunDec${crundecver}:\$LD_LIBRARY_PATH >> setup.sh
+fi
 
 
 if [[ $MODE == "cern" ]]

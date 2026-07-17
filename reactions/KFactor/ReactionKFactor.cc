@@ -11,8 +11,14 @@
 #include <fstream>
 #include <sstream>
 #include"hf_errlog.h"
-#include "CRunDec.h"
 #include "xfitter_cpp_base.h"
+#ifdef CRUNDEC_FOUND
+#include "CRunDec.h"
+#else
+struct CRunDec {
+  ~CRunDec(){};
+};
+#endif
 using namespace std;
 
 // the class factories
@@ -138,7 +144,11 @@ void ReactionKFactor::initTerm(TermData*td){
       rd->convert = ReactionKFactor::Convert::MSBAR_to_Pole;
       rd->nf = td->getParamI("NFlavour");
       rd->nl = OrderMap(td->getParamS("Order"));
+#ifdef CRUNDEC_FOUND
       rd->crd = new CRunDec(rd->nf);
+#else
+      hf_errlog(2026071701,"F:CRunDec not found, please install");
+#endif
     }
   }
   else
@@ -155,12 +165,16 @@ void ReactionKFactor::compute(TermData*td, valarray<double> &val, map<string, va
       val=valarray<double>(parval,rd->Npoints);
     }
     if(rd->convert == ReactionKFactor::Convert::MSBAR_to_Pole) {
+#ifdef CRUNDEC_FOUND
       double m_msbar=*rd->parameter;
       td->actualizeWrappers();
       double as = alphas_wrapper_(m_msbar);
       double m_pole = rd->crd->mMS2mOS(m_msbar, nullptr, as, m_msbar, rd->nf, rd->nl);
       //printf("m_msbar -> m_pole: %f -> %f\n", m_msbar, m_pole);
       val=valarray<double>(m_pole,rd->Npoints);
+#else
+      hf_errlog(2026071701,"F:CRunDec not found, please install");
+#endif
     }
   }else{ // kfactor is constant value read in setDatasetParameters()
     val=rd->_values;

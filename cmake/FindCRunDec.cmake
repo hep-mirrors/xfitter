@@ -1,0 +1,37 @@
+find_library(CRUNDEC_LIBRARY
+  NAMES CRunDec
+  PATHS ENV LD_LIBRARY_PATH
+  NO_DEFAULT_PATH
+)
+
+if(CRUNDEC_LIBRARY)
+  get_filename_component(CRUNDEC_DIR "${CRUNDEC_LIBRARY}" DIRECTORY)
+
+  find_path(CRUNDEC_INCLUDE_DIR
+    NAMES CRunDec.h
+    PATHS "${CRUNDEC_DIR}"
+    NO_DEFAULT_PATH
+  )
+
+  add_library(CRUNDEC SHARED IMPORTED)
+  set_target_properties(CRUNDEC PROPERTIES
+    IMPORTED_LOCATION "${CRUNDEC_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${CRUNDEC_INCLUDE_DIR}"
+  )
+
+  set(CRUNDEC_FOUND 1)
+else()
+  set(CRUNDEC_FOUND 0)
+endif()
+
+if(NOT CRUNDEC_FOUND AND CRUNDEC_FIND_REQUIRED)
+  message(FATAL_ERROR "CRunDec not found")
+endif()
+
+if(NOT CRUNDEC_FIND_QUIETLY)
+  if(CRUNDEC_FOUND)
+    message(STATUS "Found CRunDec: ${CRUNDEC_LIBRARY}")
+  else()
+    message(STATUS "CRunDec not found")
+  endif()
+endif()
