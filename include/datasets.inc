@@ -19,7 +19,7 @@ C General dataset info
      $     ,DATASETIDX(NSET,NTOT)     !> Index from dataset point to global data array
       integer DATASETNUMBER(NSET)     !> xFitter dataset number
 
-      character*80 DATASETLABEL(NSET) !> Dataset name
+      character*120 DATASETLABEL(NSET) !> Dataset name
 C SG: reaction type:
       character*80 DATASETReaction(NSET)    !> Dataset reaction type
 C SG: extra theory file:

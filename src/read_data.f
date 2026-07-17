@@ -230,7 +230,7 @@ C Namelist  variables:
 
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
 
-      character *80 Name
+      character *120 Name
       integer  NData
       integer  NUncert
       integer  NBinDimension
@@ -1042,7 +1042,7 @@ c        endif
       endif
 
 c      if(DEBUG)then
-        print '(''Read'',i8,'' data points for '',A80)',NData,Name
+        print '(''Read'',i8,'' data points for '',A120)',NData,Name
         print '(''Printing first'',i5,'' data points'')',min(Ndata,3)
         print '(20A14)',(BinName(i),i=1,NBinDimension),' sigma'
         do j=1,min(NData,3)
@@ -1243,7 +1243,7 @@ C
       parameter (nsystMax=nsysmax)
       parameter (ncolumnMax = nsystMax+NBinDimensionMax+1)
       
-      character*80 Name
+      character*120 Name
       integer NData,NColumn
       character *64 ColumnName(ncolumnMax)
       character *64 ColumnType(ncolumnMax)

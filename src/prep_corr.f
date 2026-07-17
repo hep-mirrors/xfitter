@@ -15,8 +15,8 @@
       integer NCorrMaxBins
 
       parameter (NIdMax = 6)
-      character *80 Name1
-      character *80 Name2
+      character *120 Name1
+      character *120 Name2
       character *80 MatrixType
       character *80 IdColumns1(NIdMax)
       character *80 IdColumns2(NIdMax)
@@ -493,7 +493,7 @@ C----------------------------------------------------
 #include "ntot.inc"
 #include "datasets.inc"
 
-      character *80 name
+      character *120 name
       integer i
       
       FindDataSetByName = -1

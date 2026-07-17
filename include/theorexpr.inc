@@ -18,7 +18,7 @@ C Also store dataset info here
       integer ninfo
       double precision datainfo(ninfoMax)
       character *80 CInfo(ninfoMax)
-      character *80 dsname
+      character *120 dsname
       integer ds_index
 
 C And some basic vars:

@@ -79,7 +79,7 @@ extern struct thexpr_cb {
   double datainfo[100];
   int ninfo;  // dataset info as well
   char CInfo[100][80];
-  char dsname[80];
+  char dsname[120];
   int  ds_index;
 } theorexpr_;
 
@@ -126,7 +126,7 @@ int set_theor_eval_(int *dsId){
   }
   */
   // Store some dataset information
-  te->_ds_name=stringFromFortran(theorexpr_.dsname,80);
+  te->_ds_name=stringFromFortran(theorexpr_.dsname,120);
   te->_dsId=*dsId;
   te->_dsIndex=theorexpr_.ds_index;
   te->SetNormalised(theorexpr_.normalised);
