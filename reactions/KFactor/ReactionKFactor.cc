@@ -139,7 +139,7 @@ void ReactionKFactor::initTerm(TermData*td){
     }else{
       rd->Npoints=td->getNbins();
     }
-    if(td->hasParam("MSBAR_to_pole") && td->getParamS("MSBAR_to_pole") != "" && td->getParamS("MSBAR_to_pole") != "0")
+    if(td->hasParam("MSBAR_to_pole") && td->getParamS("MSBAR_to_pole") == parameterName)
     {
       rd->convert = ReactionKFactor::Convert::MSBAR_to_Pole;
       rd->nf = td->getParamI("NFlavour");

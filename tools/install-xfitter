@@ -381,7 +381,6 @@ else
         cd crundec3/CRunDec${crundecver}
         g++ -O3 -fPIC -shared CRunDec.cpp -o libCRunDec.so >> $CURRENTDIR/install.log  2>&1
         cd - >& /dev/null
-        exit 0
     fi
 
 #lhapdf:
