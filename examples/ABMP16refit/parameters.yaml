@@ -6,10 +6,9 @@ NCPUmax: 8
 Minimizer: MINUIT
 MINUIT:
   Commands: |
-    set str 2
     call fcn 3
 
-# to fit, uncomment below
+# to fit using CERES, uncomment below
 #Minimizer: CERES
 #CERES:
 #  offset: 2
@@ -18,6 +17,23 @@ MINUIT:
 #  strategy: 2
 #  covariance: 1
 #  threads: 1
+
+# to fit using CERES and produce error bands, uncomment below
+#Minimizers: [CERES, MINUIT]
+#CERES:
+#  offset: 2
+#  tolerance: 1e-7
+#  max_num_iterations: 100000
+#  strategy: 2
+#  covariance: 1
+#  threads: 1
+#MINUIT:
+#  Commands: |
+#    call fcn 3
+#  doErrors: Hesse
+#  ReadParsFromFile:
+#    ParsFileName: 'output/pars.yaml'
+#    CovFileName: 'output/ceres.out.txt'
 
 Parameters:
   ABM_ds_A: [0.145053, 0.007167]
