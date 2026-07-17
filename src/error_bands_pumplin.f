@@ -538,15 +538,7 @@ C---------------------------------------------------
         call hf_errlog(11022501,'F: increase fixed-size arrays npar_input > 70')
       endif
       read (51,'(A120)',end=2, err=4) parname_input(npar_input)
-      i = index(parname_input(npar_input),':')
-      if (i.ne.0) then
-         parname_input(npar_input) = parname_input(npar_input)(:i-1)
-      endif
-      j=1
-      do while (parname_input(npar_input)(j:j) .eq. ' ')
-         j=j+1
-      enddo
-      parname_input(npar_input) = parname_input(npar_input)(j:)
+      call TrimParName(parname_input(npar_input))
       goto 1
  2    close (51)
       npar_input = npar_input - 1
@@ -592,11 +584,7 @@ C---------------------------------------------------
       if (index(parname,'COVARIANCE MATRIX').eq.0) goto 21
       read(51,*) (parname_read(i),i=1,Npars)
       do i=1,Npars
-         j=1
-         do while (parname_read(i)(j:j) .eq. ' ')
-            j=j+1
-         enddo
-         parname_read(i) = parname_read(i)(j:)
+         call TrimParName(parname_read(i))
          if (trim(parname_read(i)).ne.trim(parname_input(i))) then
             print *,'Expected: ',trim(parname_input(i))
             print *,'Found: ',trim(parname_read(i))
@@ -606,11 +594,7 @@ C---------------------------------------------------
       do i=1,npar_input
          read (51,*,err=22,end=33) parname, ( Cov_input(j,i),j=1,npar_input )
 C         read (51,*,err=22,end=33) parname, ( Cov(j,i),j=1,npar_input )
-         j=1
-         do while (parname_read(i)(j:j) .eq. ' ')
-            j=j+1
-         enddo
-         parname_read(i) = parname_read(i)(j:)
+         call TrimParName(parname_read(i))
          if (trim(parname).ne.trim(parname_input(i))) then
             print *,'Expected: ',trim(parname_input(i))
             print *,'Found   : ',trim(parname)
@@ -646,3 +630,18 @@ C            Cov(i,j) = Cov_input(paridx_back(i),paridx_back(j))*parerr_keep(i)*
  44    call hf_errlog(2026071601, 'F: Parameter names in covariance matrix do not match, STOP')
       end
 
+C trim leading spaces and trailing :
+      subroutine TrimParName(parname)
+      implicit none
+      character*100 parname
+      integer i
+      i = index(parname,':')
+      if (i.ne.0) then
+         parname = parname(:i-1)
+      endif
+      i=1
+      do while (parname(i:i) .eq. ' ')
+         i=i+1
+      enddo
+      parname = parname(i:)
+      end
