@@ -38,6 +38,8 @@ double Pion_FF_PdfParam::operator()(double x)const{
   double poly = 1;
   double xx = 1;
   poly= 1 + (*pars[3])*pow((1-x) , (*pars[4])) ;
+  
+  // cout << " pars " << *pars[0] << " " <<  npar << endl;
 
   return norm*power*poly;
 }

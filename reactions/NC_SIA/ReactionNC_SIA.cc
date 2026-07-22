@@ -43,6 +43,7 @@ void ReactionNC_SIA::initTerm(TermData *td)
     for ( auto const& entry : XFITTER_PARS::gEvolutions ) {
       if (strcmp(entry.second->getClassName(),"APFEL")==0) {
 	foundApfel = true;
+      hf_errlog(19051816,"I: Reaction " + getReactionName() + " uses non-APFEL evolution. But APFEL evolution is included");
 	break;
       }
     }

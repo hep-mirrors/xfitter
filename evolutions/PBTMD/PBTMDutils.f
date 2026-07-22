@@ -101,8 +101,8 @@ c        do i=-6,6
 ccc           xf(i)= max(0.d0,xTMD(i))  ! require positivity of PDF
            xf(i)= xTMD(i)
            
-          if(qmu2.le.mc2.and.iabs(i).eq.4)  xf(i) = 0. 
-          if(qmu2.le.mb2.and.iabs(i).eq.5)  xf(i) = 0.
+c          if(qmu2.le.mc2.and.iabs(i).eq.4)  xf(i) = 0. 
+c          if(qmu2.le.mb2.and.iabs(i).eq.5)  xf(i) = 0.
 c check          
 c          if(iabs(i).eq.4)  xf(i) = 0. 
           if(xf(i).ne.xf(i)) then
@@ -117,7 +117,7 @@ c          write(6,*) '  pdf ',i,xf(i),ipdf
         ic=100000 
         PBTMDsubr = xf(ipdf)
       endif 
-c      if(ipdf.eq.8) then
+c      if(ipdf.eq.4) then
 c           write(6,*) ' pdf ',ipdf,xf(ipdf)
 c      endif
 c      write(6,*) ' PBTMBsubr icall = ', icall, icall_new,icall_old, ipdf
@@ -132,7 +132,9 @@ c      write(6,*) ' PBTMBsubr icall = ',  ipdf,xf(ipdf)
       character outdir*132
       Common/ myoutdir/ outdir
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       Integer ipart
       Double precision xx,q2x,xxkt
       Common /myvalues/xx,q2x,xxkt,ipart
@@ -148,6 +150,7 @@ c      write(6,*) ' PBTMBsubr icall = ',  ipdf,xf(ipdf)
       Integer Idebug
       Common/mychecks/Idebug
       Integer IudGridfile /0/
+      Integer IcbGridfile /0/
       character testfiles*132
       
       Logical StartOnly
@@ -165,6 +168,12 @@ c check whether we have separated u- and d- quark grid files
            IudGridfile = 1 
          endif
          write(6,*) ' check for separated u- and d- quark grid files ', IudGridfile
+         testfiles=trim(trim(outdir)//'/tmd-grid-c-quark_int.dat')
+         inquire(FILE=testfiles,EXIST=ex)
+         if(ex) then
+           IcbGridfile = 1 
+         endif
+         write(6,*) ' check for additional c- and b- quark grid files ', IcbGridfile
          first = .false. 
       endif
 
@@ -195,7 +204,7 @@ c           mygridfiles=trim(trim(outdir)//'/tmd-grid-gluon_int.dat'//char(0))
         endif 
         if(idebug.eq.1) write(6,*) ' idebug: TMDconv mygridfiles = ',mygridfiles_d, ' q2x = ',q2x
 
-      if(q2x.le.2.0.or.StartOnly) then
+      if(q2x.le.1.0.or.StartOnly) then
 c        do ipart=-6,6
           call TMDstart(xx,q2x,xTMD)
 c        end do
@@ -237,7 +246,10 @@ c      write(6,*) ' TMD glu: x,q2,xTMD ',x,sqrt(q2),(xTMD(i),i=-3,3)
                 mygridfiles_ubar=' '
                 mygridfiles_dbar=' '
               endif
-
+              if(IcbGridfile.eq.1) then 
+                 mygridfiles_c=trim(trim(outdir)//'/tmd-grid-c-quark_int.dat')
+                 mygridfiles_b=trim(trim(outdir)//'/tmd-grid-b-quark_int.dat')
+              endif
            endif 
         else
            mygridfiles_d=trim(trim(outdir)//'/tmd-grid-quark.dat')
@@ -246,6 +258,10 @@ c           write(6,*) ' check for u-files ', IudGridfile
            if(IudGridfile.eq.1) then 
               mygridfiles_d=trim(trim(outdir)//'/tmd-grid-d-quark.dat')
               mygridfiles_u=trim(trim(outdir)//'/tmd-grid-u-quark.dat')
+           endif
+           if(IcbGridfile.eq.1) then 
+              mygridfiles_c=trim(trim(outdir)//'/tmd-grid-c-quark.dat')
+              mygridfiles_b=trim(trim(outdir)//'/tmd-grid-b-quark.dat')
            endif
         endif 
         if(idebug.eq.1) write(6,*) ' idebug: TMDconv mygridfiles = ',trim(mygridfiles_u),' test'
@@ -338,7 +354,7 @@ c      endif
       end
 cc#include "iTMDq.f-orig"
 #include "iTMDq.f-new"
-cc#include "iTMDq.f-old"
+ccc#include "iTMDq.f-old"
 
       subroutine TMDstart(xstart,Qstart,xpq0)
       Implicit none
@@ -383,7 +399,7 @@ c new convention
       xpq0(-6)=funcSTART(-6,x0)
       xpq0(6)=funcSTART(6,x0)
       
-c      write(6,*) ' TMDstart ', (xpq0(i),i=-6,6) 
+c      write(6,*) ' TMDstart ', x0, (xpq0(i),i=4,5) 
       
       Do i=-6,7
 c      write(6,*) ' starting distribution ',i,xpq0(i),pdf(i)
@@ -413,7 +429,9 @@ c        if(xpq0(i) .ne. xpq0(i)) then
 c      character*(*) filename
 c      Common/updfout/filename
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       character outdir*132
       Common/ myoutdir/ outdir
       Integer n1,n2,n3
@@ -912,7 +930,9 @@ C        can be set to zero, in which case only the other is used.
       DATA FIRST/.TRUE./
            
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       
       character mygridfile_old*132
       
@@ -1238,7 +1258,9 @@ c      write(6,*) ' new iTMDgridg x,q2,p,xpq',x,q2,p,glu
       DATA FIRST/.TRUE./
            
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       
       character mygridfile_old*132
       
@@ -1387,7 +1409,7 @@ c         write(6,*) '  parton densities read from file unit 30 '
          n2min = n2min + 1
 
          if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq-d: p out of range ',p,' min p ',exp(px(1))
+            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
             write(6,*) ' iTMDgridq_d: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
@@ -1534,7 +1556,9 @@ c         write(6,*) ' new iTMDgrid x,q2,p,xpq',x,q2,p,glu
       DATA FIRST/.TRUE./
            
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       
       character mygridfile_old*132
       
@@ -1697,7 +1721,7 @@ c            write(6,*) ' last message printed: min p'
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
+            write(6,*) ' iTMDgridq_u: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -1832,7 +1856,8 @@ c         write(6,*) ' new iTMDgridu x,q2,p,xpq',x,q2,p,glu
       DATA FIRST/.TRUE./
            
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
       
       
       character mygridfile_old*132
@@ -1996,7 +2021,7 @@ c            write(6,*) ' last message printed: min p'
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
+            write(6,*) ' iTMDgridq_d: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -2131,7 +2156,8 @@ c         write(6,*) ' new iTMDgridu x,q2,p,xpq',x,q2,p,glu
       DATA FIRST/.TRUE./
            
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
       
       
       character mygridfile_old*132
@@ -2295,7 +2321,7 @@ c            write(6,*) ' last message printed: min p'
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
+            write(6,*) ' iTMDgridq_dbar: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -2594,7 +2620,7 @@ c            write(6,*) ' last message printed: min p'
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
+            write(6,*) ' iTMDgridq_ubar: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -2692,6 +2718,604 @@ c         write(6,*) ' new iTMDgridu x,q2,p,xpq',x,q2,p,glu
       stop
       END
 
+      SUBROUTINE iTMDgridq_c(X,P,XPQ)
+      Implicit None
+      Integer n1,n2,n3
+      double precision XPQ(-6:11),X,P
+*! new
+      Parameter (n1=51,n2=51)
+      Double Precision xx,px
+      DIMENSION XX(0:n1),PX(0:n2)
+
+      Double Precision XA(3),A(N1+N2)
+      Double Precision f_grid0(n1,n2),f_grid1(n1,n2),f_grid2(n1,n2),f_grid3(n1,n2),f_grid4(n1,n2),f_grid5(n1,n2),f_grid6(n1,n2)
+      Double Precision f_grid7(n1,n2),f_grid8(n1,n2),f_grid9(n1,n2),f_grid10(n1,n2),f_grid11(n1,n2)
+      Double Precision f_grid1m(n1,n2),f_grid2m(n1,n2),f_grid3m(n1,n2),f_grid4m(n1,n2),f_grid5m(n1,n2),f_grid6m(n1,n2)
+      INTEGER NA(2)
+      DATA NA/n1,n2/
+      Double Precision DHFINT, dhpolint
+
+      Integer  ikincut,Ipgg,ns_sel
+      Double Precision QG0
+      COMMON /GLUDAT/QG0,ikincut,Ipgg,ns_sel
+      Double Precision Qscal 
+      Integer Iqqbar
+      Common/GLUDAT2/Qscal,Iqqbar 
+      Integer i,j,k,in,irr,igrid,ip
+      Double Precision scal,rx,rq2,rp,glu,up,down,str,usea,dsea,ssea,charm,csea,bot,bsea,top,tsea,phot
+      Double Precision z0,wplus,wminus,higgs
+      Double Precision RKMS6B,RKMS5B,RKMS4B,RKMS3B,RKMS2B,RKMS1B,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7
+      Double Precision RKMS8,RKMS9,RKMS10,RKMS11
+      Integer n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      common/caerrstf/n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      Real QCDLam
+      character *72 TXT
+      character adum
+      LOGICAL FIRST
+      DATA FIRST/.TRUE./
+           
+      character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
+      character mygridfile_old*132
+      
+      Logical lwrite/.true./
+      
+      Double Precision rmaxLim
+      Integer inter
+      data inter/1/
+      
+c      write(6,*) ' in quark file '
+c      write(6,*) ' iTMDgrid first ',first,first_meoffsh
+c         write(6,*) ' iTMDgridq: files ',mygridfiles,mygridfile_old
+      IF(first) THEN
+      if(mygridfiles_u.ne.'mygridfile_old') then
+c         write(6,*) ' iTMDq: files ',mygridfiles,mygridfile_old
+         mygridfile_old=mygridfiles_c
+         n1min = 0
+         n1max = 0
+         n2min = 0
+         n2max = 0
+         n3min = 0
+         n3max = 0
+         ncall = 0
+         i=0
+         scal = 1.0
+         Ipgg = 0
+         ns_sel = -1
+c        if(lwrite)  write(6,*) ' iTMDgridq ',first,iset
+           if(lwrite) write(6,*) ' iTMDgridq_c reading: ',trim(mygridfiles_c)
+           open(30,FILE=mygridfiles_c, FORM='formatted',
+     +          STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
+c         if(lwrite) write(6,*) ' iTMDgridq: read  ',trim(mygridfiles_c)                
+c         read(30,10000) Qg0,ikincut
+c10000    format(' Qg0 = ',f12.8,' ikincut= ',I6)
+c         read(30,10100)
+c10100    format('xg,  kt, p  xgx') 
+200      Read(30,101) TXT
+  101    Format(A72)
+c         WRITE(6,101) '  line ',TXT
+         If(TXT(1:4).EQ.'  Qg') then 
+            read(txt,1000) adum,Qg0,adum,ikincut
+C1000        format(' Qg0 = ',f12.8,' ikincut= ',I6)
+1000        format(A7,f12.8,A10,I6)
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Qg0') then 
+            read(txt,1000) adum,Qg0,adum,ikincut
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Ipg') then 
+            read(txt,1001) adum,Ipgg,adum,ns_sel
+c1001        format(' Ipgg = ',I4,' ns_sel = ',I4)
+1001        format(A8,I4,A10,I4)
+c         WRITE(6,101) '2nd line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:6).EQ.' Qscal') then 
+            read(txt,1002)  adum,Qscal, adum,Iqqbar
+c1002        format(' Qscal = ',f7.3,' Iqqbar = ',I4)
+1002        format(A9,f7.3,A10,I4)
+C         WRITE(6,101) '2nd line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:7).EQ.' QCDlam') then 
+c         WRITE(6,101) '3rd line ',TXT
+            read(txt,1003) adum,QCDLam
+1003        format(A9,f12.8)
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' ln(') then 
+c         WRITE(6,101) '2 or 3rd line',TXT
+         Endif
+
+c         if(lwrite) write(6,*) ' iTMDgridq: starting scale Q0 = ',Qg0
+         if(lwrite) write(6,'(''  iTMDgridq_c: starting scale Q0 = '',F8.3)'),Qg0
+c         if(lwrite) write(6,*) ' soft cut Q0 ',Qg0,' scale factor = ',scal
+c         if(lwrite) write(6,*) ' kin cut ',ikincut,' Ipgg = ',Ipgg,' ns_sel = ',ns_sel
+c         if(lwrite) write(6,*) ' QCD_lam used in uPDF: ',QCDlam
+c         if(lwrite) write(6,*) ' scal factor = ',Qscal,' fact. scale = ',Iqqbar
+
+            do i=1,n1
+               do k=1,n2
+cc                  write(6,*) j,i,k,RX,RQ2,RP,RKMS
+cc                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS
+cc                  write(6,*) ' in iTMDgrid '
+
+
+c                  READ(30,*,Err=90 ) RX,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+
+                  if(ns_sel.ge.1000) then 
+                     READ(30,*,Err=90 ) RX,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+                  else
+                     READ(30,*,Err=90 ) RX,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6
+                  endif 
+
+                  xx(i) = rx
+                  px(k) = rp
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
+c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
+c                   write(6,*) rx,rp
+               enddo
+            enddo
+
+c         if(lwrite) write(6,*) ' end of file at ',i,k
+         IN=0
+         DO I=1,N1
+            IN=IN+1
+            A(IN) = xx(I)
+         ENDDO
+         DO I=1,N2
+            IN=IN+1
+            A(IN) = px(I)
+         ENDDO
+         FIRST=.FALSE.
+c         write(6,*) '  parton densities read from file unit 30 '
+         Close(30)
+      endif
+      ENDIF
+
+      ncall = ncall +1   
+
+
+      XA(1) = log(X)
+      XA(2) = log(P)
+      if(xa(2).lt.px(1)) then
+         n2min = n2min + 1
+         
+         if(n2min.lt.10) then 
+            write(6,*) ' iTMDgridq_c: p out of range ',p,' min p ',exp(px(1))
+            write(6,*) ' iTMDgridq_c: log(p) out of range ',xa(2),px(1)
+         elseif(n2min.eq.10) then 
+c            write(6,*) ' iTMDgridq_c: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' last message printed: min p'
+         endif
+         xa(2)=px(1)
+      endif
+      if(xa(2).gt.px(n2)) then
+         n2max = n2max + 1
+         if(n2max.lt.10) then 
+            write(6,*) ' iTMDgridq_c: p out of range ',p,' max p ',exp(px(n3))
+         elseif(n2max.eq.10) then 
+c            write(6,*) ' iTMDgridq_c: p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' last message printed: max p'
+         endif
+         xa(2)=px(n2)
+      endif
+      if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
+      if(xa(1).lt.xx(1)) then
+         n1min = n1min + 1
+         if(n1min.lt.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+         elseif(n1min.eq.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+c            write(6,*) ' last message printed: min x'
+         endif
+         xa(1)=xx(1)
+      endif
+c check if interpolation or grid wanted
+      igrid = 0
+      if(inter.eq.0) then
+         glu  = DHFINT(2,XA,NA,A,f_grid0)
+         up   = DHFINT(2,XA,NA,A,f_grid2)
+         down = DHFINT(2,XA,NA,A,f_grid1)
+         str  = DHFINT(2,XA,NA,A,f_grid3)
+         usea = DHFINT(2,XA,NA,A,f_grid2m)
+         dsea = DHFINT(2,XA,NA,A,f_grid1m)
+         ssea = DHFINT(2,XA,NA,A,f_grid3m)
+         charm= DHFINT(2,XA,NA,A,f_grid4)
+         csea = DHFINT(2,XA,NA,A,f_grid4m)
+         bot  = DHFINT(2,XA,NA,A,f_grid5)
+         bsea = DHFINT(2,XA,NA,A,f_grid5m)
+         top  = DHFINT(2,XA,NA,A,f_grid6)
+         tsea = DHFINT(2,XA,NA,A,f_grid6m)
+         phot = DHFINT(2,XA,NA,A,f_grid7)
+         z0 =   DHFINT(2,XA,NA,A,f_grid8)
+         wplus =DHFINT(2,XA,NA,A,f_grid9)
+         wminus=DHFINT(2,XA,NA,A,f_grid10)
+         higgs =DHFINT(2,XA,NA,A,f_grid11)
+      elseif(inter.eq.1) then
+         glu  = dhpolint(2,XA,NA,A,f_grid0)
+         up   = dhpolint(2,XA,NA,A,f_grid2)
+         down = dhpolint(2,XA,NA,A,f_grid1)
+         str  = dhpolint(2,XA,NA,A,f_grid3)
+         usea = dhpolint(2,XA,NA,A,f_grid2m)
+         dsea = dhpolint(2,XA,NA,A,f_grid1m)
+         ssea = dhpolint(2,XA,NA,A,f_grid3m)
+         charm= dhpolint(2,XA,NA,A,f_grid4)
+         csea = dhpolint(2,XA,NA,A,f_grid4m)
+         bot  = dhpolint(2,XA,NA,A,f_grid5)
+         bsea = dhpolint(2,XA,NA,A,f_grid5m)
+         top  = dhpolint(2,XA,NA,A,f_grid6)
+         tsea = dhpolint(2,XA,NA,A,f_grid6m)
+         phot = dhpolint(2,XA,NA,A,f_grid7)
+         z0 =   dhpolint(2,XA,NA,A,f_grid8)
+         wplus =dhpolint(2,XA,NA,A,f_grid9)
+         wminus=dhpolint(2,XA,NA,A,f_grid10)
+         higgs =dhpolint(2,XA,NA,A,f_grid11)
+      else
+        write(6,*) ' iTMDgridq_c inter = ',inter,' not implemented '
+      endif
+      DO  IP=-6,11
+         XPQ(IP)=0.0
+      ENDDO
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
+c      if(z0.gt.0) then
+c         write(6,*) ' iTMDgridq_c x,p,xpq',x,p,xpq(8)
+ccc         write(6,*) ' i,j,k ',i,j,k
+c      endif
+c      do i=-6,7
+c        xpq(i) = xpq(i)/(1.-min(x,0.999))
+c      end do   
+         
+c         write(6,*) ' new iTMDgridc x,q2,p,xpq',x,q2,p,glu
+      return
+   50 write(6,*) ' iTMDgridq_c: error in opening file ', mygridfiles_u
+      stop
+   90 write(6,*) ' end of file at ',i,j,k,RX,RQ2,RP,RKMS0
+      stop
+      END
+
+      SUBROUTINE iTMDgridq_b(X,P,XPQ)
+      Implicit None
+      Integer n1,n2,n3
+      double precision XPQ(-6:11),X,P
+*! new
+      Parameter (n1=51,n2=51)
+      Double Precision xx,px
+      DIMENSION XX(0:n1),PX(0:n2)
+
+      Double Precision XA(3),A(N1+N2)
+      Double Precision f_grid0(n1,n2),f_grid1(n1,n2),f_grid2(n1,n2),f_grid3(n1,n2),f_grid4(n1,n2),f_grid5(n1,n2),f_grid6(n1,n2)
+      Double Precision f_grid7(n1,n2),f_grid8(n1,n2),f_grid9(n1,n2),f_grid10(n1,n2),f_grid11(n1,n2)
+      Double Precision f_grid1m(n1,n2),f_grid2m(n1,n2),f_grid3m(n1,n2),f_grid4m(n1,n2),f_grid5m(n1,n2),f_grid6m(n1,n2)
+      INTEGER NA(2)
+      DATA NA/n1,n2/
+      Double Precision DHFINT, dhpolint
+
+      Integer  ikincut,Ipgg,ns_sel
+      Double Precision QG0
+      COMMON /GLUDAT/QG0,ikincut,Ipgg,ns_sel
+      Double Precision Qscal 
+      Integer Iqqbar
+      Common/GLUDAT2/Qscal,Iqqbar 
+      Integer i,j,k,in,irr,igrid,ip
+      Double Precision scal,rx,rq2,rp,glu,up,down,str,usea,dsea,ssea,charm,csea,bot,bsea,top,tsea,phot
+      Double Precision z0,wplus,wminus,higgs
+      Double Precision RKMS6B,RKMS5B,RKMS4B,RKMS3B,RKMS2B,RKMS1B,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7
+      Double Precision RKMS8,RKMS9,RKMS10,RKMS11
+      Integer n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      common/caerrstf/n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      Real QCDLam
+      character *72 TXT
+      character adum
+      LOGICAL FIRST
+      DATA FIRST/.TRUE./
+           
+      character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
+      
+      character mygridfile_old*132
+      
+      Logical lwrite/.true./
+      
+      Double Precision rmaxLim
+      Integer inter
+      data inter/1/
+      
+c      write(6,*) ' in quark file '
+c      write(6,*) ' iTMDgrid first ',first,first_meoffsh
+c         write(6,*) ' iTMDgridq: files ',mygridfiles,mygridfile_old
+      IF(first) THEN
+      if(mygridfiles_u.ne.'mygridfile_old') then
+c         write(6,*) ' iTMDq: files ',mygridfiles,mygridfile_old
+         mygridfile_old=mygridfiles_b
+         n1min = 0
+         n1max = 0
+         n2min = 0
+         n2max = 0
+         n3min = 0
+         n3max = 0
+         ncall = 0
+         i=0
+         scal = 1.0
+         Ipgg = 0
+         ns_sel = -1
+c        if(lwrite)  write(6,*) ' iTMDgridq ',first,iset
+           if(lwrite) write(6,*) ' iTMDgridq_b reading: ',trim(mygridfiles_b)
+           open(30,FILE=mygridfiles_b, FORM='formatted',
+     +          STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
+c         if(lwrite) write(6,*) ' iTMDgridq: read  ',trim(mygridfiles_b)                
+c         read(30,10000) Qg0,ikincut
+c10000    format(' Qg0 = ',f12.8,' ikincut= ',I6)
+c         read(30,10100)
+c10100    format('xg,  kt, p  xgx') 
+200      Read(30,101) TXT
+  101    Format(A72)
+c         WRITE(6,101) '  line ',TXT
+         If(TXT(1:4).EQ.'  Qg') then 
+            read(txt,1000) adum,Qg0,adum,ikincut
+C1000        format(' Qg0 = ',f12.8,' ikincut= ',I6)
+1000        format(A7,f12.8,A10,I6)
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Qg0') then 
+            read(txt,1000) adum,Qg0,adum,ikincut
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Ipg') then 
+            read(txt,1001) adum,Ipgg,adum,ns_sel
+c1001        format(' Ipgg = ',I4,' ns_sel = ',I4)
+1001        format(A8,I4,A10,I4)
+c         WRITE(6,101) '2nd line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:6).EQ.' Qscal') then 
+            read(txt,1002)  adum,Qscal, adum,Iqqbar
+c1002        format(' Qscal = ',f7.3,' Iqqbar = ',I4)
+1002        format(A9,f7.3,A10,I4)
+C         WRITE(6,101) '2nd line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:7).EQ.' QCDlam') then 
+c         WRITE(6,101) '3rd line ',TXT
+            read(txt,1003) adum,QCDLam
+1003        format(A9,f12.8)
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' ln(') then 
+c         WRITE(6,101) '2 or 3rd line',TXT
+         Endif
+
+c         if(lwrite) write(6,*) ' iTMDgridq: starting scale Q0 = ',Qg0
+         if(lwrite) write(6,'(''  iTMDgridq_b: starting scale Q0 = '',F8.3)'),Qg0
+c         if(lwrite) write(6,*) ' soft cut Q0 ',Qg0,' scale factor = ',scal
+c         if(lwrite) write(6,*) ' kin cut ',ikincut,' Ipgg = ',Ipgg,' ns_sel = ',ns_sel
+c         if(lwrite) write(6,*) ' QCD_lam used in uPDF: ',QCDlam
+c         if(lwrite) write(6,*) ' scal factor = ',Qscal,' fact. scale = ',Iqqbar
+
+            do i=1,n1
+               do k=1,n2
+cc                  write(6,*) j,i,k,RX,RQ2,RP,RKMS
+cc                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS
+cc                  write(6,*) ' in iTMDgrid '
+
+
+c                  READ(30,*,Err=90 ) RX,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+
+                  if(ns_sel.ge.1000) then 
+                     READ(30,*,Err=90 ) RX,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+                  else
+                     READ(30,*,Err=90 ) RX,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6
+                  endif 
+
+                  xx(i) = rx
+                  px(k) = rp
+			rmaxLim = -1.E12
+                  f_grid0(i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(i,k) = max(rmaxLim,rkms6b)*scal
+c                  if(f_grid3m(i,k).gt.0) write(6,*) 'iTMDgrid ',f_grid3m(i,k),i,k
+c                   write(6,*) rx,rp
+               enddo
+            enddo
+
+c         if(lwrite) write(6,*) ' end of file at ',i,k
+         IN=0
+         DO I=1,N1
+            IN=IN+1
+            A(IN) = xx(I)
+         ENDDO
+         DO I=1,N2
+            IN=IN+1
+            A(IN) = px(I)
+         ENDDO
+         FIRST=.FALSE.
+c         write(6,*) '  parton densities read from file unit 30 '
+         Close(30)
+      endif
+      ENDIF
+
+      ncall = ncall +1   
+
+
+      XA(1) = log(X)
+      XA(2) = log(P)
+      if(xa(2).lt.px(1)) then
+         n2min = n2min + 1
+         
+         if(n2min.lt.10) then 
+            write(6,*) ' iTMDgridq_b: p out of range ',p,' min p ',exp(px(1))
+            write(6,*) ' iTMDgridq_b: log(p) out of range ',xa(2),px(1)
+         elseif(n2min.eq.10) then 
+c            write(6,*) ' iTMDgridq_b: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' last message printed: min p'
+         endif
+         xa(2)=px(1)
+      endif
+      if(xa(2).gt.px(n2)) then
+         n2max = n2max + 1
+         if(n2max.lt.10) then 
+            write(6,*) ' iTMDgridq_b: p out of range ',p,' max p ',exp(px(n3))
+         elseif(n2max.eq.10) then 
+c            write(6,*) ' iTMDgridq_b: p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' last message printed: max p'
+         endif
+         xa(2)=px(n2)
+      endif
+      if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
+      if(xa(1).lt.xx(1)) then
+         n1min = n1min + 1
+         if(n1min.lt.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+         elseif(n1min.eq.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+c            write(6,*) ' last message printed: min x'
+         endif
+         xa(1)=xx(1)
+      endif
+c check if interpolation or grid wanted
+      igrid = 0
+      if(inter.eq.0) then
+         glu  = DHFINT(2,XA,NA,A,f_grid0)
+         up   = DHFINT(2,XA,NA,A,f_grid2)
+         down = DHFINT(2,XA,NA,A,f_grid1)
+         str  = DHFINT(2,XA,NA,A,f_grid3)
+         usea = DHFINT(2,XA,NA,A,f_grid2m)
+         dsea = DHFINT(2,XA,NA,A,f_grid1m)
+         ssea = DHFINT(2,XA,NA,A,f_grid3m)
+         charm= DHFINT(2,XA,NA,A,f_grid4)
+         csea = DHFINT(2,XA,NA,A,f_grid4m)
+         bot  = DHFINT(2,XA,NA,A,f_grid5)
+         bsea = DHFINT(2,XA,NA,A,f_grid5m)
+         top  = DHFINT(2,XA,NA,A,f_grid6)
+         tsea = DHFINT(2,XA,NA,A,f_grid6m)
+         phot = DHFINT(2,XA,NA,A,f_grid7)
+         z0 =   DHFINT(2,XA,NA,A,f_grid8)
+         wplus =DHFINT(2,XA,NA,A,f_grid9)
+         wminus=DHFINT(2,XA,NA,A,f_grid10)
+         higgs =DHFINT(2,XA,NA,A,f_grid11)
+      elseif(inter.eq.1) then
+         glu  = dhpolint(2,XA,NA,A,f_grid0)
+         up   = dhpolint(2,XA,NA,A,f_grid2)
+         down = dhpolint(2,XA,NA,A,f_grid1)
+         str  = dhpolint(2,XA,NA,A,f_grid3)
+         usea = dhpolint(2,XA,NA,A,f_grid2m)
+         dsea = dhpolint(2,XA,NA,A,f_grid1m)
+         ssea = dhpolint(2,XA,NA,A,f_grid3m)
+         charm= dhpolint(2,XA,NA,A,f_grid4)
+         csea = dhpolint(2,XA,NA,A,f_grid4m)
+         bot  = dhpolint(2,XA,NA,A,f_grid5)
+         bsea = dhpolint(2,XA,NA,A,f_grid5m)
+         top  = dhpolint(2,XA,NA,A,f_grid6)
+         tsea = dhpolint(2,XA,NA,A,f_grid6m)
+         phot = dhpolint(2,XA,NA,A,f_grid7)
+         z0 =   dhpolint(2,XA,NA,A,f_grid8)
+         wplus =dhpolint(2,XA,NA,A,f_grid9)
+         wminus=dhpolint(2,XA,NA,A,f_grid10)
+         higgs =dhpolint(2,XA,NA,A,f_grid11)
+      else
+        write(6,*) ' iTMDgridq_b inter = ',inter,' not implemented '
+      endif
+      DO  IP=-6,11
+         XPQ(IP)=0.0
+      ENDDO
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
+c      if(z0.gt.0) then
+c         write(6,*) ' iTMDgridq_b x,p,xpq',x,p,xpq(8)
+ccc         write(6,*) ' i,j,k ',i,j,k
+c      endif
+c      do i=-6,7
+c        xpq(i) = xpq(i)/(1.-min(x,0.999))
+c      end do   
+         
+c         write(6,*) ' new iTMDgridb x,q2,p,xpq',x,q2,p,glu
+      return
+   50 write(6,*) ' iTMDgridq_b: error in opening file ', mygridfiles_u
+      stop
+   90 write(6,*) ' end of file at ',i,j,k,RX,RQ2,RP,RKMS0
+      stop
+      END
 
 
 
@@ -2823,7 +3447,9 @@ C
 
             
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       
       character mygridfile_old*132
       
@@ -3200,7 +3826,9 @@ c         write(6,*) ' i,j,k ',i,j,k
 
             
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       
       character mygridfile_old*132
       Double Precision rmaxLim
@@ -3570,7 +4198,9 @@ c         write(6,*) ' i,j,k ',i,j,k
 
             
       character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
-      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
       
       character mygridfile_old*132
       
@@ -3904,6 +4534,761 @@ c         write(6,*) ' i,j,k ',i,j,k
       write(6,*) ' TMDgridqu: end of file at ',i,j,k,RX,RQ2,RP,RKMS1,RKMS2,RKMS3
       stop
       END
+
+
+      SUBROUTINE TMDgridq_c(X,Q2,P,XPQ)
+      Implicit None
+      Integer n1,n2,n3
+      double precision XPQ(-6:11),X,Q2,P
+*! new
+      Parameter (n1=51,n2=51,n3=51)
+
+      double precision Q2x,xx,px
+      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3)
+      Double Precision XA(3),A(N1+N2+N3)
+      Double Precision f_grid0(n1,n2,n3),f_grid1(n1,n2,n3),f_grid2(n1,n2,n3),
+     & f_grid3(n1,n2,n3),f_grid4(n1,n2,n3),f_grid5(n1,n2,n3),f_grid6(n1,n2,n3),f_grid7(n1,n2,n3)
+      Double Precision f_grid1m(n1,n2,n3),f_grid2m(n1,n2,n3),
+     & f_grid3m(n1,n2,n3),f_grid4m(n1,n2,n3),f_grid5m(n1,n2,n3),f_grid6m(n1,n2,n3)
+      Double Precision f_grid8(n1,n2,n3),f_grid9(n1,n2,n3),f_grid10(n1,n2,n3),f_grid11(n1,n2,n3)
+      INTEGER NA(3)
+      DATA NA/n1,n2,n3/
+      Double Precision DHFINT
+      Integer  ikincut,Ipgg,ns_sel
+      Double Precision QG0
+      COMMON /GLUDAT/QG0,ikincut,Ipgg,ns_sel
+      Double Precision Qscal
+      Integer Iqqbar
+      Common/GLUDAT2/Qscal,Iqqbar
+      Integer i,j,k,in,irr,igrid,ip
+
+      Double Precision scal,rx,rq2,rp,glu,up,usea,down,dsea,str,ssea,charm,csea,bot,bsea,top,tsea,phot
+      Double Precision z0,wplus,wminus,higgs
+      Double Precision RKMS6B,RKMS5B,RKMS4B,RKMS3B,RKMS2B,RKMS1B,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7
+      Double Precision RKMS8,RKMS9,RKMS10,RKMS11
+      Integer n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      common/caerrstf/n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      character *72 TXT
+      character adum
+      Real QCDlam
+      LOGICAL FIRST
+      DATA FIRST/.TRUE./
+
+            
+      character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
+      
+      character mygridfile_old*132
+      
+      Double Precision rmaxLim
+      Logical lwrite/.true./
+
+c         write(6,*) ' TMDgridqu: files ',mygridfiles,mygridfile_old
+c      goto 555
+      IF(FIRST) THEN
+      if(mygridfiles_u.ne.'mygridfile_old') then
+         write(6,*) ' TMDgridq_c: files ',mygridfiles_c,mygridfile_old
+         mygridfile_old=mygridfiles_c
+         n1min = 0
+         n1max = 0
+         n2min = 0
+         n2max = 0
+         n3min = 0
+         n3max = 0
+         ncall = 0
+         i=0
+         scal = 1.0
+         Ipgg = 0
+         ns_sel = -1
+         if(lwrite) then 
+           write(6,*) ' TMDgridq_c ',first 
+           write(6,*) ' TMDgridq_c reading: ',mygridfiles_c
+         endif
+         open(30,FILE=mygridfiles_c, FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
+         if(lwrite) write(6,*) ' TMDgridq_c: read ',mygridfiles_c      
+                             
+200      Read(30,101) TXT
+  101    Format(A72)
+C         WRITE(6,101) '  line ',TXT
+         If(TXT(1:4).EQ.'  Qg') then 
+c	      read(txt,1000) Qg0,ikincut
+c1000        format(' Qg0 = ',f12.8,' ikincut= ',I6)
+            read(txt,1000) adum,Qg0,adum,ikincut
+C1000        format(' Qg0 = ',f12.8,' ikincut= ',I6)
+1000        format(A7,f12.8,A10,I6)
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Qg0') then 
+c	      read(txt,1000) Qg0,ikincut
+            read(txt,1000) adum,Qg0,adum,ikincut
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Ipg') then 
+c	      read(txt,1001) Ipgg,ns_sel
+c1001        format(' Ipgg = ',I4,' ns_sel = ',I4)
+cc         WRITE(6,101) '2nd line ',TXT
+            read(txt,1001) adum,Ipgg,adum,ns_sel
+c1001        format(' Ipgg = ',I4,' ns_sel = ',I4)
+1001        format(A8,I4,A10,I4)
+            goto 200
+         Endif
+         If(TXT(1:7).EQ.' QCDlam') then 
+c         WRITE(6,101) '3rd line ',TXT
+            read(txt,1003) adum,QCDLam
+1003        format(A9,f12.8)
+c            PARU(112)=QCDLam
+            goto 200
+         Endif
+         If(TXT(1:6).EQ.' Qscal') then 
+c	      read(txt,1002) Qscal,Iqqbar
+c1002        format(' Qscal = ',f7.3,' Iqqbar = ',I4)
+C         WRITE(6,101) '2nd line ',TXT
+	      read(txt,1002)  adum,Qscal, adum,Iqqbar
+c1002        format(' Qscal = ',f7.3,' Iqqbar = ',I4)
+1002        format(A9,f7.3,A10,I4)
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' ln(') then 
+c         WRITE(6,101) '2 or 3rd line',TXT
+         Endif
+        
+         do j=1,n1
+            do i=1,n2
+               do k=1,n3
+c                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+c                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6
+                  if(ns_sel.ge.1000) then 
+                     READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+                  else
+                     READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6 
+                  endif 
+                  xx(i) = rx
+                  q2x(j) = rq2
+                  px(k) = rp
+			rmaxLim = -1.E12
+                  f_grid0(j,i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(j,i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(j,i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(j,i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(j,i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(j,i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(j,i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(j,i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(j,i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(j,i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(j,i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(j,i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(j,i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(j,i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(j,i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(j,i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(j,i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(j,i,k) = max(rmaxLim,rkms6b)*scal
+               enddo
+            enddo
+         enddo
+         write(6,*) ' TMDgridq_c: after reading ',mygridfiles_c,j,i,k
+         IN=0
+         DO I=1,n1
+            IN=IN+1
+            A(IN) = q2x(I)
+         ENDDO
+         DO I=1,N2
+            IN=IN+1
+            A(IN) = xx(I)
+         ENDDO
+         DO I=1,N3
+            IN=IN+1
+            A(IN) = px(I)
+         ENDDO
+345      continue         
+         FIRST=.FALSE.
+c         write(6,*) '  parton densities read from file unit 30 '
+         Close(30)
+         
+      endif
+      ENDIF
+
+      ncall = ncall +1 
+ 
+      XA(1) = log(Q2)
+      XA(2) = log(X)
+      XA(3) = log(P)
+      if(xa(3).lt.px(1)) then
+         n3min = n3min + 1
+        
+         if(n3min.lt.10) then 
+c            write(6,*) ' p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' p out of range ',xa(3),px(1)
+         elseif(n3min.eq.10) then 
+c            write(6,*) ' p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' last message printed: min p'
+         endif
+         xa(3)=px(1)
+      endif
+      if(xa(3).gt.px(n3)) then
+         n3max = n3max + 1
+         if(n3max.lt.10) then 
+c            write(6,*) ' p out of range ',p,' max p ',exp(px(n3))
+         elseif(n3max.eq.10) then 
+c            write(6,*) ' p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' last message printed: max p'
+         endif
+         xa(3)=px(n3)
+      endif
+      if(xa(2).ge.xx(n2)) xa(2)=xx(n2)-0.0001
+      if(xa(2).lt.xx(1)) then
+         n2min = n2min + 1
+         if(n2min.lt.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+         elseif(n2min.eq.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+c            write(6,*) ' last message printed: min x'
+         endif
+         xa(2)=xx(1)
+         endif 
+      if(xa(1).lt.q2x(1)) then
+         n1min = n1min + 1
+         if(n1min.lt.10) then 
+c            write(6,*) '  k2 out of range ',q2,' min ',exp(q2x(1))
+         elseif(n1min.eq.10) then 
+c            write(6,*) '  k2 out of range ',q2,' min ',exp(q2x(1))
+c            write(6,*) ' last message printed: min k2'
+         endif
+         xa(1)=q2x(1)
+      endif
+      if(xa(1).ge.q2x(n1)) then
+         n1max = n1max + 1
+         if(n1max.lt.10) then 
+c            write(6,*) '  k2 out of range ',q2,' max ',exp(q2x(n1))
+         elseif(n1max.eq.10) then 
+c            write(6,*) '  k2 out of range ',q2,' max ',exp(q2x(n1))
+c            write(6,*) ' last message printed: max k2'
+         endif
+         xa(1)=q2x(n1)-0.1
+      endif
+c check if interpolation or grid wanted
+      igrid = 0
+      
+      
+      if(igrid.eq.1) then
+         if(xa(1).lt.q2x(1)) then
+            write(6,*) '  k2 out of range ',q2,' min ',exp(q2x(1))
+            xa(1)=q2x(1)
+         endif
+         if(xa(1).ge.q2x(n1)) then
+            write(6,*) '  k2 out of range: x = ', x,n1,q2x(n1)
+            write(6,*) '  k2 out of range ',q2,' max ',exp(q2x(n1))
+            xa(1)=q2x(n1)-0.1
+         endif
+         i=0
+   20    i=i+1
+         if(xa(1).gt.a(na(1))) then
+c       write(6,*) ' q2  ',xa(1),a(na(1))
+            write(6,*) ' q2 not found ',q2,a(na(1)),q2x(n1),xa(1)
+            i=na(1)
+         else
+            if(xa(1).ge.A(i).and.xa(1).lt.a(i+1)) Then
+            else
+               if(i.le.na(1)) then
+                  goto 20
+               else
+                  write(6,*) ' at 20: q2 not found ',i,q2
+               endif
+            endif
+         endif
+         j=0
+   30    j=j+1
+         if(xa(2).ge.A(na(1)+j).and.xa(2).lt.a(na(1)+j+1)) Then
+         else
+            if(j.le.na(2)) then
+               goto 30
+            else
+               write(6,*) ' at 30: x not found ',x,xa(2),j
+            endif
+         endif
+         k=0
+   40    k=k+1
+         if(xa(3).ge.a(na(1)+na(2)+na(3))) then
+            k=na(3)
+c       write(6,*) ' p  ',xa(3),a(na(1)+na(2)+na(3))
+         else
+            if(xa(3).ge.A(na(1)+na(2)+k).and. xa(3).lt.a(na(1)+na(2)+k+1)) Then
+            else
+               if(k.le.na(3)) then
+                  goto 40
+               else
+                  write(6,*) ' at 40: p not found ',k,p
+               endif
+            endif
+         endif
+
+         glu  = DHFINT(3,XA,NA,A,f_grid0)/q2
+         up = DHFINT(3,XA,NA,A,f_grid2)/q2
+         down = DHFINT(3,XA,NA,A,f_grid1)/q2
+         str  = DHFINT(3,XA,NA,A,f_grid3)/q2
+         usea = DHFINT(3,XA,NA,A,f_grid2m)/q2
+         dsea = DHFINT(3,XA,NA,A,f_grid1m)/q2
+         ssea = DHFINT(3,XA,NA,A,f_grid3m)/q2
+         charm= DHFINT(3,XA,NA,A,f_grid4)/q2
+         csea = DHFINT(3,XA,NA,A,f_grid4m)/q2
+         bot= DHFINT(3,XA,NA,A,f_grid5)/q2
+         bsea= DHFINT(3,XA,NA,A,f_grid5m)/q2
+         top= DHFINT(3,XA,NA,A,f_grid6)/q2
+         tsea= DHFINT(3,XA,NA,A,f_grid6m)/q2
+         phot= DHFINT(3,XA,NA,A,f_grid7)/q2
+         z0= DHFINT(3,XA,NA,A,f_grid8)/q2
+         wplus= DHFINT(3,XA,NA,A,f_grid9)/q2
+         wminus= DHFINT(3,XA,NA,A,f_grid10)/q2
+         higgs= DHFINT(3,XA,NA,A,f_grid11)/q2
+         
+      else
+         glu  = DHFINT(3,XA,NA,A,f_grid0)/q2
+         up = DHFINT(3,XA,NA,A,f_grid2)/q2
+         down = DHFINT(3,XA,NA,A,f_grid1)/q2
+         str  = DHFINT(3,XA,NA,A,f_grid3)/q2
+         usea = DHFINT(3,XA,NA,A,f_grid2m)/q2
+         dsea = DHFINT(3,XA,NA,A,f_grid1m)/q2
+         ssea = DHFINT(3,XA,NA,A,f_grid3m)/q2
+         charm= DHFINT(3,XA,NA,A,f_grid4)/q2
+         csea = DHFINT(3,XA,NA,A,f_grid4m)/q2
+         bot= DHFINT(3,XA,NA,A,f_grid5)/q2
+         bsea= DHFINT(3,XA,NA,A,f_grid5m)/q2
+         top= DHFINT(3,XA,NA,A,f_grid6)/q2
+         tsea= DHFINT(3,XA,NA,A,f_grid6m)/q2
+         phot= DHFINT(3,XA,NA,A,f_grid7)/q2
+         z0= DHFINT(3,XA,NA,A,f_grid8)/q2
+         wplus= DHFINT(3,XA,NA,A,f_grid9)/q2
+         wminus= DHFINT(3,XA,NA,A,f_grid10)/q2
+         higgs= DHFINT(3,XA,NA,A,f_grid11)/q2
+c         write(6,*) ' new TMDgridqc x,q2,p ',x,q2,p,glu,uval,dval,usea,dsea,ssea
+      endif
+
+   
+      DO  IP=-6,11
+         XPQ(IP)=0.0
+      ENDDO
+            
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
+      if(glu.gt.5E6) then
+         write(6,*) ' new TMDgridq_c gluon x,q2,p,xpq',x,q2,p,glu
+c         write(6,*) ' i,j,k ',i,j,k
+      endif
+      if(ssea.gt.5E6) then
+         write(6,*) ' new TMDgridq_c sea x,q2,p,xpq',x,q2,p,ssea
+c         write(6,*) ' i,j,k ',i,j,k
+      endif
+555   return
+
+
+   50 write(6,*) ' TMDgridq_c: error in opening file '
+      stop
+   90 continue
+      write(6,*) ' TMDgridqc: end of file at ',i,j,k,RX,RQ2,RP,RKMS1,RKMS2,RKMS3
+      stop
+      END
+      SUBROUTINE TMDgridq_b(X,Q2,P,XPQ)
+      Implicit None
+      Integer n1,n2,n3
+      double precision XPQ(-6:11),X,Q2,P
+*! new
+      Parameter (n1=51,n2=51,n3=51)
+
+      double precision Q2x,xx,px
+      DIMENSION Q2X(0:n1),XX(0:n2),PX(0:n3)
+      Double Precision XA(3),A(N1+N2+N3)
+      Double Precision f_grid0(n1,n2,n3),f_grid1(n1,n2,n3),f_grid2(n1,n2,n3),
+     & f_grid3(n1,n2,n3),f_grid4(n1,n2,n3),f_grid5(n1,n2,n3),f_grid6(n1,n2,n3),f_grid7(n1,n2,n3)
+      Double Precision f_grid1m(n1,n2,n3),f_grid2m(n1,n2,n3),
+     & f_grid3m(n1,n2,n3),f_grid4m(n1,n2,n3),f_grid5m(n1,n2,n3),f_grid6m(n1,n2,n3)
+      Double Precision f_grid8(n1,n2,n3),f_grid9(n1,n2,n3),f_grid10(n1,n2,n3),f_grid11(n1,n2,n3)
+      INTEGER NA(3)
+      DATA NA/n1,n2,n3/
+      Double Precision DHFINT
+      Integer  ikincut,Ipgg,ns_sel
+      Double Precision QG0
+      COMMON /GLUDAT/QG0,ikincut,Ipgg,ns_sel
+      Double Precision Qscal
+      Integer Iqqbar
+      Common/GLUDAT2/Qscal,Iqqbar
+      Integer i,j,k,in,irr,igrid,ip
+
+      Double Precision scal,rx,rq2,rp,glu,up,usea,down,dsea,str,ssea,charm,csea,bot,bsea,top,tsea,phot
+      Double Precision z0,wplus,wminus,higgs
+      Double Precision RKMS6B,RKMS5B,RKMS4B,RKMS3B,RKMS2B,RKMS1B,RKMS0,RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7
+      Double Precision RKMS8,RKMS9,RKMS10,RKMS11
+      Integer n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      common/caerrstf/n1min,n1max,n2min,n2max,n3min,n3max,ncall
+      character *72 TXT
+      character adum
+      Real QCDlam
+      LOGICAL FIRST
+      DATA FIRST/.TRUE./
+
+            
+      character mygridfiles_d*132 , mygridfiles_u*132, mygridfiles_ubar*132, mygridfiles_dbar*132 
+      character mygridfiles_c*132 , mygridfiles_b*132
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
+      
+      
+      character mygridfile_old*132
+      
+      Double Precision rmaxLim
+      Logical lwrite/.true./
+
+c         write(6,*) ' TMDgridqb: files ',mygridfiles,mygridfile_old
+c      goto 555
+      IF(FIRST) THEN
+      if(mygridfiles_u.ne.'mygridfile_old') then
+         write(6,*) ' TMDgridq_b: files ',mygridfiles_b,mygridfile_old
+         mygridfile_old=mygridfiles_b
+         n1min = 0
+         n1max = 0
+         n2min = 0
+         n2max = 0
+         n3min = 0
+         n3max = 0
+         ncall = 0
+         i=0
+         scal = 1.0
+         Ipgg = 0
+         ns_sel = -1
+         if(lwrite) then 
+           write(6,*) ' TMDgridq_b ',first 
+           write(6,*) ' TMDgridq_b reading: ',mygridfiles_b
+         endif
+         open(30,FILE=mygridfiles_b, FORM='formatted',STATUS= 'OLD',IOSTAT=IRR,ERR=50 )
+         if(lwrite) write(6,*) ' TMDgridq_b: read ',mygridfiles_b      
+                             
+200      Read(30,101) TXT
+  101    Format(A72)
+C         WRITE(6,101) '  line ',TXT
+         If(TXT(1:4).EQ.'  Qg') then 
+c	      read(txt,1000) Qg0,ikincut
+c1000        format(' Qg0 = ',f12.8,' ikincut= ',I6)
+            read(txt,1000) adum,Qg0,adum,ikincut
+C1000        format(' Qg0 = ',f12.8,' ikincut= ',I6)
+1000        format(A7,f12.8,A10,I6)
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Qg0') then 
+c	      read(txt,1000) Qg0,ikincut
+            read(txt,1000) adum,Qg0,adum,ikincut
+c         WRITE(6,101) ' 1st line ',TXT
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' Ipg') then 
+c	      read(txt,1001) Ipgg,ns_sel
+c1001        format(' Ipgg = ',I4,' ns_sel = ',I4)
+cc         WRITE(6,101) '2nd line ',TXT
+            read(txt,1001) adum,Ipgg,adum,ns_sel
+c1001        format(' Ipgg = ',I4,' ns_sel = ',I4)
+1001        format(A8,I4,A10,I4)
+            goto 200
+         Endif
+         If(TXT(1:7).EQ.' QCDlam') then 
+c         WRITE(6,101) '3rd line ',TXT
+            read(txt,1003) adum,QCDLam
+1003        format(A9,f12.8)
+c            PARU(112)=QCDLam
+            goto 200
+         Endif
+         If(TXT(1:6).EQ.' Qscal') then 
+c	      read(txt,1002) Qscal,Iqqbar
+c1002        format(' Qscal = ',f7.3,' Iqqbar = ',I4)
+C         WRITE(6,101) '2nd line ',TXT
+	      read(txt,1002)  adum,Qscal, adum,Iqqbar
+c1002        format(' Qscal = ',f7.3,' Iqqbar = ',I4)
+1002        format(A9,f7.3,A10,I4)
+            goto 200
+         Endif
+         If(TXT(1:4).EQ.' ln(') then 
+c         WRITE(6,101) '2 or 3rd line',TXT
+         Endif
+        
+         do j=1,n1
+            do i=1,n2
+               do k=1,n3
+c                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+c                  READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+c     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6
+                  if(ns_sel.ge.1000) then 
+                     READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6,RKMS7,RKMS8,RKMS9,RKMS10,RKMS11
+                  else
+                     READ(30,*,Err=90 ) RX,RQ2,RP,RKMS6b,RKMS5b,RKMS4b,RKMS3b,RKMS2b,RKMS1b,RKMS0,
+     &                               RKMS1,RKMS2,RKMS3,RKMS4,RKMS5,RKMS6 
+                  endif 
+                  xx(i) = rx
+                  q2x(j) = rq2
+                  px(k) = rp
+			rmaxLim = -1.E12
+                  f_grid0(j,i,k) = max(rmaxLim,rkms0)*scal
+                  f_grid1(j,i,k) = max(rmaxLim,rkms1)*scal
+                  f_grid2(j,i,k) = max(rmaxLim,rkms2)*scal
+                  f_grid3(j,i,k) = max(rmaxLim,rkms3)*scal
+                  f_grid4(j,i,k) = max(rmaxLim,rkms4)*scal
+                  f_grid5(j,i,k) = max(rmaxLim,rkms5)*scal
+                  f_grid6(j,i,k) = max(rmaxLim,rkms6)*scal
+                  f_grid7(j,i,k) = max(rmaxLim,rkms7)*scal
+                  f_grid8(j,i,k) = max(rmaxLim,rkms8)*scal
+                  f_grid9(j,i,k) = max(rmaxLim,rkms9)*scal
+                  f_grid10(j,i,k) = max(rmaxLim,rkms10)*scal
+                  f_grid11(j,i,k) = max(rmaxLim,rkms11)*scal
+                  f_grid1m(j,i,k) = max(rmaxLim,rkms1b)*scal
+                  f_grid2m(j,i,k) = max(rmaxLim,rkms2b)*scal
+                  f_grid3m(j,i,k) = max(rmaxLim,rkms3b)*scal
+                  f_grid4m(j,i,k) = max(rmaxLim,rkms4b)*scal
+                  f_grid5m(j,i,k) = max(rmaxLim,rkms5b)*scal
+                  f_grid6m(j,i,k) = max(rmaxLim,rkms6b)*scal
+               enddo
+            enddo
+         enddo
+         write(6,*) ' TMDgridq_b: after reading ',mygridfiles_b,j,i,k
+         IN=0
+         DO I=1,n1
+            IN=IN+1
+            A(IN) = q2x(I)
+         ENDDO
+         DO I=1,N2
+            IN=IN+1
+            A(IN) = xx(I)
+         ENDDO
+         DO I=1,N3
+            IN=IN+1
+            A(IN) = px(I)
+         ENDDO
+345      continue         
+         FIRST=.FALSE.
+c         write(6,*) '  parton densities read from file unit 30 '
+         Close(30)
+         
+      endif
+      ENDIF
+
+      ncall = ncall +1 
+ 
+      XA(1) = log(Q2)
+      XA(2) = log(X)
+      XA(3) = log(P)
+      if(xa(3).lt.px(1)) then
+         n3min = n3min + 1
+        
+         if(n3min.lt.10) then 
+c            write(6,*) ' p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' p out of range ',xa(3),px(1)
+         elseif(n3min.eq.10) then 
+c            write(6,*) ' p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' last message printed: min p'
+         endif
+         xa(3)=px(1)
+      endif
+      if(xa(3).gt.px(n3)) then
+         n3max = n3max + 1
+         if(n3max.lt.10) then 
+c            write(6,*) ' p out of range ',p,' max p ',exp(px(n3))
+         elseif(n3max.eq.10) then 
+c            write(6,*) ' p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' last message printed: max p'
+         endif
+         xa(3)=px(n3)
+      endif
+      if(xa(2).ge.xx(n2)) xa(2)=xx(n2)-0.0001
+      if(xa(2).lt.xx(1)) then
+         n2min = n2min + 1
+         if(n2min.lt.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+         elseif(n2min.eq.10) then 
+c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+c            write(6,*) ' last message printed: min x'
+         endif
+         xa(2)=xx(1)
+         endif 
+      if(xa(1).lt.q2x(1)) then
+         n1min = n1min + 1
+         if(n1min.lt.10) then 
+c            write(6,*) '  k2 out of range ',q2,' min ',exp(q2x(1))
+         elseif(n1min.eq.10) then 
+c            write(6,*) '  k2 out of range ',q2,' min ',exp(q2x(1))
+c            write(6,*) ' last message printed: min k2'
+         endif
+         xa(1)=q2x(1)
+      endif
+      if(xa(1).ge.q2x(n1)) then
+         n1max = n1max + 1
+         if(n1max.lt.10) then 
+c            write(6,*) '  k2 out of range ',q2,' max ',exp(q2x(n1))
+         elseif(n1max.eq.10) then 
+c            write(6,*) '  k2 out of range ',q2,' max ',exp(q2x(n1))
+c            write(6,*) ' last message printed: max k2'
+         endif
+         xa(1)=q2x(n1)-0.1
+      endif
+c check if interpolation or grid wanted
+      igrid = 0
+      
+      
+      if(igrid.eq.1) then
+         if(xa(1).lt.q2x(1)) then
+            write(6,*) '  k2 out of range ',q2,' min ',exp(q2x(1))
+            xa(1)=q2x(1)
+         endif
+         if(xa(1).ge.q2x(n1)) then
+            write(6,*) '  k2 out of range: x = ', x,n1,q2x(n1)
+            write(6,*) '  k2 out of range ',q2,' max ',exp(q2x(n1))
+            xa(1)=q2x(n1)-0.1
+         endif
+         i=0
+   20    i=i+1
+         if(xa(1).gt.a(na(1))) then
+c       write(6,*) ' q2  ',xa(1),a(na(1))
+            write(6,*) ' q2 not found ',q2,a(na(1)),q2x(n1),xa(1)
+            i=na(1)
+         else
+            if(xa(1).ge.A(i).and.xa(1).lt.a(i+1)) Then
+            else
+               if(i.le.na(1)) then
+                  goto 20
+               else
+                  write(6,*) ' at 20: q2 not found ',i,q2
+               endif
+            endif
+         endif
+         j=0
+   30    j=j+1
+         if(xa(2).ge.A(na(1)+j).and.xa(2).lt.a(na(1)+j+1)) Then
+         else
+            if(j.le.na(2)) then
+               goto 30
+            else
+               write(6,*) ' at 30: x not found ',x,xa(2),j
+            endif
+         endif
+         k=0
+   40    k=k+1
+         if(xa(3).ge.a(na(1)+na(2)+na(3))) then
+            k=na(3)
+c       write(6,*) ' p  ',xa(3),a(na(1)+na(2)+na(3))
+         else
+            if(xa(3).ge.A(na(1)+na(2)+k).and. xa(3).lt.a(na(1)+na(2)+k+1)) Then
+            else
+               if(k.le.na(3)) then
+                  goto 40
+               else
+                  write(6,*) ' at 40: p not found ',k,p
+               endif
+            endif
+         endif
+
+         glu  = DHFINT(3,XA,NA,A,f_grid0)/q2
+         up = DHFINT(3,XA,NA,A,f_grid2)/q2
+         down = DHFINT(3,XA,NA,A,f_grid1)/q2
+         str  = DHFINT(3,XA,NA,A,f_grid3)/q2
+         usea = DHFINT(3,XA,NA,A,f_grid2m)/q2
+         dsea = DHFINT(3,XA,NA,A,f_grid1m)/q2
+         ssea = DHFINT(3,XA,NA,A,f_grid3m)/q2
+         charm= DHFINT(3,XA,NA,A,f_grid4)/q2
+         csea = DHFINT(3,XA,NA,A,f_grid4m)/q2
+         bot= DHFINT(3,XA,NA,A,f_grid5)/q2
+         bsea= DHFINT(3,XA,NA,A,f_grid5m)/q2
+         top= DHFINT(3,XA,NA,A,f_grid6)/q2
+         tsea= DHFINT(3,XA,NA,A,f_grid6m)/q2
+         phot= DHFINT(3,XA,NA,A,f_grid7)/q2
+         z0= DHFINT(3,XA,NA,A,f_grid8)/q2
+         wplus= DHFINT(3,XA,NA,A,f_grid9)/q2
+         wminus= DHFINT(3,XA,NA,A,f_grid10)/q2
+         higgs= DHFINT(3,XA,NA,A,f_grid11)/q2
+         
+      else
+         glu  = DHFINT(3,XA,NA,A,f_grid0)/q2
+         up = DHFINT(3,XA,NA,A,f_grid2)/q2
+         down = DHFINT(3,XA,NA,A,f_grid1)/q2
+         str  = DHFINT(3,XA,NA,A,f_grid3)/q2
+         usea = DHFINT(3,XA,NA,A,f_grid2m)/q2
+         dsea = DHFINT(3,XA,NA,A,f_grid1m)/q2
+         ssea = DHFINT(3,XA,NA,A,f_grid3m)/q2
+         charm= DHFINT(3,XA,NA,A,f_grid4)/q2
+         csea = DHFINT(3,XA,NA,A,f_grid4m)/q2
+         bot= DHFINT(3,XA,NA,A,f_grid5)/q2
+         bsea= DHFINT(3,XA,NA,A,f_grid5m)/q2
+         top= DHFINT(3,XA,NA,A,f_grid6)/q2
+         tsea= DHFINT(3,XA,NA,A,f_grid6m)/q2
+         phot= DHFINT(3,XA,NA,A,f_grid7)/q2
+         z0= DHFINT(3,XA,NA,A,f_grid8)/q2
+         wplus= DHFINT(3,XA,NA,A,f_grid9)/q2
+         wminus= DHFINT(3,XA,NA,A,f_grid10)/q2
+         higgs= DHFINT(3,XA,NA,A,f_grid11)/q2
+c         write(6,*) ' new TMDgridqb x,q2,p ',x,q2,p,glu,uval,dval,usea,dsea,ssea
+      endif
+
+   
+      DO  IP=-6,11
+         XPQ(IP)=0.0
+      ENDDO
+            
+      if(glu.gt.rmaxLim) xpq(0) = glu
+      if(up.gt.rmaxLim) xpq(2) = up
+      if(usea.gt.rmaxLim) xpq(-2) = usea
+      if(down.gt.rmaxLim) xpq(1) = down
+      if(dsea.gt.rmaxLim) xpq(-1) = dsea
+      if(str.gt.rmaxLim) xpq(3) = str
+      if(ssea.gt.rmaxLim) xpq(-3) = ssea
+      if(charm.gt.rmaxLim) xpq(4) = charm
+      if(csea.gt.rmaxLim) xpq(-4) = csea
+      if(bot.gt.rmaxLim) xpq(5) = bot
+      if(bsea.gt.rmaxLim) xpq(-5) = bsea
+      if(top.gt.rmaxLim) xpq(6) = top
+      if(tsea.gt.rmaxLim) xpq(-6) = tsea
+      if(phot.gt.rmaxLim) xpq(7) = phot
+      if(z0.gt.rmaxLim) xpq(8) = z0
+      if(wplus.gt.rmaxLim) xpq(9) = wplus
+      if(wminus.gt.rmaxLim) xpq(10) = wminus
+      if(higgs.gt.rmaxLim) xpq(11) = higgs
+      if(glu.gt.5E6) then
+         write(6,*) ' new TMDgridq_b gluon x,q2,p,xpq',x,q2,p,glu
+c         write(6,*) ' i,j,k ',i,j,k
+      endif
+      if(ssea.gt.5E6) then
+         write(6,*) ' new TMDgridq_b sea x,q2,p,xpq',x,q2,p,ssea
+c         write(6,*) ' i,j,k ',i,j,k
+      endif
+555   return
+
+
+   50 write(6,*) ' TMDgridq_b: error in opening file '
+      stop
+   90 continue
+      write(6,*) ' TMDgridqb: end of file at ',i,j,k,RX,RQ2,RP,RKMS1,RKMS2,RKMS3
+      stop
+      END
+
 
 
       Subroutine iTMDgrids(x,q2,xpq)

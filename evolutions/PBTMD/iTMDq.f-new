@@ -21,6 +21,7 @@
       Common /myvalues/x,q2,xkt,iparton
 
       Double Precision xpqr(-6:11),xpqru(-6:11)
+      Double Precision xpqrc(-6:11),xpqrb(-6:11)
       Double Precision xpqrdbar(-6:11),xpqrubar(-6:11)
       Double Precision xpqrtest(-6:11)
 
@@ -35,9 +36,10 @@
       Character mygridfiles_u*132
       Character mygridfiles_ubar*132
       Character mygridfiles_dbar*132
+      Character mygridfiles_c*132
+      Character mygridfiles_b*132
 
-      Common/ myfiles/ mygridfiles_d,mygridfiles_u,
-     &                 mygridfiles_ubar,mygridfiles_dbar
+      Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
 
 c-----------------------------------------------------------------------
 c kinematics
@@ -67,6 +69,13 @@ c load grids
 c-----------------------------------------------------------------------
 
       if(xkt.lt.0d0) then
+
+        if(mygridfiles_c.ne.' ') then
+
+          call iTMDgridq_c(xr,pr,xpqrc)
+          call iTMDgridq_b(xr,pr,xpqrb)
+        endif
+
 
         if(mygridfiles_u.ne.' ') then
 
@@ -177,7 +186,8 @@ c-----------------------------------------------------------------------
 
       call BuildFlavorMatrices(A,Ab,
      &                         xpqr,xpqru,
-     &                         xpqrdbar,xpqrubar)
+     &                         xpqrdbar,xpqrubar,
+     &                         xpqrc,xpqrb)
 
 c-----------------------------------------------------------------------
 c starting distributions
@@ -219,12 +229,13 @@ c-----------------------------------------------------------------------
 c        test =
 c     &  xpqr(0)*sumall
         test = xpqr(0)*sumd + xpqru(0)*sumu + xpqrdbar(0)*sumdb + xpqrubar(0)*sumub
+cccc     &        +  xpqrc(0)*(xpq0(4)+xpq0(-4)) +  xpqrb(0)*(xpq0(5)+xpq0(-5))
 
         test = test*invx0
 
       elseif(abs(iparton).le.6) then
 
-        do i=1,6
+        do i=1,5
 
           test =
      &    test
@@ -283,7 +294,9 @@ c     &  xpqr(0)*sumall
       
       Subroutine BuildFlavorMatrices(A,Ab,
      &                               xpqr,xpqru,
-     &                               xpqrdbar,xpqrubar)
+     &                               xpqrdbar,xpqrubar,
+     &                               xpqrc,xpqrb)
+
 
       Implicit None
 
@@ -292,11 +305,11 @@ c     &  xpqr(0)*sumall
       Double Precision A(-6:6,6)
       Double Precision Ab(-6:6,6)
 
-      Double Precision xpqr(-6:11)
-      Double Precision xpqru(-6:11)
-
-      Double Precision xpqrdbar(-6:11)
-      Double Precision xpqrubar(-6:11)
+      Double Precision xpqr(-6:11),xpqru(-6:11)
+      Double Precision xpqrc(-6:11),xpqrb(-6:11)
+      Double Precision xpqrdbar(-6:11),xpqrubar(-6:11)
+      
+      Integer ItestCB/1/
 
 c-----------------------------------------------------------------------
 c IMPORTANT:
@@ -336,7 +349,7 @@ c=======================================================================
       A(3,6)=xpqru(3)
 
       A(4,1)=xpqr(4)
-      A(4,2)=xpqru(5)
+      A(4,2)=xpqru(4)
       A(4,3)=xpqr(4)
       A(4,4)=xpqru(2)
       A(4,5)=xpqr(4)
@@ -355,6 +368,37 @@ c=======================================================================
       A(6,4)=xpqru(6)
       A(6,5)=xpqr(6)
       A(6,6)=xpqru(2)
+
+      if(ItestCB.eq.1) then      
+c new for charm and botom densities
+c-----------------------------------------------------------------------
+c incoming charm
+c-----------------------------------------------------------------------
+
+      A(1,4)=xpqrc(1)
+      A(2,4)=xpqrc(2)
+      A(3,4)=xpqrc(3)
+      A(4,4)=xpqrc(4)
+      A(5,4)=xpqrc(5)
+      A(6,4)=xpqrc(6)
+
+c-----------------------------------------------------------------------
+c incoming bottom
+c-----------------------------------------------------------------------
+
+      A(1,5)=xpqrb(1)
+      A(2,5)=xpqrb(2)
+      A(3,5)=xpqrb(3)
+      A(4,5)=xpqrb(4)
+      A(5,5)=xpqrb(5)
+      A(6,5)=xpqrb(6)      
+c      A(1,5)=0
+c      A(2,5)=0
+c      A(3,5)=0
+c      A(4,5)=0
+c      A(5,5)=0
+c      A(6,5)=0      
+      endif      
 
 c=======================================================================
 c antiquarks
@@ -402,6 +446,38 @@ c=======================================================================
       A(-6,5)=xpqr(-6)
       A(-6,6)=xpqru(-2)
 
+      if(ItestCB.eq.1) then
+c new for charm and botom densities
+c-----------------------------------------------------------------------
+c incoming charm
+c-----------------------------------------------------------------------
+
+      A(-1,4)=xpqrc(-1)
+      A(-2,4)=xpqrc(-2)
+      A(-3,4)=xpqrc(-3)
+      A(-4,4)=xpqrc(-4)
+      A(-5,4)=xpqrc(-5)
+      A(-6,4)=xpqrc(-6)
+
+c-----------------------------------------------------------------------
+c incoming bottom
+c-----------------------------------------------------------------------
+
+      A(-1,5)=xpqrb(-1)
+      A(-2,5)=xpqrb(-2)
+      A(-3,5)=xpqrb(-3)
+      A(-4,5)=xpqrb(-4)
+      A(-5,5)=xpqrb(-5)
+      A(-6,5)=xpqrb(-6)      
+c      A(-1,5)=0
+c      A(-2,5)=0
+c      A(-3,5)=0
+c      A(-4,5)=0
+c      A(-5,5)=0
+c      A(-6,5)=0      
+      endif      
+
+
 c=======================================================================
 c anti-quark kernels
 c=======================================================================
@@ -448,6 +524,44 @@ c=======================================================================
       Ab(6,5)=xpqrdbar(6)
       Ab(6,6)=xpqrubar(2)
 
+      if(ItestCB.eq.1) then
+c new for charm and botom densities
+c-----------------------------------------------------------------------
+c incoming charm
+c-----------------------------------------------------------------------
+
+      Ab(1,4)=xpqrc(1)
+      Ab(2,4)=xpqrc(2)
+      Ab(3,4)=xpqrc(3)
+      Ab(4,4)=xpqrc(4)
+      Ab(5,4)=xpqrc(5)
+      Ab(6,4)=xpqrc(6)
+c      Ab(1,4)=0
+c      Ab(2,4)=0
+c      Ab(3,4)=0
+c      Ab(4,4)=0
+c      Ab(5,4)=0
+c      Ab(6,4)=0      
+
+c-----------------------------------------------------------------------
+c incoming bottom
+c-----------------------------------------------------------------------
+
+      Ab(1,5)=xpqrb(1)
+      Ab(2,5)=xpqrb(2)
+      Ab(3,5)=xpqrb(3)
+      Ab(4,5)=xpqrb(4)
+      Ab(5,5)=xpqrb(5)
+      Ab(6,5)=xpqrb(6)      
+c      Ab(1,5)=0
+c      Ab(2,5)=0
+c      Ab(3,5)=0
+c      Ab(4,5)=0
+c      Ab(5,5)=0
+c      Ab(6,5)=0      
+      endif      
+
+
 c=======================================================================
 c anti-particle entries
 c=======================================================================
@@ -493,6 +607,43 @@ c=======================================================================
       Ab(-6,4)=xpqrubar(-6)
       Ab(-6,5)=xpqrdbar(-6)
       Ab(-6,6)=xpqrubar(-2)
+
+      if(ItestCB.eq.1) then
+c new for charm and botom densities
+c-----------------------------------------------------------------------
+c incoming charm
+c-----------------------------------------------------------------------
+
+      Ab(-1,4)=xpqrc(-1)
+      Ab(-2,4)=xpqrc(-2)
+      Ab(-3,4)=xpqrc(-3)
+      Ab(-4,4)=xpqrc(-4)
+      Ab(-5,4)=xpqrc(-5)
+      Ab(-6,4)=xpqrc(-6)
+c      Ab(-1,4)=0
+c      Ab(-2,4)=0
+c      Ab(-3,4)=0
+c      Ab(-4,4)=0
+c      Ab(-5,4)=0
+c      Ab(-6,4)=0      
+
+c-----------------------------------------------------------------------
+c incoming bottom
+c-----------------------------------------------------------------------
+
+      Ab(-1,5)=xpqrb(-1)
+      Ab(-2,5)=xpqrb(-2)
+      Ab(-3,5)=xpqrb(-3)
+      Ab(-4,5)=xpqrb(-4)
+      Ab(-5,5)=xpqrb(-5)
+      Ab(-6,5)=xpqrb(-6)      
+c      Ab(-1,5)=0
+c      Ab(-2,5)=0
+c      Ab(-3,5)=0
+c      Ab(-4,5)=0
+c      Ab(-5,5)=0
+c      Ab(-6,5)=0      
+      endif      
 
       return
       end

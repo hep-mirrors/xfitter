@@ -205,7 +205,8 @@ namespace xfitter {
            // res[ii] = pbtmdsubr(ipdf, x, q2, mc, mb, file, length);
             
         }
-        xSav = x; Q2Sav = q2;        
+        xSav = x; Q2Sav = q2;  
+//        cout << " xfxQmap [4,5] = " << res[4] << " " << res[5] << endl;      
 //        cout << " xfxQmap [22,23} = " << res[22] << " " << res[23] << endl;
      }
     
