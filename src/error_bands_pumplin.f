@@ -219,8 +219,8 @@ C-----------------------------------------
             up = up + eu
             dn = dn + ed
          enddo
-         theo_tot_up(i) = sqrt(up)
-         theo_tot_down(i) = sqrt(dn)
+         theo_pumplin_up(i) = sqrt(up)
+         theo_pumplin_down(i) = sqrt(dn)
       enddo
 
       end
@@ -246,8 +246,8 @@ C-----------------------------------------
          e = e + (TheoVars(:,i)-THEO)**2
       enddo
 
-      theo_tot_up = sqrt(e)
-      theo_tot_down = sqrt(e)
+      theo_pumplin_up = sqrt(e)
+      theo_pumplin_down = sqrt(e)
 
       end
 
