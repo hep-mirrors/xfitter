@@ -20,6 +20,40 @@
 using namespace std;
 using namespace fastNLO;
 
+#if defined(_LIBCPP_VERSION)
+#include <locale>
+namespace {
+   // libc++ (macOS) sets failbit when operator>> parses a subnormal double
+   // (e.g. 2.9e-312), which occur in some fastNLO tables; libstdc++ (Linux)
+   // accepts them. A failed stream then silently reads nothing until the
+   // trailing magic-number check aborts with "[ReadMagicNo] Found ''".
+   // Parse doubles with strtod instead, accepting underflowed values.
+   class SubnormalTolerantNumGet : public std::num_get<char> {
+   public:
+      using std::num_get<char>::num_get;
+   protected:
+      iter_type do_get(iter_type it, iter_type end, std::ios_base& /*str*/,
+                       std::ios_base::iostate& err, double& val) const override {
+         std::string tok;
+         while (it != end) {
+            const char c = *it;
+            if (isspace(static_cast<unsigned char>(c))) break;
+            tok += c;
+            ++it;
+         }
+         if (it == end) err |= std::ios_base::eofbit;
+         char* endp = nullptr;
+         const double v = strtod(tok.c_str(), &endp);
+         if (endp == tok.c_str() || *endp != '\0')
+            err |= std::ios_base::failbit;
+         else
+            val = v;
+         return it;
+      }
+   };
+}
+#endif /* _LIBCPP_VERSION */
+
 // ___________________________________________________________________________________________________
 bool fastNLOTable::fWelcomeOnce = false;
 
@@ -2391,7 +2425,6 @@ std::istream* fastNLOTable::OpenFileRead() {
 #ifdef HAVE_LIBZ
    std::istream* strm = (istream*)(new zstr::ifstream(ffilename.c_str(),ios::in | std::ifstream::binary));
    if ( strm ) logger.info["OpenFileRead"]<<"Opened file "<<ffilename<<" successfully."<<endl;
-   return strm;
 #else
    const std::string ending = ".gz";
    if (ffilename.length() >= ending.length() && ffilename.compare(ffilename.length() - ending.length(), ending.length(), ending) == 0) {
@@ -2399,8 +2432,12 @@ std::istream* fastNLOTable::OpenFileRead() {
       exit(1);
    }
    std::istream* strm = (istream*)(new ifstream(ffilename.c_str(),ios::in | std::ifstream::binary));
-   return strm;
 #endif /* HAVE_LIBZ */
+#if defined(_LIBCPP_VERSION)
+   // tolerate subnormal doubles in tables (see SubnormalTolerantNumGet above)
+   strm->imbue(std::locale(strm->getloc(), new SubnormalTolerantNumGet()));
+#endif
+   return strm;
 
 }
 

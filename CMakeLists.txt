@@ -120,7 +120,12 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # For semaphore in multithreading
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
+# (librt does not exist on macOS; sem_open/shm are in libSystem there)
+if(APPLE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
+endif()
 
 #When linking, set rpath to install directories
 #This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH
