@@ -41,6 +41,8 @@
 
       Common/ myfiles/ mygridfiles_d, mygridfiles_u, mygridfiles_ubar, mygridfiles_dbar,mygridfiles_c, mygridfiles_b
 
+      Integer Icb
+    
 c-----------------------------------------------------------------------
 c kinematics
 c-----------------------------------------------------------------------
@@ -67,14 +69,15 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 c load grids
 c-----------------------------------------------------------------------
-
+      Icb = 0
       if(xkt.lt.0d0) then
 
         if(mygridfiles_c.ne.' ') then
 
           call iTMDgridq_c(xr,pr,xpqrc)
           call iTMDgridq_b(xr,pr,xpqrb)
-        endif
+          Icb = 1
+        endif 
 
 
         if(mygridfiles_u.ne.' ') then
@@ -184,7 +187,7 @@ c-----------------------------------------------------------------------
 c EXACT original matrix structure
 c-----------------------------------------------------------------------
 
-      call BuildFlavorMatrices(A,Ab,
+      call BuildFlavorMatrices(Icb,A,Ab,
      &                         xpqr,xpqru,
      &                         xpqrdbar,xpqrubar,
      &                         xpqrc,xpqrb)
@@ -292,13 +295,15 @@ cccc     &        +  xpqrc(0)*(xpq0(4)+xpq0(-4)) +  xpqrb(0)*(xpq0(5)+xpq0(-5))
       end
       
       
-      Subroutine BuildFlavorMatrices(A,Ab,
+      Subroutine BuildFlavorMatrices(Icb,A,Ab,
      &                               xpqr,xpqru,
      &                               xpqrdbar,xpqrubar,
      &                               xpqrc,xpqrb)
 
 
       Implicit None
+      
+      Integer Icb
 
       Integer i,j
 
@@ -369,35 +374,29 @@ c=======================================================================
       A(6,5)=xpqr(6)
       A(6,6)=xpqru(2)
 
-      if(ItestCB.eq.1) then      
+      if(Icb.eq.1) then      
 c new for charm and botom densities
 c-----------------------------------------------------------------------
 c incoming charm
 c-----------------------------------------------------------------------
 
-      A(1,4)=xpqrc(1)
-      A(2,4)=xpqrc(2)
-      A(3,4)=xpqrc(3)
-      A(4,4)=xpqrc(4)
-      A(5,4)=xpqrc(5)
-      A(6,4)=xpqrc(6)
+         A(1,4)=xpqrc(1)
+         A(2,4)=xpqrc(2)
+         A(3,4)=xpqrc(3)
+         A(4,4)=xpqrc(4)
+         A(5,4)=xpqrc(5)
+         A(6,4)=xpqrc(6)
 
 c-----------------------------------------------------------------------
 c incoming bottom
 c-----------------------------------------------------------------------
 
-      A(1,5)=xpqrb(1)
-      A(2,5)=xpqrb(2)
-      A(3,5)=xpqrb(3)
-      A(4,5)=xpqrb(4)
-      A(5,5)=xpqrb(5)
-      A(6,5)=xpqrb(6)      
-c      A(1,5)=0
-c      A(2,5)=0
-c      A(3,5)=0
-c      A(4,5)=0
-c      A(5,5)=0
-c      A(6,5)=0      
+         A(1,5)=xpqrb(1)
+         A(2,5)=xpqrb(2)
+         A(3,5)=xpqrb(3)
+         A(4,5)=xpqrb(4)
+         A(5,5)=xpqrb(5)
+         A(6,5)=xpqrb(6)      
       endif      
 
 c=======================================================================
@@ -446,35 +445,29 @@ c=======================================================================
       A(-6,5)=xpqr(-6)
       A(-6,6)=xpqru(-2)
 
-      if(ItestCB.eq.1) then
+      if(Icb.eq.1) then
 c new for charm and botom densities
 c-----------------------------------------------------------------------
 c incoming charm
 c-----------------------------------------------------------------------
 
-      A(-1,4)=xpqrc(-1)
-      A(-2,4)=xpqrc(-2)
-      A(-3,4)=xpqrc(-3)
-      A(-4,4)=xpqrc(-4)
-      A(-5,4)=xpqrc(-5)
-      A(-6,4)=xpqrc(-6)
+         A(-1,4)=xpqrc(-1)
+         A(-2,4)=xpqrc(-2)
+         A(-3,4)=xpqrc(-3)
+         A(-4,4)=xpqrc(-4)
+         A(-5,4)=xpqrc(-5)
+         A(-6,4)=xpqrc(-6)
 
 c-----------------------------------------------------------------------
 c incoming bottom
 c-----------------------------------------------------------------------
 
-      A(-1,5)=xpqrb(-1)
-      A(-2,5)=xpqrb(-2)
-      A(-3,5)=xpqrb(-3)
-      A(-4,5)=xpqrb(-4)
-      A(-5,5)=xpqrb(-5)
-      A(-6,5)=xpqrb(-6)      
-c      A(-1,5)=0
-c      A(-2,5)=0
-c      A(-3,5)=0
-c      A(-4,5)=0
-c      A(-5,5)=0
-c      A(-6,5)=0      
+         A(-1,5)=xpqrb(-1)
+         A(-2,5)=xpqrb(-2)
+         A(-3,5)=xpqrb(-3)
+         A(-4,5)=xpqrb(-4)
+         A(-5,5)=xpqrb(-5)
+         A(-6,5)=xpqrb(-6)      
       endif      
 
 
@@ -524,41 +517,29 @@ c=======================================================================
       Ab(6,5)=xpqrdbar(6)
       Ab(6,6)=xpqrubar(2)
 
-      if(ItestCB.eq.1) then
+      if(Icb.eq.1) then
 c new for charm and botom densities
 c-----------------------------------------------------------------------
 c incoming charm
 c-----------------------------------------------------------------------
 
-      Ab(1,4)=xpqrc(1)
-      Ab(2,4)=xpqrc(2)
-      Ab(3,4)=xpqrc(3)
-      Ab(4,4)=xpqrc(4)
-      Ab(5,4)=xpqrc(5)
-      Ab(6,4)=xpqrc(6)
-c      Ab(1,4)=0
-c      Ab(2,4)=0
-c      Ab(3,4)=0
-c      Ab(4,4)=0
-c      Ab(5,4)=0
-c      Ab(6,4)=0      
+         Ab(1,4)=xpqrc(1)
+         Ab(2,4)=xpqrc(2)
+         Ab(3,4)=xpqrc(3)
+         Ab(4,4)=xpqrc(4)
+         Ab(5,4)=xpqrc(5)
+         Ab(6,4)=xpqrc(6)
 
 c-----------------------------------------------------------------------
 c incoming bottom
 c-----------------------------------------------------------------------
 
-      Ab(1,5)=xpqrb(1)
-      Ab(2,5)=xpqrb(2)
-      Ab(3,5)=xpqrb(3)
-      Ab(4,5)=xpqrb(4)
-      Ab(5,5)=xpqrb(5)
-      Ab(6,5)=xpqrb(6)      
-c      Ab(1,5)=0
-c      Ab(2,5)=0
-c      Ab(3,5)=0
-c      Ab(4,5)=0
-c      Ab(5,5)=0
-c      Ab(6,5)=0      
+         Ab(1,5)=xpqrb(1)
+         Ab(2,5)=xpqrb(2)
+         Ab(3,5)=xpqrb(3)
+         Ab(4,5)=xpqrb(4)
+         Ab(5,5)=xpqrb(5)
+         Ab(6,5)=xpqrb(6)      
       endif      
 
 
@@ -608,41 +589,29 @@ c=======================================================================
       Ab(-6,5)=xpqrdbar(-6)
       Ab(-6,6)=xpqrubar(-2)
 
-      if(ItestCB.eq.1) then
+      if(Icb.eq.1) then
 c new for charm and botom densities
 c-----------------------------------------------------------------------
 c incoming charm
 c-----------------------------------------------------------------------
 
-      Ab(-1,4)=xpqrc(-1)
-      Ab(-2,4)=xpqrc(-2)
-      Ab(-3,4)=xpqrc(-3)
-      Ab(-4,4)=xpqrc(-4)
-      Ab(-5,4)=xpqrc(-5)
-      Ab(-6,4)=xpqrc(-6)
-c      Ab(-1,4)=0
-c      Ab(-2,4)=0
-c      Ab(-3,4)=0
-c      Ab(-4,4)=0
-c      Ab(-5,4)=0
-c      Ab(-6,4)=0      
+         Ab(-1,4)=xpqrc(-1)
+         Ab(-2,4)=xpqrc(-2)
+         Ab(-3,4)=xpqrc(-3)
+         Ab(-4,4)=xpqrc(-4)
+         Ab(-5,4)=xpqrc(-5)
+         Ab(-6,4)=xpqrc(-6)
 
 c-----------------------------------------------------------------------
 c incoming bottom
 c-----------------------------------------------------------------------
 
-      Ab(-1,5)=xpqrb(-1)
-      Ab(-2,5)=xpqrb(-2)
-      Ab(-3,5)=xpqrb(-3)
-      Ab(-4,5)=xpqrb(-4)
-      Ab(-5,5)=xpqrb(-5)
-      Ab(-6,5)=xpqrb(-6)      
-c      Ab(-1,5)=0
-c      Ab(-2,5)=0
-c      Ab(-3,5)=0
-c      Ab(-4,5)=0
-c      Ab(-5,5)=0
-c      Ab(-6,5)=0      
+         Ab(-1,5)=xpqrb(-1)
+         Ab(-2,5)=xpqrb(-2)
+         Ab(-3,5)=xpqrb(-3)
+         Ab(-4,5)=xpqrb(-4)
+         Ab(-5,5)=xpqrb(-5)
+         Ab(-6,5)=xpqrb(-6)      
       endif      
 
       return

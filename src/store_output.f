@@ -66,6 +66,7 @@ C--------------------------------------------------------------
   ! Store how many PDFs are written out:
       integer NPdfs
       parameter (NPdfs = 15)
+      double precision dum/0./
 
 C---------------------------------------------------------------
 
@@ -97,6 +98,12 @@ c        open(82,file=h1name)
      $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
      $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph ',
      $        'strbar'
+c         write (81,'(16(2x,A12))')
+c     $        ' x ',' g    ',' u_sea    ',' d_sea    ',
+c     $              ' str    ','strbar',
+c     $              ' chm    ',' bot    ', 
+c     $              ' dum ', ' dum ', ' dum ', ' dum ',
+c     $              ' dum ', ' dum ', ' dum ', ' dum ',
 
          totstr=  0.d0
          totDbar= 0.d0
@@ -184,7 +191,13 @@ c        open(82,file=h1name)
             write(81,810)
      +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,
      $           chm,bot,photon,strbar
+c            write(81,810)
+c     +           x,gval,u_sea,d_sea,str,strbar,chm,bot
+c     +          ,dum,dum,dum,dum,dum,dum,dum,dum
+     
+     
  810        format(16(2x,G12.6))
+c 8101       format(8(2x,G12.6))
  811        format(I3,2x,23(2x,G12.6))
 
 

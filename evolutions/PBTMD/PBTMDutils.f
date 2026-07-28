@@ -246,11 +246,18 @@ c      write(6,*) ' TMD glu: x,q2,xTMD ',x,sqrt(q2),(xTMD(i),i=-3,3)
                 mygridfiles_ubar=' '
                 mygridfiles_dbar=' '
               endif
-              if(IcbGridfile.eq.1) then 
-                 mygridfiles_c=trim(trim(outdir)//'/tmd-grid-c-quark_int.dat')
-                 mygridfiles_b=trim(trim(outdir)//'/tmd-grid-b-quark_int.dat')
-              endif
            endif 
+           mygridfiles_c=' '
+           mygridfiles_b=' '
+           if(IcbGridfile.eq.1) then 
+              mygridfiles_c=trim(trim(outdir)//'/tmd-grid-c-quark_int.dat')
+              mygridfiles_b=trim(trim(outdir)//'/tmd-grid-b-quark_int.dat')
+              inquire(FILE=mygridfiles_c,EXIST=ex)
+              if(.not.ex) then
+                mygridfiles_c=' '
+                mygridfiles_b=' '
+              endif
+           endif
         else
            mygridfiles_d=trim(trim(outdir)//'/tmd-grid-quark.dat')
            mygridfiles_u=' '
@@ -259,9 +266,16 @@ c           write(6,*) ' check for u-files ', IudGridfile
               mygridfiles_d=trim(trim(outdir)//'/tmd-grid-d-quark.dat')
               mygridfiles_u=trim(trim(outdir)//'/tmd-grid-u-quark.dat')
            endif
+           mygridfiles_c=' '
+           mygridfiles_b=' '
            if(IcbGridfile.eq.1) then 
               mygridfiles_c=trim(trim(outdir)//'/tmd-grid-c-quark.dat')
               mygridfiles_b=trim(trim(outdir)//'/tmd-grid-b-quark.dat')
+              inquire(FILE=mygridfiles_c,EXIST=ex)
+              if(.not.ex) then
+                mygridfiles_c=' '
+                mygridfiles_b=' '
+              endif
            endif
         endif 
         if(idebug.eq.1) write(6,*) ' idebug: TMDconv mygridfiles = ',trim(mygridfiles_u),' test'
@@ -352,7 +366,7 @@ c      endif
      
       return
       end
-cc#include "iTMDq.f-orig"
+ccc#include "iTMDq.f-orig"
 #include "iTMDq.f-new"
 ccc#include "iTMDq.f-old"
 
@@ -406,18 +420,29 @@ c      write(6,*) ' starting distribution ',i,xpq0(i),pdf(i)
         if(xpq0(i) .ne. xpq0(i)) then
            icount = icount + 1
            ic=1000000
-           if (mod(icount,ic).eq.0)  write(6,*) ' problem in starting distribution: NaN-xpq0 set to zero:  ',i,x0,xpq0(i),icount
+c           if (mod(icount,ic).eq.0)  write(6,*) ' problem in starting distribution: NaN-xpq0 set to zero:  ',i,x0,xpq0(i),icount
+           call hf_errlog(26082701,'I: PBTMD starting distribution: NaN ')
            xpq0(i) = 0
         endif
+
+        IF (xpq0(i) .GT. 1.7D308) THEN
+           icount = icount + 1
+           ic=100000
+c           if (mod(icount,ic).eq.0) write(6,*) ' problem in starting distribution:infinity: ',i,x0,xpq0(i),icount
+           call hf_errlog(26082702,'I: PBTMD starting distribution: infinity')
+           xpq0(i) = 0
+        ENDIF
         if(xpq0(i) .gt. 1e10) then
            icount = icount + 1
 c        if(xpq0(i) .ne. xpq0(i)) then
            ic=100000
-           if (mod(icount,ic).eq.0) write(6,*) ' problem in starting distribution: too large-xpq0=1e10: ',i,x0,xpq0(i),icount
+c           if (mod(icount,ic).eq.0) write(6,*) ' problem in starting distribution: too large-xpq0=1e10: ',i,x0,xpq0(i),icount
+           call hf_errlog(26082703,'I: PBTMD starting distribution: too large')
            xpq0(i) = 1e10
+           xpq0(i) = 0
          endif
       end do
-            
+             
       return
       end
       
@@ -1103,35 +1128,38 @@ c         write(6,*) '  parton densities read from file unit 30 '
       yin = xa(2)
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1  
-         if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridg: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridg: log(p) out of range ',xa(2),px(1)
-         elseif(n2min.eq.10) then 
+         call hf_errlog(26082711,'I: PBTMD iTMDgridg: p out of range')
+c         if(n2min.lt.10) then 
+c            write(6,*) ' iTMDgridg: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridg: log(p) out of range ',xa(2),px(1)
+c         elseif(n2min.eq.10) then 
 c            write(6,*) ' p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
-         endif
+c         endif
          xa(2)=px(1)
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
-         if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridg: p out of range ',p,' max p ',exp(px(n2))
-         elseif(n2max.eq.10) then 
+         call hf_errlog(26082711,'I: PBTMD iTMDgridg: p out of range')
+c         if(n2max.lt.10) then 
+c            write(6,*) ' iTMDgridg: p out of range ',p,' max p ',exp(px(n2))
+c         elseif(n2max.eq.10) then 
 c            write(6,*) ' p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
-         endif
+c         endif
          xa(2)=px(n2)
       endif
 c      write(6,*) xa(1) 
       if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
       if(xa(1).lt.xx(1)) then
          n1min = n1min + 1
-         if(n1min.lt.10) then 
-            write(6,*) ' iTMDgridg:  x out of range ',x,' min ',exp(xx(1))
-         elseif(n1min.eq.10) then 
-            write(6,*) '  iTMDgridg: x out of range ',x,' min ',exp(xx(1))
-            write(6,*) '  iTMDgridg: last message printed: min x'
-         endif
+         call hf_errlog(26082712,'I: PBTMD iTMDgridg: x out of range')
+c         if(n1min.lt.10) then 
+c            write(6,*) ' iTMDgridg:  x out of range ',x,' min ',exp(xx(1))
+c         elseif(n1min.eq.10) then 
+c            write(6,*) '  iTMDgridg: x out of range ',x,' min ',exp(xx(1))
+c            write(6,*) '  iTMDgridg: last message printed: min x'
+c         endif
          xa(1)=xx(1)
       endif
 c check if interpolation or grid wanted
@@ -1407,24 +1435,26 @@ c         write(6,*) '  parton densities read from file unit 30 '
       XA(2) = log(P)
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1
+         call hf_errlog(26082721,'I: PBTMD iTMDgridq_d: p out of range')
 
-         if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_d: log(p) out of range ',xa(2),px(1)
-         elseif(n2min.eq.10) then 
+c         if(n2min.lt.10) then 
+c            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridq_d: log(p) out of range ',xa(2),px(1)
+c         elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
-         endif
+c         endif
          xa(2)=px(1)
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
-         if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridq_d: p out of range ',p,' max p ',exp(px(n3))
-         elseif(n2max.eq.10) then 
+         call hf_errlog(26082721,'I: PBTMD iTMDgridq_d: p out of range')
+c         if(n2max.lt.10) then 
+c            write(6,*) ' iTMDgridq_d: p out of range ',p,' max p ',exp(px(n3))
+c         elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridq_d: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
-         endif
+c         endif
          xa(2)=px(n2)
       endif
       if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
@@ -1432,6 +1462,7 @@ c            write(6,*) ' last message printed: max p'
          n1min = n1min + 1
          if(n1min.lt.10) then 
 c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
+            call hf_errlog(26082722,'I: PBTMD iTMDgridq_d: x out of range')
          elseif(n1min.eq.10) then 
 c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
 c            write(6,*) ' last message printed: min x'
@@ -1708,29 +1739,32 @@ c         write(6,*) '  parton densities read from file unit 30 '
       XA(2) = log(P)
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1
+         call hf_errlog(26082731,'I: PBTMD iTMDgridq_u: p out of range')
          
-         if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq_u: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_u: log(p) out of range ',xa(2),px(1)
-         elseif(n2min.eq.10) then 
+c         if(n2min.lt.10) then 
+c            write(6,*) ' iTMDgridq_u: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridq_u: log(p) out of range ',xa(2),px(1)
+c         elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_u: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
-         endif
+c         endif
          xa(2)=px(1)
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
-         if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridq_u: p out of range ',p,' max p ',exp(px(n3))
-         elseif(n2max.eq.10) then 
+          call hf_errlog(26082731,'I: PBTMD iTMDgridq_u: p out of range')
+c         if(n2max.lt.10) then 
+c            write(6,*) ' iTMDgridq_u: p out of range ',p,' max p ',exp(px(n3))
+c         elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
-         endif
+c         endif
          xa(2)=px(n2)
       endif
       if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
       if(xa(1).lt.xx(1)) then
          n1min = n1min + 1
+         call hf_errlog(26082732,'I: PBTMD iTMDgridq_u: x out of range')
          if(n1min.lt.10) then 
 c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
          elseif(n1min.eq.10) then 
@@ -2009,9 +2043,10 @@ c         write(6,*) '  parton densities read from file unit 30 '
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1
          
+         call hf_errlog(26082741,'I: PBTMD iTMDgridq_d: p out of range')
          if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_d: log(p) out of range ',xa(2),px(1)
+c            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridq_d: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_d: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -2020,8 +2055,9 @@ c            write(6,*) ' last message printed: min p'
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
+         call hf_errlog(26082741,'I: PBTMD iTMDgridq_d: p out of range')
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridq_d: p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' iTMDgridq_d: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -2031,6 +2067,7 @@ c            write(6,*) ' last message printed: max p'
       if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
       if(xa(1).lt.xx(1)) then
          n1min = n1min + 1
+         call hf_errlog(26082742,'I: PBTMD iTMDgridq_d: x out of range')
          if(n1min.lt.10) then 
 c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
          elseif(n1min.eq.10) then 
@@ -2309,9 +2346,10 @@ c         write(6,*) '  parton densities read from file unit 30 '
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1
          
+         call hf_errlog(26082751,'I: PBTMD iTMDgridq_dbar: p out of range')
          if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq_dbar: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_dbar: log(p) out of range ',xa(2),px(1)
+c            write(6,*) ' iTMDgridq_dbar: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridq_dbar: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_dbar: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -2320,8 +2358,9 @@ c            write(6,*) ' last message printed: min p'
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
+         call hf_errlog(26082751,'I: PBTMD iTMDgridq_dbar: p out of range')
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridq_dbar: p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' iTMDgridq_dbar: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -2608,9 +2647,10 @@ c         write(6,*) '  parton densities read from file unit 30 '
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1
          
+         call hf_errlog(26082761,'I: PBTMD iTMDgridq_ubar: p out of range')
          if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq_ubar: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_ubar: log(p) out of range ',xa(2),px(1)
+c            write(6,*) ' iTMDgridq_ubar: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridq_ubar: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_ubar: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -2619,8 +2659,9 @@ c            write(6,*) ' last message printed: min p'
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
+         call hf_errlog(26082761,'I: PBTMD iTMDgridq_ubar: p out of range')
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridq_ubar: p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' iTMDgridq_ubar: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridqu_u: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -2630,6 +2671,7 @@ c            write(6,*) ' last message printed: max p'
       if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
       if(xa(1).lt.xx(1)) then
          n1min = n1min + 1
+         call hf_errlog(26082762,'I: PBTMD iTMDgridq_ubar: x out of range')
          if(n1min.lt.10) then 
 c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
          elseif(n1min.eq.10) then 
@@ -2907,9 +2949,10 @@ c         write(6,*) '  parton densities read from file unit 30 '
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1
          
+         call hf_errlog(26082771,'I: PBTMD iTMDgridq_c: p out of range')
          if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq_c: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_c: log(p) out of range ',xa(2),px(1)
+c            write(6,*) ' iTMDgridq_c: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridq_c: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_c: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -2918,8 +2961,9 @@ c            write(6,*) ' last message printed: min p'
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
+         call hf_errlog(26082771,'I: PBTMD iTMDgridq_c: p out of range')
          if(n2max.lt.10) then 
-            write(6,*) ' iTMDgridq_c: p out of range ',p,' max p ',exp(px(n3))
+c            write(6,*) ' iTMDgridq_c: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
 c            write(6,*) ' iTMDgridq_c: p out of range ',p,' max p ',exp(px(n3))
 c            write(6,*) ' last message printed: max p'
@@ -2929,6 +2973,7 @@ c            write(6,*) ' last message printed: max p'
       if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
       if(xa(1).lt.xx(1)) then
          n1min = n1min + 1
+         call hf_errlog(26082772,'I: PBTMD iTMDgridq_c: x out of range')
          if(n1min.lt.10) then 
 c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
          elseif(n1min.eq.10) then 
@@ -3207,9 +3252,10 @@ c         write(6,*) '  parton densities read from file unit 30 '
       if(xa(2).lt.px(1)) then
          n2min = n2min + 1
          
+         call hf_errlog(26082781,'I: PBTMD iTMDgridq_b: p out of range')
          if(n2min.lt.10) then 
-            write(6,*) ' iTMDgridq_b: p out of range ',p,' min p ',exp(px(1))
-            write(6,*) ' iTMDgridq_b: log(p) out of range ',xa(2),px(1)
+c            write(6,*) ' iTMDgridq_b: p out of range ',p,' min p ',exp(px(1))
+c            write(6,*) ' iTMDgridq_b: log(p) out of range ',xa(2),px(1)
          elseif(n2min.eq.10) then 
 c            write(6,*) ' iTMDgridq_b: p out of range ',p,' min p ',exp(px(1))
 c            write(6,*) ' last message printed: min p'
@@ -3218,6 +3264,7 @@ c            write(6,*) ' last message printed: min p'
       endif
       if(xa(2).gt.px(n2)) then
          n2max = n2max + 1
+         call hf_errlog(26082781,'I: PBTMD iTMDgridq_b: p out of range')
          if(n2max.lt.10) then 
             write(6,*) ' iTMDgridq_b: p out of range ',p,' max p ',exp(px(n3))
          elseif(n2max.eq.10) then 
@@ -3229,6 +3276,7 @@ c            write(6,*) ' last message printed: max p'
       if(xa(1).ge.xx(n1)) xa(1)=xx(n1)-0.0001
       if(xa(1).lt.xx(1)) then
          n1min = n1min + 1
+         call hf_errlog(26082782,'I: PBTMD iTMDgridq_b: x out of range')
          if(n1min.lt.10) then 
 c            write(6,*) '  x out of range ',x,' min ',exp(xx(1))
          elseif(n1min.eq.10) then 
