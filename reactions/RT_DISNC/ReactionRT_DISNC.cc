@@ -263,17 +263,11 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	}
       
     }
-  //wait for all children to finish
-  int status;
-  pid_t wpid;
-  while ((wpid = wait(&status)) > 0)
-    if (status < 0)
-      {
-	std::cout << "Process " << wpid << " terminated with status " << status << std::endl;
-	exit(-1);
-      }
-  
-  //Read out buffer
+  //Read out buffer BEFORE waiting for the children:
+  //a pipe only buffers 64 kB on Linux (16 kB on macOS); if the results do
+  //not fit, the children block in write() while the parent blocks in wait(),
+  //deadlocking. Closing the parent's write end first, then draining the pipe,
+  //lets the children finish their writes and exit.
   close(fd[1]);
   for (size_t i = 0; i < Np; i++)
     {
@@ -286,7 +280,7 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	  string message = "E: Error in fork/wait: nothing on the pipe.";
 	  hf_errlog_(22082501, message.c_str(), message.size());
 	}
-	
+
       switch (GetDataFlav(termID))
 	{
 	case dataFlav::incl:
@@ -304,4 +298,14 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	}
     }
   close(fd[0]);
+
+  //wait for all children to finish
+  int status;
+  pid_t wpid;
+  while ((wpid = wait(&status)) > 0)
+    if (status < 0)
+      {
+	std::cout << "Process " << wpid << " terminated with status " << status << std::endl;
+	exit(-1);
+      }
 }
