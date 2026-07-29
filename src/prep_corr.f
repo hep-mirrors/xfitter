@@ -11,8 +11,7 @@
 #include "covar.inc"
 
 
-      integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax,NCorrMax
-      integer NCorrMaxBins
+      integer k,i,j,b,m,n,NCorr,NIdColumns1,NIdColumns2,NIdMax
 
       parameter (NIdMax = 6)
       character *80 Name1
@@ -31,12 +30,9 @@ C     Temporary buffer to read the data (allows for comments starting with *)
 
       integer iCov_type_file(NSET**2)
 
-c     matrix buffer
-      parameter (NCorrMax = 100*100)
-      parameter (NCorrMaxBins = 300)
-      !double precision matrixbuffer(NCorrMax,NCorrMax)
-      double precision matrixbuffer(NCorrMaxBins,NCorrMaxBins)
-      double precision CovRescale(NCorrMax)
+c     matrix buffer for table format, allocated per file with actual size
+c     (large stat. correlation matrices, e.g. 2000x2000, must fit)
+      double precision, allocatable :: matrixbuffer(:,:)
       logical MatrixFormatIsTable
 
       namelist/StatCorr/Name1,Name2,NIdColumns1,NIdColumns2,
@@ -45,7 +41,8 @@ c     matrix buffer
       integer idataset1, idataset2, FindDataSetByName, idx1, idx2
       integer ndataset1, ndataset2, GetNPointsInDataSet
       character *40 ndataTmp
-      double precision BinValues1(NIdMax,NCorrMax), BinValues2(NIdMax,NCorrMax)
+      double precision, allocatable :: BinValues1(:,:), BinValues2(:,:)
+      integer, allocatable :: Idx1arr(:), Idx2arr(:)
       double precision Values1(NIdMax), Values2(NIdMax)
       logical has_cov_m(NSET,NSET)
       logical has_corr_m(NSET,NSET)
@@ -195,13 +192,7 @@ c     Check the number of bin ids does not exceed maximum allowed
      $           'S: NIdMax parameter in prep_corr.f too small')
          endif
 
-c     Check the number of correlation entries does not exceed maximum allowed
-!         if(NCorr.gt.NCorrMax) then
-!            Call HF_ERRLOG(13012501,
-!     $           'S: NCorrMax parameter in prep_corr.f too small')
-!         endif
-
-c     Check that the corresponding datasets exist 
+c     Check that the corresponding datasets exist
          if((idataset1.lt.1).or.(idataset2.lt.1)) then
             Call HF_ERRLOG(10040003,
      $'S: Error in reading correlation file: dataset not identified')
@@ -245,6 +236,17 @@ c     Table format for covariance/correlation matrix
 c     ******************************************
          if (MatrixFormatIsTable) then
 
+c     Check table dimensions and allocate the buffers accordingly
+            if ((NBins1.le.0).or.(NBins2.le.0)) then
+               Call HF_ERRLOG(13012502,
+     $              'S: NBins1/NBins2 not set for table format matrix')
+            endif
+            allocate(matrixbuffer(NBins1+NIdColumns2,NBins2+NIdColumns1))
+            allocate(BinValues1(NIdMax,NBins1))
+            allocate(BinValues2(NIdMax,NBins2))
+            allocate(Idx1arr(NBins1))
+            allocate(Idx2arr(NBins2))
+
             do i=1,NBins1+NIdColumns2
                read (51,*,err=1019) (matrixbuffer(i,j),j=1,NBins2+NIdColumns1)
             enddo
@@ -263,22 +265,28 @@ c     Build matrix of identification info for bins of dataset2 (bin boundaries)
                enddo
             enddo
 
+c     Get all bin ids once (the lookup scans the whole dataset, so doing
+c     it per matrix cell costs O(NBins^2 * Npoints) for large matrices)
+            do i=1,NBins1
+               do b=1, NIdColumns1
+                  Values1(b) = BinValues1(b,i)
+               enddo
+               Idx1arr(i) = FindIdxForCorrelation(idataset1, NIdColumns1, IdIdx1, NIdMax, Values1)
+            enddo
+            do j=1,NBins2
+               do b=1, NIdColumns2
+                  Values2(b) = BinValues2(b,j)
+               enddo
+               Idx2arr(j) = FindIdxForCorrelation(idataset2, NIdColumns2, IdIdx2, NIdMax, Values2)
+            enddo
+
             do i=1,NBins1
                do j=1,NBins2
 
-c     Make arrays of bin identification info for bin_i and bin_j
-                  do b=1, NIdColumns1
-                     Values1(b) = BinValues1(b,i)
-                  enddo
-                  do b=1, NIdColumns2
-                     Values2(b) = BinValues2(b,j)
-                  enddo
+                  Idx1 = Idx1arr(i)
+                  Idx2 = Idx2arr(j)
 
-c     Get bin_i and bin_j ids
-                  Idx1 = FindIdxForCorrelation(idataset1, NIdColumns1, IdIdx1, NIdMax, Values1)
-                  Idx2 = FindIdxForCorrelation(idataset2, NIdColumns2, IdIdx2, NIdMax, Values2)
-
-c     Check that bin_i and bin_j are identified                  
+c     Check that bin_i and bin_j are identified
                   if ((Idx1.le.0).or.(Idx2.le.0)) then
                      if (cov_resize) then
                         cycle
@@ -348,6 +356,12 @@ C     Store the type too (it is a bit mask)
                   iCov_type(Idx2) = IOR(icov_type(Idx2),iCov_type_file(k))
                enddo
             enddo
+
+            deallocate(matrixbuffer)
+            deallocate(BinValues1)
+            deallocate(BinValues2)
+            deallocate(Idx1arr)
+            deallocate(Idx2arr)
 
          else ! end of table format for covariance/correlation matrix
 

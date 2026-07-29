@@ -3,9 +3,6 @@
       integer NTOT        !> Maximal number of data points
       parameter(NTOT = NTOT_C)
 
-      integer NCovarMax   !> Maximal number of data points, treated by covariance matrix
-      parameter (NCovarMax = 1000)
-
       integer nset            !> Maximal number of datasets
       parameter (NSET = NSET_C)
 

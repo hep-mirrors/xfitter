@@ -32,12 +32,19 @@ C---------------------------------------------------------
 
       double precision ScaledErrors(Ntot)  ! uncorrelated uncertainties, diagonal
 
-      double precision ScaledErrorMatrix(NCovarMax,NCovarMax) ! stat+uncor error matrix
-      double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
-      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
+C Covariance matrices, allocated on first call with the actual number of
+C covariance points (NCovarDim), so large stat. correlation matrices
+C (e.g. 2000x2000) fit without a compile-time NCovarMax limit.
+      double precision, allocatable :: ScaledErrorMatrix(:,:) ! stat+uncor error matrix
+      double precision, allocatable :: ScaledSystMatrix(:,:)  ! syst. covar matrix
+      double precision, allocatable :: ScaledTotMatrix(:,:)   ! stat+uncor+syst covar matrix
+      integer NCovarDim       ! Leading dimension of the covariance matrices
 
       integer NDiag, NCovar   ! Number of diagonal and full covariance input data points
       integer List_Diag(Ntot), List_Covar(Ntot), List_Covar_inv(Ntot)
+      save ScaledErrorMatrix, ScaledSystMatrix, ScaledTotMatrix
+      save NCovarDim, NDiag, NCovar, List_Diag, List_Covar,
+     $     List_Covar_inv
 
       integer Iterate
       logical LFirst
@@ -73,9 +80,14 @@ C    !> Determine which errors are diagonal and which are using covariance matri
 
          print*,'NDiag=',NDiag,'NCovar=',NCovar
 
+C    !> Allocate covariance matrices with the actual size
+         NCovarDim = max(NCovar,1)
+         allocate(ScaledErrorMatrix(NCovarDim,NCovarDim))
+         allocate(ScaledSystMatrix(NCovarDim,NCovarDim))
+         allocate(ScaledTotMatrix(NCovarDim,NCovarDim))
 
-         do i=1,NCovarMax
-            do j=1,NCovarMax
+         do i=1,NCovarDim
+            do j=1,NCovarDim
                ScaledSystMatrix(i,j) = 0.
             enddo
          enddo
@@ -132,7 +144,7 @@ C !> Rebuild syst. covariance matrix
 
          if ( doMatrix ) then
             Call Chi2_calc_covar(ScaledGamma
-     $           ,ScaledSystMatrix
+     $           ,ScaledSystMatrix, NCovarDim
      $           ,List_Covar_Inv,n0_in)
             if (lPrintTiming) then
                t_covar = xf_wtime()
@@ -162,7 +174,7 @@ c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
      $  Chi2OffsRecalc) then
             if (lPrintTiming) t_covar = xf_wtime()  ! Reset timing reference
             Call Chi2_calc_stat_uncor(ScaledErrors
-     $           ,ScaledErrorMatrix
+     $           ,ScaledErrorMatrix, NCovarDim
      $           ,rsys_in,n0_in, NCovar, List_Covar, Iterate)
             if (lPrintTiming) then
                t_stat = xf_wtime()
@@ -175,7 +187,7 @@ C  !> Sum covariance matricies and invert the total:
             if ( doMatrix .or. NCovar .gt. 0 ) then
                Call Chi2_calc_SumCovar(ScaledErrorMatrix,
      $              ScaledSystMatrix,
-     $              ScaledTotMatrix, NCovar)
+     $              ScaledTotMatrix, NCovarDim, NCovar)
                if (lPrintTiming) then
                   t_sumcovar = xf_wtime()
                   print '(A,F8.3,A)', ' TIMING: SumCovar+Inv  = ',
@@ -219,7 +231,7 @@ c               stop
             else
                Call Chi2_calc_syst_shifts(
      $              ScaledErrors
-     $              ,ScaledTotMatrix
+     $              ,ScaledTotMatrix, NCovarDim
      $              ,ScaledGamma
      $              ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
      $              ,scaledOmega)
@@ -256,7 +268,7 @@ C !> Calculate chi2
       call chi2_calc_chi2(
      $     ScaledErrors,
      $     ScaledGamma,
-     $     ScaledTotMatrix,
+     $     ScaledTotMatrix, NCovarDim,
      $     rsys_in,
      $     ndiag, list_diag, ncovar, list_covar,
      $     fchi2_in, pchi2_in, fcorchi2_in)
@@ -349,14 +361,6 @@ C----------------------
          if ( SysForm(k) .eq. isMatrix) then
             doMatrix = .true.
             n_m = n_m + 1
-            if (n_m .gt. NCovarMax ) then
-               print *,'ERROR ERROR ERROR'
-               print *,'Number of points used for covariance matrix'//
-     $              ' exceeds NCovarMax = ', NCovarMax
-               print *,'Increase NCovarMax in ntot.inc and recompile'
-               print *,'STOP'
-               call HF_stop
-            endif
          endif
          if ( SysForm(k) .eq. isNuisance) then
             doNuisance = .true.
@@ -454,15 +458,6 @@ C Check systematic sources, if a matrix source point to point i
 
             List_Covar(NCovar) = i
             List_Covar_inv(i) = NCovar
-            ! Add a check:
-            if (NCovar .gt. NCovarMax) then
-               print *,'ERROR ERROR ERROR'
-               print *,'Number of points used for covariance matrix'//
-     $              ' exceeds NCovarMax = ', NCovarMax
-               print *,'Increase NCovarMax in ntot.inc and recompile'
-               print *,'STOP'
-               call HF_stop
-            endif
          else
             NDiag = NDiag + 1
             List_Diag(NDiag) = i
@@ -599,7 +594,8 @@ C> @param List_Covar_Inv
 C> @param n0_in
 C
 C---------------------------------------------------------------------------------------------
-      subroutine chi2_calc_covar(ScaledGamma,ScaledSystMatrix, List_Covar_Inv, n0_in)
+      subroutine chi2_calc_covar(ScaledGamma,ScaledSystMatrix,
+     $     NCovarDim, List_Covar_Inv, n0_in)
 
       implicit none
 C
@@ -608,14 +604,15 @@ C
 #include "indata.inc"
 #include "theo.inc"
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
-      double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
+      integer NCovarDim
+      double precision ScaledSystMatrix(NCovarDim,NCovarDim)  ! syst. covar matrix
       integer List_Covar_Inv(NTOT)
 C--
       integer n0_in
       integer i,j,k, i1, j1, i2, j2
 C----------------------------------------------------------------------
-      do i=1,n0_in
-         do j=i,n0_in
+      do i=1,NCovarDim
+         do j=i,NCovarDim
             ScaledSystMatrix(i,j) = 0
          enddo
       enddo
@@ -700,16 +697,17 @@ C> @param NCovar
 C
 C----------------------------------------------------------------------------
       Subroutine Chi2_calc_SumCovar(ScaledErrorMatrix, ScaledSystMatrix,
-     $              ScaledTotMatrix, NCovar)
+     $              ScaledTotMatrix, NCovarDim, NCovar)
 
       implicit none
 #include "ntot.inc"
 
-      double precision ScaledErrorMatrix(NCovarMax,NCovarMax) ! stat+uncor error matrix
-      double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
-      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
+      integer NCovarDim
+      double precision ScaledErrorMatrix(NCovarDim,NCovarDim) ! stat+uncor error matrix
+      double precision ScaledSystMatrix(NCovarDim,NCovarDim)  ! syst. covar matrix
+      double precision ScaledTotMatrix(NCovarDim,NCovarDim)   ! stat+uncor+syst covar matrix
       integer NCovar
-      double precision Array(NCovarMax*2)
+      double precision Array(NCovarDim*2)
       integer IFail
 
       integer i,j
@@ -728,7 +726,7 @@ C-----------------------------
         ! enddo
 
 C-----------------------------
-      Call DInv(NCovar,ScaledTotMatrix,NCovarMax,Array,IFail)
+      Call DInv(NCovar,ScaledTotMatrix,NCovarDim,Array,IFail)
 C      print *,IFail,NCovar
 
       end
@@ -747,7 +745,7 @@ C> @param Iterate
 C
 C-----------------------------------------------------------------------
       subroutine chi2_calc_stat_uncor(ScaledErrors, ScaledErrorMatrix,
-     $     rsys_in,n0_in, NCovar, List_Covar, Iterate)
+     $     NCovarDim, rsys_in,n0_in, NCovar, List_Covar, Iterate)
 
       implicit none
 #include "ntot.inc"
@@ -756,8 +754,9 @@ C-----------------------------------------------------------------------
 #include "theo.inc"
 #include "covar.inc"
 
-      double precision ScaledErrors(NTot), ScaledErrorMatrix(NCovarMax
-     $     ,NCovarMax)
+      integer NCovarDim
+      double precision ScaledErrors(NTot), ScaledErrorMatrix(NCovarDim
+     $     ,NCovarDim)
       double precision ScaledErrorsStat(NTot), ScaledErrorsSyst(NTot)
       double precision rsys_in(NSYS)
       integer n0_in, NCovar, List_Covar(NTot), iterate
@@ -824,11 +823,13 @@ C-----
 C
 C> @brief extend lists of data-syst sources for data points connected via cov. matrix
 C
-      subroutine expand_syst_lists(tot_matrix,list_covar_inv,n0_in)
+      subroutine expand_syst_lists(tot_matrix,NCovarDim,
+     $     list_covar_inv,n0_in)
       implicit none
 #include "ntot.inc"
 #include "systematics.inc"
-      double precision tot_matrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
+      integer NCovarDim
+      double precision tot_matrix(NCovarDim,NCovarDim)   !> stat+uncor+syst covar matrix
       integer list_covar_inv(NTOT)
       integer n0_in
       integer l,j,j1,i,ic,n,jc,k
@@ -1024,7 +1025,7 @@ C
 C----------------------------------------------------------------------------------
       subroutine chi2_calc_syst_shifts(
      $     ScaledErrors
-     $     ,ScaledTotMatrix
+     $     ,ScaledTotMatrix, NCovarDim
      $     ,ScaledGamma
      $     ,rsys_in,ersys_in,list_covar_inv,  iflag, n0_in, ScaledOmega)
 
@@ -1036,7 +1037,8 @@ C-------------------------------------------------------------------------------
 #include "steering.inc"
 C
       double precision ScaledErrors(NTOT)
-      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   !> stat+uncor+syst covar matrix
+      integer NCovarDim
+      double precision ScaledTotMatrix(NCovarDim,NCovarDim)   !> stat+uncor+syst covar matrix
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
       double precision ScaledOmega(NSysMax,Ntot) ! Scaled Omega matrix
 
@@ -1085,7 +1087,8 @@ C Determine pairs of syst. uncertainties which share  data
          ResetCommonSyst = .false.
 
 
-         call expand_syst_lists(scaledtotmatrix,list_covar_inv,n0_in)
+         call expand_syst_lists(scaledtotmatrix,NCovarDim,
+     $        list_covar_inv,n0_in)
 
 C Parallelize HaveCommonData computation (O(nsys^2) calls)
 !$OMP PARALLEL DO SCHEDULE(dynamic) PRIVATE(k,n_com_list,com_list)
@@ -1469,7 +1472,7 @@ C> @param fcorchi2_in
 C
 C----------------------------------------------------------------------
       subroutine chi2_calc_chi2(ScaledErrors,ScaledGamma,
-     $     ScaledTotMatrix,rsys_in
+     $     ScaledTotMatrix,NCovarDim,rsys_in
      $     ,NDiag, List_Diag, NCovar, List_Covar
      $     ,fchi2_in, pchi2_in, fcorchi2_in)
 
@@ -1482,7 +1485,8 @@ C----------------------------------------------------------------------
 
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledErrors(Ntot)  !1/d^2, where d is scaled uncorrelated uncertainty, for each datapoint
-      double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
+      integer NCovarDim
+      double precision ScaledTotMatrix(NCovarDim,NCovarDim)   ! stat+uncor+syst covar matrix
       double precision rsys_in(NSysMax)
       integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
       double precision fchi2_in, pchi2_in(nset), fcorchi2_in
@@ -1491,7 +1495,7 @@ C----------------------------------------------------------------------
       double precision d,t, chi2, sum
       integer offdiag
 
-      double precision SumCov(NCovarMax)
+      double precision SumCov(NCovarDim)
 
 C---------------------------------------------------------------------------
       fchi2_in = 0.0D0
@@ -2167,15 +2171,16 @@ C---------------------------------------------------------------
 #include "datasets.inc"
 
       integer NCovar
-      integer List_Covar(NCovarMax)
+      integer List_Covar(NTot)
 
       double precision UncorNew(NTot),UncorConstNew(NTot),
      $     StatNew(NTot), StatConstNew(NTot), UncorPoissonNew(Ntot)
 
-      double precision cov_loc(NCovarMax,NCovarMax)
-      double precision anui_loc(NCovarMax,NCovarMax)
-      double precision uncor(NCovarMax), Diag(NCovarMax)
-      double precision uncorSt(NCovarMax)  ! from stat. subtraction
+C Allocated per covariance type with the actual number of points
+      double precision, allocatable :: cov_loc(:,:)
+      double precision, allocatable :: anui_loc(:,:)
+      double precision, allocatable :: uncor(:)
+      double precision, allocatable :: uncorSt(:)  ! from stat. subtraction
 
       double precision unc(NTot) ! input uncor. errors
       double precision sta(NTot) ! input stat. errors
@@ -2260,6 +2265,11 @@ c         print *,iCovType,Icovbit,NCovar
             cycle   ! nothing to be done
          endif
 
+         allocate(cov_loc(NCovar,NCovar))
+         allocate(anui_loc(NCovar,NCovar))
+         allocate(uncor(NCovar))
+         allocate(uncorSt(NCovar))
+
 C Generate compact matrix:
          do i1=1,NCovar
             i = List_Covar(i1)
@@ -2293,7 +2303,7 @@ c      endif
          if ( (iCovBit.eq.iCovSyst) .or. (iCovBit.eq.iCovSystCorr) )
      $        then
 C Direct diagonalisation:
-            Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
+            Call GetNuisanceFromCovar(NCovar, NCovar, NCovar,
      $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor,.false.)
          elseif ( (iCovBit.eq.iCovStatCorr)
      $           .or.(iCovBit.eq.iCovTotal)
@@ -2301,10 +2311,10 @@ C Direct diagonalisation:
 C Subtract diagonal as much as possible:
 
             if (LSubtractStat) then
-               Call SubtractStat(cov_loc,sta,NCovarMax,NCovar, UncorSt)
+               Call SubtractStat(cov_loc,sta,NCovar,NCovar, UncorSt)
             endif
 
-            Call GetNuisanceFromCovar(NCovarMax, NCovarMax,NCovar,
+            Call GetNuisanceFromCovar(NCovar, NCovar, NCovar,
      $           cov_loc, anui_loc, Tolerance,Nui_cor,Uncor,.true.)
 
             if (LSubtractStat) then
@@ -2445,6 +2455,11 @@ C Re-set uncorrelated systematics:
                endif
             endif
          enddo
+
+         deallocate(cov_loc)
+         deallocate(anui_loc)
+         deallocate(uncor)
+         deallocate(uncorSt)
 
       enddo
       goto 18
