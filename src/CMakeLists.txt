@@ -51,6 +51,8 @@ set(xfitter_SOURCES
   num_utils/rnormx.f
   num_utils/deqn.f
   num_utils/deqn_lapack.f
+  num_utils/dinv_lapack.f
+  num_utils/spdsolve_lapack.f
   num_utils/xf_wtime.F
   num_utils/dfeqn.f
   num_utils/dfinv.f
