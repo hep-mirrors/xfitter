@@ -913,16 +913,25 @@ void ensureMapValidity(const string&nodeName){
 // Schema:
 //   OpenMP:
 //     threads: 8              # -1 = auto (all cores); <=1 = serial. Default 1.
-//     useLapackSolver: true   # DEQN -> LAPACK DGESV. Default false.
+//     useLapackSolver: true   # DEQN -> LAPACK DGESV, DINV -> LAPACK DPOTRF/DPOTRI. 
+//                             # Some LAPACK changes only apply with useNewChi2. Default false.
+//     blasThreads: 4          # BLAS/LAPACK threads; -1 = auto (all cores). Default 1.
+//                             # The speed from more than one thread is not always good.
+//                             # This has to be checked on a fit by fit basis.
+//     useNewChi2: true        # dispatch fcn.f to GetNewChisquare_new (A sped up version
+//                             # using more BLAS3 in GetChisquare_new.f). Default false = old code.
 //     allowForkWithThreads: false  # if false and threads>1, xf_ncpu forces fork counts to 1.
 //
 // Results are stashed in gParametersI under the keys OMP_NUM_THREADS, UseLapackSolver,
-// and allowForkWithThreads so that Fortran code and xf_ncpu can see them cheaply.
+// BlasThreads, UseNewChi2 and allowForkWithThreads so that Fortran code and xf_ncpu can
+// see them cheaply.
 static void apply_openmp_settings() {
   using namespace XFITTER_PARS;
 
   int    threads              = 1;
   bool   useLapackSolver      = false;
+  int    blasThreads          = 1;
+  bool   useNewChi2           = false;
   bool   allowForkWithThreads = false;
 
   auto it = gParametersY.find("OpenMP");
@@ -930,6 +939,8 @@ static void apply_openmp_settings() {
     const YAML::Node& n = it->second;
     if (n["threads"])              threads              = n["threads"].as<int>();
     if (n["useLapackSolver"])      useLapackSolver      = n["useLapackSolver"].as<bool>();
+    if (n["blasThreads"])          blasThreads          = n["blasThreads"].as<int>();
+    if (n["useNewChi2"])           useNewChi2           = n["useNewChi2"].as<bool>();
     if (n["allowForkWithThreads"]) allowForkWithThreads = n["allowForkWithThreads"].as<bool>();
   }
 
@@ -951,14 +962,62 @@ static void apply_openmp_settings() {
   threads = 1;
 #endif
 
-  // Keep LAPACK/BLAS single-threaded by default - for this workload extra BLAS
-  // threads measurably slow DGESV down and fight OpenMP for cores.
-  setenv("OPENBLAS_NUM_THREADS", "1", 1);
-  setenv("MKL_NUM_THREADS",      "1", 1);
-  setenv("BLIS_NUM_THREADS",     "1", 1);
+  // BLAS/LAPACK threading. Single-threaded by default
+  // enable via blasThreads. In my testing with small matrices
+  // (ATLASPDF21 sized fits) BLAS single threaded is actually faster.
+  // so one should probably only increase blasthreads if testing
+  // has shown a clear speedup for your usecase.
+  if (blasThreads < 0) {
+    long nproc = sysconf(_SC_NPROCESSORS_ONLN);
+    blasThreads = (nproc > 0) ? static_cast<int>(nproc) : 1;
+  }
+  if (blasThreads < 1) blasThreads = 1;
+  const std::string blasThreadsStr = std::to_string(blasThreads);
+  setenv("OPENBLAS_NUM_THREADS", blasThreadsStr.c_str(), 1);
+  setenv("MKL_NUM_THREADS",      blasThreadsStr.c_str(), 1);
+  setenv("BLIS_NUM_THREADS",     blasThreadsStr.c_str(), 1);
+
+  // The environment variables above only work for BLAS libraries that read
+  // them when they initialise, and this doesn't seem to work on EL9/RHEL9.
+  // Here BLAS is FlexiBLAS, which forwards every BLAS/LAPACK call
+  // to a backend picked at run time, and the default backend is
+  // the *OpenMP* build of OpenBLAS.
+  // It seems to ignore OPENBLAS_NUM_THREADS completely. The way around is
+  // to call the library's own setter, which is what we do below. (Thanks LLMs)
+  //
+  // Note: on the OpenMP OpenBLAS backend the BLAS parallelism is
+  // still capped by the OpenMP runtime, so blasThreads > OpenMP.threads may
+  // have no effect (this seems to depend on the OpenBLAS version). If blasThreads
+  // seems to do nothing, just increase OpenMP.threads as well.
+  // I also hear about pthread OpenBLAS - //TODO: look into this later.
+  //
+  // Try FlexiBLAS setter 
+  // Fall back to the OpenBLAS setter when OpenBLAS is linked directly
+  // with no FlexiBLAS layer in between.
+  // (`if (void* f = ...)` declares, assigns and null-tests in one statement;
+  //  the reinterpret_cast turns dlsym's void* into the callable
+  //  `void (*)(int)`.
+  if (void* f = dlsym(RTLD_DEFAULT, "flexiblas_set_num_threads")) {
+    reinterpret_cast<void (*)(int)>(f)(blasThreads);
+  } else if (void* g = dlsym(RTLD_DEFAULT, "openblas_set_num_threads")) {
+    reinterpret_cast<void (*)(int)>(g)(blasThreads);
+  }
+#ifdef _OPENMP
+  // Restore the xFitter thread count. On the OpenMP OpenBLAS backend the
+  // setter just called is implemented as a global omp_set_num_threads(),
+  // so it could have clobbered the value we set at the top of this function.
+  omp_set_num_threads(threads);
+#endif
+
+  // Only announce this when it differs from the single-threaded default, so
+  // ordinary runs are not noisier than before.
+  if (blasThreads > 1)
+    hf_errlog(2024040103, "I: BLAS/LAPACK threads = " + blasThreadsStr);
 
   gParametersI["OMP_NUM_THREADS"]      = threads;
   gParametersI["UseLapackSolver"]      = useLapackSolver ? 1 : 0;
+  gParametersI["BlasThreads"]          = blasThreads;
+  gParametersI["UseNewChi2"]           = useNewChi2 ? 1 : 0;
   gParametersI["allowForkWithThreads"] = allowForkWithThreads ? 1 : 0;
 }
 

@@ -16,6 +16,7 @@ set(xfitter_SOURCES
   fortran_io.f
   ftheor_eval.cc
   GetChisquare.f
+  GetChisquare_new.f
   GetDummyXsection.f
   g_offset.cc
   #hfbanner.cc

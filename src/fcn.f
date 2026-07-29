@@ -171,6 +171,8 @@ C--------------------------------------------------------------
       double precision TempChi2
       double precision GetTempChi2   ! Temperature penalty for D, E... params.
       double precision OffsDchi2   ! correction for final Offset calculation
+      logical UseNewChi2Flag       ! OpenMP.useNewChi2: BLAS-3 covariance chi2 path
+      external UseNewChi2Flag
 
 C  x-dependent fs:
       double precision fs0
@@ -318,13 +320,23 @@ C--------------------------------------------------------------
       if (doOffset .and. iflag.eq.3) then
         Chi2OffsRecalc = .true.
         Chi2OffsFinal = .true.
-        call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,
-     $       pchi2offs,fcorchi2)
+        if (UseNewChi2Flag()) then
+          call GetNewChisquare_new(iflag,n0,OffsDchi2,rsys,ersys,
+     $         pchi2offs,fcorchi2)
+        else
+          call GetNewChisquare(iflag,n0,OffsDchi2,rsys,ersys,
+     $         pchi2offs,fcorchi2)
+        endif
       else
         Chi2OffsRecalc = .false.
       endif
       Chi2OffsFinal = .false.
-      call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+      if (UseNewChi2Flag()) then
+        call GetNewChisquare_new(iflag,n0,fchi2,rsys,ersys,pchi2,
+     $       fcorchi2)
+      else
+        call GetNewChisquare(iflag,n0,fchi2,rsys,ersys,pchi2,fcorchi2)
+      endif
       if (doOffset .and. iflag.eq.3) then
         Chi2OffsRecalc = .false.
         OffsDchi2 = OffsDchi2 - fchi2
