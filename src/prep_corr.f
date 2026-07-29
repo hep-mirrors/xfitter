@@ -154,8 +154,14 @@ c     Second Loop on correlation files to get bin-to-bin correlations
 
          open(51,file=CorrFileNames(k),status='old',err=11)
 
-c     Reset the MatrixFormatIsTable  flag for each cov matrix        
+c     Reset the MatrixFormatIsTable  flag for each cov matrix
          MatrixFormatIsTable = .false.
+
+c     Reset the table dimensions too: a namelist read leaves omitted
+c     variables untouched, so without this a file which does not set
+c     NBins1/NBins2 would inherit the values of the previous file
+         NBins1 = 0
+         NBins2 = 0
 
          NCorr = 0
          read(51,NML=StatCorr,END=12,ERR=13)

@@ -52,6 +52,9 @@ C (e.g. 2000x2000) fit without a compile-time NCovarMax limit.
 
       integer omegaIteration
       Logical doMatrix, doNuisance, doExternal, LStop
+C These are set on the first call only, so they must survive between calls
+C (not relying on -fno-automatic for this):
+      save doMatrix, doNuisance, doExternal
 
 C Timing variables for profiling (xf_wtime = wall-clock if OpenMP, cpu_time otherwise)
       double precision t_start, t_gamma, t_covar, t_stat, t_sumcovar
