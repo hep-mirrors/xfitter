@@ -151,6 +151,13 @@ void APFEL_Evol::atStart()
   }
   else
   {
+    // SZ 2024.09.06 support ZM-VFNS: override scheme = FONLL-A(B,C)
+    {
+      if (_yAPFEL["MassScheme"]) 
+      {
+        scheme = _yAPFEL["MassScheme"].as<string>();
+      }
+    }
     APFEL::SetMassScheme(scheme);
   }
 
@@ -356,35 +363,4 @@ std::vector<double> APFEL_Evol::getQgrid() {
 }
 
 
-extern "C" void externalsetapfel1_(double &x,double &Q,double *xf)
-{
-  std::cout<<"externalsetapfel1_\n";
-}
-
-extern "C" void externalsetapfelrep_(double &x,double &Q,double *xf)
-{
-  std::cout<<"externalsetapfelrep_\n";
-}
-
-extern "C" void externalsetapfelrep1_(double &x,double &Q,double *xf)
-{
-  std::cout<<"externalsetapfelrep1_\n";
-}
-extern "C" void externalsetapfellept_(
-    double &x,
-    double &Q,
-    int &i,
-    double *xl,
-    double *xf)
-{
-  std::cout << "externalsetapfellept_\n";
-}
-extern "C" void pretabulatedpdfsrep_(
-    int &ig,
-    int &alpha,
-    int &i,
-    double *xf)
-{
-  std::cout << "pretabulatedpdfsrep_\n";
-}
 } // namespace xfitter
