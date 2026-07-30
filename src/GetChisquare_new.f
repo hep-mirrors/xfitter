@@ -225,7 +225,7 @@ c !> First recalc. stat. and bin-to-bin uncorrelated uncertainties:
 C  !> Sum covariance matricies and invert the total:
 
             if ( doMatrix .or. NCovar .gt. 0 ) then
-               Call Chi2_calc_SumCovar(ScaledErrorMatrix,
+               Call Chi2_calc_SumCovar_new(ScaledErrorMatrix,
      $              ScaledSystMatrix,
      $              ScaledTotMatrix, NCovarDim, NCovar)
                if (lPrintTiming) then
@@ -418,3 +418,49 @@ C>     $     ,StatConstNew, UncorPoissonNew)
 C>   - subroutine MyDSYEVD(NCovar,Covar,NDimCovar, EigenValues,ifail)
 C>   I think that's it!
 C------------------------------------------------------------------------------------
+
+C Start with faster inversion in Chi2_calc_SumCovar
+C----------------------------------------------------------------------------
+C
+C> @brief Sum covariance matrices and invert the result
+C
+C> @param ScaledErrorMatrix
+C> @param ScaledSystMatrix
+C> @param ScaledTotMatrix
+C> @param NCovar
+C
+C----------------------------------------------------------------------------
+      Subroutine Chi2_calc_SumCovar_new(ScaledErrorMatrix, ScaledSystMatrix,
+     $              ScaledTotMatrix, NCovarDim, NCovar)
+
+      implicit none
+#include "ntot.inc"
+
+      integer NCovarDim
+      double precision ScaledErrorMatrix(NCovarDim,NCovarDim) ! stat+uncor error matrix
+      double precision ScaledSystMatrix(NCovarDim,NCovarDim)  ! syst. covar matrix
+      double precision ScaledTotMatrix(NCovarDim,NCovarDim)   ! stat+uncor+syst covar matrix
+      integer NCovar
+      double precision Array(NCovarDim*2)
+      integer IFail
+
+      integer i,j
+C-----------------------------
+      do i=1,NCovar
+         do j=i,NCovar
+            ScaledTotMatrix(i,j) = ScaledErrorMatrix(i,j)
+     $           + ScaledSystMatrix(i,j)
+            ScaledTotMatrix(j,i) = ScaledTotMatrix(i,j)
+         enddo
+      enddo
+
+        ! print *,' --- ScaledTotMatrix'
+        ! do i=1,6
+          ! print *,(ScaledTotMatrix(j,i),j=1,6)
+        ! enddo
+
+C-----------------------------
+      Call DINV_AUTO(NCovar,ScaledTotMatrix,NCovarDim,Array,IFail)
+C      print *,IFail,NCovar
+
+      end
