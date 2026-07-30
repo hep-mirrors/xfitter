@@ -470,7 +470,8 @@ C-----------------------------------------------------------------
 
 
 C Now we want to modify the chi2 shifts calculation to deal with the
-C covariance matrices better (faster)
+C both covariance and nuisance paths better. Initially, the intention 
+C was to just deal with covariance - but nuisance can also be done similarly. 
 C----------------------------------------------------------------------------------
 C
 C> @brief Determine shifts of nuisance parameters
@@ -510,12 +511,36 @@ C
       logical doExternal
 
       integer k,l, i1,j1,i,j, j2, i2
-      double precision A(NSYSMax,NSYSMax), C(NSysMax)
+C Make A allocatable.
+      double precision, allocatable :: A(:,:)
+      double precision C(NSysMax)
+      save A
 
       double precision, allocatable :: AA(:,:)
       double precision, allocatable :: AA2(:,:)
       double precision, allocatable :: RR(:,:)
 
+C Some quantities for the new system
+C diag - for the diagonal parts
+C cov - for the covariance parts
+C For the diagonal parts 
+C Zdiag(i,l) = sqrt(w_i) * Gamma(l,i) where w_i = ScaledErrors(i)
+C which is just the inverse variance
+C So then A is just Zdiag^T Zdiag. 
+C And C = Zdiag^T (sqrt(w) rdiag)
+C From Cdiag = Gammadiag sqrt(w) sqrt(w) rdiag
+C In some of my working out, I have referred to sqrt(w) rdiag as zdiag
+C-------------------------------
+C for the covariance path, the idea is much the same
+C instead of sqrt(w) sqrt(w), we can have Lcov Lcov^T
+C in place of inverse covariance Vcov^-1 where Lcov is cholesky factor of Vcov
+C so Zcov = L^-1 Gammacov^T (I have mixed Zcov and Zcov^T in some workings - but equivalent)
+C if x=(rcov + Gammacov^T * b)
+C Using the chi2 form x^T Vcov^-1 x, and the definition above,
+C C = Zcov^T Lcov^-1 rcov
+C A = Zcov^T Zcov
+C these are I think equivalent to what came before, but now
+C we can use BLAS-3 calls to speed the whole thing up. 
       double precision d_minus_t1, d_minus_t2,add
       double precision ShiftExternal(NTOT)
 
