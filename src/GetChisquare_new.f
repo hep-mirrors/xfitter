@@ -540,7 +540,17 @@ C Using the chi2 form x^T Vcov^-1 x, and the definition above,
 C C = Zcov^T Lcov^-1 rcov
 C A = Zcov^T Zcov
 C these are I think equivalent to what came before, but now
-C we can use BLAS-3 calls to speed the whole thing up. 
+C we can use BLAS-3 calls to speed the whole thing up.
+C In this Z formalism , rows are data points, columns are systematic sources. 
+
+      double precision, allocatable :: Zcov(:,:)
+      double precision, allocatable :: Zdiag(:,:)
+      double precision, allocatable :: rcov(:,:)
+      double precision, allocatable :: rdiag(:,:)
+
+      integer nd, ndd
+      double precision wgt
+
       double precision d_minus_t1, d_minus_t2,add
       double precision ShiftExternal(NTOT)
 
@@ -563,6 +573,10 @@ C-
       logical HaveCommonData(NsysMax, NsysMax)
 C--------------------------------------------------------
       t1 = xf_wtime()
+      if (.not. allocated(A)) then
+         allocate(A(NSysMax,NSysMax))
+      endif
+
 C Check if number of sources/data points change:
       ResetCommonSyst = (nsys.ne.nsys_sav) .or. (n0_in.ne.n0_in_sav)
       nsys_sav = nsys
