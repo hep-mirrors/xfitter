@@ -460,6 +460,8 @@ C-----------------------------
         ! enddo
 
 C-----------------------------
+C This could be a cholesky factorisation here instead. 
+C And just pass the triangles to the solvers downstream. 
       Call DINV_AUTO(NCovar,ScaledTotMatrix,NCovarDim,Array,IFail)
 C      print *,IFail,NCovar
 
