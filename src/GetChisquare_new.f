@@ -305,7 +305,7 @@ C !> For asymmetric erros and exteral systematic sources we need to modify Scale
       endif
 
 C !> Calculate chi2
-      call chi2_calc_chi2(
+      call chi2_calc_chi2_new(
      $     ScaledErrors,
      $     ScaledGamma,
      $     ScaledTotMatrix, NCovarDim,
@@ -948,4 +948,144 @@ C                  print *,'haha',i,C(i),ifail
          endif
       endif
 C--------------------------------------------------------
+      end
+
+C----------------------------------------------------------------------
+C
+C> @brief Calculate chi2.
+C
+C> @param ScaledErrors
+C> @param ScaledGamma
+C> @param ScaledTotMatrix
+C> @param rsys_in
+C> @param NDiag
+C> @param List_Diag
+C> @param NCovar
+C> @param List_Covar
+C> @param fchi2_in
+C> @param pchi2_in
+C> @param fcorchi2_in
+C
+C----------------------------------------------------------------------
+      subroutine chi2_calc_chi2_new(ScaledErrors,ScaledGamma,
+     $     ScaledTotMatrix,NCovarDim,rsys_in
+     $     ,NDiag, List_Diag, NCovar, List_Covar
+     $     ,fchi2_in, pchi2_in, fcorchi2_in)
+
+      implicit none
+#include "ntot.inc"
+#include "systematics.inc"
+#include "theo.inc"
+#include "indata.inc"
+#include "steering.inc"
+
+      double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
+      double precision ScaledErrors(Ntot)  !1/d^2, where d is scaled uncorrelated uncertainty, for each datapoint
+      integer NCovarDim
+      double precision ScaledTotMatrix(NCovarDim,NCovarDim)   ! stat+uncor+syst covar matrix
+      double precision rsys_in(NSysMax)
+      integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
+      double precision fchi2_in, pchi2_in(nset), fcorchi2_in
+
+      integer i,j, i1, j1, k
+      double precision d,t, chi2, sum
+      integer offdiag
+
+      double precision SumCov(NCovarDim)
+
+C---------------------------------------------------------------------------
+      fchi2_in = 0.0D0
+ ! Also zero fit/control sample chi2s
+      chi2_fit = 0.
+      chi2_cont = 0.
+      offdiag = 0
+
+C Diagonal part:
+      do i1=1,NDiag
+         i = list_diag(i1)
+         d = DATEN(i)
+         t = THEO (i)
+         sum = 0.0D0
+         do k = 1,NSys
+            Sum = Sum + ScaledGamma(k,i)*rsys_in(k)
+         enddo
+C Chi2 per point:
+         residuals(i)=(d-t+Sum)*sqrt(ScaledErrors(i))
+         chi2=residuals(i)**2
+C     Sums:
+         if ( FitSample(i) ) then
+            chi2_fit  = chi2_fit  + chi2
+            fchi2_in  = fchi2_in  + chi2
+            pchi2_in(JSET(i)) = pchi2_in(JSET(i)) + chi2
+         else
+            chi2_cont = chi2_cont + chi2
+         endif
+      enddo
+
+       ! print*,'chi2_calc1: ',fchi2_in
+
+C Covariance matrix part
+
+C 1) Pre-compute sums of systematic shifts:
+      do i1=1,NCovar
+         i = list_covar(i1)
+         sumcov(i1) = Daten(i) - Theo(i)
+         do k = 1,NSys
+            SumCov(i1) = SumCov(i1) + ScaledGamma(k,i)*rsys_in(k)
+         enddo
+      enddo
+
+C 2) Actual chi2 calculation:
+
+      do i1=1,NCovar
+         i = list_covar(i1)
+         Chi2 = 0d0
+         do j1 = 1, NCovar
+            j = list_covar(j1)
+            Chi2 = Chi2 + SumCov(i1)*SumCov(j1)*ScaledTotMatrix(i1,j1)
+            if ( ( JSET(i) .ne. JSET(j) )
+     $           .and. (ScaledTotMatrix(i1,j1) .ne. 0d0 ) ) then
+               if ( offdiag .eq. 0 ) then
+                  call hf_errlog(15090916,
+     $                 'I: Offdiag. elements in
+     $ inverse covariance. Partial chisq values are set to zero')
+               endif
+               offdiag = offdiag+1
+            endif
+         enddo
+C Sums:
+         if ( FitSample(i) ) then
+            chi2_fit  = chi2_fit  + chi2
+            fchi2_in  = fchi2_in  + chi2
+            pchi2_in(JSET(i)) = pchi2_in(JSET(i)) + chi2
+         else
+            chi2_cont = chi2_cont + chi2
+         endif
+
+      enddo
+
+c reset partial chisq to 0, if there are offdiagonal elements
+c partial chisq are not reasonably defined
+      if ( offdiag .ne. 0 ) then
+         do i1=1,NCovar
+            i = list_covar(i1)
+            pchi2_in(JSET(i)) = 0d0
+         enddo
+      endif
+
+       ! print*,'chi2_calc2: ',fchi2_in
+
+C Correlated chi2 part:
+      fcorchi2_in = 0.d0
+      do k=1,NSys
+         fcorchi2_in = fcorchi2_in
+     $        + rsys_in(k)**2 * SysPriorScale(k)
+C Also, store as residuals:
+         residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
+      enddo
+      fchi2_in = fchi2_in + fcorchi2_in
+
+       ! print*,'chi2_calc3: ',fchi2_in
+
+C---------------------------------------------------------------------------
       end
