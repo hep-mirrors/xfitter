@@ -58,7 +58,6 @@ C NSysMax x Ntot arrays push the libxfitter.dylib image past the 4 GiB that
 C dyld can load on arm64 (throws a "Symbol not found").
       double precision, allocatable :: ScaledGamma(:,:)    ! Scaled Gamma matrix
       double precision, allocatable :: ScaledGammaSav(:,:) ! Scaled Gamma matrix, saved
-
       double precision, allocatable :: ScaledOmega(:,:)    ! Scaled Omega matrix
       save ScaledGamma, ScaledGammaSav, ScaledOmega
 
@@ -276,7 +275,7 @@ c               stop
             else
                Call Chi2_calc_syst_shifts_new(
      $              ScaledErrors
-     $              ,ScaledTotMatrix, NCovarDim
+     $              ,ScaledTotMatrix, NCovarDim, NCovar
      $              ,ScaledGamma
      $              ,rsys_in,ersys_in,list_covar_inv, flag_in, n0_in
      $              ,scaledOmega)
@@ -435,7 +434,6 @@ C----------------------------------------------------------------------------
       double precision ScaledSystMatrix(NCovarDim,NCovarDim)  ! syst. covar matrix
       double precision ScaledTotMatrix(NCovarDim,NCovarDim)   ! stat+uncor+syst covar matrix
       integer NCovar
-      double precision Array(NCovarDim*2)
       integer IFail
 
       integer i,j
@@ -468,8 +466,6 @@ C 'L' for lower traingle.
      $ 'If persistent, use the old chi2 method, useNewChi2=false')
       endif
 
-C      print *,IFail,NCovar
-
       end
 C-----------------------------------------------------------------
 
@@ -494,7 +490,7 @@ C
 C----------------------------------------------------------------------------------
       subroutine chi2_calc_syst_shifts_new(
      $     ScaledErrors
-     $     ,ScaledTotMatrix, NCovarDim
+     $     ,ScaledTotMatrix, NCovarDim, NCovar
      $     ,ScaledGamma
      $     ,rsys_in,ersys_in,list_covar_inv,  iflag, n0_in, ScaledOmega)
 
