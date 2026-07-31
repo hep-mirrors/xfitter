@@ -529,7 +529,8 @@ C which is just the inverse variance
 C So then A is just Zdiag^T Zdiag. 
 C And C = Zdiag^T (sqrt(w) rdiag)
 C From Cdiag = Gammadiag sqrt(w) sqrt(w) rdiag
-C In some of my working out, I have referred to sqrt(w) rdiag as zdiag
+C In some of my working out, I have referred to sqrt(w)*rdiag as zdiag
+C I have done the same in the code now.
 C-------------------------------
 C for the covariance path, the idea is much the same
 C instead of sqrt(w) sqrt(w), we can have Lcov Lcov^T
@@ -546,7 +547,7 @@ C In this Z formalism , rows are data points, columns are systematic sources.
       double precision, allocatable :: Zcov(:,:)
       double precision, allocatable :: Zdiag(:,:)
       double precision, allocatable :: rcov(:,:)
-      double precision, allocatable :: rdiag(:,:)
+      double precision, allocatable :: zdiag(:,:)
 
       integer nd, ndd
       double precision wgt
@@ -649,106 +650,62 @@ C Penalty term, unity by default
       print '(A,F8.3,A,I6,A,I6)', '   syst_shifts init:   ',
      $     t2-t1,' s  (nsys=',nsys,' n0_in=',n0_in,')'
 
-C OpenMP parallelization over systematic sources
-C Each thread handles different l values, so A(k,l) and C(l) have no race conditions
-C Using dynamic scheduling for load balancing (different systematics have different n_syst_meas)
-!$OMP PARALLEL DO SCHEDULE(dynamic) 
-!$OMP& PRIVATE(i1,i,i2,j1,j,j2,k,d_minus_t1,d_minus_t2,add)
+C Diagonal contributions first
+C as stated above
+C for Zdiag, we use sqrt of ScaledErrors, and we use Gamma(l,i)
+C Once Zdiag is constructed, construct A with rank-k update
+C Construct C with GEMV
+      ndd = max(n0_in - NCovar, 1)
+      nd = 0
+      if ( n0_in - NCovar .gt. 0 ) then
+         allocate(Zdiag(ndd,nsys))
+         allocate(zdiag(ndd))
 
-      do l=1,nsys
-         if ( SysForm(l) .eq. isNuisance ) then
-C Start with "C"
-
-            do i1=1,n_syst_meas(l)         ! loop over all data affected by this source
-               i = syst_meas_idx(i1,l)     ! i -> index of the data
-c            do i=1,n0_in
-               if (FitSample(i) ) then
-
-                  d_minus_t1 = daten(i) - theo(i) + ShiftExternal(i)
-
-                  if ( list_covar_inv(i) .eq. 0) then
-C Diagonal error:
-                     C(l) = C(l) +  ScaledErrors(i)
-     $                    *ScaledGamma(l,i)*( d_minus_t1 )
-                  else
-C Covariance matrix, need more complex sum:
-                     i2 = list_covar_inv(i)  ! i2 -> covar. matrix index for i.
-                     do j1=1,n_syst_meas(l)
-                        j = syst_meas_idx(j1,l) ! j -> index of the data
-c                     do j = 1, n0_in
-                        if (j.ge.i) then
-                           if (FitSample(j)) then
-                              d_minus_t2 = daten(j) - theo(j)
-     $                             + ShiftExternal(j)
-                              j2 = list_covar_inv(j)
-                              if (j2 .gt. 0) then
-                                 add =  ScaledTotMatrix(i2,j2)
-     $                                *( ScaledGamma(l,i)*d_minus_t2
-     $                                + ScaledGamma(l,j)*d_minus_t1 )
-                                 if (i.ne.j) then
-                                    C(l) = C(l) + add
-                                 else
-                                    C(l) = C(l) + 0.5*add
-                                 endif
-                              endif
-                           endif
-                        endif
-                     enddo
-                  endif
-               endif
-            enddo
-C Now A:
-
-            do i=1,n0_in
-               do k=l,NSys
-C
-               if ( (sysform(k) .eq. isNuisance ) ! ) then
-     $              .and.HaveCommonData(k,l) ) then
-
-c                  do i1 = 1,n_syst_meas(k)
-c                     i = syst_meas_idx(i1,k)
-c
-                     if ( FitSample(i) ) then
-                        if (  list_covar_inv(i) .eq. 0) then
-C Diagonal error:
-                           A(k,l) = A(k,l) +
-     $                          ScaledErrors(i)
-     $                          *ScaledGamma(l,i)
-     $                          *ScaledGamma(k,i)
-                        else
-C Covariance matrix:
-                           i2 = list_covar_inv(i)
-
-                           do j1=1,n_syst_meas(l)
-                              j = syst_meas_idx(j1,l)
-C                            do j=i,n0_in
-                              if ( j.ge.i .and. FitSample(j) ) then
-                                 j2 = list_covar_inv(j)
-                                 if (j2 .gt. 0) then
-                                    add =
-     $                                   ScaledTotMatrix(i2,j2)
-     $                             *( ScaledGamma(l,i)*ScaledGamma(k,j)
-     $                               +ScaledGamma(l,j)*ScaledGamma(k,i))
-                                    if ( i.ne.j) then
-                                       A(k,l) = A(k,l) + add
-                                    else
-                                       A(k,l) = A(k,l) + 0.5*add
-                                    endif
-                                 endif
-                              endif
-                           enddo
-
-                        endif
+         do i=1,n0_in
+            if ( list_covar_inv(i) .eq. 0 ) then
+               nd = nd +1
+               if ( FitSample(i) ) then
+                  wgt = sqrt(ScaledErrors(i))
+C zdiag = sqrt(w_i) * rdiag
+                  zdiag(nd) = wgt * ( daten(i) - theo(i) + ShiftExternal(i) )
+                  do l=1,nsys
+                     if (SysForm(l) .eq. isNuisance ) then
+                        Zdiag(nd,l) = wgt * ScaledGamma(l,i)
+                     else
+                        Zdiag(nd,l) = 0.0D0
                      endif
-c                  enddo
+                  enddo
+               else
+                  zdiag(nd) = 0.0D0
+                  do l=1,nsys
+                     Zdiag(nd,l) = 0.0D0
+                  enddo
+               endif
+            endif
+         enddo
 
-                  endif
-               enddo
-            enddo
-         endif
-      enddo
+C Now construct A via symmetric rank-k update
+C DSYRK performs alpha*A*A^T + beta*C
+C or the 'T' version which is A^T*A ordered.
+C Lower or Upper
+C 'T'ranspose or 'N'ot? idk
+C Order of C, row of A (if 'T'), alpha, A, LDA as declared in calling program
+C beta, C, LDC
+         call DSYRK('L', 'T', nsys, nd, 1.0D0, Zdiag, ndd,
+     $    1.0D0, A, NSysMax)
+C Construct C = Zdiag^T * zdiag (+C) i.e. gamma * sqrt(w) * sqrt(w) * r
+C which just gives us the old gamma * w * r
+C DGEMV does alpha*A*x + beta*y or alpha*A**T*x + beta*y
+C 'T'ranspose, rows in A, columns in A, alpha, A, LDA
+C x, increment for elements of x, beta, y, increment for elements of y.
+         call DGEMV('T', nd, nsys, 1.0D0, Zdiag, ndd,
+     $    zdiag, 1, 1.0D0, C, 1)
 
-!$OMP END PARALLEL DO
+         deallocate(Zdiag)
+         deallocate(zdiag)
+      endif
+
+C Covariance bits next
 
       t3 = xf_wtime()
       print '(A,F8.3,A)', '   syst_shifts OMP loop:',t3-t2,' s'
