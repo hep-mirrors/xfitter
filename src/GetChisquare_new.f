@@ -534,6 +534,7 @@ C Make A allocatable.
 C Some quantities for the new system
 C diag - for the diagonal parts
 C cov - for the covariance parts
+C Due to case sensitivity, zcov, zdiag are zcovv, zdiagv in code...
 C For the diagonal parts 
 C Zdiag(i,l) = sqrt(w_i) * Gamma(l,i) where w_i = ScaledErrors(i)
 C which is just the inverse variance
@@ -557,8 +558,8 @@ C In this Z formalism , rows are data points, columns are systematic sources.
 
       double precision, allocatable :: Zcov(:,:) ! filled with scaledgamma at first
       double precision, allocatable :: Zdiag(:,:)
-      double precision, allocatable :: zcov(:,:) ! we collect rcov - then replace with zcov.
-      double precision, allocatable :: zdiag(:,:)
+      double precision, allocatable :: zcovv(:,:) ! we collect rcov - then replace with zcov.
+      double precision, allocatable :: zdiagv(:,:)
 
       integer nd, ndd
       double precision wgt
@@ -670,7 +671,7 @@ C Construct C with GEMV
       nd = 0
       if ( n0_in - NCovar .gt. 0 ) then
          allocate(Zdiag(ndd,nsys))
-         allocate(zdiag(ndd))
+         allocate(zdiagv(ndd))
 
          do i=1,n0_in
             if ( list_covar_inv(i) .eq. 0 ) then
@@ -678,7 +679,7 @@ C Construct C with GEMV
                if ( FitSample(i) ) then
                   wgt = sqrt(ScaledErrors(i))
 C zdiag = sqrt(w_i) * rdiag
-                  zdiag(nd) = wgt * ( daten(i) - theo(i) + ShiftExternal(i) )
+                  zdiagv(nd) = wgt * ( daten(i) - theo(i) + ShiftExternal(i) )
                   do l=1,nsys
                      if (SysForm(l) .eq. isNuisance ) then
                         Zdiag(nd,l) = wgt * ScaledGamma(l,i)
@@ -687,7 +688,7 @@ C zdiag = sqrt(w_i) * rdiag
                      endif
                   enddo
                else
-                  zdiag(nd) = 0.0D0
+                  zdiagv(nd) = 0.0D0
                   do l=1,nsys
                      Zdiag(nd,l) = 0.0D0
                   enddo
@@ -710,10 +711,10 @@ C DGEMV does alpha*A*x + beta*y or alpha*A**T*x + beta*y
 C 'T'ranspose, rows in A, columns in A, alpha, A, LDA
 C x, increment for elements of x, beta, y, increment for elements of y.
          call DGEMV('T', nd, nsys, 1.0D0, Zdiag, ndd,
-     $    zdiag, 1, 1.0D0, C, 1)
+     $    zdiagv, 1, 1.0D0, C, 1)
 
          deallocate(Zdiag)
-         deallocate(zdiag)
+         deallocate(zdiagv)
       endif
 
 C Covariance bits next
@@ -730,10 +731,10 @@ C and we construct C.
 
       if ( NCovar .gt. 0 ) then
          allocate(Zcov(NCovar, nsys))
-         allocate(zcov(NCovar))
+         allocate(zcovv(NCovar))
 
          Zcov = 0.0D0
-         zcov = 0.0D0 ! in F90, we can zero the whole vec/matrix like this
+         zcovv = 0.0D0 ! in F90, we can zero the whole vec/matrix like this
 
 C fitsample and sysform is nuisance are checked in this loop also
 C Only difference should be from list_covar_inv()
@@ -743,7 +744,7 @@ C Only difference should be from list_covar_inv()
                if ( FitSample(i) ) then
 C built rcov here, which will be overwritten with zcov further down - sorry
 C for the bad variable naming
-                  zcov = daten(i) - theo(i) + ShiftExternal(i)
+                  zcovv = daten(i) - theo(i) + ShiftExternal(i)
                   do l=1,nsys
                      if ( SysForm(l) .eq. isNuisance ) then
 C same thing here - fill Gamma^T, then overwrite with Zcov later
@@ -767,17 +768,17 @@ C DTRSV solves Ax=b or A^Tx=b, overwrites b with sol x.
 C args are: A lower, A not transpose, A not unit triangular, Order of A, A,
 C LDA, b(x later), increment for b(x). 
          call DTRSV('L','N','N', NCovar,
-     $        ScaledTotMatrix, NCovarDim, zcov, 1)
+     $        ScaledTotMatrix, NCovarDim, zcovv, 1)
 C Now DSYRK and DGEMV as before
 C A via A +Z^T Z
          call DSYRK('L','T', nsys, NCovar, 1.0D0, Zcov, NCovar,
      $        1.0D0, A, NsysMax)
 C C via C + Z^T z
          call DGEMV('T', NCovar, nsys, 1.0D0, Zcov, NCovar,
-     $        zcov, 1, 1.0D0, C, 1)
+     $        zcovv, 1, 1.0D0, C, 1)
 
          deallocate(Zcov)
-         deallocate(zcov)
+         deallocate(zcovv)
       endif
 
       t3 = xf_wtime()
