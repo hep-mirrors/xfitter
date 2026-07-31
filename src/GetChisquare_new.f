@@ -506,7 +506,7 @@ C-------------------------------------------------------------------------------
 #include "steering.inc"
 C
       double precision ScaledErrors(NTOT)
-      integer NCovarDim
+      integer NCovarDim, NCovar
       double precision ScaledTotMatrix(NCovarDim,NCovarDim)   !> stat+uncor+syst covar matrix
       double precision ScaledGamma(NSysMax,Ntot) !> Scaled Gamma matrix
       double precision ScaledOmega(NSysMax,Ntot) ! Scaled Omega matrix
@@ -552,8 +552,8 @@ C In this Z formalism , rows are data points, columns are systematic sources.
 
       double precision, allocatable :: Zcov(:,:) ! filled with scaledgamma at first
       double precision, allocatable :: Zdiag(:,:)
-      double precision, allocatable :: zcovv(:,:) ! we collect rcov - then replace with zcov.
-      double precision, allocatable :: zdiagv(:,:)
+      double precision, allocatable :: zcovv(:) ! we collect rcov - then replace with zcov.
+      double precision, allocatable :: zdiagv(:)
 
       integer nd, ndd
       double precision wgt
@@ -703,7 +703,7 @@ C Only difference should be from list_covar_inv()
                if ( FitSample(i) ) then
 C built rcov here, which will be overwritten with zcov further down - sorry
 C for the bad variable naming
-                  zcovv = daten(i) - theo(i) + ShiftExternal(i)
+                  zcovv(i2) = daten(i) - theo(i) + ShiftExternal(i)
                   do l=1,nsys
                      if ( SysForm(l) .eq. isNuisance ) then
 C same thing here - fill Gamma^T, then overwrite with Zcov later
@@ -1012,7 +1012,7 @@ C B is overwritten with solution X.
          do i1=1,NCovar
             YCov(i1) = SumCov(i1)
          enddo
-         call DPOTRS('L' NCovar, 1, ScaledTotMatrix, NCovarDim,
+         call DPOTRS('L', NCovar, 1, ScaledTotMatrix, NCovarDim,
      $        YCov, NCovarDim, info)
          if ( info .ne. 0 ) then
             call hf_errlog(26073102,
