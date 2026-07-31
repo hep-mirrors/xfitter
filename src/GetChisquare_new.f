@@ -733,11 +733,11 @@ C and we construct C.
          allocate(zcov(NCovar))
 
          Zcov = 0.0D0
-         rvec = 0.0D0 ! in F90, we can zero the whole vec/matrix like this
+         zcov = 0.0D0 ! in F90, we can zero the whole vec/matrix like this
 
 C fitsample and sysform is nuisance are checked in this loop also
 C Only difference should be from list_covar_inv()
-         do i=1,n0_sys
+         do i=1,n0_in
             i2 = list_covar_inv(i)
             if ( i2 .gt. 0) then
                if ( FitSample(i) ) then
@@ -950,6 +950,9 @@ C                  print *,'haha',i,C(i),ifail
 C--------------------------------------------------------
       end
 
+C Main changes are that we are now using a ScaledTotMatrix that is:
+C Cholesky factor L in lower traingle
+C Vcov in the top upper triangle
 C----------------------------------------------------------------------
 C
 C> @brief Calculate chi2.
@@ -989,9 +992,10 @@ C----------------------------------------------------------------------
 
       integer i,j, i1, j1, k
       double precision d,t, chi2, sum
-      integer offdiag
+      integer offdiag, info
 
       double precision SumCov(NCovarDim)
+      double precision YCov(NCovarDim) !V-1 * sumcovariance via triangles
 
 C---------------------------------------------------------------------------
       fchi2_in = 0.0D0
@@ -1036,23 +1040,49 @@ C 1) Pre-compute sums of systematic shifts:
       enddo
 
 C 2) Actual chi2 calculation:
+C Let YCov = V^-1 * SumCov
+C Then SumCov(i1)*YCov(i1) will have the same form as original. 
+C Get YCov via V YCov = SumCov. Or in Cholesky factors of V
+C Get YCov via L L^T YCov = SumCov  which is solved via DPOTRS
+C DPOTRS solves AX=B, with A symmetric, pos-def, and supplied from DPOTRF
+C as LL^T (or U^TU). We already have L stored, so perfect. 
+C Args: A lower, order of A, columns of B, A, LDA, B, LDB, Info
+C B is overwritten with solution X. 
+      if ( NCovar .gt. 0 ) then
+         do i1=1,NCovar
+            YCov(i1) = SumCov(i1)
+         enddo
+         call DPOTRS('L' NCovar, 1, ScaledTotMatrix, NCovarDim,
+     $        YCov, NCovarDim, info)
+         if ( info .ne. 0 ) then
+            call hf_errlog(26073102,
+     $           'S: chi2_calc_chi2_new: DPOTRS failed')
+         endif
+C Integrate the cross dataset covariance entry checks into the same statement. 
+C The upper triangle of ScaledTotMatrix still has V.
+C so perform check on upper triangle, and the check works just as well 
+C on V as it does on V-1, probably better as we avoid trouble from inversion
+C V block diagonal w.r.t JSET iff V-1 block diagonal w.r.t JSET
+         do i1=1,NCovar
+            i = list_covar(i1)
+            do j1 = i1+1, NCovar
+               j = list_covar(j1)
+               if ( ( JSET(i) .ne. JSET(j) )
+     $              .and. (ScaledTotMatrix(i1,j1) .ne. 0d0 ) ) then
+                  if ( offdiag .eq. 0 ) then
+                     call hf_errlog(15090916,
+     $                    'I: Offdiag. elements in
+     $ inverse covariance. Partial chisq values are set to zero')
+                  endif
+                  offdiag = offdiag+1
+               endif
+            enddo
+         enddo
+      endif
 
       do i1=1,NCovar
-         i = list_covar(i1)
-         Chi2 = 0d0
-         do j1 = 1, NCovar
-            j = list_covar(j1)
-            Chi2 = Chi2 + SumCov(i1)*SumCov(j1)*ScaledTotMatrix(i1,j1)
-            if ( ( JSET(i) .ne. JSET(j) )
-     $           .and. (ScaledTotMatrix(i1,j1) .ne. 0d0 ) ) then
-               if ( offdiag .eq. 0 ) then
-                  call hf_errlog(15090916,
-     $                 'I: Offdiag. elements in
-     $ inverse covariance. Partial chisq values are set to zero')
-               endif
-               offdiag = offdiag+1
-            endif
-         enddo
+         i= list_covar(i1)
+         Chi2 = SumCov(i1)*YCov(i1)
 C Sums:
          if ( FitSample(i) ) then
             chi2_fit  = chi2_fit  + chi2
