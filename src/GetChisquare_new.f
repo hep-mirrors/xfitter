@@ -466,13 +466,14 @@ C      Call DINV_AUTO(NCovar,ScaledTotMatrix,NCovarDim,Array,IFail)
 C Do the cholesky factorisation, where L can be the lower triangle. 
 C We will pass that to everything later, but the upper triangle will still 
 C keep Vcov as is. Which I think we need for later anyway. 
+C 'L' for lower traingle. 
       Call DPOTRF('L', NCovar, ScaledTotMatrix, NCovarDim, IFail)
       if (IFail .ne. 0) then
          Call HF_ERRLOG(26073101,
      $ 'S: Chi2_calc_SumCovar_new: covariance matrix not pos-def.'//
      $ 'If persistent, use the old chi2 method, useNewChi2=false')
       endif
-      
+
 C      print *,IFail,NCovar
 
       end
@@ -554,9 +555,9 @@ C these are I think equivalent to what came before, but now
 C we can use BLAS-3 calls to speed the whole thing up.
 C In this Z formalism , rows are data points, columns are systematic sources. 
 
-      double precision, allocatable :: Zcov(:,:)
+      double precision, allocatable :: Zcov(:,:) ! filled with scaledgamma at first
       double precision, allocatable :: Zdiag(:,:)
-      double precision, allocatable :: rcov(:,:)
+      double precision, allocatable :: zcov(:,:) ! we collect rcov - then replace with zcov.
       double precision, allocatable :: zdiag(:,:)
 
       integer nd, ndd
@@ -716,6 +717,33 @@ C x, increment for elements of x, beta, y, increment for elements of y.
       endif
 
 C Covariance bits next
+C Check my workings on paper
+C Assume all below such as Z, z, r, etc are the cov parts
+C Writing out the chi2 formulation, with V=LL^T
+C and defining Z=L^-1 Gamma^T, z= L^-1 r
+C We can get the usual chi2 form, where
+C C = Z^T z and A = Z^T Z; we can construct both. But first,
+C we need Z and z. From solving LZ=Gamma^T, we can get Z.
+C From Lz = r, we can get z. No inversions. Both triangular. 
+C Then we construct A from this. 
+C and we construct C. 
+
+      if ( NCovar .gt. 0 ) then
+         allocate(Zcov(NCovar, nsys))
+         allocate(zcov(NCovar))
+
+         Zcov = 0.0D0
+         rvec = 0.0D0 ! in F90, we can zero the whole vec/matrix like this
+
+         do i=1,n0_sys
+            i2 = list_covar_inv(i)
+            if ( i2 .gt. 0) then
+               if ( FitSample(i) ) then
+C built rcov here, which will be overwritten with zcov further down - sorry
+C for the bad variable naming
+                  zcov = daten(i) - theo(i) + ShiftExternal(i)
+                  do l=1,nsys
+
 
       t3 = xf_wtime()
       print '(A,F8.3,A)', '   syst_shifts OMP loop:',t3-t2,' s'
