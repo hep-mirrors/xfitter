@@ -120,6 +120,11 @@ C    !> Allocate the scaled syst. matrices (see declarations above)
          allocate(ScaledGammaSav(NSysMax,Ntot))
          allocate(ScaledOmega(NSysMax,Ntot))
 
+C Explicitly zero these just for future safety - doesn't seem to break anything though.
+         ScaledGamma = 0.0D0
+         ScaledGammaSav = 0.0D0
+         ScaledOmega = 0.0D0
+
 C    !> Allocate covariance matrices with the actual size
          NCovarDim = max(NCovar,1)
          allocate(ScaledErrorMatrix(NCovarDim,NCovarDim))
@@ -382,8 +387,6 @@ C>   - subroutine chi2_calc_GetGamma(ScaledGamma, ScaledOmega)
 C>   - subroutine chi2_calc_covar(ScaledGamma,ScaledSystMatrix,
 C>     $     NCovarDim, List_Covar_Inv, n0_in)
 C>   - Subroutine GetPointErrors(Idx, Stat, StatConst, Uncor)
-C>   - Subroutine Chi2_calc_SumCovar(ScaledErrorMatrix, ScaledSystMatrix,
-C>     $              ScaledTotMatrix, NCovarDim, NCovar)
 C>   - subroutine chi2_calc_stat_uncor(ScaledErrors, ScaledErrorMatrix,
 C>     $     NCovarDim, rsys_in,n0_in, NCovar, List_Covar, Iterate)
 C>   - subroutine expand_syst_lists(tot_matrix,NCovarDim,
@@ -392,16 +395,7 @@ C>   - subroutine chi2_calc_syst_shifts_simple(
 C>     $     ScaledErrors
 C>     $     ,ScaledGamma
 C>     $     ,rsys_in,   n0_in)
-C>   - subroutine chi2_calc_syst_shifts(
-C>     $     ScaledErrors
-C>     $     ,ScaledTotMatrix, NCovarDim
-C>     $     ,ScaledGamma
-C>     $     ,rsys_in,ersys_in,list_covar_inv,  iflag, n0_in, ScaledOmega)
 C>   - subroutine Sys_Data_list12(isys1,isys2,n_list,i_list)
-C>   - subroutine chi2_calc_chi2(ScaledErrors,ScaledGamma,
-C>     $     ScaledTotMatrix,NCovarDim,rsys_in
-C>     $     ,NDiag, List_Diag, NCovar, List_Covar
-C>     $     ,fchi2_in, pchi2_in, fcorchi2_in)
 C>   - subroutine chi2_calc_PoissonCorr(ScaledErrors, chi2_log, n0_in)
 C>   - Subroutine Chi2_calc_FCN3(ScaledErrors,ScaledGamma,RSys_in, n0_in)
 C>   - subroutine UseOmegaScale(ScaledGamma,ScaledGammaSav,ScaledOmega,
@@ -571,54 +565,19 @@ C In this Z formalism , rows are data points, columns are systematic sources.
       integer IR(2*NSysMax), Ifail,  Npdf
 
       integer nsystheo, itheoisys(NSysMax)
-      integer nsys_sav, n0_in_sav
 
 C Timing variables (xf_wtime = wall-clock if OpenMP, cpu_time otherwise)
       double precision t1, t2, t3, t4
       double precision xf_wtime
       external xf_wtime
 
-      logical lfirst
-      data lfirst /.true./
-      data nsys_sav,n0_in_sav/0,0/
-      save lfirst,nsys_sav,n0_in_sav
-C-
-      logical HaveCommonData(NsysMax, NsysMax)
 C--------------------------------------------------------
       t1 = xf_wtime()
       if (.not. allocated(A)) then
          allocate(A(NSysMax,NSysMax))
       endif
-
-C Check if number of sources/data points change:
-      ResetCommonSyst = (nsys.ne.nsys_sav) .or. (n0_in.ne.n0_in_sav)
-      nsys_sav = nsys
-      n0_in_sav = n0_in 
-C Determine pairs of syst. uncertainties which share  data
-
-
-      if (LFirst .or. ResetCommonSyst) then
-         LFirst = .false.
-         ResetCommonSyst = .false.
-
-
-         call expand_syst_lists(scaledtotmatrix,NCovarDim,
-     $        list_covar_inv,n0_in)
-
-C Parallelize HaveCommonData computation (O(nsys^2) calls)
-!$OMP PARALLEL DO SCHEDULE(dynamic) PRIVATE(k,n_com_list,com_list)
-         do l=1,nsys
-            do k=l,nsys
-               Call Sys_Data_List12(l,k,n_com_list,com_list)
-               if (n_com_list.gt.0) then
-                  HaveCommonData(k,l) = .true.
-               else
-                  HaveCommonData(k,l) = .false.
-               endif
-            enddo
-         enddo
-!$OMP END PARALLEL DO
-      endif
+C Don't need expand_syst_lists, sys_data_list12, havecommonddata anymore. 
+C This bookkeeping is now handled in the matrix operations automatically. 
 
 C Get extra piece, from external systematics:
       do i=1,n0_in
