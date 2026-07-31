@@ -735,6 +735,8 @@ C and we construct C.
          Zcov = 0.0D0
          rvec = 0.0D0 ! in F90, we can zero the whole vec/matrix like this
 
+C fitsample and sysform is nuisance are checked in this loop also
+C Only difference should be from list_covar_inv()
          do i=1,n0_sys
             i2 = list_covar_inv(i)
             if ( i2 .gt. 0) then
@@ -743,10 +745,43 @@ C built rcov here, which will be overwritten with zcov further down - sorry
 C for the bad variable naming
                   zcov = daten(i) - theo(i) + ShiftExternal(i)
                   do l=1,nsys
+                     if ( SysForm(l) .eq. isNuisance ) then
+C same thing here - fill Gamma^T, then overwrite with Zcov later
+                        Zcov(i2,l) = ScaledGamma(l,i)
+                     endif
+                  enddo
+               endif
+            endif
+         enddo
 
+C Get Z via solve LZ=Gamma^T - ScaledTotMatrix is now L on the lower triangle
+C from Chi2_calc_SumCovar_new
+C DTRSM solves AX=alphaB or XA = alphaB, with A or A^T
+C overwrites B with solution X
+C Args are: A on 'L'eft, A 'L'ower triangle, A not transpose, A not unit triangular
+C B rows, B columns, alpha, A, LDA, B, LDB
+         call DTRSM('L','L','N','N', NCovar, Nsys, 1.0D0,
+     $        ScaledTotMatrix, NCovarDim, Zcov, NCovar)
+C Get zcov via solve Lz=r
+C DTRSV solves Ax=b or A^Tx=b, overwrites b with sol x.
+C args are: A lower, A not transpose, A not unit triangular, Order of A, A,
+C LDA, b(x later), increment for b(x). 
+         call DTRSV('L','N','N', NCovar,
+     $        ScaledTotMatrix, NCovarDim, zcov, 1)
+C Now DSYRK and DGEMV as before
+C A via A +Z^T Z
+         call DSYRK('L','T', nsys, NCovar, 1.0D0, Zcov, NCovar,
+     $        1.0D0, A, NsysMax)
+C C via C + Z^T z
+         call DGEMV('T', NCovar, nsys, 1.0D0, Zcov, NCovar,
+     $        zcov, 1, 1.0D0, C, 1)
+
+         deallocate(Zcov)
+         deallocate(zcov)
+      endif
 
       t3 = xf_wtime()
-      print '(A,F8.3,A)', '   syst_shifts OMP loop:',t3-t2,' s'
+      print '(A,F8.3,A)', '   syst_shifts BLAS route:',t3-t2,' s'
 
 C
 C Under diagonal:
