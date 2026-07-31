@@ -462,7 +462,17 @@ C-----------------------------
 C-----------------------------
 C This could be a cholesky factorisation here instead. 
 C And just pass the triangles to the solvers downstream. 
-      Call DINV_AUTO(NCovar,ScaledTotMatrix,NCovarDim,Array,IFail)
+C      Call DINV_AUTO(NCovar,ScaledTotMatrix,NCovarDim,Array,IFail)
+C Do the cholesky factorisation, where L can be the lower triangle. 
+C We will pass that to everything later, but the upper triangle will still 
+C keep Vcov as is. Which I think we need for later anyway. 
+      Call DPOTRF('L', NCovar, ScaledTotMatrix, NCovarDim, IFail)
+      if (IFail .ne. 0) then
+         Call HF_ERRLOG(26073101,
+     $ 'S: Chi2_calc_SumCovar_new: covariance matrix not pos-def.'//
+     $ 'If persistent, use the old chi2 method, useNewChi2=false')
+      endif
+      
 C      print *,IFail,NCovar
 
       end
