@@ -156,3 +156,6 @@ C     Namelist for Higher Twists
       logical ReadParsFromFile
       character*128 ParsFileName, CovFileName  ! Names of 
       common/CparsFromFile/ ParsFileName, CovFileName, ReadParsFromFile
+
+      Integer  OutputFrag
+      Common/SteerFrag/OutputFrag

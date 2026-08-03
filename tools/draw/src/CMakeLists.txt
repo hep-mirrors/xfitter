@@ -33,3 +33,35 @@ target_link_libraries(xfitter-draw xfitter ROOT)
 #Disable warning "deprecated conversion from string constant to ‘char*’" for one source file
 #set_property(SOURCE DrawLogo.cc PROPERTY COMPILE_FLAGS "-Wnowrite-strings")
 install(TARGETS xfitter-draw DESTINATION ${DEST_BIN})
+
+
+add_executable(xfitter-drawFF
+  Chi2.cc
+  Chi2scanData.cc
+  Chi2scanGauss.cc
+  Chi2scanPainter.cc
+  Chi2scanUnc.cc
+  CommandParser.cc
+  DataPainter.cc
+  Dataset.cc
+  DrawLogo.cc
+  FitPainter.cc
+  Outdir.cc
+  Par.cc
+  ParPainter.cc
+  PdfDataFF.cc
+  pdferrors.cc
+  PdfsPainter.cc
+  ShiftPainter.cc
+  xfitter-draw.cc
+)
+target_include_directories(xfitter-drawFF PRIVATE
+  ../include
+)
+target_compile_definitions(xfitter-drawFF PRIVATE
+  -DVERSION="${xFitter_VERSION}"
+)
+target_link_libraries(xfitter-drawFF xfitter ROOT)
+#Disable warning "deprecated conversion from string constant to ‘char*’" for one source file
+#set_property(SOURCE DrawLogo.cc PROPERTY COMPILE_FLAGS "-Wnowrite-strings")
+install(TARGETS xfitter-drawFF DESTINATION ${DEST_BIN})

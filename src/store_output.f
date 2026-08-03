@@ -10,12 +10,14 @@ C--------------------------------------------------------------
       implicit none
 
 #include "steering.inc"
+!#include "pdfparam.inc"
 
       integer i,ix,idx,iq2,iflag
       double precision q2,x,gval,sing,umin,dmin
 *new jf
       double precision QPDFXQ,cplus,splus,bplus,uplus,dplus,U,D,sea,DbmUb
       double precision d_Ubar,d_Dbar,u_sea,d_sea,str,strbar,chm,bot,photon
+      double precision strpos,chmpos,botpos,upos,dpos     !hamed FFs 2020
       double precision totstr,totDbar,totcha,totUbar,afs,afc,xbelow,delx
       double precision totusea,totdsea,afs_ud
 
@@ -33,7 +35,7 @@ C--------------------------------------------------------------
       double precision xnu, xrho, Qsimple
       double precision F123(3)
 
-      character*48 name
+      character*50 name
       character*48 h1name
       character*(*) base
       character*25 fsfc
@@ -65,13 +67,18 @@ C--------------------------------------------------------------
 
   ! Store how many PDFs are written out:
       integer NPdfs
-      parameter (NPdfs = 15)
-      double precision dum/0./
+      
+      NPdfs = 15
+      if (OutPutFrag.eq.1) then 
+         NPdfs = 14
+      Endif
 
 C---------------------------------------------------------------
 
       write(6,*) '--------- in store-pdfs -------'
-
+      
+      write(6,*) ' OutPutFrag = ', OutPutFrag
+ 
       idx = index(base,' ')-1
       do 999 iq2=1,NBANDS
          q2 = Q2VAL(iq2)
@@ -87,23 +94,27 @@ C---------------------------------------------------------------
             name =base//tag(iq2)//'.txt'
             h1name = base//tag(iq2)//'.txt'
          endif
-         open(81,file=name)
+         open(81,file=name, STATUS = 'REPLACE' )
 c        open(82,file=h1name)
          ! Write basic info on the table:
          write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2)
 
          ! Write the names of PDFs
-         write (81,'(16(2x,A12))')
+!         write (81,'(16(2x,A12))')
+!     $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
+         if (OutPutFrag.eq.1) then 
+            write (81,'(15(2x,A12))')
+     $        ' x ',' g    ',' U    ',' D    ',' u^+    ', ' d^+    ',
+     $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
+     $        ' d_sea    ', ' s^+  ',' c^+    ',' b^+    ', '  ph '
+!     $        'strbar'
+         else
+            write (81,'(16(2x,A12))')
      $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
      $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
      $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph ',
-     $        'strbar'
-c         write (81,'(16(2x,A12))')
-c     $        ' x ',' g    ',' u_sea    ',' d_sea    ',
-c     $              ' str    ','strbar',
-c     $              ' chm    ',' bot    ', 
-c     $              ' dum ', ' dum ', ' dum ', ' dum ',
-c     $              ' dum ', ' dum ', ' dum ', ' dum ',
+     $        'strbar'         
+         Endif
 
          totstr=  0.d0
          totDbar= 0.d0
@@ -128,7 +139,7 @@ c     $              ' dum ', ' dum ', ' dum ', ' dum ',
                delx = x - xbelow
             endif
             call  hf_get_pdfs(x,q2,pdf)
-
+!          print'("test pdf store =",14F11.6,/)',x,(pdf(i),i=-6,6)
 
             gval=pdf(0)
 
@@ -145,7 +156,11 @@ c     $              ' dum ', ' dum ', ' dum ', ' dum ',
             endif
 
             umin=pdf(2)-pdf(-2)
+            upos=pdf(2)+pdf(-2)
             dmin=pdf(1)-pdf(-1)
+            dpos=pdf(1)+pdf(-1)   ! hamed FFs 2020
+!         print'("test upos =",6F10.6,/)',x,pdf(2),pdf(-2), upos,pdf(2)+pdf(-2)
+!         print'("test dpos =",6F10.6,/)',x,pdf(1),pdf(-1), dpos,pdf(1)+pdf(-1)
 
             if (q2.gt.qc) then
                d_Ubar=pdf(-2)+pdf(-4)
@@ -164,18 +179,22 @@ c     $              ' dum ', ' dum ', ' dum ', ' dum ',
 *      DbmUb=d_Dbar-d_Ubar
             u_sea=pdf(-2)
             d_sea=pdf(-1)
-            str = (pdf(-3)+pdf(3))/2.d0
-            strbar = pdf(-3)
-
-
+!            str = (pdf(-3)+pdf(3))/2.d0
+!            strbar = pdf(-3)
+            strpos = pdf(-3)+pdf(3)   ! hamed FFs 2020 S+sbar
+  !             chmpos = pdf(-4) + pdf(4)
+  !             botpos=pdf(-5) + pdf(5)
+!            print'("test pdf store 2=",7F11.6,/)',x, pdf(-4),pdf(4), chmpos, pdf(-5),pdf(5), botpos
             chm = 0.0d0
-            if (q2.gt.qc.and.abs(pdf(-4)).gt.1D-50) then
+            if (q2.gt.qc) then
                chm=pdf(-4)
+               chmpos = pdf(-4)+pdf(4)
             endif
 
             bot = 0.d0
-            if (q2.gt.qb.and.abs(pdf(-5)).gt.1D-50) then
+            if (q2.gt.qb) then
                bot=pdf(-5)
+               botpos=pdf(-5)+pdf(5)
             endif
 
             photon = pdf(7)
@@ -188,16 +207,18 @@ c     $              ' dum ', ' dum ', ' dum ', ' dum ',
             totusea = totusea + u_sea*delx
             totdsea = totdsea + d_sea*delx
 
-            write(81,810)
+            if (OutPutFrag.eq.1) then
+               write(81,810)
+     +           x,gval,U,D,upos,dpos,umin,dmin,sea,u_sea,d_sea,
+     $           strpos,chmpos,botpos,photon
+            Else
+               write(81,810)
      +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,
      $           chm,bot,photon,strbar
-c            write(81,810)
-c     +           x,gval,u_sea,d_sea,str,strbar,chm,bot
-c     +          ,dum,dum,dum,dum,dum,dum,dum,dum
-     
-     
- 810        format(16(2x,G12.6))
-c 8101       format(8(2x,G12.6))
+            Endif
+ 810        format(15(2x,G12.6))
+            write(90,810)x,q2,gval,upos,dpos,strpos,
+     $           chmpos,botpos,pdf(-5),pdf(5),pdf(-5)+pdf(5)
  811        format(I3,2x,23(2x,G12.6))
 
 
@@ -305,10 +326,6 @@ C--------------------------------------------------
 
       PreviousPlots = 0
 C Update theory errors, sum up what is already in and theory sources
-      do i=1,NPoints
-         THEO_TOT_UP(i) = 0
-         THEO_TOT_DOWN(i) = 0
-      enddo
       do i=1,NPoints
          do j=1,NSys
             if (ISystType(j).eq.iTheorySyst) then
@@ -450,7 +467,6 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
 !     endif
 
       do i=1,mne
-         parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
 
 C
@@ -547,7 +563,6 @@ C store the optimal values
 
       open (71,file=TRIM(OutDirName)//'/parseout_opt',status='unknown')
       do i=1,mne
-         parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then

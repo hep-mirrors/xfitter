@@ -363,4 +363,41 @@ std::vector<double> APFEL_Evol::getQgrid() {
 }
 
 
+// On macOS (APFEL compiled with -DDARWIN), APFEL expects these callback
+// symbols to be provided by xFitter. Missing callbacks will cause
+// dlopen() failures with "symbol not found in flat namespace".
+
+extern "C" void externalsetapfel1_(double &x,double &Q,double *xf)
+{
+  std::cout<<"externalsetapfel1_\n";
+}
+
+extern "C" void externalsetapfelrep_(double &x,double &Q,double *xf)
+{
+  std::cout<<"externalsetapfelrep_\n";
+}
+
+extern "C" void externalsetapfelrep1_(double &x,double &Q,double *xf)
+{
+  std::cout<<"externalsetapfelrep1_\n";
+}
+extern "C" void externalsetapfellept_(
+    double &x,
+    double &Q,
+    int &i,
+    double *xl,
+    double *xf)
+{
+  std::cout << "externalsetapfellept_\n";
+}
+extern "C" void pretabulatedpdfsrep_(
+    int &ig,
+    int &alpha,
+    int &i,
+    double *xf)
+{
+  std::cout << "pretabulatedpdfsrep_\n";
+}
+
+
 } // namespace xfitter

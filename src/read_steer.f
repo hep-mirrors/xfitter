@@ -120,6 +120,8 @@ C PDF output options:
       mtp        = 174.D0
 
       !OutDirName  = 'output'
+      
+      OutputFrag = 0
 
       Debug = .false.
 
@@ -669,7 +671,7 @@ C------------------------------------------------
 C Output style namelist
       namelist/Output/Q2VAL, OutNX, OutXRange,
      $     WriteLHAPDF5,
-     $     ReadParsFromFile, ParsFileName, CovFileName
+     $     ReadParsFromFile, ParsFileName, CovFileName, OutputFrag
 
 C--------------------------------------------------------
 C  Read the output namelist:
