@@ -10,7 +10,6 @@ C--------------------------------------------------------------
       implicit none
 
 #include "steering.inc"
-!#include "pdfparam.inc"
 
       integer i,ix,idx,iq2,iflag
       double precision q2,x,gval,sing,umin,dmin
@@ -94,7 +93,7 @@ C---------------------------------------------------------------
             name =base//tag(iq2)//'.txt'
             h1name = base//tag(iq2)//'.txt'
          endif
-         open(81,file=name, STATUS = 'REPLACE' )
+         open(81,file=name)
 c        open(82,file=h1name)
          ! Write basic info on the table:
          write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2)
@@ -113,7 +112,7 @@ c        open(82,file=h1name)
      $        ' x ',' g    ',' U    ',' D    ',' Ubar    ', ' Dbar    ',
      $        ' u_val    ', ' d_val    ', ' sea    ' ,' u_sea    ',
      $        ' d_sea    ', ' str    ',' chm    ',' bot    ', '  ph ',
-     $        'strbar'         
+     $        'strbar'
          Endif
 
          totstr=  0.d0
@@ -179,11 +178,11 @@ c        open(82,file=h1name)
 *      DbmUb=d_Dbar-d_Ubar
             u_sea=pdf(-2)
             d_sea=pdf(-1)
-!            str = (pdf(-3)+pdf(3))/2.d0
-!            strbar = pdf(-3)
+            str = (pdf(-3)+pdf(3))/2.d0
+            strbar = pdf(-3)
             strpos = pdf(-3)+pdf(3)   ! hamed FFs 2020 S+sbar
-  !             chmpos = pdf(-4) + pdf(4)
-  !             botpos=pdf(-5) + pdf(5)
+!            chmpos = pdf(-4) + pdf(4)
+!            botpos=pdf(-5) + pdf(5)
 !            print'("test pdf store 2=",7F11.6,/)',x, pdf(-4),pdf(4), chmpos, pdf(-5),pdf(5), botpos
             chm = 0.0d0
             if (q2.gt.qc) then
@@ -208,7 +207,7 @@ c        open(82,file=h1name)
             totdsea = totdsea + d_sea*delx
 
             if (OutPutFrag.eq.1) then
-               write(81,810)
+               write(81,8101)
      +           x,gval,U,D,upos,dpos,umin,dmin,sea,u_sea,d_sea,
      $           strpos,chmpos,botpos,photon
             Else
@@ -216,9 +215,10 @@ c        open(82,file=h1name)
      +           x,gval,U,D,d_Ubar,d_Dbar,umin,dmin,sea,u_sea,d_sea,str,
      $           chm,bot,photon,strbar
             Endif
- 810        format(15(2x,G12.6))
-            write(90,810)x,q2,gval,upos,dpos,strpos,
-     $           chmpos,botpos,pdf(-5),pdf(5),pdf(-5)+pdf(5)
+ 810        format(16(2x,G12.6))
+c            write(90,810)x,q2,gval,upos,dpos,strpos,
+c     $           chmpos,botpos,pdf(-5),pdf(5),pdf(-5)+pdf(5)
+8101        format(15(2x,G12.6))
  811        format(I3,2x,23(2x,G12.6))
 
 
@@ -410,7 +410,7 @@ c     &           xf3sh(index)
          enddo
 cv         write(34,*), index,i,DATASETNUMBER(i)
       enddo
-  111  format(1X, F10.3, 2X, F12.6, 2X, 3(F12.6,2X))
+ 111  format(1X, F10.3, 2X, F12.6, 2X, 3(F12.6,2X))
       close(90)
 
 
