@@ -226,14 +226,26 @@ if [ $# -ne 0 ] && [ "${@: -1}" = "--help" ]; then
   echo "Usage: test.sh <TEST1> <TEST2> ... [OPTION]"
   echo "OPTION could be:"
   echo "  --copy to copy results and make them reference"
+  echo "  --failed to run only tests missing from temp/ or not previously passed"
   echo "  --help to see this message"
   echo "If no test names are provided, all tests in directory examples/ will run, except those specified in 'omitTests' list"
   exit 1
 fi
 
 COPY=0
-if [ $# -ne 0 ] && [ "${@: -1}" = "--copy" ]; then
-  COPY=1
+RERUN_FAILED=0
+for arg in "$@"; do
+  if [ "$arg" = "--copy" ]; then
+    COPY=1
+  elif [ "$arg" = "--failed" ]; then
+    RERUN_FAILED=1
+  fi
+done
+if [ $COPY -eq 1 ] && [ $RERUN_FAILED -eq 1 ]; then
+  echo "Options --copy and --failed cannot be used together"
+  exit 1
+fi
+if [ $COPY -eq 1 ]; then
   echo "==========================================================================="
   echo "Running in COPY mode: output of tests will be copied and saved as reference"
   echo "==========================================================================="
@@ -256,8 +268,26 @@ if [ -z "$listOfTests" ]; then
     fi
   done
 fi
+if [ $RERUN_FAILED -eq 1 ]; then
+  failedTests=""
+  for arg in `echo $listOfTests`; do
+    dir=temp/$arg
+    log=$dir/$testlogfile
+    if [ ! -d $dir ] || [ ! -f $log ]; then
+      failedTests="$failedTests $arg"
+      continue
+    fi
+    grep "Everything is PASSED" $log > /dev/null
+    if [ $? -ne 0 ]; then
+      failedTests="$failedTests $arg"
+    fi
+  done
+  listOfTests="$failedTests"
+fi
+
 if [ -z "$listOfTests" ]; then
   echo "No tests to run"
+  exit 0
 fi
 
 testsPassed=0
