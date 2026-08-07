@@ -443,20 +443,27 @@ C---------------------------------------------------------
       integer GetParameterIndex
       character*80 parname
       double precision val, err, xlo, xhi
+      double precision getparamd  ! c++ interfance
       integer ipar
 C-------------------------------------------------
       do i=1,NSys
          if (SysForm(i) .eq. isExternal ) then
-            idx = GetParameterIndex(system(i))
-            if (idx.eq.0) then
-               print *,'ERROR ERROR ERROR'
-               print *,'External systematics ',system(i),' not found'
-               print *,'on the list of external parameters'
-               print *,'Contact herafiter-help@desy.de with ! Stop.'
-               print *,' '
-               call HF_stop
-            endif
-            rsys_in(i) = parminuitsave( iExtraParamMinuit(idx) )
+!            idx = GetParameterIndex(system(i))
+!            if (idx.eq.0) then
+!               print *,'ERROR ERROR ERROR'
+!               print *,'External systematics ',system(i),' not found'
+!               print *,'on the list of external parameters'
+!               print *,'Contact herafiter-help@desy.de with ! Stop.'
+!               print *,' '
+!               call HF_stop
+!            endif
+!     rsys_in(i) = parminuitsave( iExtraParamMinuit(idx) )
+
+
+            rsys_in(i) = getparamd(system(i))
+
+            print *,'hohoho',system(i), rsys_in(i)
+            
             if (IFlag.eq.3) then
                call mnpout(iExtraParamMinuit(idx)
      $              ,parname,val,err,xlo,xhi,ipar)

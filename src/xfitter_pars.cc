@@ -43,6 +43,18 @@ extern "C" {
   int getparami_(const char* name, int len);
   // Update of EWK/QCD parameters, can be fitted at each iteration.
   void update_pars_fortran_();
+  void add_parameter_to_minimizer_(double &value, double &step, double* &priors, double* &bounds, char *name, int len);
+}
+
+void add_parameter_to_minimizer_(double &value, double &step, double* &priors, double* &bounds, char *name, int len) {
+  //  std::string parameterName(name,len);
+  // parameterName.erase(parameterName.find_last_not_of(' ') + 1);
+  char buff[128];
+  memcpy ( buff, &name[0], len);
+  buff[len] = '\0';
+  std::string parameterName(buff);
+  xfitter::BaseMinimizer*minimizer=xfitter::get_minimizer();
+  minimizer->addParameter(value,parameterName,step,bounds,priors);
 }
 
 /*
@@ -924,13 +936,18 @@ void parse_params_(){
 
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:
 void add_to_param_map_(map<std::string,double*> *map, double &value, int& global, char *name, int len) {
+
+  std::cout << " HERE HERE " << global <<  "\n";
+  
   string nam = name;
   const auto pos = nam.find(" ");
   if (pos < nam.size()) {
     nam.erase(pos);
   }
 
+  
   if ( global>0 ) {
+    std::cout << "name: " << nam << "\n";
     XFITTER_PARS::gParameters[nam] = &value;
   }
   else {
@@ -943,11 +960,12 @@ double getparamd_(const char* name,int len){
   memcpy( buff, &name[0], len);
   buff[len] = '\0';
   std::string key(buff);
+  
   if (XFITTER_PARS::gParameters.find(key) != XFITTER_PARS::gParameters.end()) {
     return *XFITTER_PARS::gParameters[key];
   }
   else {
-    return 0;
+    return std::nan("");;
   }
 }
 
