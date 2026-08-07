@@ -60,6 +60,11 @@ namespace xfitter
 
     virtual ConvergenceStatus convergenceStatus()=0;
 
+    // Retrieve fitted parameter uncertainty by name, if available after minimization.
+    virtual double getParameterUncertainty(const std::string& name) const;
+    virtual double getParameterValue(const std::string& name) const;
+    virtual double getParameterValue(const std::string& name, const double* pars) const;
+
     /// Number of parameters:
     unsigned int getNpars() const { return _allParameterNames.size(); }
 
@@ -80,6 +85,8 @@ namespace xfitter
       return _name;
     }
   protected:
+
+    int parameterIndex(const std::string& name) const;
 
     /// name to ID minimizer
     std::string _name;

@@ -1,3 +1,5 @@
+install(FILES APFELgrid.yaml DESTINATION ${DEST_YAML}/reactions)
+
 if(NOT APFELgrid_FOUND)
   message(STATUS "Skipping optional reaction APFELgrid because APFELgrid library was not found")
   return()
@@ -12,4 +14,3 @@ set(TARGET reactionAPFELgrid)
 add_library(${TARGET} MODULE ReactionAPFELgrid.cc APFELgridGeneration.cc)
 target_link_libraries(${TARGET} PRIVATE xfitter APFELgrid APPLgrid APFEL)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
-install(FILES APFELgrid.yaml DESTINATION ${DEST_YAML}/reactions)

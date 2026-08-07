@@ -34,9 +34,7 @@ void CheckForPDF(char const*pdfname){
 
 extern "C" {
   void checkforpdf_(char *pdfname, long int length){
-    char tmp[length];
-    memcpy(tmp,pdfname,length);
-    tmp[length-1] = '\0';
-    CheckForPDF(tmp);
+    const std::string pdf = stringFromFortran(pdfname, length);
+    CheckForPDF(pdf.c_str());
   }
 }
