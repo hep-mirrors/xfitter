@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <cerrno>
 #include "xfitter_steer.h"
 
 // the class factories
@@ -217,7 +218,8 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
       return;
     }
       
-  //fork wait parallelisation
+  // fork/wait parallelisation.  The parent must read the pipe before
+  // waiting for children, otherwise workers can block when the pipe fills.
   int fd[2];
   if (pipe(fd) < 0)
     {
@@ -225,7 +227,14 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
       exit(-1);
     }
 
+  size_t expectedResults = 0;
+  for (size_t i = 0; i < Np; i++)
+    if (q2[i] > 1.0)
+      expectedResults++;
+
   size_t Npr = Np/threads+1;
+  vector<pid_t> pids;
+  pids.reserve(threads);
   //std::cout << " Np " << Np << " Npr " << Npr << std::endl;
   for (int P = 0; P < threads; P++)
     {
@@ -250,43 +259,61 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	      fs.f2b = f2b;
 	      fs.flb = flb;
 	      fs.idx = i;
-	  
-	      int status;
-	      status = write(fd[1], &fs, sizeof fs);
+
+	      const char* data = reinterpret_cast<const char*>(&fs);
+	      size_t bytesLeft = sizeof fs;
+	      while (bytesLeft > 0)
+		{
+		  ssize_t nbytes = write(fd[1], data, bytesLeft);
+		  if (nbytes < 0)
+		    {
+		      if (errno == EINTR)
+			continue;
+		      _exit(-1);
+		    }
+		  data += nbytes;
+		  bytesLeft -= nbytes;
+		}
 	    }
-	  exit(0);
+	  close(fd[1]);
+	  _exit(0);
 	}
       else if (id < 0)
 	{
 	  std::cout << "Error: failed to fork" << std::endl;
 	  exit (-1);
 	}
-      
-    }
-  //wait for all children to finish
-  int status;
-  pid_t wpid;
-  while ((wpid = wait(&status)) > 0)
-    if (status < 0)
-      {
-	std::cout << "Process " << wpid << " terminated with status " << status << std::endl;
-	exit(-1);
-      }
-  
-  //Read out buffer
-  close(fd[1]);
-  for (size_t i = 0; i < Np; i++)
-    {
-      if (!(q2[i] > 1.0))
-	continue;
-      stf fs;
-      int nbytes = read(fd[0], &fs, sizeof fs);
-      if(!(nbytes > 0))
+      else
 	{
-	  string message = "E: Error in fork/wait: nothing on the pipe.";
-	  hf_errlog_(22082501, message.c_str(), message.size());
+	  pids.push_back(id);
 	}
-	
+    }
+
+  close(fd[1]);
+  for (size_t i = 0; i < expectedResults; i++)
+    {
+      stf fs;
+      char* data = reinterpret_cast<char*>(&fs);
+      size_t bytesLeft = sizeof fs;
+      while (bytesLeft > 0)
+	{
+	  ssize_t nbytes = read(fd[0], data, bytesLeft);
+	  if (nbytes < 0)
+	    {
+	      if (errno == EINTR)
+		continue;
+	      string message = "E: Error in fork/wait: failed to read pipe.";
+	      hf_errlog_(22082501, message.c_str(), message.size());
+	    }
+	  if (nbytes == 0)
+	    {
+	      string message = "E: Error in fork/wait: nothing on the pipe.";
+	      hf_errlog_(22082501, message.c_str(), message.size());
+	    }
+	  data += nbytes;
+	  bytesLeft -= nbytes;
+	}
+
       switch (GetDataFlav(termID))
 	{
 	case dataFlav::incl:
@@ -304,4 +331,21 @@ void ReactionRT_DISNC::calcF2FL(TermData *td)
 	}
     }
   close(fd[0]);
+
+  int status;
+  for (pid_t pid : pids)
+    {
+      while (waitpid(pid, &status, 0) < 0)
+	{
+	  if (errno == EINTR)
+	    continue;
+	  std::cout << "Error in fork/wait: failed waiting for process " << pid << std::endl;
+	  exit(-1);
+	}
+      if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+	{
+	  std::cout << "Process " << pid << " terminated with status " << status << std::endl;
+	  exit(-1);
+	}
+    }
 }

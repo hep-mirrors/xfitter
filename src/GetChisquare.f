@@ -439,12 +439,9 @@ C---------------------------------------------------------
 #include "endmini.inc"
 #include "extrapars.inc"
       double precision rsys_in(nsysmax), ersys_in(nsysmax)
-      integer i,idx, iflag
-      integer GetParameterIndex
-      character*80 parname
-      double precision val, err, xlo, xhi
-      double precision getparamd  ! c++ interfance
-      integer ipar
+      integer i, iflag
+      double precision getparamd  ! c++ interface
+      double precision getparamunc  ! c++ minimizer uncertainty interface
 C-------------------------------------------------
       do i=1,NSys
          if (SysForm(i) .eq. isExternal ) then
@@ -462,12 +459,8 @@ C-------------------------------------------------
 
             rsys_in(i) = getparamd(system(i))
 
-            print *,'hohoho',system(i), rsys_in(i)
-            
             if (IFlag.eq.3) then
-               call mnpout(iExtraParamMinuit(idx)
-     $              ,parname,val,err,xlo,xhi,ipar)
-               ersys_in(i) = err
+               ersys_in(i) = getparamunc(system(i))
             endif
          endif
       enddo

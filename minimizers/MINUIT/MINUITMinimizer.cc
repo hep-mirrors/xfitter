@@ -11,6 +11,8 @@
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
 
+#include <cmath>
+
 /// Fortran interfaces:
 extern "C" {
   void generate_io_filenames_();
@@ -41,6 +43,7 @@ extern "C" {
   void  errbandssym_();
 
   int getparameterindex_(const char name[], int len);
+  void mnpout_(int*,char*,double*,double*,double*,double*,int*,int);
   void mnstat_(double&fmin,double&fedm,double&errdef,int&npari,int&nparx,int&istat);
 }
 
@@ -198,11 +201,44 @@ void MINUITMinimizer::addParameter(double par, std::string const &name, double s
     priorUnc = priors[1];
   }
   addexternalparam_(name.c_str(),par,step,minv,maxv,priorVal,priorUnc,add,&XFITTER_PARS::gParameters,name.size());
-  BaseMinimizer::addParameter(par,name,step,bounds,priors);
 
   return;
 }
 
+
+
+static bool getMinuitParameter(const std::string& name, double& value, double& uncertainty) {
+  int index = getparameterindex_(name.c_str(), name.size());
+  if (index <= 0) return false;
+
+  const int len = 10;
+  char parname[len];
+  double bound_l = 0.;
+  double bound_h = 0.;
+  int status = 0;
+  mnpout_(&index, parname, &value, &uncertainty, &bound_l, &bound_h, &status, len);
+  return status >= 0;
+}
+
+double MINUITMinimizer::getParameterUncertainty(const std::string& name) const {
+  double value = std::nan("");
+  double uncertainty = std::nan("");
+  if (!getMinuitParameter(name, value, uncertainty)) return std::nan("");
+  return uncertainty;
+}
+
+double MINUITMinimizer::getParameterValue(const std::string& name) const {
+  double value = std::nan("");
+  double uncertainty = std::nan("");
+  if (!getMinuitParameter(name, value, uncertainty)) return std::nan("");
+  return value;
+}
+
+double MINUITMinimizer::getParameterValue(const std::string& name, const double* pars) const {
+  int index = getparameterindex_(name.c_str(), name.size());
+  if (index <= 0) return getParameterValue(name);
+  return pars[index - 1];
+}
 
 } //namespace xfitter
 

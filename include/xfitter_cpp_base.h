@@ -11,7 +11,7 @@ extern"C" {
 // Some basic other functions
 int OrderMap(std::string ord);
 // Some utility functions for working with strings
-std::string stringFromFortran(char*fortran_string,size_t size);
+std::string stringFromFortran(const char*fortran_string,size_t size);
 void stringToFortran(char* destination, size_t destination_size, const std::string& s);
 bool beginsWith(const std::string&str,const std::string&prefix);
 bool beginsWith(const std::string&str,const char*       prefix);

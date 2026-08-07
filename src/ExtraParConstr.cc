@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <string>
+#include "xfitter_cpp_base.h"
 
 extern "C" { 
 	
@@ -20,7 +21,7 @@ extern "C" {
 	// actual routine
 	void getextraparsconstrchi2_(double& chi2) {
 
-		int len=1024;
+		int len=10;
 		char parname[len];
 		double par;
 		double unc;
@@ -44,7 +45,7 @@ extern "C" {
 	// actual routine
 	void printminuitextrapars_(int& iflag) {
 
-		int len=1024;
+		int len=10;
 		char parname[len];
 		double par;
 		double unc;
@@ -64,8 +65,8 @@ extern "C" {
 				//printf("MINUIT EXTRA PARAMETERS:\n");
 				printf("%5s%32s%9s%9s%9s%9s%9s%9s\n", "NO", "NAME", "VALUE", "STEP", "LIM L", "LIM H","SHIFT","REDUCT");
 			}
-			parname[std::string(parname).find(' ')]='\0';
-			printf("%5d%32s%9.4f%9.4f", extrapars_.iExtraParamMinuit[p], parname, par, unc);
+			std::string parname_str = stringFromFortran(parname, len);
+			printf("%5d%32s%9.4f%9.4f", extrapars_.iExtraParamMinuit[p], parname_str.c_str(), par, unc);
 			if(bound_l!=0.0 || bound_h!=0.0) {
 				printf("%9.4f%9.4f", bound_l, bound_h);
 			}
@@ -90,8 +91,8 @@ extern "C" {
       {
         mnpout_(extrapars_.iExtraParamMinuit+p, parname, &par, &unc, &bound_l, &bound_h, &status, len);
         //if(status<=0) continue;
-        parname[std::string(parname).find(' ')]='\0';
-        printf("  %s : [ %.*f, %.*f", parname, ndigcomma, par, ndigcomma, unc);
+        std::string parname_str = stringFromFortran(parname, len);
+        printf("  %s : [ %.*f, %.*f", parname_str.c_str(), ndigcomma, par, ndigcomma, unc);
         if(bound_l!=0.0&&bound_h!=0.0) {
           printf(", %.*f, %.*f", ndigcomma, bound_l, ndigcomma, bound_h);
         }

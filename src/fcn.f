@@ -574,9 +574,10 @@ C this replaces old subroutine PDF_param_iteration
       double precision p(*)
 #include "extrapars.inc"
       integer i
-      integer GetParameterIndex  !function
+      double precision getfittedparamfromarrayd
       do i=1,nExtraParam
-        ExtraParamValue(i)=p(iExtraParamMinuit(GetParameterIndex(trim(ExtraParamNames(i)))))
+        ExtraParamValue(i)=getfittedparamfromarrayd
+     $       (ExtraParamNames(i),p)
       enddo
       end
 

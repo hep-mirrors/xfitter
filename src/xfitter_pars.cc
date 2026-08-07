@@ -41,20 +41,18 @@ extern "C" {
   // Get parameters in fortran, for backward compatibility:
   double getparamd_(const char* name, int len);
   int getparami_(const char* name, int len);
+  double getparamunc_(const char* name, int len);
+  double getfittedparamd_(const char* name, int len);
+  double getfittedparamfromarrayd_(const char* name, const double* pars, int len);
   // Update of EWK/QCD parameters, can be fitted at each iteration.
   void update_pars_fortran_();
-  void add_parameter_to_minimizer_(double &value, double &step, double* &priors, double* &bounds, char *name, int len);
+  void add_parameter_to_minimizer_(double &value, double &step, double* &bounds, double* &priors, char *name, int len);
 }
 
-void add_parameter_to_minimizer_(double &value, double &step, double* &priors, double* &bounds, char *name, int len) {
-  //  std::string parameterName(name,len);
-  // parameterName.erase(parameterName.find_last_not_of(' ') + 1);
-  char buff[128];
-  memcpy ( buff, &name[0], len);
-  buff[len] = '\0';
-  std::string parameterName(buff);
+void add_parameter_to_minimizer_(double &value, double &step, double* &bounds, double* &priors, char *name, int len) {
+  std::string parameterName = stringFromFortran(name, len);
   xfitter::BaseMinimizer*minimizer=xfitter::get_minimizer();
-  minimizer->addParameter(value,parameterName,step,bounds,priors);
+  minimizer->BaseMinimizer::addParameter(value,parameterName,step,bounds,priors);
 }
 
 /*
@@ -937,17 +935,11 @@ void parse_params_(){
 // Store parameter to the map, fortran interface. Note that ref to the map travels from c++ to fortran and back:
 void add_to_param_map_(map<std::string,double*> *map, double &value, int& global, char *name, int len) {
 
-  std::cout << " HERE HERE " << global <<  "\n";
   
-  string nam = name;
-  const auto pos = nam.find(" ");
-  if (pos < nam.size()) {
-    nam.erase(pos);
-  }
+  string nam = stringFromFortran(name, len);
 
   
   if ( global>0 ) {
-    std::cout << "name: " << nam << "\n";
     XFITTER_PARS::gParameters[nam] = &value;
   }
   else {
@@ -956,10 +948,7 @@ void add_to_param_map_(map<std::string,double*> *map, double &value, int& global
 }
 
 double getparamd_(const char* name,int len){
-  char buff[128];
-  memcpy( buff, &name[0], len);
-  buff[len] = '\0';
-  std::string key(buff);
+  std::string key = stringFromFortran(name, len);
   
   if (XFITTER_PARS::gParameters.find(key) != XFITTER_PARS::gParameters.end()) {
     return *XFITTER_PARS::gParameters[key];
@@ -970,16 +959,31 @@ double getparamd_(const char* name,int len){
 }
 
 int getparami_(const char* name,int len){
-  char buff[128];
-  memcpy( buff, &name[0], len);
-  buff[len] = '\0';
-  std::string key(buff);
+  std::string key = stringFromFortran(name, len);
   if (XFITTER_PARS::gParametersI.find(key) != XFITTER_PARS::gParametersI.end()) {
     return XFITTER_PARS::gParametersI[key];
   }
   else {
     return 0;
   }
+}
+
+double getparamunc_(const char* name,int len){
+  std::string key = stringFromFortran(name, len);
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  return minimizer->getParameterUncertainty(key);
+}
+
+double getfittedparamd_(const char* name,int len){
+  std::string key = stringFromFortran(name, len);
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  return minimizer->getParameterValue(key);
+}
+
+double getfittedparamfromarrayd_(const char* name, const double* pars, int len){
+  std::string key = stringFromFortran(name, len);
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  return minimizer->getParameterValue(key, pars);
 }
 
 void update_pars_fortran_() {

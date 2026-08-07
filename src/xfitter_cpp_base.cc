@@ -27,15 +27,12 @@ int OrderMap(std::string ord) {
 void hf_errlog(int id,const std::string& message) {
    hf_errlog_(id,message.c_str(),message.size());
 }
-std::string stringFromFortran(char*s,size_t size){
-  char*p=s+size;
-  while(p>s){
-    if(*(--p)!=' '){
-      ++p;
-      break;
-    }
-  }
-  return std::string(s,p-s);
+std::string stringFromFortran(const char*s,size_t size){
+  const char* end=s+size;
+  const char* nul=static_cast<const char*>(memchr(s, '\0', size));
+  if(nul) end=nul;
+  while(end>s && *(end-1)==' ') --end;
+  return std::string(s,end-s);
 }
 void stringToFortran(char* dest, size_t maxlen, const string& s){
   size_t len=s.size();

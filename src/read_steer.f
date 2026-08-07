@@ -836,7 +836,7 @@ C
       priors(1) = constrval
       priors(2) = construnc
       call add_parameter_to_minimizer(value, step, bounds, priors, name)
-      return
+C     Continue below to fill the legacy ExtraPars common block for MINUIT.
       
       nExtraParam = nExtraParam + 1
       if (nExtraParam.gt. nExtraParamMax) then
@@ -869,7 +869,6 @@ C Also add it to c++ map ...
       if (to_gParam) then
          call add_To_Param_Map( gParam, ExtraParamValue(nExtraParam)
      $        ,  iglobal, ExtraParamNames(nExtraParam)//char(0))
-         stop
       endif
       
       end
