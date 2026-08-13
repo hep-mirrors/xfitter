@@ -578,8 +578,14 @@ Data::Data(string dirname, string label)
           int iplot;
           map <string, float> fline;
           int i = 0;
-          while (iss >> buffer)
+          //while (iss >> buffer)
+          string token;
+          while (iss >> token)
             {
+              if (token == "NaN" || token == "nan")
+                buffer = std::numeric_limits<float>::quiet_NaN();
+              else
+                buffer = stof(token);
               if (coltag[i] == "iplot")
                 iplot = (int) buffer;
               else
