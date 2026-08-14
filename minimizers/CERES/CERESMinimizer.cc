@@ -614,7 +614,7 @@ void CERESMinimizer::writePars(const double* covmat) {
     char err[15];
     sprintf(val, "%.6f", parVals[i]);
     sprintf(err, "%.6f", sqrt(covmat[i*npars+i]));
-    f << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << endl;
+    f << "  " << _allParameterNames[i] << ": [ " << std::setprecision(12) << val << ", " << err << " ]" << endl;
   }
   f.close();
 
@@ -636,7 +636,7 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* c
   for (int i = 0; i < npars; i++) {
     f << std::setw(18) << _allParameterNames[i] << " ";
     for (int j =0; j<npars; j++)
-      f << std::setw(18) << covmat[i*npars+j] << " ";
+      f << std::setw(18) << std::setprecision(12) << covmat[i*npars+j] << " ";
     f << std::endl;
   }
 
