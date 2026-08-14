@@ -106,7 +106,8 @@
     'sysHZComb1154:N@eps=0.3',
     'sysHZComb1156:N@eps=0.3'
 
-  n_iterations = 2
+  ! Omit n_iterations to use tolerance-driven EoE profiling.
+  ! Set it explicitly only for compatibility or reproduction studies.
   Enable_Bartlett = .true.
 &End
 
@@ -162,4 +163,3 @@
    CutValueMax(4)     = 1.0
 
 &End
-
