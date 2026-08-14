@@ -1566,6 +1566,9 @@ c         do j=1,NUncert
      +        /100d0
          THEO_TOT_DOWN(idx) = 0.0 ! SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
      +        /100d0
+C error-band contribution (c_theoband): zero until the band scan fills it
+         theo_band_up(idx)   = 0.0d0
+         theo_band_down(idx) = 0.0d0
       enddo
 
       close (52)

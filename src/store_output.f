@@ -291,10 +291,16 @@ C--------------------------------------------------
       write(90,*)ndatasets
 
       PreviousPlots = 0
-C Update theory errors, sum up what is already in and theory sources
+C Rebuild the total theory error from scratch on every call: start from the
+C error-band contribution (zero until the band scan has run; filled by
+C GetTheoErrorsAsym/Sym, Bartlett-scaled through bart_scale) and add the
+C :T-type sources in quadrature below. This keeps the anti-accumulation
+C reset of 2f839fff (repeated calls do not inflate the :T sum) WITHOUT its
+C side effect of wiping the band errors, which since May 2023 left therr+/-
+C at zero in fittedresults.txt for every fit without :T sources.
       do i=1,NPoints
-         THEO_TOT_UP(i) = 0
-         THEO_TOT_DOWN(i) = 0
+         THEO_TOT_UP(i)   = theo_band_up(i)
+         THEO_TOT_DOWN(i) = theo_band_down(i)
       enddo
       do i=1,NPoints
          do j=1,NSys

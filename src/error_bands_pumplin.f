@@ -237,8 +237,10 @@ C-----------------------------------------
             up = up + eu
             dn = dn + ed
          enddo
-         theo_tot_up(i) = sqrt(up)
-         theo_tot_down(i) = sqrt(dn)
+C fill the dedicated band arrays, NOT theo_tot_up/down: WriteFittedPoints
+C rebuilds the totals from these plus the :T sources on every call
+         theo_band_up(i) = sqrt(up)
+         theo_band_down(i) = sqrt(dn)
       enddo
 
       end
@@ -264,8 +266,10 @@ C-----------------------------------------
          e = e + (TheoVars(:,i)-THEO)**2
       enddo
 
-      theo_tot_up = sqrt(e)
-      theo_tot_down = sqrt(e)
+C fill the dedicated band arrays, NOT theo_tot_up/down: WriteFittedPoints
+C rebuilds the totals from these plus the :T sources on every call
+      theo_band_up = sqrt(e)
+      theo_band_down = sqrt(e)
 
       end
 
