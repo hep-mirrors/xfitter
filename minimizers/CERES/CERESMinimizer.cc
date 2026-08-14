@@ -612,9 +612,9 @@ void CERESMinimizer::writePars(const double* covmat) {
   for (int i = 0; i < npars; i++) {
     char val[15];
     char err[15];
-    sprintf(val, "%.6f", parVals[i]);
-    sprintf(err, "%.6f", sqrt(covmat[i*npars+i]));
-    f << "  " << _allParameterNames[i] << ": [ " << std::setprecision(12) << val << ", " << err << " ]" << endl;
+    sprintf(val, "%.10f", parVals[i]);
+    sprintf(err, "%.10f", sqrt(covmat[i*npars+i]));
+    f << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << endl;
   }
   f.close();
 
