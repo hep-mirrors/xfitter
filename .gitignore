@@ -38,3 +38,10 @@ zmstf.wgt
 
 # vim swap file
 *.swp
+
+# Local ATLAS environment snapshots
+/.asetup.save
+
+# Local Bartlett development notes
+/*bartlett*.md
+/doc/errors-on-errors-bartlett.md
