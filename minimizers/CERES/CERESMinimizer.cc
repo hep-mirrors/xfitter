@@ -610,11 +610,7 @@ void CERESMinimizer::writePars(const double* covmat) {
   f.open(stringFromFortran(coutdirname_.outdirname,sizeof(coutdirname_.outdirname))+"/pars.yaml");
   f << "Parameters:" << endl;
   for (int i = 0; i < npars; i++) {
-    char val[15];
-    char err[15];
-    sprintf(val, "%.10f", parVals[i]);
-    sprintf(err, "%.10f", sqrt(covmat[i*npars+i]));
-    f << "  " << _allParameterNames[i] << ": [ " << val << ", " << err << " ]" << endl;
+    f << "  " << _allParameterNames[i] << std::setprecision(12) << ": [ " << parVals[i] << ", " << sqrt(covmat[i*npars+i]) << " ]" << endl;
   }
   f.close();
 
