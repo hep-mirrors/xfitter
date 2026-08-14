@@ -74,9 +74,10 @@ extern "C" {
 			if(extrapars_.ConstrUnc[p]==0.0) {
 				printf("%9s%9s", "", "");
 			} else {
-				const double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
-				const double shift     = deviation * deviation;          // quadratic penalty
-				const double reduction = (extrapars_.ConstrUnc[p] != 0.0) ? (unc / extrapars_.ConstrUnc[p]) : 0.0;
+				// SHIFT is the SIGNED pull (par-val)/unc, not its square: the sign
+				// carries information and older outputs printed it this way.
+				const double shift     = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+				const double reduction = unc / extrapars_.ConstrUnc[p];
 				std::printf("%9.4f%9.4f", shift, reduction);
 			}
 			printf("\n");
@@ -95,9 +96,9 @@ extern "C" {
           printf(", %.*f, %.*f", ndigcomma, bound_l, ndigcomma, bound_h);
         }
         if (extrapars_.ConstrUnc[p] != 0.0) {
-          const double deviation = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
-          const double shift     = deviation * deviation;
-          const double reduction = (extrapars_.ConstrUnc[p] != 0.0) ? (unc / extrapars_.ConstrUnc[p]) : 0.0;
+          // signed pull, matching the SHIFT column of the table above
+          const double shift     = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+          const double reduction = unc / extrapars_.ConstrUnc[p];
           std::printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
         }
         printf(" ]\n");
