@@ -169,7 +169,7 @@ C
                endif
             enddo  ! i
 
-            call copy_minuit_extrapars(a) !Set shifted parameters
+            call set_scan_parameters(a) !Set shifted parameters (incl. parminuitsave)
 
             ifcncount = ifcncount+1
             chichi = chi2data_theory(2)
@@ -194,6 +194,9 @@ C
          enddo  ! shift_dir
 
       enddo  ! j
+
+C restore central parameters in both commons
+      call set_scan_parameters(pkeep)
 
 C write out once more (with theory errors filled)
 
@@ -444,7 +447,7 @@ C               a(i) = a(i) + GetUmat(iint,j)
             endif
          enddo
 
-         call copy_minuit_extrapars(a) !Set shifted parameters
+         call set_scan_parameters(a) !Set shifted parameters (incl. parminuitsave)
 
          ifcncount = ifcncount+1
          chichi = chi2data_theory(2)  ! sum-rules and evolution are inside
@@ -463,6 +466,8 @@ C
          call error_band_action(j)
       enddo                     ! j
 
+C restore central parameters in both commons
+      call set_scan_parameters(pkeep)
 
 C write out once more (with theory errors filled)
 

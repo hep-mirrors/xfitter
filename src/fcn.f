@@ -752,6 +752,25 @@ C this replaces old subroutine PDF_param_iteration
       end
 
 C
+C Set scan parameters consistently in BOTH commons read by the chi2:
+C ExtraParamValue (via copy_minuit_extrapars) and parminuitsave, which
+C Chi2_calc_readExternal and XParValueByName read for external systematics.
+C parminuitsave is normally refreshed inside fcn(), which a direct call to
+C chi2data_theory bypasses — without this, scans over displaced parameters
+C are blind to the external-NP components of the displacement.
+C
+      subroutine set_scan_parameters(p)
+      implicit none
+      double precision p(*)
+#include "endmini.inc"
+      integer i
+      do i=1,MNE
+         parminuitsave(i) = p(i)
+      enddo
+      call copy_minuit_extrapars(p)
+      end
+
+C
 C Reset extra parameters
 C
       subroutine reset_extra_parameters
