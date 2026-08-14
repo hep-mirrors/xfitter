@@ -535,7 +535,7 @@ void CERESMinimizer::doMinimization() {
   cout << endl;
   cout << "Fitted parameters" << endl;
   for (int i = 0; i < npars; i++)
-    std::cout << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  parVals[i] << " +/- " << sqrt(covmat[i*npars+i]) << std::endl;
+    std::cout << setw(5) << i << setw(18) << _allParameterNames[i] << setw(18) <<  parVals[i] << " +/- " << sqrt(covmat[i*npars+i]) << std::endl;
 
   cout << endl;
   cout << "----- Parameters in YAML format (can copy-paste into parameters.yaml):" << endl;
@@ -628,29 +628,29 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* c
 
   //Write Covariance matrix
   f << std::endl << "COVARIANCE MATRIX" << std::endl;
-  f << std::setw(14) << " ";
+  f << std::setw(18) << " ";
   for (int i = 0; i < npars; i++)
-    f << std::setw(14) << _allParameterNames[i] << " ";
+    f << std::setw(18) << _allParameterNames[i] << " ";
   f << std::endl;
   f << setprecision(4);
   for (int i = 0; i < npars; i++) {
-    f << std::setw(14) << _allParameterNames[i] << " ";
+    f << std::setw(18) << _allParameterNames[i] << " ";
     for (int j =0; j<npars; j++)
-      f << std::setw(14) << covmat[i*npars+j] << " ";
+      f << std::setw(18) << covmat[i*npars+j] << " ";
     f << std::endl;
   }
 
   //Write Correlation matrix
   f << std::endl << "CORRELATION MATRIX" << std::endl;
-  f << std::setw(14) << " ";
+  f << std::setw(18) << " ";
   for (int i = 0; i < npars; i++)
-    f << std::setw(14) << _allParameterNames[i] << " ";
+    f << std::setw(18) << _allParameterNames[i] << " ";
   f << std::endl;
   f << setprecision(4);
   for (int i = 0; i < npars; i++) {
-    f << std::setw(14) << _allParameterNames[i] << " ";
+    f << std::setw(18) << _allParameterNames[i] << " ";
     for (int j =0; j<npars; j++)
-      f << std::setw(14) << covmat[i*npars+j]/sqrt(covmat[i*npars+i])/sqrt(covmat[j*npars+j]) << " ";
+      f << std::setw(18) << covmat[i*npars+j]/sqrt(covmat[i*npars+i])/sqrt(covmat[j*npars+j]) << " ";
     f << std::endl;
   }
 
@@ -666,7 +666,7 @@ void CERESMinimizer::writeOutput(ceres::Solver::Summary summary, const double* c
 
   f << "GLOBAL CORRELATION COEFFICIENT" << endl;
   for (int i = 0; i< npars; i++)
-    f << setw(5) << i << setw(15) << _allParameterNames[i] << setw(15) <<  rhok[i] << endl;
+    f << setw(5) << i << setw(18) << _allParameterNames[i] << setw(18) <<  rhok[i] << endl;
 }
 
 }
