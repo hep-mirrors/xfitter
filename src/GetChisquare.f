@@ -36,7 +36,6 @@ C---------------------------------------------------------
       double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
 
-      double precision sum_eps2, sum_btheta
 
       integer NDiag, NCovar   ! Number of diagonal and full covariance input data points
       integer List_Diag(Ntot), List_Covar(Ntot), List_Covar_inv(Ntot)
@@ -166,8 +165,13 @@ C !> same for diagonal part:
 C !> Next determine nuisance parameter shifts
          omegaIteration = 1
          do
+C The simplified path solves the plain GAUSSIAN system: no EoE Newton loop,
+C no log-penalty score. With any EoE source active MIGRAD would then minimise
+C a different chi2 than the one reported at iflag=3 (the coupling is
+C contagious through the data cross terms, even if no converted source
+C carries an epsilon), so EoE fits always take the full solver.
             if ( LConvertCovToNui .and. do_reduce
-     $           .and. flag_in .ne. 3 ) then
+     $           .and. flag_in .ne. 3 .and. .not. EoEEnabled ) then
                   ! use simplified (slightly) faster version of the code
                call chi2_calc_syst_shifts_simple(
      $              ScaledErrors
@@ -177,6 +181,11 @@ C !> Next determine nuisance parameter shifts
      $              )
 c               stop
             else
+               if ( LConvertCovToNui .and. do_reduce
+     $              .and. EoEEnabled ) then
+                  call hf_errlog(25100110,
+     $ 'I: EoE active: fast reduced-nuisance path disabled, using full solver')
+               endif
                Call Chi2_calc_syst_shifts(
      $              ScaledErrors
      $              ,ScaledTotMatrix
@@ -259,21 +268,20 @@ c     export uncorrelated errors
 c         print *,i,1./sqrt(ScaledErrors(i))
       enddo
 
-c     compute Bartlett factors
-      sum_btheta = 0.0D0
-      sum_eps2   = 0.0D0
-
-      if (BartlettEnabled .and. EoEEnabled) then
-         do i = 1, nsys
-            if ( (SysForm(i) == isNuisance .or. SysForm(i) == isExternal) .and. EoEActive(i) ) then
-               sum_btheta = sum_btheta + BartlettSysFactor(i)
-               sum_eps2   = sum_eps2   + EoEEpsilon(i)**2
-            end if
-         end do
-      end if
-
-      BartlettGoFFactor = 1.5D0*sum_eps2 - 0.5D0*sum_btheta
-      BartlettLRFactor  = BartlettGoFFactor
+c     The Bartlett factors are NOT accumulated here. They are computed once,
+c     at iflag=3, by Bartlett_QuadFactors on the extPass of
+c     chi2_calc_syst_shifts, from the quadratic Hessian:
+c
+c        j-tilde = A^-1                     (Eq. 35)
+c        j       = (A - G K^-1 G^T)^-1      (Eq. 34)
+c        b(r)    = (4r - r^2) eps^2,  r = j_ss / sigma_u_hat^2
+c        b_q     = sum_s ( 3 eps_s^2 - b_mutheta,s )      (Eq. 39)
+c        b_mu    = sum_s ( b_mutheta,s - b~_theta,s )     (Eq. 32)
+c
+c     identically for external and nuisance sources. There is no midpoint
+c     approximation and no dependence on the error-band method; the factors
+c     exist at iflag=3, before Results.txt, MYSTUFF/XRANGE, write_pars(0) and
+c     the band routines consume them.
 
       return
       end
@@ -475,7 +483,6 @@ C---------------------------------------------------------
       integer GetParameterIndex
       character*80 parname
       double precision val, err, xlo, xhi
-      double precision eps2, j_ii, sigma_u2, ratio, b_theta
       integer ipar
 C-------------------------------------------------
       do i=1,NSys
@@ -493,17 +500,16 @@ C-------------------------------------------------
             if (IFlag.eq.3) then
                call mnpout(iExtraParamMinuit(idx)
      $              ,parname,val,err,xlo,xhi,ipar)
-
-               BartlettSysFactor(i) = 0.0D0
-               if (BartlettEnabled .and. EoEActive(i)) then
-                  eps2 = EoEEpsilon(i)*EoEEpsilon(i)
-                  j_ii = err*err
-                  sigma_u2 = ( 1.0D0 / SysPriorScale(i) ) + ( 2.0D0*eps2*rsys_in(i)*rsys_in(i) ) / ( 1.0D0 + 2.0D0*eps2 )
-                  ratio   = j_ii / sigma_u2 
-                  b_theta = ( 4.0D0*ratio - ratio*ratio ) * eps2
-                  BartlettSysFactor(i) = b_theta
-               endif
-               ersys_in(i) = err * sqrt(1.0D0 + BartlettSysFactor(i))
+C MINUIT's error is stored here only as the NON-EoE fallback. With EoE on it
+C is OVERWRITTEN at the end of chi2_calc_syst_shifts by the quadratic-
+C convention error sqrt(j~_ss)*sqrt(1+b~_theta) from the extended NP Hessian
+C -- the same statistic reported for nuisance sources. MINUIT's err is not
+C used anywhere in the EoE reporting or in the Bartlett factors: err^2 is the
+C marginal block of the TRUE-eps Hessian, while Eqs. 34-35 prescribe the
+C quadratic likelihood at sigma_u_hat^2. Feeding it to :E while the nuisances
+C used the quadratic convention is precisely what made the two forms
+C inequivalent for the same physical source.
+               ersys_in(i) = err
             endif
          endif
       enddo
@@ -1060,14 +1066,15 @@ C-
       logical HaveCommonData(NsysMax, NsysMax)
 
 C New variables for EonE implementation
-      double precision shift0(NSysMax), shift1(NSysMax), ersys0(NSysMax)
+      double precision shift0(NSysMax), shift1(NSysMax)
       double precision Numerator_eps, Denominator_eps
       double precision sum_gamma_theta0, residual, residual_2
       double precision sum_gamma_theta0_j
       integer l_prime
       integer iter
+      logical extPass, converged
+      double precision shiftmax
 
-      double precision eps2, j_ii, sigma_u2, ratio, b_theta
 C--------------------------------------------------------
 
 C Check if number of sources/data points change:
@@ -1267,13 +1274,63 @@ C Ready to invert
 
          do l=1,nsys
             shift0(l) = - C(l)
-            ersys0(l) = sqrt(A(l,l))
          enddo
       endif
 
-C EoE (errors-on-errors) iterations for nuisance sources
+C EoE (errors-on-errors) iterations for nuisance sources.
+C At iflag=3 one extra pass (extPass) runs after the Newton iterations. It
+C does not update the shifts, and it evaluates A at the converged shifts as
+C prescribed by Eqs. 14, 35 of arXiv:2407.05322 (at the MLE). On that pass A
+C is EXTENDED to the external sources (data cross terms, and the quadratic
+C prior 1/sigma_u_hat^2 for EoE-active externals), so A is the Hessian of the
+C quadratic likelihood over ALL nuisance parameters, external and nuisance
+C alike -- it carries no notion of the :E/:N form. Its inverse is the exact
+C j-tilde of Eq. 35, and it feeds b~_theta, ersys_in and the PDF eigenvector
+C dump.
+C The Newton loop runs to EoE_tolerance (capped by EoE_max_iterations) unless
+C the steering pinned a fixed n_iterations. The EoE log-penalty makes the score
+C equation cubic; a Gaussian penalty gives a linear score, so the pre-loop
+C solve would already be exact. Note the nonlinearity is contagious: EoE and
+C non-EoE nuisances are coupled through the data cross terms, so the whole
+C nuisance vector must converge together.
       if (EoEEnabled) then
-         do iter = 1, EoE_n_iterations
+         extPass   = .false.
+         converged = .false.
+         iter      = 0
+         shiftmax  = 0.0D0
+         do
+
+C Convergence is decided BEFORE spending an update (hoisted test): a pinned
+C n_iterations means exactly that many Newton updates -- 0 means none,
+C matching the old counted loop -- and in tolerance mode at least one update
+C runs before shiftmax is meaningful. Once the updates are done, at iflag=3
+C the SAME iteration becomes the extPass: the body below rebuilds A at the
+C converged shifts, extended to the external sources, and exits after
+C Bartlett_QuadFactors without touching the shifts.
+            if (EoE_fixed_iter) then
+               converged = ( iter .ge. EoE_n_iterations )
+            else
+               converged = ( iter .gt. 0 .and.
+     $                       shiftmax .lt. EoE_tolerance )
+            endif
+
+            if ( iter .ge. EoE_max_iterations ) then
+               if ( .not. converged ) then
+                  call hf_errlog(25100104,
+     $'W: EoE nuisance profiling did not converge; increase max_iterations or relax tolerance')
+               endif
+               converged = .true.
+            endif
+
+            if ( converged ) then
+               if (iflag .eq. 3) then
+C one final pass: rebuild A at the converged shifts, EXTENDED to the external
+C sources, and invert it (Eqs. 14/35 are evaluated at the MLE)
+                  extPass = .true.
+               else
+                  exit
+               endif
+            endif
 
 C reset incremental shifts
             do i=1,nsys
@@ -1286,16 +1343,32 @@ C rebuild A and C; diagonal = prior
                do j=1, nsys
                   A(i,j) = 0.0D0
                enddo
-C quadratic prior by default; switch to EoE log prior if active (nuisance only)
+C The prior precision p_s. For EoE-active sources it is 1/sigma_u_hat^2 with
+C sigma_u_hat^2 given by Eq. 14 -- the SAME formula for :N and :E, differing
+C only in where theta_hat_s comes from (Newton loop vs MINUIT). This is what
+C makes A form-blind. Non-EoE sources keep the plain 1/v prior.
                if ( SysForm(i) .eq. isNuisance ) then
                   if (EoEActive(i)) then
                      Numerator_eps   = 1.0D0 + 2.0D0 * EoEEpsilon(i)**2
                      Denominator_eps = ( 1.0D0 / SysPriorScale(i) )
      $                                 + 2.0D0 * EoEEpsilon(i)**2 * shift0(i)**2
                      A(i,i) = A(i,i) + (Numerator_eps) / (Denominator_eps)
+                     BartlettSigmaU2(i) = Denominator_eps / Numerator_eps
                   else
                      A(i,i) = A(i,i) + SysPriorScale(i)
                   endif
+               elseif ( extPass .and. SysForm(i) .eq. isExternal
+     $                 .and. EoEActive(i)
+     $                 .and. .not. SysExtFixed(i) ) then
+C extended pass: quadratic-at-sigma_u_hat^2 prior (Eq. 14 at theta_E-hat)
+C for EoE-active external NPs, exactly as for the nuisance sources above.
+C A FIXED external parameter is a constant, not an NP: it keeps the
+C decoupled-dummy diagonal below and gets no data rows.
+                  Numerator_eps   = 1.0D0 + 2.0D0 * EoEEpsilon(i)**2
+                  Denominator_eps = ( 1.0D0 / SysPriorScale(i) )
+     $                              + 2.0D0 * EoEEpsilon(i)**2 * rsys_in(i)**2
+                  A(i,i) = A(i,i) + (Numerator_eps) / (Denominator_eps)
+                  BartlettSigmaU2(i) = Denominator_eps / Numerator_eps
                else
 C external, matrix, offset, etc. keep quadratic prior on the diagonal
                   A(i,i) = A(i,i) + SysPriorScale(i)
@@ -1304,8 +1377,10 @@ C external, matrix, offset, etc. keep quadratic prior on the diagonal
 
 !$OMP PARALLEL DO
             do l=1,nsys
-               if ( SysForm(l) .eq. isNuisance ) then
-C build C(l) from residuals
+               if ( SysForm(l) .eq. isNuisance .or.
+     $              (extPass .and. SysForm(l) .eq. isExternal
+     $               .and. .not. SysExtFixed(l)) ) then
+C build C(l) from residuals (C is unused on the extra passes)
                   do i1=1,n_syst_meas(l)
                      i = syst_meas_idx(i1,l)
                      if (FitSample(i)) then
@@ -1359,6 +1434,9 @@ C covariance case
                   enddo
 
 C add prior contribution to C(l): quadratic or EoE log
+C (NB on the extPass C is solved but never used, and external rows enter here
+C  with shift0(l)=0 rather than rsys_in(l) -- harmless, the extPass keeps only
+C  the inverted A and discards the solution vector)
                   if (EoEActive(l)) then
                      Numerator_eps   = 1.0D0 + 2.0D0 * EoEEpsilon(l)**2
                      Denominator_eps = ( 1.0D0 / SysPriorScale(l) )
@@ -1368,10 +1446,13 @@ C add prior contribution to C(l): quadratic or EoE log
                      C(l) = C(l) + shift0(l) * SysPriorScale(l)
                   endif
 
-C off-diagonal A(k,l) (data term), nuisance–nuisance only
+C off-diagonal A(k,l) (data term); on extPass external rows are included too
                   do i=1,n0_in
                      do k=l,NSys
-                        if ( (SysForm(k) .eq. isNuisance) .and. HaveCommonData(k,l) ) then
+                        if ( ( SysForm(k) .eq. isNuisance .or.
+     $                       (extPass .and. SysForm(k) .eq. isExternal
+     $                        .and. .not. SysExtFixed(k)) )
+     $                       .and. HaveCommonData(k,l) ) then
                            if ( FitSample(i) ) then
                               if ( list_covar_inv(i) .eq. 0 ) then
                                  A(k,l) = A(k,l)
@@ -1428,11 +1509,25 @@ C solve
                   Call DEQN (Nsys,A,NsysMax,IR,IFail,1,C)
                endif
 
-               do l=1,nsys
-                  if ( SysForm(l) .eq. isNuisance ) then
-                     shift1(l) = - C(l)
-                  endif
-               enddo
+C on the extra final pass keep the converged shifts (shift1 stays zero)
+               if ( .not. extPass ) then
+                  do l=1,nsys
+                     if ( SysForm(l) .eq. isNuisance ) then
+                        shift1(l) = - C(l)
+                     endif
+                  enddo
+               endif
+            endif
+
+C The extPass never updates the shifts. A now holds the inverse of the
+C extended NP Hessian, i.e. j-tilde of Eq. 35, form-blind. Combine it with
+C the POI blocks to get the marginal j of Eq. 34, and set all the factors.
+            if (extPass) then
+               if (BartlettEnabled .and. nsys.gt.0) then
+                  call Bartlett_QuadFactors(A, ScaledErrors,
+     $                 ScaledTotMatrix, ScaledGamma, list_covar_inv, n0_in)
+               endif
+               exit
             endif
 
 C accumulate shifts
@@ -1442,36 +1537,46 @@ C accumulate shifts
                endif
             enddo
 
+C measure the largest Newton increment of this pass; drives the tolerance
+C branch of the hoisted convergence test at the top of the loop
+            shiftmax = 0.0D0
+            do l=1,nsys
+               if ( SysForm(l) .eq. isNuisance ) then
+                  shiftmax = max( shiftmax, abs(shift1(l)) )
+               endif
+            enddo
+            iter = iter + 1
+
          enddo
       endif   ! EoEEnabled
 
-C Account for Bartlett factors
-      if (iflag.eq.3) then 
-         if (BartlettEnabled .and. EoEEnabled) then
-            do i = 1, nsys
-               if (SysForm(i) .eq. isNuisance) then
-                  BartlettSysFactor(i) = 0.0D0
-                  if (EoEActive(i)) then
-                     eps2 = EoEEpsilon(i)*EoEEpsilon(i)
-                     j_ii = A(i,i)
-                     sigma_u2 = ( 1.0D0 / SysPriorScale(i) ) + ( 2.0D0*eps2*shift0(i)*shift0(i) ) / ( 1.0D0 + 2.0D0*eps2 )
+C The Bartlett factors were set on the extPass by Bartlett_QuadFactors, from
+C the quadratic Hessian -- identically for external and nuisance sources.
+C Nothing here depends on the source form any more.
 
-                     ratio   = j_ii / sigma_u2 
-
-                     b_theta = ( 4.0D0*ratio - ratio*ratio ) * eps2
-                     BartlettSysFactor(i) = b_theta
-                  endif
-               endif
-            enddo
-         endif
-      endif
-
-C Apply Bartlett factors to ersys_in
+C Store shifts, and report the NP errors as sqrt(j~_ss)*sqrt(1+b~_theta) in the
+C quadratic convention -- the SAME statistic for nuisance and external sources.
+C With EoE on, A holds the inverse of the EXTENDED NP Hessian (extPass), so
+C [A^-1]_ss is the Eq.-35 conditional variance for BOTH forms; MINUIT's err
+C (whose curvature is the eps-dependent true-GVM one) is no longer reported.
+C Assignment, not multiplication: idempotent when the Iterate /
+C AsymErrorsIterations loops re-enter this routine within one iflag=3 call.
+C Without EoE the extended A does not exist: external sources keep MINUIT's
+C err from Chi2_calc_readExternal, as before.
       do l=1,nsys
          if ( SysForm(l) .eq. isNuisance ) then
             rsys_in(l) = shift0(l)
             if (iflag.eq.3) then
-               ersys_in(l) = sqrt(A(l,l)) * sqrt( 1 + BartlettSysFactor(l))
+               ersys_in(l) = sqrt(A(l,l)) * sqrt( 1.0D0 + BartlettBTilde(l) )
+            endif
+         elseif ( SysForm(l) .eq. isExternal .and. iflag.eq.3 ) then
+C a FIXED external parameter is excluded from the extended A: its [A^-1]_ss is
+C just the decoupled prior variance, so it keeps MINUIT's error (zero) instead
+            if (EoEEnabled .and. .not. SysExtFixed(l)) then
+               ersys_in(l) = sqrt(A(l,l)) * sqrt( 1.0D0 + BartlettBTilde(l) )
+C export for consumers that run after the band scans have clobbered ersys
+C (write_pars(0)/parsout_0, FindBestFCN3/parseout_opt)
+               BartlettExtErr(l) = ersys_in(l)
             endif
          endif
       enddo
@@ -2718,5 +2823,278 @@ C---------------------------------------------------------------------
       Call DSYEVD('V','U',NCovar,Covar,NDimCovar, EigenValues, Work,
      $     nwork, IWork, nlwork, IFail)
 
+
+      end
+
+C-----------------------------------------------------------------------
+C> @brief Form-independent Bartlett factors from the quadratic Hessian.
+C>
+C> Called on the extPass, where Ainv already holds the inverse of the
+C> EXTENDED nuisance-parameter Hessian
+C>     A = Gamma^T W Gamma + diag(1/sigma_u_hat^2)
+C> built over Theta = {isNuisance} U {isExternal}. A carries no notion of the
+C> :E / :N form: a source contributes its Gamma column and its theta_hat, and
+C> theta_hat is just a number, whether MINUIT found it or the Newton loop did.
+C>
+C> With D = d theo/d mu (BartlettD, central differences of the THEORY at the
+C> MLE) the remaining Hessian blocks are
+C>     K = D^T W D            (nPOI x nPOI, Gauss-Newton, no prior)
+C>     G = Gamma^T W D        (M x nPOI)
+C> and, marginalising over the POIs (Eq. 34 of arXiv:2407.05322),
+C>     j = (A - G K^-1 G^T)^-1 = A^-1 + T V T^T ,
+C>     T = A^-1 G = d theta_hat/d mu ,  V = (K - G^T T)^-1 .
+C> Eq. 35 is j-tilde = A^-1. Only the diagonals are needed.
+C>
+C> Guarantees (exact arithmetic): [D,Gamma]^T W [D,Gamma] is PSD, so its Schur
+C> complement Gamma^T W Gamma - G K^-1 G^T is PSD, hence
+C>     A_marg >= diag(1/sigma_u_hat^2)  =>  r_s = j_ss/sigma_u_hat^2 <= 1
+C>     A_marg <= A                      =>  j_ss >= j-tilde_ss  =>  r_s >= r~_s
+C> and since b(r) = (4r-r^2) eps^2 increases on [0,1],
+C>     0 <= b~_theta <= b_mutheta <= 3 eps^2 .
+C> So every GoF contribution (3 eps^2 - b_mutheta) and every LR contribution
+C> (b_mutheta - b~_theta) is non-negative: c_chi2 <= 1 and c_CI >= 1, i.e. the
+C> PDF uncertainties are inflated and the worst case is over-coverage.
+C> r_s > 1 is therefore unreachable, and signals a non-converged theta_hat, a
+C> singular K, or a bad finite-difference step -- never physics.
+C>
+C> @param Ainv             inverse of the extended NP Hessian (extPass)
+C> @param ScaledErrors     diagonal weights W_ii
+C> @param ScaledTotMatrix  inverse covariance for covariance-treated points
+C> @param ScaledGamma      Gamma(s,i)
+C> @param list_covar_inv   data index -> covariance index (0 if diagonal)
+C> @param n0_in            number of data points
+C-----------------------------------------------------------------------
+      subroutine Bartlett_QuadFactors(Ainv, ScaledErrors,
+     $     ScaledTotMatrix, ScaledGamma, list_covar_inv, n0_in)
+
+      implicit none
+#include "ntot.inc"
+#include "systematics.inc"
+#include "indata.inc"
+#include "bartlett_fd.inc"
+
+      double precision Ainv(NSysMax,NSysMax)
+      double precision ScaledErrors(NTOT)
+      double precision ScaledTotMatrix(NCovarMax,NCovarMax)
+      double precision ScaledGamma(NSysMax,NTOT)
+      integer list_covar_inv(NTOT), n0_in
+
+      double precision, allocatable :: WD(:,:), G(:,:), T(:,:)
+      double precision, allocatable :: K(:,:), V(:,:)
+      integer, allocatable :: IRw(:)
+
+      integer s, s2, m, m2, i, i1, j, i2, j2, npoi, ifail
+      double precision acc, jtil, jmar, s2u, rt, rm, eps2
+      double precision bq, bmu, rmax
+      logical isNP
+      integer mcol(BartMaxPOI), npoiu, ipar
+      double precision dmax, val, errdum, xlo, xhi
+      character*80 parname
+      character*160 Msg
+C-----------------------------------------------------------------------
+C Reset EVERYTHING before any early return. Otherwise a later failing iflag=3
+C call (singular K, missing derivatives) would leave the per-source arrays at
+C the values of an earlier successful call, and Results.txt would print stale
+C b_tilde / b_mutheta / r next to global factors of exactly zero.
+      BartlettGoFFactor = 0.0D0
+      BartlettLRFactor  = 0.0D0
+      BartlettFailed    = .false.
+      do s=1,nsys
+         BartlettSysFactor(s) = 0.0D0
+         BartlettBTilde(s)    = 0.0D0
+         BartlettRatio(s)     = 0.0D0
+      enddo
+
+      if (.not. (BartlettEnabled .and. EoEEnabled)) return
+
+      if (.not. BartlettHaveD) then
+         call hf_errlog(25100106,
+     $'W: Bartlett: theory derivatives unavailable, factors set to zero')
+         BartlettFailed = .true.
+         return
+      endif
+
+      npoi = BartlettNPOI
+
+C ---------------------------------------------------------------------
+C  Drop free parameters with NO theory response: a null D column gives
+C  G(:,m) = 0 and K(m,:) = 0, so its direction contributes nothing to the
+C  marginal variance -- removing it is exact and merely regularises K
+C  (previously such a column made DInv fail and silently zeroed all
+C  factors). mcol maps the compacted index back to the BartlettD column.
+C ---------------------------------------------------------------------
+      npoiu = 0
+      do m=1,npoi
+         dmax = 0.0D0
+         do i=1,n0_in
+            if ( FitSample(i) ) dmax = max(dmax, abs(BartlettD(i,m)))
+         enddo
+         if (dmax .gt. 0.0D0) then
+            npoiu = npoiu + 1
+            mcol(npoiu) = m
+         else
+            call mnpout(BartlettPOIMinuit(m), parname, val, errdum,
+     $           xlo, xhi, ipar)
+            write(Msg,'(A,A)')
+     $ 'W: Bartlett: no theory response, POI excluded from Hessian: ',
+     $           trim(parname)
+            call hf_errlog(25100111, Msg)
+         endif
+      enddo
+
+C ---------------------------------------------------------------------
+C  npoiu = 0: no marginalisation, j = A^-1 = j-tilde. Handled by the same
+C  code path with G = 0, so only skip the linear algebra.
+C ---------------------------------------------------------------------
+      if (npoiu .gt. 0) then
+
+         allocate( WD(n0_in,npoiu), G(nsys,npoiu), T(nsys,npoiu) )
+         allocate( K(npoiu,npoiu), V(npoiu,npoiu), IRw(2*npoiu) )
+
+C ---- WD(i,m) = sum_j W_ij D(j,mcol(m)) ------------------------------
+         do m=1,npoiu
+            do i=1,n0_in
+               WD(i,m) = 0.0D0
+               if ( .not. FitSample(i) ) cycle
+               i2 = list_covar_inv(i)
+               if (i2 .eq. 0) then
+                  WD(i,m) = ScaledErrors(i) * BartlettD(i,mcol(m))
+               else
+                  acc = 0.0D0
+                  do j=1,n0_in
+                     if ( .not. FitSample(j) ) cycle
+                     j2 = list_covar_inv(j)
+                     if (j2 .gt. 0) then
+                        acc = acc
+     $                      + ScaledTotMatrix(i2,j2)*BartlettD(j,mcol(m))
+                     endif
+                  enddo
+                  WD(i,m) = acc
+               endif
+            enddo
+         enddo
+
+C ---- K(m,m') = D^T W D ----------------------------------------------
+         do m=1,npoiu
+            do m2=1,npoiu
+               acc = 0.0D0
+               do i=1,n0_in
+                  if ( FitSample(i) )
+     $                 acc = acc + BartlettD(i,mcol(m))*WD(i,m2)
+               enddo
+               K(m,m2) = acc
+            enddo
+         enddo
+
+C ---- G(s,m) = Gamma^T W D, ZERO outside Theta = {N} U {E free} ------
+C  Matrix- and offset-form sources are not NPs: their Gamma is already
+C  absorbed into W. Leaving them in G would double count them in
+C  S = K - G^T T (their Ainv rows are decoupled, so T is unaffected).
+C  A FIXED external parameter is a constant, excluded from Theta too.
+         do s=1,nsys
+            isNP = ( SysForm(s) .eq. isNuisance .or.
+     $               ( SysForm(s) .eq. isExternal .and.
+     $                 .not. SysExtFixed(s) ) )
+            do m=1,npoiu
+               G(s,m) = 0.0D0
+            enddo
+            if (.not. isNP) cycle
+            do m=1,npoiu
+               acc = 0.0D0
+               do i1=1,n_syst_meas(s)
+                  i = syst_meas_idx(i1,s)
+                  if ( FitSample(i) ) acc = acc + ScaledGamma(s,i)*WD(i,m)
+               enddo
+               G(s,m) = acc
+            enddo
+         enddo
+
+C ---- T = A^-1 G  ( = d theta_hat / d mu ) ---------------------------
+         do s=1,nsys
+            do m=1,npoiu
+               acc = 0.0D0
+               do s2=1,nsys
+                  acc = acc + Ainv(s,s2)*G(s2,m)
+               enddo
+               T(s,m) = acc
+            enddo
+         enddo
+
+C ---- S = K - G^T T ,  V = S^-1 --------------------------------------
+         do m=1,npoiu
+            do m2=1,npoiu
+               acc = K(m,m2)
+               do s=1,nsys
+                  acc = acc - G(s,m)*T(s,m2)
+               enddo
+               V(m,m2) = acc
+            enddo
+         enddo
+
+         ifail = 0
+         call DInv(npoiu, V, npoiu, IRw, ifail)
+         if (ifail .ne. 0) then
+            call hf_errlog(25100107,
+     $'W: Bartlett: POI Hessian is singular, factors set to zero')
+            BartlettFailed = .true.
+            deallocate(WD,G,T,K,V,IRw)
+            return
+         endif
+
+      endif
+
+C ---------------------------------------------------------------------
+C  Per-source factors. Identical formula for :E and :N.
+C ---------------------------------------------------------------------
+      bq   = 0.0D0
+      bmu  = 0.0D0
+      rmax = 0.0D0
+
+      do s=1,nsys
+C (the per-source arrays were already zeroed at entry, before any early return)
+         if ( .not. EoEActive(s) ) cycle
+         if ( SysForm(s) .ne. isNuisance .and.
+     $        SysForm(s) .ne. isExternal ) cycle
+C a FIXED external parameter is a constant: no factor contribution
+         if ( SysForm(s) .eq. isExternal .and. SysExtFixed(s) ) cycle
+
+         s2u = BartlettSigmaU2(s)
+         if (s2u .le. 0.0D0) cycle
+
+         eps2 = EoEEpsilon(s)*EoEEpsilon(s)
+
+         jtil = Ainv(s,s)
+         jmar = jtil
+         if (npoiu .gt. 0) then
+            do m=1,npoiu
+               do m2=1,npoiu
+                  jmar = jmar + T(s,m)*V(m,m2)*T(s,m2)
+               enddo
+            enddo
+         endif
+
+         rt = jtil / s2u
+         rm = jmar / s2u
+         rmax = max(rmax, rm)
+
+         BartlettRatio(s)     = rm
+         BartlettBTilde(s)    = ( 4.0D0*rt - rt*rt ) * eps2
+         BartlettSysFactor(s) = ( 4.0D0*rm - rm*rm ) * eps2
+
+         bq  = bq  + 3.0D0*eps2 - BartlettSysFactor(s)
+         bmu = bmu + BartlettSysFactor(s) - BartlettBTilde(s)
+      enddo
+
+C r_s <= 1 is a theorem for the exact quadratic Hessian; a violation means
+C theta_hat is not converged, K is near-singular, or the FD step is bad.
+      if (rmax .gt. 1.0D0 + 1.0D-6) then
+         call hf_errlog(25100108,
+     $'W: Bartlett: r>1 (unreachable in exact arithmetic): check EoE convergence / FD step')
+      endif
+
+      BartlettGoFFactor = bq
+      BartlettLRFactor  = bmu
+
+      if (npoiu .gt. 0) deallocate(WD,G,T,K,V,IRw)
 
       end

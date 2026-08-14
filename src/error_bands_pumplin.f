@@ -8,6 +8,7 @@
 #include "thresholds.inc"
 #include "ntot.inc"
 #include "systematics.inc"
+#include "bartlett_fd.inc"
 #include "g_offset.inc"
 #include "fcn.inc"
 #include "theo.inc"
@@ -108,6 +109,8 @@ C
       enddo
       
       nPOI = nparFCN - nExtSyst
+      if (BartlettHaveNPOI) nPOI = BartlettNPOI
+
       c_BartLR   = 1.0D0
       bart_scale = 1.0D0
       if (BartlettEnabled .and. EoEEnabled) then
@@ -287,6 +290,7 @@ C rebuilds the totals from these plus the :T sources on every call
 #include "steering.inc"
 #include "ntot.inc"
 #include "systematics.inc"
+#include "bartlett_fd.inc"
 #include "theo.inc"
       external fcn
       integer icond
@@ -397,7 +401,8 @@ C inset bartlett corrections
          endif
       enddo
 
-      nPOI = nparFCN - nExtSyst     
+      nPOI = nparFCN - nExtSyst
+      if (BartlettHaveNPOI) nPOI = BartlettNPOI
       c_BartLR = 1.0D0
       bart_scale = 1.0D0
       if (BartlettEnabled .and. EoEEnabled) then

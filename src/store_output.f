@@ -414,6 +414,7 @@ C-------------------------------------------------------------
 #include "steering.inc"
 #include "ntot.inc"
 #include "systematics.inc"
+#include "bartlett_fd.inc"
       integer ifcn3
 
       integer i
@@ -454,11 +455,13 @@ C     Apply Bartlett CI correction to parameter errors in parsout_0.
 C     Uses the same formula as error_bands_pumplin.f and fcn.f.
 C     Only applied to parsout_0 (ifcn3==0); intermediate parsout_N files
 C     written during minimisation are left uncorrected.
-C     External systematic parameters (:E form) receive a per-source correction
-C     sqrt(1+b_theta_i) instead of the global POI bart_scale.  The per-source
-C     correction matches the 'Corr Err' column in Results.txt.  Using bart_scale
-C     (which has nPOI in the denominator, excluding external systs) would
-C     over-inflate their errors with a factor calibrated for the POI only.
+C     External systematic parameters (:E form) take BartlettExtErr -- the
+C     quadratic-convention error sqrt(j~_ss)*sqrt(1+b_tilde) exported from the
+C     extPass -- NOT MINUIT's err and NOT the global POI bart_scale. This is
+C     the same statistic reported for nuisance sources, and the same number as
+C     the 'Corr Err' column in Results.txt, so the two agree. bart_scale
+C     (nPOI in the denominator, externals excluded) is calibrated for the POIs
+C     only; MINUIT's err carries the eps-dependent true-GVM curvature.
 C
       bart_scale = 1.0D0
       if (ifcn3.eq.0 .and. BartlettEnabled .and. EoEEnabled) then
@@ -467,6 +470,7 @@ C
             if (SysForm(isys) .eq. isExternal) nExtSyst = nExtSyst + 1
          enddo
          nPOI = nparFCN - nExtSyst
+         if (BartlettHaveNPOI) nPOI = BartlettNPOI
          if (nPOI .gt. 0) then
             c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
             bart_scale = sqrt(c_BartLR)
@@ -476,11 +480,13 @@ C
       do i=1,mne
          parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
-C        For external systematic parameters (:E form): apply per-source
-C        Bartlett correction sqrt(1+b_theta_i), which matches the 'Corr Err'
-C        column in Results.txt (set by Chi2_calc_readExternal:506).
-C        Do NOT apply the global POI bart_scale to them: nPOI was computed
-C        by excluding them, so bart_scale would over-inflate their errors.
+C        For external systematic parameters (:E form): report BartlettExtErr,
+C        the quadratic-convention error from the extended NP Hessian (set at
+C        the end of chi2_calc_syst_shifts at iflag=3). It matches both the
+C        nuisance-source convention and the 'Corr Err' column in Results.txt,
+C        and replaces MINUIT's eps-dependent err. Falls back to MINUIT's err
+C        when unset (EoE off). Do NOT apply the global POI bart_scale to them:
+C        nPOI was computed by excluding them.
          is_ext_syst = .false.
          jsys_ext = 0
          do jsys_check = 1, nsys
@@ -491,8 +497,9 @@ C        by excluding them, so bart_scale would over-inflate their errors.
             endif
          enddo
          if (is_ext_syst) then
-            if (ifcn3.eq.0 .and. BartlettEnabled .and. EoEEnabled) then
-               err = err * sqrt(1.0D0 + BartlettSysFactor(jsys_ext))
+            if (ifcn3.eq.0 .and. EoEEnabled .and.
+     $           BartlettExtErr(jsys_ext) .gt. 0.0D0) then
+               err = BartlettExtErr(jsys_ext)
             endif
          else
             err = err * bart_scale
@@ -541,6 +548,7 @@ C--------------------------------------------------------------------
 #include "steering.inc"
 #include "ntot.inc"
 #include "systematics.inc"
+#include "bartlett_fd.inc"
       integer i,iminCont
       double precision aminCont
 
@@ -605,6 +613,7 @@ C     Compute Bartlett CI scale for parseout_opt, same logic as write_pars(0).
             if (SysForm(isys) .eq. isExternal) nExtSyst = nExtSyst + 1
          enddo
          nPOI = nparFCN - nExtSyst
+         if (BartlettHaveNPOI) nPOI = BartlettNPOI
          if (nPOI .gt. 0) then
             c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
             bart_scale = sqrt(c_BartLR)
@@ -615,7 +624,9 @@ C     Compute Bartlett CI scale for parseout_opt, same logic as write_pars(0).
       do i=1,mne
          parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
-C        POI get global bart_scale; external systematics get per-source correction.
+C        POI get global bart_scale; external systematics get BartlettExtErr,
+C        the quadratic-convention error also used for 'Corr Err' in
+C        Results.txt (falls back to MINUIT's err when EoE is off).
          is_ext_syst = .false.
          jsys_ext = 0
          do jsys_check = 1, nsys
@@ -626,8 +637,9 @@ C        POI get global bart_scale; external systematics get per-source correcti
             endif
          enddo
          if (is_ext_syst) then
-            if (BartlettEnabled .and. EoEEnabled) then
-               err = err * sqrt(1.0D0 + BartlettSysFactor(jsys_ext))
+            if (EoEEnabled .and.
+     $           BartlettExtErr(jsys_ext) .gt. 0.0D0) then
+               err = BartlettExtErr(jsys_ext)
             endif
          else
             err = err * bart_scale

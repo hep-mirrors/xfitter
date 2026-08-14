@@ -133,8 +133,11 @@ C
       enddo
 
 C E-on-E defaults
-      EoEEnabled       = .false.
-      EoE_n_iterations = 2
+      EoEEnabled         = .false.
+      EoE_n_iterations   = 2
+      EoE_fixed_iter     = .false.
+      EoE_max_iterations = 50
+      EoE_tolerance      = 1.0D-8
       do i=1,NSYSMAX
          EoEActive(i)  = .false.
          EoEEpsilon(i) = 0.0D0
@@ -146,7 +149,13 @@ C Bartlett defaults
       BartlettGoFFactor        = 0.0D0
       do i=1,NSYSMAX
          BartlettSysFactor(i)  = 0.0D0
+         BartlettBTilde(i)     = 0.0D0
+         BartlettSigmaU2(i)    = 0.0D0
+         BartlettRatio(i)      = 0.0D0
+         BartlettExtErr(i)     = 0.0D0
+         SysExtFixed(i)        = .false.
       enddo
+      BartlettFailed           = .false.
       xfitter_bart_ci          = 1.0D0
 
 C Check variables for common blocks:
@@ -177,10 +186,6 @@ C-----------------------------------------------
       character*32 Chi2ExtraParam(8)
       integer i
 
-      double precision EpsilonAll
-      integer n_iterations
-      logical Enable_Bartlett
- 
 C Main steering parameters namelist
       namelist/xFitter/
      $     LDebug,
@@ -909,11 +914,14 @@ C-----------------------------------------
 C --- EoE inputs
       double precision Epsilon(nsysmax)
       integer n_iterations
+      integer max_iterations
+      double precision tolerance
       logical Enable_Bartlett
 
       namelist/ Systematics/ ListOfSources,ScaleByNameName
      $     ,ScaleByNameFactor, PriorScaleName, PriorScaleFactor
      $     ,Epsilon, n_iterations, Enable_Bartlett
+     $     ,max_iterations, tolerance
 
       integer i,ii,neps
 
@@ -968,6 +976,8 @@ C EoE local inputs: mark "unset"
       enddo
 
       n_iterations = -999
+      max_iterations = -999
+      tolerance = -1.0D0
       Enable_Bartlett = .true.
 
       open (51,file='steering.txt',status='old')
@@ -1074,9 +1084,23 @@ C --- Final global enable if any active
          endif
       enddo
 
-C --- If &Systematics provided an iteration override
+C --- If &Systematics provided an iteration override, honour it as a FIXED
+C     count (back-compatibility, and reproducibility of the niter scans).
+C     Otherwise the Newton loop runs to EoE_tolerance, capped by
+C     EoE_max_iterations. The fixed default of 2 is badly under-converged for
+C     strongly pulled EoE sources, so it is no longer applied silently.
       if (n_iterations .ge. 0) then
          EoE_n_iterations = n_iterations
+         EoE_fixed_iter   = .true.
+      endif
+      if (max_iterations .gt. 0) then
+         EoE_max_iterations = max_iterations
+      endif
+      if (tolerance .gt. 0.0D0) then
+         EoE_tolerance = tolerance
+      endif
+      if (EoE_fixed_iter) then
+         EoE_max_iterations = max(EoE_max_iterations, EoE_n_iterations)
       endif
 
 C --- If &Systematics provided an Enable_Bartlett use it
