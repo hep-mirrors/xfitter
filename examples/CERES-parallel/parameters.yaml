@@ -2,9 +2,11 @@ Minimizer: CERES
 
 CERES:
   offset: 2
-  tolerance: 1e-5
+  tolerance: 1e-9
   strategy: 0
   covariance: 1
+  threads: 20
+  doErrors: Hesse
 
 Parameters:
   Ag   :  DEPENDENT
@@ -84,6 +86,7 @@ NFlavour: 5
 isFFNS: 0
 Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
 alphas : 0.118
+NCPUmax: 20
 
 ? !include constants.yaml
 

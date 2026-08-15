@@ -42,8 +42,13 @@ extern "C" {
   double getparamd_(const char* name, int len);
   int getparami_(const char* name, int len);
   double getparamunc_(const char* name, int len);
+  int hasminimizercovariance_();
+  int getminimizernpars_();
+  void getminimizerparname_(const int& index, char* name, int len);
+  double getminimizercovarianced_(const char* name1, const char* name2, int len1, int len2);
   double getfittedparamd_(const char* name, int len);
   double getfittedparamfromarrayd_(const char* name, const double* pars, int len);
+  void setfittedparamsfromarray_(const double* pars);
   // Update of EWK/QCD parameters, can be fitted at each iteration.
   void update_pars_fortran_();
   void add_parameter_to_minimizer_(double &value, double &step, double* &bounds, double* &priors, char *name, int len);
@@ -974,6 +979,33 @@ double getparamunc_(const char* name,int len){
   return minimizer->getParameterUncertainty(key);
 }
 
+int hasminimizercovariance_(){
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  return minimizer->hasParameterCovariance() ? 1 : 0;
+}
+
+int getminimizernpars_(){
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  return static_cast<int>(minimizer->getNpars());
+}
+
+void getminimizerparname_(const int& index, char* name, int len){
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  const int zeroBasedIndex = index - 1;
+  if (zeroBasedIndex < 0 || zeroBasedIndex >= static_cast<int>(minimizer->getNpars())) {
+    stringToFortran(name, len, "");
+    return;
+  }
+  stringToFortran(name, len, minimizer->getParameterName(zeroBasedIndex));
+}
+
+double getminimizercovarianced_(const char* name1, const char* name2, int len1, int len2){
+  std::string key1 = stringFromFortran(name1, len1);
+  std::string key2 = stringFromFortran(name2, len2);
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  return minimizer->getParameterCovariance(key1, key2);
+}
+
 double getfittedparamd_(const char* name,int len){
   std::string key = stringFromFortran(name, len);
   xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
@@ -984,6 +1016,11 @@ double getfittedparamfromarrayd_(const char* name, const double* pars, int len){
   std::string key = stringFromFortran(name, len);
   xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
   return minimizer->getParameterValue(key, pars);
+}
+
+void setfittedparamsfromarray_(const double* pars){
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  minimizer->setPars(pars);
 }
 
 void update_pars_fortran_() {

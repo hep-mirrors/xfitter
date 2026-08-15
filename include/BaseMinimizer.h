@@ -64,9 +64,14 @@ namespace xfitter
     virtual double getParameterUncertainty(const std::string& name) const;
     virtual double getParameterValue(const std::string& name) const;
     virtual double getParameterValue(const std::string& name, const double* pars) const;
+    virtual bool hasParameterCovariance() const;
+    virtual double getParameterCovariance(const std::string& name1, const std::string& name2) const;
 
     /// Number of parameters:
     unsigned int getNpars() const { return _allParameterNames.size(); }
+
+    /// Parameter name by zero-based index.
+    const std::string& getParameterName(size_t index) const { return _allParameterNames.at(index); }
 
     /// Retrieve parameters:
     double** getPars() const ;
@@ -99,6 +104,9 @@ namespace xfitter
 
     /// Bounds:
     std::vector< const double* > _bounds;
+
+    /// Covariance matrix for minimized parameters in _allParameterNames order.
+    std::vector<double> _parameterCovariance;
 
   };
 

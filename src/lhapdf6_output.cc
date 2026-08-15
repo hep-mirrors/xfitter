@@ -354,18 +354,26 @@ QX_Grid makeQX_Grid(LHAPDF6_Options options)
   return ret;
 }
 
+YAML::Node getActiveMinimizerNode()
+{
+  xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
+  if (!minimizer) return YAML::Node();
+  return XFITTER_PARS::rootNode[minimizer->getName()];
+}
+
+string getActiveErrorBandType()
+{
+  YAML::Node minimizerNode = getActiveMinimizerNode();
+  if (!minimizerNode.IsMap()) return "";
+  YAML::Node doErrorsNode = minimizerNode["doErrors"];
+  if (!doErrorsNode.IsScalar()) return "";
+  return doErrorsNode.as<string>("");
+}
+
 //Returns "hessian" or "symmhessian" for PDF error type
 const char* getErrorType()
 {
-  //PLACEHOLDER: I am not sure right now how to get error type in the general case
-  //for example when CERES is used instead of MINUIT
-  YAML::Node minuitNode = XFITTER_PARS::rootNode["MINUIT"];
-  string doErrors;
-  YAML::Node doErrorsNode;
-  if (!minuitNode.IsMap()) goto failed;
-  doErrorsNode = minuitNode["doErrors"];
-  doErrors = doErrorsNode.as<string>("");
-  if (!doErrorsNode.IsScalar()) goto failed;
+  string doErrors = getActiveErrorBandType();
   if (doErrors == "Hesse") return "symmhessian";
   else if (doErrors == "Pumplin") return "hessian";
   else goto failed;
@@ -387,16 +395,7 @@ const char* getFlavorScheme()
 
 size_t getNmembers()
 {
-  //TODO this needs to be more general
-  YAML::Node minuitNode = XFITTER_PARS::rootNode["MINUIT"];
-  if (!minuitNode.IsMap()) return 1;
-  YAML::Node doErrorsNode = minuitNode["doErrors"];
-  string doErrors;
-  try {
-    doErrors = doErrorsNode.as<string>();
-  } catch (YAML::TypedBadConversion<string>) {
-    return 1;
-  }
+  string doErrors = getActiveErrorBandType();
   size_t Npars = xfitter::get_minimizer()->getNpars();
   if (doErrors == "Hesse")return Npars + 1;
   if (doErrors == "Pumplin")return 2 * Npars + 1;
