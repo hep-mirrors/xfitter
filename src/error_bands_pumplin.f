@@ -268,6 +268,7 @@ C-----------------------------------------
       double precision fmin, fedm, errdef
       integer npari, nparx, istat, ifail
       integer i,j, k, ind, ind2, mpar, jext
+      integer has_minimizer_covariance
       double precision, allocatable :: Amat(:,:)
       double precision, allocatable :: eigenvalues(:)
 C
@@ -280,6 +281,7 @@ C
       integer idx,idx2,iint,kflag
 
       character *64 parname
+      character *64 parname_by_internal(MNE)
 
       character*48 name,name2
       character*48 base,base2
@@ -295,6 +297,10 @@ C
 
 C Function
       double precision GetUmat
+      integer hasminimizercovariance
+      integer getminimizernpars
+      double precision getminimizercovarianced
+      double precision getfittedparamd
 
       double precision chichi
       double precision chi2data_theory ! function
@@ -304,9 +310,14 @@ C for theory errors:
 
 C------------------------------------------------------------------------
 
+      has_minimizer_covariance = hasminimizercovariance()
       if (ReadParsFromFile) then
          call ReadPars(ParsFileName,pkeep)
          call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)
+      else if (has_minimizer_covariance .ne. 0) then
+         npari = getminimizernpars()
+         nparx = npari
+         print *,'Use covariance matrix from active minimizer'
       else
 C         call MNCOMD(fcn,'SET ERRDEF 9',icond,0)
          call MNCOMD(fcn,'HESSE',icond,0)
@@ -321,26 +332,42 @@ C     Check the covariance matrix:
          endif
       endif
 
-      mpar = 0
-      do ind=1,nparx
-         call mnpout(ind,parname,parval,parerr,parlolim,
-     $        parhilim,iunint(ind))
-         if (iunint(ind).gt.0) then
+      if (has_minimizer_covariance .ne. 0 .and.
+     $    .not. ReadParsFromFile) then
+         mpar = npari
+         do ind=1,npari
+            call getminimizerparname(ind, parname)
+            iunint(ind) = ind
+            iexint(ind) = ind
+            parname_by_internal(ind) = parname
+            pkeep(ind) = getfittedparamd(parname)
             write (6,*) 'Parameter',ind,' name=',parname
-            write (6,*) 'Internal index=',iunint(ind)
-            pkeep(ind) = parval
+            write (6,*) 'Internal index=',ind
             write (6,*) ' '
-            mpar = mpar + 1
-         endif
-      enddo
-
-      do ind=1,mpar
-         do ind2=1,nparx
-            if (iunint(ind2).eq.ind) then
-               iexint(ind) = ind2
+         enddo
+      else
+         mpar = 0
+         do ind=1,nparx
+            call mnpout(ind,parname,parval,parerr,parlolim,
+     $           parhilim,iunint(ind))
+            if (iunint(ind).gt.0) then
+               write (6,*) 'Parameter',ind,' name=',parname
+               write (6,*) 'Internal index=',iunint(ind)
+               pkeep(ind) = parval
+               parname_by_internal(iunint(ind)) = parname
+               write (6,*) ' '
+               mpar = mpar + 1
             endif
          enddo
-      enddo
+
+         do ind=1,mpar
+            do ind2=1,nparx
+               if (iunint(ind2).eq.ind) then
+                  iexint(ind) = ind2
+               endif
+            enddo
+         enddo
+      endif
 
 
       Allocate(Amat(Npari, Npari))
@@ -349,6 +376,13 @@ C     Check the covariance matrix:
 
       if (ReadParsFromFile) then
          call ReadParCovMatrix(CovFileName, Amat, Npari)
+      else if (has_minimizer_covariance .ne. 0) then
+         do i=1,npari
+            do j=1,npari
+               Amat(i,j) = getminimizercovarianced(
+     $              parname_by_internal(i), parname_by_internal(j))
+            enddo
+         enddo
       else
          call MNEMAT( Amat, Npari)
       endif
@@ -397,6 +431,10 @@ C               a(i) = a(i) + GetUmat(iint,j)
             endif
          enddo
 
+         if (has_minimizer_covariance .ne. 0 .and.
+     $       .not. ReadParsFromFile) then
+            call setfittedparamsfromarray(a)
+         endif
          call copy_minuit_extrapars(a) !Set shifted parameters
 
          ifcncount = ifcncount+1
@@ -419,6 +457,10 @@ C
 
 C write out once more (with theory errors filled)
 
+      if (has_minimizer_covariance .ne. 0 .and.
+     $    .not. ReadParsFromFile) then
+         call setfittedparamsfromarray(pkeep)
+      endif
       Theo = TheoFCN3           ! restore
       Theo_mod = TheoModFCN3
       ALPHA_Mod = ALphaModFCN3

@@ -48,6 +48,9 @@ namespace xfitter {
       const double* priors = origin->_priors[ipar];
       addParameter(value, name, fabs(value)*1.e-2, bounds, priors);
     }
+    if (origin->hasParameterCovariance()) {
+      _parameterCovariance = origin->_parameterCovariance;
+    }
   }
 
   double** BaseMinimizer::getPars() const
@@ -87,6 +90,20 @@ namespace xfitter {
     int index = parameterIndex(name);
     if (index < 0) return getParameterValue(name);
     return pars[index];
+  }
+
+  bool BaseMinimizer::hasParameterCovariance() const {
+    const size_t npars = _allParameterNames.size();
+    return npars > 0 && _parameterCovariance.size() == npars*npars;
+  }
+
+  double BaseMinimizer::getParameterCovariance(const std::string& name1, const std::string& name2) const {
+    if (!hasParameterCovariance()) return std::nan("");
+    int index1 = parameterIndex(name1);
+    int index2 = parameterIndex(name2);
+    if (index1 < 0 || index2 < 0) return std::nan("");
+    const size_t npars = _allParameterNames.size();
+    return _parameterCovariance[index1*npars + index2];
   }
 }
 

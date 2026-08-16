@@ -34,6 +34,7 @@ extern "C" {
   void fcn_(const int& npar, const double& dummy, double& chi2out, const double* pars, const int& iflag, const double& dummy2);
   void iofilenamesmini_();
   void reset_extra_parameters_();
+  void errbandssym_();
 }
 
 namespace xfitter {
@@ -491,6 +492,7 @@ void CERESMinimizer::doMinimization() {
     CHECK(covariance.Compute(covariance_blocks, &problem));
 
     covariance.GetCovarianceBlock(parVals, parVals, covmat);
+    _parameterCovariance.assign(covmat, covmat + npars*npars);
 
     for (int i = 0; i < npars; i += 1) {
       _parameterUncertainties[i] = sqrt(covmat[i*npars+i]);
@@ -578,7 +580,24 @@ void CERESMinimizer::actionAtFCN3() {
 
 /// Error analysis
 void CERESMinimizer::errorAnalysis() {
-  return;
+  auto errNode = XFITTER_PARS::gParametersY["CERES"]["doErrors"];
+  if (!errNode) return;
+
+  std::string bandType = errNode.as<std::string>();
+  if (bandType == "Hesse") {
+    if (!hasParameterCovariance()) {
+      hf_errlog(2026081501,"S:CERES doErrors=Hesse requires CERES covariance=1");
+      return;
+    }
+    hf_errlog(12020506, "I: Calculation of symmetric error bands required");
+    errbandssym_();
+  }
+  else if (bandType == "None") {
+    return;
+  }
+  else {
+    hf_errlog(2026081502,"W: Unknown to CERES minimizer error type requested: " + bandType);
+  }
 }
 
 ConvergenceStatus CERESMinimizer::convergenceStatus() {
