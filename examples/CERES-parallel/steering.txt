@@ -18,17 +18,6 @@
 
 &End
 
-
-&Systematics
- !C      List sources, Results.txt file would list them first. Use the usual :A, :P, 
- !C      qualifiers to change the scalling properties
- !  ListOfSources = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13:A'
- !C      Modify the prior in chi2 definition (1.0 is default):
- !  PriorScaleName = 'ATLAS_lumi2010', 'ATL_WZ2010_Source_13'
- !  PriorScaleFactor = 0.0, 0.0
- ListOFSources = 'proc_had:E'
-&End
-
 *
 * Main steering cards
 *
