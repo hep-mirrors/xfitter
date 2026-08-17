@@ -167,6 +167,8 @@ add_subdirectory(pdfparams/Expression)
 add_subdirectory(pdfparams/PolySqrt)
 add_subdirectory(pdfparams/Chebyschev)
 add_subdirectory(pdfparams/Bernstein)
+add_subdirectory(pdfparams/ChebyshevFlex)
+add_subdirectory(pdfparams/ChebyshevGluon)
 
 #Decompositions
 add_subdirectory(pdfdecomps/Pion_FF_B_C)
@@ -175,6 +177,7 @@ add_subdirectory(pdfdecomps/LHAPDF)
 add_subdirectory(pdfdecomps/SU3_Pion)
 add_subdirectory(pdfdecomps/UvDvUbarDbarSSbar)
 add_subdirectory(pdfdecomps/FromEvolution)
+add_subdirectory(pdfdecomps/MSHT_Decomposition)
 
 #Evolutions
 add_subdirectory(evolutions/QCDNUM)
