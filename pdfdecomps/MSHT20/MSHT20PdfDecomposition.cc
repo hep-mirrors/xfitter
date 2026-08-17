@@ -44,10 +44,9 @@ namespace xfitter {
     xsumq+=  par_xuv  ->moment(0);
     xsumq+=  par_xdv  ->moment(0);
     xsumq+=  par_xs   ->moment(0);
-    xsumq-=  par_xsp  ->moment(0);
     // gluon part
-    xsumq-=  par_xgn  ->moment(0);
-    //par_xg->setMoment(0,1-xsumq);
+    xsumq+=  par_xgn  ->moment(0);
+    par_xg->setMoment(0,1-xsumq);
     // s-sbar=0 constraint
     // currently assume parametrization
     // s(x)-sbar(x)=A*(1-x)^eta*(1-x/x0)^delta
