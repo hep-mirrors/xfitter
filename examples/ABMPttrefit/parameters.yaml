@@ -1,0 +1,384 @@
+
+threads : 8
+NCPUmax: 8
+
+# one chi2 iteration
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    call fcn 3
+
+# to fit, uncomment below
+#Minimizer: CERES
+#CERES:
+#  offset: 2
+#  tolerance: 1e-7
+#  max_num_iterations: 100000
+#  strategy: 2
+#  covariance: 1
+#  threads: 8
+
+# to fit using CERES and produce error bands, uncomment below
+#Minimizers: [CERES, MINUIT]
+#CERES:
+#  offset: 2
+#  tolerance: 1e-7
+#  max_num_iterations: 100000
+#  strategy: 2
+#  covariance: 1
+#  threads: 8
+#MINUIT:
+#  Commands: |
+#    call fcn 3
+#  doErrors: Hesse
+#  ReadParsFromFile:
+#    ParsFileName: 'output/pars.yaml'
+#    CovFileName: 'output/ceres.out.txt'
+
+Parameters:
+  ABM_ds_A: [ 0.144009, 0.006825 ]
+  ABM_ds_a: [ -0.170983, 0.008911 ]
+  ABM_ds_b: [ 8.406467, 0.270488 ]
+  ABM_ds_g1: [ 13.475765, 1.725419 ]
+  ABM_dv_a: [ 0.341256, 0.052096 ]
+  ABM_dv_b: [ 4.061638, 0.395105 ]
+  ABM_dv_g1: [ -3.720262, 0.644439 ]
+  ABM_dv_g2: [ 0.823942, 1.431982 ]
+  ABM_g_a: [ -0.153404, 0.006065 ]
+  ABM_g_b: [ 6.129112, 0.143894 ]
+  ABM_g_g1: [ -11.949709, 1.328562 ]
+  ABM_ss_A: [ 0.061047, 0.003316 ]
+  ABM_ss_a: [ -0.335749, 0.014850 ]
+  ABM_ss_b: [ 6.533739, 0.213454 ]
+  ABM_us_A: [ 0.069085, 0.005632 ]
+  ABM_us_a: [ -0.416009, 0.021752 ]
+  ABM_us_b: [ 7.977941, 0.289793 ]
+  ABM_us_g1: [ 4.995375, 0.692529 ]
+  ABM_us_gm1: [ 0.036246, 0.002145 ]
+  ABM_uv_a: [ 0.573421, 0.022349 ]
+  ABM_uv_b: [ 3.411518, 0.045518 ]
+  ABM_uv_g1: [ -0.703764, 0.219622 ]
+  ABM_uv_g2: [ -2.252058, 0.283102 ]
+  ABM_uv_g3: [ 1.527790, 0.536993 ]
+  alphas_Q0_start: [ 0.465289, 0.007257 ]
+  br_cmu_0: [ 0.090501, 0.001850 ]
+  br_cmu_1: [ 4.622985, 0.761079 ]
+  ht_alpha_ft: [ 0.046476, 0.056158 ]
+  ht_f2_1: [ 0.024941, 0.012028 ]
+  ht_f2_2: [ -0.025713, 0.007810 ]
+  ht_f2_3: [ -0.000814, 0.005275 ]
+  ht_f2_4: [ 0.022312, 0.003475 ]
+  ht_f2_5: [ 0.045865, 0.002609 ]
+  ht_f2_6: [ 0.003931, 0.002761 ]
+  ht_ft_1: [ -0.299265, 0.088193 ]
+  ht_ft_2: [ -0.137138, 0.027219 ]
+  ht_ft_3: [ -0.079836, 0.013256 ]
+  ht_ft_4: [ 0.028037, 0.012198 ]
+  ht_ft_5: [ 0.016568, 0.007358 ]
+  ht_ft_6: [ 0.006972, 0.004953 ]
+  mbt: [ 3.823175, 0.037163 ]
+  mch: [ 1.258427, 0.010782 ]
+  mtp: [ 162.014021, 0.196071 ]
+  N_BCDMS: [1.0, 0.0]
+  N_NMC120: [1.0, 0.0]
+  N_NMC200: [1.0, 0.0]
+  N_NMC280: [1.0, 0.0]
+  N_NMC90: [1.0, 0.0]
+  N_SLAC49a: [1.0, 0.0]
+  N_SLAC49b: [1.0, 0.0]
+  N_SLAC87: [1.0, 0.0]
+  N_SLAC89b: [1.0, 0.0]
+  htns_f2_1: [0.0, 0.0]
+  htns_f2_2: [-0.064836, 0.0]
+  htns_f2_3: [0.016308, 0.0]
+  htns_f2_4: [0.28077, 0.0]
+  htns_f2_5: [0.18513, 0.0]
+  htns_f2_6: [0.09359, 0.0]
+  htns_f2_7: [0.0, 0.0]
+  htns_ft_1: [0.0, 0.0]
+  htns_ft_2: [0.0, 0.0]
+  htns_ft_3: [0.0, 0.0]
+  htns_ft_4: [0.0, 0.0]
+  htns_ft_5: [0.0, 0.0]
+  htns_ft_6: [0.0, 0.0]
+  htns_ft_7: [0.0, 0.0]
+  htns_f3_1: [0.0, 0.0]
+  htns_f3_2: [-0.26079, 0.0]
+  htns_f3_3: [-0.45731, 0.0]
+  htns_f3_4: [0.18279, 0.0]
+  htns_f3_5: [0.13277, 0.0]
+  htns_f3_6: [0.04426, 0.0]
+  htns_f3_7: [0.0, 0.0]
+  htns_alpha_f2: [0.0, 0.0]
+  htns_alpha_ft: [0.0, 0.0]
+  htns_alpha_f3: [0.0, 0.0]
+  ht_alpha_f2: [0.0, 0.0]
+  ht_f2_7: [0.0, 0.0]
+  ht_ft_7: [0.0, 0.0]
+  ZERO: [0.0, 0.0]
+  ABM_uv_A: DEPENDENT
+  ABM_dv_A: DEPENDENT
+  ABM_g_A: DEPENDENT
+  ABM_dv_g3: [0.0, 0.0]
+  mtFit: =mtp
+
+Parameterisations:
+  par_uv:
+    class: Expression
+    expression: "ABM_uv_A*x^(ABM_uv_a+ABM_uv_g1*x+ABM_uv_g2*x^2+ABM_uv_g3*x^3)*(1-x)^ABM_uv_b"
+  par_dv:
+    class: Expression
+    expression: "ABM_dv_A*x^(ABM_dv_a+ABM_dv_g1*x+ABM_dv_g2*x^2+ABM_dv_g3*x^3)*(1-x)^ABM_dv_b"
+  par_ubar:
+    class: Expression
+    expression: "ABM_us_A*x^(ABM_us_a*(1+ABM_us_gm1*ln(x))*(1+ABM_us_g1*x))*(1-x)^ABM_us_b"
+  par_dbar:
+    class: Expression
+    expression: "ABM_ds_A*x^(ABM_ds_a*(1+ABM_ds_g1*x))*(1-x)^ABM_ds_b"
+  par_s:
+    class: Expression
+    expression: "ABM_ss_A*x^ABM_ss_a*(1-x)^ABM_ss_b"
+  par_sbar:
+    class: Expression
+    expression: "ABM_ss_A*x^ABM_ss_a*(1-x)^ABM_ss_b"
+  par_g:
+    class: Expression
+    expression: "ABM_g_A*x^(ABM_g_a*(1+ABM_g_g1*x))*(1-x)^ABM_g_b"
+# equivalent old style via ABMPvalence, ABMPsea, ABMPgluon classes
+  #par_uv:
+  #  class: ABMPvalence
+  #  parameters: [ABM_uv_A, ABM_uv_a, ABM_uv_b, ZERO, ABM_uv_g1, ABM_uv_g2, ABM_uv_g3]
+  #par_dv:
+  #  class: ABMPvalence
+  #  parameters: [ABM_dv_A, ABM_dv_a, ABM_dv_b, ZERO, ABM_dv_g1, ABM_dv_g2, ABM_dv_g3]
+  #par_ubar:
+  #  class: ABMPsea
+  #  parameters: [ABM_us_A, ABM_us_a, ABM_us_b, ABM_us_gm1, ABM_us_g1, ZERO, ZERO]
+  #par_dbar:
+  #  class: ABMPsea
+  #  parameters: [ABM_ds_A, ABM_ds_a, ABM_ds_b, ZERO, ABM_ds_g1, ZERO, ZERO]
+  #par_s:
+  #  class: ABMPsea
+  #  parameters: [ABM_ss_A, ABM_ss_a, ABM_ss_b, ZERO, ZERO, ZERO, ZERO]
+  #par_sbar:
+  #  class: ABMPsea
+  #  parameters: [ABM_ss_A, ABM_ss_a, ABM_ss_b, ZERO, ZERO, ZERO, ZERO]
+  #par_g:
+  #  class: ABMPgluon
+  #  parameters: [ABM_g_A, ABM_g_a, ABM_g_b, ZERO, ABM_g_g1, ZERO, ZERO]
+
+DefaultDecomposition: proton-param
+Decompositions:
+  proton-param:
+    class: UvDvUbarDbarS
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+  proton-start:
+    class: FromEvolution
+    Q0 : "Q0_start"
+    evolution : "proton-nf3"
+DefaultEvolution: proton-nf5
+Evolutions:
+  proton-nf3:
+    ? !include evolutions/APFELxx.yaml
+    Q0 : "Q0_param"
+    decomposition: proton-param
+    alphas_Q0 : "Q0_start"
+    alphas : "alphas_Q0_start"
+    isFFNS : 1
+    NFlavour : 3
+    QGrid : [200, 0.8944, 15000.1, 3]
+    xGrid : [[100, 1e-07, 3], [60, 0.1, 3], [50, 0.6, 3], [50, 0.8, 3]]
+  proton-nf5:
+    ? !include evolutions/APFELxx.yaml
+    Q0 : "Q0_start"
+    decomposition: proton-start
+    alphas_Q0 : "Q0_start"
+    alphas : "alphas_Q0_start"
+    isFFNS : 0
+    NFlavour : 5
+    heavyQuarkMassScheme : MSBar
+    restart_at_each_iteration : 1
+    QGrid : [200, 0.8944, 15000.1, 3]
+    xGrid : [[100, 1e-07, 3], [60, 0.1, 3], [50, 0.6, 3], [50, 0.8, 3]]
+  nucleon_nf3:
+    input: proton-nf3
+    class: FlipUD
+    flip: 0.5
+  antiproton:
+    class: FlipCharge
+  nucleon:
+    class: FlipUD
+    flip: 0.5
+  nucleon_Cu63:
+    class: FlipUD
+    flip: 0.53968254 # 34/63
+
+Order: NNLO
+NFlavour: 5
+isFFNS: 1
+Q0_param : 3.0 # =sqrt(9)
+Q0_start : 0.894427 # =sqrt(0.8) for alphaS and PDF evolution (should be below m_c, this value is from LHAPDF grids)
+N_ATLAS7WZ : 1.019
+# HT
+ht_x: 0.,0.1,0.3,0.5,0.7,0.9,1.
+ht_vals_f2: ht_f2_1,ht_f2_2,ht_f2_3,ht_f2_4,ht_f2_5,ht_f2_6,ht_f2_7
+ht_vals_ft: ht_ft_1,ht_ft_2,ht_ft_3,ht_ft_4,ht_ft_5,ht_ft_6,ht_ft_7
+ht_val_alpha_f2: ht_alpha_f2
+ht_val_alpha_ft: ht_alpha_ft
+#
+? !include constants.yaml
+
+byReaction:
+  FFABM_DISNC:
+    ? !include reactions/FFABM_DISNC.yaml
+    evolution: proton-nf3
+    runm: 1
+    ordfl: 1
+    hqnons: 0
+    ht: 1
+    tmc: "l"
+    q2mincomp: 2.498
+    #threads : 1
+  FFABM_DISCC:
+    ? !include reactions/FFABM_DISCC.yaml
+    evolution: proton-nf3
+    runm: 1
+    ordfl: 1
+    hqnons: 0
+    ht: 1
+    ht_val_scale: 0.5
+    ht_vals_f2: htns_f2_1,htns_f2_2,htns_f2_3,htns_f2_4,htns_f2_5,htns_f2_6,htns_f2_7
+    ht_vals_ft: htns_ft_1,htns_ft_2,htns_ft_3,htns_ft_4,htns_ft_5,htns_ft_6,htns_ft_7
+    ht_vals_f3: htns_f3_1,htns_f3_2,htns_f3_3,htns_f3_4,htns_f3_5,htns_f3_6,htns_f3_7
+    ht_val_alpha_f2: htns_alpha_f2
+    ht_val_alpha_ft: htns_alpha_ft
+    tmc: "l"
+    tmc_f3: 1
+    #threads : 1
+  Hathor:
+    ? !include reactions/Hathor.yaml
+    MS_MASS: 1
+    muR: 1.
+    muF: 1.
+    precisionLevel: 3
+    integrator: sd2
+  HathorSingleTop:
+    ? !include reactions/HathorSingleTop.yaml
+    MS_MASS: 1
+    muR: 1
+    muF: 1
+    precisionLevel: 3
+    integrator: sd2
+    alphaem: 0.0075623956 # 1. / 132.2332298
+    sin2thW: 0.2228972
+  PineAPPL:
+    ? !include reactions/PineAPPL.yaml
+  KFactor:
+    MSBAR_to_pole: mtFit
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'FFABM_DISNC'
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'FFABM_DISCC'     # global specification
+
+byDataset: #Here one can redefine some parameters for specific datasets
+#  #Parameter definitions here have the highest priority: they override both "byReaction" and "TermInfo"
+  # disable TMC for HERA data
+  "HERA1+2 NCep 920":
+     tmc: 0
+  "HERA1+2 NCep 820":
+     tmc: 0
+  "HERA1+2 NCep 575":
+     tmc: 0
+  "HERA1+2 NCep 460":
+     tmc: 0
+  "HERA1+2 NCem":
+     tmc: 0
+  "HERA1+2 CCep":
+     tmc: 0
+  "HERA1+2 CCem":
+     tmc: 0
+  "Charm cross section H1-ZEUS combined":
+     tmc: 0
+  "Beauty cross section ZEUS Vertex":
+     tmc: 0
+  "H1 F2 Beauty Vertex":
+     tmc: 0
+  # normalize some data sets
+  "BCDMS F2p 100GeV":
+     DATANORM: N_BCDMS
+  "BCDMS F2p 120GeV":
+     DATANORM: N_BCDMS
+  "BCDMS F2p 200GeV":
+     DATANORM: N_BCDMS
+  "BCDMS F2p 280GeV":
+     DATANORM: N_BCDMS
+  "NMC F2p 90 GeV":
+     DATANORM: N_NMC90
+  "NMC F2p 120 GeV":
+     DATANORM: N_NMC120
+  "NMC F2p 200 GeV":
+     DATANORM: N_NMC200
+  "NMC F2p 280 GeV":
+     DATANORM: N_NMC280
+  "SLAC 49a":
+     DATANORM: N_SLAC49a
+  "SLAC 49b":
+     DATANORM: N_SLAC49b
+  "SLAC 87":
+     DATANORM: N_SLAC87
+  "SLAC 89b":
+     DATANORM: N_SLAC89b
+  "NuTeV charm neutrino":
+     #Order: NLO
+     tmc: 0
+     group_parallel: "nucleon"
+  "NuTeV charm antineutrino":
+     #Order: NLO
+     tmc: 0
+     group_parallel: "nucleon"
+  "CCFR charm neutrino":
+     #Order: NLO
+     tmc: 0
+     group_parallel: "nucleon"
+  "CCFR charm antineutrino":
+     #Order: NLO
+     tmc: 0
+     group_parallel: "nucleon"
+  "NOMAD charm nu dsigma/dE":
+     group_parallel: "nucleon_integrated"
+  "NOMAD charm nu dsigma/dx":
+     group_parallel: "nucleon_integrated"
+  "NOMAD charm nu dsigma/dsqrtshat":
+     group_parallel: "nucleon_integrated"
+  "CHORUS charm":
+     group_parallel: "nucleon_integrated"
+  # rescale ATLAS 2010 W,Z data according to lumi update (see 1302.4393)
+  "ATLAS W+ lepton pseudorapidity, 2010 data":
+     DATANORM: N_ATLAS7WZ
+  "ATLAS W- lepton pseudorapidity, 2010 data":
+     DATANORM: N_ATLAS7WZ
+  "ATLAS Z rapidity, 2010 data":
+     DATANORM: N_ATLAS7WZ
+
+#WriteLHAPDF6:
+#  name: "xfabmp16"
+#  description: "..."
+#  authors: "..."
+#  reference: "..."
+    # use DefaultEvolution
+  #evolution: proton-QCDNUM
+    # take internal grid
+  #preferInternalGrid:
+    # or define grid
+#  Xrange: [1e-7, 1]
+#  Qrange: [0.894427,15000.0]
+#  Xnpoints: 200
+#  Qnpoints: 120

@@ -1,0 +1,797 @@
+After minimisation    3416.66  2871     1.190
+
+  Partial chi2s 
+Dataset    1    499.53( +0.00)   391  HERA1+2 NCep 920                                
+Dataset    2     91.90( +0.00)    73  HERA1+2 NCep 820                                
+Dataset    3    245.90( +0.00)   257  HERA1+2 NCep 575                                
+Dataset    4    229.21( -0.00)   207  HERA1+2 NCep 460                                
+Dataset    5    239.60( +0.00)   159  HERA1+2 NCem                                    
+Dataset    6     48.88( -0.00)    39  HERA1+2 CCep                                    
+Dataset    7     70.70( -0.00)    42  HERA1+2 CCem                                    
+Dataset    8     53.31( -0.00)    52  Charm cross section H1-ZEUS combined            
+Dataset    9     11.09( +0.00)    17  Beauty cross section ZEUS Vertex                
+Dataset   10      2.82( +0.00)    12  H1 F2 Beauty Vertex                             
+Dataset   11    134.97( +0.00)    97  BCDMS F2p 100GeV                                
+Dataset   12     83.26( +0.00)    99  BCDMS F2p 120GeV                                
+Dataset   13     94.15( +0.00)    79  BCDMS F2p 200GeV                                
+Dataset   14     83.38( +0.00)    76  BCDMS F2p 280GeV                                
+Dataset   15     44.10( +0.00)    46  NMC F2p 90 GeV                                  
+Dataset   16     96.34( +0.00)    59  NMC F2p 120 GeV                                 
+Dataset   17     95.45( +0.00)    66  NMC F2p 200 GeV                                 
+Dataset   18    104.26( +0.00)    74  NMC F2p 280 GeV                                 
+Dataset   19     37.40( +0.00)    59  SLAC 49a                                        
+Dataset   20    170.02( +0.00)   154  SLAC 49b                                        
+Dataset   21     98.00( +0.00)   109  SLAC 87                                         
+Dataset   22     82.43( +0.00)    90  SLAC 89b                                        
+Dataset   23     17.49( +0.00)    45  NuTeV charm neutrino                            
+Dataset   24     22.29( +0.00)    44  NuTeV charm antineutrino                        
+Dataset   25     34.91( +0.00)    45  CCFR charm neutrino                             
+Dataset   26     27.72( +0.00)    44  CCFR charm antineutrino                         
+Dataset   27     10.92( +0.00)    19  NOMAD charm nu dsigma/dE                        
+Dataset   28     25.14( +0.00)    14  NOMAD charm nu dsigma/dx                        
+Dataset   29     16.41( +0.00)    15  NOMAD charm nu dsigma/dsqrtshat                 
+Dataset   30      7.70( +0.00)     6  CHORUS charm                                    
+Dataset   31      0.65( +0.00)    11  CMS W+ cross section 8 TeV                      
+Dataset   32      0.96( +0.00)    11  CMS W- cross section 8 TeV                      
+Dataset   33      2.78( +0.00)    11  CMS W muon asymmetry                            
+Dataset   34     14.19( +0.00)    11  ATLAS W+ lepton pseudorapidity, 2010 data       
+Dataset   35      7.95( +0.00)    11  ATLAS W- lepton pseudorapidity, 2010 data       
+Dataset   36      6.44( -0.00)     8  ATLAS Z rapidity, 2010 data                     
+Dataset   37      0.03( +0.00)     1  ATLAS Z, 2015 data, electron channel            
+Dataset   38      0.03( +0.00)     1  ATLAS W+, 2015 data, electron channel           
+Dataset   39      0.00( +0.00)     1  ATLAS W-, 2015 data, electron channel           
+Dataset   40      0.08( +0.00)     1  ATLAS Z, 2015 data, muon channel                
+Dataset   41      3.17( +0.00)     1  ATLAS W+, 2015 data, muon channel               
+Dataset   42      3.19( +0.00)     1  ATLAS W-, 2015 data, muon channel               
+Dataset   43      1.90( +0.00)     7  LHCb W+ mu cross section 7 TeV                  
+Dataset   44      4.08( +0.00)     7  LHCb W- mu cross section 7 TeV                  
+Dataset   45      8.63( +0.00)    17  LHCb Z mu cross section 7 TeV                   
+Dataset   46     22.20( +0.00)    17  LHCb Z el cross section 8 TeV                   
+Dataset   47      0.71( +0.00)     7  LHCb W+ mu cross section 8 TeV                  
+Dataset   48      0.29( +0.00)     7  LHCb W- mu cross section 8 TeV                  
+Dataset   49     11.53( +0.00)    18  LHCb Z mu cross section 8 TeV                   
+Dataset   50     14.36( +0.00)    10  D0 W->mu nu lepton asymmetry ptl > 25 GeV       
+Dataset   51     24.79( +0.00)    13  D0 W el nu lepton asymmetry ptl 25 GeV          
+Dataset   52     23.04( +0.00)    15  E866, high mass                                 
+Dataset   53     16.71( +0.00)    14  E866, mid mass                                  
+Dataset   54     11.72( +0.00)    10  E866, low mass                                  
+Dataset   55    161.68( +0.00)   119  E605                                            
+Dataset   56      3.36( +0.00)    15  CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(ttbar
+Dataset   57      4.48( -0.00)    34  CMS 2108.02803 [TOP-20-001] 13TeV ttbar [M(ttbar
+Dataset   58      1.56( -0.00)    19  ATLAS 1908.07305 13TeV ttbar [M(ttbar),y(ttbar)]
+Dataset   59      0.93( -0.00)    10  ATLAS 2006.09274 13TeV ttbar [M(ttbar),y(ttbar)]
+Dataset   60      0.97( +0.00)     1  Combined CDF D0 inclusive ttbar cross section   
+Dataset   61      0.00( +0.00)     1  ATLAS+CMS 2205.13830 7TeV ttbar total cross sect
+Dataset   62      0.00( +0.00)     1  ATLAS+CMS 2205.13830 8TeV ttbar total cross sect
+Dataset   63      0.87( +0.00)     1  CMS 2303.10680 13.6TeV ttbar total cross section
+Dataset   64      5.02( +0.00)     1  ATLAS 2308.09529 13.6TeV ttbar total cross secti
+Dataset   65      0.04( +0.00)     1  CMS 2112.09114 5TeV ttbar total cross section   
+Dataset   66      1.70( +0.00)     1  ATLAS 2207.01354 5TeV ttbar total cross section 
+Dataset   67      0.32( +0.00)     1  ATLAS 2303.15340 13TeV ttbar total cross section
+Dataset   68      0.06( +0.00)     1  ATLAS 2006.13076 13TeV ttbar total cross section
+Dataset   69      0.29( +0.00)     1  CMS 1812.10505 13TeV ttbar total cross section  
+Dataset   70      1.35( +0.00)     1  CMS 2108.02803 13TeV ttbar total cross section  
+Dataset   71      0.44( +0.00)     1  ATLAS single top (quark+antiquark) 13 TeV ATLAS-
+Dataset   72      0.53( +0.00)     1  CMS single top (quark+antiquark) 13 TeV 1812.105
+Dataset   73      0.00( +0.00)     1  ATLAS&CMS single top (quark+antiquark) 7 TeV 190
+Dataset   74      0.00( +0.00)     1  ATLAS&CMS single top (quark+antiquark) 8 TeV 190
+Dataset   75      0.45( +0.00)     1  d0cdfCombined single top (quark+antiquark) 1.96 
+Dataset   76      0.81( +0.00)     1  d0cdfCombined single top (quark+antiquark) 1.96 
+
+ Correlated Chi2    273.08039019136089     
+ Log penalty Chi2    4.2521541843143508E-014
+ Systematic shifts          712
+  
+                                                    Name          Shift   +/-    Error          Type
+    1  sysHZComb1001                                              0.0192   +/-   0.9327        :N:M:D
+    2  sysHZComb1002                                             -0.4920   +/-   0.9364        :N:M:D
+    3  sysHZComb1003                                              1.3566   +/-   0.5574        :N:M:D
+    4  sysHZComb1004                                              0.7194   +/-   0.6185        :N:M:D
+    5  sysHZComb1005                                             -0.4078   +/-   0.6087        :N:M:D
+    6  sysHZComb1006                                              0.1828   +/-   0.7868        :N:M:D
+    7  sysHZComb1007                                              0.1887   +/-   0.9971        :N:M:D
+    8  sysHZComb1008                                              0.0482   +/-   0.9971        :N:M:D
+    9  sysHZComb1009                                             -0.0707   +/-   0.9039        :N:M:D
+   10  sysHZComb1010                                             -0.2467   +/-   0.9931        :N:M:D
+   11  sysHZComb1011                                             -0.6375   +/-   0.9611        :N:M:D
+   12  sysHZComb1012                                              0.7179   +/-   0.9668        :N:M:D
+   13  sysHZComb1013                                             -0.6266   +/-   0.9561        :N:M:D
+   14  sysHZComb1014                                              0.0717   +/-   0.9845        :N:M:D
+   15  sysHZComb1015                                             -0.0048   +/-   0.9587        :N:M:D
+   16  sysHZComb1016                                             -0.1878   +/-   0.9747        :N:M:D
+   17  sysHZComb1017                                             -0.4313   +/-   0.9552        :N:M:D
+   18  sysHZComb1018                                              0.3031   +/-   0.8274        :N:M:D
+   19  sysHZComb1019                                             -0.5469   +/-   0.9817        :N:M:D
+   20  sysHZComb1020                                             -0.7049   +/-   0.9775        :N:M:D
+   21  sysHZComb1021                                             -0.1468   +/-   0.9559        :N:M:D
+   22  sysHZComb1022                                              0.0619   +/-   0.9137        :N:M:D
+   23  sysHZComb1023                                              0.2765   +/-   0.9382        :N:M:D
+   24  sysHZComb1024                                             -0.0888   +/-   0.9882        :N:M:D
+   25  sysHZComb1025                                              0.2927   +/-   0.9756        :N:M:D
+   26  sysHZComb1026                                             -0.4273   +/-   0.9103        :N:M:D
+   27  sysHZComb1027                                             -1.0172   +/-   0.9519        :N:M:D
+   28  sysHZComb1028                                              1.2438   +/-   0.9497        :N:M:D
+   29  sysHZComb1029                                             -0.8184   +/-   0.9138        :N:M:D
+   30  sysHZComb1030                                              0.1435   +/-   0.9251        :N:M:D
+   31  sysHZComb1031                                             -0.2036   +/-   0.8303        :N:M:D
+   32  sysHZComb1032                                              0.6416   +/-   0.9565        :N:M:D
+   33  sysHZComb1033                                              0.7509   +/-   0.9679        :N:M:D
+   34  sysHZComb1034                                              0.1113   +/-   0.9623        :N:M:D
+   35  sysHZComb1035                                              0.2755   +/-   0.9702        :N:M:D
+   36  sysHZComb1036                                             -0.1588   +/-   0.9707        :N:M:D
+   37  sysHZComb1037                                              0.6602   +/-   0.9341        :N:M:D
+   38  sysHZComb1038                                             -0.9040   +/-   0.9091        :N:M:D
+   39  sysHZComb1039                                             -0.1388   +/-   0.9480        :N:M:D
+   40  sysHZComb1040                                             -0.4581   +/-   0.9184        :N:M:D
+   41  sysHZComb1041                                             -0.0238   +/-   0.8132        :N:M:D
+   42  sysHZComb1042                                              0.1998   +/-   0.8746        :N:M:D
+   43  sysHZComb1043                                             -0.2453   +/-   0.9016        :N:M:D
+   44  sysHZComb1044                                              0.1464   +/-   0.9223        :N:M:D
+   45  sysHZComb1045                                             -0.0259   +/-   0.9213        :N:M:D
+   46  sysHZComb1046                                             -0.5093   +/-   0.9264        :N:M:D
+   47  sysHZComb1047                                              0.1585   +/-   0.9457        :N:M:D
+   48  sysHZComb1048                                             -0.0794   +/-   0.9546        :N:M:D
+   49  sysHZComb1049                                             -0.4301   +/-   0.9446        :N:M:D
+   50  sysHZComb1050                                              0.7382   +/-   0.9328        :N:M:D
+   51  sysHZComb1051                                              0.3510   +/-   0.9425        :N:M:D
+   52  sysHZComb1052                                              1.0336   +/-   0.9394        :N:M:D
+   53  sysHZComb1053                                             -2.2634   +/-   0.9160        :N:M:D
+   54  sysHZComb1054                                              0.0802   +/-   0.9718        :N:M:D
+   55  sysHZComb1055                                             -1.4818   +/-   0.9008        :N:M:D
+   56  sysHZComb1056                                             -1.7196   +/-   0.8867        :N:M:D
+   57  sysHZComb1057                                              0.2585   +/-   0.9185        :N:M:D
+   58  sysHZComb1058                                              0.1783   +/-   0.9366        :N:M:D
+   59  sysHZComb1059                                             -1.1079   +/-   0.8665        :N:M:D
+   60  sysHZComb1060                                              0.2125   +/-   0.9792        :N:M:D
+   61  sysHZComb1061                                              0.0790   +/-   0.9783        :N:M:D
+   62  sysHZComb1062                                             -1.3411   +/-   0.8958        :N:M:D
+   63  sysHZComb1063                                              0.6273   +/-   0.8287        :N:M:D
+   64  sysHZComb1064                                              0.9252   +/-   0.9081        :N:M:D
+   65  sysHZComb1065                                             -0.6662   +/-   0.9440        :N:M:D
+   66  sysHZComb1066                                             -0.5528   +/-   0.9238        :N:M:D
+   67  sysHZComb1067                                             -0.0117   +/-   0.9381        :N:M:D
+   68  sysHZComb1068                                             -0.7072   +/-   0.9057        :N:M:D
+   69  sysHZComb1069                                             -0.1138   +/-   0.9053        :N:M:D
+   70  sysHZComb1070                                              0.7688   +/-   0.9045        :N:M:D
+   71  sysHZComb1071                                             -0.7214   +/-   0.8559        :N:M:D
+   72  sysHZComb1072                                             -0.1341   +/-   0.9702        :N:M:D
+   73  sysHZComb1073                                             -0.4378   +/-   0.8927        :N:M:D
+   74  sysHZComb1074                                             -0.6304   +/-   0.9042        :N:M:D
+   75  sysHZComb1075                                             -0.2950   +/-   0.8651        :N:M:D
+   76  sysHZComb1076                                              0.0272   +/-   0.9524        :N:M:D
+   77  sysHZComb1077                                             -0.2454   +/-   0.9614        :N:M:D
+   78  sysHZComb1078                                             -0.4630   +/-   0.9597        :N:M:D
+   79  sysHZComb1079                                             -0.3276   +/-   0.8551        :N:M:D
+   80  sysHZComb1080                                             -0.0773   +/-   0.9257        :N:M:D
+   81  sysHZComb1081                                             -0.4573   +/-   0.8891        :N:M:D
+   82  sysHZComb1082                                             -1.1951   +/-   0.8395        :N:M:D
+   83  sysHZComb1083                                             -1.3273   +/-   0.8904        :N:M:D
+   84  sysHZComb1084                                              0.3744   +/-   0.9686        :N:M:D
+   85  sysHZComb1085                                             -0.1048   +/-   0.8631        :N:M:D
+   86  sysHZComb1086                                             -0.3690   +/-   0.7882        :N:M:D
+   87  sysHZComb1087                                             -0.8289   +/-   0.8270        :N:M:D
+   88  sysHZComb1088                                              0.3267   +/-   0.9849        :N:M:D
+   89  sysHZComb1089                                             -0.1066   +/-   0.9570        :N:M:D
+   90  sysHZComb1090                                              0.2533   +/-   0.9408        :N:M:D
+   91  sysHZComb1091                                              0.4000   +/-   0.8876        :N:M:D
+   92  sysHZComb1092                                              0.5541   +/-   0.8097        :N:M:D
+   93  sysHZComb1093                                              0.1776   +/-   0.7905        :N:M:D
+   94  sysHZComb1094                                              0.0803   +/-   0.9989        :N:M:D
+   95  sysHZComb1095                                             -0.3425   +/-   0.8465        :N:M:D
+   96  sysHZComb1096                                             -0.2887   +/-   0.8950        :N:M:D
+   97  sysHZComb1097                                              0.5348   +/-   0.9883        :N:M:D
+   98  sysHZComb1098                                              1.7557   +/-   0.7342        :N:M:D
+   99  sysHZComb1099                                             -0.8894   +/-   0.6829        :N:M:D
+  100  sysHZComb1100                                             -0.6287   +/-   0.6885        :N:M:D
+  101  sysHZComb1101                                             -0.7030   +/-   0.7722        :N:M:D
+  102  sysHZComb1102                                             -0.3687   +/-   0.9020        :N:M:D
+  103  sysHZComb1103                                              0.2033   +/-   0.7906        :N:M:D
+  104  sysHZComb1104                                             -1.0613   +/-   0.7853        :N:M:D
+  105  sysHZComb1105                                              1.5331   +/-   0.6924        :N:M:D
+  106  sysHZComb1106                                             -0.3674   +/-   0.7740        :N:M:D
+  107  sysHZComb1107                                              0.8537   +/-   0.7439        :N:M:D
+  108  sysHZComb1108                                              1.8906   +/-   0.6785        :N:M:D
+  109  sysHZComb1109                                              0.2758   +/-   0.9888        :N:M:D
+  110  sysHZComb1110                                             -0.8053   +/-   0.7005        :N:M:D
+  111  sysHZComb1111                                             -1.6442   +/-   0.5536        :N:M:D
+  112  sysHZComb1112                                              0.3283   +/-   0.9900        :N:M:D
+  113  sysHZComb1113                                              1.2075   +/-   0.8433        :N:M:D
+  114  sysHZComb1114                                              1.7874   +/-   0.8075        :N:M:D
+  115  sysHZComb1115                                              0.9939   +/-   0.7563        :N:M:D
+  116  sysHZComb1116                                             -0.1623   +/-   0.7701        :N:M:D
+  117  sysHZComb1117                                              0.3323   +/-   0.8276        :N:M:D
+  118  sysHZComb1118                                             -0.2483   +/-   0.9942        :N:M:D
+  119  sysHZComb1119                                              0.5135   +/-   0.9686        :N:M:D
+  120  sysHZComb1120                                              1.0390   +/-   0.8591        :N:M:D
+  121  sysHZComb1121                                              0.4406   +/-   0.9832        :N:M:D
+  122  sysHZComb1122                                              0.0431   +/-   0.9344        :N:M:D
+  123  sysHZComb1123                                             -0.6289   +/-   0.9291        :N:M:D
+  124  sysHZComb1124                                             -0.7721   +/-   0.8625        :N:M:D
+  125  sysHZComb1125                                              0.6223   +/-   0.8783        :N:M:D
+  126  sysHZComb1126                                             -0.0099   +/-   0.9167        :N:M:D
+  127  sysHZComb1127                                              0.1016   +/-   0.9205        :N:M:D
+  128  sysHZComb1128                                             -0.1658   +/-   0.9476        :N:M:D
+  129  sysHZComb1129                                              0.4157   +/-   0.8576        :N:M:D
+  130  sysHZComb1130                                             -0.2867   +/-   0.8069        :N:M:D
+  131  sysHZComb1131                                             -0.6300   +/-   0.7912        :N:M:D
+  132  sysHZComb1132                                             -0.1944   +/-   0.7918        :N:M:D
+  133  sysHZComb1133                                              0.4657   +/-   0.8218        :N:M:D
+  134  sysHZComb1134                                              0.4633   +/-   0.9784        :N:M:D
+  135  sysHZComb1135                                             -1.5270   +/-   0.8184        :N:M:D
+  136  sysHZComb1136                                              0.4729   +/-   0.8772        :N:M:D
+  137  sysHZComb1137                                             -0.2982   +/-   0.8810        :N:M:D
+  138  sysHZComb1138                                              0.2527   +/-   0.9213        :N:M:D
+  139  sysHZComb1139                                             -0.9368   +/-   0.9434        :N:M:D
+  140  sysHZComb1140                                             -0.3772   +/-   0.9582        :N:M:D
+  141  sysHZComb1141                                             -0.0505   +/-   0.9447        :N:M:D
+  142  sysHZComb1142                                              0.7576   +/-   0.8620        :N:M:D
+  143  sysHZComb1143                                              0.2877   +/-   0.8566        :N:M:D
+  144  sysHZComb1144                                              1.6530   +/-   0.8420        :N:M:D
+  145  sysHZComb1145                                              0.2550   +/-   0.9837        :N:M:D
+  146  sysHZComb1146                                              0.1989   +/-   0.9879        :N:M:D
+  147  sysHZComb1147                                              1.1879   +/-   0.8050        :N:M:D
+  148  sysHZComb1148                                             -0.4863   +/-   0.7889        :N:M:D
+  149  sysHZComb1149                                              0.2031   +/-   0.7700        :N:M:D
+  150  sysHZComb1150                                             -0.6299   +/-   0.7892        :N:M:D
+  151  sysHZComb1151                                              0.2695   +/-   0.9485        :N:M:D
+  152  sysHZComb1152                                              0.7520   +/-   0.7368        :N:M:D
+  153  sysHZComb1153                                             -0.9439   +/-   0.8364        :N:M:D
+  154  sysHZComb1154                                             -0.1565   +/-   0.8124        :N:M:D
+  155  sysHZComb1155                                              0.9312   +/-   0.8164        :N:M:D
+  156  sysHZComb1156                                              0.3772   +/-   0.9168        :N:M:D
+  157  sysHZComb1157                                              1.5195   +/-   0.7278        :N:M:D
+  158  sysHZComb1158                                             -0.0634   +/-   0.8011        :N:M:D
+  159  sysHZComb1159                                             -0.0299   +/-   1.0000        :N:M:D
+  160  sysHZComb1160                                              0.2526   +/-   0.8832        :N:M:D
+  161  sysHZComb1161                                              0.5059   +/-   0.8409        :N:M:D
+  162  sysHZComb1162                                              0.5505   +/-   0.8901        :N:M:D
+  163  proc_nrl                                                   0.1387   +/-   0.3872        :N:M:D
+  164  proc_tb21                                                 -1.0710   +/-   0.5660        :N:M:D
+  165  proc_tb22                                                 -1.2766   +/-   0.3042        :N:M:D
+  166  proc_tb23                                                 -0.6018   +/-   0.4377        :N:M:D
+  167  proc_tb24                                                 -0.1538   +/-   0.4112        :N:M:D
+  168  proc_gp                                                   -0.1368   +/-   0.4273        :N:M:D
+  169  proc_had                                                   0.7412   +/-   0.5171        :N:M:D
+  170  HERA_Charm_Source_01                                       0.0321   +/-   0.9995        :N:M:D
+  171  HERA_Charm_Source_02                                      -0.0378   +/-   0.9997        :N:M:D
+  172  HERA_Charm_Source_03                                      -0.1603   +/-   0.9432        :N:M:D
+  173  HERA_Charm_Source_04                                       0.0675   +/-   0.9903        :N:M:D
+  174  HERA_Charm_Source_05                                      -0.1007   +/-   0.9854        :N:M:D
+  175  HERA_Charm_Source_06                                      -0.0843   +/-   0.9906        :N:M:D
+  176  HERA_Charm_Source_07                                      -0.0942   +/-   0.9821        :N:M:D
+  177  HERA_Charm_Source_08                                       0.2228   +/-   0.9619        :N:M:D
+  178  HERA_Charm_Source_09                                       0.0471   +/-   0.9807        :N:M:D
+  179  HERA_Charm_Source_10                                       0.1872   +/-   0.9858        :N:M:D
+  180  HERA_Charm_Source_11                                      -0.2199   +/-   0.9726        :N:M:D
+  181  HERA_Charm_Source_12                                      -0.2355   +/-   0.9649        :N:M:D
+  182  HERA_Charm_Source_13                                       0.1960   +/-   0.9673        :N:M:D
+  183  HERA_Charm_Source_14                                       0.7122   +/-   0.9254        :N:M:D
+  184  HERA_Charm_Source_15                                      -0.0547   +/-   0.9401        :N:M:D
+  185  HERA_Charm_Source_16                                      -0.7960   +/-   0.9316        :N:M:D
+  186  HERA_Charm_Source_17                                       0.1171   +/-   0.9171        :N:M:D
+  187  HERA_Charm_Source_18                                       0.7948   +/-   0.9294        :N:M:D
+  188  HERA_Charm_Source_19                                       0.9837   +/-   0.8876        :N:M:D
+  189  HERA_Charm_Source_20                                      -0.5418   +/-   0.9236        :N:M:D
+  190  HERA_Charm_Source_21                                       0.0612   +/-   0.9502        :N:M:D
+  191  HERA_Charm_Source_22                                       0.0614   +/-   0.8533        :N:M:D
+  192  HERA_Charm_Source_23                                       0.2386   +/-   0.8813        :N:M:D
+  193  HERA_Charm_Source_24                                      -0.1888   +/-   0.9162        :N:M:D
+  194  HERA_Charm_Source_25                                       0.6470   +/-   0.8105        :N:M:D
+  195  HERA_Charm_Source_26                                      -0.1012   +/-   0.9087        :N:M:D
+  196  HERA_Charm_Source_27                                      -0.4801   +/-   0.9518        :N:M:D
+  197  HERA_Charm_Source_28                                       1.1402   +/-   0.9149        :N:M:D
+  198  HERA_Charm_Source_29                                      -0.5580   +/-   0.9174        :N:M:D
+  199  HERA_Charm_Source_30                                       1.2367   +/-   0.9052        :N:M:D
+  200  HERA_Charm_Source_31                                       0.0403   +/-   0.8653        :N:M:D
+  201  HERA_Charm_Source_32                                      -0.8593   +/-   0.7898        :N:M:D
+  202  HERA_Charm_Source_33                                      -0.7968   +/-   0.8040        :N:M:D
+  203  HERA_Charm_Source_34                                      -1.4940   +/-   0.8128        :N:M:D
+  204  HERA_Charm_Source_35                                       1.2384   +/-   0.8402        :N:M:D
+  205  HERA_Charm_Source_36                                      -0.0124   +/-   0.9520        :N:M:D
+  206  HERA_Charm_Source_37                                       0.1531   +/-   0.9318        :N:M:D
+  207  HERA_Charm_Source_38                                      -0.7137   +/-   0.8753        :N:M:D
+  208  HERA_Charm_Source_39                                      -0.6870   +/-   0.7512        :N:M:D
+  209  HERA_Charm_Source_40                                      -0.8480   +/-   0.8898        :N:M:D
+  210  HERA_Charm_Source_41                                       0.2361   +/-   0.9181        :N:M:D
+  211  HERA_Charm_Source_42                                       0.3106   +/-   0.8461        :N:M:D
+  212  HERA_Charm_Proced_01                                       0.4708   +/-   0.8907        :N:M:D
+  213  HERA_Charm_Proced_02                                       0.2054   +/-   0.8427        :N:M:D
+  214  zbv_trackingef                                             0.5621   +/-   0.9477        :N:M:D
+  215  zbv_core                                                  -0.5621   +/-   0.9267        :N:M:D
+  216  zbv_jetenscale                                             0.1177   +/-   0.9842        :N:M:D
+  217  zbv_emscale                                               -0.2351   +/-   0.6877        :N:M:D
+  218  zbv_MCmodelq2b                                            -0.0206   +/-   0.9967        :N:M:D
+  219  zbv_MCmodetab                                              0.2135   +/-   0.9887        :N:M:D
+  220  zbv_MCmodelenjetc                                         -0.4065   +/-   0.9834        :N:M:D
+  221  zbv_MCmodelenjetb                                         -0.8653   +/-   0.7751        :N:M:D
+  222  zbv_lfas                                                   0.7678   +/-   0.8246        :N:M:D
+  223  zbv_beauty ff                                             -0.6461   +/-   0.8924        :N:M:D
+  224  zbv_fragfrac                                               1.2880   +/-   0.8726        :N:M:D
+  225  zbv_lumi                                                   0.1086   +/-   0.9979        :N:M:D
+  226  zbv_renfacscale                                            0.5398   +/-   0.9646        :N:M:D
+  227  zbv_asvar                                                  0.0694   +/-   0.9305        :N:M:D
+  228  zbv_mbeauty                                                0.1603   +/-   0.9934        :N:M:D
+  229  res                                                       -0.2172   +/-   0.9334        :N:M:D
+  230  cjc                                                       -0.2835   +/-   0.9746        :N:M:D
+  231  CST                                                       -0.5709   +/-   0.8919        :N:M:D
+  232  fragc                                                     -0.1302   +/-   0.9864        :N:M:D
+  233  fragb                                                      0.0538   +/-   0.8993        :N:M:D
+  234  uds                                                        0.8970   +/-   0.7620        :N:M:D
+  235  phiq                                                       0.3689   +/-   0.9327        :N:M:D
+  236  hadE                                                      -0.0138   +/-   0.8712        :N:M:D
+  237  gp                                                         0.0674   +/-   0.9713        :N:M:D
+  238  dF2                                                        0.1370   +/-   0.9713        :N:M:D
+  239  q2c                                                       -0.0639   +/-   0.9989        :N:M:D
+  240  q2b                                                       -0.0748   +/-   0.9804        :N:M:D
+  241  xc                                                        -0.0464   +/-   0.9968        :N:M:D
+  242  xb                                                        -0.1064   +/-   0.8001        :N:M:D
+  243  ptc                                                       -0.4451   +/-   0.8607        :N:M:D
+  244  ptb                                                       -0.3742   +/-   0.6631        :N:M:D
+  245  etac                                                      -0.1815   +/-   0.9676        :N:M:D
+  246  etab                                                      -0.0501   +/-   0.8372        :N:M:D
+  247  BFDp                                                      -0.1075   +/-   0.9897        :N:M:D
+  248  BFD0                                                       0.0828   +/-   0.9932        :N:M:D
+  249  mulDp                                                     -0.4146   +/-   0.9290        :N:M:D
+  250  mulD0                                                     -0.1040   +/-   0.9946        :N:M:D
+  251  mulDs                                                     -0.2924   +/-   0.9758        :N:M:D
+  252  mulB                                                       0.4525   +/-   0.7314        :N:M:D
+  253  bcdms_b                                                    1.9755   +/-   0.7921        :N:M:D
+  254  bcdms_s                                                    2.0704   +/-   0.4264        :N:M:D
+  255  bcdms_r                                                   -0.1690   +/-   0.2586        :N:M:D
+  256  bcdms_d                                                    1.7959   +/-   0.3499        :N:M:D
+  257  bcdms_nt                                                   0.4323   +/-   0.3560        :N:M:D
+  258  bcdms_na                                                   0.2450   +/-   0.3499        :N:M:D
+  259  bcdms_nr1                                                  0.3635   +/-   0.2988        :N:M:D
+  260  bcdms_nr2                                                  0.4187   +/-   0.3014        :N:M:D
+  261  bcdms_nr3                                                  0.3404   +/-   0.3227        :N:M:D
+  262  bcdms_sh                                                  -0.7652   +/-   0.2660        :N:M:D
+  263  nmc_E90                                                   -0.4255   +/-   0.5289        :N:M:D
+  264  nmc_Eprim90                                               -0.7052   +/-   0.7880        :N:M:D
+  265  nmc_AC                                                    -0.1748   +/-   0.2061        :N:M:D
+  266  nmc_RCp                                                   -1.8401   +/-   0.3201        :N:M:D
+  267  nmc_RE                                                     1.2656   +/-   0.2806        :N:M:D
+  268  nmc_E120                                                   1.5219   +/-   0.5087        :N:M:D
+  269  nmc_Eprim120                                              -0.6595   +/-   0.7636        :N:M:D
+  270  nmc_E200                                                   1.2088   +/-   0.5747        :N:M:D
+  271  nmc_Eprim200                                               0.3319   +/-   0.7600        :N:M:D
+  272  nmc_E280                                                   0.4706   +/-   0.5711        :N:M:D
+  273  nmc_Eprim280                                              -0.6404   +/-   0.6285        :N:M:D
+  274  slac_SY49a                                                 0.0882   +/-   0.4865        :N:M:D
+  275  slac_SE49a                                                -0.5666   +/-   0.5329        :N:M:D
+  276  slac_SY49b                                                -0.1904   +/-   0.4272        :N:M:D
+  277  slac_SE49b                                                 0.0493   +/-   0.3592        :N:M:D
+  278  slac_SY87                                                 -0.3774   +/-   0.2124        :N:M:D
+  279  slac_SE87                                                 -0.2238   +/-   0.9846        :N:M:D
+  280  slac_SY89b                                                 0.5447   +/-   0.1565        :N:M:D
+  281  slac_SE89b                                                -0.0990   +/-   0.4418        :N:M:D
+  282  nutev_sys1                                                -0.5587   +/-   0.6286        :N:M:D
+  283  nutev_sys2                                                 1.6348   +/-   0.7039        :N:M:D
+  284  nutev_sys3                                                 0.5347   +/-   0.7681        :N:M:D
+  285  nutev_sys4                                                -0.7361   +/-   0.8459        :N:M:D
+  286  nutev_sys5                                                 0.1568   +/-   0.7833        :N:M:D
+  287  nutev_sys6                                                 2.1843   +/-   0.6743        :N:M:D
+  288  nutev_sys7                                                -0.3386   +/-   0.6005        :N:M:D
+  289  nutev_sys8                                                 0.0007   +/-   0.9458        :N:M:D
+  290  ccfr_sys1                                                 -0.1637   +/-   0.5510        :N:M:D
+  291  nomad_sys1                                                -0.0795   +/-   0.9779        :N:M:D
+  292  nomad_sys2                                                -0.3293   +/-   0.9677        :N:M:D
+  293  nomad_sys3                                                -0.9061   +/-   0.9205        :N:M:D
+  294  nomad_sys4                                                 0.0530   +/-   0.9978        :N:M:D
+  295  nomad_sys5                                                -0.1605   +/-   0.9722        :N:M:D
+  296  nomad_sys6                                                -0.2571   +/-   0.8598        :N:M:D
+  297  nomad_sys7                                                 1.2664   +/-   0.8345        :N:M:D
+  298  nomad_sys8                                                 0.1852   +/-   0.9814        :N:M:D
+  299  nomad_sys9                                                 0.3748   +/-   0.9129        :N:M:D
+  300  nomad_sys10                                               -0.3427   +/-   0.9662        :N:M:D
+  301  nomad_sys11                                                0.0185   +/-   0.7410        :N:M:D
+  302  nomad_sys12                                               -1.2237   +/-   0.6459        :N:M:D
+  303  nomad_sys13                                                1.0952   +/-   0.8621        :N:M:D
+  304  nomad_sys14                                               -0.0934   +/-   0.9985        :N:M:D
+  305  nomad_sys15                                                0.1722   +/-   0.9985        :N:M:D
+  306  nomad_sys16                                               -0.2162   +/-   0.9974        :N:M:D
+  307  nomad_sys17                                               -0.2059   +/-   0.9957        :N:M:D
+  308  CMS_Wmu_Lumi_8                                            -0.1459   +/-   0.2276        :N:M:D
+  309  ATL_WZ2010_Source_1                                       -0.0865   +/-   0.9841        :N:M:D
+  310  ATL_WZ2010_Source_2                                        0.2342   +/-   0.9011        :N:M:D
+  311  ATL_WZ2010_Source_3                                        0.1055   +/-   0.9850        :N:M:D
+  312  ATL_WZ2010_Source_4                                        0.0027   +/-   0.9985        :N:M:D
+  313  ATL_WZ2010_Source_5                                       -0.0800   +/-   0.9990        :N:M:D
+  314  ATL_WZ2010_Source_6                                        0.0820   +/-   0.9969        :N:M:D
+  315  ATL_WZ2010_Source_7                                        0.1200   +/-   0.9815        :N:M:D
+  316  ATL_WZ2010_Source_8                                       -0.0176   +/-   0.9870        :N:M:D
+  317  ATL_WZ2010_Source_9                                        0.1337   +/-   0.9820        :N:M:D
+  318  ATL_WZ2010_Source_10                                      -0.1167   +/-   0.9895        :N:M:D
+  319  ATL_WZ2010_Source_11                                       0.3379   +/-   0.9539        :N:M:D
+  320  ATL_WZ2010_Source_12                                       0.4326   +/-   0.8346        :N:M:D
+  321  ATL_WZ2010_Source_13                                       0.3031   +/-   0.9374        :N:M:D
+  322  ATL_WZ2010_Source_14                                       0.1131   +/-   0.9371        :N:M:D
+  323  ATL_WZ2010_Source_15                                       0.1315   +/-   0.9067        :N:M:D
+  324  ATL_WZ2010_Source_16                                       0.0087   +/-   0.9614        :N:M:D
+  325  ATL_WZ2010_Source_17                                      -0.4341   +/-   0.9173        :N:M:D
+  326  ATL_WZ2010_Source_18                                      -0.1206   +/-   0.9236        :N:M:D
+  327  ATL_WZ2010_Source_19                                      -0.0863   +/-   0.9133        :N:M:D
+  328  ATL_WZ2010_Source_20                                       0.1033   +/-   0.9363        :N:M:D
+  329  ATL_WZ2010_Source_21                                       0.0248   +/-   0.9244        :N:M:D
+  330  ATL_WZ2010_Source_22                                      -0.5494   +/-   0.9029        :N:M:D
+  331  ATL_WZ2010_Source_23                                      -0.5578   +/-   0.9033        :N:M:D
+  332  ATL_WZ2010_Source_24                                      -0.3799   +/-   0.8981        :N:M:D
+  333  ATL_WZ2010_Source_25                                      -0.2393   +/-   0.9600        :N:M:D
+  334  ATL_WZ2010_Source_26                                       0.2947   +/-   0.8714        :N:M:D
+  335  ATL_WZ2010_Source_27                                      -0.3768   +/-   0.9226        :N:M:D
+  336  ATL_WZ2010_Source_28                                       0.2749   +/-   0.9425        :N:M:D
+  337  ATL_WZ2010_Source_29                                      -0.2026   +/-   0.9455        :N:M:D
+  338  ATL_WZ2010_Source_30                                       0.4699   +/-   0.9531        :N:M:D
+  339  ATLAS_lumi2010                                             0.1231   +/-   0.2896        :N:M:D
+  340  ATLAS2015_trig_el                                         -0.1553   +/-   0.9900        :N:M:D
+  341  ATLAS2015_rec_el                                          -0.5145   +/-   0.7872        :N:M:D
+  342  ATLAS2015_iso_el                                          -0.1435   +/-   0.9770        :N:M:D
+  343  ATLAS2015_scale_el                                        -0.2300   +/-   0.9811        :N:M:D
+  344  ATLAS2015_chid_el                                         -0.0747   +/-   0.9976        :N:M:D
+  345  ATLAS2015_jes_el                                          -0.6849   +/-   0.3759        :N:M:D
+  346  ATLAS2015_etmiss_el                                       -0.0403   +/-   0.9985        :N:M:D
+  347  ATLAS2015_pdf_z                                           -0.0344   +/-   0.9969        :N:M:D
+  348  ATLAS_lumi2015                                            -0.7588   +/-   0.3426        :N:M:D
+  349  ATLAS2015_pdf_wp                                           0.5631   +/-   0.9664        :N:M:D
+  350  ATLAS2015_pdf_wm                                          -0.5116   +/-   0.9683        :N:M:D
+  351  ATLAS2015_trig_mu                                          0.4443   +/-   0.9557        :N:M:D
+  352  ATLAS2015_rec_mu                                          -0.1117   +/-   0.7947        :N:M:D
+  353  ATLAS2015_iso_mu                                           0.0093   +/-   0.9434        :N:M:D
+  354  ATLAS2015_scale_mu                                         0.0386   +/-   0.9976        :N:M:D
+  355  ATLAS2015_chid_mu                                          0.0000   +/-   1.0000        :N:M:D
+  356  ATLAS2015_jes_mu                                           0.9602   +/-   0.4094        :N:M:D
+  357  ATLAS2015_etmiss_mu                                        0.0918   +/-   0.9984        :N:M:D
+  358  lhcb7wz_beam                                              -0.9159   +/-   0.7983        :N:M:D
+  359  lhcb7wz_lumi                                              -0.7041   +/-   0.5592        :N:M:D
+  360  lhcb8zel_cor                                              -0.2567   +/-   0.5204        :N:M:D
+  361  lhcb8wz_lumi                                              -0.1940   +/-   0.5937        :N:M:D
+  362  lhcb8wz_beam                                              -0.4407   +/-   0.6668        :N:M:D
+  363  D0_WMUA_EWbkg                                             -0.3381   +/-   0.9612        :N:A:D
+  364  D0_WMUA_MJbkg                                              0.4114   +/-   0.9298        :N:A:D
+  365  D0_WMUA_charge_misid                                       0.0678   +/-   0.9964        :N:A:D
+  366  D0_WMUA_rel_charge_efficiency                             -0.4134   +/-   0.9528        :N:A:D
+  367  D0_WMUA_magnet_pol_weighting                               0.0174   +/-   0.9978        :N:A:D
+  368  D0_WMUA_momentum_met_resolution                           -0.2711   +/-   0.6547        :N:A:D
+  369  D0_WMUA_trigger_isolation                                 -0.2729   +/-   0.7473        :N:A:D
+  370  D0_WELA_Gen                                               -0.0538   +/-   0.9965        :N:A:D
+  371  D0_WELA_Energy                                             0.1306   +/-   0.9857        :N:A:D
+  372  D0_WELA_Recoil                                             0.1799   +/-   0.9711        :N:A:D
+  373  D0_WELA_Model                                              0.7727   +/-   0.6054        :N:A:D
+  374  D0_WELA_Bkgs                                               0.0798   +/-   0.6327        :N:A:D
+  375  rate_dependence                                            0.1521   +/-   0.5630        :N:M:D
+  376  target_length                                              0.0331   +/-   0.9788        :N:M:D
+  377  beam_intensity                                             0.0166   +/-   0.9947        :N:M:D
+  378  att/acc                                                    0.0331   +/-   0.9788        :N:M:D
+  379  deuterium_composition                                      0.5254   +/-   0.7775        :N:M:D
+  380  E605_syst1                                                 0.6662   +/-   0.0663        :N:M:D
+  381  E605_syst2                                                 1.0790   +/-   0.1783        :N:M:D
+  382  BFRAG_CENTRAL                                              0.0271   +/-   0.9973        :N:A:D
+  383  BFRAG_DOWN                                                 0.1446   +/-   0.9848        :N:A:D
+  384  BFRAG_PETERSON                                            -0.6585   +/-   0.9429        :N:A:D
+  385  BFRAG_UP                                                  -0.0532   +/-   0.9327        :N:A:D
+  386  BKG_DOWN                                                  -0.1638   +/-   0.8573        :N:A:D
+  387  BKG_UP                                                     0.2528   +/-   0.8774        :N:A:D
+  388  BR_DOWN                                                    0.0000   +/-   1.0000        :N:A:D
+  389  BR_UP                                                      0.0000   +/-   1.0000        :N:A:D
+  390  BSEMILEP_DOWN                                             -0.1269   +/-   0.9973        :N:A:D
+  391  BSEMILEP_UP                                                0.0837   +/-   0.9986        :N:A:D
+  392  BTAG_DOWN                                                 -0.1738   +/-   0.9971        :N:A:D
+  393  BTAG_LJET_DOWN                                            -0.0664   +/-   0.9899        :N:A:D
+  394  BTAG_LJET_UP                                               0.0663   +/-   0.9905        :N:A:D
+  395  BTAG_UP                                                    0.2213   +/-   0.9960        :N:A:D
+  396  ERDON                                                     -0.0947   +/-   0.8273        :N:A:D
+  397  ERDONRETUNE                                               -0.2901   +/-   0.9159        :N:A:D
+  398  GLUONMOVETUNE                                              0.7137   +/-   0.8295        :N:A:D
+  399  JER_DOWN                                                   0.2035   +/-   0.9864        :N:A:D
+  400  JER_UP                                                    -0.4514   +/-   0.9326        :N:A:D
+  401  JESAbsoluteMPFBias_DOWN                                    0.2446   +/-   0.9871        :N:A:D
+  402  JESAbsoluteMPFBias_UP                                     -0.4360   +/-   0.9856        :N:A:D
+  403  JESAbsoluteScale_DOWN                                      0.2038   +/-   0.9936        :N:A:D
+  404  JESAbsoluteScale_UP                                       -0.3268   +/-   0.9918        :N:A:D
+  405  JESAbsoluteStat_DOWN                                      -0.2931   +/-   0.9755        :N:A:D
+  406  JESAbsoluteStat_UP                                         0.3502   +/-   0.9452        :N:A:D
+  407  JESFlavorQCD_DOWN                                          0.5308   +/-   0.8992        :N:A:D
+  408  JESFlavorQCD_UP                                           -0.8614   +/-   0.8791        :N:A:D
+  409  JESFragmentation_DOWN                                     -0.0557   +/-   0.9972        :N:A:D
+  410  JESFragmentation_UP                                       -0.0836   +/-   0.9930        :N:A:D
+  411  JESPileUpDataMC_DOWN                                       0.0614   +/-   0.9938        :N:A:D
+  412  JESPileUpDataMC_UP                                        -0.1064   +/-   0.9855        :N:A:D
+  413  JESPileUpPtBB_DOWN                                        -0.1135   +/-   0.9957        :N:A:D
+  414  JESPileUpPtBB_UP                                           0.0564   +/-   0.9842        :N:A:D
+  415  JESPileUpPtEC1_DOWN                                       -0.0493   +/-   0.9417        :N:A:D
+  416  JESPileUpPtEC1_UP                                          0.0884   +/-   0.9486        :N:A:D
+  417  JESPileUpPtEC2_DOWN                                        0.0000   +/-   1.0000        :N:A:D
+  418  JESPileUpPtEC2_UP                                          0.0000   +/-   1.0000        :N:A:D
+  419  JESPileUpPtHF_DOWN                                         0.0000   +/-   1.0000        :N:A:D
+  420  JESPileUpPtHF_UP                                           0.0000   +/-   1.0000        :N:A:D
+  421  JESPileUpPtRef_DOWN                                       -0.1929   +/-   0.9820        :N:A:D
+  422  JESPileUpPtRef_UP                                          0.1353   +/-   0.9811        :N:A:D
+  423  JESRelativeBal_DOWN                                        0.5534   +/-   0.9362        :N:A:D
+  424  JESRelativeBal_UP                                         -0.9485   +/-   0.9158        :N:A:D
+  425  JESRelativeFSR_DOWN                                       -0.2708   +/-   0.9921        :N:A:D
+  426  JESRelativeFSR_UP                                          0.0729   +/-   0.9923        :N:A:D
+  427  JESRelativeJEREC1_DOWN                                     0.0018   +/-   0.9999        :N:A:D
+  428  JESRelativeJEREC1_UP                                      -0.0043   +/-   0.9999        :N:A:D
+  429  JESRelativeJEREC2_DOWN                                     0.0000   +/-   1.0000        :N:A:D
+  430  JESRelativeJEREC2_UP                                       0.0000   +/-   1.0000        :N:A:D
+  431  JESRelativeJERHF_DOWN                                      0.0000   +/-   1.0000        :N:A:D
+  432  JESRelativeJERHF_UP                                        0.0000   +/-   1.0000        :N:A:D
+  433  JESRelativePtBB_DOWN                                       0.0498   +/-   0.9925        :N:A:D
+  434  JESRelativePtBB_UP                                        -0.1507   +/-   0.9902        :N:A:D
+  435  JESRelativePtEC1_DOWN                                      0.1079   +/-   0.9515        :N:A:D
+  436  JESRelativePtEC1_UP                                       -0.2466   +/-   0.9489        :N:A:D
+  437  JESRelativePtEC2_DOWN                                      0.0000   +/-   1.0000        :N:A:D
+  438  JESRelativePtEC2_UP                                        0.0000   +/-   1.0000        :N:A:D
+  439  JESRelativePtHF_DOWN                                       0.0000   +/-   1.0000        :N:A:D
+  440  JESRelativePtHF_UP                                         0.0000   +/-   1.0000        :N:A:D
+  441  JESRelativeStatEC_DOWN                                     0.0588   +/-   0.9954        :N:A:D
+  442  JESRelativeStatEC_UP                                      -0.0948   +/-   0.9892        :N:A:D
+  443  JESRelativeStatFSR_DOWN                                    0.0076   +/-   0.9997        :N:A:D
+  444  JESRelativeStatFSR_UP                                     -0.0082   +/-   0.9997        :N:A:D
+  445  JESRelativeStatHF_DOWN                                     0.0000   +/-   1.0000        :N:A:D
+  446  JESRelativeStatHF_UP                                       0.0000   +/-   1.0000        :N:A:D
+  447  JESSinglePionECAL_DOWN                                    -0.0853   +/-   0.9923        :N:A:D
+  448  JESSinglePionECAL_UP                                      -0.0417   +/-   0.9958        :N:A:D
+  449  JESSinglePionHCAL_DOWN                                    -0.1538   +/-   0.9923        :N:A:D
+  450  JESSinglePionHCAL_UP                                      -0.0125   +/-   0.9956        :N:A:D
+  451  JESTimePtEta_DOWN                                         -0.0480   +/-   0.9954        :N:A:D
+  452  JESTimePtEta_UP                                           -0.0143   +/-   0.9984        :N:A:D
+  453  LEPT_DOWN                                                  0.5997   +/-   0.9685        :N:A:D
+  454  LEPT_UP                                                   -0.5886   +/-   0.9694        :N:A:D
+  455  LUMI_DOWN                                                  0.0000   +/-   1.0000        :N:A:D
+  456  LUMI_UP                                                    0.0000   +/-   1.0000        :N:A:D
+  457  MASS_DOWN                                                 -0.0889   +/-   0.9258        :N:A:D
+  458  MASS_UP                                                    0.3717   +/-   0.9208        :N:A:D
+  459  MATCH_DOWN                                                 0.7264   +/-   0.7934        :N:A:D
+  460  MATCH_UP                                                   0.2600   +/-   0.7229        :N:A:D
+  461  MESCALE_DOWN                                              -0.4671   +/-   0.8220        :N:A:D
+  462  MESCALE_UP                                                 0.4070   +/-   0.8763        :N:A:D
+  463  PDF_102                                                    0.0032   +/-   0.9999        :N:A:D
+  464  PDF_103                                                    0.0437   +/-   0.9997        :N:A:D
+  465  PDF_104                                                   -0.1544   +/-   0.9953        :N:A:D
+  466  PDF_105                                                   -0.0282   +/-   0.9972        :N:A:D
+  467  PDF_106                                                    0.1251   +/-   0.9974        :N:A:D
+  468  PDF_107                                                   -0.0639   +/-   0.9990        :N:A:D
+  469  PDF_108                                                   -0.0584   +/-   0.9976        :N:A:D
+  470  PDF_109                                                    0.0183   +/-   0.9991        :N:A:D
+  471  PDF_110                                                   -0.1591   +/-   0.9906        :N:A:D
+  472  PDF_111                                                    0.2053   +/-   0.9893        :N:A:D
+  473  PDF_112                                                    0.0115   +/-   0.9979        :N:A:D
+  474  PDF_113                                                   -0.0131   +/-   0.9992        :N:A:D
+  475  PDF_114                                                   -0.2697   +/-   0.9753        :N:A:D
+  476  PDF_115                                                    0.1969   +/-   0.9908        :N:A:D
+  477  PDF_116                                                   -0.0744   +/-   0.9987        :N:A:D
+  478  PDF_117                                                    0.0662   +/-   0.9993        :N:A:D
+  479  PDF_118                                                   -0.0087   +/-   0.9992        :N:A:D
+  480  PDF_119                                                    0.0345   +/-   0.9992        :N:A:D
+  481  PDF_120                                                    0.1373   +/-   0.9932        :N:A:D
+  482  PDF_121                                                   -0.1519   +/-   0.9920        :N:A:D
+  483  PDF_122                                                    0.0312   +/-   0.9996        :N:A:D
+  484  PDF_123                                                   -0.0591   +/-   0.9983        :N:A:D
+  485  PDF_124                                                   -0.0851   +/-   0.9977        :N:A:D
+  486  PDF_125                                                    0.0825   +/-   0.9979        :N:A:D
+  487  PDF_126                                                    0.0535   +/-   0.9990        :N:A:D
+  488  PDF_127                                                   -0.0544   +/-   0.9990        :N:A:D
+  489  PDF_128                                                   -0.0357   +/-   0.9995        :N:A:D
+  490  PDF_129                                                    0.0493   +/-   0.9991        :N:A:D
+  491  PDF_130                                                   -0.0237   +/-   0.9990        :N:A:D
+  492  PDF_131                                                    0.0320   +/-   0.9996        :N:A:D
+  493  PDF_132                                                    0.0207   +/-   0.9998        :N:A:D
+  494  PDF_133                                                   -0.0288   +/-   0.9997        :N:A:D
+  495  PDF_134                                                   -0.0074   +/-   0.9994        :N:A:D
+  496  PDF_135                                                    0.0653   +/-   0.9983        :N:A:D
+  497  PDF_136                                                    0.0325   +/-   0.9969        :N:A:D
+  498  PDF_137                                                   -0.0208   +/-   0.9974        :N:A:D
+  499  PDF_138                                                    0.0759   +/-   0.9967        :N:A:D
+  500  PDF_139                                                   -0.1350   +/-   0.9918        :N:A:D
+  501  PDF_140                                                    0.0249   +/-   0.9993        :N:A:D
+  502  PDF_141                                                   -0.0455   +/-   0.9991        :N:A:D
+  503  PDF_142                                                   -0.0523   +/-   0.9986        :N:A:D
+  504  PDF_143                                                    0.0964   +/-   0.9982        :N:A:D
+  505  PDF_144                                                   -0.1678   +/-   0.9908        :N:A:D
+  506  PDF_145                                                    0.1885   +/-   0.9938        :N:A:D
+  507  PDF_146                                                   -0.0013   +/-   0.9887        :N:A:D
+  508  PDF_147                                                   -0.0003   +/-   0.9989        :N:A:D
+  509  PDF_148                                                   -0.0050   +/-   0.9981        :N:A:D
+  510  PDF_149                                                   -0.1683   +/-   0.9946        :N:A:D
+  511  PDF_150                                                   -0.1212   +/-   0.9950        :N:A:D
+  512  PDF_151                                                   -0.0882   +/-   0.9917        :N:A:D
+  513  PDF_152                                                   -0.0101   +/-   0.9999        :N:A:D
+  514  PDF_153                                                   -0.0162   +/-   0.9998        :N:A:D
+  515  PDF_154                                                    0.0642   +/-   0.9955        :N:A:D
+  516  PDF_155                                                   -0.0241   +/-   0.9997        :N:A:D
+  517  PDF_156                                                    0.0381   +/-   0.9996        :N:A:D
+  518  PDF_157                                                   -0.0394   +/-   0.9994        :N:A:D
+  519  PDF_158                                                    0.1036   +/-   0.9976        :N:A:D
+  520  PDF_159                                                   -0.1143   +/-   0.9973        :N:A:D
+  521  PSFSRSCALE_DOWN                                            0.1888   +/-   0.9035        :N:A:D
+  522  PSFSRSCALE_UP                                             -0.2954   +/-   0.8235        :N:A:D
+  523  PSISRSCALE_DOWN                                            0.3997   +/-   0.8644        :N:A:D
+  524  PSISRSCALE_UP                                             -0.0957   +/-   0.8215        :N:A:D
+  525  PU_DOWN                                                   -0.0362   +/-   0.9896        :N:A:D
+  526  PU_UP                                                      0.0413   +/-   0.9905        :N:A:D
+  527  TRIG_DOWN                                                  0.0585   +/-   0.9891        :N:A:D
+  528  TRIG_ETA_DOWN                                              0.3268   +/-   0.9606        :N:A:D
+  529  TRIG_ETA_UP                                               -0.3256   +/-   0.9604        :N:A:D
+  530  TRIG_UP                                                   -0.0590   +/-   0.9894        :N:A:D
+  531  UETUNE_DOWN                                                1.1861   +/-   0.7213        :N:A:D
+  532  UETUNE_UP                                                 -0.1104   +/-   0.7473        :N:A:D
+  533  UNCLUSTERED_DOWN                                          -0.3861   +/-   0.9532        :N:A:D
+  534  UNCLUSTERED_UP                                             0.2774   +/-   0.9815        :N:A:D
+  535  CStat_001_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.2266   +/-   0.0129        :N:M:D
+  536  CStat_002_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.4603   +/-   0.0137        :N:M:D
+  537  CStat_003_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.2776   +/-   0.0203        :N:M:D
+  538  CStat_004_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    2.1331   +/-   0.0206        :N:M:D
+  539  CStat_005_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.4540   +/-   0.0620        :N:M:D
+  540  CStat_006_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.1766   +/-   0.0542        :N:M:D
+  541  CStat_007_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.0399   +/-   0.1732        :N:M:D
+  542  CStat_008_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -1.3507   +/-   0.1765        :N:M:D
+  543  CStat_009_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.3520   +/-   0.0717        :N:M:D
+  544  CStat_010_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.6741   +/-   0.1326        :N:M:D
+  545  CStat_011_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -1.9011   +/-   0.0804        :N:M:D
+  546  CStat_012_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.9211   +/-   0.2298        :N:M:D
+  547  CStat_013_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.8493   +/-   0.2003        :N:M:D
+  548  CStat_014_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.7131   +/-   0.1683        :N:M:D
+  549  CStat_015_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.6007   +/-   0.2772        :N:M:D
+  550  CStat_016_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.0741   +/-   0.8191        :N:M:D
+  551  CStat_017_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.0717   +/-   0.2710        :N:M:D
+  552  CStat_018_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.3359   +/-   0.2599        :N:M:D
+  553  CStat_019_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.1686   +/-   0.3820        :N:M:D
+  554  CStat_020_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2746   +/-   0.8378        :N:M:D
+  555  CStat_021_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.5426   +/-   0.9034        :N:M:D
+  556  CStat_022_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    1.7938   +/-   0.2863        :N:M:D
+  557  CStat_023_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.3056   +/-   0.5296        :N:M:D
+  558  CStat_024_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.1319   +/-   0.8101        :N:M:D
+  559  CStat_025_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2623   +/-   0.2761        :N:M:D
+  560  CStat_026_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.7340   +/-   0.1601        :N:M:D
+  561  CStat_027_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.4275   +/-   0.7583        :N:M:D
+  562  CStat_028_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.3260   +/-   0.7246        :N:M:D
+  563  CStat_029_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.0564   +/-   0.7198        :N:M:D
+  564  CStat_030_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2909   +/-   0.3371        :N:M:D
+  565  CStat_031_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.4444   +/-   0.1331        :N:M:D
+  566  CStat_032_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.4622   +/-   0.8409        :N:M:D
+  567  CStat_033_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.5059   +/-   0.7899        :N:M:D
+  568  CStat_034_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.5444   +/-   0.4867        :N:M:D
+  569  CStat_035_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.4689   +/-   0.4102        :N:M:D
+  570  CStat_036_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.6910   +/-   0.7016        :N:M:D
+  571  CStat_037_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    1.1857   +/-   0.1746        :N:M:D
+  572  CStat_038_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    1.1113   +/-   0.3570        :N:M:D
+  573  CStat_039_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.8397   +/-   0.8532        :N:M:D
+  574  CStat_040_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2239   +/-   0.4794        :N:M:D
+  575  CStat_041_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2893   +/-   0.4606        :N:M:D
+  576  CStat_042_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.3206   +/-   0.1693        :N:M:D
+  577  CStat_043_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.6855   +/-   0.4500        :N:M:D
+  578  CStat_044_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.3868   +/-   0.7911        :N:M:D
+  579  CStat_045_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -1.1722   +/-   0.5316        :N:M:D
+  580  CStat_046_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.4576   +/-   0.8492        :N:M:D
+  581  CStat_047_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    2.8777   +/-   0.3028        :N:M:D
+  582  CStat_048_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.0012   +/-   0.5602        :N:M:D
+  583  CStat_049_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.1141   +/-   0.8884        :N:M:D
+  584  CStat_050_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.7619   +/-   0.4180        :N:M:D
+  585  CStat_051_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.4221   +/-   0.1795        :N:M:D
+  586  CStat_052_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.0224   +/-   0.5630        :N:M:D
+  587  CStat_053_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.1203   +/-   0.1640        :N:M:D
+  588  CStat_054_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.4448   +/-   0.5201        :N:M:D
+  589  CStat_055_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2553   +/-   0.2935        :N:M:D
+  590  CStat_056_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.4378   +/-   0.5752        :N:M:D
+  591  CStat_057_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.4427   +/-   0.6663        :N:M:D
+  592  CStat_058_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.0426   +/-   0.1914        :N:M:D
+  593  CStat_059_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.1926   +/-   0.6842        :N:M:D
+  594  CStat_060_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.6962   +/-   0.5743        :N:M:D
+  595  CStat_061_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.6282   +/-   0.4383        :N:M:D
+  596  CStat_062_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.1622   +/-   0.6783        :N:M:D
+  597  CStat_063_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    1.0881   +/-   0.3016        :N:M:D
+  598  CStat_064_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2432   +/-   0.3226        :N:M:D
+  599  CStat_065_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.5067   +/-   0.7771        :N:M:D
+  600  CStat_066_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2213   +/-   0.6137        :N:M:D
+  601  CStat_067_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    1.1382   +/-   0.5723        :N:M:D
+  602  CStat_068_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.4871   +/-   0.9467        :N:M:D
+  603  CStat_069_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2511   +/-   0.6620        :N:M:D
+  604  CStat_070_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.7778   +/-   0.7452        :N:M:D
+  605  CStat_071_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2877   +/-   0.4618        :N:M:D
+  606  CStat_072_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.5120   +/-   0.5246        :N:M:D
+  607  CStat_073_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -1.3625   +/-   0.5495        :N:M:D
+  608  CStat_074_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.0633   +/-   0.4944        :N:M:D
+  609  CStat_075_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.4956   +/-   0.4042        :N:M:D
+  610  CStat_076_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.0678   +/-   0.5976        :N:M:D
+  611  CStat_077_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.0363   +/-   0.9937        :N:M:D
+  612  CStat_078_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -1.1646   +/-   0.4830        :N:M:D
+  613  CStat_079_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.2888   +/-   0.5063        :N:M:D
+  614  CStat_080_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt   -0.0582   +/-   0.5222        :N:M:D
+  615  CStat_081_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.6421   +/-   0.6019        :N:M:D
+  616  CStat_082_CMS 1904.05237 [TOP-18-004] 13TeV ttbar [M(tt    0.0150   +/-   0.9993        :N:M:D
+  617  CSyst_001_CMS W+ cross section 8 TeV                      -0.4064   +/-   0.1009        :N:A:D
+  618  CSyst_002_CMS W+ cross section 8 TeV                       0.4955   +/-   0.8324        :N:A:D
+  619  CSyst_003_CMS W+ cross section 8 TeV                      -0.7871   +/-   0.3170        :N:A:D
+  620  CSyst_004_CMS W+ cross section 8 TeV                      -1.2281   +/-   0.4716        :N:A:D
+  621  CSyst_005_CMS W+ cross section 8 TeV                       0.8766   +/-   0.6621        :N:A:D
+  622  CSyst_006_CMS W+ cross section 8 TeV                       0.3554   +/-   0.3745        :N:A:D
+  623  CSyst_007_CMS W+ cross section 8 TeV                       1.5496   +/-   0.3315        :N:A:D
+  624  CSyst_008_CMS W+ cross section 8 TeV                      -1.1645   +/-   0.4703        :N:A:D
+  625  CSyst_009_CMS W+ cross section 8 TeV                       1.3087   +/-   0.4545        :N:A:D
+  626  CSyst_010_CMS W+ cross section 8 TeV                       0.4450   +/-   0.4054        :N:A:D
+  627  CSyst_011_CMS W+ cross section 8 TeV                       1.2340   +/-   0.4212        :N:A:D
+  628  CSyst_012_CMS W+ cross section 8 TeV                      -0.0883   +/-   0.4263        :N:A:D
+  629  CSyst_013_CMS W+ cross section 8 TeV                       0.7156   +/-   0.4759        :N:A:D
+  630  CSyst_014_CMS W+ cross section 8 TeV                      -0.4284   +/-   0.6676        :N:A:D
+  631  CSyst_015_CMS W+ cross section 8 TeV                      -0.2391   +/-   0.5702        :N:A:D
+  632  CSyst_016_CMS W+ cross section 8 TeV                       0.7612   +/-   0.5492        :N:A:D
+  633  CSyst_017_CMS W+ cross section 8 TeV                       0.9018   +/-   0.4896        :N:A:D
+  634  CSyst_018_CMS W+ cross section 8 TeV                      -0.6559   +/-   0.6687        :N:A:D
+  635  CSyst_019_CMS W+ cross section 8 TeV                      -0.4165   +/-   0.5934        :N:A:D
+  636  CSyst_020_CMS W+ cross section 8 TeV                      -0.2022   +/-   0.6963        :N:A:D
+  637  CSyst_021_CMS W+ cross section 8 TeV                       0.2128   +/-   0.2243        :N:A:D
+  638  CSyst_022_CMS W+ cross section 8 TeV                       0.6471   +/-   0.6534        :N:A:D
+  639  CSyst_023_CMS W+ cross section 8 TeV                       1.1336   +/-   0.6759        :N:A:D
+  640  CSyst_024_CMS W+ cross section 8 TeV                       0.2232   +/-   0.6667        :N:A:D
+  641  CSyst_025_CMS W+ cross section 8 TeV                      -2.6175   +/-   0.5597        :N:A:D
+  642  CSyst_026_CMS W+ cross section 8 TeV                      -0.2065   +/-   0.2736        :N:A:D
+  643  CSyst_027_CMS W+ cross section 8 TeV                       0.0523   +/-   0.4955        :N:A:D
+  644  CSyst_028_CMS W+ cross section 8 TeV                      -0.4364   +/-   0.5457        :N:A:D
+  645  CSyst_029_CMS W+ cross section 8 TeV                      -0.6700   +/-   0.2959        :N:A:D
+  646  CSyst_030_CMS W+ cross section 8 TeV                      -1.3514   +/-   0.2908        :N:A:D
+  647  CSyst_031_CMS W+ cross section 8 TeV                      -0.4773   +/-   0.2928        :N:A:D
+  648  CSyst_032_CMS W+ cross section 8 TeV                       0.5733   +/-   0.6625        :N:A:D
+  649  CSyst_033_CMS W+ cross section 8 TeV                      -0.4187   +/-   0.2949        :N:A:D
+  650  CSyst_034_CMS W+ cross section 8 TeV                       0.3729   +/-   0.3076        :N:A:D
+  651  CSyst_035_CMS W+ cross section 8 TeV                       1.3555   +/-   0.3132        :N:A:D
+  652  CSyst_036_CMS W+ cross section 8 TeV                       0.8890   +/-   0.3136        :N:A:D
+  653  CSyst_037_CMS W+ cross section 8 TeV                      -0.2750   +/-   0.5445        :N:A:D
+  654  CSyst_038_CMS W+ cross section 8 TeV                       0.4826   +/-   0.3831        :N:A:D
+  655  CSyst_039_CMS W+ cross section 8 TeV                      -0.4793   +/-   0.3724        :N:A:D
+  656  CSyst_040_CMS W+ cross section 8 TeV                      -1.4846   +/-   0.3776        :N:A:D
+  657  CSyst_041_CMS W+ cross section 8 TeV                      -0.5594   +/-   0.3841        :N:A:D
+  658  CSyst_042_CMS W+ cross section 8 TeV                      -0.4293   +/-   0.3916        :N:A:D
+  659  CSyst_043_CMS W+ cross section 8 TeV                      -0.9649   +/-   0.4045        :N:A:D
+  660  CSyst_044_CMS W+ cross section 8 TeV                       0.0967   +/-   0.4127        :N:A:D
+  661  CSyst_045_CMS W+ cross section 8 TeV                       0.3933   +/-   0.4204        :N:A:D
+  662  CSyst_046_CMS W+ cross section 8 TeV                       0.0835   +/-   0.4232        :N:A:D
+  663  CSyst_047_CMS W+ cross section 8 TeV                      -1.0313   +/-   0.4706        :N:A:D
+  664  CSyst_048_CMS W+ cross section 8 TeV                       0.6554   +/-   0.7106        :N:A:D
+  665  CSyst_049_CMS W+ cross section 8 TeV                       0.2485   +/-   0.6556        :N:A:D
+  666  CSyst_050_CMS W+ cross section 8 TeV                       2.1118   +/-   0.6974        :N:A:D
+  667  CSyst_051_CMS W+ cross section 8 TeV                      -1.4567   +/-   0.7690        :N:A:D
+  668  CSyst_052_CMS W+ cross section 8 TeV                      -0.7628   +/-   0.7548        :N:A:D
+  669  CSyst_053_CMS W+ cross section 8 TeV                      -0.1835   +/-   0.7714        :N:A:D
+  670  CSyst_054_CMS W+ cross section 8 TeV                      -0.9129   +/-   0.7329        :N:A:D
+  671  CSyst_055_CMS W+ cross section 8 TeV                      -1.5017   +/-   0.7700        :N:A:D
+  672  CSyst_056_CMS W+ cross section 8 TeV                       0.5628   +/-   0.8492        :N:A:D
+  673  CSyst_057_CMS W+ cross section 8 TeV                      -0.6419   +/-   0.7793        :N:A:D
+  674  CSyst_058_CMS W+ cross section 8 TeV                       0.1030   +/-   0.8417        :N:A:D
+  675  CSyst_059_CMS W+ cross section 8 TeV                       0.2439   +/-   0.7801        :N:A:D
+  676  CSyst_060_CMS W+ cross section 8 TeV                      -0.5240   +/-   0.7729        :N:A:D
+  677  CSyst_061_CMS W+ cross section 8 TeV                      -0.0119   +/-   0.8589        :N:A:D
+  678  CSyst_062_CMS W+ cross section 8 TeV                      -0.1198   +/-   0.7974        :N:A:D
+  679  CSyst_063_CMS W+ cross section 8 TeV                      -0.9291   +/-   0.7189        :N:A:D
+  680  CSyst_064_CMS W+ cross section 8 TeV                       0.4345   +/-   0.8466        :N:A:D
+  681  CSyst_065_CMS W+ cross section 8 TeV                       0.1171   +/-   0.8717        :N:A:D
+  682  CSyst_066_CMS W+ cross section 8 TeV                       1.5280   +/-   0.6790        :N:A:D
+  683  CSyst_067_CMS W+ cross section 8 TeV                      -0.4188   +/-   0.8074        :N:A:D
+  684  CSyst_068_CMS W+ cross section 8 TeV                       0.3508   +/-   0.6498        :N:A:D
+  685  CSyst_069_CMS W+ cross section 8 TeV                      -0.4398   +/-   0.8874        :N:A:D
+  686  CSyst_070_CMS W+ cross section 8 TeV                      -0.3108   +/-   0.8842        :N:A:D
+  687  CSyst_071_CMS W+ cross section 8 TeV                      -0.6518   +/-   0.8163        :N:A:D
+  688  CSyst_072_CMS W+ cross section 8 TeV                      -0.2756   +/-   0.8192        :N:A:D
+  689  CSyst_073_CMS W+ cross section 8 TeV                       0.7176   +/-   0.8803        :N:A:D
+  690  CSyst_074_CMS W+ cross section 8 TeV                      -0.4494   +/-   0.8233        :N:A:D
+  691  CSyst_075_CMS W+ cross section 8 TeV                      -0.3103   +/-   0.8014        :N:A:D
+  692  CSyst_076_CMS W+ cross section 8 TeV                      -0.3744   +/-   0.9033        :N:A:D
+  693  CSyst_077_CMS W+ cross section 8 TeV                      -1.0013   +/-   0.8567        :N:A:D
+  694  CSyst_078_CMS W+ cross section 8 TeV                       0.5658   +/-   0.9025        :N:A:D
+  695  CSyst_079_CMS W+ cross section 8 TeV                      -0.3425   +/-   0.8591        :N:A:D
+  696  CSyst_080_CMS W+ cross section 8 TeV                       0.0768   +/-   0.9185        :N:A:D
+  697  CSyst_081_CMS W+ cross section 8 TeV                      -0.4875   +/-   0.8826        :N:A:D
+  698  CSyst_082_CMS W+ cross section 8 TeV                       0.1266   +/-   0.9294        :N:A:D
+  699  CSyst_083_CMS W+ cross section 8 TeV                       0.4228   +/-   0.9298        :N:A:D
+  700  CSyst_084_CMS W+ cross section 8 TeV                      -0.2172   +/-   0.9375        :N:A:D
+  701  CSyst_085_CMS W+ cross section 8 TeV                      -1.2964   +/-   0.1944        :N:A:D
+  702  CSyst_086_CMS W+ cross section 8 TeV                       0.1907   +/-   0.3061        :N:A:D
+  703  CSyst_087_CMS W+ cross section 8 TeV                      -0.2065   +/-   0.4031        :N:A:D
+  704  CSyst_088_CMS W+ cross section 8 TeV                       2.5998   +/-   0.4255        :N:A:D
+  705  CSyst_089_CMS W+ cross section 8 TeV                      -2.0022   +/-   0.4298        :N:A:D
+  706  CSyst_090_CMS W+ cross section 8 TeV                       0.5495   +/-   0.4184        :N:A:D
+  707  CSyst_091_CMS W+ cross section 8 TeV                      -0.3896   +/-   0.4330        :N:A:D
+  708  CSyst_092_CMS W+ cross section 8 TeV                       0.5441   +/-   0.4475        :N:A:D
+  709  CSyst_093_CMS W+ cross section 8 TeV                      -0.2194   +/-   0.4750        :N:A:D
+  710  CSyst_094_CMS W+ cross section 8 TeV                      -0.6285   +/-   0.4846        :N:A:D
+  711  CSyst_095_CMS W+ cross section 8 TeV                       0.0005   +/-   0.4823        :N:A:D
+  712  CSyst_096_CMS W+ cross section 8 TeV                      -0.0949   +/-   0.9924        :N:A:D

@@ -1,0 +1,183 @@
+  MINUIT RELEASE 96.03  INITIALIZED.   DIMENSIONS 200/100  EPSMAC=  0.89E-15
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'ABM_ds_A  '   0.14401      0.68250E-02     no limits
+     2 'ABM_ds_a  '  -0.17098      0.89110E-02     no limits
+     3 'ABM_ds_b  '    8.4065      0.27049         no limits
+     4 'ABM_ds_g1 '    13.476       1.7254         no limits
+     5 'ABM_dv_A  '    1.0000      constant
+     6 'ABM_dv_a  '   0.34126      0.52096E-01     no limits
+     7 'ABM_dv_b  '    4.0616      0.39510         no limits
+     8 'ABM_dv_g1 '   -3.7203      0.64444         no limits
+     9 'ABM_dv_g2 '   0.82394       1.4320         no limits
+    10 'ABM_dv_g3 '    0.0000      constant
+    11 'ABM_g_A   '    1.0000      constant
+    12 'ABM_g_a   '  -0.15340      0.60650E-02     no limits
+    13 'ABM_g_b   '    6.1291      0.14389         no limits
+    14 'ABM_g_g1  '   -11.950       1.3286         no limits
+    15 'ABM_ss_A  '   0.61047E-01  0.33160E-02     no limits
+    16 'ABM_ss_a  '  -0.33575      0.14850E-01     no limits
+    17 'ABM_ss_b  '    6.5337      0.21345         no limits
+    18 'ABM_us_A  '   0.69085E-01  0.56320E-02     no limits
+    19 'ABM_us_a  '  -0.41601      0.21752E-01     no limits
+    20 'ABM_us_b  '    7.9779      0.28979         no limits
+    21 'ABM_us_g1 '    4.9954      0.69253         no limits
+    22 'ABM_us_gm1'   0.36246E-01  0.21450E-02     no limits
+    23 'ABM_uv_A  '    1.0000      constant
+    24 'ABM_uv_a  '   0.57342      0.22349E-01     no limits
+    25 'ABM_uv_b  '    3.4115      0.45518E-01     no limits
+    26 'ABM_uv_g1 '  -0.70376      0.21962         no limits
+    27 'ABM_uv_g2 '   -2.2521      0.28310         no limits
+    28 'ABM_uv_g3 '    1.5278      0.53699         no limits
+    29 'N_BCDMS   '    1.0000      constant
+    30 'N_NMC120  '    1.0000      constant
+    31 'N_NMC200  '    1.0000      constant
+    32 'N_NMC280  '    1.0000      constant
+    33 'N_NMC90   '    1.0000      constant
+    34 'N_SLAC49a '    1.0000      constant
+    35 'N_SLAC49b '    1.0000      constant
+    36 'N_SLAC87  '    1.0000      constant
+    37 'N_SLAC89b '    1.0000      constant
+    38 'ZERO      '    0.0000      constant
+    39 'alphas_Q0_'   0.46529      0.72570E-02     no limits
+    40 'br_cmu_0  '   0.90501E-01  0.18500E-02     no limits
+    41 'br_cmu_1  '    4.6230      0.76108         no limits
+    42 'ht_alpha_f'    0.0000      constant
+    43 'ht_alpha_f'   0.46476E-01  0.56158E-01     no limits
+    44 'ht_f2_1   '   0.24941E-01  0.12028E-01     no limits
+    45 'ht_f2_2   '  -0.25713E-01  0.78100E-02     no limits
+    46 'ht_f2_3   '  -0.81400E-03  0.52750E-02     no limits
+    47 'ht_f2_4   '   0.22312E-01  0.34750E-02     no limits
+    48 'ht_f2_5   '   0.45865E-01  0.26090E-02     no limits
+    49 'ht_f2_6   '   0.39310E-02  0.27610E-02     no limits
+    50 'ht_f2_7   '    0.0000      constant
+    51 'ht_ft_1   '  -0.29927      0.88193E-01     no limits
+    52 'ht_ft_2   '  -0.13714      0.27219E-01     no limits
+    53 'ht_ft_3   '  -0.79836E-01  0.13256E-01     no limits
+    54 'ht_ft_4   '   0.28037E-01  0.12198E-01     no limits
+    55 'ht_ft_5   '   0.16568E-01  0.73580E-02     no limits
+    56 'ht_ft_6   '   0.69720E-02  0.49530E-02     no limits
+    57 'ht_ft_7   '    0.0000      constant
+    58 'htns_alpha'    0.0000      constant
+    59 'htns_alpha'    0.0000      constant
+    60 'htns_alpha'    0.0000      constant
+    61 'htns_f2_1 '    0.0000      constant
+    62 'htns_f2_2 '  -0.64836E-01  constant
+    63 'htns_f2_3 '   0.16308E-01  constant
+    64 'htns_f2_4 '   0.28077      constant
+    65 'htns_f2_5 '   0.18513      constant
+    66 'htns_f2_6 '   0.93590E-01  constant
+    67 'htns_f2_7 '    0.0000      constant
+    68 'htns_f3_1 '    0.0000      constant
+    69 'htns_f3_2 '  -0.26079      constant
+    70 'htns_f3_3 '  -0.45731      constant
+    71 'htns_f3_4 '   0.18279      constant
+    72 'htns_f3_5 '   0.13277      constant
+    73 'htns_f3_6 '   0.44260E-01  constant
+    74 'htns_f3_7 '    0.0000      constant
+    75 'htns_ft_1 '    0.0000      constant
+    76 'htns_ft_2 '    0.0000      constant
+    77 'htns_ft_3 '    0.0000      constant
+    78 'htns_ft_4 '    0.0000      constant
+    79 'htns_ft_5 '    0.0000      constant
+    80 'htns_ft_6 '    0.0000      constant
+    81 'htns_ft_7 '    0.0000      constant
+    82 'mbt       '    3.8232      0.37163E-01     no limits
+    83 'mch       '    1.2584      0.10782E-01     no limits
+    84 'mtFit     '    1.0000      constant
+    85 'mtp       '    162.01      0.19607         no limits
+ **********
+ **    1 **CALL FCN    3.000    
+ **********
+
+ FCN=   3416.663     FROM CALl fcn  STATUS=RESET          1 CALLS        1 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+
+  EXT PARAMETER               CURRENT GUESS      PHYSICAL LIMITS       
+  NO.   NAME        VALUE          ERROR       NEGATIVE      POSITIVE  
+   1  ABM_ds_A     0.14401       0.68250E-02
+   2  ABM_ds_a    -0.17098       0.89110E-02
+   3  ABM_ds_b      8.4065       0.27049    
+   4  ABM_ds_g1     13.476        1.7254    
+   5  ABM_dv_A      1.0000       constant   
+   6  ABM_dv_a     0.34126       0.52096E-01
+   7  ABM_dv_b      4.0616       0.39510    
+   8  ABM_dv_g1    -3.7203       0.64444    
+   9  ABM_dv_g2    0.82394        1.4320    
+  10  ABM_dv_g3     0.0000       constant   
+  11  ABM_g_A       1.0000       constant   
+  12  ABM_g_a     -0.15340       0.60650E-02
+  13  ABM_g_b       6.1291       0.14389    
+  14  ABM_g_g1     -11.950        1.3286    
+  15  ABM_ss_A     0.61047E-01   0.33160E-02
+  16  ABM_ss_a    -0.33575       0.14850E-01
+  17  ABM_ss_b      6.5337       0.21345    
+  18  ABM_us_A     0.69085E-01   0.56320E-02
+  19  ABM_us_a    -0.41601       0.21752E-01
+  20  ABM_us_b      7.9779       0.28979    
+  21  ABM_us_g1     4.9954       0.69253    
+  22  ABM_us_gm1   0.36246E-01   0.21450E-02
+  23  ABM_uv_A      1.0000       constant   
+  24  ABM_uv_a     0.57342       0.22349E-01
+  25  ABM_uv_b      3.4115       0.45518E-01
+  26  ABM_uv_g1   -0.70376       0.21962    
+  27  ABM_uv_g2    -2.2521       0.28310    
+  28  ABM_uv_g3     1.5278       0.53699    
+  29  N_BCDMS       1.0000       constant   
+  30  N_NMC120      1.0000       constant   
+  31  N_NMC200      1.0000       constant   
+  32  N_NMC280      1.0000       constant   
+  33  N_NMC90       1.0000       constant   
+  34  N_SLAC49a     1.0000       constant   
+  35  N_SLAC49b     1.0000       constant   
+  36  N_SLAC87      1.0000       constant   
+  37  N_SLAC89b     1.0000       constant   
+  38  ZERO          0.0000       constant   
+  39  alphas_Q0_   0.46529       0.72570E-02
+  40  br_cmu_0     0.90501E-01   0.18500E-02
+  41  br_cmu_1      4.6230       0.76108    
+  42  ht_alpha_f    0.0000       constant   
+  43  ht_alpha_f   0.46476E-01   0.56158E-01
+  44  ht_f2_1      0.24941E-01   0.12028E-01
+  45  ht_f2_2     -0.25713E-01   0.78100E-02
+  46  ht_f2_3     -0.81400E-03   0.52750E-02
+  47  ht_f2_4      0.22312E-01   0.34750E-02
+  48  ht_f2_5      0.45865E-01   0.26090E-02
+  49  ht_f2_6      0.39310E-02   0.27610E-02
+  50  ht_f2_7       0.0000       constant   
+  51  ht_ft_1     -0.29927       0.88193E-01
+  52  ht_ft_2     -0.13714       0.27219E-01
+  53  ht_ft_3     -0.79836E-01   0.13256E-01
+  54  ht_ft_4      0.28037E-01   0.12198E-01
+  55  ht_ft_5      0.16568E-01   0.73580E-02
+  56  ht_ft_6      0.69720E-02   0.49530E-02
+  57  ht_ft_7       0.0000       constant   
+  58  htns_alpha    0.0000       constant   
+  59  htns_alpha    0.0000       constant   
+  60  htns_alpha    0.0000       constant   
+  61  htns_f2_1     0.0000       constant   
+  62  htns_f2_2   -0.64836E-01   constant   
+  63  htns_f2_3    0.16308E-01   constant   
+  64  htns_f2_4    0.28077       constant   
+  65  htns_f2_5    0.18513       constant   
+  66  htns_f2_6    0.93590E-01   constant   
+  67  htns_f2_7     0.0000       constant   
+  68  htns_f3_1     0.0000       constant   
+  69  htns_f3_2   -0.26079       constant   
+  70  htns_f3_3   -0.45731       constant   
+  71  htns_f3_4    0.18279       constant   
+  72  htns_f3_5    0.13277       constant   
+  73  htns_f3_6    0.44260E-01   constant   
+  74  htns_f3_7     0.0000       constant   
+  75  htns_ft_1     0.0000       constant   
+  76  htns_ft_2     0.0000       constant   
+  77  htns_ft_3     0.0000       constant   
+  78  htns_ft_4     0.0000       constant   
+  79  htns_ft_5     0.0000       constant   
+  80  htns_ft_6     0.0000       constant   
+  81  htns_ft_7     0.0000       constant   
+  82  mbt           3.8232       0.37163E-01
+  83  mch           1.2584       0.10782E-01
+  84  mtFit         1.0000       constant   
+  85  mtp           162.01       0.19607    
