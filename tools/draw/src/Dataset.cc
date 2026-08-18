@@ -585,7 +585,7 @@ Data::Data(string dirname, string label)
               if (token == "NaN" || token == "nan")
                 buffer = std::numeric_limits<float>::quiet_NaN();
               else
-                buffer = stof(token);
+                buffer = stod(token);
               if (coltag[i] == "iplot")
                 iplot = (int) buffer;
               else
