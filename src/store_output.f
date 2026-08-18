@@ -88,8 +88,10 @@ C---------------------------------------------------------------
          endif
          open(81,file=name)
 c        open(82,file=h1name)
+         alphas(0) = hf_get_alphas(q2)
          ! Write basic info on the table:
-         write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2)
+         ! 2026.08.18 store alphaS value
+         write (81,*) q2val(iq2),outnx, NPdfs, outxrange(1), outxrange(2),alphas(0)
 
          ! Write the names of PDFs
          write (81,'(16(2x,A12))')
