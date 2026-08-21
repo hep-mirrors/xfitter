@@ -46,7 +46,12 @@ namespace xfitter {
       double value = *XFITTER_PARS::gParameters[name];
       const double* bounds = origin->_bounds[ipar];
       const double* priors = origin->_priors[ipar];
-      addParameter(value, name, fabs(value)*1.e-2, bounds, priors);
+      if (value != 0.0) {
+        addParameter(value, name, fabs(value)*1.e-2, bounds, priors);
+      }
+      else {
+        addParameter(value, name, 1.e-2, bounds, priors);
+      }
     }
   }
 
