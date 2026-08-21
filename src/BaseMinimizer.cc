@@ -72,5 +72,26 @@ namespace xfitter {
       *XFITTER_PARS::gParameters.at( _allParameterNames[i]) = pars[i];
     }
   }
+  int BaseMinimizer::parameterIndex(const std::string& name) const {
+    for (size_t i = 0; i < _allParameterNames.size(); i += 1) {
+      if (_allParameterNames[i] == name) return static_cast<int>(i);
+    }
+    return -1;
+  }
+
+  double BaseMinimizer::getParameterUncertainty(const std::string& name) const {
+    (void)name;
+    return std::nan("");
+  }
+
+  double BaseMinimizer::getParameterValue(const std::string& name) const {
+    return *XFITTER_PARS::gParameters.at(name);
+  }
+
+  double BaseMinimizer::getParameterValue(const std::string& name, const double* pars) const {
+    int index = parameterIndex(name);
+    if (index < 0) return getParameterValue(name);
+    return pars[index];
+  }
 }
 

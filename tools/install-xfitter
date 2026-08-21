@@ -388,14 +388,30 @@ else
 #Hathor:
     echo "Installing Hathor $hathorver..."
     hathor="Hathor"
-    if [[ $http == "curl" ]]
+    hathor_tarball="Hathor-${hathorver}.tar.gz"
+    hathor_local="${SCRIPT_DIR}/../${hathor_tarball}"
+    if [[ -f "$hathor_local" ]]
     then
-        curl https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz 2>> $CURRENTDIR/install.log
+        echo "Using local $hathor_tarball" >> $CURRENTDIR/install.log
+        cp "$hathor_local" "$hathor_tarball"
+    elif [[ $http == "curl" ]]
+    then
+        curl -L --fail -o "${hathor_tarball}" https://www.physik.hu-berlin.de/de/pep/tools/${hathor_tarball} 2>> $CURRENTDIR/install.log
     else
-        wget --no-check-certificate https://www.physik.hu-berlin.de/de/pep/tools/Hathor-${hathorver}.tar.gz >> $CURRENTDIR/install.log 2>&1
+        wget --no-check-certificate -O "${hathor_tarball}" https://www.physik.hu-berlin.de/de/pep/tools/${hathor_tarball} >> $CURRENTDIR/install.log 2>&1
     fi
-    tar xfz Hathor-${hathorver}.tar.gz  >> $CURRENTDIR/install.log 2>&1
-    cd Hathor-${hathorver}/lib
+    if [[ $? != 0 ]]
+    then
+        echo "Error, check install.log for details"
+        exit
+    fi
+    tar xfz ${hathor_tarball}  >> $CURRENTDIR/install.log 2>&1
+    if [[ $? != 0 ]]
+    then
+        echo "Error, check install.log for details"
+        exit
+    fi
+    cd Hathor-${hathorver}/lib || exit
     # need to provide LHAPDF directory and add -fPIC flag to CFLAGS and FFLAGS
     make LHAPDF=$CURRENTDIR/deps/lhapdf V=1 CFLAGS="${root_c_flags} -O2 -Wall -fPIC" FFLAGS='-ffixed-line-length-132 -fPIC -std=legacy' -j 8 >> $CURRENTDIR/install.log  2>&1 
     if [[ $? != 0 ]]

@@ -359,6 +359,7 @@ void CERESMinimizer::doMinimization() {
 
   double covmat[npars * npars];
   fill(covmat,covmat+npars*npars, 0.);
+  _parameterUncertainties.assign(npars, std::nan(""));
 
   //First call to FCN for initialisation
   double chi2;
@@ -490,6 +491,10 @@ void CERESMinimizer::doMinimization() {
     CHECK(covariance.Compute(covariance_blocks, &problem));
 
     covariance.GetCovarianceBlock(parVals, parVals, covmat);
+
+    for (int i = 0; i < npars; i += 1) {
+      _parameterUncertainties[i] = sqrt(covmat[i*npars+i]);
+    }
   }
 
   std::cout << summary.FullReport() << "\n";
@@ -584,6 +589,12 @@ ConvergenceStatus CERESMinimizer::convergenceStatus() {
 void CERESMinimizer::addParameter(double par, std::string const &name, double step, double const* bounds, double  const* priors  ) {
   BaseMinimizer::addParameter(par,name,step,bounds,priors);
   return;
+}
+
+double CERESMinimizer::getParameterUncertainty(const std::string& name) const {
+  int index = parameterIndex(name);
+  if (index < 0 || static_cast<size_t>(index) >= _parameterUncertainties.size()) return std::nan("");
+  return _parameterUncertainties[index];
 }
 
 void CERESMinimizer::writePars(const double* covmat) {
