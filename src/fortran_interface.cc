@@ -1,10 +1,12 @@
 #include"xfitter_steer.h"
 #include"BaseEvolution.h"
+#include"xfitter_cpp_base.h"
 #include<cmath>
 
 #include "zlib.h"
 #include "stdio.h"
 #include <string>
+#include <cstdlib>
 
 //Functions to access various things from fortran
 //PDFs and alpha_s are taken from default evolution
@@ -35,8 +37,7 @@ extern "C" uLong filechecksum_(const char text[], size_t size) {
   Bytef *buffer;
   size_t filelen;
 
-  string bla = string(text,size);
-  bla.erase(bla.find_last_not_of(" ")+1, string::npos);
+  string bla = stringFromFortran(text,size);
   
   fileptr = fopen(bla.c_str(), "rb");  // Open the file in binary mode
 
@@ -50,7 +51,7 @@ extern "C" uLong filechecksum_(const char text[], size_t size) {
 
   uLong cs = checksum_(buffer, filelen);
   
-  delete buffer;
+  free(buffer);
   return cs;
 }
  

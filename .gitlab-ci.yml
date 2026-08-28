@@ -1,6 +1,8 @@
 image: "gitlab-registry.cern.ch/fitters/xfitter:with_docker"
 # image: "gitlab-registry.cern.ch/fitters/xfitter"
 
+variables:
+  DS_EXCLUDED_ANALYZERS: "gemnasium-python"
 
 stages:
  - test
@@ -200,19 +202,23 @@ job-tmd:
       - temp/**/output
     expire_in: 2 day
 
-
 job-docker:
   stage: package
   tags:
     - docker-privileged-xl
-  image: docker
+
+  image: docker:28.3.3
   services:
-    - docker:dind
-  only: 
+    - name: docker:28.3.3-dind
+
+  only:
     - schedules
+
   timeout: 120m
+
   script:
+    - docker version
     - docker info
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build -t gitlab-registry.cern.ch/fitters/xfitter:master .
-    - docker push gitlab-registry.cern.ch/fitters/xfitter:master
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:master" .
+    - docker push "$CI_REGISTRY_IMAGE:master"

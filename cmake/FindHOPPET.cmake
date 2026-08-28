@@ -1,4 +1,4 @@
-find_program(hoppet-config hoppet-config PATHS ${CMAKE_SOURCE_DIR}/deps/apfelxx/bin)
+find_program(hoppet-config hoppet-config PATHS ${CMAKE_SOURCE_DIR}/deps/hoppet/bin)
 if(EXISTS "${hoppet-config}")
   set(HOPPET_FOUND 1)
   execute_process(COMMAND ${hoppet-config} --prefix OUTPUT_VARIABLE HOPPET_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)

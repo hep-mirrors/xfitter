@@ -439,28 +439,28 @@ C---------------------------------------------------------
 #include "endmini.inc"
 #include "extrapars.inc"
       double precision rsys_in(nsysmax), ersys_in(nsysmax)
-      integer i,idx, iflag
-      integer GetParameterIndex
-      character*80 parname
-      double precision val, err, xlo, xhi
-      integer ipar
+      integer i, iflag
+      double precision getparamd  ! c++ interface
+      double precision getparamunc  ! c++ minimizer uncertainty interface
 C-------------------------------------------------
       do i=1,NSys
          if (SysForm(i) .eq. isExternal ) then
-            idx = GetParameterIndex(system(i))
-            if (idx.eq.0) then
-               print *,'ERROR ERROR ERROR'
-               print *,'External systematics ',system(i),' not found'
-               print *,'on the list of external parameters'
-               print *,'Contact herafiter-help@desy.de with ! Stop.'
-               print *,' '
-               call HF_stop
-            endif
-            rsys_in(i) = parminuitsave( iExtraParamMinuit(idx) )
+!            idx = GetParameterIndex(system(i))
+!            if (idx.eq.0) then
+!               print *,'ERROR ERROR ERROR'
+!               print *,'External systematics ',system(i),' not found'
+!               print *,'on the list of external parameters'
+!               print *,'Contact herafiter-help@desy.de with ! Stop.'
+!               print *,' '
+!               call HF_stop
+!            endif
+!     rsys_in(i) = parminuitsave( iExtraParamMinuit(idx) )
+
+
+            rsys_in(i) = getparamd(system(i))
+
             if (IFlag.eq.3) then
-               call mnpout(iExtraParamMinuit(idx)
-     $              ,parname,val,err,xlo,xhi,ipar)
-               ersys_in(i) = err
+               ersys_in(i) = getparamunc(system(i))
             endif
          endif
       enddo

@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <string>
 #include <map>
+#include <algorithm>
 
 #include <stdlib.h>
 #include <TGraphErrors.h>
@@ -21,16 +22,30 @@
 
 bool ParPainter()
 {
-  //List of all parameters
-  vector <int> parindexlist = parlist();
-  if (parindexlist.size() == 0)
+  // List of all parameters. Different minimizers can assign different
+  // numeric IDs, so align table rows by parameter name.
+  vector <string> parnamelist;
+  map <string, map<string, partype> > parbyname;
+  for (map <string, Par>::iterator dit = parmap.begin(); dit != parmap.end(); dit++)
+    for (map <int, partype>::iterator pit = dit->second.parlist.begin(); pit != dit->second.parlist.end(); pit++)
+      {
+        parbyname[dit->first][pit->second.name] = pit->second;
+        parnamelist.push_back(pit->second.name);
+      }
+
+  sort(parnamelist.begin(), parnamelist.end());
+  vector<string>::iterator uniqueEnd = unique(parnamelist.begin(), parnamelist.end());
+  parnamelist.resize(distance(parnamelist.begin(), uniqueEnd));
+
+  if (parnamelist.size() == 0)
     return true;
 
-  int ndata = parindexlist.size();
+  int ndata = parnamelist.size();
 
   float par[opts.labels.size()][ndata];
   float unc_p[opts.labels.size()][ndata];
   float unc_m[opts.labels.size()][ndata];
+  bool has_par[opts.labels.size()][ndata];
   vector <string> dirname;
   dirname.resize(opts.labels.size());
   for (int i = 0; i < opts.labels.size(); i++)
@@ -39,6 +54,7 @@ bool ParPainter()
 	par[i][d] = 0;
 	unc_p[i][d] = 0;
 	unc_m[i][d] = 0;
+	has_par[i][d] = false;
       }
 
   for (int d = 0; d < opts.labels.size(); d++)
@@ -52,15 +68,20 @@ bool ParPainter()
 
   //loop on parameters
   int p = 0;
-  for (vector<int>::iterator pit = parindexlist.begin(); pit != parindexlist.end(); pit++)
+  for (vector<string>::iterator pit = parnamelist.begin(); pit != parnamelist.end(); pit++)
     {
       //loop on labels (directories)
       int dir = 0;
       for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
 	{
-	  par[dir][p] = parmap[*itl].parlist[*pit].value;
-	  unc_p[dir][p] = parmap[*itl].parlist[*pit].error_p;
-	  unc_m[dir][p] = parmap[*itl].parlist[*pit].error_m;
+	  map<string, partype>::iterator parit = parbyname[*itl].find(*pit);
+	  if (parit != parbyname[*itl].end())
+	    {
+	      par[dir][p] = parit->second.value;
+	      unc_p[dir][p] = parit->second.error_p;
+	      unc_m[dir][p] = parit->second.error_m;
+	      has_par[dir][p] = true;
+	    }
 	  dir++;
 	}
       p++;
@@ -87,7 +108,7 @@ bool ParPainter()
   float cm = 0.035277778 * points * 9;
 
   float width = opts.labels.size() * cm + 9*points*0.035277778;
-  float height = (parindexlist.size() + 3)*points*0.035277778;
+  float height = (parnamelist.size() + 3)*points*0.035277778;
 
   fprintf(ftab,"\\documentclass[%dpt]{report}\n", points);
   fprintf(ftab,"\\usepackage{extsizes}\n");
@@ -129,17 +150,18 @@ bool ParPainter()
   fprintf(ftab,"  \\\\ \n");
   fprintf(ftab,"      \\midrule\n");
 
-  for (vector<int>::iterator pit = parindexlist.begin(); pit != parindexlist.end(); pit++)
+  for (vector<string>::iterator pit = parnamelist.begin(); pit != parnamelist.end(); pit++)
     {
-      TString name(findparname(*pit));
+      TString name(*pit);
       name.ReplaceAll("_","\\_");
-      // fprintf(ftab,"  %s ", findparname(*pit).c_str());
       fprintf(ftab,"  %s ", name.Data());
       for (vector<string>::iterator itl = opts.labels.begin(); itl != opts.labels.end(); itl++)
 	{
 	  int l = itl-opts.labels.begin();
-	  int p = pit-parindexlist.begin();
-	  if (unc_p[l][p] != 0 && unc_m[l][p] != 0 && par[l][p] != 0 )
+	  int p = pit-parnamelist.begin();
+	  if (!has_par[l][p])
+	    fprintf(ftab,"& - ");
+	  else if (unc_p[l][p] != 0 && unc_m[l][p] != 0 )
 	    {
 	      if (unc_p[l][p] == unc_m[l][p]) //symmetric case
 		//if (parmap[*itl].fitstatus != "pos-def-forced")
@@ -153,10 +175,8 @@ bool ParPainter()
 			Round(unc_p[l][p], unc_p[l][p])[1].c_str(), 
 			Round(unc_m[l][p], unc_m[l][p])[1].c_str());
 	    }
-	  else if (par[l][p] != 0)
-	    fprintf(ftab,"& $\\textcolor{blue}{ %s }$", Round(par[l][p], par[l][p]/100.)[0].c_str());
 	  else
-	    fprintf(ftab,"& - ");
+	    fprintf(ftab,"& $\\textcolor{blue}{ %s }$", Round(par[l][p], par[l][p]/100.)[0].c_str());
 	}
       fprintf(ftab,"  \\\\ \n");
     }

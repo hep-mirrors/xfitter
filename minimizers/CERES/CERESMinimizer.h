@@ -44,6 +44,7 @@ namespace xfitter {
     virtual ConvergenceStatus convergenceStatus()override final;
     /// Parameter transfer
     virtual void addParameter(double par, std::string const &name, double step = 0.01, double const* bounds = nullptr , double  const* priors  = nullptr ) override final;
+    virtual double getParameterUncertainty(const std::string& name) const override final;
 
     static double glboff;
     static double *offset;
@@ -52,5 +53,6 @@ namespace xfitter {
 
   private:
     ConvergenceStatus convergence_status=ConvergenceStatus::NORUN;
+    std::vector<double> _parameterUncertainties;
   };
 }

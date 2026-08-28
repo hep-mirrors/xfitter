@@ -823,6 +823,7 @@ C find them (???)
       character*(*) name
       double precision value, step, min, max, constrval, construnc
       double precision gParam
+      double precision bounds(2), priors(2)
       logical to_gParam
       integer iglobal
       CHARACTER TMP
@@ -830,7 +831,13 @@ C find them (???)
 C---------------------------------------------
 C Add extra param
 C
-
+      bounds(1) = min
+      bounds(2) = max
+      priors(1) = constrval
+      priors(2) = construnc
+      call add_parameter_to_minimizer(value, step, bounds, priors, name)
+C     Continue below to fill the legacy ExtraPars common block for MINUIT.
+      
       nExtraParam = nExtraParam + 1
       if (nExtraParam.gt. nExtraParamMax) then
          print *,'Number of extra parameters exceeds the limit'
@@ -863,7 +870,7 @@ C Also add it to c++ map ...
          call add_To_Param_Map( gParam, ExtraParamValue(nExtraParam)
      $        ,  iglobal, ExtraParamNames(nExtraParam)//char(0))
       endif
-
+      
       end
 
 
@@ -1195,7 +1202,7 @@ C
 C Register external systematics:
       if ( SysForm(nsys) .eq. isExternal) then
          call AddExternalParam(System(nsys),0.0D0, 1.0D0, 0.0D0, 0.0D0
-     $                         ,0.0D0,0.0D0,.false.,0.0D0)
+     $                         ,0.0D0,0.0D0,.true.,0.0D0)
       endif
 
       end

@@ -329,7 +329,7 @@ c     bin-by-bin dynamic scale in applgrid prediction
       logical LReadKFactor
 
 C Temporary buffer to read the data (allows for comments starting with *)
-      character *14096 CTmp
+      character *112768 CTmp
 
       integer SystematicsExist,iLen
       integer NAsymPlus(NSYSMAX), NAsymMinus(NSYSMAX)

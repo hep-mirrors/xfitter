@@ -1,5 +1,5 @@
 #ifndef NSYSMAX_C
-#define NSYSMAX_C 1500
+#define NSYSMAX_C 5000
 #endif
 #ifndef NTOT_C
 #define NTOT_C 5000
