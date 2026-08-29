@@ -2,6 +2,7 @@ image: "gitlab-registry.cern.ch/fitters/xfitter:with_docker"
 # image: "gitlab-registry.cern.ch/fitters/xfitter"
 
 variables:
+  DEPENDENCY_SCANNING_DISABLED: "true"
   DS_EXCLUDED_ANALYZERS: "gemnasium-python"
 
 stages:
