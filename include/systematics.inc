@@ -35,11 +35,11 @@
       integer SysScalingType(nsysmax)      !> Store scaling behaviour              
       
       !> Type, form: 
-      integer isNuisance, isMatrix, isOffset, isExternal   !> Store type
+      integer isNuisance, isMatrix, isOffset, isExternal, isTNuisance, isTExternal   !> Store type
       parameter (isNuisance = 1)
       parameter (isMatrix   = 2)
       parameter (isOffset   = 3)
-      parameter (isExternal = 4)        !> Use minuit to propagate
+      parameter (isExternal = 4)
 
       integer SysForm(nsysmax)
 
@@ -82,3 +82,44 @@ C Keep track of data and theory systematics:
 C Penalty term for systematic sources, 1 by default.
       double precision     SysPriorScale(nsysmax)
       common/CSystPrior/SysPriorScale
+
+C  Errors-on-Errors settings
+      logical          EoEEnabled
+      integer          EoE_n_iterations   !> fixed iteration count (only if EoE_fixed_iter)
+      logical          EoE_fixed_iter     !> .true. iff n_iterations was set explicitly
+      integer          EoE_max_iterations !> cap for the tolerance-driven Newton loop
+      double precision EoE_tolerance      !> convergence tol on max|delta theta|
+      logical          EoEActive(NSYSMAX)
+      double precision EoEEpsilon(NSYSMAX)
+
+      common/CEonE/ EoEEnabled, EoE_n_iterations, EoE_fixed_iter,
+     $     EoE_max_iterations, EoE_tolerance, EoEActive, EoEEpsilon
+
+C --- Bartlett corrections for EoE
+      logical BartlettEnabled
+      double precision BartlettLRFactor
+      double precision BartlettGoFFactor
+      double precision BartlettSysFactor(NSysMax)
+      double precision BartlettBTilde(NSysMax)   !> b~_theta,s (Eq. 35 of arXiv:2407.05322) per EoE source
+      double precision BartlettSigmaU2(NSysMax)  !> sigma_u_hat^2 (Eq. 14) at the MLE
+      double precision BartlettRatio(NSysMax)    !> r_s = j^ss / sigma_u_hat^2 (marginal); must be <= 1
+C BartlettExtErr: reported error of an EXTERNAL NP in the quadratic convention,
+C sqrt([A^-1]_ss)*sqrt(1+b~_theta,s) from the extended NP Hessian of the extPass
+C -- the same statistic reported for nuisance NPs. Replaces MINUIT's err (whose
+C curvature is the eps-dependent true-GVM one) in every reporting path. Set at
+C iflag=3 when EoEEnabled; 0 when unset (consumers must test .gt. 0 and fall
+C back to MINUIT's err). Persists across the band scans, unlike ersys.
+      double precision BartlettExtErr(NSysMax)
+C SysExtFixed: .true. for an external source whose MINUIT parameter is FIXED.
+C A fixed parameter is a constant, not a fitted NP: it is excluded from the
+C extended NP Hessian of the extPass and from the Bartlett factors (its
+C Gamma*theta contribution to the residual stays, through ShiftExternal).
+C Determined by Bartlett_CountFreePOI at each iflag=3.
+      logical SysExtFixed(NSysMax)
+C BartlettFailed: .true. when the factors could not be computed (missing
+C theory derivatives or singular POI Hessian) and were set to zero; makes the
+C degradation visible in the Results.txt legend instead of silent.
+      logical BartlettFailed
+      common/CBartlett/ BartlettEnabled, BartlettLRFactor, BartlettGoFFactor, BartlettSysFactor,
+     $     BartlettBTilde, BartlettSigmaU2, BartlettRatio, BartlettExtErr,
+     $     SysExtFixed, BartlettFailed

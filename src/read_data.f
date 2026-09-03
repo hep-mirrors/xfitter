@@ -1566,6 +1566,9 @@ c         do j=1,NUncert
      +        /100d0
          THEO_TOT_DOWN(idx) = 0.0 ! SQRT(THEO_ERR2_DOWN(idx))*theo_fix(idx)
      +        /100d0
+C Error-band contribution: zero until GetTheoErrorsAsym/Sym fills it.
+         THEO_PUMPLIN_UP(idx)   = 0.0d0
+         THEO_PUMPLIN_DOWN(idx) = 0.0d0
       enddo
 
       close (52)
@@ -1585,5 +1588,4 @@ c         do j=1,NUncert
      $     //trim(FileName))
 C---------------------------------------------------------------------
       end
-
 

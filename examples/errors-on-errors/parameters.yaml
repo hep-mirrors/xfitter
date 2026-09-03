@@ -1,0 +1,105 @@
+Minimizer: MINUIT
+MINUIT:
+  Commands: |
+    set par 23 -16.40759961
+    set par 24  -6.47988938
+    call fcn 3
+
+Parameters:
+  Ag   :  DEPENDENT
+  Bg   : [ -0.05860878, 0.11265620 ]
+  Cg   : [  5.51324100, 0.66711896 ]
+  Agp  : [  0.16345813, 0.21400586 ]  # negative gluon ....
+  Bgp  : [ -0.37804469, 0.08603851 ]
+  Cgp  : [ 25.0,      0.    ]  # fix C of negative gluon
+  Auv  :  DEPENDENT
+  Buv  : [  0.78082003, 0.02809471 ]
+  Cuv  : [  4.83048800, 0.08340111 ]
+  Euv  : [ 10.98323006, 1.51245531 ]
+  Adv  :  DEPENDENT
+  Bdv  : [  1.00663218, 0.08620929 ]
+  Cdv  : [  4.76424295, 0.39512442 ]
+  CUbar: [  6.78737610, 1.61154729 ]
+  DUbar: [  2.22964398, 2.44754622 ]
+  ADbar: [  0.25393748, 0.01079583 ]
+  BDbar: [ -0.13267666, 0.00527131 ]
+  CDbar: # another example of providing value, step etc.
+    value: 9.82365191
+    step: 2.18130224
+    #min
+    #max
+    #pr_mean
+    #pr_sigma
+  ZERO : [ 0. ]          # zero
+  fs   : [ 0.4, 0.0 ]
+  fd   : "=1-fs"
+  AUbar: "=(1-fs)*ADbar"
+
+Parameterisations:
+  par_uv:
+    class: HERAPDF
+    parameters: [Auv,Buv,Cuv,ZERO,Euv]
+  par_dv:
+    class: HERAPDF
+    parameters: [Adv,Bdv,Cdv]
+  par_Ubar: # = ubar
+    class: HERAPDF
+    parameters: [AUbar,BDbar,CUbar,DUbar]
+  par_Dbar: # = dbar + sbar
+    class: HERAPDF
+    parameters: [ADbar,BDbar,CDbar]
+  par_dbar: # = (1-fs) Dbar
+    class: Factor
+    input: par_Dbar
+    factor: fd
+  par_s: # = sbar = fs Dbar
+    class: Factor
+    input: par_Dbar
+    factor: fs
+  par_g:
+    class: NegativeGluon
+    parameters: [Ag,Bg,Cg,ZERO,ZERO,Agp,Bgp,Cgp]
+
+DefaultDecomposition: proton
+Decompositions:
+  proton:
+    class: UvDvUbarDbarS
+    # Note that HERAPDF parameterises Ubar and Dbar,
+    # but this decomposition uses ubar and dbar
+    xuv: par_uv
+    xdv: par_dv
+    xubar: par_Ubar
+    xdbar: par_dbar
+    xs: par_s
+    xg: par_g
+
+DefaultEvolution: proton-QCDNUM
+
+Evolutions:
+  proton-QCDNUM:
+    ? !include evolutions/QCDNUM.yaml
+    decomposition: proton #this could be omitted, as the default decomposition is set
+
+# QCD parameters
+Order: NNLO
+NFlavour: 5
+isFFNS: 0
+Q0 : 1.378404875209 # Initial scale =sqrt(1.9)
+alphas : 0.118
+
+? !include constants.yaml
+
+
+
+byReaction:
+  # RT DIS scheme settings:
+  RT_DISNC:
+    ? !include reactions/RT_DISNC.yaml
+
+# Specify HF scheme used for DIS NC processes:
+hf_scheme_DISNC :
+  defaultValue : 'RT_DISNC'        # global specification
+
+# Specify HF scheme used for DIS CC processes:
+hf_scheme_DISCC :
+  defaultValue : 'BaseDISCC'       # global specification

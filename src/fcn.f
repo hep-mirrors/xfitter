@@ -20,9 +20,11 @@ C---------------------------------------------------------
       double precision g_dummy(*),parminuit(*),chi2out,futil
       external futil
 
+#include "ntot.inc"
 #include "fcn.inc"
 #include "endmini.inc"
 #include "for_debug.inc"
+#include "systematics.inc"
       integer i
       double precision chi2data_theory !function
 
@@ -69,6 +71,16 @@ c will take them from
 #ifdef TRACE_CHISQ
       call MntInpGetparams ! calls MInput.GetMinuitParams();
 #endif
+
+C Count the free POIs (always: that count is the c_CI denominator and the GoF
+C dof, whether or not Bartlett is enabled), then take the theory derivatives
+C w.r.t. them. Both at the MLE, BEFORE the chi2 call, so the Bartlett factors
+C are available at iflag=3 for Results.txt, XRANGE and the error bands.
+C Bartlett_ComputeD restores the parameters and the theory before returning.
+      if (iflag .eq. 3) then
+         call Bartlett_CountFreePOI
+         call Bartlett_ComputeD(parminuit)
+      endif
 
 *
 * Evaluate the chi2:
@@ -136,6 +148,8 @@ C--------------------------------------------------------------
 #include "polarity.inc"
 #include "endmini.inc"
 #include "fractal.inc"
+#include "bartlett_ci.inc"
+#include "bartlett_fd.inc"
 
 *     ---------------------------------------------------------
 *     declaration related to chisquare
@@ -147,6 +161,12 @@ C--------------------------------------------------------------
       double precision EBSYS(NSYSMax),ERSYS(NSYSMax)
       double precision pchi2(nset),chi2_log
       double precision pchi2offs(nset)
+      
+      double precision chi2out_print, chi2off_print, fcorchi2_print
+      double precision chi2_log_print, pchi2_print, chi2_poi_print
+      double precision c_bart_chi2, c_bart_ci
+      double precision ersys_raw, bart_weight, bart_weight_lr
+      double precision eps_i, b_theta_i, btil_i, r_i
 
 *     ---------------------------------------------------------
 *     declaration related to code flow/debug
@@ -163,6 +183,7 @@ C--------------------------------------------------------------
       integer iq, ix, nndi, ndi,ndi2
       character*300 base_pdfname
       integer npts(nset)
+      integer nPOI, nExtSyst, ndf_bart
       double precision f2SM,f1SM,flSM
       integer i,j,jsys,ndf,n0,h1iset,jflag,k,pr,nwds
       logical refresh
@@ -403,6 +424,7 @@ c Print time, number of calls, chi2
      $        xfitter chi2out,ndf,chi2out/ndf ',ifcncount, chi2out,
      $        ndf, chi2out/ndf
       call flush
+
 ! ----------------  RESULTS OUTPUT ---------------------------------
 ! Reopen "Results.txt" file if it is not open
 ! It does not get opened by this point when using CERES
@@ -416,19 +438,111 @@ c Print time, number of calls, chi2
       endif
 
       if (iflag.eq.3) then
-!          write(85,*),'NFCN3 ',nfcn3
-         write(85,'(''After minimisation '',F10.2,I6,F10.3)') chi2out,ndf,chi2out/ndf
-!          if (doOffset .and. iflag.eq.3)
-         if (doOffset)
-     $    write(85,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+
+         ! ----- Bartlett-only-for-printing scaling -----
+         nExtSyst = 0
+         do i=1,nsys
+            if ( SysForm(i) .eq. isExternal) then
+               nExtSyst = nExtSyst + 1
+            endif
+         enddo
+
+         ! nparFCN - nExtSyst = freePOI - fixedExt, so it under-counts the POIs
+         ! whenever an external systematic is a FIXED MINUIT parameter. Use the
+         ! free-POI count that Bartlett_CountFreePOI actually established.
+         nPOI = nparFCN - nExtSyst
+         if (BartlettHaveNPOI) nPOI = BartlettNPOI
+         print *, 'External systs = ', nExtSyst
+         c_bart_chi2 = 1.0D0
+         c_bart_ci = 1.0D0
+         if (BartlettEnabled .and. EoEEnabled) then
+            ! External NPs are penalty-constrained: each adds one unit to
+            ! E[chi2], so the dof of the GoF statistic is npoints - nPOI
+            ! (Eq. 38 of arXiv:2407.05322). The ndf+nExtSyst form is only
+            ! equivalent when every external NP is free.
+            ndf_bart = ndf + nExtSyst
+            if (BartlettHaveNPOI) ndf_bart = npoints - nPOI
+            if (ndf_bart .gt. 0) then
+               c_bart_chi2 = 1.0D0 / ( 1.0D0 + BartlettGoFFactor / dble(ndf_bart) )
+               ! b_q >= 0 for r in [0,1], so c_bart_chi2 > 1 signals a
+               ! pathological per-source factor (J_ss > 2*sigma_u_hat^2)
+               if (c_bart_chi2 .gt. 1.0D0) then
+                  call hf_errlog(25100101,
+     $'W: c_bart_chi2 > 1; mathematically should be <=1, check EoE inputs or set Enable_Bartlett = .false.')
+               endif
+            endif
+            if (nPOI .gt. 0) then
+               c_bart_ci = sqrt(1.0D0 + BartlettLRFactor / dble(nPOI))
+            endif
+         endif
+C        Store CI Bartlett factor for use by XRANGE (minuit.out.txt / xfitter-draw)
+         xfitter_bart_ci = c_bart_ci
+
+         ! Print RAW chi2 (unscaled minimization output).  Preserve the
+         ! historical heading for ordinary fits; EoE output keeps the
+         ! explicit Chi2 prefix used by the EoE result parsers.
+         if (EoEEnabled) then
+            write(85,'(''Chi2 after minimisation      '',F10.2,I6,F10.3)')
+     $           chi2out,ndf,chi2out/ndf
+         else
+            write(85,'(''After minimisation '',F10.2,I6,F10.3)')
+     $           chi2out,ndf,chi2out/ndf
+         endif
+         if (doOffset) then
+            write(85,'(''  Offset corrected (raw)     '',F10.2,I6,F10.3)')
+     $           chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+         endif
+
+         ! Print Bartlett-corrected chi2 if enabled
+         if (BartlettEnabled .and. EoEEnabled) then
+            chi2out_print = chi2out * c_bart_chi2
+            write(85,'(''Corrected Chi2               '',F10.2,I6,F10.3)')
+     $           chi2out_print,ndf,chi2out_print/ndf
+            if (doOffset) then
+               chi2off_print = (chi2out + OffsDchi2) * c_bart_chi2
+               write(85,'(''  Offset corrected (Bartlett)'',F10.2,I6,F10.3)')
+     $              chi2off_print,ndf,chi2off_print/ndf
+            endif
+         else
+            chi2out_print = chi2out
+            if (doOffset) chi2off_print = chi2out + OffsDchi2
+         endif
          write(85,*)
 
+         if (BartlettEnabled .and. EoEEnabled) then
+            write(85,'(A,F12.6)') 'Chi2 Bartlett factor (rescales the chi2) = ', 
+     $        c_bart_chi2
+            write(85,'(A,F12.6)') 'Confidence Intervals Bartlett factor (rescales PDF uncertainties) = ', 
+     $        c_bart_ci
+         endif
+
          write(6,*)
-         write(6,'(''After minimisation '',F10.2,I6,F10.3)') chi2out,ndf,chi2out/ndf
-!          if (doOffset .and. iflag.eq.3)
-         if (doOffset)
-     $    write(6,'(''  Offset corrected '',F10.2,I6,F10.3)') chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+         if (EoEEnabled) then
+            write(6,'(''Chi2 after minimisation      '',F10.2,I6,F10.3)')
+     $           chi2out,ndf,chi2out/ndf
+         else
+            write(6,'(''After minimisation '',F10.2,I6,F10.3)')
+     $           chi2out,ndf,chi2out/ndf
+         endif
+         if (doOffset) then
+            write(6,'(''  Offset corrected (raw)     '',F10.2,I6,F10.3)')
+     $           chi2out+OffsDchi2,ndf,(chi2out+OffsDchi2)/ndf
+         endif
+         if (BartlettEnabled .and. EoEEnabled) then
+            write(6,'(''Corrected Chi2               '',F10.2,I6,F10.3)')
+     $           chi2out_print,ndf,chi2out_print/ndf
+            if (doOffset) then
+               write(6,'(''  Offset corrected (Bartlett)'',F10.2,I6,F10.3)')
+     $              chi2off_print,ndf,chi2off_print/ndf
+            endif
+            write(6,*)
+            write(6,'(A,F12.6)')
+     $        'Chi2 Bartlett factor (rescales the chi2) = ', c_bart_chi2
+            write(6,'(A,F12.6)')
+     $        'CI Bartlett factor (rescales PDF uncertainties) = ',c_bart_ci
+         endif
          write(6,*)
+
 ! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
          ! Store minuit parameters
@@ -475,38 +589,55 @@ c     $           ,chi2_cont/NControlPoints
             if ( Chi2PoissonCorr ) then
                if (npts(h1iset).gt.0) then
                   chi2_log = chi2_log + chi2_poi(h1iset)
+                  
+                  pchi2_print    = pchi2(h1iset)    * c_bart_chi2
+                  chi2_poi_print = chi2_poi(h1iset) * c_bart_chi2
+
                   write(6,'(''Dataset '',i4,F10.2,''('',SP,F6.2,SS,'')'',
      $                 i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
-     $                 ,datasetlabel(h1iset)
-                  write(85,'(''Dataset '',i4,F10.2,
-     $                 ''('',SP,F6.2,SS,'')'',
+     $               h1iset, pchi2_print, chi2_poi_print, npts(h1iset),
+     $               datasetlabel(h1iset)
+
+                  write(85,'(''Dataset '',i4,F10.2,''('',SP,F6.2,SS,'')'',
      $                 i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset),chi2_poi(h1iset),npts(h1iset)
-     $                 ,datasetlabel(h1iset)
+     $               h1iset, pchi2_print, chi2_poi_print, npts(h1iset),
+     $               datasetlabel(h1iset)
                endif
             else
                if (npts(h1iset).gt.0) then
-                  write(6,'(''Dataset '',i4,F10.2,
-     $                 i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset)
-     $                 ,npts(h1iset)
-     $                 ,datasetlabel(h1iset)
+                  pchi2_print = pchi2(h1iset) * c_bart_chi2
+                  write(6,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
+     $               h1iset, pchi2_print, npts(h1iset), datasetlabel(h1iset)
                   write(85,'(''Dataset '',i4,F10.2,i6,''  '',A48)')
-     $                  h1iset,pchi2(h1iset),npts(h1iset)
-     $                 ,datasetlabel(h1iset)
+     $               h1iset, pchi2_print, npts(h1iset), datasetlabel(h1iset)
                endif
             endif
          enddo
          write(85,*)
+
+         ! Print raw Correlated Chi2
          write(85,*) 'Correlated Chi2 ', fcorchi2
+         write(6,*)  'Correlated Chi2 ', fcorchi2
+
+         ! Print Bartlett-corrected Correlated Chi2 if enabled
+         if (BartlettEnabled .and. EoEEnabled) then
+            fcorchi2_print = fcorchi2 * c_bart_chi2
+            write(85,*) 'Corrected Correlated Chi2 ', fcorchi2_print
+            write(6,*)  'Corrected Correlated Chi2 ', fcorchi2_print
+         endif
 ! ----------------  END OF RESULTS OUTPUT ---------------------------------
 
-         write(6,*) 'Correlated Chi2 ', fcorchi2
-
          if (Chi2PoissonCorr) then
-            write(6,*) 'Log penalty Chi2 ', chi2_log
+            ! Print raw Log penalty Chi2
             write(85,*) 'Log penalty Chi2 ', chi2_log
+            write(6,*)  'Log penalty Chi2 ', chi2_log
+
+            ! Print Bartlett-corrected Log penalty Chi2 if enabled
+            if (BartlettEnabled .and. EoEEnabled) then
+               chi2_log_print = chi2_log * c_bart_chi2
+               write(85,*) 'Corrected Log penalty Chi2 ',chi2_log_print
+               write(6,*)  'Corrected Log penalty Chi2 ',chi2_log_print
+            endif
          endif
 
          base_pdfname = TRIM(OutDirName)//'/pdfs_q2val_'
@@ -520,8 +651,17 @@ c     $           ,chi2_cont/NControlPoints
 c WS: print NSYS --- needed for batch Offset runs
          write(85,*) 'Systematic shifts ',NSYS
          write(85,*) ' '
-         write(85,'(A5,'' '',A55,'' '',A9,''   +/-'',A9,A10,A4)')
+         if (BartlettEnabled .and. EoEEnabled) then
+            ! Extended header with all EoE/Bartlett columns
+            write(85,'(A5,1X,A55,1X,A9,1X,A9,1X,A9,1X,A7,1X,A9,1X,A10,
+     $           1X,A10,1X,A12,1X,A12,1X,A6)')
+     $        'Index','Name','Shift','Error','Corr Err','Epsilon',
+     $        'r','b_tilde','b_mutheta','GoF Contrib','LR Contrib','Type'
+         else
+            ! Preserve the historical non-EoE header.
+            write(85,'(A5,'' '',A55,'' '',A9,''   +/-'',A9,A10,A4)')
      $        ' ', 'Name     ', 'Shift','Error',' ','Type'
+         endif
          do jsys=1,nsys
 C     !> Store also type of systematic source info
             if ( SysForm(jsys) .eq. isNuisance ) then
@@ -548,10 +688,108 @@ C     !> Store also type of systematic source info
                TypeD = ':T'
             endif
 
-            write(85,'(I5,''  '',A55,'' '',F9.4,''   +/-'',F9.4,A8,3A2)')
-     $           jsys,SYSTEM(jsys),rsys(jsys),ersys(jsys),' ',FormC,
-     $           TypeC,TypeD
+            if (BartlettEnabled .and. EoEEnabled) then
+               ! Extended format with EoE columns
+               eps_i     = EoEEpsilon(jsys)
+               btil_i    = BartlettBTilde(jsys)     ! b~_theta   (Eq. 35)
+               b_theta_i = BartlettSysFactor(jsys)  ! b_mutheta  (Eq. 34)
+               r_i       = BartlettRatio(jsys)      ! j_ss / sigma_u_hat^2
+
+               ! Raw error: divide out the sqrt(1+b~_theta) inflation
+               if (1.0D0 + btil_i .gt. 0.0D0) then
+                  ersys_raw = ersys(jsys) / sqrt(1.0D0 + btil_i)
+               else
+                  ersys_raw = ersys(jsys)
+               endif
+
+               ! Per-source contributions, one formula for :N and :E alike.
+               ! Both are >= 0 by construction (0 <= b~ <= b_mutheta <= 3eps^2).
+               ! A FIXED external parameter is excluded from the factors, so
+               ! its printed contributions are zero as well.
+               bart_weight    = 0.0D0
+               bart_weight_lr = 0.0D0
+               if (EoEActive(jsys) .and.
+     $             (SysForm(jsys).eq.isNuisance .or.
+     $              (SysForm(jsys).eq.isExternal .and.
+     $               .not. SysExtFixed(jsys)))) then
+                  bart_weight    = 3.0D0*eps_i*eps_i - b_theta_i
+                  bart_weight_lr = b_theta_i - btil_i
+               endif
+
+               write(85,'(I5,1X,A55,1X,F9.4,1X,F9.4,1X,F9.4,1X,F7.4,
+     $              1X,F9.5,1X,F10.5,1X,F10.5,1X,F12.5,1X,F12.5,1X,3A2)')
+     $           jsys, SYSTEM(jsys), rsys(jsys), ersys_raw, ersys(jsys),
+     $           eps_i, r_i, btil_i, b_theta_i,
+     $           bart_weight, bart_weight_lr,
+     $           FormC, TypeC, TypeD
+
+            else
+               ! Preserve the historical non-EoE row format.
+               write(85,'(I5,''  '',A55,'' '',F9.4,''   +/-'',F9.4,
+     $              A8,3A2)')
+     $           jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),
+     $           ' ', FormC, TypeC, TypeD
+            endif
          enddo
+
+C Print legend for Bartlett corrections
+         if (BartlettEnabled .and. EoEEnabled) then
+            write(85,*)
+            write(85,'(A)') '--- Bartlett Correction Legend ---'
+            write(85,'(A)')
+     $        'Error     : Raw uncertainty sqrt(j~_ss) from the extended NP Hessian'
+            write(85,'(A)')
+     $        '            (quadratic convention, same statistic for :N and :E)'
+            write(85,'(A)')
+     $        'Corr Err  : Corrected = Error * sqrt(1 + b_tilde)'
+            write(85,'(A)')
+     $        'Epsilon   : Error-on-error parameter for this source'
+            write(85,'(A)')
+     $        'r         : j_ss / sigma_u_hat^2, marginal over the POIs. r <= 1 is'
+            write(85,'(A)')
+     $        '            a theorem; r > 1 flags non-converged EoE profiling.'
+            write(85,'(A)')
+     $        'b_tilde   : (4r~-r~^2)*eps^2 with r~ = [A^-1]_ss/sigma_u_hat^2  (Eq. 35)'
+            write(85,'(A)')
+     $        'b_mutheta : (4r -r ^2)*eps^2 with r  = j_ss   /sigma_u_hat^2    (Eq. 34)'
+            write(85,'(A)')
+     $        '            j = (A - G K^-1 G^T)^-1, K = D^T W D, G = Gamma^T W D,'
+            write(85,'(A)')
+     $        '            D = d theo/d mu. Same formula for :N and :E sources.'
+            write(85,'(A)')
+     $        'GoF Contrib: 3*eps^2 - b_mutheta   (Eq. 39), >= 0 by construction'
+            write(85,'(A)')
+     $        'LR Contrib : b_mutheta - b_tilde   (Eq. 32), >= 0 by construction'
+            write(85,'(A)') ''
+            write(85,'(A)') 'Global factors:'
+            write(85,'(A)')
+     $        '  Chi2 Bartlett = 1 / (1 + sum(GoF Contrib)/ndf_bart)'
+            write(85,'(A)')
+     $        '  CI Bartlett   = sqrt(1 + sum(LR Contrib)/nPOI)'
+            write(85,'(A,I6,A,I4)')
+     $        '  with ndf_bart = npoints - nPOI = ', ndf_bart,
+     $        ' ,  nPOI = ', nPOI
+            if (BartlettFailed) then
+               write(85,'(A)')
+     $ '  WARNING: Bartlett factors UNAVAILABLE (singular POI Hessian'
+               write(85,'(A)')
+     $ '  or missing theory derivatives); corrections are set to zero.'
+            endif
+            write(85,'(A)')
+     $        '  (Eq. refs: arXiv:2407.05322)'
+            write(85,'(A)')
+     $        'All factors are exact: no midpoint approximation, no dependence on'
+            write(85,'(A)')
+     $        'the error-band method, and identical for :N and :E treatments of'
+            write(85,'(A)')
+     $        'the same physical source.'
+            write(85,'(A)') ''
+            write(85,'(A)')
+     $        'Type: :N=Nuisance :C=Covar :O=Offset :E=External'
+            write(85,'(A)')
+     $        '      :P=Poisson :A=Additive :M=Mult :D=Data :T=Theory'
+            write(85,*)
+         endif
 
 C Trigger reactions:
          call fcn3action
@@ -565,6 +803,174 @@ C Trigger reactions:
 C Return the chi2 value:
       chi2data_theory = chi2out
       end
+
+C-----------------------------------------------------------------------
+C> @brief Central finite differences of the THEORY w.r.t. the free POIs.
+C>
+C> Fills BartlettD(i,m) = d theo_i / d mu_m at the MLE, used by
+C> chi2_calc_syst_shifts to build the POI blocks of the quadratic Hessian
+C>    K = D^T W D ,   G = Gamma^T W D
+C> and hence the marginal NP covariance j = (A - G K^-1 G^T)^-1 (Eq. 34 of
+C> arXiv:2407.05322) identically for external and nuisance sources.
+C>
+C> Two things are essential here:
+C>  * we difference the THEORY, not the chi2. Differencing the chi2 (which
+C>    re-profiles the nuisances) would return the Schur complement
+C>    K - G A^-1 G^T instead of K, and the construction would collapse.
+C>  * external systematic NPs are NOT POIs: theo does not depend on them,
+C>    they enter the residual through Gamma*theta. They are skipped.
+C>
+C> Cost: 2*nPOI+1 theory-only evaluations (no chi2, no profiling).
+C>
+C> @param pcen central MINUIT parameter vector (the MLE)
+C-----------------------------------------------------------------------
+      subroutine Bartlett_CountFreePOI
+
+      implicit none
+#include "ntot.inc"
+#include "endmini.inc"
+#include "systematics.inc"
+#include "extrapars.inc"
+#include "bartlett_fd.inc"
+
+      double precision val, err, xlo, xhi
+      integer i, ipar, idx, isys
+      integer GetParameterIndex   !function
+      character*80 parname
+      logical isExtNP(MNE)
+C-----------------------------------------------------------------------
+      BartlettHaveNPOI = .false.
+      BartlettNPOI     = 0
+
+C Mark the MINUIT parameters that are external systematic NPs, and flag the
+C FIXED ones: a fixed parameter is a constant, not a fitted NP, so it is
+C excluded from the extended NP Hessian and from the Bartlett factors (its
+C Gamma*theta contribution to the residual stays, through ShiftExternal), and
+C its reported error remains MINUIT's (zero for a fixed parameter).
+      do i=1,MNE
+         isExtNP(i) = .false.
+      enddo
+      do isys=1,nsys
+         SysExtFixed(isys) = .false.
+      enddo
+      do isys=1,nsys
+         if ( SysForm(isys) .eq. isExternal ) then
+            idx = GetParameterIndex(system(isys))
+            if (idx .gt. 0) then
+               i = iExtraParamMinuit(idx)
+               if (i.ge.1 .and. i.le.MNE) then
+                  isExtNP(i) = .true.
+                  call mnpout(i, parname, val, err, xlo, xhi, ipar)
+                  SysExtFixed(isys) = ( ipar .le. 0 )
+                  if ( ipar .le. 0 .and. EoEActive(isys) ) then
+                     call hf_errlog(25100109,
+     $'I: Bartlett: EoE-active external systematic is FIXED in MINUIT; excluded from the Bartlett factors')
+                  endif
+               endif
+            endif
+         endif
+      enddo
+
+C Free POIs = variable MINUIT parameters that are not external NPs. DEPENDENT
+C parameters are not MINUIT parameters; the sum rules resolve them inside
+C init_at_iteration.
+      do i=1,MNE
+         call mnpout(i, parname, val, err, xlo, xhi, ipar)
+         if ( ipar .gt. 0 .and. .not. isExtNP(i) ) then
+            if (BartlettNPOI .ge. BartMaxPOI) then
+               call hf_errlog(25100105,
+     $'W: Bartlett: nPOI exceeds BartMaxPOI, exact Bartlett factors disabled')
+               BartlettNPOI     = 0
+               BartlettHaveNPOI = .false.
+               return
+            endif
+            BartlettNPOI = BartlettNPOI + 1
+            BartlettPOIMinuit(BartlettNPOI) = i
+         endif
+      enddo
+
+      BartlettHaveNPOI = .true.
+
+      end
+
+C-----------------------------------------------------------------------
+C> @brief Central finite differences of the THEORY w.r.t. the free POIs.
+C> Requires Bartlett_CountFreePOI to have run.
+C-----------------------------------------------------------------------
+      subroutine Bartlett_ComputeD(pcen)
+
+      implicit none
+#include "ntot.inc"
+#include "endmini.inc"
+#include "systematics.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "bartlett_fd.inc"
+
+      double precision pcen(*)
+      double precision a(MNE)
+      double precision, allocatable :: tp(:)
+      double precision h, val, err, xlo, xhi
+      integer i, m, ipoi, ipar
+      character*80 parname
+C-----------------------------------------------------------------------
+      BartlettHaveD = .false.
+
+      if (.not. (BartlettEnabled .and. EoEEnabled)) return
+      if (.not. BartlettHaveNPOI) return
+
+C nPOI = 0 is a legitimate limit: G = 0, so j = A^-1 = j-tilde and every LR
+C contribution vanishes. Nothing to difference.
+      if (BartlettNPOI .eq. 0) then
+         BartlettHaveD = .true.
+         return
+      endif
+
+      allocate(tp(NTOT))
+
+      do ipoi = 1, BartlettNPOI
+         m = BartlettPOIMinuit(ipoi)
+         call mnpout(m, parname, val, err, xlo, xhi, ipar)
+         h = 0.1D0 * abs(err)
+         if (h .le. 0.0D0) h = 1.0D-4 * max( abs(pcen(m)), 1.0D0 )
+
+         do i=1,MNE
+            a(i) = pcen(i)
+         enddo
+
+C set_scan_parameters keeps ExtraParamValue and parminuitsave consistent. Only
+C the POI entries move here, so the external-NP entries that
+C Chi2_calc_readExternal reads afterwards are untouched; but a POI read through
+C XParValueByName (which goes via parminuitsave) would otherwise silently miss
+C the displacement and corrupt this column of D.
+         a(m) = pcen(m) + h
+         call set_scan_parameters(a)
+         call update_theory_iteration
+         do i=1,npoints
+            tp(i) = theo(i)
+         enddo
+
+         a(m) = pcen(m) - h
+         call set_scan_parameters(a)
+         call update_theory_iteration
+         do i=1,npoints
+            BartlettD(i,ipoi) = ( tp(i) - theo(i) ) / ( 2.0D0*h )
+         enddo
+      enddo
+
+      deallocate(tp)
+
+C Restore the central parameters (both commons) and the theory/evolution grids.
+      do i=1,MNE
+         a(i) = pcen(i)
+      enddo
+      call set_scan_parameters(a)
+      call update_theory_iteration
+
+      BartlettHaveD = .true.
+
+      end
+
 C copy parameters from minuit to wherever c++ components will read them from
 C @param[in] p - vector of parameter values (I am not sure in what order)
 C this should be called whenever minuit parameters change
@@ -579,6 +985,25 @@ C this replaces old subroutine PDF_param_iteration
         ExtraParamValue(i)=getfittedparamfromarrayd
      $       (ExtraParamNames(i),p)
       enddo
+      end
+
+C
+C Set scan parameters consistently in BOTH commons read by the chi2:
+C ExtraParamValue (via copy_minuit_extrapars) and parminuitsave, which
+C Chi2_calc_readExternal and XParValueByName read for external systematics.
+C parminuitsave is normally refreshed inside fcn(), which a direct call to
+C chi2data_theory bypasses — without this, scans over displaced parameters
+C are blind to the external-NP components of the displacement.
+C
+      subroutine set_scan_parameters(p)
+      implicit none
+      double precision p(*)
+#include "endmini.inc"
+      integer i
+      do i=1,MNE
+         parminuitsave(i) = p(i)
+      enddo
+      call copy_minuit_extrapars(p)
       end
 
 C

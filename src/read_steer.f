@@ -67,6 +67,7 @@ C -------------------------------------------
 #include "indata.inc"
 #include "for_debug.inc"
 #include "extrapars.inc"
+#include "bartlett_ci.inc"
 
       integer i
 C------------------------------------------------------
@@ -131,6 +132,32 @@ C
          System(i) = ' '
       enddo
 
+C E-on-E defaults
+      EoEEnabled         = .false.
+      EoE_n_iterations   = 2
+      EoE_fixed_iter     = .false.
+      EoE_max_iterations = 50
+      EoE_tolerance      = 1.0D-8
+      do i=1,NSYSMAX
+         EoEActive(i)  = .false.
+         EoEEpsilon(i) = 0.0D0
+      enddo
+
+C Bartlett defaults
+      BartlettEnabled          = .true.
+      BartlettLRFactor         = 0.0D0
+      BartlettGoFFactor        = 0.0D0
+      do i=1,NSYSMAX
+         BartlettSysFactor(i)  = 0.0D0
+         BartlettBTilde(i)     = 0.0D0
+         BartlettSigmaU2(i)    = 0.0D0
+         BartlettRatio(i)      = 0.0D0
+         BartlettExtErr(i)     = 0.0D0
+         SysExtFixed(i)        = .false.
+      enddo
+      BartlettFailed           = .false.
+      xfitter_bart_ci          = 1.0D0
+
 C Check variables for common blocks:
       steering_check = 171717
       call common_check(steering_check)
@@ -150,6 +177,8 @@ C----------------------------------------------
 #include "steering.inc"
 #include "indata.inc"
 #include "for_debug.inc"
+#include "fcn.inc"
+#include "systematics.inc"
 C-----------------------------------------------
 
       character*32 Chi2SettingsName(5)
@@ -174,6 +203,7 @@ C     Some defaults
          Chi2ExtraParam(i) = 'undefined'
       enddo
       AsymErrorsIterations = 0
+
 C
 C  Read the main xFitter namelist:
 C
@@ -873,11 +903,8 @@ C Also add it to c++ map ...
       
       end
 
-
 C-----------------------------------------
-C
-!> Read optional systematics namelist
-C
+!> Read optional systematics namelist=
 C-----------------------------------------
       Subroutine read_systematicsnml
 
@@ -885,26 +912,39 @@ C-----------------------------------------
 #include "ntot.inc"
 #include "systematics.inc"
 #include "steering.inc"
+
       character*64 ListOfSources(nsysmax),ScaleByNameName(nsysmax),
      $     PriorScaleName(nsysmax)
       double precision ScaleByNameFactor(nsysmax),
      $     PriorScaleFactor(nsysmax)
 
-      namelist/ Systematics/ListOfSources,ScaleByNameName
+C --- EoE inputs
+      double precision Epsilon(nsysmax)
+      integer n_iterations
+      integer max_iterations
+      double precision tolerance
+      logical Enable_Bartlett
+
+      namelist/ Systematics/ ListOfSources,ScaleByNameName
      $     ,ScaleByNameFactor, PriorScaleName, PriorScaleFactor
-      integer i,ii,iType
+     $     ,Epsilon, n_iterations, Enable_Bartlett
+     $     ,max_iterations, tolerance
+
+      integer i,ii,neps
+
 C----------------------------------------
 
 C Initialisation:
       nsys = 0
       do i=1,nsysmax
          SysScaleFactor(i) = 1.0D0
-         ListOfSources(i) = ' '
-         ScaleByNameName(i) = ' '
+         ListOfSources(i)  = ' '
+         ScaleByNameName(i)= ' '
          PriorScaleName(i) = ' '
-         PriorScaleFactor(i) = 1.0D0
-         SysPriorScale(i) = 1.0D0
-! Set default scaling behaviour:
+         PriorScaleFactor(i)= 1.0D0
+         SysPriorScale(i)  = 1.0D0
+
+C Default scaling behaviour from global style:
          if (CorSysScale .eq. 'Linear' ) then
             SysScalingType(i)  =  isLinear
          else if (CorSysScale .eq. 'NoRescale') then
@@ -918,29 +958,34 @@ C Initialisation:
          else
             print *,'Unknown correlated systematics scaling behaviour'
             print *,'CorSysScale=',CorSysScale
-            print *,'Check your steering'
             call hf_errlog(25112012,
      $           'F:Wrong CorSysScale value from the steering')
             call hf_stop
          endif
 
-   !  Set nuisance parameter behaviour:
+C Default chi2 form for correlated systematics:
          if (CorChi2Type .eq. 'Hessian') then
-            SysForm(i)         =  isNuisance
+            SysForm(i) =  isNuisance
          elseif (CorChi2Type .eq. 'Offset') then
-            SysForm(i)         =  isOffset
+            SysForm(i) =  isOffset
          elseif (CorChi2Type .eq. 'Matrix') then
-            SysForm(i)         =  isMatrix
+            SysForm(i) =  isMatrix
          else
-            print *,'Unknown correlated systatics treatment'
+            print *,'Unknown correlated systematic treatment'
             print *,'CorChi2Type=',CorChi2Type
-            print *,'Check your steering'
             call hf_errlog(251120123,
      $           'F:Wrong CorChi2Type value from the steering')
             call hf_stop
          endif
 
+C EoE local inputs: mark "unset"
+         Epsilon(i) = -1.0D99
       enddo
+
+      n_iterations = -999
+      max_iterations = -999
+      tolerance = -1.0D0
+      Enable_Bartlett = .true.
 
       open (51,file='steering.txt',status='old')
       read (51,NML=Systematics,END=123,ERR=124)
@@ -948,18 +993,43 @@ C Initialisation:
       if (LDebug) then
          print Systematics
       endif
+
 C----
-C Decode:
-C
+C Decode the list of sources (builds System(:) and NSys)
       do i=1,nsysmax
          if (ListOfSources(i).ne.' ') then
             Call AddSystematics(ListOfSources(i))
+
+C Extract embedded epsilon if present (@eps= suffix)
+            ii = index(ListOfSources(i),'@eps=')
+            if (ii.gt.0) then
+               read(ListOfSources(i)(ii+5:),*,ERR=125) EoEEpsilon(nsys)
+               if (EoEEpsilon(nsys) .gt. 0.0D0) then
+                  EoEActive(nsys) = .true.
+               else if (EoEEpsilon(nsys) .eq. 0.0D0) then
+                  EoEActive(nsys) = .false.
+               else
+                  call hf_errlog(29092503,
+     $                 'F: Embedded epsilon must be >= 0')
+                  call hf_stop
+               endif
+
+C Validate that EoE is only used with compatible forms (N or E)
+               if (SysForm(nsys) .ne. isNuisance .and.
+     $             SysForm(nsys) .ne. isExternal) then
+                  if (EoEEpsilon(nsys) .gt. 0.0D0) then
+                     call hf_errlog(29092504,
+     $'W: EoE (@eps) only applies to :N or :E forms, ignored for: '
+     $                    //System(nsys))
+                  endif
+               endif
+            endif
          else
-            goto 77
+            exit
          endif
       enddo
- 77   continue
 
+C Apply per-name scale factors and priors
       do i=1,nsysmax
          if (ScaleByNameName(i).ne.' ') then
             do ii=1,nsys
@@ -976,6 +1046,84 @@ C
             enddo
          endif
       enddo
+
+C======================================================
+C                 Errors-on-Errors (EoE)
+C======================================================
+
+C --- Legacy Epsilon array processing (kept for backward compatibility)
+C --- Note: New format uses embedded @eps= syntax in ListOfSources
+      neps = 0
+      do i=1,nsys
+         if (Epsilon(i) .gt. -1.0D98) then
+            if (Epsilon(i) .lt. 0.0D0) then
+               call hf_errlog(29092502,'F: Epsilon(i) must be >= 0 or unset')
+               call hf_stop
+            endif
+            neps = neps + 1
+         endif
+      enddo
+
+C Only proceed if there is at least one non-negative value
+      if (neps .gt. 0) then
+         if (neps .eq. nsys) then
+            do i=1,nsys
+               if (Epsilon(i) .gt. 0.0D0) then
+                  EoEEpsilon(i) = Epsilon(i)
+                  EoEActive(i)  = .true.
+               else
+                  EoEEpsilon(i) = 0.0D0
+                  EoEActive(i)  = .false.
+               endif
+            enddo
+         else
+            call hf_errlog(29092501,
+     $ 'F: Systematics/Epsilon must be length(NSources)')
+            call hf_stop
+         endif
+      endif
+
+C --- Final global enable if any active
+      do i=1,nsys
+         if (EoEActive(i)) then
+            EoEEnabled = .true.
+            exit
+         endif
+      enddo
+
+C --- If &Systematics provided an iteration override, honour it as a FIXED
+C     count (back-compatibility, and reproducibility of the niter scans).
+C     Otherwise the Newton loop runs to EoE_tolerance, capped by
+C     EoE_max_iterations. The fixed default of 2 is badly under-converged for
+C     strongly pulled EoE sources, so it is no longer applied silently.
+      if (n_iterations .ge. 0) then
+         EoE_n_iterations = n_iterations
+         EoE_fixed_iter   = .true.
+      endif
+      if (max_iterations .gt. 0) then
+         EoE_max_iterations = max_iterations
+      endif
+      if (tolerance .gt. 0.0D0) then
+         EoE_tolerance = tolerance
+      endif
+      if (EoE_fixed_iter) then
+         EoE_max_iterations = max(EoE_max_iterations, EoE_n_iterations)
+      endif
+
+C --- If &Systematics provided an Enable_Bartlett use it
+      if (.not. Enable_Bartlett) then
+         BartlettEnabled = .false.
+      endif
+
+      if (LDebug) then
+         if (EoEEnabled) then
+            write (*,'(A,I4,A)') 'EoE enabled for ',nsys,' sources (some may be zeroed).'
+            write (*,'(A,1X,I0)') 'EoE_n_iterations =', EoE_n_iterations
+         else
+            write (*,'(A)') 'EoE disabled (no positive Epsilon provided).'
+         endif
+      endif
+
  90   continue
 
  123  Continue
@@ -983,6 +1131,10 @@ C
       return
 
  124  print '(''Error reading namelist &systematics, STOP'')'
+      Call HF_stop
+
+ 125  print '(''Error parsing embedded @eps= value, STOP'')'
+      print '(''Expected format: sourcename:modifiers@eps=0.5'')'
       Call HF_stop
 
 C----------------------------------------
@@ -1126,10 +1278,16 @@ C-----------------------------------------------------------------------------
 
       character*64 SourceName
 
-      integer ii,iasym
+      integer ii,iasym,ieps
 C-----------------------------------------
 
       SourceName = SName
+
+C Strip @eps= suffix before processing modifiers
+      ieps = index(SourceName,'@eps=')
+      if (ieps.gt.0) then
+         SourceName = SourceName(1:ieps-1)
+      endif
 
       nsys = nsys + 1
       if (NSYS.gt.NSysMax) then

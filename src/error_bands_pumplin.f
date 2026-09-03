@@ -8,6 +8,7 @@
 #include "thresholds.inc"
 #include "ntot.inc"
 #include "systematics.inc"
+#include "bartlett_fd.inc"
 #include "g_offset.inc"
 #include "fcn.inc"
 #include "theo.inc"
@@ -16,8 +17,9 @@
       double precision a
       dimension a(MNE)
 
-      integer i,j,npar,idx,idx2,kflag,ii
-      character*48 name,name2
+      integer i,j,npar,nPOI,nExtSyst,idx,idx2,kflag,ii
+      double precision c_BartLR, bart_scale
+      character*300 name,name2
       character*300 base,base2
       character tag(40)*3
       data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
@@ -97,8 +99,26 @@ C
          write (6,*) 'internal=',ind,' external=',iexint(ind)
       enddo
 
-
       npar = MNE !> npar runs over external parameters.
+
+      nExtSyst = 0
+      do i=1,nsys
+         if ( SysForm(i) .eq. isExternal) then
+            nExtSyst = nExtSyst + 1
+         endif
+      enddo
+      
+      nPOI = nparFCN - nExtSyst
+      if (BartlettHaveNPOI) nPOI = BartlettNPOI
+
+      c_BartLR   = 1.0D0
+      bart_scale = 1.0D0
+      if (BartlettEnabled .and. EoEEnabled) then
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
 
       allocate(TheoVars(NTOT,2,mpar))
 C
@@ -147,11 +167,12 @@ C
                     call MNSTAT(fmin, fedm, errdef, npari, nparx, istat)   !> MW&FG for scaling with DeltaChi2>1.0                                           
                     shift = shift_dir * GetUmat(iint,j)*SQRT(errdef)       !> MW&FG for scaling with DeltaChi2>1.0                                      
                   endif
+                  shift = shift * bart_scale
                   a(i) = a(i) + shift
                endif
             enddo  ! i
 
-            call copy_minuit_extrapars(a) !Set shifted parameters
+            call set_scan_parameters(a) !Set shifted parameters (incl. parminuitsave)
 
             ifcncount = ifcncount+1
             chichi = chi2data_theory(2)
@@ -176,6 +197,9 @@ C
          enddo  ! shift_dir
 
       enddo  ! j
+
+C restore central parameters in both commons
+      call set_scan_parameters(pkeep)
 
 C write out once more (with theory errors filled)
 
@@ -262,15 +286,17 @@ C-----------------------------------------
 #include "steering.inc"
 #include "ntot.inc"
 #include "systematics.inc"
+#include "bartlett_fd.inc"
 #include "theo.inc"
       external fcn
       integer icond
       double precision fmin, fedm, errdef
-      integer npari, nparx, istat, ifail
+      integer npari, nPOI, nExtSyst, nparx, istat, ifail
       integer i,j, k, ind, ind2, mpar, jext
       integer has_minimizer_covariance
       double precision, allocatable :: Amat(:,:)
       double precision, allocatable :: eigenvalues(:)
+      double precision c_BartLR, denom_bartlr, bart_scale
 C
       integer  iunint(MNE)  ! internal param. number
       integer  iexint(MNE)  ! external param. number
@@ -283,8 +309,8 @@ C
       character *64 parname
       character *64 parname_by_internal(MNE)
 
-      character*48 name,name2
-      character*48 base,base2
+      character*300 name,name2
+      character*300 base,base2
       character tag(40)*3
       data (tag(i),i=1,40) /'s01','s02','s03','s04','s05',
      +     's06','s07','s08','s09','s10',
@@ -397,6 +423,31 @@ C scale the matirx
          enddo
       enddo
 
+C inset bartlett corrections
+      nExtSyst = 0
+      do i=1,nsys
+         if ( SysForm(i) .eq. isExternal) then
+            nExtSyst = nExtSyst + 1
+         endif
+      enddo
+
+      nPOI = nparFCN - nExtSyst
+      if (BartlettHaveNPOI) nPOI = BartlettNPOI
+      c_BartLR = 1.0D0
+      bart_scale = 1.0D0
+      if (BartlettEnabled .and. EoEEnabled) then
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
+
+      do i=1,npari
+         do j=1,npari
+            Amat(j,i) = Amat(j,i) * bart_scale
+         enddo
+      enddo
+
       allocate(TheoVars(NTOT,Npari))
 
 C
@@ -435,7 +486,7 @@ C               a(i) = a(i) + GetUmat(iint,j)
      $       .not. ReadParsFromFile) then
             call setfittedparamsfromarray(a)
          endif
-         call copy_minuit_extrapars(a) !Set shifted parameters
+         call set_scan_parameters(a) !Also sync ExtraParamValue/parminuitsave
 
          ifcncount = ifcncount+1
          chichi = chi2data_theory(2)  ! sum-rules and evolution are inside
@@ -454,6 +505,8 @@ C
          call error_band_action(j)
       enddo                     ! j
 
+C restore central parameters in both commons
+      call set_scan_parameters(pkeep)
 
 C write out once more (with theory errors filled)
 

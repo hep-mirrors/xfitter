@@ -70,23 +70,33 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       if(fo.Open()) continue;
       ifstream &f = fo.GetStream();
 
+      // Scan until the header line that contains "Name" (works for both the
+      // legacy "  Name  Shift +/-  Error" format and the EoE+Bartlett format
+      // "Index Name Shift Error Corr-Err Epsilon r b_tilde b_mutheta
+      //  GoF-Contrib LR-Contrib Type").
+      // The old code checked only the *first token* of each line for "Name",
+      // which failed for the new EoE header whose first token is "Index".
       string line;
-      string buffer = "";
-      while (buffer != "Name")
-        {
-          getline(f, line);
-          istringstream iss(line);
-          iss >> buffer; 
-        }
+      while (getline(f, line))
+        if (line.find("Name") != string::npos) break;
 
       //make shifts list
+      // The same 5-token extraction covers both formats: legacy rows are
+      // "idx name shift +/- err" (dummy swallows the '+/-'); EoE rows are
+      // "idx name shift raw-err corr-err ..." (dummy swallows the raw error,
+      // so the plotted error is the corrected one). The first line that does
+      // not fit ends the table: the EoE format is followed by a blank line
+      // and the Bartlett legend, which previously got ingested as spurious
+      // zero-shift entries (failed float extractions read as 0 while the
+      // label kept its previous value).
       string systlabel, dummy;
       float systindex, value, error;
       while (getline(f, line))
         {
           istringstream iss(line);
-          iss >> systindex >> systlabel  >> value  >> dummy  >> error; 
-          
+          if (!(iss >> systindex >> systlabel >> value >> dummy >> error))
+            break;
+
           shtype sh;
           sh.val = value;
           sh.err = error;
