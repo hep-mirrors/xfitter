@@ -1,5 +1,5 @@
-Chi2 after minimisation         1313.33  1129     1.163
-Corrected Chi2                  1306.70  1129     1.157
+Chi2 after minimisation         1313.33  1131     1.161
+Corrected Chi2                  1306.70  1131     1.155
 
 Chi2 Bartlett factor (rescales the chi2) =     0.994953
 Confidence Intervals Bartlett factor (rescales PDF uncertainties) =     1.003814
@@ -208,9 +208,8 @@ Global factors:
   CI Bartlett   = sqrt(1 + sum(LR Contrib)/nPOI)
   with ndf_bart = npoints - nPOI =   1131 ,  nPOI =   14
   (Eq. refs: arXiv:2407.05322)
-All factors are exact: no midpoint approximation, no dependence on
-the error-band method, and identical for :N and :E treatments of
-the same physical source.
+Bartlett factors use an expansion through order epsilon squared.
+They use a local quadratic model; exact coverage is not implied.
 
 Type: :N=Nuisance :C=Covar :O=Offset :E=External
       :P=Poisson :A=Additive :M=Mult :D=Data :T=Theory

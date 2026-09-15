@@ -1762,7 +1762,7 @@ C----------------------------------------------------------------------
       double precision rsys_in(NSysMax)
       integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
       double precision fchi2_in, pchi2_in(nset), fcorchi2_in
-      double precision temp_val
+      double precision temp_val, penalty, log_ratio, eps2
 
       integer i,j, i1, j1, k
       double precision d,t, chi2, sum
@@ -1856,18 +1856,27 @@ C Correlated chi2 part:
       fcorchi2_in = 0.d0
       do k=1, NSys
          if (SysForm(k) .eq. isNuisance .or. SysForm(k) .eq. isExternal) then
+            penalty = rsys_in(k)**2 * SysPriorScale(k)
             if (EoEEnabled .and. EoEActive(k)) then
-               temp_val = 2.0D0 * EoEEpsilon(k)**2 * rsys_in(k)**2 * SysPriorScale(k)
-               fcorchi2_in = fcorchi2_in
-     $            + (1.0D0 + 1.0D0/(2.0D0*EoEEpsilon(k)**2))
-     $              * log(1.0D0 + temp_val)
-            else
-               fcorchi2_in = fcorchi2_in + rsys_in(k)**2 * SysPriorScale(k)
+               eps2 = 2.0D0 * EoEEpsilon(k)**2
+               temp_val = eps2 * penalty
+C Evaluate log(1+x)/x without cancellation or division by epsilon.
+C The series is also well defined at zero shift and zero epsilon.
+               if (temp_val .lt. 1.0D-4) then
+                  log_ratio = 1.0D0 + temp_val * (-0.5D0
+     $                 + temp_val * (1.0D0/3.0D0
+     $                 + temp_val * (-0.25D0 + temp_val/5.0D0)))
+               else
+                  log_ratio = log(1.0D0 + temp_val)/temp_val
+               endif
+               penalty = penalty * (1.0D0 + eps2) * log_ratio
             endif
+            fcorchi2_in = fcorchi2_in + penalty
+C Residual-based minimizers must receive the same nuisance penalty.
+            residuals(ndiag+k) = sign(sqrt(penalty),rsys_in(k))
+         else
+            residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
          endif
-
-C Also, store as residuals:
-         residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
       enddo      
       fchi2_in = fchi2_in + fcorchi2_in
 

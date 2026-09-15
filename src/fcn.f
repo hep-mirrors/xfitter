@@ -300,7 +300,11 @@ C--------------------------------------------------------------
           npts(h1iset)=npts(h1iset)+1
         enddo
       endif
-      ndf=npoints-nparFCN !degrees of freedom
+      ndf=npoints-nparFCN !legacy minimizer parameter count
+C Constrained external nuisances do not reduce the GoF degrees of freedom.
+C Use the free-POI count, which excludes fixed and external parameters.
+      if (iflag.eq.3 .and. BartlettHaveNPOI)
+     $     ndf=npoints-BartlettNPOI
       n0 =npoints
       if(iflag.eq.1)then !at first iteration
         if(lrand.and.DataToTheo)then
@@ -461,7 +465,7 @@ c Print time, number of calls, chi2
             ! E[chi2], so the dof of the GoF statistic is npoints - nPOI
             ! (Eq. 38 of arXiv:2407.05322). The ndf+nExtSyst form is only
             ! equivalent when every external NP is free.
-            ndf_bart = ndf + nExtSyst
+            ndf_bart = npoints - nPOI
             if (BartlettHaveNPOI) ndf_bart = npoints - nPOI
             if (ndf_bart .gt. 0) then
                c_bart_chi2 = 1.0D0 / ( 1.0D0 + BartlettGoFFactor / dble(ndf_bart) )
@@ -786,11 +790,9 @@ C Print legend for Bartlett corrections
             write(85,'(A)')
      $        '  (Eq. refs: arXiv:2407.05322)'
             write(85,'(A)')
-     $        'All factors are exact: no midpoint approximation, no dependence on'
+     $        'Bartlett factors use an expansion through order epsilon squared.'
             write(85,'(A)')
-     $        'the error-band method, and identical for :N and :E treatments of'
-            write(85,'(A)')
-     $        'the same physical source.'
+     $        'They use a local quadratic model; exact coverage is not implied.'
             write(85,'(A)') ''
             write(85,'(A)')
      $        'Type: :N=Nuisance :C=Covar :O=Offset :E=External'
