@@ -693,7 +693,8 @@ C----------------------------------------------------------------------------
       double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
       integer NCovar
-      double precision Array(NCovarMax*2)
+C DINV uses integer pivot indices in its workspace.
+      integer Array(NCovarMax*2)
       integer IFail
 
       integer i,j

@@ -8,7 +8,9 @@
 * Adopted from CERNLIB by V. Kolesnikov and A. Sapronov (24.07.2014)
 *
       SUBROUTINE DINV(N,A,IDIM,R,IFAIL)
-      REAL R(N),T1,T2,T3
+C Pivot workspace passed through to DFACT and DFINV.
+      INTEGER R(N)
+      REAL T1,T2,T3
       DOUBLE PRECISION A(IDIM,N),DET,TEMP,S,
      $                 C11,C12,C13,C21,C22,C23,C31,C32,C33
       CHARACTER*6 NAME

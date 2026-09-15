@@ -120,6 +120,7 @@ C BartlettFailed: .true. when the factors could not be computed (missing
 C theory derivatives or singular POI Hessian) and were set to zero; makes the
 C degradation visible in the Results.txt legend instead of silent.
       logical BartlettFailed
-      common/CBartlett/ BartlettEnabled, BartlettLRFactor, BartlettGoFFactor, BartlettSysFactor,
+C Keep double precision values before logical flags to avoid alignment padding.
+      common/CBartlett/ BartlettLRFactor, BartlettGoFFactor, BartlettSysFactor,
      $     BartlettBTilde, BartlettSigmaU2, BartlettRatio, BartlettExtErr,
-     $     SysExtFixed, BartlettFailed
+     $     SysExtFixed, BartlettEnabled, BartlettFailed
