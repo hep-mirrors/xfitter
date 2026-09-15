@@ -48,6 +48,7 @@ job-install-full:
     - cd datafiles
     - git reset --hard HEAD
     - cd -
+    - ./tools/test-bartlett-minimizer.sh
     - ./tools/test.sh
   artifacts:
     when: on_failure
@@ -81,6 +82,39 @@ job-ceres-fit:
       - temp/**/xfitter.log
       - temp/**/output
     expire_in: 2 day
+
+# Full EoE minimization is optional in MR pipelines and automatic on schedules.
+job-ceres-eoe:
+  stage: test
+  extends: .install_dependencies
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+  timeout: 30m
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE"
+  script:
+    - yum -y install python3
+    - ./tools/install-qcdnum
+    - . setup.sh
+    - ./make.sh install
+    # Fail explicitly if the CI image lacks the optional CERES dependency.
+    - test -f lib/xfitter/libminimizerCERES.so
+    - ./tools/test-bartlett-minimizer.sh
+    - ./tools/test.sh errors-on-errors-CERES
+  artifacts:
+    when: always
+    reports:
+      junit: temp/errors-on-errors-CERES/validation.xml
+    paths:
+      - install.log
+      - temp/errors-on-errors-CERES/test.log
+      - temp/errors-on-errors-CERES/xfitter.log
+      - temp/errors-on-errors-CERES/validation.xml
+      - temp/errors-on-errors-CERES/output/
+    expire_in: 1 week
 
 job-ceres-parallel:
   stage: test

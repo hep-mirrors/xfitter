@@ -44,6 +44,7 @@ extern "C" {
   double getparamunc_(const char* name, int len);
   int hasminimizercovariance_();
   int getminimizernpars_();
+  int minimizerusesminuit_();
   void getminimizerparname_(const int& index, char* name, int len);
   double getminimizercovarianced_(const char* name1, const char* name2, int len1, int len2);
   double getfittedparamd_(const char* name, int len);
@@ -982,6 +983,10 @@ double getparamunc_(const char* name,int len){
 int hasminimizercovariance_(){
   xfitter::BaseMinimizer* minimizer = xfitter::get_minimizer();
   return minimizer->hasParameterCovariance() ? 1 : 0;
+}
+
+int minimizerusesminuit_(){
+  return xfitter::get_minimizer()->getName() == "MINUIT" ? 1 : 0;
 }
 
 int getminimizernpars_(){

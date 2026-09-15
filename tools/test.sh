@@ -3,7 +3,7 @@
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
 #omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
-omitTests=('profilerCIJET' 'ZPT' 'ZMVFNS-fit' 'scanmin' 'CERES-fit' 'CERES-parallel' 'CERES-Chebyschev' 'profilerLHAPDF' 'TMD') 
+omitTests=('profilerCIJET' 'ZPT' 'ZMVFNS-fit' 'scanmin' 'CERES-fit' 'CERES-parallel' 'CERES-Chebyschev' 'profilerLHAPDF' 'TMD' 'errors-on-errors-CERES')
 
 install_dir=$(pwd)
 # xfitter binary
@@ -136,11 +136,17 @@ runTest()
 
   INPUTDIR="examples/$TESTNAME"
   EXAMPLEDIR="examples/$TESTNAME/output"
+  # Examples may validate numerical properties instead of output snapshots.
+  validator="$INPUTDIR/validate.py"
+  if [ -f "$validator" ] && [ $COPYRESULTS -eq 1 ]; then
+    echo "FAILED: $TESTNAME uses a numerical validator; --copy is unsupported"
+    return 1
+  fi
   if [ $COPYRESULTS -eq 1 ]; then
     echo "Results will be stored as reference in $EXAMPLEDIR"
   else
-    if [ ! -d "$EXAMPLEDIR" ] ||
-       ! find "$EXAMPLEDIR" -type f -print -quit | grep -q .; then
+    if [ ! -f "$validator" ] && { [ ! -d "$EXAMPLEDIR" ] ||
+       ! find "$EXAMPLEDIR" -type f -print -quit | grep -q .; }; then
       echo "Warning: no reference output files -> test will be considered FAILED"
       flagBAD=1
     fi
@@ -159,8 +165,11 @@ runTest()
   cp ${INPUTDIR}/steering.txt $rundir
   cp ${INPUTDIR}/parameters.yaml $rundir
   cp ${INPUTDIR}/constants.yaml $rundir
-  # also copy any .dat files
-  cp ${INPUTDIR}/*.dat $rundir
+  # also copy any optional local .dat files
+  for datafile in "$INPUTDIR"/*.dat; do
+    [ -f "$datafile" ] || continue
+    cp "$datafile" "$rundir"
+  done
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
@@ -171,6 +180,18 @@ runTest()
   if [ $xfitterExitCode -ne 0 ]; then
     echo "FAILED: xfitter exited with status $xfitterExitCode"
     flagBAD=1
+  fi
+
+  if [ -f "$validator" ]; then
+    if ! python3 "$validator" "$rundir"; then
+      flagBAD=1
+    fi
+    if [ $flagBAD -eq 0 ]; then
+      echo "Everything is PASSED"
+    else
+      echo "Something FAILED: see above for details"
+    fi
+    return $flagBAD
   fi
 
   # Check chi2 in Results.txt. EoE output uses "Chi2 after minimisation";

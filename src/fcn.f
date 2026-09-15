@@ -849,13 +849,46 @@ C-----------------------------------------------------------------------
 #include "bartlett_fd.inc"
 
       double precision val, err, xlo, xhi
-      integer i, ipar, idx, isys
+      integer i, ipar, idx, isys, npars
+      integer minimizerusesminuit, getminimizernpars
       integer GetParameterIndex   !function
       character*80 parname
-      logical isExtNP(MNE)
+      logical isExtNP(MNE), isExternalPar
 C-----------------------------------------------------------------------
       BartlettHaveNPOI = .false.
       BartlettNPOI     = 0
+
+C Non-MINUIT minimizers store only variable parameters in their array.
+C Match external sources by name; absent sources are fixed parameters.
+      if (minimizerusesminuit().eq.0) then
+         npars = getminimizernpars()
+         do isys=1,nsys
+            SysExtFixed(isys) = SysForm(isys).eq.isExternal
+         enddo
+         do i=1,npars
+            call getminimizerparname(i, parname)
+            isExternalPar = .false.
+            do isys=1,nsys
+               if (SysForm(isys).eq.isExternal .and.
+     $             system(isys).eq.parname) then
+                  isExternalPar = .true.
+                  SysExtFixed(isys) = .false.
+               endif
+            enddo
+            if (.not.isExternalPar) then
+               if (BartlettNPOI.ge.BartMaxPOI) then
+                  BartlettNPOI = 0
+                  call hf_errlog(25100105,
+     $                 'W: Bartlett: too many POIs; factors unavailable')
+                  return
+               endif
+               BartlettNPOI = BartlettNPOI + 1
+               BartlettPOIMinuit(BartlettNPOI) = i
+            endif
+         enddo
+         BartlettHaveNPOI = .true.
+         return
+      endif
 
 C Mark the MINUIT parameters that are external systematic NPs, and flag the
 C FIXED ones: a fixed parameter is a constant, not a fitted NP, so it is
@@ -927,6 +960,8 @@ C-----------------------------------------------------------------------
       double precision, allocatable :: tp(:)
       double precision h, val, err, xlo, xhi
       integer i, m, ipoi, ipar
+      integer minimizerusesminuit, usesminuit
+      double precision getparamunc
       character*80 parname
 C-----------------------------------------------------------------------
       BartlettHaveD = .false.
@@ -941,13 +976,19 @@ C contribution vanishes. Nothing to difference.
          return
       endif
 
+      usesminuit = minimizerusesminuit()
       allocate(tp(NTOT))
 
       do ipoi = 1, BartlettNPOI
          m = BartlettPOIMinuit(ipoi)
-         call mnpout(m, parname, val, err, xlo, xhi, ipar)
+         if (usesminuit.ne.0) then
+            call mnpout(m, parname, val, err, xlo, xhi, ipar)
+         else
+            call getminimizerparname(m, parname)
+            err = getparamunc(parname)
+         endif
          h = 0.1D0 * abs(err)
-         if (h .le. 0.0D0) h = 1.0D-4 * max( abs(pcen(m)), 1.0D0 )
+         if (.not.(h .gt. 0.0D0)) h = 1.0D-4 * max( abs(pcen(m)), 1.0D0 )
 
          do i=1,MNE
             a(i) = pcen(i)
@@ -959,6 +1000,7 @@ C Chi2_calc_readExternal reads afterwards are untouched; but a POI read through
 C XParValueByName (which goes via parminuitsave) would otherwise silently miss
 C the displacement and corrupt this column of D.
          a(m) = pcen(m) + h
+         if (usesminuit.eq.0) call setfittedparamsfromarray(a)
          call set_scan_parameters(a)
          call update_theory_iteration
          do i=1,npoints
@@ -966,6 +1008,7 @@ C the displacement and corrupt this column of D.
          enddo
 
          a(m) = pcen(m) - h
+         if (usesminuit.eq.0) call setfittedparamsfromarray(a)
          call set_scan_parameters(a)
          call update_theory_iteration
          do i=1,npoints
@@ -979,6 +1022,7 @@ C Restore the central parameters (both commons) and the theory/evolution grids.
       do i=1,MNE
          a(i) = pcen(i)
       enddo
+      if (usesminuit.eq.0) call setfittedparamsfromarray(a)
       call set_scan_parameters(a)
       call update_theory_iteration
 

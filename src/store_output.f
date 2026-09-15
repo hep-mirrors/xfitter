@@ -418,7 +418,9 @@ C-------------------------------------------------------------
 #include "bartlett_fd.inc"
       integer ifcn3
 
-      integer i
+      integer i, iout, nwrite, usesminuit
+      integer minimizerusesminuit, getminimizernpars
+      double precision getfittedparamd, getparamunc
       double precision val,err,xlo,xhi
       integer ipar
       character*32 parname
@@ -445,6 +447,14 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
       endif
 
       open (71,file=fname,status='unknown')
+C Non-MINUIT minimizers write their own raw parameter files. Only replace
+C the final file when EoE needs the corrected uncertainty convention.
+      usesminuit = minimizerusesminuit()
+      if (usesminuit.eq.0 .and.
+     $    (.not.EoEEnabled .or. ifcn3.ne.0)) then
+         close(71)
+         return
+      endif
 ! Broken since 2.2.0
 !     if (DoBands .and. ifcn3.eq.0) then
 !        Allocate(errIterate(MNE,MNE))
@@ -478,9 +488,20 @@ C
          endif
       endif
 
-      do i=1,mne
+      nwrite = mne
+      if (usesminuit.eq.0) nwrite = getminimizernpars()
+      do i=1,nwrite
          parname = ""
-         call mnpout(i,parname,val,err,xlo,xhi,ipar)
+         if (usesminuit.ne.0) then
+            call mnpout(i,parname,val,err,xlo,xhi,ipar)
+         else
+            call getminimizerparname(i,parname)
+            val = getfittedparamd(parname)
+            err = getparamunc(parname)
+            xlo = 0d0
+            xhi = 0d0
+            ipar = i
+         endif
 C        For external systematic parameters (:E form): report BartlettExtErr,
 C        the quadratic-convention error from the extended NP Hessian (set at
 C        the end of chi2_calc_syst_shifts at iflag=3). It matches both the
@@ -518,11 +539,14 @@ C     Broken since 2.2.0
 !           endif
 !        endif
 
+C Preserve CERES's zero-based parameter labels in its output files.
+         iout = i
+         if (usesminuit.eq.0) iout = i - 1
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then
-               write (71,72) i, Trim(parname), val,err
+               write (71,72) iout, Trim(parname), val,err
             else
-               write (71,72) i, Trim(parname), val,err,xlo,xhi
+               write (71,72) iout, Trim(parname), val,err,xlo,xhi
             endif
          endif
       enddo

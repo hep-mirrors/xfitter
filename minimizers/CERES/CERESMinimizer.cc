@@ -58,7 +58,8 @@ void myFCN(double &chi2, double const* par, int iflag=2) {
 
   const int npar = mini->getNpars();
 
-  double pp[200];  // 200 is needed for fcn ... //--> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize with MNE from endmini.inc
+  double pp[200] = {};  // 200 is needed for fcn ... //--> should use NEXTRAPARAMMAX_C from dimensions.h, and synchronize with MNE from endmini.inc
+  if (npar > 200) hf_errlog(2026091501,"F: CERES parameter count exceeds FCN capacity");
   for (int i=0; i<npar; i++) {
     pp[i] = par[i];
   }
@@ -516,11 +517,11 @@ void CERESMinimizer::doMinimization() {
     convergence_status=ConvergenceStatus::ERROR;
   }
 
+  // Restore the fitted point after numerical derivatives/covariance probes.
+  // FCN3 also prepares the Bartlett corrections for subsequent error bands.
+  myFCN(chi2, parVals, 3);
   writePars(covmat);
   writeOutput(summary, covmat);
-
-  // after mini actions
-  myFCN(chi2, parVals, 3);
 
   cout << endl;
   cout << "Fitted parameters" << endl;

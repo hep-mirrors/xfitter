@@ -14,7 +14,7 @@ C
       integer BartMaxPOI                !> cap on the number of POIs
       parameter (BartMaxPOI = 100)
 
-C BartlettNPOI is the number of FREE MINUIT parameters that are not external
+C BartlettNPOI is the number of FREE minimizer parameters that are not external
 C systematic NPs -- i.e. the true dimension of mu. It is NOT the same as
 C nparFCN - nExtSyst, which is (freePOI + freeExt) - allExt = freePOI -
 C fixedExt, and therefore under-counts whenever an external systematic is a
@@ -23,7 +23,7 @@ C c_CI denominator and for ndf_bart = npoints - nPOI.
       integer BartlettNPOI              !> number of free POIs
       logical BartlettHaveNPOI          !> .true. once the POI list is built
       logical BartlettHaveD             !> .true. if BartlettD is filled at the MLE
-      integer BartlettPOIMinuit(BartMaxPOI)  !> MINUIT external index of each POI
+      integer BartlettPOIMinuit(BartMaxPOI)  !> index in FCN parameter array (MINUIT external index)
       double precision BartlettD(NTOT, BartMaxPOI)
 
       common/CBartlettFD/ BartlettD, BartlettPOIMinuit,

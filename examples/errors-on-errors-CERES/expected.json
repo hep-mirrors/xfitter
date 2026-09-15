@@ -1,0 +1,15 @@
+{
+  "npoints": 1145,
+  "npoi": 14,
+  "chi2": 1312.79,
+  "chi2_tolerance": 0.10,
+  "corrected_chi2": 1305.90,
+  "corrected_chi2_tolerance": 0.20,
+  "gof_factor": 0.994747,
+  "gof_factor_tolerance": 0.0001,
+  "ci_factor": 1.003563,
+  "ci_factor_tolerance": 0.0005,
+  "epsilon": 0.6,
+  "external": ["sysHZComb1053", "proc_tb21"],
+  "profiled": ["sysHZComb1064", "sysHZComb1114", "sysHZComb1144", "sysHZComb1111", "sysHZComb1113"]
+}
