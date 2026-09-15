@@ -94,3 +94,11 @@ tolerance is reached, subject to `max_iterations`; the built-in defaults are
 
 `Enable_Bartlett = .true.` enables the goodness-of-fit and confidence-interval
 Bartlett factors reported in `Results.txt`.
+
+## Identifying EoE sources in output
+
+In `Results.txt`, active EoE sources carry an `@eps=value` suffix in the
+`Type` column, for example `:E:M:D@eps=0.600000`. This marker also appears
+when Bartlett corrections are disabled. Sources without EoE retain their
+ordinary type labels. The `:E` modifier itself means external MINUIT
+treatment; both `:E` and `:N` sources can carry the EoE suffix.

@@ -214,6 +214,7 @@ c updf stuff
       Integer idx
 
       character*2 TypeC, FormC, TypeD
+      character*32 EoEMarker
       character*64 Msg
 
       double precision rmass,rmassp,rcharge
@@ -688,6 +689,13 @@ C     !> Store also type of systematic source info
                TypeD = ':T'
             endif
 
+            EoEMarker = ' '
+            if (EoEEnabled .and. EoEActive(jsys) .and.
+     $          (SysForm(jsys).eq.isNuisance .or.
+     $           SysForm(jsys).eq.isExternal)) then
+               write(EoEMarker,'(A,G0.6)') '@eps=',EoEEpsilon(jsys)
+            endif
+
             if (BartlettEnabled .and. EoEEnabled) then
                ! Extended format with EoE columns
                eps_i     = EoEEpsilon(jsys)
@@ -717,18 +725,18 @@ C     !> Store also type of systematic source info
                endif
 
                write(85,'(I5,1X,A55,1X,F9.4,1X,F9.4,1X,F9.4,1X,F7.4,
-     $              1X,F9.5,1X,F10.5,1X,F10.5,1X,F12.5,1X,F12.5,1X,3A2)')
+     $              1X,F9.5,1X,F10.5,1X,F10.5,1X,F12.5,1X,F12.5,1X,3A2,A)')
      $           jsys, SYSTEM(jsys), rsys(jsys), ersys_raw, ersys(jsys),
      $           eps_i, r_i, btil_i, b_theta_i,
      $           bart_weight, bart_weight_lr,
-     $           FormC, TypeC, TypeD
+     $           FormC, TypeC, TypeD, trim(EoEMarker)
 
             else
                ! Preserve the historical non-EoE row format.
                write(85,'(I5,''  '',A55,'' '',F9.4,''   +/-'',F9.4,
-     $              A8,3A2)')
+     $              A8,3A2,A)')
      $           jsys, SYSTEM(jsys), rsys(jsys), ersys(jsys),
-     $           ' ', FormC, TypeC, TypeD
+     $           ' ', FormC, TypeC, TypeD, trim(EoEMarker)
             endif
          enddo
 
@@ -789,6 +797,11 @@ C Print legend for Bartlett corrections
             write(85,'(A)')
      $        '      :P=Poisson :A=Additive :M=Mult :D=Data :T=Theory'
             write(85,*)
+         endif
+
+         if (EoEEnabled) then
+            write(85,'(A)')
+     $        'Type suffix @eps=value: errors-on-errors (EoE) enabled for this source.'
          endif
 
 C Trigger reactions:

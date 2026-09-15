@@ -17,6 +17,8 @@
 #include <TLegend.h>
 #include <TFile.h>
 #include <TLine.h>
+#include <TArrow.h>
+#include <TLatex.h>
 #include <math.h>
 
 #include "FileOpener.h"
@@ -26,6 +28,7 @@ struct shtype
   double val;
   double err;
   int dataid;
+  bool eoe;
 };
 typedef map<string,vector<shtype> > shlisttype;
 
@@ -101,6 +104,16 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
           sh.val = value;
           sh.err = error;
           sh.dataid = itl - opts.labels.begin();
+          // The extended table has epsilon immediately after corrected error.
+          // The legacy table (Bartlett disabled) carries it in the type suffix.
+          double epsilon = 0;
+          if (dummy != "+/-") iss >> epsilon;
+          const size_t epspos = line.find("@eps=");
+          if (epspos != string::npos) {
+            istringstream epsstream(line.substr(epspos + 5));
+            epsstream >> epsilon;
+          }
+          sh.eoe = epsilon > 0;
           shlist[systlabel].push_back(sh);
         }
       f.close();
@@ -216,6 +229,30 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
           nd++;
         }
  
+      // Keep the familiar axis range, but explicitly show out-of-range pulls.
+      // Arrows point inward from the edge; the text gives the actual shift.
+      for (int d = 0; d < dirs.size(); ++d)
+        for (int row = 0; row < nshifts; ++row)
+          if (y[d][row] > 0 && (x[d][row] < -3 || x[d][row] > 7))
+            {
+              const bool left = x[d][row] < -3;
+              const int color = dirs.size() == 1 ? 1 : opts.colors[opts.labels[d]];
+              TArrow *arrow = new TArrow(left ? -2.9 : 6.9, y[d][row],
+                                        left ? -1.9 : 5.9, y[d][row], 0.012, "|>");
+              arrow->SetLineColor(color);
+              arrow->SetFillColor(color);
+              arrow->SetLineWidth(2);
+              arrow->Draw();
+              ostringstream value;
+              value << fixed << setprecision(2) << x[d][row];
+              TLatex *label = new TLatex(left ? -1.7 : 5.7, y[d][row], value.str().c_str());
+              label->SetTextFont(42);
+              label->SetTextSize(txtsize * 0.8);
+              label->SetTextColor(color);
+              label->SetTextAlign(left ? 12 : 32);
+              label->Draw();
+            }
+
       TLine *one = new TLine(1, s*opts.spp+0.1, 1, s*opts.spp+nshifts+0.9);
       one->SetLineStyle(2);
       TLine *minusone = new TLine(-1, s*opts.spp+0.1, -1, s*opts.spp+nshifts+0.9);
@@ -245,7 +282,7 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
       leg->SetFillColor(0);
       leg->SetBorderSize(0);
       leg->SetTextAlign(12);
-      leg->SetTextFont(62);
+      leg->SetTextFont(42);
       leg->SetTextSize(txtsize);
       i = nshifts + s*opts.spp;
       for (shlisttype::iterator slab = sitlast; slab != shlist.begin();)
@@ -254,7 +291,10 @@ vector <TCanvas*> ShiftPainter(vector<string> dirs)
           char num[10];
           sprintf (num, "%d", i);
           string label = (string) num + "  " + slab->first.c_str();
-          leg->AddText(label.c_str());
+          bool eoe = false;
+          for (const shtype &shift : slab->second) eoe = eoe || shift.eoe;
+          if (eoe) label += " [EoE]";
+          leg->AddText(label.c_str())->SetTextFont(eoe ? 62 : 42);
           i--;
         }
       leg->Draw();
