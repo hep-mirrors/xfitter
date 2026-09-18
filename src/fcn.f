@@ -72,9 +72,9 @@ c will take them from
       call MntInpGetparams ! calls MInput.GetMinuitParams();
 #endif
 
-C Count the free POIs (always: that count is the c_CI denominator and the GoF
-C dof, whether or not Bartlett is enabled), then take the theory derivatives
-C w.r.t. them. Both at the MLE, BEFORE the chi2 call, so the Bartlett factors
+C Count the free POIs and classify external nuisances for the CI and GoF
+C counts, whether or not Bartlett is enabled, then take the theory derivatives
+C w.r.t. the POIs. Both at the MLE, BEFORE the chi2 call, so the Bartlett factors
 C are available at iflag=3 for Results.txt, XRANGE and the error bands.
 C Bartlett_ComputeD restores the parameters and the theory before returning.
       if (iflag .eq. 3) then
@@ -302,9 +302,16 @@ C--------------------------------------------------------------
       endif
       ndf=npoints-nparFCN !legacy minimizer parameter count
 C Constrained external nuisances do not reduce the GoF degrees of freedom.
-C Use the free-POI count, which excludes fixed and external parameters.
-      if (iflag.eq.3 .and. BartlettHaveNPOI)
-     $     ndf=npoints-BartlettNPOI
+C Free external nuisances with zero prior are unconstrained and must count.
+C Keep the POI list and CI denominator separate from this GoF count.
+      if (iflag.eq.3 .and. BartlettHaveNPOI) then
+         ndf=npoints-BartlettNPOI
+         do isys=1,nsys
+            if (SysForm(isys).eq.isExternal .and.
+     $          .not.SysExtFixed(isys) .and.
+     $          SysPriorScale(isys).eq.0d0) ndf=ndf-1
+         enddo
+      endif
       n0 =npoints
       if(iflag.eq.1)then !at first iteration
         if(lrand.and.DataToTheo)then
@@ -461,12 +468,12 @@ c Print time, number of calls, chi2
          c_bart_chi2 = 1.0D0
          c_bart_ci = 1.0D0
          if (BartlettEnabled .and. EoEEnabled) then
-            ! External NPs are penalty-constrained: each adds one unit to
-            ! E[chi2], so the dof of the GoF statistic is npoints - nPOI
-            ! (Eq. 38 of arXiv:2407.05322). The ndf+nExtSyst form is only
-            ! equivalent when every external NP is free.
+            ! With penalty-constrained external NPs, the GoF dof is
+            ! npoints - nPOI (Eq. 38 of arXiv:2407.05322). Free external
+            ! NPs with zero prior also reduce it: use the final GoF count.
+            ! Preserve the legacy fallback when no free-POI count exists.
             ndf_bart = npoints - nPOI
-            if (BartlettHaveNPOI) ndf_bart = npoints - nPOI
+            if (BartlettHaveNPOI) ndf_bart = ndf
             if (ndf_bart .gt. 0) then
                c_bart_chi2 = 1.0D0 / ( 1.0D0 + BartlettGoFFactor / dble(ndf_bart) )
                ! b_q >= 0 for r in [0,1], so c_bart_chi2 > 1 signals a
@@ -778,9 +785,15 @@ C Print legend for Bartlett corrections
      $        '  Chi2 Bartlett = 1 / (1 + sum(GoF Contrib)/ndf_bart)'
             write(85,'(A)')
      $        '  CI Bartlett   = sqrt(1 + sum(LR Contrib)/nPOI)'
-            write(85,'(A,I6,A,I4)')
+            if (ndf_bart.eq.npoints-nPOI) then
+               write(85,'(A,I6,A,I4)')
      $        '  with ndf_bart = npoints - nPOI = ', ndf_bart,
      $        ' ,  nPOI = ', nPOI
+            else
+               write(85,'(A,I6,A,I4)')
+     $        '  with ndf_bart = npoints - nPOI - free zero-prior :E = ',
+     $        ndf_bart, ' ,  nPOI = ', nPOI
+            endif
             if (BartlettFailed) then
                write(85,'(A)')
      $ '  WARNING: Bartlett factors UNAVAILABLE (singular POI Hessian'
