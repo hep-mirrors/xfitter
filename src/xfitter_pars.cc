@@ -846,7 +846,9 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
 
 namespace xfitter{
 
-BaseMinimizer* get_minimizer() {
+// Resolve the selected backend without loading it or changing configuration.
+// Output queries must not trigger atStart(), which can reopen Results.txt.
+static std::string get_minimizer_name() {
   bool HasMinimizer  = ( XFITTER_PARS::gParametersS.find("Minimizer" ) != XFITTER_PARS::gParametersS.end() );
   bool HasMinimizers = ( XFITTER_PARS::gParametersVS.find("Minimizers" ) != XFITTER_PARS::gParametersVS.end() );
 
@@ -861,10 +863,18 @@ BaseMinimizer* get_minimizer() {
   else
     if ( XFITTER_PARS::gParametersS.find("__currentMinimizer" ) != XFITTER_PARS::gParametersS.end() )
       name = XFITTER_PARS::getParamS("__currentMinimizer" );
-    else{
-      name = XFITTER_PARS::gParametersVS.at("Minimizers")[0];
-      XFITTER_PARS::gParametersS["__currentMinimizer"] = name;
-    }
+    else
+      name = XFITTER_PARS::gParametersVS.at("Minimizers").at(0);
+
+  return name;
+}
+
+BaseMinimizer* get_minimizer() {
+  const std::string name = get_minimizer_name();
+  if (XFITTER_PARS::gParametersS.find("Minimizer") == XFITTER_PARS::gParametersS.end()
+      && XFITTER_PARS::gParametersS.find("__currentMinimizer") == XFITTER_PARS::gParametersS.end()) {
+    XFITTER_PARS::gParametersS["__currentMinimizer"] = name;
+  }
 
   // Check if already present
   if ( XFITTER_PARS::gMinimizer && XFITTER_PARS::gMinimizer->getName() == name ) {
@@ -986,7 +996,7 @@ int hasminimizercovariance_(){
 }
 
 int minimizerusesminuit_(){
-  return xfitter::get_minimizer()->getName() == "MINUIT" ? 1 : 0;
+  return xfitter::get_minimizer_name() == "MINUIT" ? 1 : 0;
 }
 
 int getminimizernpars_(){
