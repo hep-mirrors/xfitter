@@ -15,6 +15,8 @@
 #include "EvolutionAPFELxx.h"
 #include "EvolutionQCDNUM.h"
 
+using namespace std;
+
 // The class factory
 extern "C" ReactionN3LO_DISNC *create()
 {
@@ -43,6 +45,7 @@ void ReactionN3LO_DISNC::atStart()
   const double* MTop     = XFITTER_PARS::getParamD("mtp");
   Thresholds = {0, 0, 0, *MCharm, *MBottom, *MTop};
   Masses = {0, 0, 0, *MCharm, *MBottom, *MTop};
+  Masses4F = {0, 0, 0, 0, *MBottom, *MTop};
 
   // Initialize coefficient functions
   F2Obj = InitializeF2NCObjectsZM(*Grid, Thresholds);
@@ -60,6 +63,12 @@ void ReactionN3LO_DISNC::atStart()
   FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
   F2ObjM0 = InitializeF2NCObjectsMassiveZero(*Grid, Thresholds);
   FLObjM0 = InitializeFLNCObjectsMassiveZero(*Grid, Thresholds);
+
+  // 4-flavour scheme massive coefficient functions (charm massless)
+  F2ObjM4F  = InitializeF2NCObjectsMassive(*Grid,     Masses4F, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
+  FLObjM4F  = InitializeFLNCObjectsMassive(*Grid,     Masses4F, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
+  F2ObjM04F = InitializeF2NCObjectsMassiveZero(*Grid, Masses4F);
+  FLObjM04F = InitializeFLNCObjectsMassiveZero(*Grid, Masses4F);
 }
 
 void ReactionN3LO_DISNC::initTerm(TermData *td)
@@ -107,6 +116,27 @@ void ReactionN3LO_DISNC::atIteration()
   double qmax = QGrid[2].as<double>();
   int ord = QGrid[3].as<int>();
 
+  //put in atConfiguration()
+  //if (XFITTER_PARS::gParameters.count("N3LO_DISNC/F2thr") != F2thr ||
+  //    XFITTER_PARS::gParameters.count("N3LO_DISNC/F2asy") != F2asy ||
+  //    XFITTER_PARS::gParameters.count("N3LO_DISNC/F2dmp") != F2dmp)
+  //  {
+  //    F2thr = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/F2thr"));
+  //    F2asy = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/F2asy"));
+  //    F2dmp = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/F2dmp"));
+  //    F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
+  //  }
+  //
+  //if (XFITTER_PARS::gParameters.count("N3LO_DISNC/FLthr") != FLthr ||
+  //    XFITTER_PARS::gParameters.count("N3LO_DISNC/FLasy") != FLasy ||
+  //    XFITTER_PARS::gParameters.count("N3LO_DISNC/FLdmp") != FLdmp)
+  //  {
+  //    FLthr = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/FLthr"));
+  //    FLasy = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/FLasy"));
+  //    FLdmp = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/FLdmp"));
+  //    FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
+  //  }
+  
   ReactionBaseDISNC::atIteration();
 
   // Perturbative order
@@ -127,6 +157,20 @@ void ReactionN3LO_DISNC::atIteration()
   const auto PDFs = [&] (double const& x, double const& Q) -> std::map<int, double> { return apfel::PhysToQCDEv(pdf->xfxQmap(x, Q)); };
   const auto as = [&] (double const& Q) -> double { return pdf->getAlphaS(Q); };
 
+  // 3F and 4F PDFs and alphas for the massive structure functions
+  // (only available with APFELxx evolution, otherwise fall back to the VFNS ones)
+  xfitter::EvolutionAPFELxx* apfelxx = nullptr;
+  if (pdf->getClassName() == string("APFELxx"))
+    apfelxx = static_cast<xfitter::EvolutionAPFELxx*>(pdf);
+  else
+    hf_errlog(26101303,"W: Reaction "+getReactionName()+": default evolution is not APFELxx, 3F and 4F PDFs and alphas not available, use VFNS PDFs and alphas in massive structure functions");
+
+  const auto PDFs3F = [&] (double const& x, double const& Q) -> std::map<int, double> { return apfel::PhysToQCDEv(apfelxx ? apfelxx->xfxQmapNF(3, x, Q) : pdf->xfxQmap(x, Q)); };
+  const auto as3F = [&] (double const& Q) -> double { return apfelxx ? apfelxx->getAlphaSNF(3, Q) : pdf->getAlphaS(Q); };
+
+  const auto PDFs4F = [&] (double const& x, double const& Q) -> std::map<int, double> { return apfel::PhysToQCDEv(apfelxx ? apfelxx->xfxQmapNF(4, x, Q) : pdf->xfxQmap(x, Q)); };
+  const auto as4F = [&] (double const& Q) -> double { return apfelxx ? apfelxx->getAlphaSNF(4, Q) : pdf->getAlphaS(Q); };
+  
   // Initialize structure functions
   const auto F2 = BuildStructureFunctions(F2Obj, PDFs, PerturbativeOrder, as, fBq);
   const auto FL = BuildStructureFunctions(FLObj, PDFs, PerturbativeOrder, as, fBq);
@@ -186,14 +230,15 @@ void ReactionN3LO_DISNC::atIteration()
 	  msvordmax = yamlNode["msvordmax"].as<int>();
 	}
       // Initialize structure functions
-      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
-      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
-      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
-      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, std::min(PerturbativeOrder,msvordmax), as, fBq);
-      //const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, PerturbativeOrder, as, fBq);
-      //const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, PerturbativeOrder, as, fBq);
-      //const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, PerturbativeOrder, as, fBq);
-      //const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, PerturbativeOrder, as, fBq);
+      const auto F2M3F  = BuildStructureFunctions(F2ObjM,  PDFs3F, std::min(PerturbativeOrder,msvordmax), as3F, fBq);
+      const auto FLM3F  = BuildStructureFunctions(FLObjM,  PDFs3F, std::min(PerturbativeOrder,msvordmax), as3F, fBq);
+      const auto F2M03F = BuildStructureFunctions(F2ObjM0, PDFs3F, std::min(PerturbativeOrder,msvordmax), as3F, fBq);
+      const auto FLM03F = BuildStructureFunctions(FLObjM0, PDFs3F, std::min(PerturbativeOrder,msvordmax), as3F, fBq);
+
+      const auto F2M4F  = BuildStructureFunctions(F2ObjM4F,  PDFs4F, std::min(PerturbativeOrder,msvordmax), as4F, fBq);
+      const auto FLM4F  = BuildStructureFunctions(FLObjM4F,  PDFs4F, std::min(PerturbativeOrder,msvordmax), as4F, fBq);
+      const auto F2M04F = BuildStructureFunctions(F2ObjM04F, PDFs4F, std::min(PerturbativeOrder,msvordmax), as4F, fBq);
+      const auto FLM04F = BuildStructureFunctions(FLObjM04F, PDFs4F, std::min(PerturbativeOrder,msvordmax), as4F, fBq);
       
       // Tabulate Structure functions
       const apfel::TabulateObject<apfel::Distribution> F2light {[&] (double const& Q) -> apfel::Distribution{ return F2.at(1).Evaluate(Q) + F2.at(2).Evaluate(Q) + F2.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
@@ -201,21 +246,47 @@ void ReactionN3LO_DISNC::atIteration()
       const apfel::TabulateObject<apfel::Distribution> F3light {[&] (double const& Q) -> apfel::Distribution{ return F3.at(1).Evaluate(Q) + F3.at(2).Evaluate(Q) + F3.at(3).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       
       const apfel::TabulateObject<apfel::Distribution> F2charmZM {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M3F.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M03F.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> FLcharmZM {[&] (double const& Q) -> apfel::Distribution{ return FL.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLcharmM  {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLcharmM0 {[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM  {[&] (double const& Q) -> apfel::Distribution{ return FLM3F.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLcharmM0 {[&] (double const& Q) -> apfel::Distribution{ return FLM03F.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F3charmZM {[&] (double const& Q) -> apfel::Distribution{ return F3.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
       
       const apfel::TabulateObject<apfel::Distribution> F2bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> F2bottomM0{[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M4F.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> F2bottomM0{[&] (double const& Q) -> apfel::Distribution{ return F2M04F.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> FLbottomZM{[&] (double const& Q) -> apfel::Distribution{ return FL.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLbottomM {[&] (double const& Q) -> apfel::Distribution{ return FLM.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
-      const apfel::TabulateObject<apfel::Distribution> FLbottomM0{[&] (double const& Q) -> apfel::Distribution{ return FLM0.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM {[&] (double const& Q) -> apfel::Distribution{ return FLM4F.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
+      const apfel::TabulateObject<apfel::Distribution> FLbottomM0{[&] (double const& Q) -> apfel::Distribution{ return FLM04F.at(5).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F3bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F3.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
 
+      //double xx = 0.0001;
+      //string ff = "f2";
+      //string qq = "c";
+      //int imod = yamlNode["imod"].as<int>();
+      //string tag = "";
+      //if (imod == 1 || imod == 3 || imod == 5)
+      //	tag = "d";
+      //if (imod == 2 || imod == 4 || imod == 6)
+      //	tag = "u";
+      //cout << endl;
+      //cout << "{" << endl;
+      //cout << "TGraph *g" << ff << qq << PerturbativeOrder << tag << " = new TGraph();" << endl;
+      //double Q, logQ, logQ_min = 0, logQ_max = 2;
+      //int N = 100;
+      //double dlogQ = (logQ_max - logQ_min) / N;
+      //for (int i = 0; i < N; i++)
+      //	{
+      //	  logQ = logQ_min + i * dlogQ;
+      //	  Q = pow(10, logQ);
+      //	  double etab = Q*Q / ( Q*Q + 4 * Masses[4] * Masses[4] );
+      //	  cout << "g" << ff << qq << PerturbativeOrder << tag << "->SetPoint(g" << ff << qq << PerturbativeOrder << tag << "->GetN(), " << Q << ", " << F2charmM.EvaluatexQ(xx/etab, Q) << ");" << endl;
+      //	  //	cout << "g" << ff << qq << PerturbativeOrder << tag << "->SetPoint(g" << ff << qq << PerturbativeOrder << tag << "->GetN(), " << Q << ", " << F2M.at(5).Evaluate(xx, Q)   << ");" << endl;
+      //	}
+      //cout << endl;
+      //exit(0);
+    
       // Loop over the data sets.
       for (auto termID : _dsIDs)
 	{
@@ -269,12 +340,12 @@ void ReactionN3LO_DISNC::atIteration()
 	      if (!tabulate)
 		{
 		  _f2fonll[termID][i] =           (+ F2.at(1).Evaluate(x[i], sqrt(q2[i])) + F2.at(2).Evaluate(x[i], sqrt(q2[i])) + F2.at(3).Evaluate(x[i], sqrt(q2[i]))
-						   + fthrc*F2.at(4).Evaluate(x[i], sqrt(q2[i]))  + F2M.at(4).Evaluate(x[i]/etac, sqrt(q2[i]))  - fthrc*F2M0.at(4).Evaluate(x[i], sqrt(q2[i]))
-						   + fthrb*F2.at(5).Evaluate(x[i], sqrt(q2[i])) + F2M.at(5).Evaluate(x[i]/etab, sqrt(q2[i])) - fthrb*F2M0.at(5).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrc*F2.at(4).Evaluate(x[i], sqrt(q2[i]))  + F2M3F.at(4).Evaluate(x[i]/etac, sqrt(q2[i]))  - fthrc*F2M03F.at(4).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrb*F2.at(5).Evaluate(x[i], sqrt(q2[i])) + F2M4F.at(5).Evaluate(x[i]/etab, sqrt(q2[i])) - fthrb*F2M04F.at(5).Evaluate(x[i], sqrt(q2[i]))
 						   );
 		  _flfonll[termID][i] =           (+ FL.at(1).Evaluate(x[i], sqrt(q2[i])) + FL.at(2).Evaluate(x[i], sqrt(q2[i])) + FL.at(3).Evaluate(x[i], sqrt(q2[i]))
-						   + fthrc*FL.at(4).Evaluate(x[i], sqrt(q2[i]))  + FLM.at(4).Evaluate(x[i]/etac, sqrt(q2[i]))  - fthrc*FLM0.at(4).Evaluate(x[i], sqrt(q2[i]))
-						   + fthrb*FL.at(5).Evaluate(x[i], sqrt(q2[i])) + FLM.at(5).Evaluate(x[i]/etab, sqrt(q2[i])) - fthrb*FLM0.at(5).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrc*FL.at(4).Evaluate(x[i], sqrt(q2[i]))  + FLM3F.at(4).Evaluate(x[i]/etac, sqrt(q2[i]))  - fthrc*FLM03F.at(4).Evaluate(x[i], sqrt(q2[i]))
+						   + fthrb*FL.at(5).Evaluate(x[i], sqrt(q2[i])) + FLM4F.at(5).Evaluate(x[i]/etab, sqrt(q2[i])) - fthrb*FLM04F.at(5).Evaluate(x[i], sqrt(q2[i]))
 						   );
 		  _f3fonll[termID][i] = -charge * (F3.at(1).Evaluate(x[i], sqrt(q2[i])) + F3.at(2).Evaluate(x[i], sqrt(q2[i])) + F3.at(3).Evaluate(x[i], sqrt(q2[i])) + F3.at(4).Evaluate(x[i], sqrt(q2[i])) + F3.at(5).Evaluate(x[i], sqrt(q2[i])));
 		}
@@ -290,10 +361,10 @@ void ReactionN3LO_DISNC::atIteration()
 
   if (initcharm)
     {
-      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, PerturbativeOrder, as, fBq);
-      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, PerturbativeOrder, as, fBq);
-      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, PerturbativeOrder, as, fBq);
-      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, PerturbativeOrder, as, fBq);
+      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs3F, PerturbativeOrder, as3F, fBq);
+      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs3F, PerturbativeOrder, as3F, fBq);
+      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs3F, PerturbativeOrder, as3F, fBq);
+      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs3F, PerturbativeOrder, as3F, fBq);
       const apfel::TabulateObject<apfel::Distribution> F2charmZM {[&] (double const& Q) -> apfel::Distribution{ return F2.at(4).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F2charmM  {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(4).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F2charmM0 {[&] (double const& Q) -> apfel::Distribution{ return F2M0.at(4).Evaluate(Q); }, n, qmin, qmax, ord, Thresholds};
@@ -355,10 +426,10 @@ void ReactionN3LO_DISNC::atIteration()
 
   if (initbottom)
     {
-      const auto F2M  = BuildStructureFunctions(F2ObjM,  PDFs, PerturbativeOrder, as, fBq);
-      const auto FLM  = BuildStructureFunctions(FLObjM,  PDFs, PerturbativeOrder, as, fBq);
-      const auto F2M0 = BuildStructureFunctions(F2ObjM0, PDFs, PerturbativeOrder, as, fBq);
-      const auto FLM0 = BuildStructureFunctions(FLObjM0, PDFs, PerturbativeOrder, as, fBq);
+      const auto F2M  = BuildStructureFunctions(F2ObjM4F,  PDFs4F, PerturbativeOrder, as4F, fBq);
+      const auto FLM  = BuildStructureFunctions(FLObjM4F,  PDFs4F, PerturbativeOrder, as4F, fBq);
+      const auto F2M0 = BuildStructureFunctions(F2ObjM04F, PDFs4F, PerturbativeOrder, as4F, fBq);
+      const auto FLM0 = BuildStructureFunctions(FLObjM04F, PDFs4F, PerturbativeOrder, as4F, fBq);
 
       const apfel::TabulateObject<apfel::Distribution> F2bottomZM{[&] (double const& Q) -> apfel::Distribution{ return F2.at(5).Evaluate(Q);   }, n, qmin, qmax, ord, Thresholds};
       const apfel::TabulateObject<apfel::Distribution> F2bottomM {[&] (double const& Q) -> apfel::Distribution{ return F2M.at(5).Evaluate(Q);  }, n, qmin, qmax, ord, Thresholds};

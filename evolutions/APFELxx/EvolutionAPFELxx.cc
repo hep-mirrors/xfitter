@@ -1,6 +1,7 @@
 #include "EvolutionAPFELxx.h"
 #include "xfitter_pars.h"
 #include "xfitter_cpp_base.h"
+#include "hf_errlog.h"
 
 #include <apfel/alphaqcd.h>
 #include <apfel/messages.h>
@@ -39,7 +40,7 @@ namespace xfitter
     _Grid = std::unique_ptr<const apfel::Grid>(new apfel::Grid(sgv));
 
     // Vectors of masses and thresholds
-    _Masses = {0, 0, 0, *MCharm, *MBottom, *MTop};
+    _Masses = {0, 0, 0, *MCharm, *MBottom};//, *MTop};
     _Thresholds = _Masses;
 
     // Initialize QCD evolution objects
@@ -59,6 +60,16 @@ namespace xfitter
     //IMod[9] = yamlNode["aqqHns"].as<int>();
 
     _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds, false, 1e-5, n3lo, IMod);
+
+    _Masses3F = {0, 0, 0};
+    _Thresholds3F = _Masses3F;
+
+    _Masses4F = {0, 0, 0, *MCharm};
+    _Thresholds4F = _Masses4F;
+    
+    _DglapObj3F = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses3F, _Thresholds3F, false, 1e-5, n3lo, IMod);
+    _DglapObj4F = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses4F, _Thresholds4F, false, 1e-5, n3lo, IMod);
+
     atConfigurationChange();
   }
 
@@ -80,6 +91,15 @@ namespace xfitter
     const apfel::TabulateObject<double> Alphas{a, 100, 0.9, 1001, 3};
     _AlphaQCD = [=] (double const& mu) -> double{ return Alphas.Evaluate(mu); };
 
+    // 3F and 4F couplings, matched to the VFNS coupling at Q0 (assumes Q0 < mc)
+    apfel::AlphaQCD a3F{_AlphaQCD(*Q0), *Q0, _Masses3F, _Thresholds3F, PtOrder};
+    const apfel::TabulateObject<double> Alphas3F{a3F, 100, 0.9, 1001, 3};
+    _AlphaQCD3F = [=] (double const& mu) -> double{ return Alphas3F.Evaluate(mu); };
+
+    apfel::AlphaQCD a4F{_AlphaQCD(*Q0), *Q0, _Masses4F, _Thresholds4F, PtOrder};
+    const apfel::TabulateObject<double> Alphas4F{a4F, 100, 0.9, 1001, 3};
+    _AlphaQCD4F = [=] (double const& mu) -> double{ return Alphas4F.Evaluate(mu); };
+    
     // Construct the DGLAP objects
     const auto Dglap = BuildDglap(_DglapObj,
       [=] (double const& x, double const&)->std::map<int,double>{
@@ -87,6 +107,18 @@ namespace xfitter
       },
     *Q0, PtOrder, _AlphaQCD);
 
+    const auto Dglap3F = BuildDglap(_DglapObj3F,
+      [=] (double const& x, double const&)->std::map<int,double>{
+        return apfel::PhysToQCDEv(_inPDFs->xfxMap(x));
+      },
+    *Q0, PtOrder, _AlphaQCD3F);
+
+    const auto Dglap4F = BuildDglap(_DglapObj4F,
+      [=] (double const& x, double const&)->std::map<int,double>{
+        return apfel::PhysToQCDEv(_inPDFs->xfxMap(x));
+      },
+    *Q0, PtOrder, _AlphaQCD4F);
+    
     // Tabulate PDFs (ideally the parameters of the tabulation should
     // be read from parameters.yaml).
     _TabulatedPDFs = std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>>
@@ -95,6 +127,21 @@ namespace xfitter
           QGrid[1].as<double>(),
           QGrid[2].as<double>(),
           QGrid[3].as<int>()});
+
+    _TabulatedPDFs3F = std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>>
+      (new apfel::TabulateObject<apfel::Set<apfel::Distribution>>{*Dglap3F,
+          QGrid[0].as<int>(),
+          QGrid[1].as<double>(),
+          QGrid[2].as<double>(),
+          QGrid[3].as<int>()});
+
+    _TabulatedPDFs4F = std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>>
+      (new apfel::TabulateObject<apfel::Set<apfel::Distribution>>{*Dglap4F,
+          QGrid[0].as<int>(),
+          QGrid[1].as<double>(),
+          QGrid[2].as<double>(),
+          QGrid[3].as<int>()});
+    
   }
   apfel::TabulateObject<apfel::Set<apfel::Distribution>> EvolutionAPFELxx::GetTabulatedPDFs() {return *_TabulatedPDFs;};
   std::function<double(double const& Q)>                 EvolutionAPFELxx::GetAlphaQCD() {return _AlphaQCD;};
@@ -124,6 +171,27 @@ namespace xfitter
   }
   double EvolutionAPFELxx::getAlphaS(double Q){
     return _AlphaQCD(Q);
+  }
+
+  std::map<int,double>EvolutionAPFELxx::xfxQmapNF(int nf,double x,double Q){
+    switch(nf){
+    case 3: return apfel::QCDEvToPhys(_TabulatedPDFs3F->EvaluateMapxQ(x,Q));
+    case 4: return apfel::QCDEvToPhys(_TabulatedPDFs4F->EvaluateMapxQ(x,Q));
+    case 5: return xfxQmap(x,Q);
+    default:
+      hf_errlog(26101301,"F: EvolutionAPFELxx::xfxQmapNF: nf must be 3, 4 or 5");
+      return {};
+    }
+  }
+  double EvolutionAPFELxx::getAlphaSNF(int nf,double Q){
+    switch(nf){
+    case 3: return _AlphaQCD3F(Q);
+    case 4: return _AlphaQCD4F(Q);
+    case 5: return _AlphaQCD(Q);
+    default:
+      hf_errlog(26101302,"F: EvolutionAPFELxx::getAlphaSNF: nf must be 3, 4 or 5");
+      return 0;
+    }
   }
 
   vector<double> EvolutionAPFELxx::getXgrid() {

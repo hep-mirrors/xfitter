@@ -40,6 +40,7 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   std::unique_ptr<const apfel::Grid> Grid;
   std::vector<double>                Thresholds;
   std::vector<double>                Masses;
+  std::vector<double>                Masses4F;
   
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2Obj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObj;
@@ -49,6 +50,12 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM0;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM0;
+
+  // Massive coefficient functions in the 4-flavour scheme (for bottom)
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM4F;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM4F;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM04F;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM04F;
   
 };
 
