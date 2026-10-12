@@ -39,11 +39,12 @@ void ReactionN3LO_DISNC::atStart()
 
   Grid = std::unique_ptr<const apfel::Grid>(new apfel::Grid(sgv));
 
-  // Vectors of thresholds
+  // Vectors of thresholds (5F, no top) and masses (APFELxx massive
+  // coefficient functions require all 6 masses, top is not used)
   const double* MCharm   = XFITTER_PARS::getParamD("mch");
   const double* MBottom  = XFITTER_PARS::getParamD("mbt");
   const double* MTop     = XFITTER_PARS::getParamD("mtp");
-  Thresholds = {0, 0, 0, *MCharm, *MBottom, *MTop};
+  Thresholds = {0, 0, 0, *MCharm, *MBottom};
   Masses = {0, 0, 0, *MCharm, *MBottom, *MTop};
   Masses4F = {0, 0, 0, 0, *MBottom, *MTop};
 
@@ -59,10 +60,10 @@ void ReactionN3LO_DISNC::atStart()
   FLasy = yamlNode["FLasy"].as<int>();
   FLdmp = yamlNode["FLdmp"].as<int>();
 
-  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
-  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
-  F2ObjM0 = InitializeF2NCObjectsMassiveZero(*Grid, Thresholds);
-  FLObjM0 = InitializeFLNCObjectsMassiveZero(*Grid, Thresholds);
+  F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Masses, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
+  FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Masses, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
+  F2ObjM0 = InitializeF2NCObjectsMassiveZero(*Grid, Masses);
+  FLObjM0 = InitializeFLNCObjectsMassiveZero(*Grid, Masses);
 
   // 4-flavour scheme massive coefficient functions (charm massless)
   F2ObjM4F  = InitializeF2NCObjectsMassive(*Grid,     Masses4F, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
@@ -124,7 +125,7 @@ void ReactionN3LO_DISNC::atIteration()
   //    F2thr = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/F2thr"));
   //    F2asy = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/F2asy"));
   //    F2dmp = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/F2dmp"));
-  //    F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
+  //    F2ObjM  = InitializeF2NCObjectsMassive(*Grid,     Masses, 1e-5, 150, 0.05, 10000, 3, 0.0005, F2thr, F2asy, F2dmp);
   //  }
   //
   //if (XFITTER_PARS::gParameters.count("N3LO_DISNC/FLthr") != FLthr ||
@@ -134,7 +135,7 @@ void ReactionN3LO_DISNC::atIteration()
   //    FLthr = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/FLthr"));
   //    FLasy = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/FLasy"));
   //    FLdmp = *(XFITTER_PARS::gParameters.at("N3LO_DISNC/FLdmp"));
-  //    FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Thresholds, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
+  //    FLObjM  = InitializeFLNCObjectsMassive(*Grid,     Masses, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
   //  }
   
   ReactionBaseDISNC::atIteration();
