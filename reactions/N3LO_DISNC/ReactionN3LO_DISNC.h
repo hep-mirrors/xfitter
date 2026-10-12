@@ -40,16 +40,20 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   std::unique_ptr<const apfel::Grid> Grid;
   std::vector<double>                Thresholds;
   std::vector<double>                Masses;
+  std::vector<double>                Thresholds3F;
+  std::vector<double>                Masses3F;
+  std::vector<double>                Thresholds4F;
   std::vector<double>                Masses4F;
   
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2Obj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObj;
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F3Obj;
 
-  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM;
-  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM;
-  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM0;
-  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM0;
+  // Massive coefficient functions in the 3-flavour scheme (for charm)
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM3F;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM3F;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM03F;
+  std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> FLObjM03F;
 
   // Massive coefficient functions in the 4-flavour scheme (for bottom)
   std::function<apfel::StructureFunctionObjects(double const&, std::vector<double> const&)> F2ObjM4F;
