@@ -45,14 +45,17 @@ namespace xfitter
 
     // Initialize QCD evolution objects
     //_DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds);
-    std::vector<int>  IMod = {0, 0, 0, 0};
+    // APFELxx >= cereal branch: exact 4-loop pure-singlet splitting function
+    // (arXiv:2609.37563), only qg, gq, gg remain approximate.
+    std::vector<int>  IMod = {0, 0, 0};
     //imod 1 : A
     //imod 2 : B
     //imod 0 : (A+B)/2
-    IMod[0] = yamlNode["P3SGps"].as<int>();
-    IMod[1] = yamlNode["P3SGqg"].as<int>();
-    IMod[2] = yamlNode["P3SGgq"].as<int>();
-    IMod[3] = yamlNode["P3SGgg"].as<int>();
+    if (yamlNode["P3SGps"] && yamlNode["P3SGps"].as<int>() != 0)
+      hf_errlog(26100301, "W: P3SGps ignored, the N3LO pure-singlet splitting function is exact");
+    IMod[0] = yamlNode["P3SGqg"].as<int>();
+    IMod[1] = yamlNode["P3SGgq"].as<int>();
+    IMod[2] = yamlNode["P3SGgg"].as<int>();
     bool n3lo = OrderMap(XFITTER_PARS::getParamS("Order"))-1 >= 3;
 
     //IMod[7] = yamlNode["aHg"].as<int>();
