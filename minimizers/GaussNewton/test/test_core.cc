@@ -2,6 +2,7 @@
 // Build with -DXFITTER_GN_TESTS=ON and run gn_core_tests; exit code 0 means all passed.
 
 #include "core/LevenbergMarquardt.h"
+#include "core/ObservedHessian.h"
 #include "core/ProfiledNuisances.h"
 
 #include <cmath>
@@ -344,6 +345,48 @@ void testCovarianceFallback() {
   check(!pd && std::abs(C(0, 0) - 1) < 1e-12 && C(1, 1) == 0, "covariance pseudo-inverse fallback, Eq. (10)");
 }
 
+
+void testObservedHessian() {
+  // Rosenbrock away from the minimum: the observed Hessian includes the r d2r term that
+  // the Gauss-Newton Hessian 2 J^T J misses
+  LeastSquares rosenbrock(
+      2,
+      [](const Eigen::VectorXd& x) {
+        Eigen::VectorXd r(2);
+        r << 10 * (x(1) - x(0) * x(0)), 1 - x(0);
+        return r;
+      },
+      [](const Eigen::VectorXd& x) {
+        Eigen::MatrixXd J(2, 2);
+        J << -20 * x(0), 10, -1, 0;
+        return J;
+      });
+  const Eigen::Vector2d x(0.5, 0.5);
+  const QuadraticModel gn = rosenbrock.model(x);
+  const ObservedHessianResult obs = observedHessian(rosenbrock, x, rosenbrock.chi2(x), gn.hessian);
+  Eigen::Matrix2d exact;
+  exact << 1200 * 0.25 - 400 * 0.5 + 2, -400 * 0.5, -400 * 0.5, 200;
+  // forward off-diagonal differences (as in HESSE): O(h) error
+  check((obs.hessian - exact).norm() < 5e-3 * exact.norm(), "observed Hessian of Rosenbrock: " +
+                                                                 sci((obs.hessian - exact).norm() / exact.norm()));
+  check((gn.hessian - exact).norm() > 0.2 * exact.norm(), "  (the Gauss-Newton Hessian differs there)");
+
+  // quadratic with a parameter at its upper bound: one-sided differences, exact
+  Eigen::MatrixXd H(3, 3);
+  H << 4, 1, 0.5, 1, 3, -1, 0.5, -1, 2;
+  const Eigen::MatrixXd L = Eigen::LLT<Eigen::MatrixXd>(H / 2).matrixU();
+  const Eigen::Vector3d c(0.3, -0.2, 0.1);
+  LeastSquares quadratic(3, [&](const Eigen::VectorXd& y) { return Eigen::VectorXd(L * (y - c)); },
+                         [&](const Eigen::VectorXd&) { return L; });
+  quadratic.lower = Eigen::Vector3d(-5, -5, -5);
+  quadratic.upper = Eigen::Vector3d(5, 5, 0);
+  const Eigen::Vector3d y(0.1, 0.2, 0);
+  const ObservedHessianResult q = observedHessian(quadratic, y, quadratic.chi2(y), 0.1 * H);
+  check((q.hessian - H).norm() < 1e-6 * H.norm(), "observed Hessian of a quadratic at a bound: " +
+                                                      sci((q.hessian - H).norm() / H.norm()));
+  std::printf("      %d chi2 calls for 3 parameters (model curvature off by 10: steps refined)\n", q.chi2Calls);
+}
+
 }  // namespace
 
 int main() {
@@ -356,6 +399,7 @@ int main() {
   testProfiledGradient();
   testSchurVersusJoint();
   testCovarianceFallback();
+  testObservedHessian();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);
   return failures ? 1 : 0;
 }

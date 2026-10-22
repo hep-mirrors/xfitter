@@ -24,6 +24,7 @@ double checkDerivatives(ProfiledChi2& problem, const Eigen::VectorXd& p, const E
     const double rel = std::abs(model.gradient(j) - fd) / std::max(std::abs(fd), 1e-12);
     worst = std::max(worst, rel);
     std::printf("%5d %15s %15.6g %15.6g %12.2e\n", j, names[j].c_str(), model.gradient(j), fd, rel);
+    std::fflush(stdout);
   }
 
   // Hessian along a few directions: second difference of the official chi2
@@ -34,6 +35,24 @@ double checkDerivatives(ProfiledChi2& problem, const Eigen::VectorXd& p, const E
     const double gn = v.dot(model.hessian * v);
     std::printf("direction %d: v.H.v model = %.6g, second difference = %.6g, rel. diff = %.2e\n", k, gn, fd,
                 std::abs(gn - fd) / std::abs(fd));
+    std::fflush(stdout);
+  }
+
+  // Along the least constrained eigenvectors of H, scaled to the model Delta chi2 = 1
+  // (v.H.v = 2): these directions set the largest parameter errors, Eq. (10)
+  const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigen(model.hessian);
+  for (int k = 0; k < std::min<int>(3, p.size()); ++k) {
+    const double value = eigen.eigenvalues()(k);
+    if (!(value > 0)) continue;
+    std::vector<double> ratio;
+    for (double scale : {1., 0.1, 0.01}) {
+      const Eigen::VectorXd v = scale * std::sqrt(2 / value) * eigen.eigenvectors().col(k);
+      const double fd = problem.chi2(p + v) - 2 * chi2 + problem.chi2(p - v);
+      ratio.push_back(fd / (2 * scale * scale));
+    }
+    std::printf("eigenvector %d: second difference / model at scales 1, 0.1, 0.01 of the Delta chi2 = 1 "
+                "step: %.4g %.4g %.4g\n", k, ratio[0], ratio[1], ratio[2]);
+    std::fflush(stdout);
   }
   std::printf("GaussNewton derivative check: largest relative gradient deviation %.2e\n\n", worst);
   return worst;

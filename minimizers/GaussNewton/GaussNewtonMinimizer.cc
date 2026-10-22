@@ -12,6 +12,7 @@
 #include "bridge/FortranBridge.h"
 #include "bridge/TheoryEvaluator.h"
 #include "core/LevenbergMarquardt.h"
+#include "core/ObservedHessian.h"
 #include "jacobian/FiniteDifferenceJacobian.h"
 #include "util/Report.h"
 #include "util/Timer.h"
@@ -44,6 +45,7 @@ struct Settings {
   gn::LMOptions lm;
   gn::FDOptions fd;
   bool covariance = true;
+  bool observedHessian = true;  ///< covariance from second differences of the chi2 (as HESSE)
   bool checkDerivatives = false;
 };
 
@@ -53,7 +55,8 @@ Settings readSettings() {
   const YAML::Node node = XFITTER_PARS::rootNode["GaussNewton"];
   if (!node.IsMap()) return s;
   const std::set<std::string> known = {"maxIterations", "tolerance", "lambda0", "jacobian", "fdScheme",
-                                       "fdStep", "threads", "covariance", "doErrors", "checkDerivatives"};
+                                       "fdStep", "threads", "covariance", "hessian", "doErrors",
+                                       "checkDerivatives"};
   for (const auto& item : node)
     if (!known.count(item.first.as<std::string>()))
       hf_errlog(2026102250, "W: GaussNewton: unknown steering key " + item.first.as<std::string>());
@@ -70,6 +73,10 @@ Settings readSettings() {
   s.fd.relativeStep = node["fdStep"].as<double>(s.fd.relativeStep);
   s.fd.workers = node["threads"].as<int>(s.fd.workers);
   s.covariance = node["covariance"].as<int>(1) != 0;
+  const std::string hessian = node["hessian"].as<std::string>("observed");
+  if (hessian != "observed" && hessian != "gaussnewton")
+    hf_errlog(2026102259, "F: GaussNewton: hessian must be observed or gaussnewton");
+  s.observedHessian = hessian == "observed";
   s.checkDerivatives = node["checkDerivatives"].as<int>(0) != 0;
   return s;
 }
@@ -150,8 +157,23 @@ void GaussNewtonMinimizer::doMinimization() {
   // Covariance, Eq. (10)
   Eigen::MatrixXd covariance = Eigen::MatrixXd::Zero(npar, npar);
   bool positive = true;
+  int hessianCalls = 0;
   if (settings.covariance) {
-    positive = gn::covarianceFromHessian(result.model.hessian, covariance);
+    Eigen::MatrixXd hessian = result.model.hessian;
+    if (settings.observedHessian) {
+      const gn::ObservedHessianResult observed = gn::observedHessian(problem, result.x, result.chi2, hessian);
+      hessianCalls = observed.chi2Calls;
+      Eigen::MatrixXd gnCovariance;
+      gn::covarianceFromHessian(hessian, gnCovariance);
+      std::printf("GaussNewton: observed Hessian from %d chi2 calls; errors observed / Gauss-Newton:", hessianCalls);
+      hessian = observed.hessian;
+      Eigen::MatrixXd observedCovariance;
+      gn::covarianceFromHessian(hessian, observedCovariance);
+      for (int i = 0; i < npar; ++i)
+        std::printf(" %.3f", std::sqrt(observedCovariance(i, i) / gnCovariance(i, i)));
+      std::printf("\n");
+    }
+    positive = gn::covarianceFromHessian(hessian, covariance);
     if (!positive) hf_errlog(2026102255, "W: GaussNewton: Hessian not positive definite, pseudo-inverse used");
     _parameterCovariance.assign(npar * npar, 0.);
     for (int i = 0; i < npar; ++i)
@@ -175,8 +197,8 @@ void GaussNewtonMinimizer::doMinimization() {
   std::snprintf(line, sizeof(line), "GaussNewton: %s, chi2 = %.6f, %d iterations", result.message.c_str(),
                 result.chi2, result.iterations);
   summary.push_back(line);
-  std::snprintf(line, sizeof(line), "fcn calls %d, theory evaluations %d", evaluator.fcnCalls(),
-                jacobian.evaluations());
+  std::snprintf(line, sizeof(line), "fcn calls %d (Hessian %d), theory evaluations %d", evaluator.fcnCalls(),
+                hessianCalls, jacobian.evaluations());
   summary.push_back(line);
   for (const std::string& s : summary) std::printf("%s\n", s.c_str());
   std::printf("wall time %.1f s (fcn %.1f, Jacobian %.1f, algebra %.1f)\n", wall, diag.fcnTime,
