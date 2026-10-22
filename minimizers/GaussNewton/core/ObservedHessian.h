@@ -21,7 +21,7 @@ struct ObservedHessianResult {
 /// O(h^2), P(P+1) calls (forward for a pair with a parameter at a bound).
 ObservedHessianResult observedHessian(Problem& problem, const Eigen::VectorXd& x, double chi2x,
                                       const Eigen::MatrixXd& modelHessian, double targetDelta = 1e-3,
-                                      bool centralOffDiagonal = false);
+                                      bool centralOffDiagonal = true);
 
 }
 }

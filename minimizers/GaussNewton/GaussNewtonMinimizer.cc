@@ -46,7 +46,7 @@ struct Settings {
   gn::FDOptions fd;
   bool covariance = true;
   bool observedHessian = true;  ///< covariance from second differences of the chi2 (as HESSE)
-  bool centralHessian = false;  ///< central off-diagonal second differences
+  bool centralHessian = true;   ///< central off-diagonal second differences
   double hessianDelta = 1e-3;   ///< chi2 change targeted by the second-difference steps
   bool checkDerivatives = false;
 };
@@ -79,7 +79,7 @@ Settings readSettings() {
   if (hessian != "observed" && hessian != "gaussnewton")
     hf_errlog(2026102259, "F: GaussNewton: hessian must be observed or gaussnewton");
   s.observedHessian = hessian == "observed";
-  const std::string hessianScheme = node["hessianScheme"].as<std::string>("forward");
+  const std::string hessianScheme = node["hessianScheme"].as<std::string>("central");
   if (hessianScheme != "forward" && hessianScheme != "central")
     hf_errlog(2026102260, "F: GaussNewton: hessianScheme must be forward or central");
   s.centralHessian = hessianScheme == "central";
