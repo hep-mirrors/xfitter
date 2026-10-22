@@ -20,6 +20,8 @@
 #include"ReactionTheory.h"
 #include <dlfcn.h>
 #include "dependent_pars.h"
+#include "expression_utils.h"
+#include <algorithm>
 #include "ansi_codes.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -632,6 +634,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
 
       xfitter::BaseMinimizer*minimizer=xfitter::get_minimizer();
       vector<xfitter::DependentParameter>dependentParameters;
+      vector<string>sumRuleParameters;//DEPENDENT/SUMRULE parameters, set by the decompositions
 
       for (auto it:parameterNames){
         string parameterName=it;
@@ -658,6 +661,7 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
             if(definition=="DEPENDENT"||definition=="SUMRULE"){//This means that this parameter will be calculated using sum rules
               value=1;
               step=0;
+              sumRuleParameters.push_back(parameterName);
             }else if(definition[0]=='='){//This means that dependence of parameter is given explicitly, e.g. "=2*B+1"
               value=1;
               step=0;
@@ -745,6 +749,18 @@ void expandIncludes(YAML::Node&node,unsigned int recursionLimit=256){
           priors[1]=pr_sigma;
         }
         minimizer->addParameter(value,parameterName,step,bounds,priors);
+      }
+      // "=expr" parameters are evaluated before the sum rules of an iteration: an expression of a
+      // sum-rule parameter would read its value of the previous call (or the placeholder 1)
+      for(const xfitter::DependentParameter&dep:dependentParameters){
+        vector<string>names;
+        xfitter::extractParameterNames(dep.expression,names);
+        for(const string&name:names){
+          if(find(sumRuleParameters.begin(),sumRuleParameters.end(),name)==sumRuleParameters.end())continue;
+          cerr<<"[ERROR] Dependent parameter \""<<dep.name<<"\" = \""<<dep.expression<<"\" uses \""<<name
+              <<"\", which is set by a sum rule (DEPENDENT); this is not supported"<<endl;
+          hf_errlog(2026102301,"F: Dependent parameter expression uses a sum-rule parameter, see stderr");
+        }
       }
       xfitter::registerDependentParameters(dependentParameters);
     }catch(YAML::Exception&ex){
