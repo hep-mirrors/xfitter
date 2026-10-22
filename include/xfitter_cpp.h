@@ -262,7 +262,7 @@ extern"C" {
 
 
   extern struct {
-    double residuals_[NTOT_C];
+    double residuals_[NTOT_C+NSYSMAX_C];
   } c_resid_;
 
   extern struct {

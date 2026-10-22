@@ -18,5 +18,5 @@
       double precision Alphamodfcn3(NTOT)
       common/c_theo3/TheoFCN3, TheoModFCN3, Alphamodfcn3
 
-      double precision residuals(NTOT+1000+1) ! residuals for data vs theory
+      double precision residuals(NTOT+NSYSMAX_C) ! data points, then nuisance priors
       common/c_resid/residuals 

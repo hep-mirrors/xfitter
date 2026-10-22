@@ -35,6 +35,8 @@ C---------------------------------------------------------
       double precision ScaledErrorMatrix(NCovarMax,NCovarMax) ! stat+uncor error matrix
       double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
+      double precision CovResidFactor(NCovarMax,NCovarMax)    ! Cholesky factor of inverse covar matrix
+      save CovResidFactor
 
       integer NDiag, NCovar   ! Number of diagonal and full covariance input data points
       integer List_Diag(Ntot), List_Covar(Ntot), List_Covar_inv(Ntot)
@@ -142,7 +144,7 @@ C  !> Sum covariance matricies and invert the total:
             if ( doMatrix .or. NCovar .gt. 0 ) then
                Call Chi2_calc_SumCovar(ScaledErrorMatrix,
      $              ScaledSystMatrix,
-     $              ScaledTotMatrix, NCovar)
+     $              ScaledTotMatrix, CovResidFactor, NCovar)
             endif
 
 C !> same for diagonal part:
@@ -209,7 +211,7 @@ C !> Calculate chi2
       call chi2_calc_chi2(
      $     ScaledErrors,
      $     ScaledGamma,
-     $     ScaledTotMatrix,
+     $     ScaledTotMatrix, CovResidFactor,
      $     rsys_in,
      $     ndiag, list_diag, ncovar, list_covar,
      $     fchi2_in, pchi2_in, fcorchi2_in)
@@ -637,11 +639,12 @@ C
 C> @param ScaledErrorMatrix
 C> @param ScaledSystMatrix
 C> @param ScaledTotMatrix
+C> @param[out] CovResidFactor upper Cholesky factor U of the inverse, V^-1 = U^T U
 C> @param NCovar
 C
 C----------------------------------------------------------------------------
       Subroutine Chi2_calc_SumCovar(ScaledErrorMatrix, ScaledSystMatrix,
-     $              ScaledTotMatrix, NCovar)
+     $              ScaledTotMatrix, CovResidFactor, NCovar)
 
       implicit none
 #include "ntot.inc"
@@ -649,6 +652,7 @@ C----------------------------------------------------------------------------
       double precision ScaledErrorMatrix(NCovarMax,NCovarMax) ! stat+uncor error matrix
       double precision ScaledSystMatrix(NCovarMax,NCovarMax)  ! syst. covar matrix
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
+      double precision CovResidFactor(NCovarMax,NCovarMax)    ! Cholesky factor of inverse
       integer NCovar
       double precision Array(NCovarMax*2)
       integer IFail
@@ -671,6 +675,27 @@ C-----------------------------
 C-----------------------------
       Call DInv(NCovar,ScaledTotMatrix,NCovarMax,Array,IFail)
 C      print *,IFail,NCovar
+
+C-----------------------------
+C Cholesky factor of the inverse, used in chi2_calc_chi2 to store the
+C residuals of the covariance points (only the upper triangle is used):
+      if (NCovar.eq.0) return
+      do j=1,NCovar
+         do i=1,j
+            CovResidFactor(i,j) = ScaledTotMatrix(i,j)
+         enddo
+      enddo
+      Call DPOTRF('U',NCovar,CovResidFactor,NCovarMax,IFail)
+      if (IFail.ne.0) then
+         call hf_errlog(2026102201,
+     $  'W: Inverse covariance matrix not positive definite, '//
+     $  'residuals of covariance points set to zero')
+         do j=1,NCovar
+            do i=1,j
+               CovResidFactor(i,j) = 0d0
+            enddo
+         enddo
+      endif
 
       end
 
@@ -1381,9 +1406,15 @@ C----------------------------------------------------------------------
 C
 C> @brief Calculate chi2.
 C
+C> Also fills the residuals vector (common c_resid), used by least-squares
+C> minimisers: residuals(1:NDiag+NCovar) for the data points and
+C> residuals(NDiag+NCovar+k) for the nuisance parameter priors, such that
+C> the sum of their squares is the fitted chi2 without the log term.
+C
 C> @param ScaledErrors
 C> @param ScaledGamma
 C> @param ScaledTotMatrix
+C> @param CovResidFactor
 C> @param rsys_in
 C> @param NDiag
 C> @param List_Diag
@@ -1395,7 +1426,7 @@ C> @param fcorchi2_in
 C
 C----------------------------------------------------------------------
       subroutine chi2_calc_chi2(ScaledErrors,ScaledGamma,
-     $     ScaledTotMatrix,rsys_in
+     $     ScaledTotMatrix,CovResidFactor,rsys_in
      $     ,NDiag, List_Diag, NCovar, List_Covar
      $     ,fchi2_in, pchi2_in, fcorchi2_in)
 
@@ -1409,6 +1440,7 @@ C----------------------------------------------------------------------
       double precision ScaledGamma(NSysMax,Ntot) ! Scaled Gamma matrix
       double precision ScaledErrors(Ntot)  !1/d^2, where d is scaled uncorrelated uncertainty, for each datapoint
       double precision ScaledTotMatrix(NCovarMax,NCovarMax)   ! stat+uncor+syst covar matrix
+      double precision CovResidFactor(NCovarMax,NCovarMax)    ! Cholesky factor of inverse covar matrix
       double precision rsys_in(NSysMax)
       integer NDiag, list_covar(NTot), NCovar, list_diag(NTot)
       double precision fchi2_in, pchi2_in(nset), fcorchi2_in
@@ -1417,7 +1449,7 @@ C----------------------------------------------------------------------
       double precision d,t, chi2, sum
       integer offdiag
 
-      double precision SumCov(NCovarMax)
+      double precision SumCov(NCovarMax), CovResid(NCovarMax)
 
 C---------------------------------------------------------------------------
       fchi2_in = 0.0D0
@@ -1445,6 +1477,8 @@ C     Sums:
             pchi2_in(JSET(i)) = pchi2_in(JSET(i)) + chi2
          else
             chi2_cont = chi2_cont + chi2
+C     Control points are not fitted:
+            residuals(i) = 0d0
          endif
       enddo
 
@@ -1499,6 +1533,24 @@ c partial chisq are not reasonably defined
          enddo
       endif
 
+C 3) Residuals: with V^-1 = U^T U (see Chi2_calc_SumCovar), r = U*SumCov
+C    gives sum(r**2) = SumCov^T V^-1 SumCov
+      if ( NCovar .gt. 0 ) then
+         do i1=1,NCovar
+            CovResid(i1) = SumCov(i1)
+         enddo
+         call DTRMV('U','N','N',NCovar,CovResidFactor,NCovarMax,
+     $        CovResid,1)
+         do i1=1,NCovar
+            residuals(list_covar(i1)) = CovResid(i1)
+         enddo
+         if ( ControlFitSplit ) then
+            call hf_errlog(2026102202,
+     $  'W: ControlFitSplit with covariance matrix points: '//
+     $  'residuals include the control points')
+         endif
+      endif
+
        ! print*,'chi2_calc2: ',fchi2_in
 
 C Correlated chi2 part:
@@ -1507,7 +1559,7 @@ C Correlated chi2 part:
          fcorchi2_in = fcorchi2_in
      $        + rsys_in(k)**2 * SysPriorScale(k)
 C Also, store as residuals:
-         residuals(ndiag+k) = rsys_in(k)*sqrt(SysPriorScale(k))
+         residuals(NDiag+NCovar+k) = rsys_in(k)*sqrt(SysPriorScale(k))
       enddo
       fchi2_in = fchi2_in + fcorchi2_in
 
