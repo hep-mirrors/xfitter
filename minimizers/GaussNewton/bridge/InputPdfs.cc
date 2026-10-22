@@ -5,6 +5,7 @@
 #include "dependent_pars.h"
 #include "xfitter_pars.h"
 
+#include <algorithm>
 #include <cmath>
 #include <map>
 
@@ -47,7 +48,27 @@ Eigen::VectorXd InputPdfs::sample(const Eigen::VectorXd& p) {
         f(k++) = found != xf.end() ? found->second : 0.;
       }
     }
-  return f;
+  if (_weights.size() == 0 && f.allFinite()) setWeights(f);
+  return _weights.size() ? Eigen::VectorXd(f.cwiseProduct(_weights)) : f;
+}
+
+void InputPdfs::setWeights(const Eigen::VectorXd& f) {
+  // each node counts by its relative change, as the data do; plain xf values are dominated
+  // by the smallest x for a steep gluon (D13)
+  const int nx = static_cast<int>(_x.size());
+  const double global = f.cwiseAbs().maxCoeff();
+  _weights.resize(f.size());
+  for (int offset = 0; offset < f.size(); offset += kNumFlavours * nx)
+    for (int flavour = 0; flavour < kNumFlavours; ++flavour) {
+      double largest = 0;
+      for (int a = 0; a < nx; ++a) largest = std::max(largest, std::abs(f(offset + a * kNumFlavours + flavour)));
+      for (int a = 0; a < nx; ++a) {
+        const int k = offset + a * kNumFlavours + flavour;
+        // a flavour that vanishes at the first point (c, b, t at Q0) is measured in global units
+        const double scale = largest > 0 ? std::max(std::abs(f(k)), 1e-3 * largest) : global;
+        _weights(k) = scale > 0 ? 1 / scale : 1.;
+      }
+    }
 }
 
 }
