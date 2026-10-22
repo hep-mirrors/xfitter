@@ -16,6 +16,7 @@ class InputPdfs;
 
 struct FactorisedOptions {
   double spanTolerance = 1e-3;    ///< column j from K F_j if |F_j - Q Q^T F_j| <= this |F_j|, Eq. (17)
+  double addTolerance = 1e-4;     ///< a pair adds a direction if |u - Q Q^T u| > this |u|, Eq. (15)
   double verifyTolerance = 2e-2;  ///< linearity check: |J_KF - J_FD| / |J_FD| (sigma units)
 };
 
@@ -23,7 +24,7 @@ struct FactorisedStatistics {
   int fdColumns = 0;            ///< columns from finite differences
   int responseColumns = 0;      ///< columns from K F
   int resets = 0;               ///< K dropped because a non-PDF parameter changed
-  double verifyDeviation = -1;  ///< result of the linearity check, -1: not done yet
+  double verifyDeviation = -1;  ///< last linearity check, -1: none since the start or the last reset
   bool linear = true;           ///< false after a failed linearity check
 };
 
@@ -47,8 +48,11 @@ private:
   Eigen::MatrixXd inputJacobian(const Eigen::VectorXd& p, const Eigen::VectorXd& f);
   /// Drops K if a parameter outside the input PDFs moved since the last call
   void checkNonPdfParameters(const Eigen::VectorXd& p);
-  /// Linearity check: one column both ways (design decision D12)
-  void verify(const Eigen::VectorXd& p, const Eigen::VectorXd& t0, int j, const Eigen::VectorXd& column);
+  /// Linearity check, design decision D12: column j by finite differences, compared with K F_j.
+  /// Returns the finite-difference column.
+  Eigen::VectorXd verify(const Eigen::VectorXd& p, const Eigen::VectorXd& t0, int j, const Eigen::VectorXd& column);
+  /// The exact pair of the finite-difference column j at p, Eq. (15)
+  void addColumnPair(const Eigen::VectorXd& p, const Eigen::VectorXd& f, int j, const Eigen::VectorXd& column);
 
   FiniteDifferenceJacobian& _fd;
   InputPdfs& _input;
