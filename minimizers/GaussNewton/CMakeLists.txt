@@ -20,6 +20,9 @@ set(GN_CORE_SOURCES
 set(TARGET minimizerGaussNewton)
 add_library(${TARGET} MODULE
   GaussNewtonMinimizer.cc
+  bridge/xfitter_gn_bridge.f
+  bridge/FortranBridge.cc
+  bridge/TheoryEvaluator.cc
   ${GN_CORE_SOURCES}
 )
 target_compile_features(${TARGET} PRIVATE cxx_std_17)
