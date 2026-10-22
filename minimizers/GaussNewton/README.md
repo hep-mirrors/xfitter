@@ -24,10 +24,11 @@ GaussNewton:
   maxIterations: 50
   tolerance: 1.e-4            # stop when the Newton decrement, Eq. (11), is below this (chi2 units)
   lambda0: 1.e-3              # initial damping
-  jacobian: FiniteDifference  # the only one in this version
+  jacobian: FiniteDifference  # FiniteDifference | Factorised (J_t = K F, Eq. 14)
   fdScheme: forward           # forward | central
   fdStep: 1.e-3               # h_j = fdStep * max(|p_j|, YAML step_j)
   threads: 0                  # forked processes for the Jacobian columns (0: none)
+  spanTolerance: 1.e-3        # Factorised: K F_j used if F_j is in the explored span to this, Eq. (17)
   covariance: 1               # C = 2 H^-1, Eq. (10)
   hessian: observed           # observed (second differences of the chi2) | gaussnewton
   hessianScheme: central      # central: O(h^2), P(P+1) chi2 calls | forward: O(h), P(P+3)/2 calls, as HESSE
@@ -46,8 +47,8 @@ files of the final `fcn` call. The iteration log goes to stdout.
 
 | Directory | Job | xFitter headers |
 |---|---|---|
-| `core/` | numerics: LM loop, point model, Schur complement | none (unit-tested in `test/`) |
-| `bridge/` | the only reads of xFitter state; `fcn` and theory-only evaluations | yes |
+| `core/` | numerics: LM loop, point model, Schur complement, linear response K | none (unit-tested in `test/`) |
+| `bridge/` | the only reads of xFitter state; `fcn`, theory-only evaluations, input PDFs f0(p) | yes |
 | `jacobian/` | J_t = ∂t/∂p | through `bridge/` |
 | `util/` | fork pool, timer, output files | yes |
 | top level | `GaussNewtonMinimizer` (glue), `ProfiledChi2` (the fit as a `core::Problem`), `DerivativeCheck` | yes |
@@ -59,7 +60,7 @@ One iteration:
 
 ```
 p --fcn--> official chi2; snapshot of d, t, sigma, Gamma, b, ...           (bridge)
-  --FiniteDifferenceJacobian--> J_t                                         (jacobian)
+  --FiniteDifferenceJacobian or FactorisedJacobian--> J_t                  (jacobian)
   --PointModel--> r, dr/dt, dr/db, log term                                 (core)
   --ProfiledNuisances--> g_eff, H_eff                                       (core)
   --LevenbergMarquardt--> trial step, judged with the official chi2 (fcn)   (core)
@@ -141,6 +142,35 @@ parameter left at a bound is reported.
 | Offset sources, `ExtraSystRescale`, `FirstIterationRescale`, asymmetric errors | warning: the derivative model is approximate; the χ² stays exact |
 | Polarisation shifts | stops |
 
+**(14) Factorised Jacobian** (`jacobian: Factorised`). At fixed α_s, masses, Q0 and data,
+the theory of DIS data is linear in the input PDFs f0 = xf(x, Q0) (evolution and
+coefficient functions are linear). Then
+
+J_t = K F,  K = ∂t/∂f0,  F = ∂f0/∂p.
+
+f0(p) is sampled on fixed x nodes for each decomposition and flavour (`bridge/InputPdfs`):
+only the dependent parameters, parameterisations and decompositions (sum rules) are
+recomputed, no evolution and no theory. F costs 2P such samples (central differences),
+which is negligible against one theory evaluation. K is never formed as a matrix.
+
+**(15) Exact pairs.** For two evaluated points a, b with the same non-PDF parameters,
+w = t(b) − t(a) = K u with u = f0(b) − f0(a), exactly for any distance between the points.
+Pairs come from consecutive χ² evaluations of the fit (accepted and rejected trials) and
+from the finite-difference columns. They are stored as an orthonormal basis Q of the
+explored directions and Z = K Q (`core/LinearResponse`): with a = Qᵀu and r = u − Q a
+(Gram–Schmidt applied twice), a pair adds q = r/|r| and K q = (w − Z a)/|r| if
+|r| > 10⁻⁴ |u|. The threshold keeps nearly dependent pairs (e.g. repeated trials along one
+direction) out: they would divide the part of w that the nodes do not describe by a
+small |r|.
+
+**(16) Response.** K F_j ≈ Z Qᵀ F_j. The error is K (F_j − Q Qᵀ F_j).
+
+**(17) Column rule.** Column j is Z Qᵀ F_j if |F_j − Q Qᵀ F_j| ≤ `spanTolerance` |F_j|,
+otherwise a finite-difference column, which also adds the pair of its two points. Columns
+of parameters that do not change f0 (α_s, masses, normalisations: F_j = 0) are always
+finite differences, and Q, Z are dropped when such a parameter moves (K depends on it).
+This is exact, but with a free α_s it removes the gain.
+
 ## 4. Design decisions
 
 - **D1. The χ² is never recomputed by the module for step acceptance.** Only `fcn` decides.
@@ -176,6 +206,36 @@ parameter left at a bound is reported.
   drift by a few percent with the step, and three HESSE runs of the same MINUIT job
   differ by up to 12% for these parameters.
 
+- **D11. Explored-subspace K instead of nodal probes.** The probe approach (K on a basis
+  of input functions, one theory evaluation per x node and flavour) needs 7 × 199 ≈ 1400
+  theory evaluations for the QCDNUM grid of `examples/CERES-fit`, 14 times a whole fit
+  with finite differences (98). The fit only needs K on the
+  directions F_j, which change slowly from one iteration to the next. The pairs of
+  Eq. (15) are exact and come free with every χ² evaluation, so after the first
+  iteration most columns need no theory evaluation. No probe decomposition, no change of
+  the steering outside the `GaussNewton` block.
+- **D12. Linearity check.** The first time a column comes from K F (and again after each
+  reset), the column with the largest σ-weighted norm is also computed by finite
+  differences (one theory evaluation, two with `fdScheme: central`); the fit uses the
+  finite-difference column. If they differ by more than 2% (σ-weighted norm), the theory
+  is not linear in f0 (hadronic data, ratios in `TheorEval` expressions, ...): a warning
+  is printed and the fit continues with finite differences only. The χ² is never affected
+  (D1). The check is not repeated at every iteration: afterwards the column errors are
+  bounded only through the span rule, Eq. (17). On `examples/CERES-fit` (Sec. 5) they are
+  up to 2.3% for the few columns taken from K F at the second iteration, then at most
+  1.4·10⁻³ against central finite differences, and the minima agree with the
+  finite-difference ones to 0.011σ. A Jacobian error moves the point where the fit stops
+  (the gradient is K F-based), not the χ² values.
+- **D13. Input-PDF nodes and metric.** 100 nodes uniform in log x on [10⁻⁶, 0.1) and 50
+  uniform in x on [0.1, 0.98]; the flavours −6..6 and the photon of every decomposition,
+  plain xf values. The nodes only measure whether F_j is in the explored span; they need not
+  coincide with the evolution grid, because the pairs (u, w) relate whole functions. DIS
+  theory at x depends on f0 only at x′ ≥ x, so nodes below the smallest x of the data
+  would only cost extra finite-difference columns. Measuring relative changes instead
+  (each value divided by max(|xf|, 10⁻³ max_x |xf|)) predicted the column errors no better
+  (deviation / span residual 1–40 with both metrics, largest for the negative-gluon
+  parameters) and cost slightly more evaluations from both starts of Sec. 5.
+
 ## 5. Validation
 
 Configuration: `examples/CERES-fit` (HERA I+II inclusive, NNLO, RT, QCDNUM, 14 parameters,
@@ -187,6 +247,8 @@ time, about 3 s per χ² evaluation.
 |---|---|---|---|---|---|---|---|
 | GaussNewton: minimisation | 6 | 9 | 98 | 313 s | 1363.325 | ≤ 0.03σ | |
 | GaussNewton: + observed Hessian | | + 210 | | 927 s | | | 0.983 – 1.013 |
+| GaussNewton, `jacobian: Factorised`: minimisation | 7 | 10 | 24 | 105 s | 1363.325 | ≤ 0.03σ | |
+| GaussNewton, `jacobian: Factorised`: + observed Hessian | | + 210 | | 701 s | | | 0.985 – 1.015 |
 | CERES | 10 | 245 | | 719 s | 1363.33 | ≤ 0.03σ | 0.74 – 3.9 |
 | MINUIT MIGRAD | | 1150 | | 3307 s | 1363.326 | reference | |
 | MINUIT MIGRAD + HESSE | | 1298 | | ≈ 3750 s | | | 1 |
@@ -197,6 +259,15 @@ time, about 3 s per χ² evaluation.
   4× faster than MIGRAD + HESSE.
 - With `hessian: gaussnewton` the errors would be 1.0–5.3 times HESSE (D10); CERES has the
   same problem, made worse by a factor-2 convention in its covariance.
+- **Factorised Jacobian** (Eqs. 14–17): after the first iteration (14 finite-difference
+  columns and the linearity check) almost every column comes from K F. From the ellipse
+  start, 24 of 112 columns need theory evaluations. From a harder start (every parameter
+  moved by 1σ, χ² ≈ 3.9·10⁴), it takes 22 theory evaluations and 128 s, against 126 and
+  398 s with finite differences. Both reach the same minimum (χ² = 1361.770, a second
+  minimum of this configuration, below the 1363.325 found from the ellipse start) to
+  0.011σ. K F columns against central finite differences: ≤ 2.3% for the 5 columns taken
+  from K F at the second iteration, then ≤ 1.4·10⁻³ (D12). The minimisation is now about
+  three times faster, and the observed Hessian takes 85% of a fit with covariance.
 
 **Built-in checks** (`checkDerivatives: 1` at the minimum): the model gradient agrees with
 central finite differences of `fcn` within 3·10⁻³ (forward-difference Jacobian); the module
@@ -204,9 +275,9 @@ central finite differences of `fcn` within 3·10⁻³ (forward-difference Jacobi
 
 Unit tests (`gn_core_tests`): LM on linear least squares, Rosenbrock and bounded problems;
 point-model derivatives, profiled gradient and Schur complement against finite differences
-of a toy xFitter χ² with exact profiling; observed Hessian against analytic Hessians.
+of a toy xFitter χ² with exact profiling; observed Hessian against analytic Hessians;
+linear response: exact in the span, error bounded by the span residual, toy J = K F.
 
 Not supported in this version (stops with a message): covariance-matrix points (use
-`CovarToNuisance`). Gains in this version come from fewer iterations; the cost per
-iteration (1 + P theory evaluations) is reduced in the next merge requests (Broyden
-updates, factorised Jacobian).
+`CovarToNuisance`). With `jacobian: FiniteDifference` an iteration costs 1 + P theory
+evaluations; with `jacobian: Factorised` about one for DIS data.
