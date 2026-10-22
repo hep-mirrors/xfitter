@@ -5,7 +5,6 @@
 #include"expression_utils.h"
 #include<iostream>
 #include<map>
-#include<cmath>
 using namespace std;
 namespace xfitter{
 //The Constraint class is used for dependent parameters
@@ -13,7 +12,7 @@ class Constraint{
 public:
   Constraint(const string&parameterName,const string&expression,const vector<string>&dependencies);
   ~Constraint();
-  bool atIteration();//returns true if the value has changed beyond round-off
+  void atIteration();
   double*parameter;//Constraint writes to this pointer at each iteration
 private:
   te_expr*expr;//expression object
@@ -45,12 +44,8 @@ Constraint::Constraint(const string&parameterName,const string&expression,const 
 Constraint::~Constraint(){
   te_free(expr);
 }
-bool Constraint::atIteration(){
-  const double old=*parameter;
+void Constraint::atIteration(){
   *parameter=te_eval(expr);
-  if(std::isnan(*parameter)&&std::isnan(old))return false;
-  //tolerate round-off, so that a fixed-point iteration over the sum rules can stop
-  return !(fabs(*parameter-old)<=1e-12*(fabs(*parameter)+fabs(old)));
 }
 //array of all constraints, sorted in correct order
 vector<Constraint*>constraints;
@@ -136,10 +131,8 @@ void registerDependentParameters(const vector<DependentParameter>&dependentParam
     hf_errlog(18112003,"F: circular dependency of dependent parameters, see stderr");
   }
 }
-bool updateDependentParameters(){
-  bool changed=false;
-  for(Constraint*c:constraints)changed|=c->atIteration();
-  return changed;
+void updateDependentParameters(){
+  for(Constraint*c:constraints)c->atIteration();
 }
 void resetDependentParameters(){
   for(Constraint*c:constraints)delete c;
