@@ -137,7 +137,8 @@ parameter left at a bound is reported.
 |---|---|
 | Diagonal points, Nuisance sources, NoRescale/Linear/Poisson scaling, PoissonCorr, parameter priors, bounds, `ControlFitSplit`, `CovarToNuisance` | supported |
 | Covariance-matrix points (correlation files, `:C` sources, `CorChi2Type: Matrix`) | stops: use `CovarToNuisance` |
-| Offset and External sources, `ExtraSystRescale`, `FirstIterationRescale`, asymmetric errors | warning: the derivative model is approximate; the χ² stays exact |
+| External sources (fit parameters entering only through the shifts) | stops |
+| Offset sources, `ExtraSystRescale`, `FirstIterationRescale`, asymmetric errors | warning: the derivative model is approximate; the χ² stays exact |
 | Polarisation shifts | stops |
 
 ## 4. Design decisions
