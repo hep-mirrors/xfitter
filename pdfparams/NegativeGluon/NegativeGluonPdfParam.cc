@@ -64,8 +64,11 @@ namespace xfitter{
   }
 
   void NegativeGluonPdfParam::setMoment(int nMoment,double value) {
-    // new_moment = f * pos - neg
-    // -> f = (new_moment + neg) / pos
-    *pars[0] *= (value + moment_neg(nMoment)) / moment_pos(nMoment);
+    // new_moment = A * pos(A=1) - neg
+    // -> A = (new_moment + neg) / pos(A=1)
+    // Set A from scratch: rescaling the previous A would keep a NaN (or zero) forever
+    // and would make A depend on the evaluation history at round-off level.
+    *pars[0] = 1;
+    *pars[0] = (value + moment_neg(nMoment)) / moment_pos(nMoment);
   }
 }
