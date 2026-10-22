@@ -27,7 +27,7 @@ GaussNewton:
   jacobian: FiniteDifference  # the only one in this version
   fdScheme: forward           # forward | central
   fdStep: 1.e-3               # h_j = fdStep * max(|p_j|, YAML step_j)
-  threads: 0                  # forked processes for the Jacobian columns (0: none)
+  threads: 0                  # forked processes for the Jacobian columns and the observed Hessian (0: none)
   covariance: 1               # C = 2 H^-1, Eq. (10)
   hessian: observed           # observed (second differences of the chi2) | gaussnewton
   hessianScheme: central      # central: O(h^2), P(P+1) chi2 calls | forward: O(h), P(P+3)/2 calls, as HESSE
@@ -174,7 +174,12 @@ parameter left at a bound is reported.
   needs the observed Hessian. Central off-diagonal differences give the same errors to
   4 digits for steps targeting Δχ² = 10⁻², 10⁻³ and 10⁻⁴; forward differences (as HESSE)
   drift by a few percent with the step, and three HESSE runs of the same MINUIT job
-  differ by up to 12% for these parameters.
+  differ by up to 12% for these parameters. The χ² calls are independent. They are made in
+  three batches (diagonal, refined diagonal steps, off-diagonal), which run in `threads`
+  forked processes (`fcn` writes no file for flag 2). On `examples/GaussNewton-fit` with
+  `threads: 2`, the fit takes 410 s instead of 776 s. The errors differ by at most
+  4·10⁻⁵ relative: in a child, `fcn` starts from a different, history-dependent state at
+  round-off level. With `threads: 0` the output is byte-identical to before.
 
 ## 5. Validation
 

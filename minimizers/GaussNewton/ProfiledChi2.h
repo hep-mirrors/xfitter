@@ -27,12 +27,18 @@ public:
 
   int size() const override { return static_cast<int>(_lower.size()); }
   double chi2(const Eigen::VectorXd& p) override;
+  /// fcn at independent points, in forked worker processes if setWorkers(n > 0). The state
+  /// of this process (snapshot, THEO, PDFs) stays at the last chi2() call.
+  std::vector<double> chi2Batch(const std::vector<Eigen::VectorXd>& points) override;
   QuadraticModel model(const Eigen::VectorXd& p) override;
   Eigen::VectorXd lowerBounds() const override { return _lower; }
   Eigen::VectorXd upperBounds() const override { return _upper; }
 
   /// fcn flag of the next chi2 call: 1 for the very first call, then 2
   void setFcnFlag(int iflag) { _iflag = iflag; }
+
+  /// Worker processes for chi2Batch (0: in this process)
+  void setWorkers(int workers) { _workers = workers; }
 
   const ProfiledModel& lastProfile() const { return _profile; }
   const ProfiledChi2Diagnostics& diagnostics() const { return _diagnostics; }
@@ -43,6 +49,7 @@ private:
   TheoryJacobian& _jacobian;
   Eigen::VectorXd _lower, _upper;
   int _iflag = 2;
+  int _workers = 0;
 
   // state of the last chi2 call, see Problem::model
   Eigen::VectorXd _lastP;

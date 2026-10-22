@@ -3,6 +3,7 @@
 #include "bridge/TheoryEvaluator.h"
 #include "core/PointModel.h"
 #include "jacobian/TheoryJacobian.h"
+#include "util/ForkPool.h"
 #include "util/Timer.h"
 #include "xfitter_cpp_base.h"
 
@@ -25,6 +26,16 @@ double ProfiledChi2::chi2(const Eigen::VectorXd& p) {
   _snapshot = _bridge.snapshot();
   _lastP = p;
   return _lastChi2;
+}
+
+std::vector<double> ProfiledChi2::chi2Batch(const std::vector<Eigen::VectorXd>& points) {
+  if (_workers <= 0 || points.size() < 2) return Problem::chi2Batch(points);
+  Timer::Scope timer(_diagnostics.fcnTime);
+  // each point is a full fcn call (flag 2) in a child; fcn writes no file for flag 2
+  const std::vector<double> values = ForkPool(_workers).run(
+      static_cast<int>(points.size()), 1, [&](int i, double* out) { *out = _evaluator.chi2(points[i], 2); });
+  _evaluator.countFcnCalls(static_cast<int>(points.size()));
+  return values;
 }
 
 QuadraticModel ProfiledChi2::model(const Eigen::VectorXd& p) {

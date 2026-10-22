@@ -124,6 +124,7 @@ void GaussNewtonMinimizer::doMinimization() {
 
   gn::FiniteDifferenceJacobian jacobian(evaluator, steps, lower, upper, settings.fd);
   gn::ProfiledChi2 problem(evaluator, bridge, jacobian, lower, upper);
+  problem.setWorkers(settings.fd.workers);  // the observed Hessian, Eq. (10)
 
   // First call (fcn flag 1) and start-point checks
   problem.setFcnFlag(1);
