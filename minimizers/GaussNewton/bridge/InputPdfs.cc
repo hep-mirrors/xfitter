@@ -12,7 +12,7 @@ namespace xfitter {
 namespace gn {
 
 namespace {
-const int kFlavours[] = {-6, -5, -4, -3, -2, -1, 21, 1, 2, 3, 4, 5, 6};
+const int kFlavours[] = {-6, -5, -4, -3, -2, -1, 21, 1, 2, 3, 4, 5, 6, 22};  // 22: photon (QED)
 const int kNumFlavours = sizeof(kFlavours) / sizeof(kFlavours[0]);
 
 /// 100 nodes uniform in log x on [1e-6, 0.1), 50 uniform in x on [0.1, 0.98]

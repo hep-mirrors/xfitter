@@ -475,16 +475,24 @@ void testLinearResponseFit() {
   }
   check(forward < 1e-2 && central < 1e-5 && central < 1e-2 * forward,
         "LinearResponse: F in the span of the FD pairs, forward " + sci(forward) + ", central " + sci(central));
-  // a step changes F; the pair of the step adds the new direction
+  // after a step: the step pair is exact, and the span rule (Eq. 17, spanTolerance 1e-3)
+  // sends every column with a large error to finite differences
   const Eigen::VectorXd q = p + (Eigen::VectorXd(3) << 0.1, 0.05, -0.2).finished();
-  ce.add(f0(q) - f0(p), K * (f0(q) - f0(p)));
+  const Eigen::VectorXd du = f0(q) - f0(p);
+  ce.add(du, K * du);
+  const double stepError = (ce.apply(du).response - K * du).norm() / (K * du).norm();
   const Eigen::MatrixXd Fq = inputJacobian(q);
+  bool caught = true;
   double worst = 0;
   for (int j = 0; j < 3; ++j) {
     const LinearResponse::Projection pr = ce.apply(Fq.col(j));
-    worst = std::max(worst, (pr.response - K * Fq.col(j)).norm() / (K * Fq.col(j)).norm());
+    const double error = (pr.response - K * Fq.col(j)).norm() / (K * Fq.col(j)).norm();
+    worst = std::max(worst, error);
+    if (error > 1e-2 && pr.residual <= 1e-3) caught = false;
   }
-  check(ce.dimension() == 4 && worst < 0.1, "LinearResponse: J at the next point from 4 directions, error " + sci(worst));
+  check(ce.dimension() == 4 && stepError < 1e-10 && caught,
+        "LinearResponse: step pair exact (" + sci(stepError) + "), columns with error up to " + sci(worst) +
+            " fail the span rule");
 }
 
 int main() {

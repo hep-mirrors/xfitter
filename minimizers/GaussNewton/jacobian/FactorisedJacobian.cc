@@ -10,7 +10,10 @@ namespace gn {
 
 FactorisedJacobian::FactorisedJacobian(FiniteDifferenceJacobian& fd, InputPdfs& input,
                                        const FactorisedOptions& options)
-    : _fd(fd), _input(input), _options(options) {}
+    : _fd(fd), _input(input), _options(options), _response(options.addTolerance) {
+  if (!(options.spanTolerance > 0 && options.spanTolerance < 1))
+    hf_errlog(2026102271, "F: GaussNewton: spanTolerance must be in (0, 1)");
+}
 
 Eigen::MatrixXd FactorisedJacobian::inputJacobian(const Eigen::VectorXd& p, const Eigen::VectorXd& f) {
   Eigen::MatrixXd F(f.size(), p.size());
@@ -38,6 +41,7 @@ void FactorisedJacobian::checkNonPdfParameters(const Eigen::VectorXd& p) {
     _response.clear();
     _pLast.resize(0);
     ++_stats.resets;
+    _stats.verifyDeviation = -1;  // check the rebuilt response again
   }
   _pNonPdf = p;
 }
@@ -57,8 +61,8 @@ void FactorisedJacobian::observe(const Eigen::VectorXd& p, const Eigen::VectorXd
   _tLast = t;
 }
 
-void FactorisedJacobian::verify(const Eigen::VectorXd& p, const Eigen::VectorXd& t0, int j,
-                                const Eigen::VectorXd& column) {
+Eigen::VectorXd FactorisedJacobian::verify(const Eigen::VectorXd& p, const Eigen::VectorXd& t0, int j,
+                                           const Eigen::VectorXd& column) {
   const Eigen::VectorXd exact = _fd.columns(p, t0, {j}).col(0);
   const Eigen::VectorXd scale = _sigma.size() == t0.size() ? _sigma : Eigen::VectorXd::Ones(t0.size());
   const double norm = exact.cwiseQuotient(scale).norm();
@@ -71,6 +75,18 @@ void FactorisedJacobian::verify(const Eigen::VectorXd& p, const Eigen::VectorXd&
     _stats.linear = false;
     _response.clear();
   }
+  return exact;
+}
+
+void FactorisedJacobian::addColumnPair(const Eigen::VectorXd& p, const Eigen::VectorXd& f, int j,
+                                       const Eigen::VectorXd& column) {
+  const FiniteDifferenceJacobian::Displacement d = _fd.displacement(p, j);
+  if (_nonPdf[j] || d.up == d.down) return;
+  Eigen::VectorXd q = p;
+  q(j) = p(j) + d.up;
+  const Eigen::VectorXd up = _input.sample(q);
+  q(j) = p(j) + d.down;
+  _response.add(up - (d.down == 0 ? f : _input.sample(q)), column * (d.up - d.down));
 }
 
 Eigen::MatrixXd FactorisedJacobian::compute(const Eigen::VectorXd& p, const Eigen::VectorXd& t0) {
@@ -104,29 +120,26 @@ Eigen::MatrixXd FactorisedJacobian::compute(const Eigen::VectorXd& p, const Eige
       checkNorm = norm;
     }
   }
+  int verified = 0;
   if (_stats.verifyDeviation < 0 && check >= 0) {
-    verify(p, t0, check, J.col(check));
+    const Eigen::VectorXd exact = verify(p, t0, check, J.col(check));
     if (!_stats.linear) {
       _stats.fdColumns += P;
       return _fd.compute(p, t0);
     }
+    J.col(check) = exact;  // the evaluation is spent: keep the column and its pair
+    addColumnPair(p, f, check, exact);
+    verified = 1;
   }
-  _stats.responseColumns += P - static_cast<int>(fdColumns.size());
-  _stats.fdColumns += static_cast<int>(fdColumns.size());
+  _stats.responseColumns += P - static_cast<int>(fdColumns.size()) - verified;
+  _stats.fdColumns += static_cast<int>(fdColumns.size()) + verified;
   if (fdColumns.empty()) return J;
 
   // the remaining columns by finite differences; each gives an exact pair, Eq. (15)
   const Eigen::MatrixXd columns = _fd.columns(p, t0, fdColumns);
   for (size_t k = 0; k < fdColumns.size(); ++k) {
-    const int j = fdColumns[k];
-    J.col(j) = columns.col(k);
-    const FiniteDifferenceJacobian::Displacement d = _fd.displacement(p, j);
-    if (_nonPdf[j] || d.up == d.down) continue;
-    Eigen::VectorXd q = p;
-    q(j) = p(j) + d.up;
-    const Eigen::VectorXd up = _input.sample(q);
-    q(j) = p(j) + d.down;
-    _response.add(up - (d.down == 0 ? f : _input.sample(q)), columns.col(k) * (d.up - d.down));
+    J.col(fdColumns[k]) = columns.col(k);
+    addColumnPair(p, f, fdColumns[k], columns.col(k));
   }
   return J;
 }

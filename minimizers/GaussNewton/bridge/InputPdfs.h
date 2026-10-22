@@ -17,7 +17,7 @@ class InputPdfs {
 public:
   explicit InputPdfs(TheoryEvaluator& evaluator);
 
-  /// f0(p): for each decomposition and node, xf of the flavours -6..6
+  /// f0(p): for each decomposition and node, xf of the flavours -6..6 and the photon
   Eigen::VectorXd sample(const Eigen::VectorXd& p);
 
   int size() const;
