@@ -370,6 +370,9 @@ void testObservedHessian() {
   check((obs.hessian - exact).norm() < 5e-3 * exact.norm(), "observed Hessian of Rosenbrock: " +
                                                                  sci((obs.hessian - exact).norm() / exact.norm()));
   check((gn.hessian - exact).norm() > 0.2 * exact.norm(), "  (the Gauss-Newton Hessian differs there)");
+  const ObservedHessianResult obs2 = observedHessian(rosenbrock, x, rosenbrock.chi2(x), gn.hessian, 1e-3, true);
+  check((obs2.hessian - exact).norm() < 2e-5 * exact.norm(), "observed Hessian of Rosenbrock, central: " +
+                                                                  sci((obs2.hessian - exact).norm() / exact.norm()));
 
   // quadratic with a parameter at its upper bound: one-sided differences, exact
   Eigen::MatrixXd H(3, 3);

@@ -46,6 +46,8 @@ struct Settings {
   gn::FDOptions fd;
   bool covariance = true;
   bool observedHessian = true;  ///< covariance from second differences of the chi2 (as HESSE)
+  bool centralHessian = false;  ///< central off-diagonal second differences
+  double hessianDelta = 1e-3;   ///< chi2 change targeted by the second-difference steps
   bool checkDerivatives = false;
 };
 
@@ -55,8 +57,8 @@ Settings readSettings() {
   const YAML::Node node = XFITTER_PARS::rootNode["GaussNewton"];
   if (!node.IsMap()) return s;
   const std::set<std::string> known = {"maxIterations", "tolerance", "lambda0", "jacobian", "fdScheme",
-                                       "fdStep", "threads", "covariance", "hessian", "doErrors",
-                                       "checkDerivatives"};
+                                       "fdStep", "threads", "covariance", "hessian", "hessianScheme",
+                                       "hessianDelta", "doErrors", "checkDerivatives"};
   for (const auto& item : node)
     if (!known.count(item.first.as<std::string>()))
       hf_errlog(2026102250, "W: GaussNewton: unknown steering key " + item.first.as<std::string>());
@@ -77,6 +79,11 @@ Settings readSettings() {
   if (hessian != "observed" && hessian != "gaussnewton")
     hf_errlog(2026102259, "F: GaussNewton: hessian must be observed or gaussnewton");
   s.observedHessian = hessian == "observed";
+  const std::string hessianScheme = node["hessianScheme"].as<std::string>("forward");
+  if (hessianScheme != "forward" && hessianScheme != "central")
+    hf_errlog(2026102260, "F: GaussNewton: hessianScheme must be forward or central");
+  s.centralHessian = hessianScheme == "central";
+  s.hessianDelta = node["hessianDelta"].as<double>(s.hessianDelta);
   s.checkDerivatives = node["checkDerivatives"].as<int>(0) != 0;
   return s;
 }
@@ -161,7 +168,8 @@ void GaussNewtonMinimizer::doMinimization() {
   if (settings.covariance) {
     Eigen::MatrixXd hessian = result.model.hessian;
     if (settings.observedHessian) {
-      const gn::ObservedHessianResult observed = gn::observedHessian(problem, result.x, result.chi2, hessian);
+      const gn::ObservedHessianResult observed = gn::observedHessian(
+          problem, result.x, result.chi2, hessian, settings.hessianDelta, settings.centralHessian);
       hessianCalls = observed.chi2Calls;
       Eigen::MatrixXd gnCovariance;
       gn::covarianceFromHessian(hessian, gnCovariance);
