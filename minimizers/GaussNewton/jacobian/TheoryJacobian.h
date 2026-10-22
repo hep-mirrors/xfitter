@@ -1,7 +1,7 @@
 #pragma once
 
 // Interface for J_t = dt/dp, the Jacobian of the theory of the fitted points
-// (README.md, Eq. 7). Implementations: FiniteDifferenceJacobian (MR-1).
+// (README.md, Eq. 7). Implementations: FiniteDifferenceJacobian, FactorisedJacobian.
 
 #include <Eigen/Dense>
 
@@ -18,6 +18,9 @@ public:
 
   /// Theory evaluations used so far
   virtual int evaluations() const = 0;
+
+  /// Called after every chi2 evaluation with its point and theory t(p)
+  virtual void observe(const Eigen::VectorXd& p, const Eigen::VectorXd& t) {}
 };
 
 }

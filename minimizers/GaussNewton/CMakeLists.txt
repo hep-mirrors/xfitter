@@ -27,7 +27,9 @@ add_library(${TARGET} MODULE
   DerivativeCheck.cc
   bridge/xfitter_gn_bridge.f
   bridge/FortranBridge.cc
+  bridge/InputPdfs.cc
   bridge/TheoryEvaluator.cc
+  jacobian/FactorisedJacobian.cc
   jacobian/FiniteDifferenceJacobian.cc
   util/ForkPool.cc
   util/Report.cc

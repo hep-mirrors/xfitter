@@ -10,9 +10,11 @@
 #include "DerivativeCheck.h"
 #include "ProfiledChi2.h"
 #include "bridge/FortranBridge.h"
+#include "bridge/InputPdfs.h"
 #include "bridge/TheoryEvaluator.h"
 #include "core/LevenbergMarquardt.h"
 #include "core/ObservedHessian.h"
+#include "jacobian/FactorisedJacobian.h"
 #include "jacobian/FiniteDifferenceJacobian.h"
 #include "util/Report.h"
 #include "util/Timer.h"
@@ -44,6 +46,8 @@ namespace {
 struct Settings {
   gn::LMOptions lm;
   gn::FDOptions fd;
+  bool factorised = false;      ///< J_t = K F, Eq. (14)
+  gn::FactorisedOptions factorisedOptions;
   bool covariance = true;
   bool observedHessian = true;  ///< covariance from second differences of the chi2 (as HESSE)
   bool centralHessian = true;   ///< central off-diagonal second differences
@@ -57,8 +61,8 @@ Settings readSettings() {
   const YAML::Node node = XFITTER_PARS::rootNode["GaussNewton"];
   if (!node.IsMap()) return s;
   const std::set<std::string> known = {"maxIterations", "tolerance", "lambda0", "jacobian", "fdScheme",
-                                       "fdStep", "threads", "covariance", "hessian", "hessianScheme",
-                                       "hessianDelta", "doErrors", "checkDerivatives"};
+                                       "fdStep", "threads", "spanTolerance", "covariance", "hessian",
+                                       "hessianScheme", "hessianDelta", "doErrors", "checkDerivatives"};
   for (const auto& item : node)
     if (!known.count(item.first.as<std::string>()))
       hf_errlog(2026102250, "W: GaussNewton: unknown steering key " + item.first.as<std::string>());
@@ -66,8 +70,11 @@ Settings readSettings() {
   s.lm.maxIterations = node["maxIterations"].as<int>(s.lm.maxIterations);
   s.lm.tolerance = node["tolerance"].as<double>(s.lm.tolerance);
   s.lm.lambda0 = node["lambda0"].as<double>(s.lm.lambda0);
-  if (node["jacobian"].as<std::string>("FiniteDifference") != "FiniteDifference")
-    hf_errlog(2026102251, "F: GaussNewton: only jacobian: FiniteDifference is available");
+  const std::string jacobian = node["jacobian"].as<std::string>("FiniteDifference");
+  if (jacobian != "FiniteDifference" && jacobian != "Factorised")
+    hf_errlog(2026102251, "F: GaussNewton: jacobian must be FiniteDifference or Factorised");
+  s.factorised = jacobian == "Factorised";
+  s.factorisedOptions.spanTolerance = node["spanTolerance"].as<double>(s.factorisedOptions.spanTolerance);
   const std::string scheme = node["fdScheme"].as<std::string>("forward");
   if (scheme != "forward" && scheme != "central")
     hf_errlog(2026102252, "F: GaussNewton: fdScheme must be forward or central");
@@ -122,7 +129,11 @@ void GaussNewtonMinimizer::doMinimization() {
   }
   delete[] pars;
 
-  gn::FiniteDifferenceJacobian jacobian(evaluator, steps, lower, upper, settings.fd);
+  gn::FiniteDifferenceJacobian fdJacobian(evaluator, steps, lower, upper, settings.fd);
+  gn::InputPdfs inputPdfs(evaluator);
+  gn::FactorisedJacobian factorisedJacobian(fdJacobian, inputPdfs, settings.factorisedOptions);
+  gn::TheoryJacobian& jacobian = settings.factorised ? static_cast<gn::TheoryJacobian&>(factorisedJacobian)
+                                                     : static_cast<gn::TheoryJacobian&>(fdJacobian);
   gn::ProfiledChi2 problem(evaluator, bridge, jacobian, lower, upper);
   problem.setWorkers(settings.fd.workers);  // the observed Hessian, Eq. (10)
 
@@ -132,6 +143,7 @@ void GaussNewtonMinimizer::doMinimization() {
   if (bridge.polarisationChi2() != 0)
     hf_errlog(2026102253, "F: GaussNewton: polarisation shifts are not supported");
   const gn::DataSnapshot first = bridge.snapshot();
+  factorisedJacobian.setPointScale(first.sigma);
   const Eigen::VectorXd t = evaluator.theory(p0);
   if (((t - first.theory).array() / first.sigma.array()).abs().maxCoeff() > 1e-6)
     hf_errlog(2026102254, "W: GaussNewton: theory depends on the evaluation history "
@@ -210,6 +222,11 @@ void GaussNewtonMinimizer::doMinimization() {
                 hessianCalls, jacobian.evaluations());
   summary.push_back(line);
   for (const std::string& s : summary) std::printf("%s\n", s.c_str());
+  if (settings.factorised) {
+    const gn::FactorisedStatistics& stats = factorisedJacobian.statistics();
+    std::printf("Factorised Jacobian: %d columns from K F, %d by finite differences, %d explored directions, "
+                "%d resets\n", stats.responseColumns, stats.fdColumns, factorisedJacobian.dimension(), stats.resets);
+  }
   std::printf("wall time %.1f s (fcn %.1f, Jacobian %.1f, algebra %.1f)\n", wall, diag.fcnTime,
               diag.jacobianTime, diag.algebraTime);
   std::printf("checks: max |module chi2 - fcn| = %.2e, max |H_bb^-1 g_b| = %.2e\n", diag.maxChi2Mismatch,

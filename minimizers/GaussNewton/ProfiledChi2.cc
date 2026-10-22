@@ -20,12 +20,16 @@ ProfiledChi2::ProfiledChi2(TheoryEvaluator& evaluator, const FortranBridge& brid
     : _evaluator(evaluator), _bridge(bridge), _jacobian(jacobian), _lower(lower), _upper(upper) {}
 
 double ProfiledChi2::chi2(const Eigen::VectorXd& p) {
-  Timer::Scope timer(_diagnostics.fcnTime);
-  _lastChi2 = _evaluator.chi2(p, _iflag);
-  _iflag = 2;
-  // the snapshot must be taken now: the Jacobian changes THEO
-  _snapshot = _bridge.snapshot();
-  _lastP = p;
+  {
+    Timer::Scope timer(_diagnostics.fcnTime);
+    _lastChi2 = _evaluator.chi2(p, _iflag);
+    _iflag = 2;
+    // the snapshot must be taken now: the Jacobian changes THEO
+    _snapshot = _bridge.snapshot();
+    _lastP = p;
+  }
+  Timer::Scope timer(_diagnostics.jacobianTime);
+  _jacobian.observe(p, _snapshot.theory);
   return _lastChi2;
 }
 
