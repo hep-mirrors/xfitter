@@ -10,11 +10,22 @@ if(NOT TARGET Eigen3::Eigen)
   return()
 endif()
 
+# core/: pure numerics (Eigen + std), shared by the plugin and the unit tests
+set(GN_CORE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/core/LevenbergMarquardt.cc
+)
+
 set(TARGET minimizerGaussNewton)
 add_library(${TARGET} MODULE
   GaussNewtonMinimizer.cc
+  ${GN_CORE_SOURCES}
 )
 target_compile_features(${TARGET} PRIVATE cxx_std_17)
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${TARGET} PRIVATE xfitter Eigen3::Eigen)
 install(TARGETS ${TARGET} DESTINATION ${DEST_MODULE})
+
+option(XFITTER_GN_TESTS "Build the GaussNewton core unit tests (gn_core_tests)" OFF)
+if(XFITTER_GN_TESTS)
+  add_subdirectory(test)
+endif()
