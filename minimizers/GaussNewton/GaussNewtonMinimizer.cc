@@ -9,10 +9,13 @@
 #include "bridge/FortranBridge.h"
 #include "bridge/TheoryEvaluator.h"
 #include "core/PointModel.h"
+#include "jacobian/FiniteDifferenceJacobian.h"
 #include "xfitter_cpp_base.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <limits>
 
 extern "C" {
   void iofilenamesmini_();
@@ -58,6 +61,35 @@ void GaussNewtonMinimizer::doMinimization() {
   std::printf("GaussNewton: max |t(theory only) - t(fcn)| / sigma = %g\n",
               ((t - snapshot.theory).array() / snapshot.sigma.array()).abs().maxCoeff());
 
+  // finite-difference Jacobian, in this process and with 2 workers
+  const double inf = std::numeric_limits<double>::infinity();
+  Eigen::VectorXd lower = Eigen::VectorXd::Constant(p.size(), -inf);
+  Eigen::VectorXd upper = Eigen::VectorXd::Constant(p.size(), inf);
+  for (int i = 0; i < p.size(); ++i)
+    if (_bounds[i]) {
+      lower(i) = _bounds[i][0];
+      upper(i) = _bounds[i][1];
+    }
+  Eigen::VectorXd steps(p.size());
+  for (int i = 0; i < p.size(); ++i) {
+    const auto it = _steps.find(_allParameterNames[i]);
+    steps(i) = it != _steps.end() ? it->second : 0.01 * std::max(std::abs(p(i)), 1.);
+  }
+  gn::FDOptions options;
+  gn::FiniteDifferenceJacobian serial(evaluator, steps, lower, upper, options);
+  const Eigen::MatrixXd J = serial.compute(p, snapshot.theory);
+  options.workers = 2;
+  gn::FiniteDifferenceJacobian forked(evaluator, steps, lower, upper, options);
+  const Eigen::MatrixXd Jf = forked.compute(p, snapshot.theory);
+  std::printf("GaussNewton: max |J(serial) - J(2 workers)| = %g, |J| = %g, %d evaluations\n",
+              (J - Jf).cwiseAbs().maxCoeff(), J.norm(), serial.evaluations());
+  // linear prediction for a step of 10 FD steps in all parameters
+  const Eigen::VectorXd dp = 10 * options.relativeStep * p.cwiseAbs().cwiseMax(steps);
+  const Eigen::VectorXd moved = evaluator.theory(p + dp);
+  std::printf("GaussNewton: linear prediction max |t(p+dp) - t - J dp| / sigma = %g (|t(p+dp) - t| / sigma = %g)\n",
+              ((moved - snapshot.theory - J * dp).array() / snapshot.sigma.array()).abs().maxCoeff(),
+              ((moved - snapshot.theory).array() / snapshot.sigma.array()).abs().maxCoeff());
+
   hf_errlog(2026102210, "F: GaussNewton minimisation is not implemented yet");
 }
 
@@ -66,6 +98,12 @@ void GaussNewtonMinimizer::errorAnalysis() {
 
 ConvergenceStatus GaussNewtonMinimizer::convergenceStatus() {
   return _convergenceStatus;
+}
+
+void GaussNewtonMinimizer::addParameter(double par, std::string const& name, double step,
+                                        double const* bounds, double const* priors) {
+  BaseMinimizer::addParameter(par, name, step, bounds, priors);
+  if (step > 0) _steps[name] = step;
 }
 
 double GaussNewtonMinimizer::getParameterUncertainty(const std::string& name) const {

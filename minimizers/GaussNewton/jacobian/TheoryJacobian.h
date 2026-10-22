@@ -1,0 +1,24 @@
+#pragma once
+
+// Interface for J_t = dt/dp, the Jacobian of the theory of the fitted points
+// (README.md, Eq. 7). Implementations: FiniteDifferenceJacobian (MR-1).
+
+#include <Eigen/Dense>
+
+namespace xfitter {
+namespace gn {
+
+class TheoryJacobian {
+public:
+  virtual ~TheoryJacobian() = default;
+
+  /// J_t at p (n points x n parameters), given t0 = t(p). May change the global xFitter
+  /// state: call it after the snapshot of the fcn call at p has been taken.
+  virtual Eigen::MatrixXd compute(const Eigen::VectorXd& p, const Eigen::VectorXd& t0) = 0;
+
+  /// Theory evaluations used so far
+  virtual int evaluations() const = 0;
+};
+
+}
+}
