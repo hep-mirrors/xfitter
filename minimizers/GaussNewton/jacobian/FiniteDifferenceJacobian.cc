@@ -19,35 +19,42 @@ double FiniteDifferenceJacobian::step(const Eigen::VectorXd& p, int j) const {
   return _options.relativeStep * std::max(std::abs(p(j)), _yamlSteps(j));
 }
 
-bool FiniteDifferenceJacobian::isCentral(const Eigen::VectorXd& p, int j) const {
+FiniteDifferenceJacobian::Displacement FiniteDifferenceJacobian::displacement(const Eigen::VectorXd& p, int j,
+                                                                              bool central) const {
   const double h = step(p, j);
-  return _options.central && p(j) + h <= _upper(j) && p(j) - h >= _lower(j);
+  const double up = _upper(j) - p(j), down = p(j) - _lower(j);
+  if (central && up >= h && down >= h) return {h, -h};
+  // one-sided, away from the bound; shortened if neither side has room for h
+  return {up >= h ? h : (down >= h ? -h : (up >= down ? up : -down)), 0.};
 }
 
 Eigen::VectorXd FiniteDifferenceJacobian::column(const Eigen::VectorXd& p, const Eigen::VectorXd& t0, int j) {
-  const double h = step(p, j);
+  const Displacement d = displacement(p, j);
+  if (d.up == d.down) return Eigen::VectorXd::Zero(t0.size());
   Eigen::VectorXd q = p;
-  if (isCentral(p, j)) {
-    q(j) = p(j) + h;
-    const Eigen::VectorXd up = _evaluator.theory(q);
-    q(j) = p(j) - h;
-    const Eigen::VectorXd down = _evaluator.theory(q);
-    return (up - down) / (2 * h);
+  q(j) = p(j) + d.up;
+  const Eigen::VectorXd up = _evaluator.theory(q);
+  if (d.down == 0) return (up - t0) / d.up;
+  q(j) = p(j) + d.down;
+  return (up - _evaluator.theory(q)) / (d.up - d.down);
+}
+
+Eigen::MatrixXd FiniteDifferenceJacobian::columns(const Eigen::VectorXd& p, const Eigen::VectorXd& t0,
+                                                  const std::vector<int>& which) {
+  const int n = static_cast<int>(t0.size()), P = static_cast<int>(which.size());
+  const std::vector<double> values = ForkPool(_options.workers).run(
+      P, n, [&](int k, double* out) { Eigen::Map<Eigen::VectorXd>(out, n) = column(p, t0, which[k]); });
+  for (const int j : which) {
+    const Displacement d = displacement(p, j);
+    _evaluations += d.up == d.down ? 0 : (d.down == 0 ? 1 : 2);
   }
-  // one-sided, away from the bound; shortened if neither side has room for h
-  const double up = _upper(j) - p(j), down = p(j) - _lower(j);
-  double signedStep = up >= h ? h : (down >= h ? -h : (up >= down ? up : -down));
-  if (signedStep == 0) return Eigen::VectorXd::Zero(t0.size());
-  q(j) = p(j) + signedStep;
-  return (_evaluator.theory(q) - t0) / signedStep;
+  return Eigen::Map<const Eigen::MatrixXd>(values.data(), n, P);
 }
 
 Eigen::MatrixXd FiniteDifferenceJacobian::compute(const Eigen::VectorXd& p, const Eigen::VectorXd& t0) {
-  const int n = static_cast<int>(t0.size()), P = static_cast<int>(p.size());
-  const std::vector<double> columns = ForkPool(_options.workers).run(
-      P, n, [&](int j, double* out) { Eigen::Map<Eigen::VectorXd>(out, n) = column(p, t0, j); });
-  for (int j = 0; j < P; ++j) _evaluations += isCentral(p, j) ? 2 : 1;
-  return Eigen::Map<const Eigen::MatrixXd>(columns.data(), n, P);
+  std::vector<int> all(p.size());
+  for (int j = 0; j < p.size(); ++j) all[j] = j;
+  return columns(p, t0, all);
 }
 
 }

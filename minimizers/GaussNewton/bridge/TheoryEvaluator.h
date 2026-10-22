@@ -35,9 +35,10 @@ public:
   int fcnCalls() const { return _fcnCalls; }
   int theoryCalls() const { return _theoryCalls; }
 
-private:
+  /// Writes p into XFITTER_PARS::gParameters; nothing is recomputed
   void setParameters(const Eigen::VectorXd& p);
 
+private:
   const FortranBridge& _bridge;
   std::vector<double*> _parameters;     ///< pointers into XFITTER_PARS::gParameters
   std::vector<const double*> _priors;   ///< {mean, sigma} or nullptr, per parameter
