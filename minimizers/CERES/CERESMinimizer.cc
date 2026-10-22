@@ -72,6 +72,11 @@ void myFCN(double &chi2, double const* par, int iflag=2) {
 //
 // Connect fcn and xfitter pars
 //
+// CERES minimises cost = 1/2 sum f^2, and its covariance (J^T J)^-1 assumes unit-variance
+// residuals. Use f = r (the residuals of chi2 = sum r^2), so that cost = chi2/2 and the
+// covariance corresponds to Delta chi2 = 1. The prior terms (CostFunctionPenalty) follow
+// the same convention.
+//
 struct CostFunctorData {
   int _nres;
   CostFunctorData(int nres) {
@@ -89,7 +94,7 @@ struct CostFunctorData {
 
     for (int i = 0; i < nres; i++) {
       if (i < cndatapoints_.npoints + systema_.nsys)
-        residuals[i] = sqrt(2.)*c_resid_.residuals_[i];
+        residuals[i] = c_resid_.residuals_[i];
       else
         //Log penalty terms
       {
@@ -102,14 +107,14 @@ struct CostFunctorData {
             CERESMinimizer::offset[j] = 2.*max(0.,-cdatapoi_.chi2_poi_data[j]);
           CERESMinimizer::totoffset += CERESMinimizer::offset[j];
         }
-        residuals[i] = sqrt(2.)*sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j]));
+        residuals[i] = sqrt(max(0.,cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j]));
         if (cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] < 0) {
           cout << "Warning: negative squared residual for i " << j << " offset " << CERESMinimizer::offset[j] << " res^2 " << cdatapoi_.chi2_poi_data[j]+CERESMinimizer::offset[j] << endl;
           string message = "W: Negative squared residual in CERES minimisation, consider raising the chi-square offset";
           hf_errlog_(22082101, message.c_str(), message.size());
         }
       }
-      chi2 += residuals[i]*residuals[i]/2.;
+      chi2 += residuals[i]*residuals[i];
     }
     //std::cout << " CERES total offset in Cost function: " <<  CERESMinimizer::totoffset << std::endl;
     std::cout << " CERES residuals squared: " <<  chi2 - CERESMinimizer::totoffset << std::endl;
@@ -174,20 +179,11 @@ class CostFunctionPenalty : public ceres::CostFunction {
       }
     }
 
+    // d residual_j / d par_k = delta_jk / sigma_j (row-major: row j, column k)
     if (jakobian && jakobian[0]) {
-      for (int ipar=0; ipar<npar; ipar+=1) {
-        vector <double> result;
-        result.resize(npar);
-        for ( int ipar=0; ipar<npar; ipar+=1 ) {
-          if (Priors[ipar]) {
-            result[ipar] = 1. / Priors[ipar][1];
-          } else {
-            result[ipar] = 0;
-          }
-        }
-
-        for (int j=0; j<npar; j+=1) {
-          jakobian[0][j*npar+ipar] = result[j];
+      for (int j=0; j<npar; j+=1) {
+        for (int k=0; k<npar; k+=1) {
+          jakobian[0][j*npar+k] = (k == j && Priors[j]) ? 1. / Priors[j][1] : 0.;
         }
       }
     }
@@ -303,11 +299,11 @@ class PenaltyLog final: public ceres::LossFunction {
     out[0] = s;
     if (chi2options_.chi2poissoncorr)
       //out[0] += -2.*glboff*cndatapoints_.npoints;
-      out[0] += -2.*CERESMinimizer::totoffset;
+      out[0] += -CERESMinimizer::totoffset;
     out[1] = 1.;
     out[2] = 0.;
     //std::cout << " CERES total offset in Loss function: " <<  CERESMinimizer::totoffset << std::endl;
-    std::cout << " CERES Cost function: " <<  out[0]/2. << std::endl;
+    std::cout << " CERES Cost function (chi2/2): " <<  out[0]/2. << std::endl;
     CERESMinimizer::totoffset = 0.;
   }
 };
