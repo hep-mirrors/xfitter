@@ -35,6 +35,7 @@ struct LMResult {
   Eigen::VectorXd x;
   double chi2 = 0;
   QuadraticModel model;       ///< at x
+  int exactModelAt = 0;       ///< iteration at which exact derivatives were requested (0: never)
   std::vector<bool> atBound;  ///< parameter held at a bound by the active set
   int iterations = 0;
   int chi2Calls = 0;

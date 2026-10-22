@@ -225,7 +225,8 @@ void GaussNewtonMinimizer::doMinimization() {
   if (settings.factorised) {
     const gn::FactorisedStatistics& stats = factorisedJacobian.statistics();
     std::printf("Factorised Jacobian: %d columns from K F, %d by finite differences, %d explored directions, "
-                "%d resets\n", stats.responseColumns, stats.fdColumns, factorisedJacobian.dimension(), stats.resets);
+                "%d resets; exact Jacobian from iteration %d\n", stats.responseColumns, stats.fdColumns,
+                factorisedJacobian.dimension(), stats.resets, result.exactModelAt);
   }
   std::printf("wall time %.1f s (fcn %.1f, Jacobian %.1f, algebra %.1f)\n", wall, diag.fcnTime,
               diag.jacobianTime, diag.algebraTime);

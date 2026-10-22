@@ -91,8 +91,9 @@ void FactorisedJacobian::addColumnPair(const Eigen::VectorXd& p, const Eigen::Ve
 
 Eigen::MatrixXd FactorisedJacobian::compute(const Eigen::VectorXd& p, const Eigen::VectorXd& t0) {
   const int P = static_cast<int>(p.size());
+  _lastApproximate = false;
   if (_pLast.size() != P || _pLast != p) observe(p, t0);
-  if (!_stats.linear || _pLast.size() != P || _pLast != p) {  // no usable f0(p)
+  if (_exact || !_stats.linear || _pLast.size() != P || _pLast != p) {  // exact requested, or no usable f0(p)
     _stats.fdColumns += P;
     return _fd.compute(p, t0);
   }
@@ -132,6 +133,7 @@ Eigen::MatrixXd FactorisedJacobian::compute(const Eigen::VectorXd& p, const Eige
     verified = 1;
   }
   _stats.responseColumns += P - static_cast<int>(fdColumns.size()) - verified;
+  _lastApproximate = P - static_cast<int>(fdColumns.size()) - verified > 0;
   _stats.fdColumns += static_cast<int>(fdColumns.size()) + verified;
   if (fdColumns.empty()) return J;
 

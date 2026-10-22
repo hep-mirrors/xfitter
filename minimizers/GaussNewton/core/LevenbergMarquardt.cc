@@ -98,7 +98,16 @@ LMResult LevenbergMarquardt::minimise(Problem& problem, const Eigen::VectorXd& x
 
   for (int iteration = 1; iteration <= _options.maxIterations; ++iteration) {
     free = freeParameters(result.x, result.model.gradient, lower, upper);
-    const double decrement = newtonDecrement(result.model, free);
+    double decrement = newtonDecrement(result.model, free);
+    if (decrement < _options.tolerance && problem.modelIsApproximate()) {
+      // confirm the stopping test with exact derivatives at the same point (README D12);
+      // the fit goes on with them if it fails
+      problem.requestExactModel();
+      result.model = problem.model(result.x);
+      result.exactModelAt = iteration;
+      free = freeParameters(result.x, result.model.gradient, lower, upper);
+      decrement = newtonDecrement(result.model, free);
+    }
     if (decrement < _options.tolerance) {
       result.converged = true;
       result.message = "Newton decrement below tolerance";

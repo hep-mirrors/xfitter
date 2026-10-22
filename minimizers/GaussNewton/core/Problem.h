@@ -39,6 +39,12 @@ public:
   /// so an implementation may reuse the state of that evaluation.
   virtual QuadraticModel model(const Eigen::VectorXd& x) = 0;
 
+  /// True if the last model() rests on approximate derivatives (e.g. a factorised Jacobian)
+  virtual bool modelIsApproximate() const { return false; }
+
+  /// From now on model() uses exact derivatives
+  virtual void requestExactModel() {}
+
   /// Box bounds, +-infinity where there is none
   virtual Eigen::VectorXd lowerBounds() const {
     return Eigen::VectorXd::Constant(size(), -std::numeric_limits<double>::infinity());

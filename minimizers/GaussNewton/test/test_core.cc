@@ -588,6 +588,40 @@ void testLinearResponseFit() {
             " fail the span rule");
 }
 
+/// LM with an approximate model (biased Jacobian): the stopping test is confirmed with the
+/// exact model, so the minimum is the exact one (README D12)
+void testApproximateModel() {
+  class Biased : public LeastSquares {
+  public:
+    using LeastSquares::LeastSquares;
+    bool exact = false;
+    QuadraticModel model(const Eigen::VectorXd& x) override {
+      QuadraticModel m = LeastSquares::model(x);
+      if (!exact) m.gradient *= 1.0, m.gradient(0) += 0.02 * m.gradient(1);  // wrong direction mixing
+      return m;
+    }
+    bool modelIsApproximate() const override { return !exact; }
+    void requestExactModel() override { exact = true; }
+  };
+  auto r = [](const Eigen::VectorXd& x) {
+    Eigen::VectorXd v(3);
+    v << x(0) - 1 + 0.3 * x(1), 2 * (x(1) + 2), 0.5 * x(0) * x(1);
+    return v;
+  };
+  auto J = [](const Eigen::VectorXd& x) {
+    Eigen::MatrixXd m(3, 2);
+    m << 1, 0.3, 0, 2, 0.5 * x(1), 0.5 * x(0);
+    return m;
+  };
+  LeastSquares exact(2, r, J);
+  Biased biased(2, r, J);
+  const LMResult a = LevenbergMarquardt(tightOptions()).minimise(exact, Eigen::VectorXd::Zero(2));
+  const LMResult b = LevenbergMarquardt(tightOptions()).minimise(biased, Eigen::VectorXd::Zero(2));
+  check(a.converged && b.converged && b.exactModelAt > 0 && (a.x - b.x).norm() < 1e-6,
+        "approximate model: exact confirmation at iteration " + std::to_string(b.exactModelAt) +
+            ", minimum as with the exact model (" + sci((a.x - b.x).norm()) + ")");
+}
+
 int main() {
   testLinearLeastSquares();
   testRosenbrock();
@@ -601,6 +635,7 @@ int main() {
   testObservedHessian();
   testObservedHessianBatches();
   testExtraSystRescale();
+  testApproximateModel();
   testLinearResponse();
   testLinearResponseFit();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);

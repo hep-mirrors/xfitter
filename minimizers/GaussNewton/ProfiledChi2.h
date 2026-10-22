@@ -32,6 +32,8 @@ public:
   /// of this process (snapshot, THEO, PDFs) stays at the last chi2() call.
   std::vector<double> chi2Batch(const std::vector<Eigen::VectorXd>& points) override;
   QuadraticModel model(const Eigen::VectorXd& p) override;
+  bool modelIsApproximate() const override;
+  void requestExactModel() override;
   Eigen::VectorXd lowerBounds() const override { return _lower; }
   Eigen::VectorXd upperBounds() const override { return _upper; }
 

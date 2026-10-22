@@ -43,6 +43,14 @@ std::vector<double> ProfiledChi2::chi2Batch(const std::vector<Eigen::VectorXd>& 
   return values;
 }
 
+bool ProfiledChi2::modelIsApproximate() const {
+  return _jacobian.isApproximate();
+}
+
+void ProfiledChi2::requestExactModel() {
+  _jacobian.requestExact();
+}
+
 QuadraticModel ProfiledChi2::model(const Eigen::VectorXd& p) {
   if (_lastP.size() != p.size() || _lastP != p) chi2(p);  // see Problem::model
 

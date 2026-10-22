@@ -40,6 +40,9 @@ public:
   /// The pair (f0(p) - f0(previous), t - t(previous)), Eq. (15)
   void observe(const Eigen::VectorXd& p, const Eigen::VectorXd& t) override;
 
+  bool isApproximate() const override { return _lastApproximate; }
+  void requestExact() override { _exact = true; }
+
   const FactorisedStatistics& statistics() const { return _stats; }
   int dimension() const { return _response.dimension(); }
 
@@ -63,6 +66,8 @@ private:
   Eigen::VectorXd _pLast, _fLast, _tLast;  ///< last observed point
   Eigen::VectorXd _pNonPdf;       ///< parameters at which K is valid
   FactorisedStatistics _stats;
+  bool _exact = false;            ///< finite differences only, after requestExact()
+  bool _lastApproximate = false;  ///< the last compute() used K F columns
 };
 
 }

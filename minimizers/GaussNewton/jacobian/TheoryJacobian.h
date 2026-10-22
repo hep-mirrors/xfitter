@@ -19,6 +19,12 @@ public:
   /// Theory evaluations used so far
   virtual int evaluations() const = 0;
 
+  /// True if the last Jacobian is an approximation
+  virtual bool isApproximate() const { return false; }
+
+  /// From now on compute() gives exact (finite-difference) Jacobians
+  virtual void requestExact() {}
+
   /// Called after every chi2 evaluation with its point and theory t(p)
   virtual void observe(const Eigen::VectorXd& p, const Eigen::VectorXd& t) {}
 };
