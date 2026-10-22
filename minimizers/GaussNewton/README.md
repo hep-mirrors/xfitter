@@ -309,4 +309,4 @@ linear response: exact in the span, error bounded by the span residual, toy J = 
 
 Not supported in this version (stops with a message): covariance-matrix points (use
 `CovarToNuisance`). With `jacobian: FiniteDifference` an iteration costs 1 + P theory
-evaluations; with `jacobian: Factorised` about one for DIS data.
+evaluations; `jacobian: Factorised` saves up to 40% of them for DIS data (Sec. 5).
