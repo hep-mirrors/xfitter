@@ -33,6 +33,8 @@ public:
   void addPriors(const Eigen::VectorXd& p, QuadraticModel& model) const;
 
   int fcnCalls() const { return _fcnCalls; }
+  /// Adds fcn calls made by forked worker processes
+  void countFcnCalls(int n) { _fcnCalls += n; }
   int theoryCalls() const { return _theoryCalls; }
 
 private:

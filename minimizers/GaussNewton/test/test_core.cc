@@ -408,6 +408,46 @@ void testObservedHessian() {
 
 }  // namespace
 
+/// Batches: an implementation that evaluates each batch in reverse order (as a parallel one
+/// may) gives the same observed Hessian bit for bit, with the points in at most 3 batches
+void testObservedHessianBatches() {
+  class Reversed : public LeastSquares {
+  public:
+    using LeastSquares::LeastSquares;
+    int batches = 0;
+    std::vector<double> chi2Batch(const std::vector<Eigen::VectorXd>& xs) override {
+      ++batches;
+      std::vector<double> values(xs.size());
+      for (size_t i = xs.size(); i-- > 0;) values[i] = chi2(xs[i]);
+      return values;
+    }
+  };
+  auto r = [](const Eigen::VectorXd& x) {
+    Eigen::VectorXd v(3);
+    v << 10 * (x(1) - x(0) * x(0)), 1 - x(0), x(2) * x(2) * x(0);
+    return v;
+  };
+  auto J = [](const Eigen::VectorXd& x) {
+    Eigen::MatrixXd m(3, 3);
+    m << -20 * x(0), 10, 0, -1, 0, 0, x(2) * x(2), 0, 2 * x(2) * x(0);
+    return m;
+  };
+  LeastSquares serial(3, r, J);
+  Reversed batched(3, r, J);
+  const Eigen::Vector3d x(0.5, 0.5, 0.3);
+  // a poor model curvature for x(2) forces a second diagonal pass for it
+  Eigen::MatrixXd model = serial.model(x).hessian;
+  model(2, 2) *= 100;
+  for (const bool central : {false, true}) {
+    batched.batches = 0;
+    const ObservedHessianResult a = observedHessian(serial, x, serial.chi2(x), model, 1e-3, central);
+    const ObservedHessianResult b = observedHessian(batched, x, batched.chi2(x), model, 1e-3, central);
+    check(a.hessian == b.hessian && a.chi2Calls == b.chi2Calls && batched.batches == 3,
+          std::string("observed Hessian in batches, ") + (central ? "central" : "forward") +
+              ": identical, 3 batches, " + std::to_string(b.chi2Calls) + " calls");
+  }
+}
+
 int main() {
   testLinearLeastSquares();
   testRosenbrock();
@@ -419,6 +459,7 @@ int main() {
   testSchurVersusJoint();
   testCovarianceFallback();
   testObservedHessian();
+  testObservedHessianBatches();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);
   return failures ? 1 : 0;
 }

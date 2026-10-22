@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 
 #include <limits>
+#include <vector>
 
 namespace xfitter {
 namespace gn {
@@ -25,6 +26,14 @@ public:
 
   /// The objective at x. For xFitter this is always the official chi2 from fcn.
   virtual double chi2(const Eigen::VectorXd& x) = 0;
+
+  /// The objective at several independent points, e.g. in parallel. The default calls chi2
+  /// in turn; the results must not depend on the order.
+  virtual std::vector<double> chi2Batch(const std::vector<Eigen::VectorXd>& xs) {
+    std::vector<double> values;
+    for (const Eigen::VectorXd& x : xs) values.push_back(chi2(x));
+    return values;
+  }
 
   /// Quadratic model at x. The loop calls it only right after chi2(x) at the same x,
   /// so an implementation may reuse the state of that evaluation.
