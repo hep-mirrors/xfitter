@@ -178,6 +178,40 @@ C--------------------------------------------------------
       end
 
 C----------------------------------------------------------------------
+C> @brief ExtraSystRescale ingredients, README Eq. (13b): sigma of the
+C>        first pass (stat errors not rescaled, as GetPointErrors), the
+C>        Poisson stat coefficient, beta of the linear nuisance sources
+C----------------------------------------------------------------------
+      subroutine gn_bridge_rescale(NFit, IPoint, NNuis, ISource,
+     $     Sigma1, S2DTStat, BetaLin)
+      implicit none
+#include "ntot.inc"
+#include "indata.inc"
+#include "theo.inc"
+#include "systematics.inc"
+#include "steering.inc"
+      integer NFit, IPoint(NFit), NNuis, ISource(NNuis)
+      double precision Sigma1(NFit), S2DTStat(NFit), BetaLin(NNuis,NFit)
+      integer i, k, n, m
+      double precision Stat, StatConst, Unc
+C--------------------------------------------------------
+      do n=1,NFit
+         i = IPoint(n)
+         call GetPointErrors(i, Stat, StatConst, Unc)
+         Sigma1(n) = sqrt(Stat**2 + StatConst**2 + Unc**2)
+         S2DTStat(n) = e_stat_poisson(i)**2
+      enddo
+      do m=1,NNuis
+         k = ISource(m)
+         do n=1,NFit
+            BetaLin(m,n) = 0d0
+            if (SysScalingType(k).eq.isLinear)
+     $           BetaLin(m,n) = BETA(k,IPoint(n))
+         enddo
+      enddo
+      end
+
+C----------------------------------------------------------------------
 C> @brief Sum of squared polarisation shifts added by fcn to the chi2
 C----------------------------------------------------------------------
       subroutine gn_bridge_polarisation_chi2(Chi2)

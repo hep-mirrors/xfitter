@@ -138,8 +138,20 @@ parameter left at a bound is reported.
 | Diagonal points, Nuisance sources, NoRescale/Linear/Poisson scaling, PoissonCorr, parameter priors, bounds, `ControlFitSplit`, `CovarToNuisance` | supported |
 | Covariance-matrix points (correlation files, `:C` sources, `CorChi2Type: Matrix`) | stops: use `CovarToNuisance` |
 | External sources (fit parameters entering only through the shifts) | stops |
-| Offset sources, `ExtraSystRescale`, `FirstIterationRescale`, asymmetric errors | warning: the derivative model is approximate; the χ² stays exact |
+| `ExtraSystRescale` | supported: exact gradient, Eq. (13b); Gauss–Newton Hessian |
+| Offset sources, `FirstIterationRescale`, asymmetric errors | warning: the derivative model is approximate; the χ² stays exact |
 | Polarisation shifts | stops |
+
+**(13b) `ExtraSystRescale`.** xFitter profiles the shifts twice: b¹ with the nominal errors,
+then b with the Poisson stat part of σ² rescaled, S_i → S_i E_i, E_i = exp(−Σ_k β_ki b¹_k)
+over the linear nuisance sources. The χ² then depends on t also through b¹(t):
+
+dχ²/dt_i = γ_i + Σ_k w_k ∂b¹_k/∂t_i,  w_k = −Σ_j (∂Φ/∂σ_j²) S_j E_j β_kj,
+∂b¹/∂t = −Φ¹_bb⁻¹ Φ¹_bt,  ∂Φ/∂σ_j² = (L_j-flag − r_j²)/σ_j²,
+
+with Φ¹ the first-pass objective (σ¹, b¹) and γ of Eq. (8) computed with ∂σ²/∂t including E.
+The module recomputes b¹ from the first-pass errors (`GetPointErrors`) and checks that the
+rescaled σ equals xFitter's (`checks:` line of the log). The Hessian stays Gauss–Newton.
 
 ## 4. Design decisions
 

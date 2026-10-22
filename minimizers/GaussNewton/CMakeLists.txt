@@ -12,6 +12,7 @@ endif()
 
 # core/: pure numerics (Eigen + std), shared by the plugin and the unit tests
 set(GN_CORE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/core/ExtraSystRescale.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/core/LevenbergMarquardt.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/core/ObservedHessian.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/core/PointModel.cc

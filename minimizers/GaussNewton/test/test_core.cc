@@ -1,6 +1,7 @@
 // Standalone tests of minimizers/GaussNewton/core (no xFitter needed).
 // Build with -DXFITTER_GN_TESTS=ON and run gn_core_tests; exit code 0 means all passed.
 
+#include "core/ExtraSystRescale.h"
 #include "core/LevenbergMarquardt.h"
 #include "core/ObservedHessian.h"
 #include "core/ProfiledNuisances.h"
@@ -448,6 +449,58 @@ void testObservedHessianBatches() {
   }
 }
 
+/// ExtraSystRescale, Eq. (13b): the toy chi2 computed as xFitter does (b1 with the nominal
+/// errors, stat errors rescaled by exp(-beta b1) for the linear sources, b profiled again)
+struct ToyRescale {
+  ToyChi2 toy{false};
+  Eigen::MatrixXd betaLinear() const {
+    Eigen::MatrixXd b = Eigen::MatrixXd::Zero(toy.m, toy.n);
+    for (int k = 0; k < toy.m; ++k)
+      if (toy.power(k) == 1) b.row(k) = toy.beta.row(k);
+    return b;
+  }
+  /// snapshot at theory t with the rescaled errors and the final shifts, as the bridge gives it
+  DataSnapshot snapshot(const Eigen::VectorXd& t) const {
+    DataSnapshot s = toy.snapshot(t, Eigen::VectorXd::Zero(toy.m));
+    const Eigen::VectorXd sigma1 = s.sigma;
+    const Eigen::VectorXd E = (-(betaLinear().transpose() * toy.profile(t))).array().exp();
+    for (int i = 0; i < toy.n; ++i)
+      s.sigma(i) = std::sqrt(sigma1(i) * sigma1(i) + toy.e_dt(i) * std::abs(toy.d(i) * t(i)) * (E(i) - 1));
+    const PointModel pm = computePointModel(s);
+    Eigen::MatrixXd A = pm.dResidualdB * pm.dResidualdB.transpose();
+    A.diagonal() += toy.prior;
+    s.shifts = A.ldlt().solve(-pm.dResidualdB * pm.residual);
+    s.extraSystRescale = true;
+    s.sigmaFirstPass = sigma1;
+    s.sigma2DTStat = toy.e_dt;
+    s.betaLinear = betaLinear();
+    return s;
+  }
+  double chi2(const Eigen::VectorXd& p) const { return computePointModel(snapshot(toy.theory(p))).chi2(); }
+};
+
+void testExtraSystRescale() {
+  const ToyRescale toy;
+  const Eigen::VectorXd p = toyPoint();
+  const DataSnapshot s = toy.snapshot(toy.toy.theory(p));
+  const Eigen::MatrixXd J = toy.toy.jacobian(p);
+  const RescaleModel rescale = extraSystRescale(s);
+  const ProfiledModel exact = profileNuisances(computePointModel(rescale.corrected), J, s.priorScale);
+  const Eigen::VectorXd gradient = exact.model.gradient + J.transpose() * rescale.gradient;
+  const Eigen::VectorXd old = profileNuisances(computePointModel(s), J, s.priorScale).model.gradient;
+  Eigen::VectorXd fd(toy.toy.P);
+  for (int j = 0; j < toy.toy.P; ++j) {
+    Eigen::VectorXd up = p, dn = p;
+    up(j) += 1e-5;
+    dn(j) -= 1e-5;
+    fd(j) = (toy.chi2(up) - toy.chi2(dn)) / 2e-5;
+  }
+  const double error = (gradient - fd).norm() / fd.norm(), oldError = (old - fd).norm() / fd.norm();
+  check(rescale.sigmaMismatch < 1e-12, "ExtraSystRescale: sigma rebuilt from b1: " + sci(rescale.sigmaMismatch));
+  check(error < 1e-6 && oldError > 1e2 * error,
+        "ExtraSystRescale gradient, Eq. (13b): " + sci(error) + " (without the b1 term: " + sci(oldError) + ")");
+}
+
 int main() {
   testLinearLeastSquares();
   testRosenbrock();
@@ -460,6 +513,7 @@ int main() {
   testCovarianceFallback();
   testObservedHessian();
   testObservedHessianBatches();
+  testExtraSystRescale();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);
   return failures ? 1 : 0;
 }

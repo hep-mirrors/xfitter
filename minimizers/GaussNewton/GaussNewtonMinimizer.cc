@@ -214,6 +214,8 @@ void GaussNewtonMinimizer::doMinimization() {
               diag.jacobianTime, diag.algebraTime);
   std::printf("checks: max |module chi2 - fcn| = %.2e, max |H_bb^-1 g_b| = %.2e\n", diag.maxChi2Mismatch,
               diag.maxShiftChange);
+  if (bridge.config().extraSystRescale)
+    std::printf("checks: ExtraSystRescale, max |sigma rebuilt - sigma| / sigma = %.2e\n", diag.maxRescaleMismatch);
 
   gn::writeParameters(_allParameterNames, result.x, errors, steps);
   if (settings.covariance) gn::writeCovariance(_allParameterNames, covariance, summary);

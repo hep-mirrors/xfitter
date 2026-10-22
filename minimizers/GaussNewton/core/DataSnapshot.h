@@ -28,6 +28,12 @@ struct DataSnapshot {
   Eigen::VectorXd shifts;        ///< b_k, profiled by xFitter
   Eigen::VectorXd priorScale;    ///< pi_k, Eq. (1)
 
+  // ExtraSystRescale, Eq. (13b): filled only when it is on
+  bool extraSystRescale = false;
+  Eigen::VectorXd sigmaFirstPass;  ///< sigma_i of the first pass (stat errors not rescaled)
+  Eigen::VectorXd sigma2DTStat;    ///< Poisson stat part of sigma2DT (the part that is rescaled)
+  Eigen::MatrixXd betaLinear;      ///< beta_ki of the linear nuisance sources, m x n (0 for the others)
+
   int points() const { return static_cast<int>(data.size()); }
   int sources() const { return static_cast<int>(shifts.size()); }
 };

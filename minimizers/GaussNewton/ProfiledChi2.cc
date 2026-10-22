@@ -1,6 +1,7 @@
 #include "ProfiledChi2.h"
 #include "bridge/FortranBridge.h"
 #include "bridge/TheoryEvaluator.h"
+#include "core/ExtraSystRescale.h"
 #include "core/PointModel.h"
 #include "jacobian/TheoryJacobian.h"
 #include "util/ForkPool.h"
@@ -53,7 +54,15 @@ QuadraticModel ProfiledChi2::model(const Eigen::VectorXd& p) {
   }
 
   Timer::Scope timer(_diagnostics.algebraTime);
-  const PointModel pm = computePointModel(_snapshot);
+  // ExtraSystRescale, Eq. (13b): rescaled d sigma^2/dt and the term through the first-pass shifts
+  RescaleModel rescale;
+  if (_snapshot.extraSystRescale) {
+    rescale = extraSystRescale(_snapshot);
+    _diagnostics.maxRescaleMismatch = std::max(_diagnostics.maxRescaleMismatch, rescale.sigmaMismatch);
+    if (rescale.sigmaMismatch > 1e-8)
+      hf_errlog(2026102290, "W: GaussNewton: ExtraSystRescale errors differ from xFitter, the derivative model may be wrong");
+  }
+  const PointModel pm = computePointModel(_snapshot.extraSystRescale ? rescale.corrected : _snapshot);
   const double mismatch = std::abs(pm.chi2() + _evaluator.priorChi2(p) - _lastChi2);
   _diagnostics.maxChi2Mismatch = std::max(_diagnostics.maxChi2Mismatch, mismatch);
   if (mismatch > 1e-6 * std::max(1., _lastChi2))
@@ -64,6 +73,7 @@ QuadraticModel ProfiledChi2::model(const Eigen::VectorXd& p) {
   _diagnostics.maxShiftChange = std::max(_diagnostics.maxShiftChange, shiftChange);
 
   QuadraticModel model = _profile.model;
+  if (rescale.gradient.size()) model.gradient += J.transpose() * rescale.gradient;
   _evaluator.addPriors(p, model);
   return model;
 }

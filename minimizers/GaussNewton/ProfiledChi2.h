@@ -17,6 +17,7 @@ class TheoryJacobian;
 struct ProfiledChi2Diagnostics {
   double maxChi2Mismatch = 0;  ///< |module chi2 - official chi2|, Eq. (1)
   double maxShiftChange = 0;   ///< |H_bb^-1 g_b|, ~0 when b is the exact profile, Eq. (9)
+  double maxRescaleMismatch = 0;  ///< ExtraSystRescale: sigma rebuilt from b1 vs xFitter, Eq. (13b)
   double fcnTime = 0, jacobianTime = 0, algebraTime = 0;
 };
 

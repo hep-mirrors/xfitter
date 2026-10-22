@@ -10,6 +10,8 @@ extern "C" {
                            double* d, double* t, double* sigma, double* s2dt, double* s2tt,
                            int* additive, int* logTerm, double* alpha, double* gamma,
                            double* power, double* shift, double* prior);
+  void gn_bridge_rescale_(const int& nFit, const int* iPoint, const int& nNuis, const int* iSource,
+                          double* sigma1, double* s2dtStat, double* betaLinear);
   void gn_bridge_polarisation_chi2_(double& chi2);
 }
 
@@ -42,9 +44,9 @@ void FortranBridge::checkSupported() const {
   if (c.offsetSources > 0)
     hf_errlog(2026102212, "W: GaussNewton: Offset sources are not in the derivative model, "
                           "convergence may be slower");
-  if (c.extraSystRescale || c.firstIterationRescale || c.asymmetricErrors)
-    hf_errlog(2026102213, "W: GaussNewton: ExtraSystRescale, FirstIterationRescale or asymmetric "
-                          "errors make the derivative model approximate, convergence may be slower");
+  if (c.firstIterationRescale || c.asymmetricErrors)
+    hf_errlog(2026102213, "W: GaussNewton: FirstIterationRescale or asymmetric errors make the "
+                          "derivative model approximate, convergence may be slower");
 }
 
 DataSnapshot FortranBridge::snapshot() const {
@@ -67,6 +69,14 @@ DataSnapshot FortranBridge::snapshot() const {
                       s.shifts.data(), s.priorScale.data());
   s.additive.assign(additive.begin(), additive.end());
   s.logTerm.assign(logTerm.begin(), logTerm.end());
+  if (_config.extraSystRescale) {
+    s.extraSystRescale = true;
+    s.sigmaFirstPass.resize(n);
+    s.sigma2DTStat.resize(n);
+    s.betaLinear.resize(m, n);
+    gn_bridge_rescale_(n, _points.data(), m, _sources.data(), s.sigmaFirstPass.data(), s.sigma2DTStat.data(),
+                       s.betaLinear.data());
+  }
   return s;
 }
 
