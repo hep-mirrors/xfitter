@@ -269,8 +269,7 @@ time, about 3 s per χ² evaluation.
 |---|---|---|---|---|---|---|---|
 | GaussNewton: minimisation | 6 | 9 | 98 | 313 s | 1363.325 | ≤ 0.03σ | |
 | GaussNewton: + observed Hessian | | + 210 | | 927 s | | | 0.983 – 1.013 |
-| GaussNewton, `jacobian: Factorised`: minimisation | 7 | 10 | 24 | 105 s | 1363.325 | ≤ 0.03σ | |
-| GaussNewton, `jacobian: Factorised`: + observed Hessian | | + 210 | | 701 s | | | 0.985 – 1.015 |
+| GaussNewton, `jacobian: Factorised`: minimisation | 6 | 10 | 55 | 201 s | 1363.325 | ≤ 0.03σ | |
 | CERES | 10 | 245 | | 719 s | 1363.33 | ≤ 0.03σ | 0.74 – 3.9 |
 | MINUIT MIGRAD | | 1150 | | 3307 s | 1363.326 | reference | |
 | MINUIT MIGRAD + HESSE | | 1298 | | ≈ 3750 s | | | 1 |
@@ -281,15 +280,23 @@ time, about 3 s per χ² evaluation.
   4× faster than MIGRAD + HESSE.
 - With `hessian: gaussnewton` the errors would be 1.0–5.3 times HESSE (D10); CERES has the
   same problem, made worse by a factor-2 convention in its covariance.
-- **Factorised Jacobian** (Eqs. 14–17): after the first iteration (14 finite-difference
-  columns and the linearity check) almost every column comes from K F. From the ellipse
-  start, 24 of 112 columns need theory evaluations. From a harder start (every parameter
-  moved by 1σ, χ² ≈ 3.9·10⁴), it takes 22 theory evaluations and 128 s, against 126 and
-  398 s with finite differences. Both reach the same minimum (χ² = 1361.770, a second
-  minimum of this configuration, below the 1363.325 found from the ellipse start) to
-  0.011σ. K F columns against central finite differences: ≤ 2.3% for the 5 columns taken
-  from K F at the second iteration, then ≤ 1.4·10⁻³ (D12). The minimisation is now about
-  three times faster, and the observed Hessian takes 85% of a fit with covariance.
+- **Factorised Jacobian** (Eqs. 14–17), with the exact confirmation of D12 (minima equal
+  to the finite-difference ones within 0.002σ):
+
+  | configuration, start | Jacobian | iterations | theory evaluations | time to minimum |
+  |---|---|---|---|---|
+  | `CERES-fit`, ellipse (χ² = 1397) | finite differences | 6 | 98 | 313 s |
+  | | factorised | 6 | 55 (28 for the exact confirmation) | 201 s |
+  | `CERES-fit`, all parameters 1σ off (χ² ≈ 3.9·10⁴) | finite differences | 8 | 126 | 398 s |
+  | | factorised | 12 | 115 | 390 s |
+  | N3LO HERA (APFELxx, `ExtraSystRescale`), 1σ off | finite differences | 5 | 84 | 230 s |
+  | | factorised | 6 | 54 | 170 s |
+
+  The gain is 1.0–1.6×: after the first iteration almost every column comes from K F, but
+  the confirmation of the minimum costs one or two finite-difference Jacobians, and from a
+  far start the last iterations crawl in the flat negative-gluon directions with either
+  Jacobian. Without the confirmation the fits were 3× faster, but on the N3LO
+  configuration the minimum was off by up to 0.47σ (D13).
 
 **Built-in checks** (`checkDerivatives: 1` at the minimum): the model gradient agrees with
 central finite differences of `fcn` within 3·10⁻³ (forward-difference Jacobian); the module
