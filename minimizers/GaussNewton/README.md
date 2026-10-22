@@ -231,27 +231,32 @@ This is exact, but with a free α_s it removes the gain.
   Eq. (15) are exact and come free with every χ² evaluation, so after the first
   iteration most columns need no theory evaluation. No probe decomposition, no change of
   the steering outside the `GaussNewton` block.
-- **D12. Linearity check.** The first time a column comes from K F (and again after each
-  reset), the column with the largest σ-weighted norm is also computed by finite
-  differences (one theory evaluation, two with `fdScheme: central`); the fit uses the
-  finite-difference column. If they differ by more than 2% (σ-weighted norm), the theory
-  is not linear in f0 (hadronic data, ratios in `TheorEval` expressions, ...): a warning
-  is printed and the fit continues with finite differences only. The χ² is never affected
-  (D1). The check is not repeated at every iteration: afterwards the column errors are
-  bounded only through the span rule, Eq. (17). On `examples/CERES-fit` (Sec. 5) they are
-  up to 2.3% for the few columns taken from K F at the second iteration, then at most
-  1.4·10⁻³ against central finite differences, and the minima agree with the
-  finite-difference ones to 0.011σ. A Jacobian error moves the point where the fit stops
-  (the gradient is K F-based), not the χ² values.
+- **D12. Linearity check and exact confirmation.** The first time a column comes from K F
+  (and again after each reset), the column with the largest σ-weighted norm is also
+  computed by finite differences (one theory evaluation, two with `fdScheme: central`);
+  the fit uses the finite-difference column. If they differ by more than 2% (σ-weighted
+  norm), the theory is not linear in f0 (hadronic data, ratios in `TheorEval`
+  expressions, ...): a warning is printed and the fit continues with finite differences
+  only. A Jacobian error does not change the χ² values (D1) but moves the point where the
+  fit stops, because the gradient is K F-based. Therefore, when the Newton decrement falls
+  below `tolerance`, or an accepted step gains less than it, while the Jacobian contains
+  K F columns, the loop takes a finite-difference Jacobian at the same point and tests
+  again; from then on the fit uses finite differences. Every minimum is confirmed with
+  exact derivatives, for one or two finite-difference Jacobians.
 - **D13. Input-PDF nodes and metric.** 100 nodes uniform in log x on [10⁻⁶, 0.1) and 50
-  uniform in x on [0.1, 0.98]; the flavours −6..6 and the photon of every decomposition,
-  plain xf values. The nodes only measure whether F_j is in the explored span; they need not
-  coincide with the evolution grid, because the pairs (u, w) relate whole functions. DIS
-  theory at x depends on f0 only at x′ ≥ x, so nodes below the smallest x of the data
-  would only cost extra finite-difference columns. Measuring relative changes instead
-  (each value divided by max(|xf|, 10⁻³ max_x |xf|)) predicted the column errors no better
-  (deviation / span residual 1–40 with both metrics, largest for the negative-gluon
-  parameters) and cost slightly more evaluations from both starts of Sec. 5.
+  uniform in x on [0.1, 0.98]; the flavours −6..6 and the photon of every decomposition.
+  Each value is divided by max(|xf|, 10⁻³ max_x |xf|) of the first point, so the span test
+  measures relative changes of the PDFs, as the data do. With plain xf values the test is
+  dominated by the smallest x when the gluon is steep: on the N3LO HERA configuration
+  (Bg ≈ −0.6, xg ≈ 4000 at x = 10⁻⁶) columns in the span to 10⁻⁵ deviated by 5–10% from
+  finite differences, and the fit stopped 0.47σ from the CERES minimum. The theory is
+  linear there: along parameters whose f0 path is two-dimensional, a third point is
+  predicted from two pairs to 10⁻¹³. With the relative metric the span residual tracks the
+  column error (ratio 1–10), and the fit reaches the CERES minimum. The nodes only measure
+  whether F_j is in the explored span; they need not coincide with the evolution grid
+  (denser nodes up to 1 − x = 10⁻⁴ changed nothing), because the pairs (u, w) relate whole
+  functions. DIS theory at x depends on f0 only at x′ ≥ x, so nodes below the smallest x of
+  the data would only cost extra finite-difference columns.
 
 ## 5. Validation
 
