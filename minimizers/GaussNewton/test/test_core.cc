@@ -3,10 +3,12 @@
 
 #include "core/ExtraSystRescale.h"
 #include "core/LevenbergMarquardt.h"
+#include "core/LinearResponse.h"
 #include "core/ObservedHessian.h"
 #include "core/ProfiledNuisances.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <cstdio>
 #include <functional>
 #include <string>
@@ -501,6 +503,83 @@ void testExtraSystRescale() {
         "ExtraSystRescale gradient, Eq. (13b): " + sci(error) + " (without the b1 term: " + sci(oldError) + ")");
 }
 
+/// LinearResponse: exact in the span, rejects pairs already in it, error bounded by the residual
+void testLinearResponse() {
+  std::srand(7);
+  const int N = 60, n = 40;
+  const Eigen::MatrixXd K = Eigen::MatrixXd::Random(n, N);
+  LinearResponse response;
+  Eigen::MatrixXd U = Eigen::MatrixXd::Random(N, 5);
+  U.col(1) *= 1e4;  // very different scales
+  for (int k = 0; k < 5; ++k) response.add(U.col(k), K * U.col(k));
+  check(response.dimension() == 5, "LinearResponse: 5 independent pairs, dimension 5");
+  check(!response.add(U.col(0) + 2 * U.col(3), K * (U.col(0) + 2 * U.col(3))),
+        "LinearResponse: a pair in the span is not added");
+  const Eigen::VectorXd u = 0.3 * U.col(1) - U.col(4);
+  const LinearResponse::Projection inside = response.apply(u);
+  const double error = (inside.response - K * u).norm() / (K * u).norm();
+  check(inside.residual < 1e-12 && error < 1e-10, "LinearResponse: K u in the span (" + sci(error) + ")");
+  const Eigen::VectorXd v = Eigen::VectorXd::Random(N);
+  const LinearResponse::Projection outside = response.apply(v);
+  const double bound = K.jacobiSvd().singularValues()(0) * outside.residual * v.norm();
+  check(outside.residual > 0.1 && (outside.response - K * v).norm() <= bound * (1 + 1e-10),
+        "LinearResponse: |K v - response| <= |K| |residual|");
+}
+
+/// Toy J = K F with f0(p) = p0 x^p1 (1-x)^p2 on 50 x nodes: forward-difference pairs at p
+/// leave F_j in the span to O(h), central ones to O(h^2); accepted steps extend the span
+void testLinearResponseFit() {
+  std::srand(11);
+  const int N = 50, n = 30;
+  const Eigen::MatrixXd K = Eigen::MatrixXd::Random(n, N).cwiseAbs();
+  auto f0 = [&](const Eigen::VectorXd& p) {
+    Eigen::VectorXd f(N);
+    for (int a = 0; a < N; ++a) {
+      const double x = std::pow(10., -4. + 4. * (a + 0.5) / N) * 0.99;
+      f(a) = p(0) * std::pow(x, p(1)) * std::pow(1 - x, p(2));
+    }
+    return f;
+  };
+  auto inputJacobian = [&](const Eigen::VectorXd& p) {
+    Eigen::MatrixXd F(N, 3);
+    for (int j = 0; j < 3; ++j) {
+      Eigen::VectorXd up = p, down = p;
+      up(j) += 1e-6;
+      down(j) -= 1e-6;
+      F.col(j) = (f0(up) - f0(down)) / 2e-6;
+    }
+    return F;
+  };
+  const Eigen::VectorXd p = (Eigen::VectorXd(3) << 2., -0.2, 3.).finished();
+  const Eigen::MatrixXd F = inputJacobian(p);
+  double forward = 0, central = 0;
+  LinearResponse fw, ce;
+  for (int j = 0; j < 3; ++j) {
+    const double h = 1e-3 * std::max(std::abs(p(j)), 0.1);
+    Eigen::VectorXd up = p, down = p;
+    up(j) += h;
+    down(j) -= h;
+    fw.add(f0(up) - f0(p), K * (f0(up) - f0(p)));
+    ce.add(f0(up) - f0(down), K * (f0(up) - f0(down)));
+  }
+  for (int j = 0; j < 3; ++j) {
+    forward = std::max(forward, fw.apply(F.col(j)).residual);
+    central = std::max(central, ce.apply(F.col(j)).residual);
+  }
+  check(forward < 1e-2 && central < 1e-5 && central < 1e-2 * forward,
+        "LinearResponse: F in the span of the FD pairs, forward " + sci(forward) + ", central " + sci(central));
+  // a step changes F; the pair of the step adds the new direction
+  const Eigen::VectorXd q = p + (Eigen::VectorXd(3) << 0.1, 0.05, -0.2).finished();
+  ce.add(f0(q) - f0(p), K * (f0(q) - f0(p)));
+  const Eigen::MatrixXd Fq = inputJacobian(q);
+  double worst = 0;
+  for (int j = 0; j < 3; ++j) {
+    const LinearResponse::Projection pr = ce.apply(Fq.col(j));
+    worst = std::max(worst, (pr.response - K * Fq.col(j)).norm() / (K * Fq.col(j)).norm());
+  }
+  check(ce.dimension() == 4 && worst < 0.1, "LinearResponse: J at the next point from 4 directions, error " + sci(worst));
+}
+
 int main() {
   testLinearLeastSquares();
   testRosenbrock();
@@ -514,6 +593,8 @@ int main() {
   testObservedHessian();
   testObservedHessianBatches();
   testExtraSystRescale();
+  testLinearResponse();
+  testLinearResponseFit();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);
   return failures ? 1 : 0;
 }
