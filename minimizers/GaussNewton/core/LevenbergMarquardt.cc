@@ -94,14 +94,15 @@ LMResult LevenbergMarquardt::minimise(Problem& problem, const Eigen::VectorXd& x
   result.chi2Calls = 1;
   result.model = problem.model(result.x);
   double lambda = _options.lambda0;
+  double lastDecrease = std::numeric_limits<double>::infinity();  ///< chi2 gained by the last step
   std::vector<bool> free(result.x.size(), true);
 
   for (int iteration = 1; iteration <= _options.maxIterations; ++iteration) {
     free = freeParameters(result.x, result.model.gradient, lower, upper);
     double decrement = newtonDecrement(result.model, free);
-    if (decrement < _options.tolerance && problem.modelIsApproximate()) {
-      // confirm the stopping test with exact derivatives at the same point (README D12);
-      // the fit goes on with them if it fails
+    if ((decrement < _options.tolerance || lastDecrease < _options.tolerance) && problem.modelIsApproximate()) {
+      // confirm the stopping test with exact derivatives at the same point (README D12), also
+      // when the last step gained less than the tolerance; the fit goes on with them
       problem.requestExactModel();
       result.model = problem.model(result.x);
       result.exactModelAt = iteration;
@@ -135,6 +136,7 @@ LMResult LevenbergMarquardt::minimise(Problem& problem, const Eigen::VectorXd& x
       const double rho = (result.chi2 - chi2Trial) / predicted;
       if (rho > kAcceptRatio) {
         accepted = true;
+        lastDecrease = result.chi2 - chi2Trial;
         result.x = xTrial;
         result.chi2 = chi2Trial;
         result.model = problem.model(result.x);  // right after chi2(xTrial), see Problem.h
