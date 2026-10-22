@@ -11,6 +11,7 @@ namespace {
 
 const double kAcceptRatio = 1e-4;  // Eq. (11)
 const double kMinLambda = 1e-12;
+const double kDampingFloor = 1e-8;  // relative floor of diag|H| in the damping, Eq. (11)
 
 Eigen::VectorXd clampToBox(const Eigen::VectorXd& x, const Eigen::VectorXd& lower,
                            const Eigen::VectorXd& upper) {
@@ -65,12 +66,15 @@ bool dampedStep(const QuadraticModel& model, const std::vector<bool>& free, doub
   Eigen::VectorXd g;
   Eigen::MatrixXd H;
   restrict(model, idx, g, H);
-  for (int i = 0; i < H.rows(); ++i) H(i, i) += lambda * std::abs(H(i, i));
   dx = Eigen::VectorXd::Zero(model.gradient.size());
   if (g.size() == 0) return true;
+  // the floor keeps a parameter with ~zero curvature from taking an undamped step
+  const double floor = kDampingFloor * H.diagonal().cwiseAbs().maxCoeff();
+  for (int i = 0; i < H.rows(); ++i) H(i, i) += lambda * std::max(std::abs(H(i, i)), floor);
   Eigen::LLT<Eigen::MatrixXd> llt(H);
   if (llt.info() != Eigen::Success) return false;
   const Eigen::VectorXd step = llt.solve(-g);
+  if (!step.allFinite()) return false;
   for (size_t i = 0; i < idx.size(); ++i) dx(idx[i]) = step(i);
   return true;
 }
@@ -126,7 +130,7 @@ LMResult LevenbergMarquardt::minimise(Problem& problem, const Eigen::VectorXd& x
         result.chi2 = chi2Trial;
         result.model = problem.model(result.x);  // right after chi2(xTrial), see Problem.h
         result.iterations = iteration;
-        if (log) log({iteration, chi2Trial, decrement, predicted, rho, lambda, trials});
+        if (log) log({iteration, chi2Trial, decrement, predicted, rho, lambda, trials, result.x});
         if (rho > 0.75) lambda = std::max(lambda / 3, kMinLambda);
         if (rho < 0.25) lambda *= 2;
       } else {

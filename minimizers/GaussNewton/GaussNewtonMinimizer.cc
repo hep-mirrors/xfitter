@@ -139,6 +139,9 @@ void GaussNewtonMinimizer::doMinimization() {
         std::printf("%5d %14.6f %11.4e %11.4e %9.3f %9.2e %6d %6d %8d %8.1f\n", it.iteration, it.chi2,
                     it.decrement, it.predicted, it.rho, it.lambda, it.trials, evaluator.fcnCalls(),
                     jacobian.evaluations(), elapsed);
+        std::printf("      p =");
+        for (int i = 0; i < it.x.size(); ++i) std::printf(" %.6g", it.x(i));
+        std::printf("\n");
         std::fflush(stdout);
       });
   std::printf("GaussNewton: %s after %d iterations, chi2 = %.6f\n", result.message.c_str(),
@@ -166,18 +169,20 @@ void GaussNewtonMinimizer::doMinimization() {
   // Outputs, then the final fcn call (flag 3) at the minimum
   const gn::ProfiledChi2Diagnostics& diag = problem.diagnostics();
   const double wall = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+  // the file summary must be reproducible (tools/test.sh): no timings, no round-off checks
   char line[256];
   std::vector<std::string> summary;
   std::snprintf(line, sizeof(line), "GaussNewton: %s, chi2 = %.6f, %d iterations", result.message.c_str(),
                 result.chi2, result.iterations);
   summary.push_back(line);
-  std::snprintf(line, sizeof(line), "fcn calls %d, theory evaluations %d, wall time %.1f s (fcn %.1f, Jacobian %.1f, algebra %.1f)",
-                evaluator.fcnCalls(), jacobian.evaluations(), wall, diag.fcnTime, diag.jacobianTime, diag.algebraTime);
-  summary.push_back(line);
-  std::snprintf(line, sizeof(line), "checks: max |module chi2 - fcn| = %.2e, max |H_bb^-1 g_b| = %.2e",
-                diag.maxChi2Mismatch, diag.maxShiftChange);
+  std::snprintf(line, sizeof(line), "fcn calls %d, theory evaluations %d", evaluator.fcnCalls(),
+                jacobian.evaluations());
   summary.push_back(line);
   for (const std::string& s : summary) std::printf("%s\n", s.c_str());
+  std::printf("wall time %.1f s (fcn %.1f, Jacobian %.1f, algebra %.1f)\n", wall, diag.fcnTime,
+              diag.jacobianTime, diag.algebraTime);
+  std::printf("checks: max |module chi2 - fcn| = %.2e, max |H_bb^-1 g_b| = %.2e\n", diag.maxChi2Mismatch,
+              diag.maxShiftChange);
 
   gn::writeParameters(_allParameterNames, result.x, errors);
   if (settings.covariance) gn::writeCovariance(_allParameterNames, covariance, summary);

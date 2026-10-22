@@ -28,6 +28,7 @@ struct LMIteration {
   double rho;        ///< actual / predicted decrease of the accepted step
   double lambda;     ///< damping used for the accepted step
   int trials;        ///< chi2 evaluations in this iteration
+  Eigen::VectorXd x; ///< parameters after the iteration
 };
 
 struct LMResult {
@@ -61,8 +62,9 @@ std::vector<bool> freeParameters(const Eigen::VectorXd& x, const Eigen::VectorXd
 /// +infinity if H is not positive definite there.
 double newtonDecrement(const QuadraticModel& model, const std::vector<bool>& free);
 
-/// Damped step (H + lambda diag|H|) dx = -g over the free parameters, Eq. (11);
-/// returns false if the damped matrix is not positive definite.
+/// Damped step (H + lambda diag|H|) dx = -g over the free parameters, Eq. (11), with
+/// diag|H| floored at 1e-8 max|H_ii|; returns false if the damped matrix is not positive
+/// definite or the step is not finite.
 bool dampedStep(const QuadraticModel& model, const std::vector<bool>& free, double lambda,
                 Eigen::VectorXd& dx);
 

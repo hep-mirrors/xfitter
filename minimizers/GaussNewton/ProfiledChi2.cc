@@ -35,6 +35,11 @@ QuadraticModel ProfiledChi2::model(const Eigen::VectorXd& p) {
     Timer::Scope timer(_diagnostics.jacobianTime);
     J = _jacobian.compute(p, _snapshot.theory);
   }
+  if (!J.allFinite()) {
+    // e.g. a perturbed parameter gives an invalid PDF: these derivatives are dropped
+    hf_errlog(2026102231, "W: GaussNewton: non-finite theory derivatives set to zero");
+    J = J.unaryExpr([](double v) { return std::isfinite(v) ? v : 0.; });
+  }
 
   Timer::Scope timer(_diagnostics.algebraTime);
   const PointModel pm = computePointModel(_snapshot);
