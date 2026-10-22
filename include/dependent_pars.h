@@ -12,6 +12,7 @@ namespace xfitter{
     std::string expression;//e.g. "= B-4.0*C^2 +.5*E"
   };
   void registerDependentParameters(const std::vector<DependentParameter>&dependentParameters);//Call only once
-  void updateDependentParameters();//Shall be called at each iteration, before parameterisations
+  //Shall be called at each iteration, before parameterisations; returns true if any dependent parameter has changed
+  bool updateDependentParameters();
   void resetDependentParameters();//Call at end to release memory (nobody calls it currently)
 }

@@ -240,12 +240,25 @@ void close_theor_eval_()
 void init_at_iteration_() {
   xfitter::updateDependentParameters();
 
-  for(const auto it:XFITTER_PARS::gParameterisations){
-    it.second->atIteration();
-  }
+  //Dependent parameters ("=expr") may use parameters set by the sum rules, e.g. "=0.1*Ag".
+  //Evaluate them again after the sum rules and repeat until they are stable, so that the
+  //result does not depend on the parameters of the previous call.
+  //In the usual case nothing changes and the loop runs once.
+  const int maxPasses=50;
+  for(int pass=1;;++pass){
+    for(const auto it:XFITTER_PARS::gParameterisations){
+      it.second->atIteration();
+    }
 
-  for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
-    pdfdecomposition.second->atIteration();//Among other things, sumrules are handled here
+    for ( auto pdfdecomposition : XFITTER_PARS::gPdfDecompositions) {
+      pdfdecomposition.second->atIteration();//Among other things, sumrules are handled here
+    }
+
+    if(!xfitter::updateDependentParameters())break;
+    if(pass==maxPasses){
+      hf_errlog(2026102240,"W: Dependent parameters and sum rules did not converge, results may depend on the call history");
+      break;
+    }
   }
 
   for(const auto it:XFITTER_PARS::gEvolutions){
