@@ -51,6 +51,9 @@ ObservedHessianResult observedHessian(Problem& problem, const Eigen::VectorXd& x
     double c = std::max(modelHessian(j, j), tiny);
     for (int pass = 0; pass < 2; ++pass) {
       h(j) = std::sqrt(2 * targetDelta / c);
+      // stay inside the bounds: the one-sided scheme needs 2h on one side
+      const double room = std::max(upper(j) - x(j), x(j) - lower(j));
+      if (room > 0) h(j) = std::min(h(j), room / 2);
       bool c2 = false;
       const double measured =
           diagonal(problem, x, f0, j, h(j), lower, upper, result.chi2Calls, side(j), fSide(j), fOther(j), c2);

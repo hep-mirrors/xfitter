@@ -26,7 +26,6 @@ bool FiniteDifferenceJacobian::isCentral(const Eigen::VectorXd& p, int j) const 
 
 Eigen::VectorXd FiniteDifferenceJacobian::column(const Eigen::VectorXd& p, const Eigen::VectorXd& t0, int j) {
   const double h = step(p, j);
-  const bool upOk = p(j) + h <= _upper(j);
   Eigen::VectorXd q = p;
   if (isCentral(p, j)) {
     q(j) = p(j) + h;
@@ -35,7 +34,10 @@ Eigen::VectorXd FiniteDifferenceJacobian::column(const Eigen::VectorXd& p, const
     const Eigen::VectorXd down = _evaluator.theory(q);
     return (up - down) / (2 * h);
   }
-  const double signedStep = upOk ? h : -h;  // one-sided, away from the bound
+  // one-sided, away from the bound; shortened if neither side has room for h
+  const double up = _upper(j) - p(j), down = p(j) - _lower(j);
+  double signedStep = up >= h ? h : (down >= h ? -h : (up >= down ? up : -down));
+  if (signedStep == 0) return Eigen::VectorXd::Zero(t0.size());
   q(j) = p(j) + signedStep;
   return (_evaluator.theory(q) - t0) / signedStep;
 }

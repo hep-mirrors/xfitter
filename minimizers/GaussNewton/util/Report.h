@@ -11,9 +11,10 @@
 namespace xfitter {
 namespace gn {
 
-/// parsout_0 and pars.yaml in the xFitter output directory
+/// parsout_0 and pars.yaml in the xFitter output directory. In pars.yaml a parameter without
+/// a valid error (covariance: 0, or a flat direction) gets its input step.
 void writeParameters(const std::vector<std::string>& names, const Eigen::VectorXd& values,
-                     const Eigen::VectorXd& errors);
+                     const Eigen::VectorXd& errors, const Eigen::VectorXd& steps);
 
 /// gaussnewton.out.txt: the summary lines, then covariance, correlation and global
 /// correlation coefficients
@@ -22,7 +23,7 @@ void writeCovariance(const std::vector<std::string>& names, const Eigen::MatrixX
 
 /// Parameters, errors and YAML block on stdout
 void printParameters(const std::vector<std::string>& names, const Eigen::VectorXd& values,
-                     const Eigen::VectorXd& errors);
+                     const Eigen::VectorXd& errors, const Eigen::VectorXd& steps);
 
 }
 }

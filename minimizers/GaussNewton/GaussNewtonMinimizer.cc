@@ -214,10 +214,10 @@ void GaussNewtonMinimizer::doMinimization() {
   std::printf("checks: max |module chi2 - fcn| = %.2e, max |H_bb^-1 g_b| = %.2e\n", diag.maxChi2Mismatch,
               diag.maxShiftChange);
 
-  gn::writeParameters(_allParameterNames, result.x, errors);
+  gn::writeParameters(_allParameterNames, result.x, errors, steps);
   if (settings.covariance) gn::writeCovariance(_allParameterNames, covariance, summary);
   evaluator.chi2(result.x, 3);
-  gn::printParameters(_allParameterNames, result.x, errors);
+  gn::printParameters(_allParameterNames, result.x, errors, steps);
 }
 
 void GaussNewtonMinimizer::errorAnalysis() {

@@ -35,9 +35,13 @@ void FortranBridge::checkSupported() const {
   if (c.covariancePoints > 0)
     hf_errlog(2026102211, "F: GaussNewton does not support covariance-matrix points yet, "
                           "use CovarToNuisance");
-  if (c.offsetSources > 0 || c.externalSources > 0)
-    hf_errlog(2026102212, "W: GaussNewton: Offset/External sources are not in the derivative "
-                          "model, convergence may be slower");
+  // External sources are fit parameters that enter the chi2 only through the shifts, not the
+  // theory: the derivative model has no gradient for them
+  if (c.externalSources > 0)
+    hf_errlog(2026102214, "F: GaussNewton does not support External systematic sources");
+  if (c.offsetSources > 0)
+    hf_errlog(2026102212, "W: GaussNewton: Offset sources are not in the derivative model, "
+                          "convergence may be slower");
   if (c.extraSystRescale || c.firstIterationRescale || c.asymmetricErrors)
     hf_errlog(2026102213, "W: GaussNewton: ExtraSystRescale, FirstIterationRescale or asymmetric "
                           "errors make the derivative model approximate, convergence may be slower");

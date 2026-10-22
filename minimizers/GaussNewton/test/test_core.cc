@@ -388,6 +388,22 @@ void testObservedHessian() {
   check((q.hessian - H).norm() < 1e-6 * H.norm(), "observed Hessian of a quadratic at a bound: " +
                                                       sci((q.hessian - H).norm() / H.norm()));
   std::printf("      %d chi2 calls for 3 parameters (model curvature off by 10: steps refined)\n", q.chi2Calls);
+
+  // narrow box [0, 0.1] around x = 0.05 with a small model curvature: no evaluation outside
+  double lowest = 1, highest = -1;
+  LeastSquares narrow(1,
+                      [&](const Eigen::VectorXd& y) {
+                        lowest = std::min(lowest, y(0));
+                        highest = std::max(highest, y(0));
+                        return Eigen::VectorXd(Eigen::VectorXd::Constant(1, 3 * (y(0) - 0.04)));
+                      },
+                      [&](const Eigen::VectorXd&) { return Eigen::MatrixXd::Constant(1, 1, 3.); });
+  narrow.lower = Eigen::VectorXd::Constant(1, 0);
+  narrow.upper = Eigen::VectorXd::Constant(1, 0.1);
+  const Eigen::VectorXd z = Eigen::VectorXd::Constant(1, 0.05);
+  const ObservedHessianResult b = observedHessian(narrow, z, narrow.chi2(z), Eigen::MatrixXd::Constant(1, 1, 1e-4));
+  check(lowest >= 0 && highest <= 0.1 && std::abs(b.hessian(0, 0) - 18) < 1e-8,
+        "observed Hessian stays inside narrow bounds");
 }
 
 }  // namespace
