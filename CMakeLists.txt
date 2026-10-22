@@ -137,6 +137,7 @@ add_subdirectory(src/ABM)
 #Minimizers
 add_subdirectory(minimizers/MINUIT)
 add_subdirectory(minimizers/CERES)
+add_subdirectory(minimizers/GaussNewton)
 
 #Parameterisations
 add_subdirectory(pdfparams/Pion_FF)
