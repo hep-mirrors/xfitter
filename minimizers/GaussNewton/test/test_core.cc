@@ -2,6 +2,7 @@
 // Build with -DXFITTER_GN_TESTS=ON and run gn_core_tests; exit code 0 means all passed.
 
 #include "core/LevenbergMarquardt.h"
+#include "core/ProfiledNuisances.h"
 
 #include <cmath>
 #include <cstdio>
@@ -14,6 +15,12 @@ using namespace xfitter::gn;
 namespace {
 
 int failures = 0;
+
+std::string sci(double x) {
+  char buffer[32];
+  std::snprintf(buffer, sizeof(buffer), "%.1e", x);
+  return buffer;
+}
 
 void check(bool ok, const std::string& what) {
   std::printf("%s  %s\n", ok ? "PASS" : "FAIL", what.c_str());
@@ -140,6 +147,203 @@ void testCovarianceScale() {
   check(std::abs(error - s / std::sqrt(n)) < 1e-12, "C = 2 H^-1 gives the Delta chi2 = 1 error");
 }
 
+
+/// Toy version of the xFitter chi2, Eq. (1): t(p) = T p + c (p_0 p_1)^2 (mildly nonlinear),
+/// theory-dependent sigma and Gamma, log term, nuisance shifts profiled exactly.
+struct ToyChi2 {
+  int n = 30, m = 5, P = 4;
+  bool linear = false;  // no t-dependence of sigma and Gamma, no log term, linear t(p)
+  Eigen::MatrixXd T, beta;
+  Eigen::VectorXd d, e_dt, e_tt, e_const, power, prior, alpha;
+  std::vector<bool> additive, logTerm;
+
+  explicit ToyChi2(bool lin) : linear(lin) {
+    std::srand(7);
+    T = (Eigen::MatrixXd::Random(n, P).array() * 0.3 + 1).matrix();
+    beta = Eigen::MatrixXd::Random(m, n) * 0.03;
+    d = Eigen::VectorXd::Constant(n, 2.0) + 0.2 * Eigen::VectorXd::Random(n);
+    e_dt = Eigen::VectorXd::Constant(n, 0.02 * 0.02);
+    e_tt = Eigen::VectorXd::Constant(n, 0.01 * 0.01);
+    for (int i = 0; i < n; i += 2) e_dt(i) = 0;  // these points have d2L/dt2 > 0
+    e_const = Eigen::VectorXd::Constant(n, 0.015 * 0.015);
+    power = Eigen::VectorXd(m);
+    power << 1, 0.5, 0, 1, 1;
+    prior = Eigen::VectorXd::Constant(m, 1.0);
+    prior(2) = 0.5;
+    alpha = Eigen::VectorXd::Constant(n, 0.05);
+    additive.assign(n, false);
+    additive[3] = true;
+    logTerm.assign(n, !linear);
+    if (linear) {
+      e_dt.setZero();
+      e_tt.setZero();
+      power.setZero();
+    }
+  }
+
+  Eigen::VectorXd theory(const Eigen::VectorXd& p) const {
+    Eigen::VectorXd t = T * p;
+    if (!linear) t.array() += 0.05 * std::pow(p(0) * p(1), 2);
+    return t;
+  }
+
+  /// Snapshot at theory t and shifts b, computed the way xFitter does
+  DataSnapshot snapshot(const Eigen::VectorXd& t, const Eigen::VectorXd& b) const {
+    DataSnapshot s;
+    s.data = d;
+    s.theory = t;
+    s.sigma.resize(n);
+    s.sigma2DT = e_dt;
+    s.sigma2TT = e_tt;
+    s.additive = additive;
+    s.logTerm = logTerm;
+    s.alpha = alpha;
+    s.gamma.resize(m, n);
+    s.gammaPower = power;
+    s.shifts = b;
+    s.priorScale = prior;
+    for (int i = 0; i < n; ++i) {
+      const double tt = t(i) > 0 ? t(i) : d(i);
+      s.sigma(i) = std::sqrt(e_dt(i) * std::abs(d(i) * tt) + e_tt(i) * tt * tt + e_const(i) * d(i) * d(i));
+      for (int k = 0; k < m; ++k) {
+        const double scale = additive[i] ? d(i) : std::pow(t(i), power(k)) * std::pow(d(i), 1 - power(k));
+        s.gamma(k, i) = beta(k, i) * scale;
+      }
+    }
+    return s;
+  }
+
+  /// Exact profile of b for fixed t: r is linear in b
+  Eigen::VectorXd profile(const Eigen::VectorXd& t) const {
+    const DataSnapshot s = snapshot(t, Eigen::VectorXd::Zero(m));
+    const PointModel pm = computePointModel(s);
+    Eigen::MatrixXd A = pm.dResidualdB * pm.dResidualdB.transpose();
+    A.diagonal() += prior;
+    return A.ldlt().solve(-pm.dResidualdB * pm.residual);
+  }
+
+  double chi2(const Eigen::VectorXd& p) const {
+    const Eigen::VectorXd t = theory(p);
+    return computePointModel(snapshot(t, profile(t))).chi2();
+  }
+
+  Eigen::MatrixXd jacobian(const Eigen::VectorXd& p) const {
+    Eigen::MatrixXd J(n, P);
+    for (int j = 0; j < P; ++j) {
+      Eigen::VectorXd up = p, dn = p;
+      up(j) += 1e-6;
+      dn(j) -= 1e-6;
+      J.col(j) = (theory(up) - theory(dn)) / 2e-6;
+    }
+    return J;
+  }
+};
+
+Eigen::VectorXd toyPoint() {
+  Eigen::VectorXd p(4);
+  p << 0.7, 0.9, 0.4, 0.5;
+  return p;
+}
+
+void testPointDerivatives() {
+  const ToyChi2 toy(false);
+  const Eigen::VectorXd t = toy.theory(toyPoint());
+  const Eigen::VectorXd b = toy.profile(t);
+  const PointModel pm = computePointModel(toy.snapshot(t, b));
+  double worst = 0, worstLog = 0, worstCurv = 0;
+  int positiveCurvature = 0;
+  for (int i = 0; i < toy.n; ++i) {
+    const double h = 1e-5 * t(i);
+    Eigen::VectorXd up = t, dn = t;
+    up(i) += h;
+    dn(i) -= h;
+    const PointModel pu = computePointModel(toy.snapshot(up, b));
+    const PointModel pd = computePointModel(toy.snapshot(dn, b));
+    const double a = (pu.residual(i) - pd.residual(i)) / (2 * h);
+    const double l1 = (pu.logTerm(i) - pd.logTerm(i)) / (2 * h);
+    const double l2 = (pu.logTerm(i) - 2 * pm.logTerm(i) + pd.logTerm(i)) / (h * h);
+    worst = std::max(worst, std::abs(a - pm.dResidualdT(i)) / std::abs(a));
+    worstLog = std::max(worstLog, std::abs(l1 - pm.dLogTermdT(i)) / std::abs(l1));
+    worstCurv = std::max(worstCurv, std::abs(std::max(l2, 0.) - pm.d2LogTermdT2(i)) / (std::abs(l2) + 1e-3));
+    if (l2 > 0) ++positiveCurvature;
+  }
+  check(positiveCurvature > 0 && positiveCurvature < toy.n, "log-term curvature has both signs");
+  check(worst < 1e-6, "dr/dt, Eq. (5), matches finite differences: " + sci(worst));
+  check(worstLog < 1e-6, "dL/dt, Eq. (6), matches finite differences: " + sci(worstLog));
+  check(worstCurv < 1e-3, "max(d2L/dt2, 0), Eq. (6), matches finite differences: " + sci(worstCurv));
+}
+
+void testProfiledGradient() {
+  const ToyChi2 toy(false);
+  const Eigen::VectorXd p = toyPoint();
+  const Eigen::VectorXd t = toy.theory(p);
+  const DataSnapshot s = toy.snapshot(t, toy.profile(t));
+  const PointModel pm = computePointModel(s);
+  const ProfiledModel prof = profileNuisances(pm, toy.jacobian(p), s.priorScale);
+  check(std::abs(pm.chi2() - toy.chi2(p)) < 1e-12 * toy.chi2(p), "module chi2 equals the toy chi2");
+  check(prof.shiftGradient.norm() < 1e-9, "g_b = 0 at the exact profile, Eq. (9)");
+  check(prof.shiftCorrection.norm() < 1e-9, "model shift correction = 0 at the exact profile");
+  double worst = 0;
+  for (int j = 0; j < toy.P; ++j) {
+    Eigen::VectorXd up = p, dn = p;
+    up(j) += 1e-5;
+    dn(j) -= 1e-5;
+    const double fd = (toy.chi2(up) - toy.chi2(dn)) / 2e-5;
+    worst = std::max(worst, std::abs(fd - prof.model.gradient(j)) / std::abs(fd));
+  }
+  check(worst < 1e-5, "profiled gradient, Eq. (9), matches FD of the profiled chi2: " + sci(worst));
+}
+
+void testSchurVersusJoint() {
+  // Linear case: the profiled Hessian is exact, and the profiled Newton step equals the
+  // p-part of the joint (p, b) Newton step.
+  const ToyChi2 toy(true);
+  const Eigen::VectorXd p = toyPoint();
+  const Eigen::VectorXd t = toy.theory(p);
+  const Eigen::VectorXd b = Eigen::VectorXd::Constant(toy.m, 0.3);  // not the profile
+  const DataSnapshot s = toy.snapshot(t, b);
+  const PointModel pm = computePointModel(s);
+  const Eigen::MatrixXd J = toy.jacobian(p);
+  const ProfiledModel prof = profileNuisances(pm, J, s.priorScale);
+
+  // joint residual vector and Jacobian, Eq. (7)
+  const int n = toy.n, m = toy.m, P = toy.P;
+  Eigen::MatrixXd Jj = Eigen::MatrixXd::Zero(n + m, P + m);
+  Jj.topLeftCorner(n, P) = pm.dResidualdT.asDiagonal() * J;
+  Jj.topRightCorner(n, m) = pm.dResidualdB.transpose();
+  Jj.bottomRightCorner(m, m) = s.priorScale.cwiseSqrt().asDiagonal();
+  Eigen::VectorXd rj(n + m);
+  rj << pm.residual, pm.prior;
+  const Eigen::VectorXd joint = (Jj.transpose() * Jj).ldlt().solve(-Jj.transpose() * rj);
+  const Eigen::VectorXd schur = prof.model.hessian.ldlt().solve(-prof.model.gradient);
+  check((joint.head(P) - schur).norm() < 1e-9 * joint.head(P).norm(), "Schur step equals the joint step");
+  check((b + joint.tail(m) - toy.profile(toy.theory(p + schur))).norm() < 1e-9,
+        "joint step lands on the exact profile");
+
+  // the profiled Hessian equals the FD Hessian of the profiled chi2
+  double worst = 0;
+  for (int j = 0; j < P; ++j)
+    for (int k = 0; k < P; ++k) {
+      const double h = 1e-3;
+      Eigen::VectorXd pp = p, pm_ = p, mp = p, mm = p;
+      pp(j) += h; pp(k) += h;
+      pm_(j) += h; pm_(k) -= h;
+      mp(j) -= h; mp(k) += h;
+      mm(j) -= h; mm(k) -= h;
+      const double fd = (toy.chi2(pp) - toy.chi2(pm_) - toy.chi2(mp) + toy.chi2(mm)) / (4 * h * h);
+      worst = std::max(worst, std::abs(fd - prof.model.hessian(j, k)) / prof.model.hessian.norm());
+    }
+  check(worst < 1e-6, "profiled Hessian, Eq. (9), matches FD in the linear case: " + sci(worst));
+}
+
+void testCovarianceFallback() {
+  Eigen::MatrixXd H(2, 2);
+  H << 2, 0, 0, 0;  // second direction flat
+  Eigen::MatrixXd C;
+  const bool pd = covarianceFromHessian(H, C);
+  check(!pd && std::abs(C(0, 0) - 1) < 1e-12 && C(1, 1) == 0, "covariance pseudo-inverse fallback, Eq. (10)");
+}
+
 }  // namespace
 
 int main() {
@@ -148,6 +352,10 @@ int main() {
   testBounds();
   testCorrelatedBounds();
   testCovarianceScale();
+  testPointDerivatives();
+  testProfiledGradient();
+  testSchurVersusJoint();
+  testCovarianceFallback();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);
   return failures ? 1 : 0;
 }
