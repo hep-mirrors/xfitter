@@ -13,6 +13,7 @@ endif()
 # core/: pure numerics (Eigen + std), shared by the plugin and the unit tests
 set(GN_CORE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/core/ExtraSystRescale.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/core/IterativeHessian.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/core/LevenbergMarquardt.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/core/LinearResponse.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/core/ObservedHessian.cc
@@ -26,6 +27,7 @@ add_library(${TARGET} MODULE
   ProfiledChi2.cc
   DerivativeCheck.cc
   bridge/xfitter_gn_bridge.f
+  bridge/xfitter_gn_bands.f
   bridge/FortranBridge.cc
   bridge/InputPdfs.cc
   bridge/TheoryEvaluator.cc

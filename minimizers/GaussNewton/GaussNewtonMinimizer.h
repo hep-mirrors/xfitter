@@ -2,6 +2,8 @@
 
 #include "BaseMinimizer.h"
 
+#include <Eigen/Dense>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -32,7 +34,12 @@ namespace xfitter {
                               double const* bounds = nullptr, double const* priors = nullptr) override final;
 
   private:
+    /// doErrors: Pumplin, the 2P eigenvector members (README.md, Eq. 18)
+    void pumplinBands();
+
     ConvergenceStatus _convergenceStatus = ConvergenceStatus::NORUN;
+    Eigen::VectorXd _pumplinCenter;          ///< minimum
+    Eigen::MatrixXd _pumplinDisplacements;   ///< eigenvector displacements, one per column
     std::vector<double> _parameterUncertainties;
     /// YAML steps by name. Parameters added from Fortran (AddExternalParam) bypass
     /// addParameter and get a default step.

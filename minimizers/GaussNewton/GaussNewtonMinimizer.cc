@@ -12,6 +12,7 @@
 #include "bridge/FortranBridge.h"
 #include "bridge/InputPdfs.h"
 #include "bridge/TheoryEvaluator.h"
+#include "core/IterativeHessian.h"
 #include "core/LevenbergMarquardt.h"
 #include "core/ObservedHessian.h"
 #include "jacobian/FactorisedJacobian.h"
@@ -32,6 +33,9 @@ extern "C" {
   void iofilenamesmini_();
   void reset_extra_parameters_();
   void errbandssym_();
+  int gn_ntot_();
+  void gn_pumplin_member_(const int& j, const int& idir, const int& mpar, double* theoVars);
+  void gn_pumplin_finish_(const int& mpar, double* theoVars);
 }
 
 namespace xfitter {
@@ -53,6 +57,8 @@ struct Settings {
   bool centralHessian = true;   ///< central off-diagonal second differences
   double hessianDelta = 1e-3;   ///< chi2 change targeted by the second-difference steps
   bool checkDerivatives = false;
+  bool pumplin = false;  ///< doErrors: Pumplin, iterative Hessian and eigenvector sets, Eq. (18)
+  gn::IterativeHessianOptions iterative;
 };
 
 /// The GaussNewton block of parameters.yaml (README.md, "Steering")
@@ -62,7 +68,8 @@ Settings readSettings() {
   if (!node.IsMap()) return s;
   const std::set<std::string> known = {"maxIterations", "tolerance", "lambda0", "jacobian", "fdScheme",
                                        "fdStep", "threads", "spanTolerance", "covariance", "hessian",
-                                       "hessianScheme", "hessianDelta", "doErrors", "checkDerivatives"};
+                                       "hessianScheme", "hessianDelta", "doErrors", "checkDerivatives",
+                                       "pumplinIterations", "pumplinDelta", "pumplinTolerance"};
   for (const auto& item : node)
     if (!known.count(item.first.as<std::string>()))
       hf_errlog(2026102250, "W: GaussNewton: unknown steering key " + item.first.as<std::string>());
@@ -92,6 +99,12 @@ Settings readSettings() {
   s.centralHessian = hessianScheme == "central";
   s.hessianDelta = node["hessianDelta"].as<double>(s.hessianDelta);
   s.checkDerivatives = node["checkDerivatives"].as<int>(0) != 0;
+  s.pumplin = node["doErrors"].as<std::string>("None") == "Pumplin";
+  s.iterative.maxIterations = node["pumplinIterations"].as<int>(s.iterative.maxIterations);
+  s.iterative.delta = node["pumplinDelta"].as<double>(s.iterative.delta);
+  s.iterative.tolerance = node["pumplinTolerance"].as<double>(s.iterative.tolerance);
+  s.iterative.central = s.centralHessian;
+  if (s.pumplin && !s.covariance) hf_errlog(2026102280, "F: GaussNewton: doErrors: Pumplin needs covariance: 1");
   return s;
 }
 
@@ -180,7 +193,24 @@ void GaussNewtonMinimizer::doMinimization() {
   int hessianCalls = 0;
   if (settings.covariance) {
     Eigen::MatrixXd hessian = result.model.hessian;
-    if (settings.observedHessian) {
+    if (settings.pumplin) {
+      // replaces the observed Hessian: its first iteration is one, with steps of Delta chi2 = delta
+      const gn::IterativeHessianResult iterated =
+          gn::iterativeHessian(problem, result.x, result.chi2, hessian, settings.iterative);
+      hessianCalls = iterated.chi2Calls;
+      std::printf("GaussNewton: Pumplin iterative Hessian, %d iterations, %d chi2 calls, max |H_y/2 - 1| = %.3f%s\n",
+                  iterated.iterations, iterated.chi2Calls, iterated.deviation,
+                  iterated.converged ? "" : " (not converged)");
+      if (!iterated.converged)
+        hf_errlog(2026102281, "W: GaussNewton: Pumplin iterative Hessian not converged, see pumplinIterations");
+      if (iterated.droppedPairs > 0)
+        hf_errlog(2026102285, "W: GaussNewton: Pumplin: some correlations not measured (invalid or far points)");
+      if (iterated.lowestChi2 < result.chi2 - 1e-2)
+        hf_errlog(2026102282, "W: GaussNewton: a lower chi2 was found around the minimum: not converged");
+      hessian = iterated.hessian;
+      _pumplinDisplacements = iterated.displacements;
+      _pumplinCenter = result.x;
+    } else if (settings.observedHessian) {
       const gn::ObservedHessianResult observed = gn::observedHessian(
           problem, result.x, result.chi2, hessian, settings.hessianDelta, settings.centralHessian);
       hessianCalls = observed.chi2Calls;
@@ -252,9 +282,34 @@ void GaussNewtonMinimizer::errorAnalysis() {
     }
     hf_errlog(12020506, "I: Calculation of symmetric error bands required");
     errbandssym_();
+  } else if (bandType == "Pumplin") {
+    pumplinBands();
   } else if (bandType != "None") {
     hf_errlog(2026102258, "W: GaussNewton: unknown doErrors type " + bandType);
   }
+}
+
+void GaussNewtonMinimizer::pumplinBands() {
+  const int npar = static_cast<int>(_pumplinCenter.size());
+  if (npar == 0 || _pumplinDisplacements.cols() != npar) {
+    hf_errlog(2026102283, "S: GaussNewton doErrors=Pumplin: no eigenvectors (covariance=0?)");
+    return;
+  }
+  if (npar > 40) {
+    hf_errlog(2026102284, "S: GaussNewton doErrors=Pumplin: at most 40 parameters (file names)");
+    return;
+  }
+  hf_errlog(12020506, "I: Calculation of error bands required");
+  double** pars = getPars();
+  std::vector<double> theoVars(static_cast<size_t>(gn_ntot_()) * 2 * npar, 0.);
+  for (int j = 0; j < npar; ++j)
+    for (const int idir : {-1, 1}) {
+      for (int i = 0; i < npar; ++i) *pars[i] = _pumplinCenter(i) + idir * _pumplinDisplacements(i, j);
+      gn_pumplin_member_(j + 1, idir, npar, theoVars.data());
+    }
+  for (int i = 0; i < npar; ++i) *pars[i] = _pumplinCenter(i);
+  delete[] pars;
+  gn_pumplin_finish_(npar, theoVars.data());
 }
 
 ConvergenceStatus GaussNewtonMinimizer::convergenceStatus() {

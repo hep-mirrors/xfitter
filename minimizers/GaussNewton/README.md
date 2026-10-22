@@ -33,7 +33,11 @@ GaussNewton:
   hessian: observed           # observed (second differences of the chi2) | gaussnewton
   hessianScheme: central      # central: O(h^2), P(P+1) chi2 calls | forward: O(h), P(P+3)/2 calls, as HESSE
   hessianDelta: 1.e-3         # chi2 change targeted by the second-difference steps
-  doErrors: Hesse             # Hesse | None: symmetric PDF error bands from C
+  doErrors: Hesse             # Hesse: symmetric bands from C | Pumplin: iterative Hessian, Eq. (18),
+                              #   and 2P asymmetric eigenvector members, as MINUIT ITERATE | None
+  pumplinIterations: 10       # Pumplin: at most this many iterations
+  pumplinDelta: 1.            # Pumplin: chi2 rise of the steps along the eigenvectors (MINUIT UP)
+  pumplinTolerance: 0.02      # Pumplin: stop when max |H_y/2 - 1| < this, Eq. (18)
   checkDerivatives: 0         # 1: compare the model with finite differences of fcn at the start
 ```
 
@@ -182,6 +186,23 @@ otherwise a finite-difference column, which also adds the pair of its two points
 of parameters that do not change f0 (α_s, masses, normalisations: F_j = 0) are always
 finite differences, and Q, Z are dropped when such a parameter moves (K depends on it).
 This is exact, but with a free α_s it removes the gain.
+**(18) Pumplin errors** (`doErrors: Pumplin`, hep-ph/0008191, as MINUIT `ITERATE`). With
+the eigen-decomposition H = Σ ε_j v_j v_jᵀ, the displacements U_j = v_j √(2/ε_j) raise the χ²
+by 1 in the quadratic approximation, and in the coordinates y of x = x̂ + U y the Hessian is
+2·1. An iteration measures it, H_y: as MINUIT ITERATE, the step along each eigenvector is
+searched (up to 6 batches) so that the average rise of the χ² at ±step is within
+[½, 2]·`pumplinDelta`; a non-finite or very large χ² (invalid PDF) shortens the step, a flat
+or concave direction lengthens it, and a direction without a usable rise keeps its
+curvature. The off-diagonal terms use these steps (central differences); a pair with a χ²
+more than 100·`pumplinDelta` above the minimum is not used. Then H ← U⁻ᵀ H_y U⁻¹ (with the
+eigenvalues of H_y kept ≥ 0.02, so the errors grow at most 10× per iteration), until
+max |H_y/2 − 1| < `pumplinTolerance`; otherwise the most self-consistent iteration is used.
+The start is the Gauss–Newton Hessian; the first iteration then replaces the observed
+Hessian. C = 2 H⁻¹ is written as the covariance, and the 2P members x̂ ± U_j of the final H
+give the same files as MINUIT (`pdfs_q2val_sNN{m,p}`, LHAPDF `hessian` set with 2P + 1
+members, asymmetric theory
+uncertainties). The χ² calls of an iteration are independent and run in `threads`
+processes.
 
 ## 4. Design decisions
 

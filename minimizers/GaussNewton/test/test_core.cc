@@ -2,6 +2,7 @@
 // Build with -DXFITTER_GN_TESTS=ON and run gn_core_tests; exit code 0 means all passed.
 
 #include "core/ExtraSystRescale.h"
+#include "core/IterativeHessian.h"
 #include "core/LevenbergMarquardt.h"
 #include "core/LinearResponse.h"
 #include "core/ObservedHessian.h"
@@ -622,6 +623,87 @@ void testApproximateModel() {
             ", minimum as with the exact model (" + sci((a.x - b.x).norm()) + ")");
 }
 
+/// chi2 = 1/2 z^T diag(lambda) z + kappa z_2^4 (weakest direction), z = R (x - x0), with a rotation R
+class RotatedQuartic : public Problem {
+public:
+  explicit RotatedQuartic(double kappa) : _kappa(kappa) {
+    _lambda = (Eigen::VectorXd(3) << 50., 2., 0.08).finished();
+    const double a = 0.6, b = 0.4;
+    Eigen::Matrix3d Rx, Rz;
+    Rx << 1, 0, 0, 0, std::cos(a), -std::sin(a), 0, std::sin(a), std::cos(a);
+    Rz << std::cos(b), -std::sin(b), 0, std::sin(b), std::cos(b), 0, 0, 0, 1;
+    _R = Rx * Rz;
+    _x0 = Eigen::Vector3d(0.3, -1.2, 4.0);
+  }
+  int size() const override { return 3; }
+  double chi2(const Eigen::VectorXd& x) override {
+    const Eigen::Vector3d z = _R * (x - _x0);
+    return 100 + 0.5 * z.dot(_lambda.cwiseProduct(z)) + _kappa * std::pow(z(2), 4);
+  }
+  QuadraticModel model(const Eigen::VectorXd&) override { return {}; }
+  Eigen::MatrixXd hessian() const { return _R.transpose() * _lambda.asDiagonal() * _R; }
+  const Eigen::VectorXd& x0() const { return _x0; }
+  const Eigen::Matrix3d& rotation() const { return _R; }
+
+private:
+  double _kappa;
+  Eigen::VectorXd _lambda, _x0;
+  Eigen::Matrix3d _R;
+};
+
+/// Iterative Hessian (hep-ph/0008191): exact for a quadratic from a wrong start; with a quartic
+/// term the eigenvector displacements give Delta chi2 = 1 better than the small-step Hessian
+void testIterativeHessian() {
+  RotatedQuartic quadratic(0);
+  const Eigen::MatrixXd exact = quadratic.hessian();
+  const Eigen::MatrixXd start = Eigen::MatrixXd(exact.diagonal().asDiagonal()) * 3;  // wrong scale and no correlations
+  IterativeHessianOptions options;
+  const IterativeHessianResult q = iterativeHessian(quadratic, quadratic.x0(), 100, start, options);
+  const double error = (q.hessian - exact).norm() / exact.norm();
+  check(q.converged && q.iterations <= 3 && error < 1e-6,
+        "iterative Hessian of a quadratic: " + std::to_string(q.iterations) + " iterations, error " + sci(error));
+
+  RotatedQuartic quartic(0.002);
+  const IterativeHessianResult r = iterativeHessian(quartic, quartic.x0(), 100, quartic.hessian(), options);
+  Eigen::MatrixXd small;
+  eigenDisplacements(observedHessian(quartic, quartic.x0(), 100, quartic.hessian(), 1e-4, true).hessian, small);
+  double worstIterated = 0, worstSmall = 0;
+  for (int j = 0; j < 3; ++j)
+    for (const double sign : {-1., 1.}) {
+      worstIterated = std::max(worstIterated, std::abs(quartic.chi2(quartic.x0() + sign * r.displacements.col(j)) - 101));
+      worstSmall = std::max(worstSmall, std::abs(quartic.chi2(quartic.x0() + sign * small.col(j)) - 101));
+    }
+  check(r.converged && worstIterated < 0.05 && worstSmall > 0.5,
+        "iterative Hessian with a quartic term: |Delta chi2 - 1| " + sci(worstIterated) + " (small steps " +
+            sci(worstSmall) + "), " + std::to_string(r.iterations) + " iterations");
+}
+
+/// Iterative Hessian from a poor start (25x too small curvature along the weakest direction,
+/// as a Gauss-Newton Hessian of a nearly degenerate gluon) with an invalid region (chi2 = 1e10,
+/// as fcn for an invalid PDF) just beyond the first, far too long steps
+void testIterativeHessianRobust() {
+  class Walled : public RotatedQuartic {
+  public:
+    using RotatedQuartic::RotatedQuartic;
+    double chi2(const Eigen::VectorXd& x) override {
+      const Eigen::Vector3d z = rotation() * (x - x0());
+      return std::abs(z(2)) > 8 ? 1e10 : RotatedQuartic::chi2(x);
+    }
+  };
+  Walled walled(0.002);
+  const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigen(walled.hessian());
+  Eigen::VectorXd values = eigen.eigenvalues();
+  values(0) /= 25;  // weakest direction
+  const Eigen::MatrixXd start = eigen.eigenvectors() * values.asDiagonal() * eigen.eigenvectors().transpose();
+  const IterativeHessianResult r = iterativeHessian(walled, walled.x0(), 100, start, IterativeHessianOptions());
+  double worst = 0;
+  for (int j = 0; j < 3; ++j)
+    for (const double sign : {-1., 1.})
+      worst = std::max(worst, std::abs(walled.chi2(walled.x0() + sign * r.displacements.col(j)) - 101));
+  check(r.converged && worst < 0.05, "iterative Hessian from a 25x wrong start with an invalid region: " +
+                                         std::to_string(r.iterations) + " iterations, |Delta chi2 - 1| " + sci(worst));
+}
+
 int main() {
   testLinearLeastSquares();
   testRosenbrock();
@@ -638,6 +720,8 @@ int main() {
   testApproximateModel();
   testLinearResponse();
   testLinearResponseFit();
+  testIterativeHessian();
+  testIterativeHessianRobust();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);
   return failures ? 1 : 0;
 }
