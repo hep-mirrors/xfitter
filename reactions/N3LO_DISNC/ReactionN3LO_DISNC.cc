@@ -146,14 +146,40 @@ void ReactionN3LO_DISNC::atIteration()
     computeFromPDFs();
     const auto f2 = _f2fonll, fl = _flfonll, f3 = _f3fonll;
     computeFromFK();
+    // per structure function: the largest |F_FK - F| / |F2| (the size that matters for the
+    // cross section) and the point where it occurs
     double worst = 0;
-    for (auto const& t : _f2fonll)
-      for (size_t i = 0; i < t.second.size(); ++i)
-        for (auto const& pair : {std::make_pair(f2.at(t.first)[i], _f2fonll[t.first][i]),
-                                 std::make_pair(fl.at(t.first)[i], _flfonll[t.first][i]),
-                                 std::make_pair(f3.at(t.first)[i], _f3fonll[t.first][i])})
-          if (pair.first != 0) worst = std::max(worst, std::abs(pair.second / pair.first - 1));
-    std::cout << "N3LO_DISNC FK check: max |F_FK / F - 1| = " << worst << std::endl;
+    const char* names[3] = {"F2", "FL", "xF3"};
+    for (int k = 0; k < 3; ++k) {
+      const auto& ref = k == 0 ? f2 : k == 1 ? fl : f3;
+      const auto& fk = k == 0 ? _f2fonll : k == 1 ? _flfonll : _f3fonll;
+      double kWorst = 0, kRel = 0, kX = 0, kQ2 = 0, kF = 0, kF2 = 0;
+      unsigned kID = 0;
+      for (auto const& t : fk) {
+        TermData* td = GetTermData(t.first);
+        const valarray<double>& q2 = *GetBinValues(td, "Q2");
+        const valarray<double>& x = *GetBinValues(td, "x");
+        for (size_t i = 0; i < t.second.size(); ++i) {
+          const double norm = std::abs(f2.at(t.first)[i]);
+          if (norm == 0) continue;
+          const double d = std::abs(t.second[i] - ref.at(t.first)[i]) / norm;
+          if (d > kWorst) {
+            kWorst = d;
+            kRel = ref.at(t.first)[i] != 0 ? std::abs(t.second[i] / ref.at(t.first)[i] - 1) : 0;
+            kID = t.first;
+            kX = x[i];
+            kQ2 = q2[i];
+            kF = ref.at(t.first)[i];
+            kF2 = f2.at(t.first)[i];
+          }
+        }
+      }
+      std::cout << "N3LO_DISNC FK check " << names[k] << ": max |F_FK - F| / |F2| = " << kWorst
+                << " (dataset " << kID << ", x = " << kX << ", Q2 = " << kQ2 << ", F = " << kF
+                << ", F2 = " << kF2 << ", |F_FK / F - 1| = " << kRel << ")" << std::endl;
+      worst = std::max(worst, kWorst);
+    }
+    std::cout << "N3LO_DISNC FK check: max |F_FK - F| / |F2| = " << worst << std::endl;
     if (!(worst < 1e-4))
       hf_errlog(26102305, "W: Reaction N3LO_DISNC: FK tables differ from the default computation by more than 1e-4");
     return;
