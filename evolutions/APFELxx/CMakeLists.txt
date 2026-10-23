@@ -4,7 +4,7 @@ if(NOT APFELxx_FOUND)
 endif()
 
 set(TARGET evolutionAPFELxx)
-add_library(${TARGET} SHARED EvolutionAPFELxx.cc)
+add_library(${TARGET} SHARED EvolutionAPFELxx.cc FKTables.cc)
 target_link_libraries(${TARGET} PRIVATE xfitter)
 target_link_libraries(${TARGET} PUBLIC APFELxx)
 target_include_directories(${TARGET} PUBLIC .)

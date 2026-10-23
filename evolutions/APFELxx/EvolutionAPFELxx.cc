@@ -63,6 +63,8 @@ namespace xfitter
     //IMod[9] = yamlNode["aqqHns"].as<int>();
 
     _DglapObj = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses, _Thresholds, false, 1e-5, n3lo, IMod);
+    _IMod = IMod;
+    _N3LO = n3lo;
 
     _Masses3F = {0, 0, 0};
     _Thresholds3F = _Masses3F;
@@ -144,7 +146,51 @@ namespace xfitter
           QGrid[1].as<double>(),
           QGrid[2].as<double>(),
           QGrid[3].as<int>()});
-    
+
+    // Evolution operators for FK tables: only when requested and when the coupling or Q0 changed
+    if (_OperatorsRequested) {
+      const std::vector<double> key = {*Alphas_ref, *Q_ref, *Q0, double(PtOrder)};
+      if (key != _OperatorKey) {
+        BuildOperators(*Q0, PtOrder);
+        _OperatorKey = key;
+        ++_OperatorVersion;
+      }
+    }
+  }
+
+  void EvolutionAPFELxx::RequestOperators() {
+    if (_OperatorsRequested) return;
+    _OperatorsRequested = true;
+    _DglapObjOp   = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses,   _Thresholds,   true, 1e-5, _N3LO, _IMod);
+    _DglapObjOp3F = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses3F, _Thresholds3F, true, 1e-5, _N3LO, _IMod);
+    _DglapObjOp4F = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses4F, _Thresholds4F, true, 1e-5, _N3LO, _IMod);
+  }
+
+  void EvolutionAPFELxx::BuildOperators(double Q0, int PtOrder) {
+    // the same Q grid as the PDF tables, so that the Q interpolation is the same
+    const YAML::Node QGrid = XFITTER_PARS::getEvolutionNode(_name)["QGrid"];
+    const auto tabulate = [&] (std::map<int,apfel::DglapObjects> const& obj, std::function<double(double const&)> const& as) {
+      const auto ops = apfel::BuildDglap(obj, Q0, PtOrder, as);
+      return std::unique_ptr<fk::OperatorTable>(new fk::OperatorTable{*ops, QGrid[0].as<int>(), QGrid[1].as<double>(),
+                                                                      QGrid[2].as<double>(), QGrid[3].as<int>()});
+    };
+    _TabulatedOps   = tabulate(_DglapObjOp,   _AlphaQCD);
+    _TabulatedOps3F = tabulate(_DglapObjOp3F, _AlphaQCD3F);
+    _TabulatedOps4F = tabulate(_DglapObjOp4F, _AlphaQCD4F);
+  }
+
+  fk::OperatorTable const& EvolutionAPFELxx::GetOperatorTable(int nf) const {
+    const std::unique_ptr<fk::OperatorTable>& t = nf == 3 ? _TabulatedOps3F : (nf == 4 ? _TabulatedOps4F : _TabulatedOps);
+    if (!t) hf_errlog(26102301, "F: EvolutionAPFELxx: evolution operators not built, call RequestOperators()");
+    return *t;
+  }
+
+  std::map<int, apfel::Distribution> EvolutionAPFELxx::InputDistributions() const {
+    const double* Q0 = XFITTER_PARS::getParamD("Q0");
+    BasePdfDecomposition* in = _inPDFs;
+    return apfel::DistributionMap(*_Grid, [=] (double const& x, double const&) -> std::map<int,double> {
+      return apfel::PhysToQCDEv(in->xfxMap(x));
+    }, *Q0);
   }
   apfel::TabulateObject<apfel::Set<apfel::Distribution>> EvolutionAPFELxx::GetTabulatedPDFs() {return *_TabulatedPDFs;};
   std::function<double(double const& Q)>                 EvolutionAPFELxx::GetAlphaQCD() {return _AlphaQCD;};

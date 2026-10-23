@@ -5,6 +5,8 @@
 #include <iostream>
 #include <iomanip>
 #include "ReactionN3LO_DISCC.h"
+#include <cmath>
+#include <algorithm>
 #include "xfitter_pars.h"
 #include "xfitter_steer.h"
 #include "xfitter_cpp_base.h"
@@ -36,6 +38,27 @@ void ReactionN3LO_DISCC::atStart()
     sgv.push_back(apfel::SubGrid{sg[0].as<int>(), sg[1].as<double>(), sg[2].as<int>()});
 
   Grid = std::unique_ptr<const apfel::Grid>(new apfel::Grid(sgv));
+  _grid = Grid.get();
+
+  // FK mode, as N3LO_DISNC
+  if (yamlNode["FK"]) _fk = yamlNode["FK"].as<int>() != 0;
+  if (yamlNode["FKcheck"]) _fkCheck = yamlNode["FKcheck"].as<int>();
+  if (_fk) {
+    xfitter::BaseEvolution* evolution = xfitter::get_evolution();
+    if (evolution->getClassName() != string("APFELxx"))
+      hf_errlog(26102306, "F: Reaction N3LO_DISCC: FK mode needs the APFELxx evolution as default evolution");
+    _apfelxx = static_cast<xfitter::EvolutionAPFELxx*>(evolution);
+    const YAML::Node evolutionGrid = XFITTER_PARS::getEvolutionNode(evolution->_name)["xGrid"];
+    bool same = evolutionGrid.size() == xGrid.size();
+    for (size_t i = 0; same && i < xGrid.size(); ++i)
+      same = evolutionGrid[i][0].as<int>() == xGrid[i][0].as<int>() && evolutionGrid[i][1].as<double>() == xGrid[i][1].as<double>()
+             && evolutionGrid[i][2].as<int>() == xGrid[i][2].as<int>();
+    if (!same)
+      hf_errlog(26102307, "F: Reaction N3LO_DISCC: FK mode needs the same xGrid as the APFELxx evolution");
+    _grid = &_apfelxx->GetGrid();
+    _apfelxx->RequestOperators();
+    hf_errlog(26102308, "I: Reaction N3LO_DISCC: FK mode, structure functions from FK tables of the APFELxx evolution operators");
+  }
 
   // Vectors of thresholds
   const double* MCharm   = XFITTER_PARS::getParamD("mch");
@@ -44,12 +67,12 @@ void ReactionN3LO_DISCC::atStart()
   Thresholds = {0, 0, 0, *MCharm, *MBottom, *MTop};
 
   // Initialize coefficient functions
-  F2PlusCCObj  = InitializeF2CCPlusObjectsZM (*Grid, Thresholds);
-  F2MinusCCObj = InitializeF2CCMinusObjectsZM(*Grid, Thresholds);
-  FLPlusCCObj  = InitializeFLCCPlusObjectsZM (*Grid, Thresholds);
-  FLMinusCCObj = InitializeFLCCMinusObjectsZM(*Grid, Thresholds);
-  F3PlusCCObj  = InitializeF3CCPlusObjectsZM (*Grid, Thresholds);
-  F3MinusCCObj = InitializeF3CCMinusObjectsZM(*Grid, Thresholds);
+  F2PlusCCObj  = InitializeF2CCPlusObjectsZM (*_grid, Thresholds);
+  F2MinusCCObj = InitializeF2CCMinusObjectsZM(*_grid, Thresholds);
+  FLPlusCCObj  = InitializeFLCCPlusObjectsZM (*_grid, Thresholds);
+  FLMinusCCObj = InitializeFLCCMinusObjectsZM(*_grid, Thresholds);
+  F3PlusCCObj  = InitializeF3CCPlusObjectsZM (*_grid, Thresholds);
+  F3MinusCCObj = InitializeF3CCMinusObjectsZM(*_grid, Thresholds);
 }
 
 void ReactionN3LO_DISCC::initTerm(TermData *td)
@@ -80,9 +103,38 @@ void ReactionN3LO_DISCC::initTerm(TermData *td)
 // by the specific functions.
 void ReactionN3LO_DISCC::atIteration()
 {
-  bool tabulate = true;
-  
   ReactionBaseDISCC::atIteration();
+  if (!_fk) {
+    computeFromPDFs();
+    return;
+  }
+  if (_fkVersion != _apfelxx->OperatorVersion()) {
+    buildFK();
+    _fkVersion = _apfelxx->OperatorVersion();
+    if (_fkCheck) {
+      computeFromPDFs();
+      const auto f2 = _f2fonll, fl = _flfonll, f3 = _f3fonll;
+      computeFromFK();
+      double worst = 0;
+      for (auto const& t : _f2fonll)
+        for (size_t i = 0; i < t.second.size(); ++i)
+          for (auto const& pair : {std::make_pair(f2.at(t.first)[i], _f2fonll[t.first][i]),
+                                   std::make_pair(fl.at(t.first)[i], _flfonll[t.first][i]),
+                                   std::make_pair(f3.at(t.first)[i], _f3fonll[t.first][i])})
+            if (pair.first != 0) worst = std::max(worst, std::abs(pair.second / pair.first - 1));
+      std::cout << "N3LO_DISCC FK check: max |F_FK / F - 1| = " << worst << std::endl;
+      if (!(worst < 1e-4))
+        hf_errlog(26102309, "W: Reaction N3LO_DISCC: FK tables differ from the default computation by more than 1e-4");
+      return;
+    }
+  }
+  computeFromFK();
+}
+
+// Default computation: structure functions from the evolved PDFs
+void ReactionN3LO_DISCC::computeFromPDFs()
+{
+  bool tabulate = true;
 
   // CKM matrix elements --> should read from yaml
   const double Vud = *(XFITTER_PARS::getParamD("Vud"));
@@ -233,6 +285,77 @@ void ReactionN3LO_DISCC::atIteration()
 }
 
 // N3LO structure functions
+// FK mode: rows of F2, FL, xF3 per point (FKTables.h), as computeFromPDFs
+void ReactionN3LO_DISCC::buildFK()
+{
+  using xfitter::fk::OperatorTable;
+  using xfitter::fk::TabulateFK;
+  const YAML::Node QGrid = XFITTER_PARS::rootNode["byReaction"]["N3LO_DISCC"]["QGrid"];
+  const int n = QGrid[0].as<int>();
+  const double qmin = QGrid[1].as<double>(), qmax = QGrid[2].as<double>();
+  const int ord = QGrid[3].as<int>();
+  const int PO = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
+  const std::function<std::vector<double>(double const&)> fCKM = [] (double const&) -> std::vector<double> { return apfel::CKM2; };
+  xfitter::EvolutionAPFELxx* e = _apfelxx;
+  const std::function<double(double const&)> as = [e] (double const& Q) { return e->getAlphaS(Q); };
+  OperatorTable const& E5 = _apfelxx->GetOperatorTable(5);
+  const auto tab = [&] (decltype(F2PlusCCObj) const& obj, std::vector<int> const& k) {
+    return TabulateFK(obj, k, PO, as, fCKM, E5, n, qmin, qmax, ord, Thresholds);
+  };
+  const int nJoint = static_cast<int>(_apfelxx->InputDistributions().at(0).GetDistributionJointGrid().size());
+  _fkRows.clear();
+  for (const bool charmOnly : {false, true}) {
+    const auto flav = charmOnly ? BaseDISCC::dataFlav::c : BaseDISCC::dataFlav::incl;
+    bool any = false;
+    for (auto tdpair : _dsIDs)
+      any = any || ((BaseDISCC::ReactionData*)tdpair.second->reactionData)->_dataFlav == flav;
+    if (!any) continue;
+    const std::vector<int> k = charmOnly ? std::vector<int>{4, 5} : std::vector<int>{0};
+    const OperatorTable F2p = tab(F2PlusCCObj, k), F2m = tab(F2MinusCCObj, k);
+    const OperatorTable FLp = tab(FLPlusCCObj, k), FLm = tab(FLMinusCCObj, k);
+    const OperatorTable F3p = tab(F3PlusCCObj, k), F3m = tab(F3MinusCCObj, k);
+    for (auto tdpair : _dsIDs) {
+      auto td = tdpair.second;
+      auto rd = (BaseDISCC::ReactionData*)td->reactionData;
+      if (rd->_dataFlav != flav) continue;
+      const double charge = rd->_charge;
+      const auto q2 = *BaseDISCC::GetBinValues(td, "Q2");
+      const auto x = *BaseDISCC::GetBinValues(td, "x");
+      const size_t Np = x.size();
+      FKRows& r = _fkRows[tdpair.first];
+      r.f2.assign(Np, xfitter::fk::Row(nJoint));
+      r.fl.assign(Np, xfitter::fk::Row(nJoint));
+      r.f3.assign(Np, xfitter::fk::Row(nJoint));
+      r.active.assign(Np, false);
+      for (size_t i = 0; i < Np; ++i) {
+        if (q2[i] < 1) continue;
+        r.active[i] = true;
+        const double Q = sqrt(q2[i]);
+        r.f2[i].add(F2p, x[i], Q, 1);       r.f2[i].add(F2m, x[i], Q, charge);
+        r.fl[i].add(FLp, x[i], Q, 1);       r.fl[i].add(FLm, x[i], Q, charge);
+        r.f3[i].add(F3p, x[i], Q, charge);  r.f3[i].add(F3m, x[i], Q, 1);
+      }
+    }
+  }
+}
+
+void ReactionN3LO_DISCC::computeFromFK()
+{
+  const std::vector<double> f0 = xfitter::fk::Flatten(_apfelxx->InputDistributions());
+  for (auto const& t : _fkRows) {
+    const FKRows& r = t.second;
+    const size_t Np = r.active.size();
+    _f2fonll[t.first].resize(Np);
+    _flfonll[t.first].resize(Np);
+    _f3fonll[t.first].resize(Np);
+    for (size_t i = 0; i < Np; ++i) {
+      _f2fonll[t.first][i] = r.active[i] ? r.f2[i].contract(f0) : 0.;
+      _flfonll[t.first][i] = r.active[i] ? r.fl[i].contract(f0) : 0.;
+      _f3fonll[t.first][i] = r.active[i] ? r.f3[i].contract(f0) : 0.;
+    }
+  }
+}
+
 valarray<double> ReactionN3LO_DISCC::F2(TermData *td)
 {
   return _f2fonll[td->id];

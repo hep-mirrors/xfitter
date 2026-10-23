@@ -2,6 +2,9 @@
 
 #include "ReactionBaseDISNC.h"
 #include <apfel/apfelxx.h>
+#include "FKTables.h"
+
+namespace xfitter { class EvolutionAPFELxx; }
 
 /*
  *   @class' ReactionN3LO_DISNC
@@ -38,6 +41,20 @@ class ReactionN3LO_DISNC : public ReactionBaseDISNC
   map <unsigned,valarray<double>> _f3fonll;
 
   std::unique_ptr<const apfel::Grid> Grid;
+  const apfel::Grid*                 _grid = nullptr;  ///< Grid, or the APFELxx evolution grid in FK mode
+
+  /// structure functions from the evolved PDFs (default)
+  void computeFromPDFs();
+
+  // FK mode (yaml "FK: 1"): rows built from the APFELxx evolution operators (FKTables.h)
+  void buildFK();
+  void computeFromFK();
+  bool                        _fk = false;
+  int                         _fkCheck = 1;      ///< compare with computeFromPDFs after each build
+  int                         _fkVersion = -1;   ///< operator version of the rows
+  xfitter::EvolutionAPFELxx*  _apfelxx = nullptr;
+  struct FKRows { std::vector<xfitter::fk::Row> f2, fl, f3; std::vector<bool> active; };
+  map <unsigned, FKRows>      _fkRows;
   std::vector<double>                Thresholds;
   std::vector<double>                Masses;
   std::vector<double>                Thresholds3F;
