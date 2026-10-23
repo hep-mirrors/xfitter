@@ -12,6 +12,8 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <atomic>
+#include <mutex>
 
 namespace xfitter
 {
@@ -61,6 +63,9 @@ namespace xfitter
      * @name DGLAP evolution operators, for FK tables (FKTables.h)
      * Built only after RequestOperators(), at the next atIteration, and rebuilt when
      * alpha_s, MZ, Q0 or the order change (OperatorVersion() then increases).
+     * After RequestOperators() the PDF evolution is lazy: atIteration only marks the PDF
+     * tables as stale, and they are evolved at the first PDF access of the iteration, so
+     * that iterations computed from FK tables alone do not evolve the PDFs.
      */
     ///@{
     void RequestOperators();
@@ -93,6 +98,14 @@ namespace xfitter
     std::map<int,apfel::DglapObjects>                                       _DglapObj4F;
     std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>> _TabulatedPDFs4F;
     std::function<double(double const& Q)>                                  _AlphaQCD4F;
+
+    // PDF evolution and tabulation (VFNS, 3F, 4F) at the current parameters
+    void EvolvePDFs();
+    /// evolves the PDFs if atIteration left them stale (lazy evolution in FK mode)
+    void EnsureEvolved();
+    std::atomic<bool>                                                       _PDFsStale{false};
+    std::mutex                                                              _EvolveMutex;
+    std::vector<double>                                                     _QGrid;
 
     // evolution operators (FK tables)
     void BuildOperators(double Q0, int PtOrder);

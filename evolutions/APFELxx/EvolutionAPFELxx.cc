@@ -81,13 +81,11 @@ namespace xfitter
   //_________________________________________________________________________________
   void EvolutionAPFELxx::atIteration()
   {
-    const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
     // Retrieve the relevant parameters needed to compute the evolutions
     const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
     const double* Q0         = XFITTER_PARS::getParamD("Q0");
     const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
     const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");
-    const YAML::Node QGrid   = yamlNode["QGrid"];
 
     // Reinitialise and tabulate the running coupling at every
     // iteration. This is fast enough and allows for the reference
@@ -104,7 +102,37 @@ namespace xfitter
     apfel::AlphaQCD a4F{_AlphaQCD(*Q0), *Q0, _Masses4F, _Thresholds4F, PtOrder};
     const apfel::TabulateObject<double> Alphas4F{a4F, 100, 0.9, 1001, 3};
     _AlphaQCD4F = [=] (double const& mu) -> double{ return Alphas4F.Evaluate(mu); };
-    
+
+    // With FK tables the PDFs are evolved only when accessed (see EnsureEvolved)
+    if (_OperatorsRequested && _TabulatedPDFs)
+      _PDFsStale = true;
+    else
+      EvolvePDFs();
+
+    // Evolution operators for FK tables: only when requested and when the coupling or Q0 changed
+    if (_OperatorsRequested) {
+      const std::vector<double> key = {*Alphas_ref, *Q_ref, *Q0, double(PtOrder)};
+      if (key != _OperatorKey) {
+        BuildOperators(*Q0, PtOrder);
+        _OperatorKey = key;
+        ++_OperatorVersion;
+      }
+    }
+  }
+
+  void EvolutionAPFELxx::EnsureEvolved() {
+    if (!_PDFsStale) return;
+    std::lock_guard<std::mutex> lock(_EvolveMutex);
+    if (_PDFsStale) EvolvePDFs();
+  }
+
+  void EvolutionAPFELxx::EvolvePDFs()
+  {
+    const YAML::Node yamlNode=XFITTER_PARS::getEvolutionNode(_name);
+    const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
+    const double* Q0         = XFITTER_PARS::getParamD("Q0");
+    const YAML::Node QGrid   = yamlNode["QGrid"];
+
     // Construct the DGLAP objects
     const auto Dglap = BuildDglap(_DglapObj,
       [=] (double const& x, double const&)->std::map<int,double>{
@@ -147,15 +175,8 @@ namespace xfitter
           QGrid[2].as<double>(),
           QGrid[3].as<int>()});
 
-    // Evolution operators for FK tables: only when requested and when the coupling or Q0 changed
-    if (_OperatorsRequested) {
-      const std::vector<double> key = {*Alphas_ref, *Q_ref, *Q0, double(PtOrder)};
-      if (key != _OperatorKey) {
-        BuildOperators(*Q0, PtOrder);
-        _OperatorKey = key;
-        ++_OperatorVersion;
-      }
-    }
+    _QGrid = _TabulatedPDFs->GetQGrid();
+    _PDFsStale = false;
   }
 
   void EvolutionAPFELxx::RequestOperators() {
@@ -192,16 +213,19 @@ namespace xfitter
       return apfel::PhysToQCDEv(in->xfxMap(x));
     }, *Q0);
   }
-  apfel::TabulateObject<apfel::Set<apfel::Distribution>> EvolutionAPFELxx::GetTabulatedPDFs() {return *_TabulatedPDFs;};
+  apfel::TabulateObject<apfel::Set<apfel::Distribution>> EvolutionAPFELxx::GetTabulatedPDFs() {EnsureEvolved(); return *_TabulatedPDFs;};
   std::function<double(double const& Q)>                 EvolutionAPFELxx::GetAlphaQCD() {return _AlphaQCD;};
   
   std::map<int,double>EvolutionAPFELxx::xfxQmap(double x,double Q){
+    EnsureEvolved();
     return apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x,Q));
   }
   double EvolutionAPFELxx::xfxQ(int i,double x,double Q){
+    EnsureEvolved();
     return _TabulatedPDFs->EvaluatexQ(i,x,Q);
   }
   void EvolutionAPFELxx::xfxQarray(double x,double Q,double*pdfs){
+    EnsureEvolved();
     // Get map of PDFs
     const std::map<int,double> fset = apfel::QCDEvToPhys(_TabulatedPDFs->EvaluateMapxQ(x, Q));
     pdfs[0] =fset.at(-6);
@@ -223,6 +247,7 @@ namespace xfitter
   }
 
   std::map<int,double>EvolutionAPFELxx::xfxQmapNF(int nf,double x,double Q){
+    EnsureEvolved();
     switch(nf){
     case 3: return apfel::QCDEvToPhys(_TabulatedPDFs3F->EvaluateMapxQ(x,Q));
     case 4: return apfel::QCDEvToPhys(_TabulatedPDFs4F->EvaluateMapxQ(x,Q));
@@ -248,6 +273,7 @@ namespace xfitter
   }
 
   vector<double> EvolutionAPFELxx::getQgrid() {
-    return _TabulatedPDFs->GetQGrid();
+    // fixed after the first evolution (it depends on the QGrid settings and the thresholds only)
+    return _QGrid;
   }
 }
