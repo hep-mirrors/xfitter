@@ -14,15 +14,24 @@ struct IterativeHessianOptions {
   double delta = 1;       ///< chi2 rise of the steps along the eigenvectors (MINUIT UP)
   int maxIterations = 10;
   double tolerance = 0.02;  ///< stop when max |H_y / 2 - 1| < tolerance in the eigenvector coordinates
-  bool central = true;      ///< central off-diagonal differences
+  bool central = true;      ///< central off-diagonal differences (corners = false only)
   int maxCycles = 6;        ///< batches to find, per eigenvector, the step with Delta chi2 = delta
+  /// As MINUIT ITERATE: off-diagonal terms from the 4 corners (+-a, +-b) with the steps / sqrt(2),
+  /// and the final displacements calibrated to the exact chi2 rise (calibrate)
+  bool corners = true;
+  bool calibrate = true;
+  double calibrationAccuracy = 1e-3;  ///< |Delta chi2 - delta| < this * delta
+  int calibrationCycles = 30;         ///< batches of the calibration search
 };
 
 struct IterativeHessianResult {
   Eigen::MatrixXd hessian;
-  /// Eigenvector displacements for Delta chi2 = 1 in the quadratic approximation, one per
-  /// column, largest curvature first (MINUIT umat)
+  /// Eigenvector displacements for Delta chi2 = 1, one per column, largest curvature first
+  /// (MINUIT umat): of the quadratic approximation, or calibrated (options.calibrate)
   Eigen::MatrixXd displacements;
+  /// calibrate: length of the calibrated displacements / quadratic ones, per column
+  Eigen::VectorXd calibration;
+  int uncalibrated = 0;  ///< calibrate: columns without a crossing on either side (quadratic kept)
   int iterations = 0;
   int chi2Calls = 0;
   double deviation = 0;  ///< max |H_y / 2 - 1| of the iteration that gave the result

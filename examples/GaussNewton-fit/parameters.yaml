@@ -7,7 +7,8 @@ GaussNewton:
   fdStep: 1.e-3
   threads: 0
   covariance: 1
-  doErrors: None     # Hesse: symmetric PDF error bands (adds Npar+1 LHAPDF members)
+  doErrors: None     # Hesse: symmetric PDF error bands (adds Npar+1 LHAPDF members) | Pumplin: iterative
+                     #   Hessian and 2Npar eigenvector members, as MINUIT ITERATE (see minimizers/GaussNewton/README.md)
 
 Parameters:
   Ag   :  DEPENDENT

@@ -38,6 +38,8 @@ GaussNewton:
   pumplinIterations: 10       # Pumplin: at most this many iterations
   pumplinDelta: 1.            # Pumplin: chi2 rise of the steps along the eigenvectors (MINUIT UP)
   pumplinTolerance: 0.02      # Pumplin: stop when max |H_y/2 - 1| < this, Eq. (18)
+  pumplinScheme: minuit       # Pumplin: minuit: 4-corner off-diagonals and members calibrated to the
+                              #   exact chi2 rise, as ITERATE | fast: 2-point off-diagonals, quadratic members
   checkDerivatives: 0         # 1: compare the model with finite differences of fcn at the start
 ```
 
@@ -193,15 +195,29 @@ by 1 in the quadratic approximation, and in the coordinates y of x = x̂ + U y t
 searched (up to 6 batches) so that the average rise of the χ² at ±step is within
 [½, 2]·`pumplinDelta`; a non-finite or very large χ² (invalid PDF) shortens the step, a flat
 or concave direction lengthens it, and a direction without a usable rise keeps its
-curvature. The off-diagonal terms use these steps (central differences); a pair with a χ²
-more than 100·`pumplinDelta` above the minimum is not used. Then H ← U⁻ᵀ H_y U⁻¹ (with the
+curvature. With `pumplinScheme: minuit` (default) the off-diagonal terms come, as in
+ITERATE, from the four corners (±a, ±b), with a, b these steps divided by √2:
+H_y,jk = [f(a,b) + f(−a,−b) − f(a,−b) − f(−a,b)] / (4ab), which cancels the y_j² y_k² term
+and halves the y_j³ y_k ones, 2P(P−1) χ² calls. With `fast`, they use f(±a, ±b) at the full
+steps (central differences, P(P−1) calls). A pair with a χ² more than 100·`pumplinDelta`
+above the minimum is not used. Then H ← U⁻ᵀ H_y U⁻¹ (with the
 eigenvalues of H_y kept ≥ 0.02, so the errors grow at most 10× per iteration), until
 max |H_y/2 − 1| < `pumplinTolerance`; otherwise the most self-consistent iteration is used.
+With `minuit`, the displacements of the final H are then calibrated as at the end of
+ITERATE: along +U_j and −U_j, the multiples t_± with Δχ² = `pumplinDelta` at t_±·√δ·U_j
+are searched to 10⁻³·δ (all directions in one batch per cycle, at most 30 cycles), and
+U_j ← t U_j with 1/t² = 1/t₊² + 1/t₋² − 1/(t₊t₋), the curvature of a quadratic + cubic
+through both crossings; with one crossing its t is used, with none the quadratic U_j is
+kept (warning). The lengths t are printed. The covariance stays 2 H⁻¹, as MINUIT's
+error matrix after ITERATE; only the members change. With `fast` the members are the
+quadratic U_j. On the N3LO HERA fit (FK tables, 14 parameters) `minuit` gives the
+errors of MINUIT ITERATE to 0.3%, correlations to 0.003 and PDF bands to 0.2%, with
+2414 χ² calls (6 iterations; the lengths t are 1.000 within 0.3%, so the corners make the
+difference); `fast` 1470 calls, errors within 4%, correlations 0.18, bands within 6%.
 The start is the Gauss–Newton Hessian; the first iteration then replaces the observed
-Hessian. C = 2 H⁻¹ is written as the covariance, and the 2P members x̂ ± U_j of the final H
-give the same files as MINUIT (`pdfs_q2val_sNN{m,p}`, LHAPDF `hessian` set with 2P + 1
-members, asymmetric theory
-uncertainties). The χ² calls of an iteration are independent and run in `threads`
+Hessian. C = 2 H⁻¹ is written as the covariance, and the 2P members x̂ ± U_j give the
+same files as MINUIT (`pdfs_q2val_sNN{m,p}`, LHAPDF `hessian` set with 2P + 1 members,
+asymmetric theory uncertainties). The χ² calls of an iteration are independent and run in `threads`
 processes.
 
 ## 4. Design decisions

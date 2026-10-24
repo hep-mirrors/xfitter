@@ -678,6 +678,44 @@ void testIterativeHessian() {
             sci(worstSmall) + "), " + std::to_string(r.iterations) + " iterations");
 }
 
+/// MINUIT scheme (corners + calibration) vs the fast one: with a quartic term the calibrated
+/// members give Delta chi2 = 1 to the accuracy; with a cubic term their average rise is 1
+/// (quadratic + cubic through both crossings, as ITERATE)
+void testIterativeHessianCalibration() {
+  IterativeHessianOptions fast;
+  fast.corners = fast.calibrate = false;
+  auto worstRise = [](Problem& p, const Eigen::VectorXd& x0, const Eigen::MatrixXd& U, bool average) {
+    double worst = 0;
+    for (int j = 0; j < U.cols(); ++j) {
+      const double up = p.chi2(x0 + U.col(j)) - 101, down = p.chi2(x0 - U.col(j)) - 101;
+      worst = average ? std::max(worst, std::abs(0.5 * (up + down))) : std::max({worst, std::abs(up), std::abs(down)});
+    }
+    return worst;
+  };
+  RotatedQuartic quartic(0.01);
+  const IterativeHessianResult m = iterativeHessian(quartic, quartic.x0(), 100, quartic.hessian(), IterativeHessianOptions());
+  const IterativeHessianResult f = iterativeHessian(quartic, quartic.x0(), 100, quartic.hessian(), fast);
+  const double worstM = worstRise(quartic, quartic.x0(), m.displacements, false);
+  const double worstF = worstRise(quartic, quartic.x0(), f.displacements, false);
+  check(m.converged && f.converged && m.uncalibrated == 0 && worstM < 2e-3 && worstF > worstM,
+        "calibrated Pumplin members with a quartic term: |Delta chi2 - 1| " + sci(worstM) + " (fast scheme " +
+            sci(worstF) + ")");
+
+  class Cubic : public RotatedQuartic {
+  public:
+    Cubic() : RotatedQuartic(0) {}
+    double chi2(const Eigen::VectorXd& x) override {
+      const Eigen::Vector3d z = rotation() * (x - x0());
+      return RotatedQuartic::chi2(x) + 0.0016 * std::pow(z(2), 3);
+    }
+  };
+  Cubic cubic;
+  const IterativeHessianResult c = iterativeHessian(cubic, cubic.x0(), 100, cubic.hessian(), IterativeHessianOptions());
+  const double worstC = worstRise(cubic, cubic.x0(), c.displacements, true);
+  check(c.uncalibrated == 0 && worstC < 2e-3,
+        "calibrated Pumplin members with a cubic term: |average Delta chi2 - 1| " + sci(worstC));
+}
+
 /// Iterative Hessian from a poor start (25x too small curvature along the weakest direction,
 /// as a Gauss-Newton Hessian of a nearly degenerate gluon) with an invalid region (chi2 = 1e10,
 /// as fcn for an invalid PDF) just beyond the first, far too long steps
@@ -722,6 +760,7 @@ int main() {
   testLinearResponseFit();
   testIterativeHessian();
   testIterativeHessianRobust();
+  testIterativeHessianCalibration();
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "ALL PASSED", failures);
   return failures ? 1 : 0;
 }

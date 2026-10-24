@@ -1,1 +1,1 @@
-Full GaussNewton fit at NNLO with RTOPT QCDNUM (same configuration as CERES-fit), with Hesse error bands
+Full GaussNewton fit at NNLO with RTOPT QCDNUM (same configuration as CERES-fit), with the observed-Hessian covariance; no PDF error bands (doErrors: None keeps the test short, Hesse or Pumplin adds them)

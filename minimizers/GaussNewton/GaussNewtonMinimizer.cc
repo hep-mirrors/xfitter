@@ -69,7 +69,7 @@ Settings readSettings() {
   const std::set<std::string> known = {"maxIterations", "tolerance", "lambda0", "jacobian", "fdScheme",
                                        "fdStep", "threads", "spanTolerance", "covariance", "hessian",
                                        "hessianScheme", "hessianDelta", "doErrors", "checkDerivatives",
-                                       "pumplinIterations", "pumplinDelta", "pumplinTolerance"};
+                                       "pumplinIterations", "pumplinDelta", "pumplinTolerance", "pumplinScheme"};
   for (const auto& item : node)
     if (!known.count(item.first.as<std::string>()))
       hf_errlog(2026102250, "W: GaussNewton: unknown steering key " + item.first.as<std::string>());
@@ -104,6 +104,10 @@ Settings readSettings() {
   s.iterative.delta = node["pumplinDelta"].as<double>(s.iterative.delta);
   s.iterative.tolerance = node["pumplinTolerance"].as<double>(s.iterative.tolerance);
   s.iterative.central = s.centralHessian;
+  const std::string pumplinScheme = node["pumplinScheme"].as<std::string>("minuit");
+  if (pumplinScheme != "minuit" && pumplinScheme != "fast")
+    hf_errlog(2026102286, "F: GaussNewton: pumplinScheme must be minuit or fast");
+  s.iterative.corners = s.iterative.calibrate = pumplinScheme == "minuit";
   if (s.pumplin && !s.covariance) hf_errlog(2026102280, "F: GaussNewton: doErrors: Pumplin needs covariance: 1");
   return s;
 }
@@ -201,6 +205,14 @@ void GaussNewtonMinimizer::doMinimization() {
       std::printf("GaussNewton: Pumplin iterative Hessian, %d iterations, %d chi2 calls, max |H_y/2 - 1| = %.3f%s\n",
                   iterated.iterations, iterated.chi2Calls, iterated.deviation,
                   iterated.converged ? "" : " (not converged)");
+      if (settings.iterative.calibrate) {
+        std::printf("GaussNewton: Pumplin eigenvectors calibrated to Delta chi2 = %g, length / quadratic:",
+                    settings.iterative.delta);
+        for (int j = 0; j < iterated.calibration.size(); ++j) std::printf(" %.3f", iterated.calibration(j));
+        std::printf("\n");
+        if (iterated.uncalibrated > 0)
+          hf_errlog(2026102287, "W: GaussNewton: Pumplin: eigenvectors without a Delta chi2 crossing, quadratic length kept");
+      }
       if (!iterated.converged)
         hf_errlog(2026102281, "W: GaussNewton: Pumplin iterative Hessian not converged, see pumplinIterations");
       if (iterated.droppedPairs > 0)

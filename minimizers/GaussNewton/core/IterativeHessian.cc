@@ -90,6 +90,84 @@ void findSteps(Transformed& problem, double f0, const IterativeHessianOptions& o
   }
 }
 
+
+/// One side of an eigenvector in the calibration: the multiple t of the quadratic step with
+/// Delta chi2 = delta, bracketed between lo (below delta) and hi (above, or an invalid point)
+struct Side {
+  double t = 1, tLo = 0, dLo = 0, tHi = 0, dHi = 0;
+  bool done = false, failed = false;
+};
+
+/// As the final step of MINUIT ITERATE (its "alternative procedure"): along +-U_j, the exact
+/// multiple t_+-, to calibrationAccuracy, with Delta chi2 = delta at t sqrt(delta) U_j, all sides
+/// in one batch per cycle; then 1/t^2 = 1/t_+^2 + 1/t_-^2 - 1/(t_+ t_-), the curvature of a
+/// quadratic + cubic through both crossings, and U_j -> t U_j. One crossing: its t; none: t = 1.
+void calibrate(Transformed& problem, double f0, const IterativeHessianOptions& options,
+               IterativeHessianResult& result) {
+  const int n = static_cast<int>(result.displacements.cols());
+  const double delta = options.delta, far = 100 * delta;
+  std::vector<Side> sides(2 * n);
+  for (int cycle = 0; cycle < options.calibrationCycles; ++cycle) {
+    std::vector<int> active;
+    std::vector<Eigen::VectorXd> points;
+    for (int s = 0; s < 2 * n; ++s) {
+      if (sides[s].done || sides[s].failed) continue;
+      active.push_back(s);
+      points.push_back(axis(n, s / 2, (s % 2 ? -1 : 1) * sides[s].t * std::sqrt(delta)));
+    }
+    if (active.empty()) break;
+    const std::vector<double> f = problem.chi2Batch(points);
+    result.chi2Calls += static_cast<int>(points.size());
+    for (size_t a = 0; a < active.size(); ++a) {
+      Side& side = sides[active[a]];
+      const double rise = f[a] - f0;
+      if (std::isfinite(rise) && std::abs(rise - delta) < options.calibrationAccuracy * delta) {
+        side.done = true;
+        continue;
+      }
+      if (std::isfinite(rise) && rise <= 0) {
+        side.failed = true;  // below the minimum, as MINUIT: no crossing on this side
+        continue;
+      }
+      const bool valid = std::isfinite(rise) && rise < far;
+      if (valid && rise < delta) {
+        side.tLo = side.t;
+        side.dLo = rise;
+      } else {
+        side.tHi = side.t;
+        side.dHi = valid ? rise : 0;  // 0: invalid or far, only bounds the step
+      }
+      if (side.tLo > 0 && side.tHi > 0 && side.dHi > 0) {
+        // power law through the bracket, kept inside it
+        const double p = std::log(side.dHi / side.dLo) / std::log(side.tHi / side.tLo);
+        side.t = side.tLo * std::pow(delta / side.dLo, 1 / p);
+        if (!(side.t > side.tLo && side.t < side.tHi)) side.t = std::sqrt(side.tLo * side.tHi);
+      } else if (side.tLo > 0 && side.tHi > 0) {
+        side.t = std::sqrt(side.tLo * side.tHi);
+      } else if (valid) {
+        side.t *= std::min(2., std::max(0.5, std::sqrt(delta / rise)));  // quadratic, at most 2x
+      } else {
+        side.t *= 0.5;
+      }
+    }
+  }
+  result.calibration = Eigen::VectorXd::Ones(n);
+  for (int j = 0; j < n; ++j) {
+    const Side &plus = sides[2 * j], &minus = sides[2 * j + 1];
+    double t = 1;
+    if (plus.done && minus.done)
+      t = 1 / std::sqrt(1 / (plus.t * plus.t) + 1 / (minus.t * minus.t) - 1 / (plus.t * minus.t));
+    else if (plus.done)
+      t = plus.t;
+    else if (minus.done)
+      t = minus.t;
+    else
+      ++result.uncalibrated;
+    result.calibration(j) = t;
+    result.displacements.col(j) *= t;
+  }
+}
+
 }  // namespace
 
 bool eigenDisplacements(const Eigen::MatrixXd& hessian, Eigen::MatrixXd& displacements) {
@@ -140,31 +218,42 @@ IterativeHessianResult iterativeHessian(Problem& problem, const Eigen::VectorXd&
       // a direction without a usable sagitta keeps the current curvature
       Hy(j, j) = d.measured ? (d.fPlus + d.fMinus - 2 * chi2x) / (d.step * d.step) : 2.;
     }
-    // off-diagonal: f(++) [and f(--)] with the diagonal steps
+    // off-diagonal: as MINUIT ITERATE (corners), f at (+-a, +-b) with a, b the diagonal steps / sqrt(2),
+    // which cancels the y_j^2 y_k^2 term and halves the y_j^3 y_k ones; otherwise f(++) [and f(--)]
+    // with the diagonal steps
     std::vector<Eigen::VectorXd> points;
     std::vector<std::pair<int, int>> pairs;
+    const double shrink = options.corners ? 1 / std::sqrt(2.) : 1.;
     for (int j = 0; j < n; ++j)
       for (int k = j + 1; k < n; ++k) {
         if (!dir[j].measured || !dir[k].measured) continue;
         pairs.push_back({j, k});
-        points.push_back(axis(n, j, dir[j].step) + axis(n, k, dir[k].step));
-        if (options.central) points.push_back(-axis(n, j, dir[j].step) - axis(n, k, dir[k].step));
+        const Eigen::VectorXd a = axis(n, j, shrink * dir[j].step), b = axis(n, k, shrink * dir[k].step);
+        points.push_back(a + b);
+        if (options.corners || options.central) points.push_back(-a - b);
+        if (options.corners) {
+          points.push_back(a - b);
+          points.push_back(-a + b);
+        }
       }
     const std::vector<double> f = transformed.chi2Batch(points);
     result.chi2Calls += static_cast<int>(points.size());
-    const size_t perPair = options.central ? 2 : 1;
+    const size_t perPair = options.corners ? 4 : options.central ? 2 : 1;
     for (size_t a = 0; a < pairs.size(); ++a) {
       const int j = pairs[a].first, k = pairs[a].second;
       const Direction &dj = dir[j], &dk = dir[k];
-      const double fpp = f[perPair * a], fmm = options.central ? f[perPair * a + 1] : chi2x;
-      if (!(fpp < far) || !(fmm < far)) {
+      const double* fa = f.data() + perPair * a;
+      if (!std::all_of(fa, fa + perPair, [far](double v) { return v < far; })) {
         ++result.droppedPairs;  // an invalid or far point: no correlation measured
         continue;
       }
-      Hy(j, k) = Hy(k, j) = options.central
-                                ? (fpp + fmm - dj.fPlus - dj.fMinus - dk.fPlus - dk.fMinus + 2 * chi2x) /
-                                      (2 * dj.step * dk.step)
-                                : (fpp - dj.fPlus - dk.fPlus + chi2x) / (dj.step * dk.step);
+      if (options.corners)
+        Hy(j, k) = (fa[0] + fa[1] - fa[2] - fa[3]) / (4 * shrink * shrink * dj.step * dk.step);
+      else if (options.central)
+        Hy(j, k) = (fa[0] + fa[1] - dj.fPlus - dj.fMinus - dk.fPlus - dk.fMinus + 2 * chi2x) / (2 * dj.step * dk.step);
+      else
+        Hy(j, k) = (fa[0] - dj.fPlus - dk.fPlus + chi2x) / (dj.step * dk.step);
+      Hy(k, j) = Hy(j, k);
     }
     ++result.iterations;
     const double deviation = (0.5 * Hy - Eigen::MatrixXd::Identity(n, n)).cwiseAbs().maxCoeff();
@@ -188,6 +277,10 @@ IterativeHessianResult iterativeHessian(Problem& problem, const Eigen::VectorXd&
   if (!result.converged) result.hessian = best;
   result.deviation = bestDeviation;
   eigenDisplacements(result.hessian, result.displacements);
+  if (options.calibrate) {
+    Transformed transformed(problem, x, result.displacements, result.lowestChi2);
+    calibrate(transformed, chi2x, options, result);
+  }
   return result;
 }
 
