@@ -7,3 +7,11 @@
   FLasy: 0
   F2thr: 0
   FLthr: 0
+  # FK tables (opt-in): the structure functions are computed as FK x (PDFs at Q0), with the
+  # FK rows built from the APFELxx evolution operators, once per alpha_s, masses, Q0 and order.
+  # Needs DefaultEvolution of type APFELxx with the same xGrid as above. Set the keys in the
+  # byReaction block of parameters.yaml, below "? !include reactions/N3LO_DISNC.yaml"
+  # (example: examples/N3LO-FK).
+  #FK: 0        # 1: FK tables; 0: evolve the PDFs and convolute at every chi2 call (default)
+  #FKcheck: 1   # 1: after each FK build, compare once with the default computation, print the
+                #    largest difference and warn above 1e-4 (default); 0: no check

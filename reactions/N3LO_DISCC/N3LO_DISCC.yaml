@@ -1,3 +1,11 @@
 #N3LO_DISCC:               # Reaction-specific settings, no parameters at the moment
   xGrid: [[100, 1e-5, 3], [60, 1e-1, 3], [50, 6e-1, 3], [50, 8e-1, 3]]
   QGrid: [30, 1, 175, 3]
+  # FK tables (opt-in): the structure functions are computed as FK x (PDFs at Q0), with the
+  # FK rows built from the APFELxx evolution operators, once per alpha_s, masses, Q0 and order.
+  # Needs DefaultEvolution of type APFELxx with the same xGrid as above. Set the keys in the
+  # byReaction block of parameters.yaml, below "? !include reactions/N3LO_DISCC.yaml"
+  # (example: examples/N3LO-FK).
+  #FK: 0        # 1: FK tables; 0: evolve the PDFs and convolute at every chi2 call (default)
+  #FKcheck: 1   # 1: after each FK build, compare once with the default computation, print the
+                #    largest difference and warn above 1e-4 (default); 0: no check

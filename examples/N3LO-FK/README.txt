@@ -1,0 +1,1 @@
+N3LO HERA I+II chi2 evaluation, as the N3LO example, with the N3LO_DISNC/N3LO_DISCC structure functions computed from FK tables (FK: 1). The output agrees with the default computation (FK: 0) within the test tolerance.
