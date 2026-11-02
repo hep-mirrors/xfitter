@@ -48,9 +48,8 @@ namespace xfitter {
       const double* priors = origin->_priors[ipar];
       addParameter(value, name, fabs(value)*1.e-2, bounds, priors);
     }
-    if (origin->hasParameterCovariance()) {
-      _parameterCovariance = origin->_parameterCovariance;
-    }
+    // The covariance of the previous minimiser is not copied: the error analysis of this minimiser
+    // (e.g. MINUIT HESSE) must not be replaced by the covariance computed by the previous one.
   }
 
   double** BaseMinimizer::getPars() const
