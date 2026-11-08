@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12.2)
+cmake_minimum_required(VERSION 3.10)
 set(CMAKE_MACOSX_RPATH 1)
 
 project(xFitter CXX C Fortran)
@@ -108,8 +108,22 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   endif()
 endif()
 
+# On arm64 macOS, ADRP addressing has a +/-4GiB reach, but the default
+# dimensions give libxfitter ~5GiB of static data (Fortran COMMON blocks plus
+# saved locals), which makes the link fail. Shrink the two dimensions that
+# dominate that footprint; both are #ifndef-guarded in include/dimensions.h,
+# and defining them here keeps the Fortran COMMON and C++ struct layouts in sync.
+if(APPLE)
+  add_definitions(-DNSYSMAX_C=2000 -DNCHI2POINTS_C=20)
+endif()
+
 # For semaphore in multithreading
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
+if(APPLE)
+  #librt does not exist on macOS; its functionality is part of libSystem
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt")
+endif()
 
 #When linking, set rpath to install directories
 #This eliminates the need to add xfitter libraries to LD_LIBRARY_PATH

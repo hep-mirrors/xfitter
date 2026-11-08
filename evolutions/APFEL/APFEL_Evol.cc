@@ -39,6 +39,36 @@ extern "C" void externalsetapfel_(double &x, double &Q, double *xf)
   }
 }
 
+#ifdef __APPLE__
+// APFEL compiles default (empty) versions of its external-PDF callbacks only
+// when not building on Darwin -- see the "#ifndef DARWIN" block at the end of
+// APFEL's src/Evolution/initPDFs.f -- so on macOS the host program has to
+// provide every one of them, or dlopen(RTLD_NOW) of this module fails on the
+// unresolved symbols. xFitter only ever uses the "external"/"external1" PDF
+// sets, so the remaining callbacks are stubs: they are reachable only via
+// APFEL's "repexternal", "repexternal1" and "leptexternal" sets, and reaching
+// one means the evolution was configured in a way xFitter does not support.
+extern "C" void externalsetapfellept_(double &x, double &Q, int &i, double *xl, double *xf)
+{
+  hf_errlog(25090201, "F:APFEL leptexternal PDF set is not supported by xFitter");
+}
+
+extern "C" void externalsetapfelrep_(double &x, double &Q, int &i, double *xf)
+{
+  hf_errlog(25090202, "F:APFEL repexternal PDF set is not supported by xFitter");
+}
+
+extern "C" void externalsetapfelrep1_(double &x, double &Q, int &i, double *xf)
+{
+  hf_errlog(25090203, "F:APFEL repexternal1 PDF set is not supported by xFitter");
+}
+
+extern "C" void pretabulatedpdfsrep_(int &ig, int &alpha, int &i, double *xf)
+{
+  hf_errlog(25090204, "F:APFEL replica-based pre-tabulated PDFs are not supported by xFitter");
+}
+#endif
+
 namespace xfitter
 {
 //for dynamic loading
