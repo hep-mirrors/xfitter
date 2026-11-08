@@ -7,6 +7,7 @@
 #include <apfel/dglap.h>
 #include <apfel/dglapbuilder.h>
 #include <apfel/tabulateobject.h>
+#include <apfel/factorisationschemes.h>
 
 #include <vector>
 #include <memory>
@@ -78,4 +79,11 @@ namespace xfitter
     std::unique_ptr<apfel::TabulateObject<apfel::Set<apfel::Distribution>>> _TabulatedPDFs4F;
     std::function<double(double const& Q)>                                  _AlphaQCD4F;
   };
+
+  /**
+   * @brief MSbar-to-K scheme-change kernels for the scheme set by the
+   * "FactorisationScheme" parameter (MSbar if absent, for which the
+   * map is empty). Only available up to NLO.
+   */
+  std::map<int, std::map<int, apfel::Set<apfel::Operator>>> SchemeChangeKernels(apfel::Grid const& g, std::vector<double> const& Thresholds);
 }

@@ -42,10 +42,12 @@ namespace xfitter
   }
 
   void UvDvUbarDbarS::atIteration() {
+    // Sum-rule factors of the factorisation scheme ({1, 1, 1} in MSbar)
+    const std::array<double, 3> sr = (XFITTER_PARS::gSchemeSumRuleFactors ? XFITTER_PARS::gSchemeSumRuleFactors() : std::array<double, 3>{1, 1, 1});
     //Enforce sum rules
     // counting sum-rules for uv and dv
-    par_xuv->setMoment(-1,2.0);
-    par_xdv->setMoment(-1,1.0);
+    par_xuv->setMoment(-1,2.0*sr[0]);
+    par_xdv->setMoment(-1,1.0*sr[0]);
     // momentum sum-rule
     // quark part
     double xsumq=0;
@@ -54,11 +56,12 @@ namespace xfitter
     xsumq+=2*par_xubar->moment(0);
     xsumq+=2*par_xdbar->moment(0);
     xsumq+=2*par_xs   ->moment(0);
+    const double xsumqq=xsumq;
     // maybe gamma
     if (par_xgamma != nullptr) 
       xsumq += par_xgamma -> moment(0);
     // gluon part
-    par_xg->setMoment(0,1-xsumq);
+    par_xg->setMoment(0,(1-xsumq-(sr[1]-1)*xsumqq)/sr[2]);
   }
   std::map<int,double>UvDvUbarDbarS::xfxMap(double x)const
   {

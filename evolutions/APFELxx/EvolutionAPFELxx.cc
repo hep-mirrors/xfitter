@@ -6,6 +6,9 @@
 #include <apfel/alphaqcd.h>
 #include <apfel/messages.h>
 #include <apfel/rotations.h>
+#include <apfel/evolutionbasisqcd.h>
+#include <apfel/constants.h>
+#include <apfel/tools.h>
 
 
 namespace xfitter
@@ -16,6 +19,55 @@ namespace xfitter
   }
   const char*EvolutionAPFELxx::getClassName()const{return "APFELxx";}
 
+
+  //_________________________________________________________________________________
+  // Moments {K_ns(1), K_qq(2), K_qg(2), K_gq(2), K_gg(2)} of the
+  // scheme-change kernels at nf, obtained by applying the PDF
+  // transformation to test sets with only valence, singlet or gluon.
+  // A dedicated fine grid makes them accurate to ~1e-5.
+  std::array<double, 5> SchemeChangeMoments(std::vector<double> const& Thresholds, int const& nf)
+  {
+    const apfel::Grid g{{apfel::SubGrid{200, 1e-7, 4}, apfel::SubGrid{150, 1e-1, 4}, apfel::SubGrid{150, 6e-1, 4}, apfel::SubGrid{150, 9e-1, 4}}};
+    const auto K = SchemeChangeKernels(g, Thresholds);
+
+    // int_xmin^1 dx x^(N-2) d(x) with Simpson in ln(x)
+    const double xmin = g.GetJointGrid().GetGrid()[0];
+    const auto Moment = [=] (apfel::Distribution const& d, int const& N) -> double
+    {
+      const int n = 20000;
+      const double h = - log(xmin) / n;
+      double s = 0;
+      for (int i = 0; i <= n; i++)
+        {
+          const double x = std::min(xmin * exp(i * h), 1 - 1e-12);
+          s += ( i == 0 || i == n ? 1 : ( i % 2 ? 4 : 2 ) ) * pow(x, N - 1) * d.Evaluate(x);
+        }
+      return s * h / 3;
+    };
+
+    // Shift (as/4pi = 1) of a test set in which the objects in "objs"
+    // equal D and all others vanish. Heavy T's and V's follow the
+    // singlet and the total valence, as for vanishing heavy quarks.
+    const apfel::Distribution D{g, [] (double const& x) -> double { return x * x * pow(1 - x, 3); }};
+    const apfel::Distribution Z{g, [] (double const&) -> double { return 0; }};
+    const auto Shift = [&] (std::vector<int> const& objs) -> apfel::Set<apfel::Distribution>
+    {
+      std::map<int, apfel::Distribution> m;
+      for (int i = 0; i <= 12; i++)
+        m.insert({i, (std::find(objs.begin(), objs.end(), i) != objs.end() ? D : Z)});
+      const apfel::Set<apfel::Distribution> f{apfel::EvolutionBasisQCD{nf}, m};
+      return apfel::ChangeFactorisationSchemeMSbarToK(f, K, nf, apfel::FourPi) - f;
+    };
+    using EB = apfel::EvolutionBasisQCD;
+    const apfel::Set<apfel::Distribution> dV = Shift({EB::VALENCE, EB::V15, EB::V24, EB::V35});
+    const apfel::Set<apfel::Distribution> dS = Shift({EB::SIGMA, EB::T15, EB::T24, EB::T35});
+    const apfel::Set<apfel::Distribution> dG = Shift({EB::GLUON});
+    const double D1 = Moment(D, 1);
+    const double D2 = Moment(D, 2);
+    return {Moment(dV.at(EB::VALENCE), 1) / D1,
+            Moment(dS.at(EB::SIGMA), 2) / D2, Moment(dG.at(EB::SIGMA), 2) / D2,
+            Moment(dS.at(EB::GLUON), 2) / D2, Moment(dG.at(EB::GLUON), 2) / D2};
+  }
 
   //_________________________________________________________________________________
   void EvolutionAPFELxx::atStart()
@@ -72,6 +124,37 @@ namespace xfitter
     
     _DglapObj3F = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses3F, _Thresholds3F, false, 1e-5, n3lo, IMod);
     _DglapObj4F = apfel::InitializeDglapObjectsQCD(*_Grid, _Masses4F, _Thresholds4F, false, 1e-5, n3lo, IMod);
+
+    // Change of factorisation scheme
+    const auto K = SchemeChangeKernels(*_Grid, _Thresholds);
+    if (!K.empty())
+      {
+        _DglapObj   = apfel::ChangeFactorisationSchemeMSbarToK(_DglapObj,   K);
+        _DglapObj3F = apfel::ChangeFactorisationSchemeMSbarToK(_DglapObj3F, SchemeChangeKernels(*_Grid, _Thresholds3F));
+        _DglapObj4F = apfel::ChangeFactorisationSchemeMSbarToK(_DglapObj4F, SchemeChangeKernels(*_Grid, _Thresholds4F));
+
+        // The input PDFs are f^K = (1 + a0 K) f^MSbar at Q0, with f^MSbar
+        // obeying the standard sum rules: in moment space this gives the
+        // factor c_ns of the valence sum rules and the weights (w_q, w_g)
+        // of the momentum sum rule, (w_q, w_g) = (1, 1) (1 + a0 K(2))^-1.
+        const double Q0 = *XFITTER_PARS::getParamD("Q0");
+        const int nf0 = apfel::NF(Q0, _Thresholds);
+        const std::array<double, 5> Km = SchemeChangeMoments(_Thresholds, nf0);
+        std::cout << "[INFO] Scheme-change kernel moments (as/4pi = 1) at nf = " << nf0 << ": K_ns(1) = " << Km[0]
+                  << ", K_qq(2) = " << Km[1] << ", K_qg(2) = " << Km[2] << ", K_gq(2) = " << Km[3] << ", K_gg(2) = " << Km[4] << std::endl;
+        const double* Alphas_ref = XFITTER_PARS::getParamD("alphas");
+        const double* Q_ref      = XFITTER_PARS::getParamD("Mz");
+        const int     PtOrder    = OrderMap(XFITTER_PARS::getParamS("Order")) - 1;
+        const std::vector<double> Masses = _Masses, Thresholds = _Thresholds;
+        XFITTER_PARS::gSchemeSumRuleFactors = [=] () -> std::array<double, 3>
+        {
+          const double a0  = apfel::AlphaQCD{*Alphas_ref, *Q_ref, Masses, Thresholds, PtOrder}.Evaluate(Q0) / apfel::FourPi;
+          const double det = ( 1 + a0 * Km[1] ) * ( 1 + a0 * Km[4] ) - a0 * a0 * Km[2] * Km[3];
+          return {1 + a0 * Km[0], ( 1 + a0 * ( Km[4] - Km[3] ) ) / det, ( 1 + a0 * ( Km[1] - Km[2] ) ) / det};
+        };
+        const std::array<double, 3> sr = XFITTER_PARS::gSchemeSumRuleFactors();
+        std::cout << "[INFO] Sum-rule factors at start: c_ns = " << sr[0] << ", w_q = " << sr[1] << ", w_g = " << sr[2] << std::endl;
+      }
 
     atConfigurationChange();
   }
@@ -204,4 +287,25 @@ namespace xfitter
   vector<double> EvolutionAPFELxx::getQgrid() {
     return _TabulatedPDFs->GetQGrid();
   }
+
+  //_________________________________________________________________________________
+  std::map<int, std::map<int, apfel::Set<apfel::Operator>>> SchemeChangeKernels(apfel::Grid const& g, std::vector<double> const& Thresholds)
+  {
+    const YAML::Node node = XFITTER_PARS::rootNode["FactorisationScheme"];
+    const std::string scheme = (node ? node.as<std::string>() : "MSbar");
+    if (scheme == "MSbar")
+      return {};
+    if (OrderMap(XFITTER_PARS::getParamS("Order")) - 1 > 1)
+      hf_errlog(26102401, "F: FactorisationScheme " + scheme + " is only available up to NLO");
+    if (scheme == "Krk")       return apfel::InitializeSchemeChangeKernelsKrk(g, Thresholds);
+    if (scheme == "PHYS")      return apfel::InitializeSchemeChangeKernelsPHYS(g, Thresholds);
+    if (scheme == "DIS")       return apfel::InitializeSchemeChangeKernelsDIS(g, Thresholds);
+    if (scheme == "POS")       return apfel::InitializeSchemeChangeKernelsPOS(g, Thresholds);
+    if (scheme == "MPOS")      return apfel::InitializeSchemeChangeKernelsMPOS(g, Thresholds);
+    if (scheme == "MPOSDelta") return apfel::InitializeSchemeChangeKernelsMPOSDelta(g, Thresholds);
+    if (scheme == "Aversa")    return apfel::InitializeSchemeChangeKernelsAversa(g, Thresholds);
+    hf_errlog(26102402, "F: Unknown FactorisationScheme " + scheme);
+    return {};
+  }
 }
+

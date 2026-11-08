@@ -50,6 +50,18 @@ void ReactionN3LO_DISCC::atStart()
   FLMinusCCObj = InitializeFLCCMinusObjectsZM(*Grid, Thresholds);
   F3PlusCCObj  = InitializeF3CCPlusObjectsZM (*Grid, Thresholds);
   F3MinusCCObj = InitializeF3CCMinusObjectsZM(*Grid, Thresholds);
+
+  // Change of factorisation scheme
+  const auto K = xfitter::SchemeChangeKernels(*Grid, Thresholds);
+  if (!K.empty())
+    {
+      F2PlusCCObj  = ChangeFactorisationSchemeMSbarToK(F2PlusCCObj,  K);
+      F2MinusCCObj = ChangeFactorisationSchemeMSbarToK(F2MinusCCObj, K);
+      FLPlusCCObj  = ChangeFactorisationSchemeMSbarToK(FLPlusCCObj,  K);
+      FLMinusCCObj = ChangeFactorisationSchemeMSbarToK(FLMinusCCObj, K);
+      F3PlusCCObj  = ChangeFactorisationSchemeMSbarToK(F3PlusCCObj,  K);
+      F3MinusCCObj = ChangeFactorisationSchemeMSbarToK(F3MinusCCObj, K);
+    }
 }
 
 void ReactionN3LO_DISCC::initTerm(TermData *td)

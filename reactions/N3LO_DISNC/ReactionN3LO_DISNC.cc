@@ -78,6 +78,27 @@ void ReactionN3LO_DISNC::atStart()
   FLObjM4F  = InitializeFLNCObjectsMassive(*Grid,     Masses4F, 1e-5, 150, 0.05, 10000, 3, 0.0005, FLthr, FLasy, FLdmp);
   F2ObjM04F = InitializeF2NCObjectsMassiveZero(*Grid, Masses4F);
   FLObjM04F = InitializeFLNCObjectsMassiveZero(*Grid, Masses4F);
+
+  // Change of factorisation scheme
+  const auto K = xfitter::SchemeChangeKernels(*Grid, Thresholds);
+  if (!K.empty())
+    {
+      F2Obj = ChangeFactorisationSchemeMSbarToK(F2Obj, K);
+      FLObj = ChangeFactorisationSchemeMSbarToK(FLObj, K);
+      F3Obj = ChangeFactorisationSchemeMSbarToK(F3Obj, K);
+
+      const auto K3F = xfitter::SchemeChangeKernels(*Grid, Thresholds3F);
+      F2ObjM3F  = ChangeFactorisationSchemeMSbarToK(F2ObjM3F,  K3F);
+      FLObjM3F  = ChangeFactorisationSchemeMSbarToK(FLObjM3F,  K3F);
+      F2ObjM03F = ChangeFactorisationSchemeMSbarToK(F2ObjM03F, K3F);
+      FLObjM03F = ChangeFactorisationSchemeMSbarToK(FLObjM03F, K3F);
+
+      const auto K4F = xfitter::SchemeChangeKernels(*Grid, Thresholds4F);
+      F2ObjM4F  = ChangeFactorisationSchemeMSbarToK(F2ObjM4F,  K4F);
+      FLObjM4F  = ChangeFactorisationSchemeMSbarToK(FLObjM4F,  K4F);
+      F2ObjM04F = ChangeFactorisationSchemeMSbarToK(F2ObjM04F, K4F);
+      FLObjM04F = ChangeFactorisationSchemeMSbarToK(FLObjM04F, K4F);
+    }
 }
 
 void ReactionN3LO_DISNC::initTerm(TermData *td)

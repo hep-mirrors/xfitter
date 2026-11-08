@@ -40,10 +40,12 @@ namespace xfitter {
   }
 
   void UvDvUbarDbarSSbarPdfDecomposition::atIteration() {
+    // Sum-rule factors of the factorisation scheme ({1, 1, 1} in MSbar)
+    const std::array<double, 3> sr = (XFITTER_PARS::gSchemeSumRuleFactors ? XFITTER_PARS::gSchemeSumRuleFactors() : std::array<double, 3>{1, 1, 1});
     //Enforce sum rules
     // counting sum-rules for uv and dv
-    par_xuv->setMoment(-1,2.0);
-    par_xdv->setMoment(-1,1.0);
+    par_xuv->setMoment(-1,2.0*sr[0]);
+    par_xdv->setMoment(-1,1.0*sr[0]);
     // momentum sum-rule
     // quark part
     double xsumq=0;
@@ -54,7 +56,7 @@ namespace xfitter {
     xsumq+=  par_xs   ->moment(0);
     xsumq+=  par_xsbar->moment(0);
     // gluon part
-    par_xg->setMoment(0,1-xsumq);
+    par_xg->setMoment(0,(1-sr[1]*xsumq)/sr[2]);
   }
 
   // Returns a LHAPDF-style function, that returns PDFs in a physical basis for given x

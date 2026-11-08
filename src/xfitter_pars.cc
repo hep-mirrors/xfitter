@@ -179,6 +179,7 @@ namespace XFITTER_PARS {
   map <string, vector<double> > gParametersV; ///< Vectors of double parameters
   map <string, vector<string> > gParametersVS; ///< Vectors of string (not double) parameters
   map <string, YAML::Node > gParametersY;      ///< Store complete nodes for complex cases
+  std::function<std::array<double, 3>()> gSchemeSumRuleFactors;
 
   // Also keep list of loaded evolutions here:
   map<string,xfitter::BaseEvolution*> gEvolutions;

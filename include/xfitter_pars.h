@@ -5,6 +5,7 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 #include <functional>
+#include <array>
 #include <algorithm>
 
 using std::map;
@@ -54,6 +55,10 @@ namespace XFITTER_PARS {
 
   /// Global map of Yaml nodes parameters.. Initialized based on parameters.yaml.
   extern map<string,YAML::Node> gParametersY;
+
+  /// Factors {c_ns, w_q, w_g} of the number and momentum sum rules in a
+  /// non-MSbar factorisation scheme. Empty in MSbar (see EvolutionAPFELxx).
+  extern std::function<std::array<double, 3>()> gSchemeSumRuleFactors;
   /// Global map to store evolutions
   /// Do not access it directly, use xfitter::get_evolution
   extern map<string,xfitter::BaseEvolution*> gEvolutions;
