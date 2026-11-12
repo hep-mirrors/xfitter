@@ -15,6 +15,16 @@ CERES:
   doErrors: Hesse
 ```
 
+To write central and symmetric PDF tables at Q² = 4 GeV², also update the
+existing `&Output` block in `steering.txt`:
+
+```fortran
+&Output
+  Q2VAL = 4.0
+  WriteLHAPDF5 = .false.
+&End
+```
+
 Keep the source-level `:N`/`:E` and `@eps=` annotations in `steering.txt`.
 External nuisance parameters are registered automatically; do not also add
 these sources to the YAML `Parameters` section. The example's MINUIT commands

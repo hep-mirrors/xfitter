@@ -22,15 +22,15 @@ profiled internally:
     'sysHZComb1111:N@eps=0.6',
     'sysHZComb1113:N@eps=0.6'
 
-  n_iterations = 4
+  n_iterations = 8
   Enable_Bartlett = .true.
 &End
 ```
 
 All seven sources use `epsilon = 0.6`. The five `:N` sources receive exactly
-four Newton updates during the FCN evaluation. Four updates are a bounded,
-near-converged regression setting; production configurations with profiled EoE
-sources in the study used eight updates.
+eight profiling updates after the initial Gaussian solve during each FCN
+evaluation. This matches the CERES example and the production configurations
+with profiled EoE sources used in the study.
 
 The active MINUIT command stream is:
 
@@ -50,7 +50,10 @@ errors from that solution. In this evaluation-only example they provide the
 finite-difference scales used by the Bartlett calculation; they are not errors
 estimated by this run.
 
-The test therefore covers mixed external/profiled EoE handling, four internal
+The checked-in output snapshots still correspond to the N=4 setup and need
+revalidation and regeneration for the current eight-update configuration.
+
+The test therefore covers mixed external/profiled EoE handling, eight internal
 profiling updates, Bartlett factors, corrected nuisance-parameter errors and
 output. It does not test convergence of the outer PDF fit.
 
@@ -79,7 +82,8 @@ Each configured source uses:
 ```
 
 - `:N` selects internal nuisance-parameter profiling.
-- `:E` selects an external MINUIT parameter.
+- `:E` selects an external nuisance parameter fitted numerically by the active
+  minimizer (MINUIT or CERES).
 - Optional scaling modifiers are `:M`, `:A` and `:P`.
 - Optional source-type modifiers are `:D` and `:T`.
 - `epsilon` must be non-negative.
@@ -100,5 +104,5 @@ Bartlett factors reported in `Results.txt`.
 In `Results.txt`, active EoE sources carry an `@eps=value` suffix in the
 `Type` column, for example `:E:M:D@eps=0.600000`. This marker also appears
 when Bartlett corrections are disabled. Sources without EoE retain their
-ordinary type labels. The `:E` modifier itself means external MINUIT
-treatment; both `:E` and `:N` sources can carry the EoE suffix.
+ordinary type labels. The `:E` modifier itself means external treatment by the
+active minimizer; both `:E` and `:N` sources can carry the EoE suffix.

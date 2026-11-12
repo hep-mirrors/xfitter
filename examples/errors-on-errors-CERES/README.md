@@ -8,8 +8,9 @@ and five iteratively profiled EoE nuisances. Each selected source has
 
 The inputs derive from `../errors-on-errors/`. Keep their data selection,
 PDF parameterization, and selected systematic sources synchronized when
-updating either example. The deliberate differences are the minimizer,
-eight instead of four profiling updates, and PDF-band output.
+updating either example. Both examples use eight profiling updates. This
+example performs a full CERES fit and produces PDF bands; the MINUIT
+regression evaluates a fixed parameter point.
 
 ## Running locally
 
@@ -28,9 +29,6 @@ with no additional Python packages.
 
 The example uses two derivative workers. Change `CERES.threads` to match
 available resources; zero runs the same forward derivatives serially.
-Unlike the MINUIT example, this performs a full fit. External nuisances are
-registered automatically from steering and start at zero; do not also add
-them to `Parameters` in YAML.
 
 This example is in `omitTests` in `tools/test.sh`, so an ordinary run does
 not execute it. Explicitly naming it overrides that omission.
@@ -69,6 +67,8 @@ The fast minimizer/Bartlett regression can be run independently:
 
 See [CERES uncertainty conventions](../errors-on-errors/CERES.md) for the
 difference between corrected `parsout_0` uncertainties and raw CERES output.
+The [full MINUIT example](../errors-on-errors-MINUIT/README.md) provides the
+selected-EoE fit with Pumplin error bands used in the HERA study.
 
 ## GitLab CI
 

@@ -57,7 +57,7 @@
 
 &Systematics
   ! Paper HERA7 regression: two external and five profiled EoE sources.
-  ! Four fixed profiling updates give a bounded, near-converged test.
+  ! Eight fixed profiling updates match the CERES example.
 
   ListOfSources =
     'sysHZComb1053:E@eps=0.6',
@@ -68,7 +68,7 @@
     'sysHZComb1111:N@eps=0.6',
     'sysHZComb1113:N@eps=0.6'
 
-  n_iterations = 4
+  n_iterations = 8
   Enable_Bartlett = .true.
 &End
 
