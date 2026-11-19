@@ -49,27 +49,24 @@ cd deps
 echo "Installing DYTurbo ${dyturbover}..."
 if [[ $http == "curl" ]]
 then
-    curl https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz > dyturbo-${dyturbover}.tar.gz #2>> $CURRENTDIR/install.log
+    curl -fL -o dyturbo-${dyturbover}.tar.gz https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz || exit 1
 else
-    wget --no-check-certificate https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz #>> $CURRENTDIR/install.log 2>&1
+    wget -O dyturbo-${dyturbover}.tar.gz https://dyturbo.hepforge.org/downloads/dyturbo-${dyturbover}.tar.gz || exit 1
 fi
-tar xfz dyturbo-${dyturbover}.tar.gz  #>> $CURRENTDIR/install.log  2>&1
-cd dyturbo-${dyturbover}
+tar xfz dyturbo-${dyturbover}.tar.gz || exit 1
+cd dyturbo-${dyturbover} || exit 1
 
+# Use the HELLx mirror also used by the xFitter dependency installer.
+sed -i 's@https://www.roma1.infn.it/~bonvini/hell/@https://www.ge.infn.it/~bonvini/hell/@g' install-hellx || exit 1
 export CXXFLAGS="${CXXFLAGS} -std=c++0x"
-./configure --enable-Ofast --disable-tlsopt #>> $CURRENTDIR/install.log  2>&1
+./configure --enable-Ofast --disable-tlsopt || exit 1
 export PATH=$CURRENTDIR/deps/dyturbo-${dyturbover}/bin/:$PATH
 
-if [[ $? != 0 ]]
-then
-    echo "Error, check install.log for details"
-    exit
-fi
 make -j 8 install  #>> $CURRENTDIR/install.log  2>&1
 if [[ $? != 0 ]]
 then
-    echo "Error, check install.log for details"
-    exit
+    echo "Error: DYTurbo build or installation failed"
+    exit 1
 fi
     
 cd $CURRENTDIR
