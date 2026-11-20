@@ -15,7 +15,7 @@ C another external nuisance is fixed and absent from its parameter array.
 #include "theo.inc"
 #include "indata.inc"
 #include "steering.inc"
-      integer index_out
+      integer index_out, ndf
       character*80 name_out
       double precision value_out, error_out
       logical finite_unc
@@ -36,6 +36,21 @@ C another external nuisance is fixed and absent from its parameter array.
       if (any(BartlettPOIMinuit(1:2).ne.(/1,3/))) stop 3
       if (SysExtFixed(1).or..not.SysExtFixed(2)) stop 4
       if (SysExtFixed(3)) stop 5
+C Zero-prior profiled and free external sources each reduce GoF dof;
+C constrained and fixed external sources do not.
+      SysPriorScale(1)=0d0
+      SysPriorScale(2)=0d0
+      SysPriorScale(3)=0d0
+      call Bartlett_CountGoFNdf(10,2,ndf)
+      if (ndf.ne.6) stop 17
+      SysPriorScale(3)=1d0
+      call Bartlett_CountGoFNdf(10,2,ndf)
+      if (ndf.ne.7) stop 18
+      SysForm(1)=isNuisance
+      SysPriorScale(3)=0d0
+      call Bartlett_CountGoFNdf(10,2,ndf)
+      if (ndf.ne.6) stop 19
+      SysForm(1)=isExternal
       npoints=2
       center=0d0
       center(1)=2d0

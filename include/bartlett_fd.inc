@@ -20,7 +20,7 @@ C nparFCN - nExtSyst, which is (freePOI + freeExt) - allExt = freePOI -
 C fixedExt, and therefore under-counts whenever an external systematic is a
 C fixed MINUIT parameter. Use BartlettNPOI (when BartlettHaveNPOI) for the
 C c_CI denominator. The GoF count additionally subtracts free external
-C sources whose SysPriorScale is zero.
+C and profiled sources whose SysPriorScale is zero.
       integer BartlettNPOI              !> number of free POIs
       logical BartlettHaveNPOI          !> .true. once the POI list is built
       logical BartlettHaveD             !> .true. if BartlettD is filled at the MLE

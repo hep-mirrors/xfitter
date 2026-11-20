@@ -302,15 +302,10 @@ C--------------------------------------------------------------
       endif
       ndf=npoints-nparFCN !legacy minimizer parameter count
 C Constrained external nuisances do not reduce the GoF degrees of freedom.
-C Free external nuisances with zero prior are unconstrained and must count.
+C Free external and profiled nuisances with zero prior must count.
 C Keep the POI list and CI denominator separate from this GoF count.
       if (iflag.eq.3 .and. BartlettHaveNPOI) then
-         ndf=npoints-BartlettNPOI
-         do isys=1,nsys
-            if (SysForm(isys).eq.isExternal .and.
-     $          .not.SysExtFixed(isys) .and.
-     $          SysPriorScale(isys).eq.0d0) ndf=ndf-1
-         enddo
+         call Bartlett_CountGoFNdf(npoints,BartlettNPOI,ndf)
       endif
       n0 =npoints
       if(iflag.eq.1)then !at first iteration
@@ -470,7 +465,7 @@ c Print time, number of calls, chi2
          if (BartlettEnabled .and. EoEEnabled) then
             ! With penalty-constrained external NPs, the GoF dof is
             ! npoints - nPOI (Eq. 38 of arXiv:2407.05322). Free external
-            ! NPs with zero prior also reduce it: use the final GoF count.
+            ! and profiled NPs with zero prior also reduce it: use the final GoF count.
             ! Preserve the legacy fallback when no free-POI count exists.
             ndf_bart = npoints - nPOI
             if (BartlettHaveNPOI) ndf_bart = ndf
@@ -791,7 +786,7 @@ C Print legend for Bartlett corrections
      $        ' ,  nPOI = ', nPOI
             else
                write(85,'(A,I6,A,I4)')
-     $        '  with ndf_bart = npoints - nPOI - free zero-prior :E = ',
+     $        '  with ndf_bart = npoints - nPOI - free zero-prior :N/:E = ',
      $        ndf_bart, ' ,  nPOI = ', nPOI
             endif
             if (BartlettFailed) then
@@ -852,6 +847,21 @@ C> Cost: 2*nPOI+1 theory-only evaluations (no chi2, no profiling).
 C>
 C> @param pcen central MINUIT parameter vector (the MLE)
 C-----------------------------------------------------------------------
+      subroutine Bartlett_CountGoFNdf(npts,npoi,ndf)
+      implicit none
+#include "ntot.inc"
+#include "systematics.inc"
+      integer npts,npoi,ndf,isys
+      ndf=npts-npoi
+      do isys=1,nsys
+         if (SysPriorScale(isys).eq.0d0) then
+            if (SysForm(isys).eq.isNuisance .or.
+     $         (SysForm(isys).eq.isExternal .and.
+     $          .not.SysExtFixed(isys))) ndf=ndf-1
+         endif
+      enddo
+      end
+
       subroutine Bartlett_CountFreePOI
 
       implicit none

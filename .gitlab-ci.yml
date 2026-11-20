@@ -116,6 +116,33 @@ job-ceres-eoe:
       - temp/errors-on-errors-CERES/output/
     expire_in: 1 week
 
+# Full MINUIT EoE fit is optional in MR pipelines and automatic on schedules.
+job-minuit-eoe:
+  stage: test
+  extends: .install_dependencies
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+  timeout: 24h
+  variables:
+    CMAKE_FLAGS: "-DCMAKE_DISABLE_FIND_PACKAGE_ROOT=TRUE"
+  script:
+    - ./tools/install-qcdnum
+    - ./tools/install-numdiff
+    - . setup.sh
+    - ./make.sh install
+    - ./tools/test.sh errors-on-errors-MINUIT
+  artifacts:
+    when: always
+    paths:
+      - install.log
+      - temp/errors-on-errors-MINUIT/test.log
+      - temp/errors-on-errors-MINUIT/xfitter.log
+      - temp/errors-on-errors-MINUIT/output/
+    expire_in: 1 week
+
 job-ceres-parallel:
   stage: test
   extends: .install_dependencies

@@ -47,3 +47,9 @@ uncertainty calculation. It is separate from `n_iterations` in steering,
 which concerns internal nuisance profiling. All seven EoE nuisances in this
 example are external; the remaining internally profiled nuisances are
 Gaussian. Bartlett corrections are enabled for the EoE fit.
+
+Run `./tools/test.sh errors-on-errors-MINUIT` to compare the fit against the
+reference output. The reference includes the fit results, convergence status,
+final parameters and two Pumplin PDF variations. The optional `job-minuit-eoe`
+CI job runs this test with a 24-hour timeout; a reference run on OctopiO took
+approximately 6 hours 50 minutes.
