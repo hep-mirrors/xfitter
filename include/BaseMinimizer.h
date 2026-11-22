@@ -70,6 +70,9 @@ namespace xfitter
     /// Number of parameters:
     unsigned int getNpars() const { return _allParameterNames.size(); }
 
+    /// Number of parameters that are currently free to vary.
+    virtual unsigned int getNfreePars() const { return getNpars(); }
+
     /// Parameter name by zero-based index.
     const std::string& getParameterName(size_t index) const { return _allParameterNames.at(index); }
 

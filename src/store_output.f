@@ -33,8 +33,8 @@ C--------------------------------------------------------------
       double precision xnu, xrho, Qsimple
       double precision F123(3)
 
-      character*48 name
-      character*48 h1name
+      character*300 name
+      character*300 h1name
       character*(*) base
       character*25 fsfc
       character*25 namefsfc
@@ -413,13 +413,23 @@ C-------------------------------------------------------------
 #include "fcn.inc"
 #include "endmini.inc"
 #include "steering.inc"
+#include "ntot.inc"
+#include "systematics.inc"
+#include "bartlett_fd.inc"
       integer ifcn3
 
-      integer i
+      integer i, iout, nwrite, usesminuit
+      integer minimizerusesminuit, getminimizernpars
+      double precision getfittedparamd, getparamunc
       double precision val,err,xlo,xhi
       integer ipar
       character*32 parname
       character*300 fname
+
+      integer nExtSyst, isys, nPOI
+      double precision bart_scale, c_BartLR
+      logical is_ext_syst
+      integer jsys_check, jsys_ext
 
       double precision, allocatable :: errIterate(:,:)
 
@@ -437,15 +447,85 @@ c RP         write (fname,'(''output/parsout_'',i1)') ifcn3
       endif
 
       open (71,file=fname,status='unknown')
+C Non-MINUIT minimizers write their own raw parameter files. Only replace
+C the final file when EoE needs the corrected uncertainty convention.
+      usesminuit = minimizerusesminuit()
+      if (usesminuit.eq.0 .and.
+     $    (.not.EoEEnabled .or. ifcn3.ne.0)) then
+         close(71)
+         return
+      endif
 ! Broken since 2.2.0
 !     if (DoBands .and. ifcn3.eq.0) then
 !        Allocate(errIterate(MNE,MNE))
 !        call GetErrMatScaled(errIterate)
 !     endif
 
-      do i=1,mne
+C
+C     Apply Bartlett CI correction to parameter errors in parsout_0.
+C     Uses the same formula as error_bands_pumplin.f and fcn.f.
+C     Only applied to parsout_0 (ifcn3==0); intermediate parsout_N files
+C     written during minimisation are left uncorrected.
+C     External systematic parameters (:E form) take BartlettExtErr -- the
+C     quadratic-convention error sqrt(j~_ss)*sqrt(1+b_tilde) exported from the
+C     extPass -- NOT MINUIT's err and NOT the global POI bart_scale. This is
+C     the same statistic reported for nuisance sources, and the same number as
+C     the 'Corr Err' column in Results.txt, so the two agree. bart_scale
+C     (nPOI in the denominator, externals excluded) is calibrated for the POIs
+C     only; MINUIT's err carries the eps-dependent true-GVM curvature.
+C
+      bart_scale = 1.0D0
+      if (ifcn3.eq.0 .and. BartlettEnabled .and. EoEEnabled) then
+         nExtSyst = 0
+         do isys=1,nsys
+            if (SysForm(isys) .eq. isExternal) nExtSyst = nExtSyst + 1
+         enddo
+         nPOI = nparFCN - nExtSyst
+         if (BartlettHaveNPOI) nPOI = BartlettNPOI
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
+
+      nwrite = mne
+      if (usesminuit.eq.0) nwrite = getminimizernpars()
+      do i=1,nwrite
          parname = ""
-         call mnpout(i,parname,val,err,xlo,xhi,ipar)
+         if (usesminuit.ne.0) then
+            call mnpout(i,parname,val,err,xlo,xhi,ipar)
+         else
+            call getminimizerparname(i,parname)
+            val = getfittedparamd(parname)
+            err = getparamunc(parname)
+            xlo = 0d0
+            xhi = 0d0
+            ipar = i
+         endif
+C        For external systematic parameters (:E form): report BartlettExtErr,
+C        the quadratic-convention error from the extended NP Hessian (set at
+C        the end of chi2_calc_syst_shifts at iflag=3). It matches both the
+C        nuisance-source convention and the 'Corr Err' column in Results.txt,
+C        and replaces MINUIT's eps-dependent err. Falls back to MINUIT's err
+C        when unset (EoE off). Do NOT apply the global POI bart_scale to them:
+C        nPOI was computed by excluding them.
+         is_ext_syst = .false.
+         jsys_ext = 0
+         do jsys_check = 1, nsys
+            if (SysForm(jsys_check) .eq. isExternal .and.
+     $           Trim(parname) .eq. Trim(System(jsys_check))) then
+               is_ext_syst = .true.
+               jsys_ext = jsys_check
+            endif
+         enddo
+         if (is_ext_syst) then
+            if (ifcn3.eq.0 .and. EoEEnabled .and.
+     $           BartlettExtErr(jsys_ext) .gt. 0.0D0) then
+               err = BartlettExtErr(jsys_ext)
+            endif
+         else
+            err = err * bart_scale
+         endif
 
 C
 C For bands, replace by "iterate" estimate, if present
@@ -459,11 +539,14 @@ C     Broken since 2.2.0
 !           endif
 !        endif
 
+C Preserve CERES's zero-based parameter labels in its output files.
+         iout = i
+         if (usesminuit.eq.0) iout = i - 1
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then
-               write (71,72) i, Trim(parname), val,err
+               write (71,72) iout, Trim(parname), val,err
             else
-               write (71,72) i, Trim(parname), val,err,xlo,xhi
+               write (71,72) iout, Trim(parname), val,err,xlo,xhi
             endif
          endif
       enddo
@@ -485,15 +568,23 @@ C--------------------------------------------------------------------
       Subroutine FindBestFCN3
 
       implicit none
+#include "fcn.inc"
 #include "endmini.inc"
 #include "steering.inc"
+#include "ntot.inc"
+#include "systematics.inc"
+#include "bartlett_fd.inc"
       integer i,iminCont
       double precision aminCont
-
 
       double precision val,err,xlo,xhi
       integer ipar
       character*32 parname
+
+      integer nExtSyst, isys, nPOI
+      double precision bart_scale, c_BartLR
+      logical is_ext_syst
+      integer jsys_check, jsys_ext
 
 C-------------------------------------------------------------------
       aminCont = 1.D30
@@ -539,10 +630,45 @@ C store the optimal values
       call print_lhapdf6_opt()
 
 
+C     Compute Bartlett CI scale for parseout_opt, same logic as write_pars(0).
+      bart_scale = 1.0D0
+      if (BartlettEnabled .and. EoEEnabled) then
+         nExtSyst = 0
+         do isys=1,nsys
+            if (SysForm(isys) .eq. isExternal) nExtSyst = nExtSyst + 1
+         enddo
+         nPOI = nparFCN - nExtSyst
+         if (BartlettHaveNPOI) nPOI = BartlettNPOI
+         if (nPOI .gt. 0) then
+            c_BartLR = 1.0D0 + BartlettLRFactor/dble(nPOI)
+            bart_scale = sqrt(c_BartLR)
+         endif
+      endif
+
       open (71,file=TRIM(OutDirName)//'/parseout_opt',status='unknown')
       do i=1,mne
          parname = ""
          call mnpout(i,parname,val,err,xlo,xhi,ipar)
+C        POI get global bart_scale; external systematics get BartlettExtErr,
+C        the quadratic-convention error also used for 'Corr Err' in
+C        Results.txt (falls back to MINUIT's err when EoE is off).
+         is_ext_syst = .false.
+         jsys_ext = 0
+         do jsys_check = 1, nsys
+            if (SysForm(jsys_check) .eq. isExternal .and.
+     $           Trim(parname) .eq. Trim(System(jsys_check))) then
+               is_ext_syst = .true.
+               jsys_ext = jsys_check
+            endif
+         enddo
+         if (is_ext_syst) then
+            if (EoEEnabled .and.
+     $           BartlettExtErr(jsys_ext) .gt. 0.0D0) then
+               err = BartlettExtErr(jsys_ext)
+            endif
+         else
+            err = err * bart_scale
+         endif
          if (Trim(parname).ne.'undefined') then
             if (xlo.eq.0.and.xhi.eq.0) then
                write (71,72) i, Trim(parname), pkeep3(i,iminCont),err

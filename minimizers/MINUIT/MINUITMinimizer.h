@@ -41,5 +41,6 @@ class MINUITMinimizer : public BaseMinimizer
     virtual double getParameterUncertainty(const std::string& name) const override final;
     virtual double getParameterValue(const std::string& name) const override final;
     virtual double getParameterValue(const std::string& name, const double* pars) const override final;
+    virtual unsigned int getNfreePars() const override final;
 };
 }

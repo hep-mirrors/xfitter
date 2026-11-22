@@ -20,33 +20,33 @@ extern "C" {
 
 	// actual routine
 	void getextraparsconstrchi2_(double& chi2) {
+		const int len = 128;
+		char   parname[len] = {};
+		double par, unc, bound_l, bound_h;
+		int    status = 0;
 
-		int len=10;
-		char parname[len];
-		double par;
-		double unc;
-		double bound_l;
-		double bound_h;
-		int status=0;
+		chi2 = 0.0;
+		for (int p = 0; p < extrapars_.nExtraParam; p++) {
+			if (extrapars_.ConstrUnc[p] == 0.0) continue;
 
-		chi2=0.0;
-		for(int p=0; p<extrapars_.nExtraParam; p++) {
-			if(extrapars_.ConstrUnc[p]==0.0) continue;
-			mnpout_(extrapars_.iExtraParamMinuit+p, parname, &par, &unc, &bound_l, &bound_h, &status, len);
-			if(status<0) {
-				printf("ERROR in GetExtraParsConstrChi2: something is wrong with parameter %d\n", extrapars_.iExtraParamMinuit[p]);
-				exit(1);
+			mnpout_(extrapars_.iExtraParamMinuit + p,
+					parname, &par, &unc, &bound_l, &bound_h, &status, len);
+			if (status < 0) {
+				std::printf("ERROR in GetExtraParsConstrChi2: parameter %d\n",
+							extrapars_.iExtraParamMinuit[p]);
+				std::exit(1);
 			}
-			chi2+=pow((par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p], 2.0);
+			const double deviation =
+				(par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+			chi2 += deviation * deviation;
 		}
-		//printf("chi2: %e\n", chi2);
 	}
 
 	// actual routine
 	void printminuitextrapars_(int& iflag) {
 
-		int len=10;
-		char parname[len];
+		const int len = 128;
+		char parname[len] = {};
 		double par;
 		double unc;
 		double bound_l;
@@ -75,11 +75,12 @@ extern "C" {
 			}
 			if(extrapars_.ConstrUnc[p]==0.0) {
 				printf("%9s%9s", "", "");
-			}
-			else {
-				double shift=(par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p];
-				double reduction=unc/extrapars_.ConstrUnc[p];
-				printf("%9.4f%9.4f", shift, reduction);
+			} else {
+				// SHIFT is the SIGNED pull (par-val)/unc, not its square: the sign
+				// carries information and older outputs printed it this way.
+				const double shift     = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+				const double reduction = unc / extrapars_.ConstrUnc[p];
+				std::printf("%9.4f%9.4f", shift, reduction);
 			}
 			printf("\n");
 		}
@@ -96,10 +97,11 @@ extern "C" {
         if(bound_l!=0.0&&bound_h!=0.0) {
           printf(", %.*f, %.*f", ndigcomma, bound_l, ndigcomma, bound_h);
         }
-        if(extrapars_.ConstrUnc[p]!=0.0) {
-          double shift=(par-extrapars_.ConstrVal[p])/extrapars_.ConstrUnc[p];
-          double reduction=unc/extrapars_.ConstrUnc[p];
-          printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
+        if (extrapars_.ConstrUnc[p] != 0.0) {
+          // signed pull, matching the SHIFT column of the table above
+          const double shift     = (par - extrapars_.ConstrVal[p]) / extrapars_.ConstrUnc[p];
+          const double reduction = unc / extrapars_.ConstrUnc[p];
+          std::printf(", %.*f, %.*f", ndigcomma, shift, ndigcomma, reduction);
         }
         printf(" ]\n");
       }
@@ -108,4 +110,3 @@ extern "C" {
     fflush(stdout);
 	}
 }
-

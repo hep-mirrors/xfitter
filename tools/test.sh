@@ -3,7 +3,7 @@
 # list of tests to omit (if commented out, no tests are omitted)
 #omitTests=('ZMVFNS-fit' 'profilerLHAPDF') # these are two slow tests, skipping them will save ~15min
 #omitTests=('ceresZMVFNSfastChi2' 'chi2scanMTOP')
-omitTests=('profilerCIJET' 'ZPT' 'ZMVFNS-fit' 'scanmin' 'CERES-fit' 'CERES-parallel' 'CERES-Chebyschev' 'profilerLHAPDF' 'TMD') 
+omitTests=('profilerCIJET' 'ZPT' 'ZMVFNS-fit' 'scanmin' 'CERES-fit' 'CERES-parallel' 'CERES-Chebyschev' 'profilerLHAPDF' 'TMD' 'errors-on-errors-CERES' 'errors-on-errors-MINUIT')
 
 install_dir=$(pwd)
 # xfitter binary
@@ -83,6 +83,20 @@ checkFile()
   fi 
 }
 
+# Extract the numerical fields from either supported final-chi2 heading:
+#   After minimisation ...
+#   Chi2 after minimisation ...
+extractFinalChi2()
+{
+  awk '
+    tolower($0) ~ /^[[:space:]]*(chi2[[:space:]]+)?after[[:space:]]+minimisation/ {
+      print $(NF-2), $(NF-1), $NF
+      found=1
+    }
+    END { if (!found) exit 1 }
+  ' "$1"
+}
+
 runTest()
 {
   # test status
@@ -122,11 +136,18 @@ runTest()
 
   INPUTDIR="examples/$TESTNAME"
   EXAMPLEDIR="examples/$TESTNAME/output"
+  # Examples may validate numerical properties instead of output snapshots.
+  validator="$INPUTDIR/validate.py"
+  if [ -f "$validator" ] && [ $COPYRESULTS -eq 1 ]; then
+    echo "FAILED: $TESTNAME uses a numerical validator; --copy is unsupported"
+    return 1
+  fi
   if [ $COPYRESULTS -eq 1 ]; then
     echo "Results will be stored as reference in $EXAMPLEDIR"
   else
-    if [ ! -d $EXAMPLEDIR ]; then
-      echo "Warning: no reference output directory -> test will be considered FAILED"
+    if [ ! -f "$validator" ] && { [ ! -d "$EXAMPLEDIR" ] ||
+       ! find "$EXAMPLEDIR" -type f -print -quit | grep -q .; }; then
+      echo "Warning: no reference output files -> test will be considered FAILED"
       flagBAD=1
     fi
   fi
@@ -144,22 +165,43 @@ runTest()
   cp ${INPUTDIR}/steering.txt $rundir
   cp ${INPUTDIR}/parameters.yaml $rundir
   cp ${INPUTDIR}/constants.yaml $rundir
-  # also copy any .dat files
-  cp ${INPUTDIR}/*.dat $rundir
+  # also copy any optional local .dat files
+  for datafile in "$INPUTDIR"/*.dat; do
+    [ -f "$datafile" ] || continue
+    cp "$datafile" "$rundir"
+  done
   ln -s `pwd`/datafiles $rundir/datafiles
 
   cd $rundir
   #echo -e "run \n bt" | gdb ${xfitter} | tee ${xflogfile}
   ${xfitter} >& ${xflogfile}
+  xfitterExitCode=$?
   cd - > /dev/null
+  if [ $xfitterExitCode -ne 0 ]; then
+    echo "FAILED: xfitter exited with status $xfitterExitCode"
+    flagBAD=1
+  fi
 
-  # check chi2 in Results.txt ("After minimisation ...")
+  if [ -f "$validator" ]; then
+    if ! python3 "$validator" "$rundir"; then
+      flagBAD=1
+    fi
+    if [ $flagBAD -eq 0 ]; then
+      echo "Everything is PASSED"
+    else
+      echo "Something FAILED: see above for details"
+    fi
+    return $flagBAD
+  fi
+
+  # Check chi2 in Results.txt. EoE output uses "Chi2 after minimisation";
+  # ordinary fits retain the historical "After minimisation" heading.
   if [ $COPYRESULTS -eq 0 ]; then
     # some tests do not call 'fcn 3' and there is no chi2 stored in Results.txt
-    grep  'After' ${EXAMPLEDIR}/Results.txt > temp/def.txt
+    extractFinalChi2 "${EXAMPLEDIR}/Results.txt" > temp/def.txt
     exitcode=$?
     if [ $exitcode = 0 ]; then
-      grep  'After' $rundir/output/Results.txt > temp/out.txt
+      extractFinalChi2 "$rundir/output/Results.txt" > temp/out.txt
       exitcode=$?
       if [ $exitcode = 0 ]; then
         cat temp/out.txt
@@ -179,6 +221,7 @@ runTest()
           echo "========================================"
           echo "FAILED no chi2 calculated: check temp/$TESTNAME/$xflogfile"
           echo "========================================"
+          flagBAD=1
       fi
     fi
     rm -f temp/out.txt temp/def.txt
@@ -210,9 +253,13 @@ runTest()
     fi
     echo "========================================"
   else
-    rm -rf $EXAMPLEDIR
-    cp -r $rundir/output $EXAMPLEDIR
-    echo "Output copied"
+    if [ $flagBAD -eq 0 ]; then
+      rm -rf $EXAMPLEDIR
+      cp -r $rundir/output $EXAMPLEDIR
+      echo "Output copied"
+    else
+      echo "Output not copied because xfitter failed; inspect $rundir"
+    fi
     echo "========================================"
   fi
 

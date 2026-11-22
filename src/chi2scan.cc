@@ -254,6 +254,9 @@ void decompose_fits(map <int, map <int, map <double, double> > > systchi2, doubl
 
 void chi2_scan_()
 {
+  // MINUIT initialization reopens unit 85 as Results.txt; do this before opening per-point scan files.
+  (void)xfitter::get_minimizer();
+
   cout << endl << endl << endl;
   cout << "  -----------------------" << endl;
   cout << "  Start chi2 scan"         << endl;

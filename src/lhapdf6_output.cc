@@ -367,7 +367,12 @@ string getActiveErrorBandType()
   if (!minimizerNode.IsMap()) return "";
   YAML::Node doErrorsNode = minimizerNode["doErrors"];
   if (!doErrorsNode.IsScalar()) return "";
-  return doErrorsNode.as<string>("");
+  string doErrors = doErrorsNode.as<string>("");
+  const size_t begin = doErrors.find_first_not_of(" \t\r\n\f\v");
+  if (begin == string::npos) return "";
+  const size_t end = doErrors.find_first_of(" \t\r\n\f\v", begin);
+  if (end == string::npos) return doErrors.substr(begin);
+  return doErrors.substr(begin, end - begin);
 }
 
 //Returns "hessian" or "symmhessian" for PDF error type
@@ -396,7 +401,7 @@ const char* getFlavorScheme()
 size_t getNmembers()
 {
   string doErrors = getActiveErrorBandType();
-  size_t Npars = xfitter::get_minimizer()->getNpars();
+  size_t Npars = xfitter::get_minimizer()->getNfreePars();
   if (doErrors == "Hesse")return Npars + 1;
   if (doErrors == "Pumplin")return 2 * Npars + 1;
   return 1;
